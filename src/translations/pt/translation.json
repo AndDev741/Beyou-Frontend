@@ -1,3 +1,18 @@
 {
-    "test": "teste"
+    "Login": "Login",
+    "Register": "Registro",
+    "Welcome": "Bem vindo",
+    "Back!": "de volta!",
+    "ForgotPassword": "Esqueceu a senha?",
+    "Enter": "Entrar",
+    "EyeToSeePassword": "ícone de olho para ver a senha",
+    "EmailIconAlt": "Ícone de carta",
+    "PasswordIconAlt": "Ícone de cadeado",
+    "YourFavoriteHT": "Seu rastreador de hábitos favorito",
+
+    "To": "ao",
+    "BeYou": "\nBe you",
+    "NamePlaceholder": "Seu belo nome",
+    "ToRegister": "Registrar",
+    "LogoAlt": "Um computador com post-its"
 }
