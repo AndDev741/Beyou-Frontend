@@ -8,13 +8,14 @@ module.exports = {
     screens: {
       xs: "200px",
       sm: "400px",
-      md: "719px",
+      md: "700px",
       lg: "1100px",
-      xl: "1280px"
+      lg2: "1200px"
     },
     extend: {
       colors: {
-        blueMain: "#0082E1"
+        blueMain: "#0082E1",
+        ligthBlue: "#3FA5F2"
       },
       border: {
         mainBorder: "border-solid, border-2px"
