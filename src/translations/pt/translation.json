@@ -14,5 +14,15 @@
     "BeYou": "\nBe you",
     "NamePlaceholder": "Seu belo nome",
     "ToRegister": "Registrar",
-    "LogoAlt": "Um computador com post-its"
+    "LogoAlt": "Um computador com post-its",
+    "YupNameRequired": "O nome é necessario",
+    "YupMinimumName": "O nome precisa de no mínimo 2 caracteres",
+    "YupInvalidEmail": "O email é invalido",
+    "YupNecessaryEmail": "O email é necessário",
+    "YupNecessaryPassword": "A senha é necessária",
+    "YupMinimumPassword": "A senha precisa de no mínimo 6 caracteres",
+    "UnkownError": "Um erro desconhecido ocorreu, tente novamente",
+    "SuccessRegisterPhrase": "Agora use sua nova conta para fazer login!",
+    "CheckIconAlt": "Ícone de verificado",
+    "EmailInUseError": "O email já está sendo utilizado"
 }
