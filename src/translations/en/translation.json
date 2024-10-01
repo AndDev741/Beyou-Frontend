@@ -24,6 +24,9 @@
     "UnkownError": "A unkown error ocurred, try again",
     "SuccessRegisterPhrase": "Now use your new account to make login!",
     "CheckIconAlt": "Check icon",
-    "EmailInUseError": "The email is already in use"
+    "ErrorIconAlt": "Error Icon in X",
+    "EmailInUseError": "The email is already in use",
+    "YupMaxLength": "The max characters are 256",
+    "WrongPassOrEmailError": "Wrong email or password"
     
 }

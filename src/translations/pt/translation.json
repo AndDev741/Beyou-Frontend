@@ -24,5 +24,8 @@
     "UnkownError": "Um erro desconhecido ocorreu, tente novamente",
     "SuccessRegisterPhrase": "Agora use sua nova conta para fazer login!",
     "CheckIconAlt": "Ícone de verificado",
-    "EmailInUseError": "O email já está sendo utilizado"
+    "ErrorIconAlt": "Ícone de erro em X",
+    "EmailInUseError": "O email já está sendo utilizado",
+    "YupMaxLength": "O máximo de caracteres é de 256",
+    "WrongPassOrEmailError": "Email ou senha incorretos"
 }
