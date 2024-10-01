@@ -34,7 +34,7 @@ function Input({icon1, placeholder, inputType, icon2, icon3, iconAlt, seePasswor
             src={seePassword}
             alt={seePasswordAlt}/>
         </label>
-        <p className={`${errorMessage ? "block text-red-800 underline text-xl" : "hidden"}`}>{errorMessage}</p>
+        <p className={`${errorMessage ? "block text-red-800 underline text-xl text-center" : "hidden"}`}>{errorMessage}</p>
         </>
     )
 }
