@@ -9,20 +9,22 @@ import eyeOpen from '../../../assets/authentication/eyeOpen.svg';
 import eyeClosed from '../../../assets/authentication/eyeClosed.svg';
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import Logo from "../../../components/authentication/logo";
+import SuccessRegisterPhrase from "../../../components/authentication/successRegisterPhrase";
 
 
 
 function Login(){
     const {t} = useTranslation();
+
     return(
         <div className="min-h-[100vh] lg:flex items-center justify-center">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] h-[600px] bg-blueMain rounded-l-md">
+            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] h-[620px] bg-blueMain rounded-l-md">
                 <Logo/>
             </div>
             
-            <div className="lg:w-[45vw] lg:h-[600px] lg:border-solid lg:border-2 border-blueMain lg:rounded-r-md">
+            <div className="lg:w-[45vw] lg:h-[620px] lg:border-solid lg:border-2 border-blueMain lg:rounded-r-md">
                 <Header/>
-                <main className="flex flex-col items-center mt-6 lg:mt-2">
+                <main className="flex flex-col items-center mt-6 lg:mt-4">
                     <h1 className="text-center text-[40px] font-bold">{t('Welcome')} 
                         <span className="text-blueMain"> {t('Back!')} </span>
                     </h1>
@@ -31,7 +33,7 @@ function Login(){
                         <TranslationButton/>
                     </div>
 
-                    <form className="flex flex-col items-center mt-8 lg:mt-5 mb-6">
+                    <form className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
 
                         <Input 
                         icon1={emailIcon} 
@@ -59,6 +61,8 @@ function Login(){
                     <div className="block lg:hidden my-8">
                         <TranslationButton/>
                     </div>
+                    
+                    <SuccessRegisterPhrase/>
                 </main>
             </div>
         </div>
