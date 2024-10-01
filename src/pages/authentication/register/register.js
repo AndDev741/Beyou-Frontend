@@ -37,7 +37,10 @@ function Register(){
         setPasswordError("");
         setDefaultError("");
 
+        
         const response = await registerRequest(name, email, password, t);
+        console.log(response)
+        console.log(t('YupMaxLength'))
         if(response.validationErrors){
             switch(response.validationErrors){
                 case `${t('YupNameRequired')}`:
@@ -57,6 +60,9 @@ function Register(){
                     break;
                 case `${t('YupMinimumPassword')}`:
                     setPasswordError(response.validationErrors);
+                    break;
+                case `${t('YupMaxLength')}`:
+                    setDefaultError(response.validationErrors);
                     break;
                 default:
                     setDefaultError(t('UnkownError'))

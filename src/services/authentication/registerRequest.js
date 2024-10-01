@@ -3,9 +3,9 @@ import * as Yup from 'yup';
 
 const registerRequest = async (name, email, password, t) => {
     const validationSchema = Yup.object().shape({
-        name: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')),
-        email: Yup.string().required(t('YupNecessaryEmail')).email(t('YupInvalidEmail')),
-        password: Yup.string().required(t('YupNecessaryPassword')).min(6, t('YupMinimumPassword'))
+        name: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')).max(256, t('YupMaxLength')),
+        email: Yup.string().required(t('YupNecessaryEmail')).email(t('YupInvalidEmail')).max(256, t('YupMaxLength')),
+        password: Yup.string().required(t('YupNecessaryPassword')).min(6, t('YupMinimumPassword')).max(256, t('YupMaxLength'))
     });
 
     const registerData = {
