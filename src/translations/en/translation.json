@@ -27,6 +27,8 @@
     "ErrorIconAlt": "Error Icon in X",
     "EmailInUseError": "The email is already in use",
     "YupMaxLength": "The max characters are 256",
-    "WrongPassOrEmailError": "Wrong email or password"
+    "WrongPassOrEmailError": "Wrong email or password",
+    "GoogleLoginError": "Error trying login with google, try again"
+
     
 }

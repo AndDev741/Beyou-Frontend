@@ -5,9 +5,12 @@ import TranslationButton from "../../../components/translationButton";
 import SuccessRegisterPhrase from "../../../components/authentication/successRegisterPhrase";
 import ErrorLoginModal from "../../../components/authentication/errorLoginModal";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { successRegisterEnter } from "../../../redux/authentication/registerSlice";
 import loginRequest from "../../../services/authentication/loginRequest";
+import googleRequest from "../../../services/authentication/googleRequest";
 import emailIcon from '../../../assets/authentication/emailIcon.svg';
 import passwordIcon from '../../../assets/authentication/passwordIcon.svg';
 import eyeOpen from '../../../assets/authentication/eyeOpen.svg';
@@ -18,6 +21,7 @@ import Logo from "../../../components/authentication/logo";
 function Login(){
     const {t} = useTranslation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -25,6 +29,32 @@ function Login(){
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [defaultError, setDefaultError] = useState("");
+
+    //Google Login logic handler
+    const [codeUsed, setCodeUsed] = useState(false);
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const authCode = params.get('code');
+        if(authCode && !codeUsed){
+            setCodeUsed(true);
+            googleRequest(authCode).then((response) => {
+                if(response.successRegister){
+                    dispatch(successRegisterEnter(true));
+                }else if(response.success){
+                    dispatch("/dashboard");
+                }else if(response.error){
+                    setDefaultError(t('GoogleLoginError'))
+                }
+            }).catch((error) => {
+                console.error(t('GoogleLoginError'), error)
+            })
+
+            return () => {
+                const cleanUrl = window.location.origin + window.location.pathname;
+                window.history.replaceState(null, '', cleanUrl);
+            }
+        }
+    }, [t, codeUsed, navigate, dispatch])
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -58,6 +88,7 @@ function Login(){
             navigate("/dashboard");
         }
     }
+
     return(
         <div className="min-h-[100vh] lg:flex items-center justify-center">
             <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] h-[620px] bg-blueMain rounded-l-md">
