@@ -41,7 +41,7 @@ function Login(){
                 if(response.successRegister){
                     dispatch(successRegisterEnter(true));
                 }else if(response.success){
-                    dispatch("/dashboard");
+                    navigate("/dashboard");
                 }else if(response.error){
                     setDefaultError(t('GoogleLoginError'))
                 }
