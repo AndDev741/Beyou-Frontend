@@ -28,5 +28,10 @@
     "EmailInUseError": "O email já está sendo utilizado",
     "YupMaxLength": "O máximo de caracteres é de 256",
     "WrongPassOrEmailError": "Email ou senha incorretos",
-    "GoogleLoginError": "Erro ao tentar fazer login pelo google, tente novamente"
+    "GoogleLoginError": "Erro ao tentar fazer login pelo google, tente novamente",
+    "GoodMorning": "Bom dia",
+    "BeYourBestVersion": "Seja sua melhor versão",
+    "Constance": "Constância",
+    "Days": "Dias",
+    "PerfilPhotoAlt": "Sua foto de perfil"
 }

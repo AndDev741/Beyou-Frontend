@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { successRegisterEnter } from "../../../redux/authentication/registerSlice";
+import { idEnter, nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../../redux/dashboard/perfilSlice";
 import loginRequest from "../../../services/authentication/loginRequest";
 import googleRequest from "../../../services/authentication/googleRequest";
 import emailIcon from '../../../assets/authentication/emailIcon.svg';
@@ -33,14 +34,25 @@ function Login(){
     //Google Login logic handler
     const [codeUsed, setCodeUsed] = useState(false);
     useEffect(() => {
+        console.log('teste')
         const params = new URLSearchParams(window.location.search);
         const authCode = params.get('code');
         if(authCode && !codeUsed){
             setCodeUsed(true);
+
             googleRequest(authCode).then((response) => {
                 if(response.successRegister){
                     dispatch(successRegisterEnter(true));
                 }else if(response.success){
+                    const data = response.success;
+                    dispatch(idEnter(data.id));
+                    dispatch(nameEnter(data.name));
+                    dispatch(emailEnter(data.email));
+                    dispatch(phraseEnter(data.phrase));
+                    dispatch(phraseAuthorEnter(data.phrase_author));
+                    dispatch(constaceEnter(data.constance));
+                    dispatch(photoEnter(data.photo));
+                    dispatch(isGoogleAccountEnter(data.isGoogleAccount));
                     navigate("/dashboard");
                 }else if(response.error){
                     setDefaultError(t('GoogleLoginError'))
@@ -55,6 +67,7 @@ function Login(){
             }
         }
     }, [t, codeUsed, navigate, dispatch])
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -85,6 +98,16 @@ function Login(){
             setPasswordError(" ")
             setDefaultError(t('WrongPassOrEmailError'));
         }else if(response.success){
+            const data = response.success;
+            dispatch(idEnter(data.id));
+            dispatch(nameEnter(data.name));
+            dispatch(emailEnter(data.email));
+            dispatch(phraseEnter(data.phrase));
+            dispatch(phraseAuthorEnter(data.phrase_author));
+            dispatch(constaceEnter(data.constance));
+            dispatch(photoEnter(data.photo));
+            dispatch(isGoogleAccountEnter(data.isGoogleAccount));
+            
             navigate("/dashboard");
         }
     }
