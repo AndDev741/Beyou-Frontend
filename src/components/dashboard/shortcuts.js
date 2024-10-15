@@ -15,7 +15,8 @@ function Shortcuts(){
                 <Link to={"/categories"}
                 className={linkStyle}>
                     <img className="w-[30px] mr-2" 
-                    src={categoriesIcon}/>
+                    src={categoriesIcon}
+                    alt={t('CategoriesImgAlt')}/>                   
                     {t('Categories')}
                 </Link>
             </nav>
