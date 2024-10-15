@@ -33,7 +33,25 @@
     "BeYourBestVersion": "Be your best version",
     "Constance": "Constance",
     "Days": "Days",
-    "PerfilPhotoAlt": "Your profile photo"
+    "PerfilPhotoAlt": "Your profile photo",
 
-    
+    "Shortcuts": "Shortcuts",
+    "Categories": "Categories",
+    "CategoriesImgAlt": "Folder icon",
+
+    "YourCategories": "Your Categories",
+    "ReturnPageAlt": "Arrow pointing to back",
+    "CreateCategory": "Create Category",
+    "CreateCategoryImgAlt": "Square with plus signal",
+    "Name": "Name",
+    "CategoryNamePlaceholder": "Studies",
+    "Description": "Description",
+    "DescriptionPlaceholder": "A important category to improve my hard skills",
+    "YourExperience": "Your experience",
+    "Begginer": "Begginer",
+    "Intermediary": "Intermediary",
+    "Advanced": "Advanced",
+    "Icon": "Icon",
+    "IconPlaceholder": "Book",
+    "Create": "Create"
 }

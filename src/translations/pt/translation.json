@@ -33,5 +33,25 @@
     "BeYourBestVersion": "Seja sua melhor versão",
     "Constance": "Constância",
     "Days": "Dias",
-    "PerfilPhotoAlt": "Sua foto de perfil"
+    "PerfilPhotoAlt": "Sua foto de perfil",
+
+    "Shortcuts": "Atalhos",
+    "Categories": "Categorias",
+    "CategoriesImgAlt": "Ícone de pastas",
+
+    "YourCategories": "Suas categorias",
+    "ReturnPageAlt": "Flecha apontando para trás",
+    "CreateCategory": "Criar categoria",
+    "CreateCategoryImgAlt": "Quadrado com sinal de mais",
+    "Name": "Nome",
+    "CategoryNamePlaceholder": "Estudos",
+    "Description": "Descrição",
+    "DescriptionPlaceholder": "Uma categoria importante para melhorar minha habilidades técnicas",
+    "YourExperience": "Sua experiência",
+    "Begginer": "Iniciante",
+    "Intermediary": "Mediano",
+    "Advanced": "Avançado",
+    "Icon": "Ícone",
+    "IconPlaceholder": "Book (Escreva em inglês)",
+    "Create": "Criar"
 }
