@@ -1,4 +1,5 @@
 import Perfil from "../../components/dashboard/perfil";
+
 import Shortcuts from "../../components/dashboard/shortcuts";
 
 function Dashboard(){
@@ -7,6 +8,7 @@ function Dashboard(){
         <header className="md:flex md:justify-center lg:justify-start">
             <Perfil/>
         </header>
+
         <Shortcuts/>
         </>
     )
