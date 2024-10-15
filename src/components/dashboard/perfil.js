@@ -28,9 +28,9 @@ function Perfil(){
     }, [])
 
     return(
-        <header className="flex items-center md:items-center md:justify-between bg-blueMain md:bg-white 
+        <div className="flex items-center md:items-center md:justify-between bg-blueMain md:bg-white 
         md:border-solid md:border-blueMain md:border-[1px] 
-        w-[100vw] md:m-3 md:py-2 md:px-3 md:w-[700px] h-[65px] sm:h-[90px] md:min-h-[160px] rounded-b-[50px] md:rounded-md">
+        w-[100vw] md:m-3 md:py-2 md:px-3 md:w-[700px] h-[75px] sm:h-[90px] md:min-h-[160px] rounded-b-[50px] md:rounded-md">
             <div 
             className="md:flex flex-col">
                 {/* Perfil photo and Name */}
@@ -61,7 +61,7 @@ function Perfil(){
                     <p>{hour}</p>
                 </div>
             </div>
-        </header>
+        </div>
     )
 }
 
