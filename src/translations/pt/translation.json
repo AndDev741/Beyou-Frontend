@@ -17,6 +17,7 @@
     "LogoAlt": "Um computador com post-its",
     "YupNameRequired": "O nome é necessario",
     "YupMinimumName": "O nome precisa de no mínimo 2 caracteres",
+    "YupMaxName": "Nome não pode exceder o máximo de 256 caracteres",
     "YupInvalidEmail": "O email é invalido",
     "YupNecessaryEmail": "O email é necessário",
     "YupNecessaryPassword": "A senha é necessária",
@@ -53,5 +54,9 @@
     "Advanced": "Avançado",
     "Icon": "Ícone",
     "IconPlaceholder": "Book (Escreva em inglês)",
-    "Create": "Criar"
+    "Create": "Criar",
+
+    "YupDescriptionMaxValue": "Descrição não pode exceder o máximo de 256 caracteres",
+    "YupRequiredExperience": "Experiência é necessária",
+    "YupIconRequired": "Ícone é necessário"
 }
