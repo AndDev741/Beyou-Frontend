@@ -4,7 +4,7 @@ async function verifyAuthentication(){
     
     try{
         const response = await axios.get("/auth/verify");
-        if(response.data === "authenticated"){
+        if(response){
             return "authenticated";
         }
     }catch(e){
