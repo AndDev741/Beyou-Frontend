@@ -15,7 +15,9 @@ module.exports = {
     extend: {
       colors: {
         blueMain: "#0082E1",
-        ligthBlue: "#3FA5F2"
+        ligthBlue: "#3FA5F2",
+        darkBlue: "#0059AB",
+        ligthGray: "#D9D9D9"
       },
       border: {
         mainBorder: "border-solid, border-2px"
