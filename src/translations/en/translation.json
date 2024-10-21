@@ -58,5 +58,7 @@
 
     "YupDescriptionMaxValue": "Description can't excede a max of 256 characters",
     "YupRequiredExperience": "Experience is required",
-    "YupIconRequired": "Icon is required"
+    "YupIconRequired": "Icon is required",
+
+    "0CategoriesMessage": "Start creating amazing life categories and track your progress!"
 }

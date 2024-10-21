@@ -58,5 +58,7 @@
 
     "YupDescriptionMaxValue": "Descrição não pode exceder o máximo de 256 caracteres",
     "YupRequiredExperience": "Experiência é necessária",
-    "YupIconRequired": "Ícone é necessário"
+    "YupIconRequired": "Ícone é necessário",
+
+    "0CategoriesMessage": "Comece a criar categorias incríveis e acompanhar seu progresso!"
 }
