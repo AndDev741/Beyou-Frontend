@@ -26,7 +26,6 @@ function CreateCategory(){
     const [search, setSearch] = useState("");
     const [icons, setIcons] = useState([]);
     
-
     useEffect(() => {
         setIcons((icons) => iconRender(search, selectIcon, icons));
     }, [search, selectIcon])
@@ -73,7 +72,7 @@ function CreateCategory(){
     
     return(
         <div>
-            <div className='flex items-center justify-center text-3xl mt-6 font-semibold'>
+            <div className='flex items-center justify-center text-3xl font-semibold'>
                 <img className='w-[40px] mr-1'
                 alt={t('CreateCategoryImgAlt')} 
                 src={addIcon}/>
@@ -104,7 +103,7 @@ function CreateCategory(){
                         onChange={(e) => setDescription(e.target.value)}
                         name='description'
                         placeholder={t('DescriptionPlaceholder')}
-                        className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 min-h-[84px] lg:min-h-[90px]`}
+                        className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 min-h-[84px] lg:min-h-[100px]`}
                         />
 
                         <label htmlFor='experience' 
@@ -133,7 +132,7 @@ function CreateCategory(){
                             />
                         </div>
                         <p className='text-red-500 text-lg'>{iconError}</p>
-                        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] md:h-[255px] lg:h-[262px] p-2`}>
+                        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] md:h-[255px] lg:h-[272px] p-2`}>
                             {icons.map((index) => (
                                 <p onClick={() => setSelectIcon(index.name)}
                                 key={index.name}
