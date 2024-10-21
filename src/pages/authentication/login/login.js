@@ -34,7 +34,6 @@ function Login(){
     //Google Login logic handler
     const [codeUsed, setCodeUsed] = useState(false);
     useEffect(() => {
-        console.log('teste')
         const params = new URLSearchParams(window.location.search);
         const authCode = params.get('code');
         if(authCode && !codeUsed){
