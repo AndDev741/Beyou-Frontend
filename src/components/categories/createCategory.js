@@ -5,11 +5,13 @@ import addIcon from '../../assets/addIcon.svg';
 import iconRender from './iconsRender';
 import Button from '../button';
 import createCategory from '../../services/categories/createCategory';
+import NameInput from './inputs/nameInput';
+import DescriptionInput from './inputs/descriptionInput';
+import ExperienceInput from './inputs/experienceInput';
+import IconsInput from './inputs/iconsInput';
 
 function CreateCategory(){
     const {t} = useTranslation();
-    const labelCss = "text-blueMain text-2xl md:text-xl";
-    const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
 
     const userId = useSelector(state => state.perfil.id)
     const [name, setName] = useState("");
@@ -82,66 +84,29 @@ function CreateCategory(){
             className='flex flex-col mt-8 '>
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-5'>
-                        <label htmlFor='name' 
-                        className={labelCss}>{t('Name')}</label>
-                        <p className='text-red-500 text-lg'>{nameError}</p>
-                        <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        name='name'
-                        id='name'
-                        placeholder={t('CategoryNamePlaceholder')}
-                        className={`${borderCss} ${nameError ? "border-red-500" : ""} h-[40px] outline-none pl-2 text-lg`}/>
+                        <NameInput name={name} 
+                        setName={setName} 
+                        nameError={nameError}
+                        t={t} />
                         
-                        <label htmlFor='description' 
-                        className={`${labelCss} mt-2`}>
-                            {t('Description')}
-                        </label>
-                        <p className='text-red-500 text-lg'>{descriptionError}</p>
-                        <textarea id='description'
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        name='description'
-                        placeholder={t('DescriptionPlaceholder')}
-                        className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 min-h-[84px] lg:min-h-[100px]`}
-                        />
+                        <DescriptionInput description={description}
+                        setDescription={setDescription}
+                        descriptionError={descriptionError}
+                        t={t} />
 
-                        <label htmlFor='experience' 
-                        className={`${labelCss} mt-2`}>{t('YourExperience')}</label>
-                        <p className='text-red-500 text-lg'>{experienceError}</p>
-                        <select id='experience'
-                        name='experience'
-                        value={experience}
-                        onChange={(e) => setExperience(e.target.value)}
-                        className={`${borderCss} ${experienceError ? "border-red-500" : ""}} h-[50px] text-xl pl-1 outline-none`}>
-                            <option value={0}>{t("Begginer")}</option>
-                            <option value={1}>{t('Intermediary')}</option>
-                            <option value={2}>{t('Advanced')}</option>
-                        </select>
+                        <ExperienceInput experience={experience}
+                        setExperience={setExperience}
+                        experienceError={experienceError}
+                        t={t} />
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
-                        <div className='flex'>
-                            <label htmlFor='icon'
-                            className={labelCss}>{t('Icon')}</label>
-                            <input 
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            name='icon'
-                            className='md:w-[190px] ml-1 pl-1 border-[1px] rounded-md outline-none'
-                            placeholder={t('IconPlaceholder')}
-                            />
-                        </div>
-                        <p className='text-red-500 text-lg'>{iconError}</p>
-                        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] md:h-[255px] lg:h-[272px] p-2`}>
-                            {icons.map((index) => (
-                                <p onClick={() => setSelectIcon(index.name)}
-                                key={index.name}
-                                className={`${index.name === selectIcon ? "scale-110 text-blueMain border-2 border-blueMain rounded-md" : "text-gray-500 "}
-                                text-4xl m-1 hover:text-blueMain hover:scale-105 cursor-pointer`}>
-                                    <index.IconComponent/>
-                                </p>
-                            ))}
-                        </div>
+                        <IconsInput icons={icons}
+                        search={search}
+                        setSearch={setSearch}
+                        t={t}
+                        iconError={iconError}
+                        setSelectIcon={setSelectIcon}
+                        selectIcon={selectIcon} />
                     </div>
                 </div> 
                 <div className='flex items-center justify-center mt-6'>
