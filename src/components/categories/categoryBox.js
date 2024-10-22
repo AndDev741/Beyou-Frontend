@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import iconSearch from "./iconsSearch"
+import iconSearch from "./icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 
