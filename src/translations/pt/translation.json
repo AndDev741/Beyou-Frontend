@@ -60,5 +60,10 @@
     "YupRequiredExperience": "Experiência é necessária",
     "YupIconRequired": "Ícone é necessário",
 
-    "0CategoriesMessage": "Comece a criar categorias incríveis e acompanhar seu progresso!"
+    "0CategoriesMessage": "Comece a criar categorias incríveis e acompanhar seu progresso!",
+
+    "EditCategory": "Editar Categoria",
+    "Edit": "Editar",
+    "Cancel": "Cancelar",
+    "Delete": "Deletar"
 }

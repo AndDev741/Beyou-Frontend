@@ -60,5 +60,10 @@
     "YupRequiredExperience": "Experience is required",
     "YupIconRequired": "Icon is required",
 
-    "0CategoriesMessage": "Start creating amazing life categories and track your progress!"
+    "0CategoriesMessage": "Start creating amazing life categories and track your progress!",
+
+    "EditCategory": "Edit Category",
+    "Edit": "Edit",
+    "Cancel": "Cancel",
+    "Delete": "Delete"
 }

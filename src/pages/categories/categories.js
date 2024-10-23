@@ -4,9 +4,12 @@ import CreateCategory from "../../components/categories/createCategory";
 import VerifyAuth from "../../components/verifyAuthentication";
 import { useTranslation } from "react-i18next";
 import RenderCategories from "../../components/categories/renderCategories";
+import EditCategory from "../../components/categories/editCategory";
+import { useSelector } from "react-redux";
 
 function Categories(){
     const {t} = useTranslation();
+    const editMode = useSelector(state => state.editCategory.editMode);
     return(
         <>
         <VerifyAuth />
@@ -24,7 +27,7 @@ function Categories(){
                     <RenderCategories />
                 </div>
                 <div className="lg:flex lg:justify- w-[100%] lg:w-[42%]">
-                    <CreateCategory />
+                    {editMode ? <EditCategory /> : <CreateCategory />}
                 </div>
             </main>
         </>
