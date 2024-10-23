@@ -65,5 +65,6 @@
     "EditCategory": "Edit Category",
     "Edit": "Edit",
     "Cancel": "Cancel",
-    "Delete": "Delete"
+    "Delete": "Delete",
+    "ConfirmDeletePhrase": "Confirm deletion of this category?"
 }

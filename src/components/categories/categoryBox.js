@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux";
+import { useTranslation } from 'react-i18next';
 import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
+import deleteCategory from "../../services/categories/deleteCategory";
 import iconSearch from "./icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 
 function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
+    const {t} = useTranslation();
     const dispatch = useDispatch();
     const [icon, setIcon]= useState(null);
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useState(false);
+    const [onDelete, setOnDelete] = useState(false);
 
     useEffect(() => {
         const response = iconSearch(iconName);
@@ -21,10 +25,14 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
         dispatch(nameEnter(name));
         dispatch(descriptionEnter(description));
         dispatch(iconEnter(iconName));
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        })
     }
 
     return(
-        <div className={`flex flex-col justify-between border-[1px] border-blueMain rounded-md mb-5 w-[46vw] md:w-[300px] lg:w-[230px] transition-all duration-500 ease-in-out p-1 break-words
+        <div className={`flex flex-col justify-between border-[1px] border-blueMain rounded-md mb-5 w-[47vw] md:w-[300px] lg:w-[225px] transition-all duration-500 ease-in-out p-1 break-words
         ${expanded ? "min-h-[300px]" : "h-[150px]"} 
         transform ${expanded ? "lg:scale-105 lg:mx-2" : "scale-100"}
         `}>
@@ -33,9 +41,10 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
                     <p className="text-[35px] text-blueMain">
                         {icon !== null ? <icon.IconComponent/> : ""}
                     </p>
-                    <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[26vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
+                    <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
                 </div>
                 <img onClick={() => setExpanded(!expanded)}
+                alt=""
                 className="w-[25px] pb-3 cursor-pointer hover:scale-105"
                 src={expanded ? decreaseIcon : increaseIcon}/>
             </div>
@@ -62,10 +71,45 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
                 </div>
             </div>
 
-            <div className={`${expanded ? "flex my-2" : "hidden"} items-center justify-center`}>
+            <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
                 <button onClick={handleEdit}
-                className="bg-blueMain hover:bg-ligthBlue text-white font-semibold w-[100px] h-[28px] rounded-md">
-                    Edit
+                className="bg-blueMain mb-2 hover:bg-ligthBlue text-white font-semibold w-[100px] h-[28px] rounded-md">
+                    {t('Edit')}
+                </button>
+                <button onClick={() => setOnDelete(true)}
+                className="bg-red-600 hover:bg-red-500 text-white font-semibold w-[90px] h-[25px] rounded-md">
+                    {t('Delete')}
+                </button>
+            </div>
+            <DeleteModal categoryId={id}
+            onDelete={onDelete} 
+            setOnDelete={setOnDelete}
+            t={t} name={name}/>
+        </div>
+    )
+}
+
+function DeleteModal({categoryId, onDelete, setOnDelete, t, name}){
+
+    const handleDelete = async () => {
+        const response = await deleteCategory(categoryId);
+
+        if(response.success){
+            window.location.reload();
+        }
+    }
+    return(
+        <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
+            <h1 className="text-center font-semibold">{t('ConfirmDeletePhrase')}</h1>
+            <h2 className="underline my-3">{name}</h2>
+            <div className="flex lg:flex-row flex-col items-center">
+                <button onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-500 lg:mr-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
+                    {t('Delete')}
+                </button>
+                <button onClick={() => setOnDelete(false)}
+                className="bg-gray-600 hover:bg-gray-500 mt-1 lg:mt-0 lg:ml-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
+                    {t('Cancel')}
                 </button>
             </div>
         </div>

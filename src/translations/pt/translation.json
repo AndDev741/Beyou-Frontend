@@ -65,5 +65,6 @@
     "EditCategory": "Editar Categoria",
     "Edit": "Editar",
     "Cancel": "Cancelar",
-    "Delete": "Deletar"
+    "Delete": "Deletar",
+    "ConfirmDeletePhrase": "Confirmar exclusão desta categoria?"
 }
