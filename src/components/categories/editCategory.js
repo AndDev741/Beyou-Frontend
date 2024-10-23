@@ -117,7 +117,7 @@ function EditCategory(){
                         selectIcon={selectIcon} />
                     </div>
                 </div> 
-                <p className='text-red-500 text-lg'>{unknownError}</p>
+                <p className='text-red-500 text-xl text-center underline'>{unknownError}</p>
                 <div className='flex items-center justify-evenly mt-6'>
                     <div>
                         <button type='button'
