@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux";
+import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
 import iconSearch from "./icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 
-function CategoryBox({iconName, name, description, level, xp, nextLevelXp}){
+function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
+    const dispatch = useDispatch();
     const [icon, setIcon]= useState(null);
     const [expanded, setExpanded] = useState(false)
 
@@ -11,6 +14,14 @@ function CategoryBox({iconName, name, description, level, xp, nextLevelXp}){
         const response = iconSearch(iconName);
         setIcon(response[0]);
     }, []);
+
+    const handleEdit = () => {
+        dispatch(editModeEnter(true));
+        dispatch(idEnter(id));
+        dispatch(nameEnter(name));
+        dispatch(descriptionEnter(description));
+        dispatch(iconEnter(iconName));
+    }
 
     return(
         <div className={`flex flex-col justify-between border-[1px] border-blueMain rounded-md mb-5 w-[46vw] md:w-[300px] lg:w-[230px] transition-all duration-500 ease-in-out p-1 break-words
@@ -52,7 +63,8 @@ function CategoryBox({iconName, name, description, level, xp, nextLevelXp}){
             </div>
 
             <div className={`${expanded ? "flex my-2" : "hidden"} items-center justify-center`}>
-                <button className="bg-blueMain hover:bg-ligthBlue text-white font-semibold w-[100px] h-[28px] rounded-md">
+                <button onClick={handleEdit}
+                className="bg-blueMain hover:bg-ligthBlue text-white font-semibold w-[100px] h-[28px] rounded-md">
                     Edit
                 </button>
             </div>

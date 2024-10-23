@@ -19,14 +19,15 @@ function RenderCategories(){
             }
         }
         returnCategories();
-    }, [])
+    }, [userId])
 
     return(
         <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start">
             {categories.length > 0 ? (
                 categories.map((category) => (
                 <div className="lg:mx-1">
-                    <CategoryBox iconName={category.iconId}
+                    <CategoryBox id={category.id}
+                    iconName={category.iconId}
                     name={category.name}
                     description={category.description}
                     level={category.level}
