@@ -1,13 +1,11 @@
 import CreateCategory from "../../components/categories/createCategory";
 import VerifyAuth from "../../components/verifyAuthentication";
-import { useTranslation } from "react-i18next";
 import RenderCategories from "../../components/categories/renderCategories";
 import EditCategory from "../../components/categories/editCategory";
 import { useSelector } from "react-redux";
 import Header from "../../components/header";
 
 function Categories(){
-    const {t} = useTranslation();
     const editMode = useSelector(state => state.editCategory.editMode);
     return(
         <>
