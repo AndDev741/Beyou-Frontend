@@ -4,9 +4,9 @@ import {editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter} from '..
 import { useTranslation } from 'react-i18next';
 import addIcon from '../../assets/addIcon.svg';
 import iconRender from './icons/iconsRender';
-import NameInput from './inputs/nameInput';
-import DescriptionInput from './inputs/descriptionInput';
-import IconsInput from './inputs/iconsInput';
+import NameInput from '../inputs/nameInput';
+import DescriptionInput from '../inputs/descriptionInput';
+import IconsInput from '../inputs/iconsInput';
 import editCategory from '../../services/categories/editCategory';
 
 function EditCategory(){

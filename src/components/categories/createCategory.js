@@ -5,10 +5,10 @@ import addIcon from '../../assets/addIcon.svg';
 import iconRender from './icons/iconsRender';
 import Button from '../button';
 import createCategory from '../../services/categories/createCategory';
-import NameInput from './inputs/nameInput';
-import DescriptionInput from './inputs/descriptionInput';
+import NameInput from '../inputs/nameInput';
+import DescriptionInput from '../inputs/descriptionInput';
 import ExperienceInput from './inputs/experienceInput';
-import IconsInput from './inputs/iconsInput';
+import IconsInput from '../inputs/iconsInput';
 
 function CreateCategory(){
     const {t} = useTranslation();
