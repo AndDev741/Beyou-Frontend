@@ -66,5 +66,25 @@
     "Edit": "Editar",
     "Cancel": "Cancelar",
     "Delete": "Deletar",
-    "ConfirmDeletePhrase": "Confirmar exclusão desta categoria?"
+    "ConfirmDeletePhrase": "Confirmar exclusão desta categoria?",
+
+    "Habits": "Hábitos",
+    "YourHabits": "Seus Hábitos",
+    "CreateHabit": "Criar hábito",
+    "HabitImgAlt": "Ícone de livro",
+    "HabitNamePlaceholder": "Ler",
+    "MotivationPhrase": "Frase Motivacional",
+    "HabitDescriptionPlaceholder": "Importante para diversas áreas da minha vida",
+    "MotivationalPhrasePlaceholder": "Aparece ao ser feito",
+    "Importance": "Importância",
+    "Dificulty": "Dificuldade",
+    "Low": "Baixa",
+    "Medium": "Média",
+    "High": "Alta",
+    "Max": "Máxima",
+    "Easy": "Fácil",
+    "Normal": "Normal",
+    "Hard": "Difícil",
+    "Terrible": "Terrível",
+    "YouDontHaveCategories": "Você não tem categorias ainda, crie uma"
 }
