@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
 import { useTranslation } from 'react-i18next';
 import addIcon from '../../assets/addIcon.svg';
-import iconRender from './icons/iconsRender';
+import iconRender from '../icons/iconsRender';
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsInput';
@@ -103,6 +103,7 @@ function EditCategory(){
                         t={t} />
                         
                         <DescriptionInput description={description}
+                        placeholder={"DescriptionPlaceholder"}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
                         t={t} />
