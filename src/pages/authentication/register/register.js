@@ -79,11 +79,11 @@ function Register(){
     return(
         <div className="min-h-[100vh] lg:flex items-center justify-center">
 
-            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] h-[620px] bg-blueMain rounded-l-md">
+            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] h-[90vh] bg-blueMain rounded-l-md">
                 <Logo/>
             </div>
 
-            <div className="lg:w-[45vw] lg:h-[620px] lg:border-solid lg:border-2 border-blueMain lg:rounded-r-md">
+            <div className="lg:w-[45vw] lg:h-[90vh] lg:border-solid lg:border-2 border-blueMain lg:rounded-r-md">
                 <Header />
 
                 <main className="flex flex-col items-center mt-6 lg:mt-2">
