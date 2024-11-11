@@ -1,6 +1,6 @@
-function NameInput({name, setName, nameError, t}){
+function NameInput({name, setName, nameError, placeholder, t}){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-blueMain text-2xl md:text-xl";
+    const labelCss = "text-2xl md:text-xl";
     return(
         <>
             <label htmlFor='name' 
@@ -11,7 +11,7 @@ function NameInput({name, setName, nameError, t}){
             onChange={(e) => setName(e.target.value)}
             name='name'
             id='name'
-            placeholder={t('CategoryNamePlaceholder')}
+            placeholder={t(`${placeholder}`)}
             className={`${borderCss} ${nameError ? "border-red-500" : ""} h-[40px] outline-none pl-2 text-lg`}/>
         </>
     )

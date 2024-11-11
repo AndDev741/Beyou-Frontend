@@ -85,6 +85,7 @@ function CreateCategory(){
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-5'>
                         <NameInput name={name} 
+                        placeholder={"CategoryNamePlaceholder"}
                         setName={setName} 
                         nameError={nameError}
                         t={t} />
