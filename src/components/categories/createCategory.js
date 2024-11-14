@@ -7,7 +7,7 @@ import Button from '../button';
 import createCategory from '../../services/categories/createCategory';
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
-import ExperienceInput from './inputs/experienceInput';
+import ExperienceInput from '../inputs/experienceInput';
 import IconsInput from '../inputs/iconsInput';
 
 function CreateCategory(){
