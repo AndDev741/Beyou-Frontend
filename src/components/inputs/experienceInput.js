@@ -1,6 +1,6 @@
 function ExperienceInput({experience, setExperience, experienceError, t}){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-blueMain text-2xl md:text-xl";
+    const labelCss = "text-2xl md:text-xl";
     return(
         <>
             <label htmlFor='experience' 
