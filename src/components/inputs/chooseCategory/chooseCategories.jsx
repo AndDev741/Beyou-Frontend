@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import getCategories from "../../services/categories/getCategories";
+import getCategories from "../../../services/categories/getCategories";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import CategoryItem from "./categoryItem";
 
 
-function ChooseCategories(){
+function ChooseCategories({categoriesList, setCategoriesList, errorMessage}){
     const {t} = useTranslation();
     const userId = useSelector(state  => state.perfil.id);
     const [categories, setCategories] = useState([]);
@@ -21,17 +21,21 @@ function ChooseCategories(){
         };
 
         returnCategories();
-    }, [])
+    }, [userId])
     return(
         <>
             <h3 className="text-2xl mt-2 text-center">Categories</h3>
-
+            <p className='text-red-500 text-lg text-center'>{errorMessage}</p>
             <div className="flex flex-col items-center w-[300px] md:w-[600px] overflow-auto mt-2">
                 <div className="flex items-center justify-between">
                     {categories.length > 0 ? categories.map((category) => (
                         
-                        <div className="flex flex-col items-center line-clamp-1 w-[150px] lg:w-[150px]">
+                        <div key={category.id} 
+                        className="flex flex-col items-center line-clamp-1 w-[150px] lg:w-[150px]">
                             <CategoryItem
+                            categoriesList={categoriesList}
+                            setCategoriesList={setCategoriesList}
+                            categoryId={category.id}
                             name={category.name}
                             iconId={category.iconId}/>
                         </div>

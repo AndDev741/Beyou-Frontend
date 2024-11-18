@@ -86,5 +86,9 @@
     "Normal": "Normal",
     "Hard": "Hard",
     "Terrible": "Terrible",
-    "YouDontHaveCategories": "You don't have categories yet, create one"
+    "YouDontHaveCategories": "You don't have categories yet, create one",
+    "YupGenericMaxLength": "The max of characters are 256",
+    "YupImportanceRequired": "Choose an importance",
+    "YupDificultyRequired": "Choose an dificulty",
+    "YupRequiredCategories": "Choose at least 1 category"
 }
