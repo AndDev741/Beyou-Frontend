@@ -94,6 +94,7 @@ function CreateCategory(){
                         placeholder={"DescriptionPlaceholder"}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
+                        minH={100}
                         t={t} />
 
                         <ExperienceInput experience={experience}
