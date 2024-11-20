@@ -33,7 +33,8 @@ function RenderCategories(){
                     description={category.description}
                     level={category.level}
                     xp={category.xp} 
-                    nextLevelXp={category.nextLevelXp}/>
+                    nextLevelXp={category.nextLevelXp}
+                    actualLevelXp={category.actualLevelXp}/>
                     </div>
                 ))    
             ) : (

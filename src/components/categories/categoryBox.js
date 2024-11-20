@@ -7,13 +7,15 @@ import iconSearch from "../icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 
-function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
+function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, actualLevelXp}){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [icon, setIcon]= useState(null);
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
+    const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
+    console.log(actualProgress)
     useEffect(() => {
         const response = iconSearch(iconName);
         setIcon(response[0]);
@@ -66,8 +68,10 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp}){
                     <p><span className="text-blueMain">{xp}</span>/{nextLevelXp}</p>
                 </div>
                 <div className="flex w-[100%]">
-                    <div className={`border-[1px] w-[20%] border-darkBlue bg-blueMain h-[15px] rounded-l-xl`}></div>
-                    <div className={`border-[1px] w-[80%] border-darkBlue bg-ligthGray h-[15px] rounded-r-xl`}></div>
+                    <div className={`border-[1px] border-darkBlue bg-blueMain h-[15px] rounded-l-xl`}
+                    style={{width: `${actualProgress}%`}}></div>
+                    <div className={`border-[1px] border-darkBlue bg-ligthGray h-[15px] rounded-r-xl`}
+                    style={{width: `${100 - actualProgress}%`}}></div>
                 </div>
             </div>
 
