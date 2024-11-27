@@ -13,10 +13,19 @@ import ExperienceInput from "../inputs/experienceInput";
 import createHabit from "../../services/habits/createHabit";
 import { useSelector } from "react-redux";
 
-function CreateHabit(){
+function EditHabit(){
     const {t} = useTranslation();
 
-    const userId = useSelector(state => state.perfil.id)
+    const habitIdToEdit = useSelector(state => state.editHabit.id);
+    const nameToEdit = useSelector(state => state.editHabit.name);
+    const descriptionToEdit = useSelector(state => state.editHabit.description);
+    const motivationalPhraseToEdit = useSelector(state => state.editHabit.motivationalPhrase);
+    const iconIdToEdit = useSelector(state => state.editHabit.iconId);
+    const importanceToEdit = useSelector(state => state.editHabit.importance);
+    const dificultyToEdit = useSelector(state => state.editHabit.dificulty);
+    const categoriesIdToEdit = useSelector(state => state.editHabit.categoriesId);
+
+
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [motivationalPhrase, setMotivationalPhrase] = useState("");
@@ -35,6 +44,17 @@ function CreateHabit(){
     const [experienceError, setExperienceError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
     const [unknownError, setUnknownError] = useState("");
+
+    useEffect(() => {
+        setName(nameToEdit);
+        setDescription(descriptionToEdit);
+        setMotivationalPhrase(motivationalPhraseToEdit);
+        setSearch(iconIdToEdit);
+        setSelectedIcon(iconIdToEdit);
+        setImportance(importanceToEdit);
+        setDificulty(dificultyToEdit);
+        setCategories(categoriesIdToEdit);
+    }, [nameToEdit, descriptionToEdit, motivationalPhraseToEdit, iconIdToEdit, importanceToEdit, dificultyToEdit, categoriesIdToEdit])
     
     const [search, setSearch] = useState("");
     const [icons, setIcons] = useState([]);
@@ -49,78 +69,15 @@ function CreateHabit(){
         })
     }
 
-    const handleCreateHabit = async (e) => {
-        e.preventDefault();
-        setNameError("");
-        setDescriptionError("");
-        setMotivationalPhraseError("");
-        setImportanceError("");
-        setDificultyError("");
-        setIconError("");
-        setExperienceError("");
-        setCategoriesError("");
-
-        const response = await createHabit(userId, name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categories, t);
-
-        if(response?.success){
-            window.location.reload();
-        }
-
-        if(response?.validation){
-            const formattedResponse = response.validation[0]
-            switch(formattedResponse){
-                case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
-                    setNameError(formattedResponse);
-                    scrollToTop();
-                    break;
-                case t('YupMinimumName'):
-                    setNameError(formattedResponse);
-                    scrollToTop();
-                    break;
-                case t('YupMaxName'):
-                    setNameError(formattedResponse);
-                    scrollToTop();
-                    break;
-                case t('YupDescriptionMaxValue'):
-                    setDescriptionError(formattedResponse);
-                    scrollToTop();
-                    break;
-                case t("YupGenericMaxLength"):
-                    setMotivationalPhraseError(formattedResponse);
-                    scrollToTop();
-                    break;
-                case t("YupImportanceRequired"):
-                    setImportanceError(formattedResponse);
-                    scrollToTop();
-                    break;
-                case t("YupDificultyRequired"):
-                    setDificultyError(formattedResponse);
-                    break;
-                case t('YupIconRequired'):
-                    setIconError(formattedResponse);
-                    break;
-                case t('YupRequiredExperience'):
-                    setExperienceError(formattedResponse);
-                    break;
-                case t("YupRequiredCategories"):
-                    setCategoriesError(formattedResponse);
-                    break;
-                default:
-                    setUnknownError(t("UnkownError"));
-                    break;
-            }
-        }
-    }
-
     return(
         <div>
             <div className="flex text-3xl items-center justify-center mt-5 mb-3"> 
                 <img src={habitIcon}
                 alt={t("HabitImgAlt")}
                 className="w-[35px] h-[35px] mr-2" />
-                <h1>{t('CreateHabit')}</h1>
+                <h1>{t('EditHabit')}</h1>
             </div>
-            <form  onSubmit={handleCreateHabit}
+            <form  
             className="flex flex-col items-center">
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-4'>
@@ -162,7 +119,8 @@ function CreateHabit(){
                             levels={[t("Easy"), t("Normal"), t("Hard"), 
                             t("Terrible")]}
                             name={"dificulty"}
-                            t={t} />
+                            t={t}
+                            actualProgress={dificulty} />
                         </div>
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
@@ -175,11 +133,6 @@ function CreateHabit(){
                         setSelectIcon={setSelectedIcon}
                         t={t}/>
 
-                        <ExperienceInput t={t}
-                        experience={experience} 
-                        setExperience={setExperience}
-                        experienceError={experienceError}/>
-
                         <div className="hidden md:block">
                             <ChooseInput
                             choosedLevel={dificulty}
@@ -189,7 +142,8 @@ function CreateHabit(){
                             levels={[t("Easy"), t("Normal"), t("Hard"), 
                             t("Terrible")]}
                             name={"dificulty"}
-                            t={t} />
+                            t={t}
+                            actualProgress={dificulty} />
                         </div>
                     </div>
                 </div>
@@ -197,7 +151,8 @@ function CreateHabit(){
                     <ChooseCategories
                     categoriesList={categories}
                     setCategoriesList={setCategories}
-                    errorMessage={categoriesError}/>
+                    errorMessage={categoriesError}
+                    chosenCategories={categoriesIdToEdit}/>
                 </div>
                 <p className='text-red-500 text-lg text-center'>{unknownError}</p>
                 <div className="mb-3">
@@ -208,4 +163,14 @@ function CreateHabit(){
     )
 }
 
-export default CreateHabit;
+export default EditHabit;
+
+
+
+
+
+
+
+
+
+

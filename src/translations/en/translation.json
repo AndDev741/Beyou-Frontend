@@ -90,5 +90,9 @@
     "YupGenericMaxLength": "The max of characters are 256",
     "YupImportanceRequired": "Choose an importance",
     "YupDificultyRequired": "Choose an dificulty",
-    "YupRequiredCategories": "Choose at least 1 category"
+    "YupRequiredCategories": "Choose at least 1 category",
+
+    "Level": "Level",
+    "UsingIn": "Using in",
+    "EditHabit": "Edit Habit"
 }

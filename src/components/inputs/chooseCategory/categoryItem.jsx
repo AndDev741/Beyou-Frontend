@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import iconSearch from "../../icons/iconsSearch";
 
-function CategoryItem({name, iconId, categoryId, categoriesList, setCategoriesList}){
+function CategoryItem({name, iconId, categoryId, categoriesList, setCategoriesList, chosedCategory}){
     const [icon, setIcon] = useState(null);
     useEffect(() => {
         const result = iconSearch(iconId);
@@ -22,6 +22,7 @@ function CategoryItem({name, iconId, categoryId, categoriesList, setCategoriesLi
     return(
         <div className="flex flex-col ite marker:ms-center mb-3">
             <input type="checkbox"
+            checked={chosedCategory === categoryId}
             id={categoryId}
             name={name}
             onChange={handleCheckboxChange}

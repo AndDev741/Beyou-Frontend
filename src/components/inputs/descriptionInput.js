@@ -1,7 +1,6 @@
 function DescriptionInput({description, setDescription, placeholder, descriptionError, minH, t}){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl";
-    console.log(minH)
     return(
         <>
             <label htmlFor='description' 
