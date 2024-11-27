@@ -17,12 +17,22 @@ function RenderHabits(){
     }, [])
 
     return(
-        <div className="flex items-center p-3">
+        <div className="flex flex-wrap items-start justify-between md:justify-evenly lg:justify-start  p-2">
             {habits.map(habit => (
                 <HabitBox
                 key={habit.id}
                 name={habit.name}
                 iconId={habit.iconId}
+                description={habit.description}
+                level={habit.level}
+                xp={habit.xp}
+                nextLevelXp={habit.nextLevelXp}
+                actualLevelXp={habit.actualBaseXp}
+                constance={habit.constance}
+                categories={habit.categories}
+                motivationalPhrase={habit.motivationalPhrase}
+                importance={habit.importance}
+                dificulty={habit.dificulty}
                  />
             ))}
         </div>
