@@ -94,5 +94,13 @@
 
     "Level": "Level",
     "UsingIn": "Using in",
-    "EditHabit": "Edit Habit"
+    "EditHabit": "Edit Habit",
+
+    "gptSystemPrompt": "You are an assistant that suggests life categories in a varied way. Generate a RANDOM CATEGORY related to important aspects of life (such as health, finances, studies, work, leisure, relationships, personal development, etc.). Return the response in JSON format, with double quotes on keys and values. Ensure that each response is unique and well-crafted. Correct response example: { \"category\": \"Finances\", \"description\": \"The management of money, investments, and financial planning to ensure personal economic security and growth.\" }",
+    "gptClientPrompt": "Generate a random life category in JSON format as requested.",
+
+    "Generate a random category": "Generate a random category",
+    "gptError": "An error ocurred trying to auto generate the categories, please try again later",
+    "Generating": "Generating",
+    "AlreadyGeneratedError": "You already generate a category, please try again later"
 }

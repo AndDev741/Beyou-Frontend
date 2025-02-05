@@ -94,5 +94,12 @@
 
     "Level": "Nível",
     "UsingIn": "Usando em",
-    "EditHabit": "Editar Hábito"
+    "EditHabit": "Editar Hábito",
+
+    "gptSystemPrompt": "Você é um assistente que sugere categorias de vida de forma variada. Gere uma CATEGORIA ALEATÓRIA relacionada a aspectos importantes da vida (como saúde, finanças, estudos, trabalho, lazer, relacionamentos, desenvolvimento pessoal, etc.)Retorne a resposta em JSON, com aspas duplas nas chaves e valores. Certifique-se de que cada resposta seja única e bem elaborada. Exemplo de resposta correta: { \"category\": \"Finanças\", \"description\": \"A gestão do dinheiro, investimentos e planejamento financeiro para garantir segurança e crescimento econômico pessoal.\"},",
+    "gptClientPrompt": "Gere uma categoria de vida aleatória no formato JSON conforme solicitado.",
+    "Generate a random category": "Gerar uma categoria aleatória",
+    "gptError": "Um erro ocorreu ao gerar a categoria, por favor tente novamente mais tarde",
+    "Generating": "Gerando",
+    "AlreadyGeneratedError": "Você já gerou uma categoria, tente novamente mais tarde"
 }

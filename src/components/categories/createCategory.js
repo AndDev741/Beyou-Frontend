@@ -10,8 +10,11 @@ import DescriptionInput from '../inputs/descriptionInput';
 import ExperienceInput from '../inputs/experienceInput';
 import IconsInput from '../inputs/iconsInput';
 
-function CreateCategory(){
+function CreateCategory({generatedCategories}){
     const {t} = useTranslation();
+
+    const [generatedCategory, setGeneratedCategory] = useState("");
+    const [generatedDescription, setGeneratedDescription] = useState("");
 
     const userId = useSelector(state => state.perfil.id)
     const [name, setName] = useState("");
@@ -27,6 +30,16 @@ function CreateCategory(){
 
     const [search, setSearch] = useState("");
     const [icons, setIcons] = useState([]);
+
+    useEffect(() => {
+        if(generatedCategories?.category){
+            const {category, description} = generatedCategories;
+            setGeneratedCategory(category);
+            setGeneratedDescription(description);
+            setName(category);
+            setDescription(description);
+        }
+    }, [generatedCategories]);
     
     useEffect(() => {
         setIcons((icons) => iconRender(search, selectIcon, icons));
@@ -109,7 +122,8 @@ function CreateCategory(){
                         t={t}
                         iconError={iconError}
                         setSelectIcon={setSelectIcon}
-                        selectIcon={selectIcon} />
+                        selectIcon={selectIcon}
+                        minLgH={275} />
                     </div>
                 </div> 
                 <div className='flex items-center justify-center mt-6'>
