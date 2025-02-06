@@ -8,13 +8,13 @@ import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
-import Button from "../button";
-import ExperienceInput from "../inputs/experienceInput";
-import createHabit from "../../services/habits/createHabit";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
+import editHabit from "../../services/habits/editHabit";
 
 function EditHabit(){
     const {t} = useTranslation();
+    const dispatch = useDispatch();
 
     const habitIdToEdit = useSelector(state => state.editHabit.id);
     const nameToEdit = useSelector(state => state.editHabit.name);
@@ -29,11 +29,11 @@ function EditHabit(){
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [motivationalPhrase, setMotivationalPhrase] = useState("");
-    const [importance, setImportance] = useState(null);
-    const [dificulty, setDificulty] = useState(null);
-    const [selectedIcon, setSelectedIcon] = useState(null);
-    const [experience, setExperience] = useState(0);
+    const [importance, setImportance] = useState(1);
+    const [dificulty, setDificulty] = useState(1);
+    const [selectedIcon, setSelectedIcon] = useState("");
     const [categories, setCategories] = useState([]);
+    const [alreadyChosenCategories, setAlreadyChosenCategories] = useState([]);
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -41,7 +41,6 @@ function EditHabit(){
     const [importanceError, setImportanceError] = useState("");
     const [dificultyError, setDificultyError] = useState("");
     const [iconError, setIconError] = useState("");
-    const [experienceError, setExperienceError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
     const [unknownError, setUnknownError] = useState("");
 
@@ -53,21 +52,114 @@ function EditHabit(){
         setSelectedIcon(iconIdToEdit);
         setImportance(importanceToEdit);
         setDificulty(dificultyToEdit);
-        setCategories(categoriesIdToEdit);
-    }, [nameToEdit, descriptionToEdit, motivationalPhraseToEdit, iconIdToEdit, importanceToEdit, dificultyToEdit, categoriesIdToEdit])
-    
+
+        if(categoriesIdToEdit.length > 0){
+            const categoriesId = [];
+            categoriesIdToEdit.map(category => {
+                categoriesId.push(category.id)
+            })
+            setCategories(categoriesId)
+        }
+        
+        setAlreadyChosenCategories(categoriesIdToEdit)
+    }, [nameToEdit, descriptionToEdit, motivationalPhraseToEdit, iconIdToEdit, importanceToEdit, dificultyToEdit, categoriesIdToEdit, setCategories])
+
+
     const [search, setSearch] = useState("");
     const [icons, setIcons] = useState([]);
     useEffect(() => {
         setIcons((icons) => iconRender(search, selectedIcon, icons));
     }, [search, selectedIcon])
 
-    const scrollToTop = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        })
+    const handleCancel = () => {
+        dispatch(editModeEnter(false));
+        dispatch(editNameEnter(""));
+        dispatch(editDescriptionEnter(""));
+        dispatch(editMotivationalPhraseEnter(""));
+        dispatch(editIconIdEnter(null));
+        dispatch(editImportanceEnter(""));
+        dispatch(editDificultyEnter(""));
+        dispatch(editCaegoriesIdEnter(""));
+    };
+
+
+    const handleEdit = async (e) => {
+        e.preventDefault();
+        setNameError("");
+        setDescriptionError("");
+        setMotivationalPhraseError("");
+        setImportanceError("");
+        setDificultyError("");
+        setIconError("");
+        setCategoriesError("");
+
+        const scrollToTop = () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
+        }
+
+        const response = await editHabit(habitIdToEdit, name, description, motivationalPhrase, selectedIcon, importance, dificulty, categories, t);
+
+        if(response.success){
+            handleCancel();
+            window.location.reload();
+        }
+
+        if(response.validation){
+            const formattedResponse = response.validation[0]
+            switch(formattedResponse){
+                case t('YupNameRequired'):
+                    setNameError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupMinimumName'):
+                    setNameError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupMaxName'):
+                    setNameError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupDescriptionMaxValue'):
+                    setDescriptionError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t("YupGenericMaxLength"):
+                    setMotivationalPhraseError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t("YupImportanceRequired"):
+                    setImportanceError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t("YupDificultyRequired"):
+                    setDificultyError(formattedResponse);
+                    break;
+                case t('YupIconRequired'):
+                    setIconError(formattedResponse);
+                    break;
+                case t("YupRequiredCategories"):
+                    setCategoriesError(formattedResponse);
+                    break;
+                default:
+                    setUnknownError(t("UnkownError"));
+                    break;
+            }
+        }
     }
+
+    console.log({
+        habitId: habitIdToEdit,
+        name,
+        description,
+        motivationalPhrase,
+        iconId: selectedIcon,
+        importance: Number(importance),
+        dificulty: Number(dificulty),
+        categoriesId: categories
+    })
 
     return(
         <div>
@@ -77,7 +169,7 @@ function EditHabit(){
                 className="w-[35px] h-[35px] mr-2" />
                 <h1>{t('EditHabit')}</h1>
             </div>
-            <form  
+            <form onSubmit={handleEdit} 
             className="flex flex-col items-center">
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-4'>
@@ -91,6 +183,7 @@ function EditHabit(){
                         description={description}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
+                        minH={320}
                         placeholder={"HabitDescriptionPlaceholder"}/>
 
                         <GenericInput
@@ -109,21 +202,8 @@ function EditHabit(){
                         error={importanceError}
                         name={"importance"}
                         t={t} />
-
-                        <div className="block md:hidden">
-                            <ChooseInput
-                            choosedLevel={dificulty}
-                            error={dificultyError}
-                            setLevel={setDificulty}
-                            title={"Dificulty"}
-                            levels={[t("Easy"), t("Normal"), t("Hard"), 
-                            t("Terrible")]}
-                            name={"dificulty"}
-                            t={t}
-                            actualProgress={dificulty} />
-                        </div>
                     </div>
-                    <div className='flex flex-col mt-2 md:mt-0'>
+                    <div className='flex flex-col-reverse md:flex-col md:mt-0'>
                         <IconsInput 
                         icons={icons}
                         search={search}
@@ -131,9 +211,10 @@ function EditHabit(){
                         iconError={iconError}
                         selectIcon={selectedIcon}
                         setSelectIcon={setSelectedIcon}
+                        minLgH={262}
                         t={t}/>
 
-                        <div className="hidden md:block">
+                        <div className="mb-2 md:mb-0">
                             <ChooseInput
                             choosedLevel={dificulty}
                             error={dificultyError}
@@ -152,11 +233,23 @@ function EditHabit(){
                     categoriesList={categories}
                     setCategoriesList={setCategories}
                     errorMessage={categoriesError}
-                    chosenCategories={categoriesIdToEdit}/>
+                    chosenCategories={alreadyChosenCategories}/>
                 </div>
                 <p className='text-red-500 text-lg text-center'>{unknownError}</p>
-                <div className="mb-3">
-                    <Button text={t("Create")}/>
+                <div className='flex w-full items-center justify-evenly mt-6'>
+                    <div>
+                        <button type='button'
+                        onClick={handleCancel}
+                        className='w-[120px] md:w-[200px] h-[45px] bg-gray-500 rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-gray-400 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
+                            {t('Cancel')}
+                        </button>
+                    </div>
+                    <div>
+                        <button 
+                        className='w-[120px] md:w-[200px] h-[45px] bg-blueMain rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-ligthBlue hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
+                            {t('Edit')}
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

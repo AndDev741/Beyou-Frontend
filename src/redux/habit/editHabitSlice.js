@@ -56,6 +56,6 @@ const editHabitSlice = createSlice({
 
 });
 
-export const {editModeEnter, editNameEnter, editDescriptionEnter, editMotivationalPhraseEnter, editIconIdEnter, editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter} = editHabitSlice.actions;
+export const {editModeEnter, editIdEnter ,editNameEnter, editDescriptionEnter, editMotivationalPhraseEnter, editIconIdEnter, editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter} = editHabitSlice.actions;
 
 export default editHabitSlice.reducer;

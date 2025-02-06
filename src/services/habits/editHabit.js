@@ -1,8 +1,7 @@
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
 
-function editHabit(habitId, name, description, motivationalPhrase, iconId, importance, dificulty, categoriesId){
-
+async function editHabit(habitId, name, description, motivationalPhrase, iconId, importance, dificulty, categories, t){
     const validation = Yup.object().shape({
         name: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')).max(256, t('YupMaxName')),
         description: Yup.string().max(256, t('YupDescriptionMaxValue')),
@@ -14,7 +13,7 @@ function editHabit(habitId, name, description, motivationalPhrase, iconId, impor
     })
 
     try{
-        validation.validate({name, description, motivationalPhrase, importance, dificulty, iconId, categoriesId});
+        await validation.validate({name, description, motivationalPhrase, importance, dificulty, iconId, categories});
 
         try{
             const editHabitData = {
@@ -23,18 +22,18 @@ function editHabit(habitId, name, description, motivationalPhrase, iconId, impor
                 description: description,
                 motivationalPhrase: motivationalPhrase,
                 iconId: iconId,
-                importance: importance,
-                dificulty: dificulty,
-                categoriesId: categoriesId
+                importance: Number(importance),
+                dificulty: Number(dificulty),
+                categoriesId: categories
             }
-
-            const response = axios.put("/habit", editHabitData);
+            const response = await axios.put("/habit", editHabitData);
             return response.data;
         }catch(e){
             return e.response.data
         }
     }catch(validationErrors){
-        console.error(validationErrors.errors)
         return {validation: validationErrors.errors};
     }
 }
+
+export default editHabit;
