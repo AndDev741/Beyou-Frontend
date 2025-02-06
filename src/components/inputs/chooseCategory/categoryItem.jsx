@@ -1,28 +1,38 @@
 import { useEffect, useState } from "react";
 import iconSearch from "../../icons/iconsSearch";
 
-function CategoryItem({name, iconId, categoryId, categoriesList, setCategoriesList, chosedCategory}){
+function CategoryItem({name, iconId, categoryId, categoriesList, setCategoriesList, categoryChosed}){
     const [icon, setIcon] = useState(null);
+    const [alreadyChosen, setAlreadyChosen] = useState(false);
+
     useEffect(() => {
         const result = iconSearch(iconId);
         setIcon(result[0]);
     }, [iconId])
 
     const handleCheckboxChange= (event) => {
-        console.log(event.target.id)
         const {id, checked} = event.target;
 
         if(checked) {
+            setAlreadyChosen(true);
             setCategoriesList([...categoriesList, id]);
         }else{
+            setAlreadyChosen(false);
             setCategoriesList(categoriesList.filter((itemId) => itemId !== id));
         }
     }
 
+    useEffect(() => {
+        if(categoryChosed?.length > 0){
+            const isChosen = categoryChosed.some((category) => category.id === categoryId)
+            setAlreadyChosen(isChosen)
+        }
+    }, [categoryChosed, categoryId])
+
     return(
         <div className="flex flex-col ite marker:ms-center mb-3">
             <input type="checkbox"
-            checked={chosedCategory === categoryId}
+            checked={alreadyChosen}
             id={categoryId}
             name={name}
             onChange={handleCheckboxChange}
@@ -32,7 +42,7 @@ function CategoryItem({name, iconId, categoryId, categoriesList, setCategoriesLi
                     {icon !== null ? <icon.IconComponent/> : ""}
                 </p>
                 <label htmlFor={categoryId} 
-                className="text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1">{name}</label>
+                className={`${categoryChosed?.id === categoryId ? "text-blueMain" : ""} text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{name}</label>
             </div>
         </div>
     )

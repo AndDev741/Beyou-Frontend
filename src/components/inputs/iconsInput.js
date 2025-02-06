@@ -1,4 +1,4 @@
-function IconsInput({search, setSearch, iconError, t, icons, selectIcon, setSelectIcon}){
+function IconsInput({search, setSearch, iconError, t, icons, selectIcon, setSelectIcon, minLgH}){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl";
     return(
@@ -15,7 +15,7 @@ function IconsInput({search, setSearch, iconError, t, icons, selectIcon, setSele
             />
         </div>
         <p className='text-red-500 text-lg'>{iconError}</p>
-        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] md:h-[255px] lg:h-[272px] p-2`}>
+        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] md:h-[255px] ${minLgH ? `w-[${minLgH}px]` : "lg:h-[272px]"} p-2`}>
             {icons.map((index) => (
                 <p onClick={() => setSelectIcon(index.name)}
                 key={index.name}
