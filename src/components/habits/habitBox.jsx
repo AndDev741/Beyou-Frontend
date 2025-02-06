@@ -6,9 +6,9 @@ import fireIcon from '../../assets/habit/fire.svg'
 import { useTranslation } from "react-i18next";
 import CategoryNameAndIcon from "./categoryNameAndIcon";
 import { useDispatch, useSelector } from "react-redux";
-import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
+import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
 
-function HabitBox({iconId, name, description, level, xp, nextLevelXp, actualLevelXp, constance, categories, motivationalPhrase, importance, dificulty}){
+function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualLevelXp, constance, categories, motivationalPhrase, importance, dificulty}){
     const dispatch = useDispatch();
     const {t} = useTranslation();
     const [icon, setIcon] = useState(null);
@@ -105,6 +105,7 @@ function HabitBox({iconId, name, description, level, xp, nextLevelXp, actualLeve
     
     function handleEditMode(){
         dispatch(editModeEnter(true));
+        dispatch(editIdEnter(id))
         dispatch(editNameEnter(name));
         dispatch(editDescriptionEnter(description));
         dispatch(editMotivationalPhraseEnter(motivationalPhrase));

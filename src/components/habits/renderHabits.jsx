@@ -21,6 +21,7 @@ function RenderHabits(){
             {habits.map(habit => (
                 <HabitBox
                 key={habit.id}
+                id={habit.id}
                 name={habit.name}
                 iconId={habit.iconId}
                 description={habit.description}
