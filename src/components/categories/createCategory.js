@@ -5,12 +5,13 @@ import addIcon from '../../assets/addIcon.svg';
 import iconRender from '../icons/iconsRender';
 import Button from '../button';
 import createCategory from '../../services/categories/createCategory';
+import getCategories from '../../services/categories/getCategories';
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import ExperienceInput from '../inputs/experienceInput';
 import IconsInput from '../inputs/iconsInput';
 
-function CreateCategory({generatedCategories}){
+function CreateCategory({generatedCategories, setCategories}){
     const {t} = useTranslation();
 
     const [generatedCategory, setGeneratedCategory] = useState("");
@@ -36,10 +37,10 @@ function CreateCategory({generatedCategories}){
             const {category, description} = generatedCategories;
             setGeneratedCategory(category);
             setGeneratedDescription(description);
-            setName(category);
-            setDescription(description);
+            setName(generatedCategory);
+            setDescription(generatedDescription);
         }
-    }, [generatedCategories]);
+    }, [generatedCategories, generatedCategory, generatedDescription]);
     
     useEffect(() => {
         setIcons((icons) => iconRender(search, selectIcon, icons));
@@ -56,7 +57,12 @@ function CreateCategory({generatedCategories}){
         const response = await createCategory(userId, name, description, experience, selectIcon, t);
 
         if(response.success){
-            window.location.reload();
+            const response = await getCategories(userId);
+            setCategories(response.success);
+            setName("");
+            setDescription("");
+            setSelectIcon(null);
+
         }
 
         if(response.error){

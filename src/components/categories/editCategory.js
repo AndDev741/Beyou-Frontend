@@ -8,9 +8,11 @@ import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsInput';
 import editCategory from '../../services/categories/editCategory';
+import getCategories from '../../services/categories/getCategories';
 
-function EditCategory(){
+function EditCategory({setCategories}){
     const {t} = useTranslation();
+    const userId = useSelector(state => state.perfil.id);
     const dispatch = useDispatch();
 
     const categoryId = useSelector(state => state.editCategory.id);
@@ -59,7 +61,8 @@ function EditCategory(){
         const response = await editCategory(categoryId , name, description, selectIcon, t);
 
         if(response.success){
-            window.location.reload();
+            const categories = await getCategories(userId);
+            setCategories(categories.success);
         }
 
         if(response.error){

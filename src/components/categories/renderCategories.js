@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import getCategories from "../../services/categories/getCategories";
 import CategoryBox from "./categoryBox";
 
-function RenderCategories(){
+function RenderCategories({categories, setCategories}){
     const {t} = useTranslation();
-    const [categories, setCategories] = useState([]);
     const userId = useSelector(state => state.perfil.id);
-
+    
     useEffect(() => {
         async function returnCategories(){
             const response = await getCategories(userId);
@@ -19,7 +18,7 @@ function RenderCategories(){
             }
         }
         returnCategories();
-    }, [userId])
+    }, [userId, setCategories])
 
     return(
         <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start">
@@ -34,7 +33,9 @@ function RenderCategories(){
                     level={category.level}
                     xp={category.xp} 
                     nextLevelXp={category.nextLevelXp}
-                    actualLevelXp={category.actualLevelXp}/>
+                    actualLevelXp={category.actualLevelXp}
+                    setCategories={setCategories}
+                    userId={userId}/>
                     </div>
                 ))    
             ) : (

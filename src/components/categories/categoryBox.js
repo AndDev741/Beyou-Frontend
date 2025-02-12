@@ -3,11 +3,12 @@ import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
 import deleteCategory from "../../services/categories/deleteCategory";
+import getCategories from "../../services/categories/getCategories";
 import iconSearch from "../icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 
-function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, actualLevelXp}){
+function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, actualLevelXp, setCategories, userId}){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [icon, setIcon]= useState(null);
@@ -15,11 +16,10 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, a
     const [onDelete, setOnDelete] = useState(false);
 
     const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
-    console.log(actualProgress)
     useEffect(() => {
         const response = iconSearch(iconName);
         setIcon(response[0]);
-    }, []);
+    }, [iconName]);
 
     const handleEdit = () => {
         dispatch(editModeEnter(true));
@@ -88,18 +88,22 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, a
             <DeleteModal categoryId={id}
             onDelete={onDelete} 
             setOnDelete={setOnDelete}
-            t={t} name={name}/>
+            t={t} name={name}
+            setCategories={setCategories}
+            userId={userId}/>
         </div>
     )
 }
 
-function DeleteModal({categoryId, onDelete, setOnDelete, t, name}){
+function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories, userId}){
 
     const handleDelete = async () => {
         const response = await deleteCategory(categoryId);
 
         if(response.success){
-            window.location.reload();
+            const categories = await getCategories(userId);
+            setCategories(categories.success);
+            return;
         }
     }
     return(
