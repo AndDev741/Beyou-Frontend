@@ -34,6 +34,7 @@ function EditCategory({setCategories}){
     }, [nameEdit, descriptionEdit, iconEdit])
 
     const [nameError, setNameError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
     const [iconError, setIconError] = useState("");
     const [unknownError, setUnknownError] = useState("");
@@ -57,12 +58,14 @@ function EditCategory({setCategories}){
         setDescriptionError("");
         setIconError("");
         setUnknownError("");
+        setSuccessMessage("");
 
         const response = await editCategory(categoryId , name, description, selectIcon, t);
 
         if(response.success){
             const categories = await getCategories(userId);
             setCategories(categories.success);
+            setSuccessMessage(t('edited successfully'));
         }
 
         if(response.error){
@@ -70,7 +73,7 @@ function EditCategory({setCategories}){
         }
 
         if(response.validation){
-            const validation = response.validation[0]
+            const validation = response.validation;
             switch(validation){
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(validation);
@@ -122,7 +125,8 @@ function EditCategory({setCategories}){
                     </div>
                 </div> 
                 <p className='text-red-500 text-xl text-center underline'>{unknownError}</p>
-                <div className='flex items-center justify-evenly mt-6'>
+                <p className='text-blue-500 text-xl text-center underline mt-3'>{successMessage}</p>
+                <div className='flex items-center justify-evenly mt-3'>
                     <div>
                         <button type='button'
                         onClick={handleCancel}

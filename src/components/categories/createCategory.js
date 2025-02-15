@@ -70,7 +70,7 @@ function CreateCategory({generatedCategories, setCategories}){
         }
 
         if(response.validation){
-            const validation = response.validation[0]
+            const validation = response.validation;
             switch(validation){
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(validation);

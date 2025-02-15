@@ -98,7 +98,7 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, a
 function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories, userId}){
 
     const handleDelete = async () => {
-        const response = await deleteCategory(categoryId);
+        const response = await deleteCategory(categoryId, t);
 
         if(response.success){
             const categories = await getCategories(userId);

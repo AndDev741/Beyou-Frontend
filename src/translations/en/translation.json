@@ -102,5 +102,8 @@
     "Generate a random category": "Generate a random category",
     "gptError": "An error ocurred trying to auto generate the categories, please try again later",
     "Generating": "Generating",
-    "AlreadyGeneratedError": "You already generate a category, please try again later"
+    "AlreadyGeneratedError": "You already generate a category, please try again later",
+
+    "UnexpectedError": "An unexpected error ocurred",
+    "edited successfully": "Edited Successfully"
 }

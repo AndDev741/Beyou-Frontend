@@ -101,5 +101,8 @@
     "Generate a random category": "Gerar uma categoria aleatória",
     "gptError": "Um erro ocorreu ao gerar a categoria, por favor tente novamente mais tarde",
     "Generating": "Gerando",
-    "AlreadyGeneratedError": "Você já gerou uma categoria, tente novamente mais tarde"
+    "AlreadyGeneratedError": "Você já gerou uma categoria, tente novamente mais tarde",
+
+    "UnexpectedError": "Um erro inesperado aconteceu",
+    "edited successfully": "Editado com sucesso"
 }
