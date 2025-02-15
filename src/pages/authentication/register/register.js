@@ -1,6 +1,6 @@
 import Header from "../../../components/authentication/header";
 import Input from "../../../components/authentication/input";
-import Button from "../../../components/button";
+import Button from "../../../components/Button";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useDispatch } from "react-redux";

@@ -1,6 +1,6 @@
 import Header from "../../../components/authentication/header";
 import Input from "../../../components/authentication/input";
-import Button from "../../../components/button";
+import Button from "../../../components/Button";
 import TranslationButton from "../../../components/translationButton";
 import SuccessRegisterPhrase from "../../../components/authentication/successRegisterPhrase";
 import ErrorLoginModal from "../../../components/authentication/errorLoginModal";

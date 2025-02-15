@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import addIcon from '../../assets/addIcon.svg';
 import iconRender from '../icons/iconsRender';
-import Button from '../button';
+import Button from '../Button';
 import createCategory from '../../services/categories/createCategory';
 import getCategories from '../../services/categories/getCategories';
 import NameInput from '../inputs/nameInput';

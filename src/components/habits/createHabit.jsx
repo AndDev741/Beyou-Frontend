@@ -8,7 +8,7 @@ import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
-import Button from "../button";
+import Button from "../Button";
 import ExperienceInput from "../inputs/experienceInput";
 import createHabit from "../../services/habits/createHabit";
 import { useSelector } from "react-redux";
