@@ -1,11 +1,21 @@
-import axios from '../axiosConfig';
+import axiosWithCredentials from '../axiosConfig';
+import axios from 'axios';
 import * as Yup from 'yup';
+import { TFunction } from 'i18next';
 
+type apiResponse = Record<string, string>;
 
-async function createCategory(userId, name, description, experience, icon, t){
+async function createCategory (
+    userId: string, 
+    name: string, 
+    description: string, 
+    experience: number, 
+    icon: string, 
+    t: TFunction
+): Promise<apiResponse> {
+
     let level = 0;
     let xp = 0;
-    experience = Number(experience)
 
     switch(experience){
         case 1:
@@ -30,6 +40,7 @@ async function createCategory(userId, name, description, experience, icon, t){
     })
 
     try{
+        
         await validation.validate({name, description, experience, icon, level, xp});
         try{
             const categoryData = {
@@ -40,15 +51,23 @@ async function createCategory(userId, name, description, experience, icon, t){
                 level: level,
                 xp: xp,
             }
-            const response = await axios.post("/category", categoryData);
+            const response = await axiosWithCredentials.post<apiResponse>("/category", categoryData);
             return response.data;
         }catch(e){
-            console.error(e);
-            return e.response.data;
+            if(axios.isAxiosError(e)){
+                return e.response?.data || {error: t('UnkownError')};
+            }
+            return {error: t('UnexpectedError')};
         }
+
     }catch(validationErrors){
-        return {validation: validationErrors.errors};
+        if(validationErrors instanceof Yup.ValidationError){
+            return {validation: validationErrors.errors.join(', ')};
+        }
+        return {error: t('UnexpectedError')};
     }
+
+    return {error: t('UnexpectedError')};
 }
 
 
