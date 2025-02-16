@@ -1,13 +1,12 @@
 import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
-import VerifyAuth from "../../components/verifyAuthentication";
+import useAuthGuard from "../../components/useAuthGuard";
 
 function Dashboard(){
-    
+    useAuthGuard();
 
     return(
         <>
-        <VerifyAuth />
         
         <header className="md:flex md:justify-center lg:justify-start">
             <Perfil/>
