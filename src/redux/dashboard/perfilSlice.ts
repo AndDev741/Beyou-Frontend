@@ -1,13 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    id: null,
+    id: "",
     username: "",
     email: "",
     phrase: "",
     phrase_author: "",
     constance: 0,
-    photo: null,
+    photo: "",
     isGoogleAccount: false,
 }
 
