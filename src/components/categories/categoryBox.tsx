@@ -7,26 +7,34 @@ import getCategories from "../../services/categories/getCategories";
 import iconSearch from "../icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
+import categoryType from "../../types/category/categoryType";
+import { TFunction } from "i18next";
 
-function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, actualLevelXp, setCategories, userId}){
+type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
+    nextLevelXp: number, actualLevelXp: number, 
+    setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>,
+    userId: string
+}
+
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories, userId}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
-    const [icon, setIcon]= useState(null);
+    const [icon, setIcon]= useState<any>(null);
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
     const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
     useEffect(() => {
-        const response = iconSearch(iconName);
+        const response = iconSearch(iconId);
         setIcon(response[0]);
-    }, [iconName]);
+    }, [iconId]);
 
     const handleEdit = () => {
         dispatch(editModeEnter(true));
         dispatch(idEnter(id));
         dispatch(nameEnter(name));
         dispatch(descriptionEnter(description));
-        dispatch(iconEnter(iconName));
+        dispatch(iconEnter(iconId));
         window.scrollTo({
             top: document.documentElement.scrollHeight,
             behavior: 'smooth'
@@ -95,15 +103,25 @@ function CategoryBox({id, iconName, name, description, level, xp, nextLevelXp, a
     )
 }
 
-function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories, userId}){
+type deleteProps = {categoryId: string, 
+    onDelete: boolean, 
+    setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
+    t: TFunction, 
+    name: string,
+    setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
+    userId: string}
+
+function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories, userId}: deleteProps){
 
     const handleDelete = async () => {
         const response = await deleteCategory(categoryId, t);
 
         if(response.success){
-            const categories = await getCategories(userId);
-            setCategories(categories.success);
-            return;
+            const categories = await getCategories(userId, t);
+            if(Array.isArray(categories.success)){
+                setCategories(categories.success);
+                return;
+            }
         }
     }
     return(

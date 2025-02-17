@@ -3,22 +3,26 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import getCategories from "../../services/categories/getCategories";
 import CategoryBox from "./categoryBox";
+import categoryType from "../../types/category/categoryType";
+import { RootState } from "../../redux/rootReducer";
 
-function RenderCategories({categories, setCategories}){
+type props = {categories: Array<categoryType>, setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>}
+
+function RenderCategories({categories, setCategories}: props){
     const {t} = useTranslation();
-    const userId = useSelector(state => state.perfil.id);
+    const userId = useSelector((state: RootState) => state.perfil.id);
     
     useEffect(() => {
         async function returnCategories(){
-            const response = await getCategories(userId);
-            if(response.success){
+            const response = await getCategories(userId, t);
+            if(Array.isArray(response.success)){
                 setCategories(response.success);
             }else{
                 console.error(response);
             }
         }
         returnCategories();
-    }, [userId, setCategories])
+    }, [userId, setCategories, t])
 
     return(
         <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start">
@@ -27,7 +31,7 @@ function RenderCategories({categories, setCategories}){
                 <div key={category.id} 
                 className="lg:mx-1">
                     <CategoryBox id={category.id}
-                    iconName={category.iconId}
+                    iconId={category.iconId}
                     name={category.name}
                     description={category.description}
                     level={category.level}

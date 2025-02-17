@@ -2,8 +2,11 @@ import IAImg from "../../assets/IAIcon.svg";
 import axios from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
 
-export default function GenerateCategoryByAi({setGeneratedCategories}){
+type prop = {setGeneratedCategory: React.Dispatch<React.SetStateAction<categoryGeneratedByAi>>}
+
+export default function GenerateCategoryByAi({setGeneratedCategory}: prop){
     const {t} = useTranslation();
     const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
 
@@ -39,8 +42,8 @@ export default function GenerateCategoryByAi({setGeneratedCategories}){
               }});
               
             const data = await response.data;
-            setGeneratedCategories({});
-            setGeneratedCategories(JSON.parse(data.choices[0].message.content));
+            setGeneratedCategory({categoryName: "", description: ""});
+            setGeneratedCategory(JSON.parse(data.choices[0].message.content));
         }catch(e){
             console.error(e);
             setError(t("gptError"))
@@ -57,7 +60,7 @@ export default function GenerateCategoryByAi({setGeneratedCategories}){
                 {t("Generating")}...
             </p>
             <div onClick={() => fetchSuggestion()}
-            className="flex items-center justify-center border-[1px] border-blueMain rounded-xl md:w-[450px] h-[60px] mb-8 mx-8 cursor-pointer hover:scale-105">
+            className="flex items-center justify-center border-[1px] border-blueMain rounded-xl p-2 md:w-[450px] h-[60px] mb-8 mx-8 cursor-pointer hover:scale-105">
                 <img src={IAImg}
                 alt="ia icon"
                 className="w-[60px] md:w-[70px]"/>

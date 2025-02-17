@@ -1,27 +1,37 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import addIcon from '../../assets/addIcon.svg';
+
 import iconRender from '../icons/iconsRender';
 import Button from '../Button';
 import createCategory from '../../services/categories/createCategory';
 import getCategories from '../../services/categories/getCategories';
+import addIcon from "../../assets/addIcon.svg";
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import ExperienceInput from '../inputs/experienceInput';
 import IconsInput from '../inputs/iconsInput';
+import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiType';
+import * as React from 'react';
+import categoryType from '../../types/category/categoryType';
+import { RootState } from '../../redux/rootReducer';
 
-function CreateCategory({generatedCategories, setCategories}){
+type props = {
+    generatedCategory: categoryGeneratedByAi,
+    setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
+}
+
+function CreateCategory({generatedCategory, setCategories}: props){
     const {t} = useTranslation();
 
-    const [generatedCategory, setGeneratedCategory] = useState("");
+    const [generatedCategoryName, setGeneratedCategoryName] = useState("");
     const [generatedDescription, setGeneratedDescription] = useState("");
 
-    const userId = useSelector(state => state.perfil.id)
+    const userId: string = useSelector((state: RootState) => state.perfil.id);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [experience, setExperience] = useState(0);
-    const [selectIcon, setSelectIcon] = useState(null);
+    const [selectIcon, setSelectIcon] = useState("");
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -31,22 +41,22 @@ function CreateCategory({generatedCategories, setCategories}){
 
     const [search, setSearch] = useState("");
     const [icons, setIcons] = useState([]);
-
+    
     useEffect(() => {
-        if(generatedCategories?.category){
-            const {category, description} = generatedCategories;
-            setGeneratedCategory(category);
+        if(generatedCategory?.categoryName){
+            const {categoryName, description} = generatedCategory;
+            setGeneratedCategoryName(categoryName);
             setGeneratedDescription(description);
-            setName(generatedCategory);
+            setName(generatedCategoryName);
             setDescription(generatedDescription);
         }
-    }, [generatedCategories, generatedCategory, generatedDescription]);
+    }, [generatedCategory, generatedCategoryName, generatedDescription]);
     
     useEffect(() => {
         setIcons((icons) => iconRender(search, selectIcon, icons));
     }, [search, selectIcon])
 
-    const handleCreate = async (e) => {
+    const handleCreate = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setNameError("");
         setDescriptionError("");
@@ -57,12 +67,14 @@ function CreateCategory({generatedCategories, setCategories}){
         const response = await createCategory(userId, name, description, experience, selectIcon, t);
 
         if(response.success){
-            const response = await getCategories(userId);
-            setCategories(response.success);
-            setName("");
-            setDescription("");
-            setSelectIcon(null);
-
+            const newCategories = await getCategories(userId, t);
+            if(Array.isArray(newCategories.success)){
+                setCategories(newCategories.success);
+                setName("");
+                setDescription("");
+                setSelectIcon("");
+            }
+        
         }
 
         if(response.error){
@@ -100,15 +112,15 @@ function CreateCategory({generatedCategories, setCategories}){
                 <h2>{t('CreateCategory')}</h2>
             </div>
             <form onSubmit={handleCreate} 
-            className='flex flex-col mt-8 '>
+            className='flex flex-col mt-8 md:w-[60%]'>
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-5'>
+                    <div className='flex flex-col md:items-start mx-4'>
                         <NameInput name={name} 
                         placeholder={"CategoryNamePlaceholder"}
                         setName={setName} 
                         nameError={nameError}
                         t={t} />
-                        
+
                         <DescriptionInput description={description}
                         placeholder={"DescriptionPlaceholder"}
                         setDescription={setDescription}
@@ -121,7 +133,8 @@ function CreateCategory({generatedCategories, setCategories}){
                         experienceError={experienceError}
                         t={t} />
                     </div>
-                    <div className='flex flex-col mt-2 md:mt-0'>
+
+                    <div className='flex flex-col mt-2 md:mt-0 w-auto'>
                         <IconsInput icons={icons}
                         search={search}
                         setSearch={setSearch}
@@ -131,7 +144,7 @@ function CreateCategory({generatedCategories, setCategories}){
                         selectIcon={selectIcon}
                         minLgH={275} />
                     </div>
-                </div> 
+                </div>
                 <div className='flex items-center justify-center mt-6'>
                 <p className='text-red-500 text-lg'>{unknownError}</p>
                     <Button text={t('Create')} />

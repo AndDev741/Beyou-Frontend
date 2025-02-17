@@ -2,23 +2,27 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
 import { useTranslation } from 'react-i18next';
-import addIcon from '../../assets/addIcon.svg';
 import iconRender from '../icons/iconsRender';
+import addIcon from "../../assets/addIcon.svg";
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsInput';
 import editCategory from '../../services/categories/editCategory';
 import getCategories from '../../services/categories/getCategories';
+import categoryType from '../../types/category/categoryType';
+import { RootState } from '../../redux/rootReducer';
 
-function EditCategory({setCategories}){
+type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>};
+
+function EditCategory({setCategories}: prop){
     const {t} = useTranslation();
-    const userId = useSelector(state => state.perfil.id);
+    const userId = useSelector((state: RootState) => state.perfil.id);
     const dispatch = useDispatch();
 
-    const categoryId = useSelector(state => state.editCategory.id);
-    const nameEdit = useSelector(state => state.editCategory.name);
-    const descriptionEdit = useSelector(state => state.editCategory.description);
-    const iconEdit = useSelector(state => state.editCategory.icon);
+    const categoryId = useSelector((state: RootState) => state.editCategory.id);
+    const nameEdit = useSelector((state: RootState) => state.editCategory.name);
+    const descriptionEdit = useSelector((state: RootState) => state.editCategory.description);
+    const iconEdit = useSelector((state: RootState) => state.editCategory.icon);
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -44,7 +48,7 @@ function EditCategory({setCategories}){
         setIcons((icons) => iconRender(search, selectIcon, icons));
     }, [search, selectIcon])
 
-    const handleCancel = (e) => {
+    const handleCancel = () => {
         dispatch(editModeEnter(false));
         dispatch(idEnter(null));
         dispatch(nameEnter(""));
@@ -52,7 +56,7 @@ function EditCategory({setCategories}){
         dispatch(iconEnter(""));
     }
 
-    const handleEdit = async (e) => {
+    const handleEdit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setNameError("");
         setDescriptionError("");
@@ -63,9 +67,11 @@ function EditCategory({setCategories}){
         const response = await editCategory(categoryId , name, description, selectIcon, t);
 
         if(response.success){
-            const categories = await getCategories(userId);
-            setCategories(categories.success);
-            setSuccessMessage(t('edited successfully'));
+            const categories = await getCategories(userId, t);
+            if(Array.isArray(categories.success)){
+                setCategories(categories.success);
+                setSuccessMessage(t('edited successfully'));
+            }
         }
 
         if(response.error){
@@ -102,22 +108,25 @@ function EditCategory({setCategories}){
             <form onSubmit={handleEdit}
             className='flex flex-col mt-8 '>
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-5'>
+                    <div className='flex flex-col md:items-start mx-4'>
                         <NameInput name={name} 
                         setName={setName} 
                         nameError={nameError}
+                        placeholder={""}
                         t={t} />
                         
                         <DescriptionInput description={description}
                         placeholder={"DescriptionPlaceholder"}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
+                        minH={0}
                         t={t} />
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
                         <IconsInput icons={icons}
                         search={search}
                         setSearch={setSearch}
+                        minLgH={0}
                         t={t}
                         iconError={iconError}
                         setSelectIcon={setSelectIcon}
