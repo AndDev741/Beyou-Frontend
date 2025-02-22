@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
+import { RootState } from "../../redux/rootReducer";
 
 function Perfil(){
     const {t} = useTranslation();
     const [hour, setHour] = useState("");
-    const name = useSelector(state => state.perfil.username);
-    const photo = useSelector(state => state.perfil.photo);
-    const phrase = useSelector(state => state.perfil.phrase);
-    const phrase_author = useSelector(state => state.perfil.phrase_author);
-    const constance = useSelector(state => state.perfil.constance);
+    const name = useSelector((state: RootState) => state.perfil.username);
+    const photo = useSelector((state: RootState) => state.perfil.photo);
+    const phrase = useSelector((state: RootState) => state.perfil.phrase);
+    const phrase_author = useSelector((state: RootState) => state.perfil.phrase_author);
+    const constance = useSelector((state: RootState) => state.perfil.constance);
 
     function getHour(){
         const date = new Date();
