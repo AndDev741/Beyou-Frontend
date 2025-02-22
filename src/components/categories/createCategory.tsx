@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import iconRender from '../icons/iconsRender';
 import Button from '../Button';
 import createCategory from '../../services/categories/createCategory';
 import getCategories from '../../services/categories/getCategories';
@@ -10,7 +9,7 @@ import addIcon from "../../assets/addIcon.svg";
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import ExperienceInput from '../inputs/experienceInput';
-import IconsInput from '../inputs/iconsInput';
+import IconsInput from '../inputs/iconsBox';
 import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiType';
 import * as React from 'react';
 import categoryType from '../../types/category/categoryType';
@@ -31,7 +30,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [experience, setExperience] = useState(0);
-    const [selectIcon, setSelectIcon] = useState("");
+    const [selectedIcon, setSelectedIcon] = useState("");
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -40,7 +39,6 @@ function CreateCategory({generatedCategory, setCategories}: props){
     const [unknownError, setUnknownError] = useState("");
 
     const [search, setSearch] = useState("");
-    const [icons, setIcons] = useState([]);
     
     useEffect(() => {
         if(generatedCategory?.categoryName){
@@ -51,10 +49,6 @@ function CreateCategory({generatedCategory, setCategories}: props){
             setDescription(generatedDescription);
         }
     }, [generatedCategory, generatedCategoryName, generatedDescription]);
-    
-    useEffect(() => {
-        setIcons((icons) => iconRender(search, selectIcon, icons));
-    }, [search, selectIcon])
 
     const handleCreate = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
@@ -64,7 +58,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
         setIconError("");
         setUnknownError("");
 
-        const response = await createCategory(userId, name, description, experience, selectIcon, t);
+        const response = await createCategory(userId, name, description, experience, selectedIcon, t);
 
         if(response.success){
             const newCategories = await getCategories(userId, t);
@@ -72,7 +66,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                 setCategories(newCategories.success);
                 setName("");
                 setDescription("");
-                setSelectIcon("");
+                setSelectedIcon("");
             }
         
         }
@@ -135,13 +129,13 @@ function CreateCategory({generatedCategory, setCategories}: props){
                     </div>
 
                     <div className='flex flex-col mt-2 md:mt-0 w-auto'>
-                        <IconsInput icons={icons}
+                        <IconsInput
                         search={search}
                         setSearch={setSearch}
                         t={t}
                         iconError={iconError}
-                        setSelectIcon={setSelectIcon}
-                        selectIcon={selectIcon}
+                        setSelectedIcon={setSelectedIcon}
+                        selectedIcon={selectedIcon}
                         minLgH={275} />
                     </div>
                 </div>

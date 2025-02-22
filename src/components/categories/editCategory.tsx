@@ -6,11 +6,12 @@ import iconRender from '../icons/iconsRender';
 import addIcon from "../../assets/addIcon.svg";
 import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
-import IconsInput from '../inputs/iconsInput';
+import IconsInput from '../inputs/iconsBox';
 import editCategory from '../../services/categories/editCategory';
 import getCategories from '../../services/categories/getCategories';
 import categoryType from '../../types/category/categoryType';
 import { RootState } from '../../redux/rootReducer';
+import { IconObject } from '../../types/icons/IconComponent';
 
 type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>};
 
@@ -26,14 +27,13 @@ function EditCategory({setCategories}: prop){
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [selectIcon, setSelectIcon] = useState("");
+    const [selectedIcon, setSelectedIcon] = useState("");
     const [search, setSearch] = useState("");
-    const [icons, setIcons] = useState([]);
 
     useEffect(() => {
         setName(nameEdit);
         setDescription(descriptionEdit);
-        setSelectIcon(iconEdit);
+        setSelectedIcon(iconEdit);
         setSearch(iconEdit);
     }, [nameEdit, descriptionEdit, iconEdit])
 
@@ -42,11 +42,6 @@ function EditCategory({setCategories}: prop){
     const [descriptionError, setDescriptionError] = useState("");
     const [iconError, setIconError] = useState("");
     const [unknownError, setUnknownError] = useState("");
-
-    
-    useEffect(() => {
-        setIcons((icons) => iconRender(search, selectIcon, icons));
-    }, [search, selectIcon])
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
@@ -64,7 +59,7 @@ function EditCategory({setCategories}: prop){
         setUnknownError("");
         setSuccessMessage("");
 
-        const response = await editCategory(categoryId , name, description, selectIcon, t);
+        const response = await editCategory(categoryId , name, description, selectedIcon, t);
 
         if(response.success){
             const categories = await getCategories(userId, t);
@@ -123,14 +118,14 @@ function EditCategory({setCategories}: prop){
                         t={t} />
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
-                        <IconsInput icons={icons}
+                        <IconsInput
                         search={search}
                         setSearch={setSearch}
                         minLgH={0}
                         t={t}
                         iconError={iconError}
-                        setSelectIcon={setSelectIcon}
-                        selectIcon={selectIcon} />
+                        setSelectedIcon={setSelectedIcon}
+                        selectedIcon={selectedIcon} />
                     </div>
                 </div> 
                 <p className='text-red-500 text-xl text-center underline'>{unknownError}</p>
