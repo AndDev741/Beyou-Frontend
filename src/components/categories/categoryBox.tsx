@@ -9,6 +9,8 @@ import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 import categoryType from "../../types/category/categoryType";
 import { TFunction } from "i18next";
+import { IconObject } from "../../types/icons/IconComponent";
+import { IconType } from "react-icons";
 
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 
@@ -19,14 +21,14 @@ type props = {id: string, name: string, description: string, iconId: string, lev
 function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories, userId}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
-    const [icon, setIcon]= useState<any>(null);
+    const [Icon, setIcon]= useState<IconObject>();
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
     const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
     useEffect(() => {
         const response = iconSearch(iconId);
-        setIcon(response[0]);
+        setIcon(response);
     }, [iconId]);
 
     const handleEdit = () => {
@@ -49,7 +51,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
                     <p className="text-[35px] text-blueMain">
-                        {icon !== null ? <icon.IconComponent/> : ""}
+                        {Icon !== undefined && Icon !== null ? <Icon.iconComponent/> : null}
                     </p>
                     <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
                 </div>
