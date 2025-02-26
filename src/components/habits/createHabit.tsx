@@ -1,9 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import habitIcon from '../../assets/dashboard/shortcuts/habits.svg'
 import NameInput from "../inputs/nameInput";
-import IconsInput from "../inputs/iconsInput";
-import iconRender from "../icons/iconsRender";
+import IconsInput from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
@@ -12,19 +11,20 @@ import Button from "../Button";
 import ExperienceInput from "../inputs/experienceInput";
 import createHabit from "../../services/habits/createHabit";
 import { useSelector } from "react-redux";
+import { RootState } from "../../redux/rootReducer";
 
 function CreateHabit(){
     const {t} = useTranslation();
 
-    const userId = useSelector(state => state.perfil.id)
+    const userId = useSelector((state: RootState) => state.perfil.id)
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [motivationalPhrase, setMotivationalPhrase] = useState("");
-    const [importance, setImportance] = useState(null);
-    const [dificulty, setDificulty] = useState(null);
-    const [selectedIcon, setSelectedIcon] = useState(null);
+    const [importance, setImportance] = useState(0);
+    const [dificulty, setDificulty] = useState(0);
+    const [selectedIcon, setSelectedIcon] = useState("");
     const [experience, setExperience] = useState(0);
-    const [categories, setCategories] = useState([]);
+    const [categoriesId, setCategoriesIdList] = useState<string[]>([""]);
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -37,10 +37,6 @@ function CreateHabit(){
     const [unknownError, setUnknownError] = useState("");
     
     const [search, setSearch] = useState("");
-    const [icons, setIcons] = useState([]);
-    useEffect(() => {
-        setIcons((icons) => iconRender(search, selectedIcon, icons));
-    }, [search, selectedIcon])
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -49,7 +45,7 @@ function CreateHabit(){
         })
     }
 
-    const handleCreateHabit = async (e) => {
+    const handleCreateHabit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setNameError("");
         setDescriptionError("");
@@ -60,7 +56,7 @@ function CreateHabit(){
         setExperienceError("");
         setCategoriesError("");
 
-        const response = await createHabit(userId, name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categories, t);
+        const response = await createHabit(userId, name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categoriesId, t);
 
         if(response?.success){
             window.location.reload();
@@ -134,7 +130,8 @@ function CreateHabit(){
                         description={description}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
-                        placeholder={"HabitDescriptionPlaceholder"}/>
+                        placeholder={"HabitDescriptionPlaceholder"}
+                        minH={0}/>
 
                         <GenericInput
                         t={t}
@@ -167,13 +164,13 @@ function CreateHabit(){
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
                         <IconsInput 
-                        icons={icons}
                         search={search}
                         setSearch={setSearch}
                         iconError={iconError}
-                        selectIcon={selectedIcon}
-                        setSelectIcon={setSelectedIcon}
-                        t={t}/>
+                        selectedIcon={selectedIcon}
+                        setSelectedIcon={setSelectedIcon}
+                        t={t}
+                        minLgH={0}/>
 
                         <ExperienceInput t={t}
                         experience={experience} 
@@ -195,9 +192,10 @@ function CreateHabit(){
                 </div>
                 <div>
                     <ChooseCategories
-                    categoriesList={categories}
-                    setCategoriesList={setCategories}
-                    errorMessage={categoriesError}/>
+                    categoriesIdList={categoriesId}
+                    setCategoriesIdList={setCategoriesIdList}
+                    errorMessage={categoriesError}
+                    chosenCategories={null}/>
                 </div>
                 <p className='text-red-500 text-lg text-center'>{unknownError}</p>
                 <div className="mb-3">

@@ -4,11 +4,12 @@ import EditHabit from "../../components/habits/editHabit";
 import RenderHabits from "../../components/habits/renderHabits";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
+import { RootState } from "../../redux/rootReducer";
 
 function Habits(){
     useAuthGuard();
 
-    const isEditMode = useSelector(state => state.editHabit.editMode);
+    const isEditMode = useSelector((state: RootState) => state.editHabit.editMode);
 
     return(
         <div className="lg:flex flex-col items-center w-full">

@@ -2,29 +2,29 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import habitIcon from '../../assets/dashboard/shortcuts/habits.svg'
 import NameInput from "../inputs/nameInput";
-import IconsInput from "../inputs/iconsInput";
-import iconRender from "../icons/iconsRender";
+import IconsBox from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
 import editHabit from "../../services/habits/editHabit";
+import { RootState } from "../../redux/rootReducer";
+import category from "../../types/category/categoryType";
 
 function EditHabit(){
     const {t} = useTranslation();
     const dispatch = useDispatch();
 
-    const habitIdToEdit = useSelector(state => state.editHabit.id);
-    const nameToEdit = useSelector(state => state.editHabit.name);
-    const descriptionToEdit = useSelector(state => state.editHabit.description);
-    const motivationalPhraseToEdit = useSelector(state => state.editHabit.motivationalPhrase);
-    const iconIdToEdit = useSelector(state => state.editHabit.iconId);
-    const importanceToEdit = useSelector(state => state.editHabit.importance);
-    const dificultyToEdit = useSelector(state => state.editHabit.dificulty);
-    const categoriesIdToEdit = useSelector(state => state.editHabit.categoriesId);
-
+    const habitId = useSelector((state: RootState) => state.editHabit.id);
+    const nameToEdit = useSelector((state: RootState) => state.editHabit.name);
+    const descriptionToEdit = useSelector((state: RootState) => state.editHabit.description);
+    const motivationalPhraseToEdit = useSelector((state: RootState) => state.editHabit.motivationalPhrase);
+    const iconIdToEdit = useSelector((state: RootState) => state.editHabit.iconId);
+    const importanceToEdit = useSelector((state: RootState) => state.editHabit.importance);
+    const dificultyToEdit = useSelector((state: RootState) => state.editHabit.dificulty);
+    const categoriesToEdit = useSelector((state: RootState) => state.editHabit.categories || [], shallowEqual) ;
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -32,8 +32,8 @@ function EditHabit(){
     const [importance, setImportance] = useState(1);
     const [dificulty, setDificulty] = useState(1);
     const [selectedIcon, setSelectedIcon] = useState("");
-    const [categories, setCategories] = useState([]);
-    const [alreadyChosenCategories, setAlreadyChosenCategories] = useState([]);
+    const [categoriesId, setCategoriesId] = useState<string[]>([]);
+    const [alreadyChosenCategories, setAlreadyChosenCategories] = useState<category[]>([]);
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -53,23 +53,18 @@ function EditHabit(){
         setImportance(importanceToEdit);
         setDificulty(dificultyToEdit);
 
-        if(categoriesIdToEdit.length > 0){
-            const categoriesId = [];
-            categoriesIdToEdit.map(category => {
-                categoriesId.push(category.id)
-            })
-            setCategories(categoriesId)
+        if(categoriesToEdit.length > 0){
+            const categoriesId: string[] = [];
+            for(let i = 0; i < categoriesToEdit.length; i++){
+                categoriesId.push(categoriesToEdit[i].id);
+            }
+            setCategoriesId(categoriesId)
         }
         
-        setAlreadyChosenCategories(categoriesIdToEdit)
-    }, [nameToEdit, descriptionToEdit, motivationalPhraseToEdit, iconIdToEdit, importanceToEdit, dificultyToEdit, categoriesIdToEdit, setCategories])
-
+        setAlreadyChosenCategories(categoriesToEdit)
+    }, [categoriesToEdit, descriptionToEdit, iconIdToEdit, importanceToEdit, motivationalPhraseToEdit, nameToEdit, dificultyToEdit])
 
     const [search, setSearch] = useState("");
-    const [icons, setIcons] = useState([]);
-    useEffect(() => {
-        setIcons((icons) => iconRender(search, selectedIcon, icons));
-    }, [search, selectedIcon])
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
@@ -83,7 +78,7 @@ function EditHabit(){
     };
 
 
-    const handleEdit = async (e) => {
+    const handleEdit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setNameError("");
         setDescriptionError("");
@@ -100,7 +95,7 @@ function EditHabit(){
             })
         }
 
-        const response = await editHabit(habitIdToEdit, name, description, motivationalPhrase, selectedIcon, importance, dificulty, categories, t);
+        const response = await editHabit(habitId, name, description, motivationalPhrase, selectedIcon, importance, dificulty, categoriesId, t);
 
         if(response.success){
             handleCancel();
@@ -150,17 +145,6 @@ function EditHabit(){
         }
     }
 
-    console.log({
-        habitId: habitIdToEdit,
-        name,
-        description,
-        motivationalPhrase,
-        iconId: selectedIcon,
-        importance: Number(importance),
-        dificulty: Number(dificulty),
-        categoriesId: categories
-    })
-
     return(
         <div>
             <div className="flex text-3xl items-center justify-center mt-5 mb-3"> 
@@ -204,13 +188,12 @@ function EditHabit(){
                         t={t} />
                     </div>
                     <div className='flex flex-col-reverse md:flex-col md:mt-0'>
-                        <IconsInput 
-                        icons={icons}
+                        <IconsBox 
                         search={search}
                         setSearch={setSearch}
                         iconError={iconError}
-                        selectIcon={selectedIcon}
-                        setSelectIcon={setSelectedIcon}
+                        selectedIcon={selectedIcon}
+                        setSelectedIcon={setSelectedIcon}
                         minLgH={262}
                         t={t}/>
 
@@ -223,15 +206,14 @@ function EditHabit(){
                             levels={[t("Easy"), t("Normal"), t("Hard"), 
                             t("Terrible")]}
                             name={"dificulty"}
-                            t={t}
-                            actualProgress={dificulty} />
+                            t={t} />
                         </div>
                     </div>
                 </div>
                 <div>
                     <ChooseCategories
-                    categoriesList={categories}
-                    setCategoriesList={setCategories}
+                    categoriesIdList={categoriesId}
+                    setCategoriesIdList={setCategoriesId}
                     errorMessage={categoriesError}
                     chosenCategories={alreadyChosenCategories}/>
                 </div>
