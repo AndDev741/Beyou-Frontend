@@ -10,7 +10,6 @@ import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 import categoryType from "../../types/category/categoryType";
 import { TFunction } from "i18next";
 import { IconObject } from "../../types/icons/IconObject";
-import { IconType } from "react-icons";
 
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 
