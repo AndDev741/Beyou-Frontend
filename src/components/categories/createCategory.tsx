@@ -6,7 +6,6 @@ import Button from '../Button';
 import createCategory from '../../services/categories/createCategory';
 import getCategories from '../../services/categories/getCategories';
 import addIcon from "../../assets/addIcon.svg";
-import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import ExperienceInput from '../inputs/experienceInput';
 import IconsInput from '../inputs/iconsBox';
@@ -14,6 +13,7 @@ import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiTyp
 import * as React from 'react';
 import categoryType from '../../types/category/categoryType';
 import { RootState } from '../../redux/rootReducer';
+import GenericInput from '../inputs/genericInput';
 
 type props = {
     generatedCategory: categoryGeneratedByAi,
@@ -109,10 +109,12 @@ function CreateCategory({generatedCategory, setCategories}: props){
             className='flex flex-col mt-8 md:w-[60%]'>
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-4'>
-                        <NameInput name={name} 
+                        <GenericInput 
+                        name='Name'
+                        data={name} 
                         placeholder={"CategoryNamePlaceholder"}
-                        setName={setName} 
-                        nameError={nameError}
+                        setData={setName} 
+                        dataError={nameError}
                         t={t} />
 
                         <DescriptionInput description={description}

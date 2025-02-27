@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import habitIcon from '../../assets/dashboard/shortcuts/habits.svg'
-import NameInput from "../inputs/nameInput";
 import IconsInput from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
@@ -120,11 +119,14 @@ function CreateHabit(){
             className="flex flex-col items-center">
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-4'>
-                        <NameInput t={t}
-                        name={name}
-                        setName={setName}
-                        nameError={nameError}
-                        placeholder={"HabitNamePlaceholder"}/>
+                        <GenericInput 
+                        name='Name'
+                        data={name} 
+                        placeholder={"CategoryNamePlaceholder"}
+                        setData={setName} 
+                        dataError={nameError}
+                        t={t} />
+
 
                         <DescriptionInput t={t}
                         description={description}

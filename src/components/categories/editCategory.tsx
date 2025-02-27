@@ -4,13 +4,13 @@ import {editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter} from '..
 import { useTranslation } from 'react-i18next';
 import iconRender from '../icons/iconsRender';
 import addIcon from "../../assets/addIcon.svg";
-import NameInput from '../inputs/nameInput';
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsBox';
 import editCategory from '../../services/categories/editCategory';
 import getCategories from '../../services/categories/getCategories';
 import categoryType from '../../types/category/categoryType';
 import { RootState } from '../../redux/rootReducer';
+import GenericInput from '../inputs/genericInput';
 
 type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>};
 
@@ -103,10 +103,12 @@ function EditCategory({setCategories}: prop){
             className='flex flex-col mt-8 '>
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-4'>
-                        <NameInput name={name} 
-                        setName={setName} 
-                        nameError={nameError}
-                        placeholder={""}
+                        <GenericInput 
+                        name='Name'
+                        data={name} 
+                        placeholder={"CategoryNamePlaceholder"}
+                        setData={setName} 
+                        dataError={nameError}
                         t={t} />
                         
                         <DescriptionInput description={description}
