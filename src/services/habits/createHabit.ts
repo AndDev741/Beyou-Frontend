@@ -1,7 +1,6 @@
 import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
-import category from '../../types/category/categoryType';
 
 type apiResponse = Promise<Record<string, string>>;
 
@@ -14,7 +13,7 @@ async function createHabit(
     dificulty: number, 
     iconId: string, 
     experience: number, 
-    categories: category[], 
+    categoriesId: string[], 
     t: TFunction
 ): apiResponse{
     let level = 0;
@@ -44,7 +43,7 @@ async function createHabit(
         dificulty: Yup.number().required(t("YupDificultyRequired")),
         iconId: Yup.string().required(t('YupIconRequired')),
         experience: Yup.number().required(t('YupRequiredExperience')),
-        categories: Yup.array().min(1, t("YupRequiredCategories")).required(t("YupRequiredCategories"))
+        categoriesId: Yup.array().min(1, t("YupRequiredCategories")).required(t("YupRequiredCategories"))
     })
 
     
@@ -56,13 +55,13 @@ async function createHabit(
         iconId: iconId,
         importance: importance,
         dificulty: dificulty,
-        categoriesId: categories,
+        categoriesId: categoriesId,
         xp: xp,
         level: level
     }
 
     try{
-        await validation.validate({name, description, motivationalPhrase, importance, dificulty, iconId, experience, categories});
+        await validation.validate({name, description, motivationalPhrase, importance, dificulty, iconId, experience, categoriesId});
         try{
             const response = await axios.post("/habit", habitData);
             return response.data;
