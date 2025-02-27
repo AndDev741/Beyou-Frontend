@@ -3,6 +3,6 @@ import { IconName } from "./IconName";
 
 export type IconObject = {
   name: IconName,
-  iconComponent: IconType
+  IconComponent: IconType
 }
 

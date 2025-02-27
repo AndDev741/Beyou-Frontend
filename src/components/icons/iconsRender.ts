@@ -1,14 +1,14 @@
 import * as MdIcons from "react-icons/md";
 import { IconType } from "react-icons";
 import { IconName } from "../../types/icons/IconName";
-import { IconObject } from "../../types/icons/IconComponent";
+import { IconObject } from "../../types/icons/IconObject";
 
 
 
 function iconRender(search: string, selectedIcon: string, icons: IconObject[] = []) {
   const iconArray: IconObject[] = Object.keys(MdIcons).map((iconName) => ({
     name: iconName as IconName,
-    iconComponent: MdIcons[iconName as IconName] as IconType,
+    IconComponent: MdIcons[iconName as IconName] as IconType,
   }));
 
   let randomIcons =  icons || [];
