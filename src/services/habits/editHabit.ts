@@ -1,7 +1,19 @@
+import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
 
-async function editHabit(habitId, name, description, motivationalPhrase, iconId, importance, dificulty, categories, t){
+async function editHabit(
+    habitId: string, 
+    name: string, 
+    description: string, 
+    motivationalPhrase: string, 
+    iconId: string, 
+    importance: number, 
+    dificulty: number, 
+    categories: string[], 
+    t: TFunction
+): Promise<Record<string, string>> {
+
     const validation = Yup.object().shape({
         name: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')).max(256, t('YupMaxName')),
         description: Yup.string().max(256, t('YupDescriptionMaxValue')),
@@ -29,10 +41,14 @@ async function editHabit(habitId, name, description, motivationalPhrase, iconId,
             const response = await axios.put("/habit", editHabitData);
             return response.data;
         }catch(e){
-            return e.response.data
+            console.log(e);
+            return {error: t('UnexpectedError')}
         }
     }catch(validationErrors){
-        return {validation: validationErrors.errors};
+        if(validationErrors instanceof Yup.ValidationError){
+            return {validation: validationErrors.errors.join(', ')};
+        }
+        return {error: t('UnexpectedError')}
     }
 }
 

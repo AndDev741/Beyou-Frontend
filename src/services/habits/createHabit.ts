@@ -1,7 +1,22 @@
+import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
+import category from '../../types/category/categoryType';
 
-async function createHabit(userId, name, description, motivationalPhrase, importance, dificulty, iconId, experience, categories, t){
+type apiResponse = Promise<Record<string, string>>;
+
+async function createHabit(
+    userId: string, 
+    name: string, 
+    description: string, 
+    motivationalPhrase: string, 
+    importance: number, 
+    dificulty: number, 
+    iconId: string, 
+    experience: number, 
+    categories: category[], 
+    t: TFunction
+): apiResponse{
     let level = 0;
     let xp = 0;
     experience = Number(experience)
@@ -47,17 +62,21 @@ async function createHabit(userId, name, description, motivationalPhrase, import
     }
 
     try{
-        console.log("validated")
         await validation.validate({name, description, motivationalPhrase, importance, dificulty, iconId, experience, categories});
         try{
             const response = await axios.post("/habit", habitData);
             return response.data;
         }catch(e){
             console.error(e);
+            return {error: t('UnexpectedError')};
         }
     }catch(validationErrors){
-        console.error(validationErrors.errors)
-        return {validation: validationErrors.errors};
+        if(validationErrors instanceof Yup.ValidationError){
+            console.error(validationErrors.errors)
+            return {validation: validationErrors.errors.join(', ')};
+        }else{
+            return {error: t('UnexpectedError')};
+        }
     }
 
 
