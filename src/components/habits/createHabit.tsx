@@ -140,27 +140,7 @@ function CreateHabit(){
                         dataError={motivationalPhraseError}
                         placeholder={"MotivationalPhrasePlaceholder"}
                         name={"MotivationPhrase"} />
-
-                        <ChooseInput
-                        choosedLevel={importance}
-                        setLevel={setImportance}
-                        title={"Importance"}
-                        levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
-                        error={importanceError}
-                        name={"importance"}
-                        t={t} />
-
-                        <div className="block md:hidden">
-                            <ChooseInput
-                            choosedLevel={dificulty}
-                            error={dificultyError}
-                            setLevel={setDificulty}
-                            title={"Dificulty"}
-                            levels={[t("Easy"), t("Normal"), t("Hard"), 
-                            t("Terrible")]}
-                            name={"dificulty"}
-                            t={t} />
-                        </div>
+                        
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
                         <IconsInput 
@@ -176,19 +156,28 @@ function CreateHabit(){
                         experience={experience} 
                         setExperience={setExperience}
                         experienceError={experienceError}/>
-
-                        <div className="hidden md:block">
-                            <ChooseInput
-                            choosedLevel={dificulty}
-                            error={dificultyError}
-                            setLevel={setDificulty}
-                            title={"Dificulty"}
-                            levels={[t("Easy"), t("Normal"), t("Hard"), 
-                            t("Terrible")]}
-                            name={"dificulty"}
-                            t={t} />
-                        </div>
                     </div>
+                </div>
+                <div className="flex flex-col md:flex-row items-center justify-center w-full ">
+                    <ChooseInput
+                    choosedLevel={importance}
+                    setLevel={setImportance}
+                    title={"Importance"}
+                    levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
+                    error={importanceError}
+                    name={"importance"}
+                    t={t} />
+
+                
+                    <ChooseInput
+                    choosedLevel={dificulty}
+                    error={dificultyError}
+                    setLevel={setDificulty}
+                    title={"Dificulty"}
+                    levels={[t("Easy"), t("Normal"), t("Hard"), 
+                    t("Terrible")]}
+                    name={"dificulty"}
+                    t={t} />
                 </div>
                 <div>
                     <ChooseCategories
