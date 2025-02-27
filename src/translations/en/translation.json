@@ -91,6 +91,8 @@
     "YupImportanceRequired": "Choose an importance",
     "YupDificultyRequired": "Choose an dificulty",
     "YupRequiredCategories": "Choose at least 1 category",
+    "ExpandBoxImgAlt": "Increase and descrease box icon",
+    "constanceFireIconAlt": "Fire icon for constance",
 
     "Level": "Level",
     "UsingIn": "Using in",
