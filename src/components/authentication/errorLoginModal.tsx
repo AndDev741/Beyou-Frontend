@@ -2,7 +2,11 @@ import { useTranslation } from "react-i18next";
 import errorIcon from '../../assets/errorIcon.svg'
 import { useEffect } from "react";
 
-function ErrorLoginModal({errorMessage, setErrorMessage}){
+function ErrorLoginModal({errorMessage, setErrorMessage}: {
+    errorMessage: string,
+    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
+}){
+    
     const {t} = useTranslation();
     useEffect(() => {
         const deleteModal = setTimeout(() => {

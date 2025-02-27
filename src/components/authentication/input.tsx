@@ -1,16 +1,29 @@
 import { useState } from "react";
 
-function Input({icon1, placeholder, inputType, icon2, icon3, iconAlt, seePasswordAlt, data, setData, errorMessage}){
-    const [InputType, setInputType] = useState(inputType);
-    const [seePassword, setSeePassword] = useState(icon2);
+type InputProps = {
+    icon1: string,
+    placeholder: string,
+    inputType: string,
+    icon2: string | null,
+    icon3: string | null,
+    iconAlt: string,
+    seePasswordIconAlt: string,
+    data: string,
+    setData: React.Dispatch<React.SetStateAction<string>>,
+    errorMessage: string
+}
 
-    const handlePasswordType = (e) => {
+function Input({icon1, placeholder, inputType, icon2, icon3, iconAlt, seePasswordIconAlt, data, setData, errorMessage}: InputProps){
+    const [InputType, setInputType] = useState(inputType);
+    const [seePasswordIcon, setSeePasswordIcon] = useState(icon2);
+
+    const handlePasswordType = () => {
         if(InputType === "password"){
             setInputType("text");
-            setSeePassword(icon3);
+            setSeePasswordIcon(icon3);
         }else{
             setInputType("password");
-            setSeePassword(icon2);
+            setSeePasswordIcon(icon2);
         }
     }
 
@@ -31,8 +44,8 @@ function Input({icon1, placeholder, inputType, icon2, icon3, iconAlt, seePasswor
 
             <img onClick={handlePasswordType}
             className={`${icon2 || icon3 ? "block mx-4" : "hidden"} w-[35px] cursor-pointer`}
-            src={seePassword}
-            alt={seePasswordAlt}/>
+            src={seePasswordIcon ? seePasswordIcon : ""}
+            alt={seePasswordIconAlt}/>
         </label>
         <p className={`${errorMessage ? "block text-red-800 underline text-xl text-center" : "hidden"}`}>{errorMessage}</p>
         </>

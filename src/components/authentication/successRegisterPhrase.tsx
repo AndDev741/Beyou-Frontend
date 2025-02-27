@@ -3,11 +3,12 @@ import { useTranslation } from "react-i18next";
 import checkIcon from '../../assets/checkIcon.svg'
 import { useEffect } from "react";
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
+import { RootState } from "../../redux/rootReducer";
 
 function SuccessRegisterPhrase(){
     const {t} = useTranslation();
     const dispatch = useDispatch();
-    const successRegister = useSelector(state => state.register.successRegister);
+    const successRegister = useSelector((state: RootState) => state.register.successRegister);
 
     
     useEffect(() => {
