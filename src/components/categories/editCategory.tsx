@@ -11,7 +11,6 @@ import editCategory from '../../services/categories/editCategory';
 import getCategories from '../../services/categories/getCategories';
 import categoryType from '../../types/category/categoryType';
 import { RootState } from '../../redux/rootReducer';
-import { IconObject } from '../../types/icons/IconComponent';
 
 type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>};
 
