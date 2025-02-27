@@ -1,6 +1,16 @@
-import { act, useEffect, useState } from "react";
+import { TFunction } from "i18next";
 
-function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}){
+type chooseInputProps = {
+    choosedLevel: number,
+    error: string,
+    name: string,
+    setLevel: React.Dispatch<React.SetStateAction<number>>
+    levels: string[],
+    title: string,
+    t: TFunction
+}
+
+function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: chooseInputProps){
     const labelCss = "text-2xl md:text-xl";
     return(
         <>
@@ -14,16 +24,16 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}){
                         className="flex flex-col items-center cursor-pointer w-[60px]">
                             <input
                             type="radio"
-                            checked={choosedLevel == (index + 1)}
+                            checked={choosedLevel === (index + 1)}
                             onChange=
-                            {(e) => setLevel(e.target.value)}
+                            {(e) => setLevel(Number(e.target.value))}
                             name={name}
                             id={level}
                             value={index + 1}
                             className="border-0 w-full h-[20px] md:h-[35px]  outline-none" />
                             <label htmlFor={level}
                             
-                            className={`${choosedLevel == (index + 1) ? "text-blueMain" : ""}`}>{level}</label>
+                            className={`${choosedLevel === (index + 1) ? "text-blueMain" : ""}`}>{level}</label>
                         </div>
                     ))}
                     

@@ -1,4 +1,14 @@
-function GenericInput({t, dataError, name, setData, data, placeholder}){
+import { TFunction } from "i18next";
+
+type genericInputProps = {
+    t: TFunction,
+    dataError: string,
+    name: string,
+    setData: React.Dispatch<React.SetStateAction<string>>,
+    data: string,
+    placeholder: string
+}
+function GenericInput({t, dataError, name, setData, data, placeholder}: genericInputProps){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl mt-2";
     return(

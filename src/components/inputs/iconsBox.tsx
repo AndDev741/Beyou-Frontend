@@ -1,5 +1,5 @@
 import { TFunction } from "i18next";
-import { IconObject } from "../../types/icons/IconComponent";
+import { IconObject } from "../../types/icons/IconObject";
 import { useEffect, useState } from "react";
 import iconRender from "../icons/iconsRender";
 
@@ -42,7 +42,7 @@ function IconsBox({search, setSearch, iconError, t, selectedIcon, setSelectedIco
                 key={index.name}
                 className={`${index.name === selectedIcon ? "scale-110 text-blueMain border-2 border-blueMain rounded-md" : "text-gray-500 "}
                 text-4xl m-1 hover:text-blueMain hover:scale-105 cursor-pointer`}>
-                    <index.iconComponent/>
+                    <index.IconComponent/>
                 </p>
             ))}
         </div>

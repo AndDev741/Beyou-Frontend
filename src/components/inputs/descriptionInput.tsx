@@ -1,4 +1,14 @@
-function DescriptionInput({description, setDescription, placeholder, descriptionError, minH, t}){
+import { TFunction } from "i18next";
+
+type descriptionInputProps = {
+    description: string,
+    setDescription: React.Dispatch<React.SetStateAction<string>>,
+    placeholder: string,
+    descriptionError: string,
+    minH: number,
+    t: TFunction
+}
+function DescriptionInput({description, setDescription, placeholder, descriptionError, minH, t}: descriptionInputProps){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[90vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl";
     return(
