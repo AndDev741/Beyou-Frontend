@@ -30,7 +30,7 @@ function Register(){
     const [passwordError, setPasswordError] = useState("");
     const [defaultError, setDefaultError] = useState("");
 
-    const handleRegister = async (e) => {
+    const handleRegister = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setNameError("");
         setEmailError("");
@@ -97,6 +97,9 @@ function Register(){
 
                         <Input 
                         icon1={personIcon} 
+                        icon2={null}
+                        icon3={null}
+                        seePasswordIconAlt={""}
                         placeholder={t('NamePlaceholder')} 
                         inputType={"text"} 
                         iconAlt={t('EmailIconAlt')}
@@ -108,6 +111,9 @@ function Register(){
 
                         <Input 
                         icon1={emailIcon} 
+                        icon2={null}
+                        icon3={null}
+                        seePasswordIconAlt={""}
                         placeholder={"email@gmail.com"} inputType={"text"} 
                         iconAlt={t('EmailIconAlt')}
                         data={email}
@@ -123,7 +129,7 @@ function Register(){
                         icon2={eyeClosed} 
                         icon3={eyeOpen} 
                         iconAlt={t('PasswordIconAlt')}
-                        seePasswordAlt={t('EyeToSeePassword')}
+                        seePasswordIconAlt={t('EyeToSeePassword')}
                         data={password}
                         setData={setPassword}
                         errorMessage={passwordError}/>

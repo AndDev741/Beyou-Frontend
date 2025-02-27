@@ -18,6 +18,7 @@ import eyeOpen from '../../../assets/authentication/eyeOpen.svg';
 import eyeClosed from '../../../assets/authentication/eyeClosed.svg';
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import Logo from "../../../components/authentication/logo";
+import { UserType } from "../../../types/user/UserType";
 
 function Login(){
     const {t} = useTranslation();
@@ -43,7 +44,7 @@ function Login(){
                 if(response.successRegister){
                     dispatch(successRegisterEnter(true));
                 }else if(response.success){
-                    const data = response.success;
+                    const data = response.success as UserType;
                     dispatch(idEnter(data.id));
                     dispatch(nameEnter(data.name));
                     dispatch(emailEnter(data.email));
@@ -68,7 +69,7 @@ function Login(){
     }, [t, codeUsed, navigate, dispatch])
 
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setEmailError("");
         setPasswordError("");
@@ -97,7 +98,7 @@ function Login(){
             setPasswordError(" ")
             setDefaultError(t('WrongPassOrEmailError'));
         }else if(response.success){
-            const data = response.success;
+            const data = response.success as UserType;
             dispatch(idEnter(data.id));
             dispatch(nameEnter(data.name));
             dispatch(emailEnter(data.email));
@@ -133,7 +134,11 @@ function Login(){
 
                         <Input 
                         icon1={emailIcon} 
-                        placeholder={"email@gmail.com"} inputType={"text"} 
+                        icon2={null}
+                        icon3={null}
+                        placeholder={"email@gmail.com"} 
+                        inputType={"text"} 
+                        seePasswordIconAlt={""}
                         iconAlt={t('EmailIconAlt')}
                         data={email}
                         setData={setEmail}
@@ -148,7 +153,7 @@ function Login(){
                         icon2={eyeClosed} 
                         icon3={eyeOpen} 
                         iconAlt={t('PasswordIconAlt')}
-                        seePasswordAlt={t('EyeToSeePassword')}
+                        seePasswordIconAlt={t('EyeToSeePassword')}
                         data={password}
                         setData={setPassword}
                         errorMessage={passwordError}/>
