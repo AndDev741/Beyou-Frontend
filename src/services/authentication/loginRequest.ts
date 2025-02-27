@@ -1,7 +1,9 @@
+import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
+import { UserType } from '../../types/user/UserType';
 
-async function loginRequest(email, password, t){
+async function loginRequest(email: string, password: string, t: TFunction): Promise<Record<string, UserType | string>>{
     const loginData = {
         email: email,
         password: password
@@ -15,13 +17,17 @@ async function loginRequest(email, password, t){
     try{
         await validationSchema.validate({email, password});
         try{
-            const response = await axios.post("/auth/login", loginData);
+            const response = await axios.post<Record<string, UserType>>("/auth/login", loginData);
             return response.data;
         }catch(e){
-            return e.response.data;
+            console.error(e);
+            return {error: " "};
         }
     }catch(validationErrors){
-        return {validationErrors: validationErrors.errors.join(", ")}
+        if(validationErrors instanceof Yup.ValidationError){
+            return {validationErrors: validationErrors.errors.join(", ")}
+        }
+        return {error: " "};
     }
 }
 
