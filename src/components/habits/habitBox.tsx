@@ -9,6 +9,8 @@ import { useDispatch } from "react-redux";
 import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
 import { habit } from "../../types/habit/habitType";
 import { IconObject } from "../../types/icons/IconObject";
+import { TFunction } from "i18next";
+import deleteHabit from "../../services/habits/deleteHabit";
 
 function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualBaseXp, constance, categories, motivationalPhrase, importance, dificulty}: habit){
     const dispatch = useDispatch();
@@ -20,6 +22,8 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
     const [dificultyPhrase, setDificultyPhrase] = useState("");
     const [importanceColor, setImportanceColor] = useState("");
     const [importancePhrase, setImportancePhrase] = useState("");
+
+    const [onDelete, setOnDelete] = useState(false);
 
     const actualProgress = Math.round(((xp - actualBaseXp) / (nextLevelXp - actualBaseXp)) * 100);
 
@@ -113,10 +117,14 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
         dispatch(editCaegoriesIdEnter(categories));
     }
 
+    async function handleDelete(){
+
+    }
+
     return(
-        <div className={`flex flex-col justify-between w-[47vw] md:w-[350px] lg:w-[230px] ${expanded ? "min-h-[300px]" : "min-h-[150px]"} border-blueMain border-[1px] rounded-md p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out`}>
-            <div className="flex justify-between">
-                <div className="flex items-center">
+        <div className={`relative flex flex-col justify-between w-[47vw] md:w-[350px] lg:w-[230px] ${expanded ? "min-h-[300px]" : "min-h-[150px]"} border-blueMain border-[1px] rounded-md p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out`}>
+            <div className="flex justify-between items-start">
+                <div className="flex items-start">
                     <p className="text-blueMain text-[34px]">
                         {Icon !== undefined ? <Icon.IconComponent/> : null}
                     </p>
@@ -219,9 +227,51 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                 className="bg-blueMain mb-2 hover:bg-ligthBlue text-white font-semibold w-[100px] h-[28px] rounded-md">
                     {t('Edit')}
                 </button>
-                <button 
+                <button onClick={() => setOnDelete(true)}
                 className="bg-red-600 hover:bg-red-500 text-white font-semibold w-[90px] h-[25px] rounded-md">
                     {t('Delete')}
+                </button>
+                <DeleteModal
+                habitId={id}
+                onDelete={onDelete}
+                setOnDelete={setOnDelete}
+                t={t}
+                name={name}
+                />
+                </div>
+           
+        </div>
+    )
+}
+type deleteProps = {
+    habitId: string, 
+    onDelete: boolean, 
+    setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
+    t: TFunction, 
+    name: string
+}
+
+function DeleteModal({habitId, onDelete, setOnDelete, t, name}: deleteProps){
+
+    const handleDelete = async () => {
+        const response = await deleteHabit(habitId, t);
+
+        if(response.success){
+           window.location.reload();
+        }
+    }
+    return(
+        <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
+            <h1 className="text-center font-semibold">{t('ConfirmDeleteOfHabitPhrase')}</h1>
+            <h2 className="underline my-3">{name}</h2>
+            <div className="flex lg:flex-row flex-col items-center">
+                <button onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-500 lg:mr-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
+                    {t('Delete')}
+                </button>
+                <button onClick={() => setOnDelete(false)}
+                className="bg-gray-600 hover:bg-gray-500 mt-1 lg:mt-0 lg:ml-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
+                    {t('Cancel')}
                 </button>
             </div>
         </div>
