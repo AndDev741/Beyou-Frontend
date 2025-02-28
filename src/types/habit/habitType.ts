@@ -1,7 +1,7 @@
 import category from "../category/categoryType"
 
 export type habit = {
-    habitId: string,
+    id: string,
     name: string,
     description: string,
     motivationalPhrase:string,

@@ -23,9 +23,9 @@ function RenderHabits(){
     return(
         <div className="flex flex-wrap items-start justify-between md:justify-evenly lg:justify-start  p-2">
             {habits.map(habit => (
-                <div key={habit.habitId}>
+                <div key={habit.id}>
                     <HabitBox
-                    habitId={habit.habitId}
+                    id={habit.id}
                     name={habit.name}
                     iconId={habit.iconId}
                     description={habit.description}

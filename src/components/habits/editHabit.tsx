@@ -17,6 +17,7 @@ function EditHabit(){
     const dispatch = useDispatch();
 
     const habitId = useSelector((state: RootState) => state.editHabit.id);
+    console.log(habitId)
     const nameToEdit = useSelector((state: RootState) => state.editHabit.name);
     const descriptionToEdit = useSelector((state: RootState) => state.editHabit.description);
     const motivationalPhraseToEdit = useSelector((state: RootState) => state.editHabit.motivationalPhrase);
@@ -86,6 +87,7 @@ function EditHabit(){
         setDificultyError("");
         setIconError("");
         setCategoriesError("");
+        setUnknownError("");
 
         const scrollToTop = () => {
             window.scrollTo({
@@ -102,7 +104,7 @@ function EditHabit(){
         }
 
         if(response.validation){
-            const formattedResponse = response.validation[0]
+            const formattedResponse = response.validation
             switch(formattedResponse){
                 case t('YupNameRequired'):
                     setNameError(formattedResponse);

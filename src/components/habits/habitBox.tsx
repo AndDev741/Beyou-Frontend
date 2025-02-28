@@ -10,7 +10,7 @@ import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyE
 import { habit } from "../../types/habit/habitType";
 import { IconObject } from "../../types/icons/IconObject";
 
-function HabitBox({habitId, iconId, name, description, level, xp, nextLevelXp, actualBaseXp, constance, categories, motivationalPhrase, importance, dificulty}: habit){
+function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualBaseXp, constance, categories, motivationalPhrase, importance, dificulty}: habit){
     const dispatch = useDispatch();
     const {t} = useTranslation();
     const [Icon, setIcon] = useState<IconObject>();
@@ -103,7 +103,7 @@ function HabitBox({habitId, iconId, name, description, level, xp, nextLevelXp, a
     
     function handleEditMode(){
         dispatch(editModeEnter(true));
-        dispatch(editIdEnter(habitId))
+        dispatch(editIdEnter(id))
         dispatch(editNameEnter(name));
         dispatch(editDescriptionEnter(description));
         dispatch(editMotivationalPhraseEnter(motivationalPhrase));

@@ -15,7 +15,6 @@ function CategoryNameAndIcon({iconId, name}: categoryNameAndIconProps){
         setIconComponent(response);
     }, [])
 
-    console.log("teste")
     return(
         <div className="flex items-center">
             <p className="text-[20px] text-blueMain">
