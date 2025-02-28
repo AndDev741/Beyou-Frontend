@@ -23,7 +23,7 @@ function DescriptionInput({description, setDescription, placeholder, description
             onChange={(e) => setDescription(e.target.value)}
             name='description'
             placeholder={t(`${placeholder}`)}
-            className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 min-h-[84px] ${minH ? `lg:min-h-[${minH}px]` : "md:h-[168px] lg:min-h-[186px]"}`}
+            className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 min-h-[84px] ${minH ? `lg:min-h-[${minH}px] lg:h-[${minH}px]` : "md:h-[161px] lg:min-h-[178px] "}`}
             />
         </>
     )

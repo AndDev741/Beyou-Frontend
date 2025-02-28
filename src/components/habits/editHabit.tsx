@@ -168,7 +168,7 @@ function EditHabit(){
                         description={description}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
-                        minH={320}
+                        minH={75}
                         placeholder={"HabitDescriptionPlaceholder"}/>
 
                         <GenericInput
