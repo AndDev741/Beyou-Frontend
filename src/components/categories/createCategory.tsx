@@ -106,7 +106,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                 <h2>{t('CreateCategory')}</h2>
             </div>
             <form onSubmit={handleCreate} 
-            className='flex flex-col mt-8 md:w-[60%]'>
+            className='flex flex-col mt-8'>
                 <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
                     <div className='flex flex-col md:items-start mx-4'>
                         <GenericInput 
@@ -121,7 +121,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                         placeholder={"DescriptionPlaceholder"}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
-                        minH={100}
+                        minH={115}
                         t={t} />
 
                         <ExperienceInput experience={experience}
