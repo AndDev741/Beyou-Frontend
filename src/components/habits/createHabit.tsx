@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import habitIcon from '../../assets/dashboard/shortcuts/habits.svg'
-import IconsInput from "../inputs/iconsBox";
+import IconsBox from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
@@ -11,8 +11,10 @@ import ExperienceInput from "../inputs/experienceInput";
 import createHabit from "../../services/habits/createHabit";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
+import { habit } from "../../types/habit/habitType";
+import getHabits from "../../services/habits/getHabits";
 
-function CreateHabit(){
+function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
 
     const userId = useSelector((state: RootState) => state.perfil.id)
@@ -36,6 +38,7 @@ function CreateHabit(){
     const [unknownError, setUnknownError] = useState("");
     
     const [search, setSearch] = useState("");
+    console.log("habitCreate", search)
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -59,7 +62,18 @@ function CreateHabit(){
         const response = await createHabit(userId, name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categoriesId, t);
 
         if(response?.success){
-            window.location.reload();
+            const newHabits = await getHabits(userId, t);
+            if(Array.isArray(newHabits.success)){
+                setHabits(newHabits.success);
+            }
+            setName("");
+            setDescription("");
+            setMotivationalPhrase("");
+            setImportance(0);
+            setDificulty(0);
+            setSelectedIcon("");
+            setExperience(0);
+            setCategoriesIdList([]);
         }
 
         if(response?.validation){
@@ -146,7 +160,7 @@ function CreateHabit(){
                         
                     </div>
                     <div className='flex flex-col mt-2 md:mt-0'>
-                        <IconsInput 
+                        <IconsBox 
                         search={search}
                         setSearch={setSearch}
                         iconError={iconError}

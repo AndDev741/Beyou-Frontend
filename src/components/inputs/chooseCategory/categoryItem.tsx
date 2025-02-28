@@ -40,7 +40,11 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
         }
     }, [chosenCategories, categoryId])
 
-    console.log(chosenCategories)
+    useEffect(() => {
+        if(categoriesIdList.length < 1){
+            setAlreadyChosen(false);
+        }
+    }, [categoriesIdList])
 
     const isChosen = chosenCategories?.[0]?.id === categoryId && alreadyChosen !== false;
     const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-blueMain rounded-md

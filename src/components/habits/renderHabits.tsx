@@ -6,9 +6,13 @@ import { RootState } from "../../redux/rootReducer";
 import { habit } from "../../types/habit/habitType";
 import { t } from "i18next";
 
-function RenderHabits(){
+type renderHabitsProps = {
+    habits: habit[],
+    setHabits: React.Dispatch<React.SetStateAction<habit[]>>
+}
+
+function RenderHabits({habits, setHabits}: renderHabitsProps){
     const userId = useSelector((state: RootState) => state.perfil.id);
-    const [habits, setHabits] = useState<habit[]>([]);
 
     useEffect(() => {
         const returnHabits = async () => {
@@ -41,6 +45,7 @@ function RenderHabits(){
                     routines={habit.routines}
                     createdAt={habit.createdAt}
                     updatedAt={habit.updatedAt}
+                    setHabits={setHabits}
                     />
                 </div>
             ))}

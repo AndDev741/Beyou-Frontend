@@ -11,13 +11,15 @@ import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIco
 import editHabit from "../../services/habits/editHabit";
 import { RootState } from "../../redux/rootReducer";
 import category from "../../types/category/categoryType";
+import { habit } from "../../types/habit/habitType";
+import getHabits from "../../services/habits/getHabits";
 
-function EditHabit(){
+function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
     const dispatch = useDispatch();
 
+    const userId = useSelector((state: RootState) => state.perfil.id);
     const habitId = useSelector((state: RootState) => state.editHabit.id);
-    console.log(habitId)
     const nameToEdit = useSelector((state: RootState) => state.editHabit.name);
     const descriptionToEdit = useSelector((state: RootState) => state.editHabit.description);
     const motivationalPhraseToEdit = useSelector((state: RootState) => state.editHabit.motivationalPhrase);
@@ -44,11 +46,12 @@ function EditHabit(){
     const [categoriesError, setCategoriesError] = useState("");
     const [unknownError, setUnknownError] = useState("");
 
+    const [search, setSearch] = useState("");
     useEffect(() => {
         setName(nameToEdit);
         setDescription(descriptionToEdit);
         setMotivationalPhrase(motivationalPhraseToEdit);
-        setSearch(iconIdToEdit);
+        setSearch(iconIdToEdit ||  "");
         setSelectedIcon(iconIdToEdit);
         setImportance(importanceToEdit);
         setDificulty(dificultyToEdit);
@@ -63,8 +66,6 @@ function EditHabit(){
         
         setAlreadyChosenCategories(categoriesToEdit)
     }, [categoriesToEdit, descriptionToEdit, iconIdToEdit, importanceToEdit, motivationalPhraseToEdit, nameToEdit, dificultyToEdit])
-
-    const [search, setSearch] = useState("");
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
@@ -100,7 +101,10 @@ function EditHabit(){
 
         if(response.success){
             handleCancel();
-            window.location.reload();
+            const newHabits = await getHabits(userId, t);
+            if(Array.isArray(newHabits.success)){
+                setHabits(newHabits.success);
+            }
         }
 
         if(response.validation){

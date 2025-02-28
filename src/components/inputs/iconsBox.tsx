@@ -28,6 +28,7 @@ function IconsBox({search, setSearch, iconError, t, selectedIcon, setSelectedIco
             <label htmlFor='icon'
             className={labelCss}>{t('Icon')}</label>
             <input 
+            type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             name='icon'
