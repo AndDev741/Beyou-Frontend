@@ -23,7 +23,7 @@ function CreateHabit(){
     const [dificulty, setDificulty] = useState(0);
     const [selectedIcon, setSelectedIcon] = useState("");
     const [experience, setExperience] = useState(0);
-    const [categoriesId, setCategoriesIdList] = useState<string[]>([""]);
+    const [categoriesId, setCategoriesIdList] = useState<string[]>([]);
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -54,6 +54,7 @@ function CreateHabit(){
         setIconError("");
         setExperienceError("");
         setCategoriesError("");
+        setUnknownError("");
 
         const response = await createHabit(userId, name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categoriesId, t);
 
@@ -62,7 +63,7 @@ function CreateHabit(){
         }
 
         if(response?.validation){
-            const formattedResponse = response.validation[0]
+            const formattedResponse = response.validation
             switch(formattedResponse){
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(formattedResponse);
@@ -160,7 +161,7 @@ function CreateHabit(){
                         experienceError={experienceError}/>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row items-center justify-center w-full ">
+                <div className="flex flex-col md:flex-row items-center justify-center w-full md:w-[80%] ">
                     <ChooseInput
                     choosedLevel={importance}
                     setLevel={setImportance}

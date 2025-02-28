@@ -39,8 +39,8 @@ async function createHabit(
         name: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')).max(256, t('YupMaxName')),
         description: Yup.string().max(256, t('YupDescriptionMaxValue')),
         motivationalPhrase: Yup.string().max(256, t("YupGenericMaxLength")),
-        importance: Yup.number().required(t("YupImportanceRequired")),
-        dificulty: Yup.number().required(t("YupDificultyRequired")),
+        importance: Yup.number().min(1, t("YupImportanceRequired")).required(t("YupImportanceRequired")),
+        dificulty: Yup.number().min(1, t("YupDificultyRequired")).required(t("YupDificultyRequired")),
         iconId: Yup.string().required(t('YupIconRequired')),
         experience: Yup.number().required(t('YupRequiredExperience')),
         categoriesId: Yup.array().min(1, t("YupRequiredCategories")).required(t("YupRequiredCategories"))
@@ -59,6 +59,8 @@ async function createHabit(
         xp: xp,
         level: level
     }
+
+    console.log(habitData)
 
     try{
         await validation.validate({name, description, motivationalPhrase, importance, dificulty, iconId, experience, categoriesId});
