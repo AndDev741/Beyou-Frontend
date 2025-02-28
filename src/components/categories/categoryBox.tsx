@@ -127,7 +127,7 @@ function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories,
     }
     return(
         <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
-            <h1 className="text-center font-semibold">{t('ConfirmDeletePhrase')}</h1>
+            <h1 className="text-center font-semibold">{t('ConfirmDeleteOfCategoryPhrase')}</h1>
             <h2 className="underline my-3">{name}</h2>
             <div className="flex lg:flex-row flex-col items-center">
                 <button onClick={handleDelete}

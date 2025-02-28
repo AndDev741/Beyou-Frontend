@@ -66,7 +66,7 @@
     "Edit": "Edit",
     "Cancel": "Cancel",
     "Delete": "Delete",
-    "ConfirmDeletePhrase": "Confirm deletion of this category?",
+    "ConfirmDeleteOfCategoryPhrase": "Confirm deletion of this category?",
 
     "Habits": "Habits",
     "YourHabits": "Your Habits",
@@ -107,5 +107,6 @@
     "AlreadyGeneratedError": "You already generate a category, please try again later",
 
     "UnexpectedError": "An unexpected error ocurred",
-    "edited successfully": "Edited Successfully"
+    "edited successfully": "Edited Successfully",
+    "ConfirmDeleteOfHabitPhrase": "Confirm deletion of this habit?"
 }
