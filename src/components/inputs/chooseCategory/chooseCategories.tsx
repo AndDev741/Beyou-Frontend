@@ -35,7 +35,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
             <h3 className="text-2xl mt-2 text-center">Categories</h3>
             <p className='text-red-500 text-lg text-center'>{errorMessage}</p>
             <div className="flex flex-wrap flex-col items-center w-[95vw] h-[200px] md:w-[600px] overflow-x-auto mt-2">
-                <div className="flex flex-wrap items-center justify-between px-1">
+                <div className="flex flex-wrap items-center justify-evenly px-1">
                     {categories.length > 0 ? categories.map((category) => (
                         
                         <div key={category.id} 
