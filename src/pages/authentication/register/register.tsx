@@ -1,20 +1,22 @@
+//Components
 import Header from "../../../components/authentication/header";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
+import GoogleIcon from "../../../components/authentication/googleIcon";
+import TranslationButton from "../../../components/translationButton";
+import Logo from "../../../components/authentication/logo";
+//Functions
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { successRegisterEnter } from '../../../redux/authentication/registerSlice'
+import { useNavigate } from "react-router-dom";
+import handleRegister from "../../../services/authentication/handleRegister";
+//Assets
 import personIcon from '../../../assets/authentication/personIcon.svg';
 import emailIcon from '../../../assets/authentication/emailIcon.svg';
 import passwordIcon from '../../../assets/authentication/passwordIcon.svg';
 import eyeOpen from '../../../assets/authentication/eyeOpen.svg';
 import eyeClosed from '../../../assets/authentication/eyeClosed.svg';
-import GoogleIcon from "../../../components/authentication/googleIcon";
-import TranslationButton from "../../../components/translationButton";
-import Logo from "../../../components/authentication/logo";
-import registerRequest from "../../../services/authentication/registerRequest";
-import { useNavigate } from "react-router-dom";
 
 function Register(){
     const {t} = useTranslation();
@@ -29,52 +31,6 @@ function Register(){
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [defaultError, setDefaultError] = useState("");
-
-    const handleRegister = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        setNameError("");
-        setEmailError("");
-        setPasswordError("");
-        setDefaultError("");
-
-        
-        const response = await registerRequest(name, email, password, t);
-        if(response.validationErrors){
-            switch(response.validationErrors){
-                case `${t('YupNameRequired')}`:
-                    setNameError(response.validationErrors);
-                    break;
-                case `${t('YupMinimumName')}`:
-                    setNameError(response.validationErrors);
-                    break;
-                case `${t('YupInvalidEmail')}`:
-                    setEmailError(response.validationErrors);
-                    break;
-                case `${t('YupNecessaryEmail')}`:
-                    setEmailError(response.validationErrors);
-                    break;
-                case `${t('YupNecessaryPassword')}`:
-                    setPasswordError(response.validationErrors);
-                    break;
-                case `${t('YupMinimumPassword')}`:
-                    setPasswordError(response.validationErrors);
-                    break;
-                case `${t('YupMaxLength')}`:
-                    setDefaultError(response.validationErrors);
-                    break;
-                default:
-                    setDefaultError(t('UnkownError'))
-                    break;
-            }
-        }else if(response.success){
-            dispatch(successRegisterEnter(true));
-            navigate("/");
-        }else if(response.error){
-            setEmailError(t('EmailInUseError'));
-        }
-
-    }
-
 
     return(
         <div className="min-h-[100vh] lg:flex items-center justify-center">
@@ -92,7 +48,7 @@ function Register(){
                         <span className="text-blueMain"> {t('BeYou')} </span>
                     </h1>
 
-                    <form onSubmit={handleRegister}
+                    <form onSubmit={(e) => handleRegister(e, name, email, password, t, dispatch, navigate, setNameError, setEmailError, setPasswordError, setDefaultError)}
                     className="flex flex-col items-center mt-8 lg:mt-2  mb-6 lg:mb-3">
 
                         <Input 
