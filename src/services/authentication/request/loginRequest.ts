@@ -1,7 +1,7 @@
 import { TFunction } from 'i18next';
-import axios from '../axiosConfig';
+import axios from '../../axiosConfig';
 import * as Yup from 'yup';
-import { UserType } from '../../types/user/UserType';
+import { UserType } from '../../../types/user/UserType';
 
 async function loginRequest(email: string, password: string, t: TFunction): Promise<Record<string, UserType | string>>{
     const loginData = {

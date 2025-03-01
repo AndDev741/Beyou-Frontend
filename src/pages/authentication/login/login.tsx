@@ -1,24 +1,25 @@
+//Components
 import Header from "../../../components/authentication/header";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
 import TranslationButton from "../../../components/translationButton";
 import SuccessRegisterPhrase from "../../../components/authentication/successRegisterPhrase";
 import ErrorLoginModal from "../../../components/authentication/errorLoginModal";
+import GoogleIcon from "../../../components/authentication/googleIcon";
+import Logo from "../../../components/authentication/logo";
+//Functions
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { successRegisterEnter } from "../../../redux/authentication/registerSlice";
-import { idEnter, nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../../redux/dashboard/perfilSlice";
-import loginRequest from "../../../services/authentication/loginRequest";
-import googleRequest from "../../../services/authentication/googleRequest";
+//Services
+import useGoogleLogin from "../../../services/authentication/useGoogleLogin";
+import handleLogin from "../../../services/authentication/useLogin";
+//Assets
 import emailIcon from '../../../assets/authentication/emailIcon.svg';
 import passwordIcon from '../../../assets/authentication/passwordIcon.svg';
 import eyeOpen from '../../../assets/authentication/eyeOpen.svg';
 import eyeClosed from '../../../assets/authentication/eyeClosed.svg';
-import GoogleIcon from "../../../components/authentication/googleIcon";
-import Logo from "../../../components/authentication/logo";
-import { UserType } from "../../../types/user/UserType";
 
 function Login(){
     const {t} = useTranslation();
@@ -33,85 +34,7 @@ function Login(){
     const [defaultError, setDefaultError] = useState("");
 
     //Google Login logic handler
-    const [codeUsed, setCodeUsed] = useState(false);
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const authCode = params.get('code');
-        if(authCode && !codeUsed){
-            setCodeUsed(true);
-
-            googleRequest(authCode).then((response) => {
-                if(response.successRegister){
-                    dispatch(successRegisterEnter(true));
-                }else if(response.success){
-                    const data = response.success as UserType;
-                    dispatch(idEnter(data.id));
-                    dispatch(nameEnter(data.name));
-                    dispatch(emailEnter(data.email));
-                    dispatch(phraseEnter(data.phrase));
-                    dispatch(phraseAuthorEnter(data.phrase_author));
-                    dispatch(constaceEnter(data.constance));
-                    dispatch(photoEnter(data.photo));
-                    dispatch(isGoogleAccountEnter(data.isGoogleAccount));
-                    navigate("/dashboard");
-                }else if(response.error){
-                    setDefaultError(t('GoogleLoginError'))
-                }
-            }).catch((error) => {
-                console.error(t('GoogleLoginError'), error)
-            })
-
-            return () => {
-                const cleanUrl = window.location.origin + window.location.pathname;
-                window.history.replaceState(null, '', cleanUrl);
-            }
-        }
-    }, [t, codeUsed, navigate, dispatch])
-
-
-    const handleLogin = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        setEmailError("");
-        setPasswordError("");
-        setDefaultError("");
-
-        const response = await loginRequest(email, password, t);
-        if(response.validationErrors){
-            switch(response.validationErrors){
-                case t('YupNecessaryEmail'):
-                    setEmailError(response.validationErrors);
-                    break;
-                case t('YupInvalidEmail'):
-                    setEmailError(t('YupInvalidEmail'));
-                    break;
-                case t('YupMaxLength'):
-                    setDefaultError(t('YupMaxLength'));
-                    break;
-                case t('YupNecessaryPassword'):
-                    setPasswordError(t('YupNecessaryPassword'));
-                    break;
-                default:
-                    setDefaultError(t('UnkownError'))
-            }
-        }else if(response.error){
-            setEmailError(t('WrongPassOrEmailError'))
-            setPasswordError(" ")
-            setDefaultError(t('WrongPassOrEmailError'));
-        }else if(response.success){
-            const data = response.success as UserType;
-            dispatch(idEnter(data.id));
-            dispatch(nameEnter(data.name));
-            dispatch(emailEnter(data.email));
-            dispatch(phraseEnter(data.phrase));
-            dispatch(phraseAuthorEnter(data.phrase_author));
-            dispatch(constaceEnter(data.constance));
-            dispatch(photoEnter(data.photo));
-            dispatch(isGoogleAccountEnter(data.isGoogleAccount));
-            
-            navigate("/dashboard");
-        }
-    }
-
+    useGoogleLogin(navigate, dispatch, t, setDefaultError);
     return(
         <div className="min-h-[100vh] lg:flex items-center justify-center">
             <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-blueMain rounded-l-md">
@@ -129,7 +52,7 @@ function Login(){
                         <TranslationButton/>
                     </div>
 
-                    <form onSubmit={handleLogin}
+                    <form onSubmit={(e) => handleLogin(e,email, password, t, dispatch, navigate, setEmailError, setPasswordError, setDefaultError)}
                     className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
 
                         <Input 
