@@ -13,7 +13,12 @@ async function getCategories(userId: string, t:TFunction): Promise<apiResponse> 
     }catch(e){
         if(axios.isAxiosError(e)){
             console.error(e);
-            return {error: e.response?.data || t('UnexpectedError')};
+            switch(e.response?.data.error){
+                case "User Not Found":
+                    return {error: t('User Not Found')};
+                default:
+                    return {error: t('UnexpectedError')}
+            }
         }
         return {error: t('UnexpectedError')};
     }

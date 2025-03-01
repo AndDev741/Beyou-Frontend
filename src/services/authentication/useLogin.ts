@@ -2,6 +2,7 @@
 import loginRequest from "./request/loginRequest";
 //redux
 import { idEnter, nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/dashboard/perfilSlice";
+import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 //types
 import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
@@ -40,9 +41,10 @@ export default async function handleLogin (
                 setPasswordError(t('YupNecessaryPassword'));
                 break;
             default:
-                setDefaultError(t('UnkownError'))
+                dispatch(defaultErrorEnter(t('UnkownError')));
         }
     }else if(response.error){
+        dispatch(defaultErrorEnter(t('WrongPassOrEmailError')));
         setEmailError(t('WrongPassOrEmailError'))
         setPasswordError(" ")
         setDefaultError(t('WrongPassOrEmailError'));

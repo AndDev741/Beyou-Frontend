@@ -108,5 +108,7 @@
 
     "UnexpectedError": "An unexpected error ocurred",
     "edited successfully": "Edited Successfully",
-    "ConfirmDeleteOfHabitPhrase": "Confirm deletion of this habit?"
+    "ConfirmDeleteOfHabitPhrase": "Confirm deletion of this habit?",
+
+    "User Not Found": "User Not Found, please make login again"
 }

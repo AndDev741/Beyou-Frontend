@@ -94,7 +94,7 @@ function Login(){
                     </div>
                     
                     <SuccessRegisterPhrase/>
-                    <ErrorLoginModal errorMessage={defaultError} setErrorMessage={setDefaultError} />
+                    <ErrorLoginModal />
                 </main>
             </div>
         </div>

@@ -1,20 +1,21 @@
 import { useTranslation } from "react-i18next";
 import errorIcon from '../../assets/errorIcon.svg'
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
+import { RootState } from "../../redux/rootReducer";
 
-function ErrorLoginModal({errorMessage, setErrorMessage}: {
-    errorMessage: string,
-    setErrorMessage: React.Dispatch<React.SetStateAction<string>>
-}){
-    
+function ErrorLoginModal(){
+    const dispatch = useDispatch();
     const {t} = useTranslation();
+    const errorMessage = useSelector((state: RootState) => state.errorHandler.defaultError);
     useEffect(() => {
         const deleteModal = setTimeout(() => {
-            setErrorMessage("");
+            dispatch(defaultErrorEnter(""));
         }, 8000)
 
         return () => clearTimeout(deleteModal);
-    }, [errorMessage, setErrorMessage])
+    }, [errorMessage, dispatch])
     
     return(
         <div className={`${errorMessage !== "" ? "flex items-center justify-center absolute w-[100vw] lg:w-[400px] h-[110px] lg:h-[100px] lg:rounded-md border-b-2 border-solid border-blueMain bg-white top-0 lg:top-10 lg:left-[80px] text-red-700" 
