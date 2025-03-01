@@ -55,9 +55,16 @@ async function createCategory (
             return response.data;
         }catch(e){
             if(axios.isAxiosError(e)){
-                return e.response?.data || {error: t('UnkownError')};
+                switch(e.response?.data.error){
+                    case "User Not Found":
+                        return {error: t('User Not Found')};
+                    case "Error trying create the category":
+                        return {error: t('Error trying create the category')};
+                    default:
+                        return {error: t('UnknownError')};
+                }
             }
-            return {error: t('UnexpectedError')};
+
         }
 
     }catch(validationErrors){

@@ -109,5 +109,9 @@
     "edited successfully": "Editado com sucesso",
     "ConfirmDeleteOfHabitPhrase": "Confirmar exclusão deste hábito?",
 
-    "User Not Found": "Usuário não encontrado, por favor faça login novamente"
+    "User Not Found": "Usuário não encontrado, por favor faça login novamente",
+    "Error trying create the category": "Erro ao tentar criar categoria, verifique tudo e tente novamente",
+    "Category not found": "Categoria não encontrada, talvez já tenha sido deletada?",
+    "Error trying to delete the category": "Erro ao deletar a categoria, tente novamente depois",
+    "This category is used in some habit, please delete it first": "Essa categoria já está sendo utilizada em algum hábito, tente deleter ele primeiro"
 }

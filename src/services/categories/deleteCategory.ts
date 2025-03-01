@@ -11,7 +11,16 @@ async function deleteCategory(categoryId: string, t:TFunction): Promise<apiRespo
     }catch(e){
         if(axios.isAxiosError(e)){
             console.error(e);
-            return e.response?.data || t('UnexpectedError');
+            switch(e.response?.data.error){
+                case "Category not found":
+                    return {error: t('Category not found')};
+                case "Error trying to delete the category":
+                    return {error: t('Error trying to delete the category')};
+                case "This category is used in some habit, please delete it first":
+                    return {error: t('This category is used in some habit, please delete it first')}
+                default:
+                    return {error: t('UnexpectedError')}
+            }
         }
         return {error: t('UnexpectedError')};
     }

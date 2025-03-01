@@ -113,16 +113,19 @@ type deleteProps = {categoryId: string,
     userId: string}
 
 function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories, userId}: deleteProps){
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleDelete = async () => {
+        setErrorMessage("");
         const response = await deleteCategory(categoryId, t);
-
         if(response.success){
             const categories = await getCategories(userId, t);
             if(Array.isArray(categories.success)){
                 setCategories(categories.success);
                 return;
             }
+        }else if(response.error){
+            setErrorMessage(response.error);
         }
     }
     return(
@@ -138,6 +141,7 @@ function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories,
                 className="bg-gray-600 hover:bg-gray-500 mt-1 lg:mt-0 lg:ml-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
                     {t('Cancel')}
                 </button>
+                <p className="text-red-500 text-xl text-center mt-2">{errorMessage}</p>
             </div>
         </div>
     )

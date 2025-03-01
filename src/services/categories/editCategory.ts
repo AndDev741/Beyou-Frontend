@@ -35,7 +35,12 @@ async function editCategory(
         }catch(e){
             if(axios.isAxiosError(e)){
                 console.error(e);
-                return e.response?.data || t('UnexpectedError');
+                switch(e.response?.data.error){
+                    case "Category not found":
+                        return {error: t('Category not found')};
+                    default:
+                        return {error: t('UnexpectedError')};
+                }
             }
             return {error: t('UnexpectedError')};
         }

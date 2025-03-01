@@ -110,5 +110,9 @@
     "edited successfully": "Edited Successfully",
     "ConfirmDeleteOfHabitPhrase": "Confirm deletion of this habit?",
 
-    "User Not Found": "User Not Found, please make login again"
+    "User Not Found": "User Not Found, please make login again",
+    "Error trying create the category": "Error trying create the category, please check everything and try again",
+    "Category not found": "Category not Found, maybe it's already deleted?",
+    "Error trying to delete the category": "Error trying delete the category, try again later",
+    "This category is used in some habit, please delete it first": "This category is used in some habit, please delete it first"
 }
