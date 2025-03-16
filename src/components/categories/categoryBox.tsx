@@ -14,10 +14,9 @@ import { IconObject } from "../../types/icons/IconObject";
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 
     setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>,
-    userId: string
 }
 
-function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories, userId}: props){
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [Icon, setIcon]= useState<IconObject>();
@@ -99,7 +98,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
             setOnDelete={setOnDelete}
             t={t} name={name}
             setCategories={setCategories}
-            userId={userId}/>
+            />
         </div>
     )
 }
@@ -110,16 +109,16 @@ type deleteProps = {categoryId: string,
     t: TFunction, 
     name: string,
     setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
-    userId: string}
+}
 
-function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories, userId}: deleteProps){
+function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories}: deleteProps){
     const [errorMessage, setErrorMessage] = useState("");
 
     const handleDelete = async () => {
         setErrorMessage("");
         const response = await deleteCategory(categoryId, t);
         if(response.success){
-            const categories = await getCategories(userId, t);
+            const categories = await getCategories(t);
             if(Array.isArray(categories.success)){
                 setCategories(categories.success);
                 return;

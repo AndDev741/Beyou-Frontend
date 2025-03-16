@@ -6,7 +6,6 @@ import { TFunction } from 'i18next';
 type apiResponse = Record<string, string>;
 
 async function createCategory (
-    userId: string, 
     name: string, 
     description: string, 
     experience: number, 
@@ -44,7 +43,6 @@ async function createCategory (
         await validation.validate({name, description, experience, icon, level, xp});
         try{
             const categoryData = {
-                userId: userId,
                 name: name,
                 icon: icon,
                 description: description,

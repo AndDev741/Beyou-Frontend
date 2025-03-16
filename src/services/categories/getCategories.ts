@@ -6,9 +6,9 @@ import categoryType from "../../types/category/categoryType";
 
 type apiResponse = Record<string, Array<categoryType> | string>;
 
-async function getCategories(userId: string, t:TFunction): Promise<apiResponse> {
+async function getCategories(t:TFunction): Promise<apiResponse> {
     try{
-        const response = await axiosWithCredentials.get<Array<categoryType>>(`/category/${userId}`);
+        const response = await axiosWithCredentials.get<Array<categoryType>>(`/category`);
         return {success: response.data};
     }catch(e){
         if(axios.isAxiosError(e)){

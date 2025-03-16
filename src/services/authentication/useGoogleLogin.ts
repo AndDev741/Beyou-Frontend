@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import googleRequest from "./request/googleRequest";
 //Redux
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
-import { idEnter, nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/dashboard/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/dashboard/perfilSlice";
 //Types
 import { UserType } from "../../types/user/UserType";
 import { TFunction } from "i18next";
@@ -29,7 +29,6 @@ function useGoogleLogin(
                     dispatch(successRegisterEnter(true));
                 }else if(response.success){
                     const data = response.success as UserType;
-                    dispatch(idEnter(data.id));
                     dispatch(nameEnter(data.name));
                     dispatch(emailEnter(data.email));
                     dispatch(phraseEnter(data.phrase));

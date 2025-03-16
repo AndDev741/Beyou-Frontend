@@ -5,7 +5,7 @@ import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
 import fireIcon from '../../assets/habit/fire.svg'
 import { useTranslation } from "react-i18next";
 import CategoryNameAndIcon from "./categoryNameAndIcon";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
 import { habit } from "../../types/habit/habitType";
 import { IconObject } from "../../types/icons/IconObject";
@@ -13,7 +13,6 @@ import { TFunction } from "i18next";
 import deleteHabit from "../../services/habits/deleteHabit";
 import category from "../../types/category/categoryType";
 import getHabits from "../../services/habits/getHabits";
-import { useRevalidator } from "react-router-dom";
 import { RootState } from "../../redux/rootReducer";
 
 type HabitBoxProps = {
@@ -39,7 +38,6 @@ type HabitBoxProps = {
 function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualBaseXp, constance, categories, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
     const dispatch = useDispatch();
     
-    const userId = useSelector((state: RootState) => state.perfil.id);
     const {t} = useTranslation();
     const [Icon, setIcon] = useState<IconObject>();
     const [expanded, setExpanded] = useState(false);
@@ -260,7 +258,6 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                 t={t}
                 name={name}
                 setHabits={setHabits}
-                userId={userId}
                 />
                 </div>
            
@@ -274,16 +271,15 @@ type deleteProps = {
     t: TFunction, 
     name: string,
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>,
-    userId: string
 }
 
-function DeleteModal({habitId, onDelete, setOnDelete, t, name, setHabits, userId}: deleteProps){
+function DeleteModal({habitId, onDelete, setOnDelete, t, name, setHabits}: deleteProps){
 
     const handleDelete = async () => {
         const response = await deleteHabit(habitId, t);
 
         if(response.success){
-           const newHabits = await getHabits(userId, t);
+           const newHabits = await getHabits(t);
            if(Array.isArray(newHabits.success)){
                 setHabits(newHabits.success);
            }

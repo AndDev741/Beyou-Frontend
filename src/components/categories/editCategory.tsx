@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
 import { useTranslation } from 'react-i18next';
-import iconRender from '../icons/iconsRender';
 import addIcon from "../../assets/addIcon.svg";
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsBox';
@@ -16,7 +15,6 @@ type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
 
 function EditCategory({setCategories}: prop){
     const {t} = useTranslation();
-    const userId = useSelector((state: RootState) => state.perfil.id);
     const dispatch = useDispatch();
 
     const categoryId = useSelector((state: RootState) => state.editCategory.id);
@@ -61,7 +59,7 @@ function EditCategory({setCategories}: prop){
         const response = await editCategory(categoryId , name, description, selectedIcon, t);
 
         if(response.success){
-            const categories = await getCategories(userId, t);
+            const categories = await getCategories(t);
             if(Array.isArray(categories.success)){
                 setCategories(categories.success);
                 setSuccessMessage(t('edited successfully'));

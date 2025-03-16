@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import Button from '../Button';
@@ -12,7 +11,6 @@ import IconsInput from '../inputs/iconsBox';
 import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiType';
 import * as React from 'react';
 import categoryType from '../../types/category/categoryType';
-import { RootState } from '../../redux/rootReducer';
 import GenericInput from '../inputs/genericInput';
 
 type props = {
@@ -26,7 +24,6 @@ function CreateCategory({generatedCategory, setCategories}: props){
     const [generatedCategoryName, setGeneratedCategoryName] = useState("");
     const [generatedDescription, setGeneratedDescription] = useState("");
 
-    const userId: string = useSelector((state: RootState) => state.perfil.id);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [experience, setExperience] = useState(0);
@@ -58,10 +55,10 @@ function CreateCategory({generatedCategory, setCategories}: props){
         setIconError("");
         setUnknownError("");
 
-        const response = await createCategory(userId, name, description, experience, selectedIcon, t);
+        const response = await createCategory(name, description, experience, selectedIcon, t);
 
         if(response.success){
-            const newCategories = await getCategories(userId, t);
+            const newCategories = await getCategories(t);
             if(Array.isArray(newCategories.success)){
                 setCategories(newCategories.success);
                 setName("");

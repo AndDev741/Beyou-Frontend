@@ -5,7 +5,6 @@ import * as Yup from 'yup';
 type apiResponse = Promise<Record<string, string>>;
 
 async function createHabit(
-    userId: string, 
     name: string, 
     description: string, 
     motivationalPhrase: string, 
@@ -48,7 +47,6 @@ async function createHabit(
 
     
     const habitData = {
-        userId: userId,
         name: name,
         description: description,
         motivationalPhrase: motivationalPhrase,

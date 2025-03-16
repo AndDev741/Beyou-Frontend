@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import getCategories from "../../../services/categories/getCategories";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import CategoryItem from "./categoryItem";
 import category from "../../../types/category/categoryType";
-import { RootState } from "../../../redux/rootReducer";
 
 type chooseCategoriesProps = {
     categoriesIdList: string[],
@@ -15,12 +13,11 @@ type chooseCategoriesProps = {
 
 function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, chosenCategories}: chooseCategoriesProps){
     const {t} = useTranslation();
-    const userId = useSelector((state: RootState)  => state.perfil.id);
     const [categories, setCategories] = useState<category[]>([]);
 
     useEffect(() => {
         async function returnCategories(){
-            const response = await getCategories(userId, t);
+            const response = await getCategories(t);
             if(response.success && Array.isArray(response.success)){
                 setCategories(response.success);
             }else{
@@ -29,7 +26,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
         };
 
         returnCategories();
-    }, [t, userId])
+    }, [t])
     return(
         <>
             <h3 className="text-2xl mt-2 text-center">Categories</h3>

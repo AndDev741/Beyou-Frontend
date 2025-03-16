@@ -9,15 +9,12 @@ import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import Button from "../Button";
 import ExperienceInput from "../inputs/experienceInput";
 import createHabit from "../../services/habits/createHabit";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/rootReducer";
 import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
 
 function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
 
-    const userId = useSelector((state: RootState) => state.perfil.id)
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [motivationalPhrase, setMotivationalPhrase] = useState("");
@@ -59,10 +56,10 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
         setCategoriesError("");
         setUnknownError("");
 
-        const response = await createHabit(userId, name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categoriesId, t);
+        const response = await createHabit(name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categoriesId, t);
 
         if(response?.success){
-            const newHabits = await getHabits(userId, t);
+            const newHabits = await getHabits(t);
             if(Array.isArray(newHabits.success)){
                 setHabits(newHabits.success);
             }

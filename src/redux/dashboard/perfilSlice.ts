@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    id: "",
     username: "",
     email: "",
     phrase: "",
@@ -15,10 +14,6 @@ const perfilSlice = createSlice({
     name: 'perfil',
     initialState,
     reducers: {
-        idEnter(state, action){
-            const id = action.payload;
-            return {...state, id};
-        },
         nameEnter(state, action){
             const username = action.payload;
             return {...state, username};
@@ -50,6 +45,6 @@ const perfilSlice = createSlice({
     }
 });
 
-export const {idEnter, nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter} = perfilSlice.actions;
+export const {nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter} = perfilSlice.actions;
 
 export default perfilSlice.reducer;

@@ -1,8 +1,6 @@
-import { useSelector } from "react-redux"
 import getHabits from "../../services/habits/getHabits";
 import { useEffect, useState } from "react";
 import HabitBox from "./habitBox";
-import { RootState } from "../../redux/rootReducer";
 import { habit } from "../../types/habit/habitType";
 import { t } from "i18next";
 
@@ -12,17 +10,16 @@ type renderHabitsProps = {
 }
 
 function RenderHabits({habits, setHabits}: renderHabitsProps){
-    const userId = useSelector((state: RootState) => state.perfil.id);
 
     useEffect(() => {
         const returnHabits = async () => {
-            const response = await getHabits(userId, t);
+            const response = await getHabits(t);
             if(Array.isArray(response.success)){
                 setHabits(response.success);
             }
         }
         returnHabits();
-    }, [userId])
+    }, [])
 
     return(
         <div className="flex flex-wrap items-start justify-between md:justify-evenly lg:justify-start  p-2">

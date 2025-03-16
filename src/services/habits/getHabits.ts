@@ -5,9 +5,9 @@ import axios from 'axios';
 
 type apiResponse = Record<string, habit[] | string>
 
-async function getHabits(userId: string, t: TFunction): Promise<apiResponse>{
+async function getHabits(t: TFunction): Promise<apiResponse>{
     try{
-        const response = await axiosWithCredentials.get<habit[]>(`/habit/${userId}`);
+        const response = await axiosWithCredentials.get<habit[]>(`/habit`);
         return {success: response.data};
     }catch(e){
         if(axios.isAxiosError(e)){

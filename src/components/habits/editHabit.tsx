@@ -18,7 +18,6 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
     const {t} = useTranslation();
     const dispatch = useDispatch();
 
-    const userId = useSelector((state: RootState) => state.perfil.id);
     const habitId = useSelector((state: RootState) => state.editHabit.id);
     const nameToEdit = useSelector((state: RootState) => state.editHabit.name);
     const descriptionToEdit = useSelector((state: RootState) => state.editHabit.description);
@@ -101,7 +100,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
 
         if(response.success){
             handleCancel();
-            const newHabits = await getHabits(userId, t);
+            const newHabits = await getHabits(t);
             if(Array.isArray(newHabits.success)){
                 setHabits(newHabits.success);
             }
