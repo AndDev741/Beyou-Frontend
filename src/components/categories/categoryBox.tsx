@@ -10,6 +10,7 @@ import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 import categoryType from "../../types/category/categoryType";
 import { TFunction } from "i18next";
 import { IconObject } from "../../types/icons/IconObject";
+import DeleteModal from "../DeleteModal";
 
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 
@@ -93,55 +94,14 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                     {t('Delete')}
                 </button>
             </div>
-            <DeleteModal categoryId={id}
+            <DeleteModal objectId={id}
             onDelete={onDelete} 
             setOnDelete={setOnDelete}
             t={t} name={name}
-            setCategories={setCategories}
+            setObjects={setCategories}
+            deleteObject={deleteCategory}
+            getObjects={getCategories}
             />
-        </div>
-    )
-}
-
-type deleteProps = {categoryId: string, 
-    onDelete: boolean, 
-    setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
-    t: TFunction, 
-    name: string,
-    setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
-}
-
-function DeleteModal({categoryId, onDelete, setOnDelete, t, name, setCategories}: deleteProps){
-    const [errorMessage, setErrorMessage] = useState("");
-
-    const handleDelete = async () => {
-        setErrorMessage("");
-        const response = await deleteCategory(categoryId, t);
-        if(response.success){
-            const categories = await getCategories(t);
-            if(Array.isArray(categories.success)){
-                setCategories(categories.success);
-                return;
-            }
-        }else if(response.error){
-            setErrorMessage(response.error);
-        }
-    }
-    return(
-        <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
-            <h1 className="text-center font-semibold">{t('ConfirmDeleteOfCategoryPhrase')}</h1>
-            <h2 className="underline my-3">{name}</h2>
-            <div className="flex lg:flex-row flex-col items-center">
-                <button onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-500 lg:mr-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
-                    {t('Delete')}
-                </button>
-                <button onClick={() => setOnDelete(false)}
-                className="bg-gray-600 hover:bg-gray-500 mt-1 lg:mt-0 lg:ml-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
-                    {t('Cancel')}
-                </button>
-                <p className="text-red-500 text-xl text-center mt-2">{errorMessage}</p>
-            </div>
         </div>
     )
 }

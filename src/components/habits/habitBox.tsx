@@ -15,6 +15,7 @@ import category from "../../types/category/categoryType";
 import getHabits from "../../services/habits/getHabits";
 import { RootState } from "../../redux/rootReducer";
 import useColors from "./utils/useColors";
+import DeleteModal from "../DeleteModal";
 
 type HabitBoxProps = {
     id: string,
@@ -189,53 +190,17 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                     {t('Delete')}
                 </button>
                 <DeleteModal
-                habitId={id}
+                objectId={id}
                 onDelete={onDelete}
                 setOnDelete={setOnDelete}
                 t={t}
                 name={name}
-                setHabits={setHabits}
+                setObjects={setHabits}
+                deleteObject={deleteHabit}
+                getObjects={getHabits}
                 />
                 </div>
            
-        </div>
-    )
-}
-type deleteProps = {
-    habitId: string, 
-    onDelete: boolean, 
-    setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
-    t: TFunction, 
-    name: string,
-    setHabits: React.Dispatch<React.SetStateAction<habit[]>>,
-}
-
-function DeleteModal({habitId, onDelete, setOnDelete, t, name, setHabits}: deleteProps){
-
-    const handleDelete = async () => {
-        const response = await deleteHabit(habitId, t);
-
-        if(response.success){
-           const newHabits = await getHabits(t);
-           if(Array.isArray(newHabits.success)){
-                setHabits(newHabits.success);
-           }
-        }
-    }
-    return(
-        <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
-            <h1 className="text-center font-semibold">{t('ConfirmDeleteOfHabitPhrase')}</h1>
-            <h2 className="underline my-3">{name}</h2>
-            <div className="flex lg:flex-row flex-col items-center">
-                <button onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-500 lg:mr-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
-                    {t('Delete')}
-                </button>
-                <button onClick={() => setOnDelete(false)}
-                className="bg-gray-600 hover:bg-gray-500 mt-1 lg:mt-0 lg:ml-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
-                    {t('Cancel')}
-                </button>
-            </div>
         </div>
     )
 }
