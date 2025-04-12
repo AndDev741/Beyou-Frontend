@@ -17,7 +17,7 @@ function Habits(){
     return(
         <div className="lg:flex flex-col items-center w-full">
             <Header pageName={"YourHabits"} />
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%]">
+            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] lg:p-2 lg:pr-4">
                 <div className="">
                     <RenderHabits habits={habits} setHabits={setHabits}/>
                 </div>

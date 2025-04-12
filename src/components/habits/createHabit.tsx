@@ -19,7 +19,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
     const [description, setDescription] = useState("");
     const [motivationalPhrase, setMotivationalPhrase] = useState("");
     const [importance, setImportance] = useState(0);
-    const [dificulty, setDificulty] = useState(0);
+    const [difficulty, setDifficulty] = useState(0);
     const [selectedIcon, setSelectedIcon] = useState("");
     const [experience, setExperience] = useState(0);
     const [categoriesId, setCategoriesIdList] = useState<string[]>([]);
@@ -28,7 +28,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
     const [descriptionError, setDescriptionError] = useState("");
     const [motivationalPhraseError, setMotivationalPhraseError] = useState("");
     const [importanceError, setImportanceError] = useState("");
-    const [dificultyError, setDificultyError] = useState("");
+    const [difficultyError, setDifficultyError] = useState("");
     const [iconError, setIconError] = useState("");
     const [experienceError, setExperienceError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
@@ -50,13 +50,13 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
         setDescriptionError("");
         setMotivationalPhraseError("");
         setImportanceError("");
-        setDificultyError("");
+        setDifficultyError("");
         setIconError("");
         setExperienceError("");
         setCategoriesError("");
         setUnknownError("");
 
-        const response = await createHabit(name, description, motivationalPhrase, importance, dificulty, selectedIcon, experience, categoriesId, t);
+        const response = await createHabit(name, description, motivationalPhrase, importance, difficulty, selectedIcon, experience, categoriesId, t);
 
         if(response?.success){
             const newHabits = await getHabits(t);
@@ -67,7 +67,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
             setDescription("");
             setMotivationalPhrase("");
             setImportance(0);
-            setDificulty(0);
+            setDifficulty(0);
             setSelectedIcon("");
             setExperience(0);
             setCategoriesIdList([]);
@@ -100,8 +100,8 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                     setImportanceError(formattedResponse);
                     scrollToTop();
                     break;
-                case t("YupDificultyRequired"):
-                    setDificultyError(formattedResponse);
+                case t("YupDifficultyRequired"):
+                    setDifficultyError(formattedResponse);
                     break;
                 case t('YupIconRequired'):
                     setIconError(formattedResponse);
@@ -121,7 +121,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
 
     return(
         <div>
-            <div className="flex text-3xl items-center justify-center mt-5 mb-3"> 
+            <div className="flex text-3xl items-center justify-center mt-3 mb-3"> 
                 <img src={habitIcon}
                 alt={t("HabitImgAlt")}
                 className="w-[35px] h-[35px] mr-2" />
@@ -184,13 +184,13 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
 
                 
                     <ChooseInput
-                    choosedLevel={dificulty}
-                    error={dificultyError}
-                    setLevel={setDificulty}
-                    title={"Dificulty"}
+                    choosedLevel={difficulty}
+                    error={difficultyError}
+                    setLevel={setDifficulty}
+                    title={"Difficulty"}
                     levels={[t("Easy"), t("Normal"), t("Hard"), 
                     t("Terrible")]}
-                    name={"dificulty"}
+                    name={"difficulty"}
                     t={t} />
                 </div>
                 <div>
