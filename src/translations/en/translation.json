@@ -77,7 +77,7 @@
     "HabitDescriptionPlaceholder": "Important to many areas of my life",
     "MotivationalPhrasePlaceholder": "Appears when completed",
     "Importance": "Importance",
-    "Dificulty": "Dificulty",
+    "Difficulty": "Difficulty",
     "Low": "Low",
     "Medium": "Medium",
     "High": "High",
@@ -89,7 +89,7 @@
     "YouDontHaveCategories": "You don't have categories yet, create one",
     "YupGenericMaxLength": "The max of characters are 256",
     "YupImportanceRequired": "Choose an importance",
-    "YupDificultyRequired": "Choose an dificulty",
+    "YupDificultyRequired": "Choose an difficulty",
     "YupRequiredCategories": "Choose at least 1 category",
     "ExpandBoxImgAlt": "Increase and descrease box icon",
     "constanceFireIconAlt": "Fire icon for constance",
@@ -114,5 +114,13 @@
     "Error trying create the category": "Error trying create the category, please check everything and try again",
     "Category not found": "Category not Found, maybe it's already deleted?",
     "Error trying to delete the category": "Error trying delete the category, try again later",
-    "This category is used in some habit, please delete it first": "This category is used in some habit, please delete it first"
+    "This category is used in some habit, please delete it first": "This category is used in some habit, please delete it first",
+
+    "Start creating amazing tasks to organize your day!": "Start creating amazing tasks to organize your day!",
+    "Create Task": "Create Task",
+    "Clean the house": "Clean the house",
+    "Important to keep things organized": "Important to keep things organized",
+    "Importance and Difficulty must be set together": "Importance and Difficulty must be set together.",
+    "To do Icon": "To do Icon",
+    "Edit Task": "Edit Task"
 }

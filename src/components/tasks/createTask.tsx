@@ -1,0 +1,195 @@
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import taskIcon from '../../assets/dashboard/shortcuts/taskIcon.svg'
+import IconsBox from "../inputs/iconsBox";
+import DescriptionInput from "../inputs/descriptionInput";
+import GenericInput from "../inputs/genericInput";
+import ChooseInput from "../inputs/chooseInput";
+import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
+import Button from "../Button";
+import { task } from "../../types/tasks/taskType";
+import createTask from "../../services/tasks/createTask";
+import getTasks from "../../services/tasks/getTasks";
+import arrowDown from "../../assets/arrowDown.svg";
+import arrowUp from "../../assets/arrowUp.svg"
+
+function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
+    const { t } = useTranslation();
+
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [importance, setImportance] = useState(0);
+    const [difficulty, setDifficulty] = useState(0);
+    const [selectedIcon, setSelectedIcon] = useState("");
+    const [categoriesId, setCategoriesIdList] = useState<string[]>([]);
+
+    const [nameError, setNameError] = useState("");
+    const [descriptionError, setDescriptionError] = useState("");
+    const [importanceError, setImportanceError] = useState("");
+    const [difficultyError, setDifficultyError] = useState("");
+    const [iconError, setIconError] = useState("");
+    const [categoriesError, setCategoriesError] = useState("");
+    const [unknownError, setUnknownError] = useState("");
+
+    const [search, setSearch] = useState("");
+
+    const [expandDetails, setExpandDetails] = useState(false);
+    const [expandDetailsIcon, setExpandDetailsIcon] = useState(arrowDown);
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        })
+    }
+
+    const handleMoreDetails = () => {
+        setExpandDetails(!expandDetails);
+        expandDetails === true ? setExpandDetailsIcon(arrowDown) : setExpandDetailsIcon(arrowUp);
+    }
+
+    const handleCreateTask = async (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        setNameError("");
+        setDescriptionError("");
+        setImportanceError("");
+        setDifficultyError("");
+        setIconError("");
+        setCategoriesError("");
+        setUnknownError("");
+
+        const response = await createTask(name, description, selectedIcon, categoriesId, t, importance, difficulty);
+
+        if (response?.success) {
+            const newTasks = await getTasks(t);
+            if (Array.isArray(newTasks.success)) {
+                setTasks(newTasks.success);
+            }
+            setName("");
+            setDescription("");
+            setImportance(0);
+            setDifficulty(0);
+            setSelectedIcon("");
+            setCategoriesIdList([]);
+        }
+
+        if (response?.validation) {
+            const formattedResponse = response.validation
+            switch (formattedResponse) {
+                case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
+                    setNameError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupMinimumName'):
+                    setNameError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupMaxName'):
+                    setNameError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupDescriptionMaxValue'):
+                    setDescriptionError(formattedResponse);
+                    scrollToTop();
+                    break;
+                case t('YupIconRequired'):
+                    setIconError(formattedResponse);
+                    break;
+                case t("Importance and Difficulty must be set together"):
+                    setUnknownError(formattedResponse);
+                    break;
+                default:
+                    setUnknownError(t("UnkownError"));
+                    break;
+            }
+        }
+    }
+
+    return (
+        <div>
+            <div className="flex text-3xl items-center justify-center mt-5 mb-3">
+                <img src={taskIcon}
+                    alt={t("To do Icon")}
+                    className="w-[35px] h-[35px] mr-2" />
+                <h1>{t('Create Task')}</h1>
+            </div>
+            <form onSubmit={handleCreateTask}
+                className="flex flex-col items-center">
+                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
+                    <div className='flex flex-col md:items-start mx-4'>
+                        <GenericInput
+                            name='Name'
+                            data={name}
+                            placeholder={"Clean the house"}
+                            setData={setName}
+                            dataError={nameError}
+                            t={t} />
+
+
+                        <DescriptionInput t={t}
+                            description={description}
+                            setDescription={setDescription}
+                            descriptionError={descriptionError}
+                            placeholder={"Important to keep things organized"}
+                            minH={0} />
+
+                    </div>
+                    <div className='flex flex-col mt-2 md:mt-0'>
+                        <IconsBox
+                            search={search}
+                            setSearch={setSearch}
+                            iconError={iconError}
+                            selectedIcon={selectedIcon}
+                            setSelectedIcon={setSelectedIcon}
+                            t={t}
+                            minLgH={0} />
+
+                    </div>
+                </div>
+
+                <div className="flex items-center text-2xl font-medium mt-5 cursor-pointer"
+                    onClick={handleMoreDetails}>
+                    <img src={expandDetailsIcon}
+                        className="w-[40px]" />
+                    More Details
+                </div>
+
+                <div className={`flex flex-col md:flex-row items-center justify-center w-full md:w-[80%]
+                    ${expandDetails ? "" : "hidden"}`}>
+                    <ChooseInput
+                        choosedLevel={importance}
+                        setLevel={setImportance}
+                        title={"Importance"}
+                        levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
+                        error={importanceError}
+                        name={"importance"}
+                        t={t} />
+
+
+                    <ChooseInput
+                        choosedLevel={difficulty}
+                        error={difficultyError}
+                        setLevel={setDifficulty}
+                        title={"Difficulty"}
+                        levels={[t("Easy"), t("Normal"), t("Hard"),
+                        t("Terrible")]}
+                        name={"Difficulty"}
+                        t={t} />
+                </div>
+                <div className={`${expandDetails ? "" : "hidden"}`}>
+                    <ChooseCategories
+                        categoriesIdList={categoriesId}
+                        setCategoriesIdList={setCategoriesIdList}
+                        errorMessage={categoriesError}
+                        chosenCategories={null} />
+                </div>
+                <p className='text-red-500 text-lg text-center'>{unknownError}</p>
+                <div className="mb-3 mt-3">
+                    <Button text={t("Create")} />
+                </div>
+            </form>
+        </div>
+    )
+}
+
+export default CreateTask;
