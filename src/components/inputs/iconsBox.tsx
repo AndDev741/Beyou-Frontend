@@ -15,6 +15,7 @@ type iconsInputProps = {
 
 function IconsBox({search, setSearch, iconError, t, selectedIcon, setSelectedIcon, minLgH}: iconsInputProps){
     const [icons, setIcons] = useState<IconObject[]>([]);
+    console.log(minLgH)
 
     useEffect(() => {
         setIcons((icons) => iconRender(search, selectedIcon, icons));
@@ -37,7 +38,7 @@ function IconsBox({search, setSearch, iconError, t, selectedIcon, setSelectedIco
             />
         </div>
         <p className='text-red-500 text-lg'>{iconError}</p>
-        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] md:h-[255px] ${minLgH ? `w-[${minLgH}px]` : "lg:h-[272px]"} p-2`}>
+        <div className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[200px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[272px]"} p-2`}>
             {icons.map((index) => (
                 <p onClick={() => setSelectedIcon(index.name)}
                 key={index.name}

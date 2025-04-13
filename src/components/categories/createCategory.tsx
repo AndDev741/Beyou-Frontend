@@ -135,7 +135,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                         iconError={iconError}
                         setSelectedIcon={setSelectedIcon}
                         selectedIcon={selectedIcon}
-                        minLgH={275} />
+                        minLgH={263} />
                     </div>
                 </div>
                 <div className='flex items-center justify-center mt-6'>
