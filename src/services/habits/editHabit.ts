@@ -18,8 +18,8 @@ async function editHabit(
         name: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')).max(256, t('YupMaxName')),
         description: Yup.string().max(256, t('YupDescriptionMaxValue')),
         motivationalPhrase: Yup.string().max(256, t("YupGenericMaxLength")),
-        importance: Yup.number().required(t("YupImportanceRequired")),
-        dificulty: Yup.number().required(t("YupDificultyRequired")),
+        importance: Yup.number().min(1, t("YupImportanceRequired")).required(t("YupImportanceRequired")),
+        dificulty: Yup.number().min(1, t("YupDificultyRequired")).required(t("YupDificultyRequired")),
         iconId: Yup.string().required(t('YupIconRequired')),
         categories: Yup.array().min(1, t("YupRequiredCategories")).required(t("YupRequiredCategories"))
     })
