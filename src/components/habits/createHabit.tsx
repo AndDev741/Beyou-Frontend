@@ -164,7 +164,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                         selectedIcon={selectedIcon}
                         setSelectedIcon={setSelectedIcon}
                         t={t}
-                        minLgH={0}/>
+                        minLgH={272}/>
 
                         <ExperienceInput t={t}
                         experience={experience} 

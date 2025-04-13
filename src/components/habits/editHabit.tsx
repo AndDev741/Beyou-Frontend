@@ -200,7 +200,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                         iconError={iconError}
                         selectedIcon={selectedIcon}
                         setSelectedIcon={setSelectedIcon}
-                        minLgH={262}
+                        minLgH={265}
                         t={t}/>
 
                         <div className="mb-2 md:mb-0">
