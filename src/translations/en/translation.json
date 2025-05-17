@@ -122,5 +122,6 @@
     "Important to keep things organized": "Important to keep things organized",
     "Importance and Difficulty must be set together": "Importance and Difficulty must be set together.",
     "To do Icon": "To do Icon",
-    "Edit Task": "Edit Task"
+    "Edit Task": "Edit Task",
+    "ConfirmDeleteOfTaskPhrase": "Confirm deletion of this task?"
 }

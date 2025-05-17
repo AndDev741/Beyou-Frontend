@@ -101,6 +101,8 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
             setObjects={setCategories}
             deleteObject={deleteCategory}
             getObjects={getCategories}
+            deletePhrase={t('ConfirmDeleteOfCategoryPhrase')}
+
             />
         </div>
     )

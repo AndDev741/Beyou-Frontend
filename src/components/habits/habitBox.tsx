@@ -198,6 +198,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                 setObjects={setHabits}
                 deleteObject={deleteHabit}
                 getObjects={getHabits}
+                deletePhrase={t('DeleteHabitPhrase')}
                 />
                 </div>
            

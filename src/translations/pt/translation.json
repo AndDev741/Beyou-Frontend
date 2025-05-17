@@ -120,5 +120,6 @@
     "Important to keep things organized": "Importante para manter as coisas organizadas",
     "Importance and Difficulty must be set together": "Importância e Dificuldade devem ser escolhidas juntas.",
     "To do Icon": "Ícone de lista de tarefas",
-    "Edit Task": "Editar tarefa"
+    "Edit Task": "Editar tarefa",
+    "ConfirmDeleteOfTaskPhrase": "Confirmar deleção dessa tarefa?"
 }

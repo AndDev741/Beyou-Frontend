@@ -9,10 +9,11 @@ type deleteProps = {
     name: string,
     setObjects: any,
     deleteObject: any,
-    getObjects: any
+    getObjects: any,
+    deletePhrase: string
 }
 
-function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, deleteObject, getObjects}: deleteProps){
+function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, deleteObject, getObjects, deletePhrase}: deleteProps){
 
     const handleDelete = async () => {
         const response = await deleteObject(objectId, t);
@@ -26,7 +27,7 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
     }
     return(
         <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
-            <h1 className="text-center font-semibold">{t('ConfirmDeleteOfHabitPhrase')}</h1>
+            <h1 className="text-center font-semibold">{deletePhrase}</h1>
             <h2 className="underline my-3">{name}</h2>
             <div className="flex lg:flex-row flex-col items-center">
                 <button onClick={handleDelete}
