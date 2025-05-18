@@ -10,7 +10,7 @@ type iconsInputProps = {
     t: TFunction,
     selectedIcon: string,
     setSelectedIcon: React.Dispatch<React.SetStateAction<string>>,
-    minLgH: number
+    minLgH: number,
 }
 
 function IconsBox({search, setSearch, iconError, t, selectedIcon, setSelectedIcon, minLgH}: iconsInputProps){

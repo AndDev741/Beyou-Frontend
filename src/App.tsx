@@ -5,6 +5,7 @@ import Dashboard from "./pages/dashboard/dashboard";
 import Categories from "./pages/categories/categories";
 import Habits from "./pages/habits/habits";
 import Tasks from "./pages/tasks/Tasks";
+import Routine from "./pages/routines/routine";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/categories" element={<Categories/>}/>
           <Route path="/habits" element={<Habits/>} />
           <Route path="/tasks" element={<Tasks/>} />
+          <Route path="/routines" element={<Routine/>} />
         </Routes>
       </div>
     </BrowserRouter>
