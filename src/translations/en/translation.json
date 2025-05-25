@@ -141,7 +141,7 @@
     "Read a book": "Read a book",
     "Creating daily routine": "Creating daily routine",
     "Routine name": "Routine name",
-    "add period": "add\nperiod",
+    "add section": "add\nsection",
     "name": "Name",
     "Cozy Morning": "Cozy Morning",
     "Start time": "Start time",
@@ -153,6 +153,7 @@
     "Creating Routine Section": "Creating Routine Section",
     "Cancel Habit or task": "Cancel Habit or task",
     "Put the start time of this item": "Put the start time of this item",
-    "Need to fit between the section time" : "Need to fit between the section time"
+    "Need to fit between the section time" : "Need to fit between the section time",
+    "At least, 1 section need to be created": "At least, 1 section need to be created"
     
 }
