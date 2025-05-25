@@ -7,6 +7,7 @@ import { IconObject } from "../../../types/icons/IconObject";
 import SectionItem from "./SectionItem";
 import Button from "../../Button";
 import { Routine } from "../../../types/routine/routine";
+import createRoutine from "../../../services/routine/createRoutine";
 
 type CreateDailyRoutineProps = {}
 
@@ -18,6 +19,8 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
     const [showModal, setShowModal] = useState(false);
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
+
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -47,13 +50,24 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
     };
 
     const handleCreate = async () => {
+        setErrorMessage("");
+
         const routine: Routine = {
             name: routineName,
             iconId: "",
             routineSections: routineSection
         }
 
-        console.log(routine)
+        const response = await createRoutine(routine, t);
+
+        console.log(response)
+        if(response?.error || response?.validation){
+            setErrorMessage(response.error || response?.validation);
+        }else{
+            setRoutineName("");
+            setRoutineSection([]);
+        }
+ 
     }
 
     return (
@@ -124,10 +138,11 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                     </div>
                 </div>
             )}
-            <div className="my-2 mb-6"
+            <div className="my-2 mb-6 flex flex-col items-center"
             onClick={handleCreate}
             >
                 <Button text={t('create')} />
+                <p className="text-center text-red-700 mt-2">{errorMessage}</p>
             </div>
            
         </div>
