@@ -5,6 +5,8 @@ import CreateRoutineSection from "./CreateRoutineSection";
 import { RoutineSection } from "../../../types/routine/routineSection";
 import { IconObject } from "../../../types/icons/IconObject";
 import SectionItem from "./SectionItem";
+import Button from "../../Button";
+import { Routine } from "../../../types/routine/routine";
 
 type CreateDailyRoutineProps = {}
 
@@ -12,7 +14,7 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
     const { t } = useTranslation();
     const [routineName, setRoutineName] = useState<string>("");
     const [routineSection, setRoutineSection] = useState<RoutineSection[]>([]);
-    const [iconsToRender, setIconsToRender] = useState<IconObject[]>([]);
+    console.log("routineSection", routineSection);
     const [showModal, setShowModal] = useState(false);
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -26,7 +28,6 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
 
     const handleDeleteSection = (index: number) => {
         setRoutineSection(prev => prev.filter((_, i) => i !== index));
-        setIconsToRender(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleEditSection = (index: number) => {
@@ -45,6 +46,16 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
         }
     };
 
+    const handleCreate = async () => {
+        const routine: Routine = {
+            name: routineName,
+            iconId: "",
+            routineSections: routineSection
+        }
+
+        console.log(routine)
+    }
+
     return (
         <div className="w-full flex flex-col items-center justify-center">
             <h2 className='text-2xl'>{t("Creating daily routine")}</h2>
@@ -55,7 +66,7 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                     type="text"
                     value={routineName}
                     onChange={e => setRoutineName(e.target.value)}
-                    className="mb-6 w-2/4 max-w-md px-4 py-2 border-0 border-b-2 border-b-blueMain rounded-none text-2xl font-semibold text-center focus:outline-none"
+                    className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-blueMain rounded-none text-2xl font-semibold text-center focus:outline-none"
                     placeholder={t("Routine name")}
                 />
 
@@ -81,6 +92,8 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                                 section={section}
                                 onEdit={() => handleEditSection(index)}
                                 onDelete={() => handleDeleteSection(index)}
+                                setRoutineSection={setRoutineSection}
+                                index={index}
                             />
                         ))
                     ) : (
@@ -111,6 +124,12 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                     </div>
                 </div>
             )}
+            <div className="my-2 mb-6"
+            onClick={handleCreate}
+            >
+                <Button text={t('create')} />
+            </div>
+           
         </div>
     )
 }

@@ -147,5 +147,12 @@
     "Start time": "Start time",
     "End time": "End time",
     "No sections added": "No sections added",
-    "Edit Routine Section": "Edit Routine Section"
+    "Edit Routine Section": "Edit Routine Section",
+    "Add Habit or task": "Add Habit or Task",
+    "No habits or task available, create one": "No habits or tasks available, create one",
+    "Creating Routine Section": "Creating Routine Section",
+    "Cancel Habit or task": "Cancel Habit or task",
+    "Put the start time of this item": "Put the start time of this item",
+    "Need to fit between the section time" : "Need to fit between the section time"
+    
 }

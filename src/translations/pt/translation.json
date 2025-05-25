@@ -145,5 +145,11 @@
     "Start time": "Hora de início",
     "End time": "Hora de término",
     "No sections added": "Nenhuma seção adicionada",
-    "Edit Routine Section": "Editar seção da rotina"
+    "Edit Routine Section": "Editar seção da rotina",
+    "Add Habit or task": "Adicionar hábito ou tarefa",
+    "No habits or task available, create one": "Nenhum hábito ou tarefa disponível, crie um",
+    "Creating Routine Section": "Criar uma seção de rotina",
+    "Cancel Habit or task": "Cancelar adição de hábito ou tarefa",
+    "Put the start time of this item": "Coloque o horário de início do item",
+    "Need to fit between the section time" : "Precisa ser entre o horário de início e término da seção"
 }

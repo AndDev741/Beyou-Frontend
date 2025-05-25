@@ -2,13 +2,33 @@ import { useTranslation } from "react-i18next";
 import routineIcon from '../../assets/dashboard/shortcuts/routineIcon.svg';
 import Header from "../../components/header";
 import AddRoutineButton from "../../components/routines/addRoutineButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
+import getHabits from "../../services/habits/getHabits";
+import { useDispatch } from "react-redux";
+import { enterHabits } from "../../redux/habit/habitsSlice";
+import getTasks from "../../services/tasks/getTasks";
+import { enterTasks } from "../../redux/task/tasksSlice";
 
 const Routine = () => {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+
     const [onCreateRoutine, setOnCreateRoutine] = useState(false);
     const [routineType, setRoutineType] = useState("");
+    useEffect(() => {
+
+        const fetchHabitsAndTasks = async () => {
+            console.log("Fetching habits and tasks...");
+            const habits = await getHabits(t);
+            const tasks = await getTasks(t);
+
+            dispatch(enterHabits(habits?.success));
+            dispatch(enterTasks(tasks?.success));
+        }
+
+        fetchHabitsAndTasks();
+    }, []);
 
     return (
         <>
