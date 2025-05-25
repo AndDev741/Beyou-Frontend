@@ -80,7 +80,7 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                         className="w-8 h-8"
                     />
                     <span className='text-sm text-center font-medium mt-1 whitespace-pre-line'>
-                        {t("add period")}
+                        {t("add section")}
                     </span>
                 </button>
 
