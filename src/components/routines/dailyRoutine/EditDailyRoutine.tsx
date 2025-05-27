@@ -8,17 +8,25 @@ import SectionItem from "./SectionItem";
 import Button from "../../Button";
 import { Routine } from "../../../types/routine/routine";
 import createRoutine from "../../../services/routine/createRoutine";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { enterRoutines } from "../../../redux/routine/routinesSlice";
 import getRoutines from "../../../services/routine/getRoutines";
+import { RootState } from "../../../redux/rootReducer";
+import { editModeEnter } from "../../../redux/routine/editRoutineSlice";
+import editRoutine from "../../../services/routine/editRoutine";
 
-type CreateDailyRoutineProps = {}
+type EditDailyRoutineProps = {}
 
-const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
+const EditDailyRoutine = ({}: EditDailyRoutineProps) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
-    const [routineName, setRoutineName] = useState<string>("");
-    const [routineSection, setRoutineSection] = useState<RoutineSection[]>([]);
+
+    const routineToEdit = useSelector((state: RootState) => state.editRoutine.routine);
+    const routineNameToEdit = routineToEdit?.name;
+    const routineSectionsToEdit = routineToEdit?.routineSections;
+    
+    const [routineName, setRoutineName] = useState<string>(routineNameToEdit || "");
+    const [routineSection, setRoutineSection] = useState<RoutineSection[]>(routineSectionsToEdit || []);
     console.log("routineSection", routineSection);
     const [showModal, setShowModal] = useState(false);
 
@@ -53,17 +61,17 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
         }
     };
 
-    const handleCreate = async () => {
+    const handleEdit = async () => {
         setErrorMessage("");
 
         const routine: Routine = {
+            id: routineToEdit.id,
             name: routineName,
-            type: "DAILY",
             iconId: "",
             routineSections: routineSection
         }
 
-        const response = await createRoutine(routine, t);
+        const response = await editRoutine(routine, t);
 
         console.log(response)
         if(response?.error || response?.validation){
@@ -73,13 +81,14 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
             dispatch(enterRoutines(routines?.success));
             setRoutineName("");
             setRoutineSection([]);
+            dispatch(editModeEnter(false));
         }
  
     }
 
     return (
         <div className="w-full flex flex-col items-center justify-center">
-            <h2 className='text-2xl'>{t("Creating daily routine")}</h2>
+            <h2 className='text-2xl'>{t("Editing daily routine")}</h2>
 
             <div className="relative w-[95%] flex flex-col items-center justify-start border-2 border-blueMain rounded-lg p-3 mt-4 bg-white shadow-sm min-h-[400px]">
 
@@ -146,9 +155,21 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                 </div>
             )}
             <div className="my-2 mb-6 flex flex-col items-center"
-            onClick={handleCreate}
+            onClick={handleEdit}
             >
-                <Button text={t('create')} />
+                <div className="w-full flex">
+                    <button 
+                        className='w-[120px] md:w-[200px] h-[45px] bg-blueMain rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-ligthBlue hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 mx-4'>
+                        {t('Edit')}
+                    </button>
+
+
+                    <button type='button'
+                        onClick={() => dispatch(editModeEnter(false))}
+                        className='w-[120px] md:w-[200px] h-[45px] bg-gray-500 rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-gray-400 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 mx-4'>
+                            {t('Cancel')}
+                    </button>
+                </div>
                 <p className="text-center text-red-700 mt-2">{errorMessage}</p>
             </div>
            
@@ -156,4 +177,4 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
     )
 }
 
-export default CreateDailyRoutine;
+export default EditDailyRoutine;

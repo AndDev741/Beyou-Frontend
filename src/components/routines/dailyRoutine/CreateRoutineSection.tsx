@@ -65,6 +65,8 @@ const CreateRoutineSection = ({
                 startTime,
                 endTime,
                 iconId: selectedIcon,
+                taskGroup: editSection?.taskGroup || [],
+                habitGroup: editSection?.habitGroup || [],
             };
             onUpdateSection(updatedSection);
         }

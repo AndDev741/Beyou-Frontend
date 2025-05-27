@@ -154,6 +154,12 @@
     "Cancel Habit or task": "Cancel Habit or task",
     "Put the start time of this item": "Put the start time of this item",
     "Need to fit between the section time" : "Need to fit between the section time",
-    "At least, 1 section need to be created": "At least, 1 section need to be created"
+    "At least, 1 section need to be created": "At least, 1 section need to be created",
+    "Schedule": "Schedule",
+    "No routines available, start create some to track you tasks!": "No routines available, start create some to track your tasks!",
+    "Confirm Deletion": "Confirm Deletion",
+    "Yes": "Yes",
+    "No": "No",
+    "Editing daily routine" : "Editing daily routine"
     
 }

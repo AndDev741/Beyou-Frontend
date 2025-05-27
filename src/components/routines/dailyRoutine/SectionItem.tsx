@@ -30,17 +30,17 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
         const tasks = section.taskGroup?.map(item => ({
             type: 'task' as const,
             id: item.TaskId,
-            startTime: item.startTime
+            startTime: item?.startTime
         })) || [];
 
         const habits = section.habitGroup?.map(item => ({
             type: 'habit' as const,
             id: item.habitId,
-            startTime: item.startTime
+            startTime: item?.startTime
         })) || [];
 
         return [...tasks, ...habits].sort((a, b) =>
-            a.startTime.localeCompare(b.startTime)
+            a?.startTime ? a.startTime.localeCompare(b.startTime) : 0 - (b?.startTime ? b.startTime.localeCompare(a.startTime) : 0)
         );
     };
 
