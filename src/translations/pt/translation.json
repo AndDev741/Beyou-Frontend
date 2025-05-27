@@ -152,5 +152,11 @@
     "Cancel Habit or task": "Cancelar adição de hábito ou tarefa",
     "Put the start time of this item": "Coloque o horário de início do item",
     "Need to fit between the section time" : "Precisa ser entre o horário de início e término da seção",
-    "At least, 1 section need to be created": "Ao menos 1 seção precisa ser criada"
+    "At least, 1 section need to be created": "Ao menos 1 seção precisa ser criada",
+    "Schedule": "Agendar",
+    "No routines available, start create some to track you tasks!": "Nenhuma rotina disponível, comece a criar algumas para acompanhar suas tarefas!",
+    "Confirm Deletion": "Confirmar Deleção",
+    "Yes": "Sim",
+    "No": "Não",
+    "Editing daily routine" : "Editando rotina diária"
 }
