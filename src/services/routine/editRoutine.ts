@@ -5,7 +5,7 @@ import { Routine } from '../../types/routine/routine';
 
 type apiResponse = Promise<Record<string, string>>;
 
-async function editRouine(
+async function editRoutine(
     routine: Routine,
     t: TFunction
 ): apiResponse{
@@ -41,4 +41,4 @@ async function editRouine(
 
 }
 
-export default editRouine;
+export default editRoutine;
