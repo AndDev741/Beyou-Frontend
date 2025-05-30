@@ -160,6 +160,16 @@
     "Confirm Deletion": "Confirm Deletion",
     "Yes": "Yes",
     "No": "No",
-    "Editing daily routine" : "Editing daily routine"
-    
+    "Editing daily routine" : "Editing daily routine",
+    "Routine Name": "Routine Name",
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Saturday": "Saturday",
+    "Sunday": "Sunday",
+    "Mon - Fri": "Mon - Fri",
+    "Weekend": "Weekend",
+    "All week": "All week"
 }

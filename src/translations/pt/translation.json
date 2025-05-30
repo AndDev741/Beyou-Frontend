@@ -158,5 +158,16 @@
     "Confirm Deletion": "Confirmar Deleção",
     "Yes": "Sim",
     "No": "Não",
-    "Editing daily routine" : "Editando rotina diária"
+    "Editing daily routine" : "Editando rotina diária",
+    "Routine Name": "Nome da Rotina",
+    "Monday": "Segunda",
+    "Tuesday": "Terça",
+    "Wednesday": "Quarta",
+    "Thursday": "Quinta",
+    "Friday": "Sexta",
+    "Saturday": "Sábado",
+    "Sunday": "Domingo",
+    "Mon - Fri": "Seg a Sex",
+    "Weekend": "Final de semana",
+    "All week": "Toda a semana"
 }
