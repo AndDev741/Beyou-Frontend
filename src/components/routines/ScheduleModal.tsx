@@ -60,14 +60,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-[90%] max-w-md border-2 border-blue-600">
-                <h2 className="text-xl font-bold mb-4">{t('Routine Name')}</h2>
-                <input
-                    type="text"
-                    readOnly
-                    value={routineName}
-                    onChange={(e) => setRoutineName(e.target.value)}
-                    className="w-full p-2 mb-4 border border-blueMain rounded"
-                />
+                <h2 className="text-xl font-bold mb-4">{routineName}</h2>
 
                 <div className="w-full flex items-center justify-between">
                     <div className="flex flex-wrap w-[60%]">
