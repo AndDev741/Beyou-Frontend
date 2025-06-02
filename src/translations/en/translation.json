@@ -171,5 +171,8 @@
     "Sunday": "Sunday",
     "Mon - Fri": "Mon - Fri",
     "Weekend": "Weekend",
-    "All week": "All week"
+    "All week": "All week",
+    "RoutineIdRequired": "Select a routine.",
+    "DaysRequired": "Select at least one day.",
+    "DayInvalid": "Day invalid."
 }

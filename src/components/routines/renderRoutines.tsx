@@ -76,6 +76,9 @@ export default function RenderRoutines() {
                             <FaRegClock />
                         </p>
                         <p className="mt-1">{t("Schedule")}</p>
+                        <p className="line-clamp-1 text-center text-gray-500 text-sm">
+                            {routine.schedule ? routine.schedule.days.join(", ") : null}
+                        </p>
                     </div>
                 </div>
 

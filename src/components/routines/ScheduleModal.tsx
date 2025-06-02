@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Routine } from "../../types/routine/routine";
 import { useTranslation } from "react-i18next";
+import createSchedule from "../../services/schedule/createSchedule";
+import { useDispatch } from "react-redux";
+import getRoutines from "../../services/routine/getRoutines";
+import { enterRoutines } from "../../redux/routine/routinesSlice";
+import editSchedule from "../../services/schedule/editSchedule";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -8,8 +13,9 @@ interface ScheduleModalProps {
 }
 
 export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) {
+    const dispatch = useDispatch();
     const { t } = useTranslation();
-    const [selectedDays, setSelectedDays] = useState<string[]>([]);
+    const [selectedDays, setSelectedDays] = useState<string[]>(routine?.schedule?.days || []);
     const [routineName, setRoutineName] = useState(routine.name);
     const [handleBgColor, setHandleBgColor] = useState<number[]>([]);
 
@@ -50,8 +56,21 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         setHandleBgColor(newBgColor);
     };
 
-    const handleSchedule = () => {
+    const handleSchedule = async () => {
         console.log("Scheduled:", { routineName, days: selectedDays });
+
+        const scheduleId = routine.schedule?.id || "";
+        if (!scheduleId) {
+            const scheduleSaved = await createSchedule(selectedDays, routine.id!, t);
+            console.log("Schedule saved:", scheduleSaved);
+        }
+        else {
+            const scheduleUpdated = await editSchedule(scheduleId, selectedDays, routine.id!, t);
+            console.log("Schedule updated:", scheduleUpdated);
+        }
+        const routines = await getRoutines(t);
+        console.log("Routines fetched:", routines);
+        dispatch(enterRoutines(routines.success));
         onClose();
     };
 
@@ -68,7 +87,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                             <div className="flex flex-col items-center justify-center">
                                 <button
                                     key={day}
-                                    className={`w-[50px] h-[50px] p-2 mx-3 my-1 rounded-full border ${selectedDays.includes(day) ? "bg-blue-600 text-white" : "bg-white text-blue-600 hover:bg-gray-100"
+                                    className={`w-[50px] h-[50px] p-2 mx-3 my-1 rounded-full border-[2px] border-blueMain ${selectedDays.includes(day) ? "bg-blue-600 text-white" : "bg-white text-blue-600 hover:bg-gray-100"
                                         }`}
                                     onClick={() => handleDayToggle(day)}
                                 >

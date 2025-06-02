@@ -1,3 +1,4 @@
+import { schedule } from "../schedule/schedule";
 import { RoutineSection } from "./routineSection";
 
 export type Routine = {
@@ -6,4 +7,5 @@ export type Routine = {
     type?: string;
     iconId: string;
     routineSections: Array<RoutineSection>;
+    schedule?: schedule;
 }

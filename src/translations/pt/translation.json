@@ -169,5 +169,8 @@
     "Sunday": "Domingo",
     "Mon - Fri": "Seg a Sex",
     "Weekend": "Final de semana",
-    "All week": "Toda a semana"
+    "All week": "Toda a semana",
+    "RoutineIdRequired": "Selecione uma rotina.",
+    "DaysRequired": "Selecione pelo menos um dia.",
+    "DayInvalid": "Dia inválido."
 }
