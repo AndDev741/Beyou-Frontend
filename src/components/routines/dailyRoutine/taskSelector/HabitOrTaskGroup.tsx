@@ -16,7 +16,7 @@ interface HabitOrTaskGroupProps {
 const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSelector, startTime, section }: HabitOrTaskGroupProps) => {
     const iconObj = iconSearch(habit?.iconId || task?.iconId || "");
     const Icon = iconObj?.IconComponent;
-    const isSelected = section.habitGroup?.some((habitInGroup) => habitInGroup.habitId === habit?.id) || section.taskGroup?.some((taskInGroup) => taskInGroup.TaskId === task?.id)
+    const isSelected = section.habitGroup?.some((habitInGroup) => habitInGroup.habitId === habit?.id) || section.taskGroup?.some((taskInGroup) => taskInGroup.taskId === task?.id)
 
     const addHabitToSection = (habitId: string) => {
         setRoutineSection(prev =>
@@ -43,7 +43,7 @@ const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSe
                         ...section,
                         taskGroup: [
                             ...(section.taskGroup || []),
-                            { TaskId: taskId, startTime: startTime }
+                            { taskId: taskId, startTime: startTime }
                         ]
                     }
                     : section

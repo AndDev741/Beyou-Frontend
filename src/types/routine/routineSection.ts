@@ -4,7 +4,7 @@ export type RoutineSection = {
     startTime: string;
     endTime: string;
     taskGroup?: Array<{
-        TaskId: string;
+        taskId: string;
         startTime: string;
     }>;
     habitGroup?: Array<{
