@@ -9,6 +9,7 @@ import habitsSlice from "./habit/habitsSlice";
 import tasksSliced from "./task/tasksSlice";
 import routinesSlice from "./routine/routinesSlice";
 import editRoutineSlice from "./routine/editRoutineSlice";
+import todayRoutine from "./routine/todayRoutineSlice";
 
 
 const rootReducer = combineReducers({
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
     tasks: tasksSliced,
     errorHandler: errorHandlerSlice,
     routines: routinesSlice,
-    editRoutine: editRoutineSlice
+    editRoutine: editRoutineSlice,
+    todayRoutine: todayRoutine
 });
 
 export type RootState = ReturnType<typeof rootReducer>

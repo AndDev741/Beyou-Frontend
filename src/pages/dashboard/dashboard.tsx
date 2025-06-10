@@ -6,25 +6,25 @@ import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import getRoutines from "../../services/routine/getRoutines";
 import { useDispatch } from "react-redux";
-import { enterRoutines } from "../../redux/routine/routinesSlice";
 import { enterHabits } from "../../redux/habit/habitsSlice";
 import getTasks from "../../services/tasks/getTasks";
 import { enterTasks } from "../../redux/task/tasksSlice";
 import getHabits from "../../services/habits/getHabits";
+import getTodayRoutine from "../../services/routine/getTodayRoutine";
+import { enterTodayRoutine } from "../../redux/routine/todayRoutineSlice";
 
 function Dashboard() {
     useAuthGuard();
     const dispatch = useDispatch();
     const { t } = useTranslation();
-    const routines = useSelector((state: RootState) => state.routines.routines);
-    console.log("Routines: ", routines);
+    const routine = useSelector((state: RootState) => state.todayRoutine.routine);
+    console.log("Today Routine: ", routine);
 
     useEffect(() => {
         const fetchRoutines = async () => {
-            const routines = await getRoutines(t);
-            dispatch(enterRoutines(routines.success));
+            const todayRoutine = await getTodayRoutine(t);
+            dispatch(enterTodayRoutine(todayRoutine.success));
 
             const habits = await getHabits(t);
             dispatch(enterHabits(habits.success));
@@ -33,7 +33,7 @@ function Dashboard() {
             dispatch(enterTasks(tasks.success));
         }
         fetchRoutines();
-    }, [])
+    }, [dispatch, t])
 
     return (
         <>
@@ -44,14 +44,16 @@ function Dashboard() {
                             <Perfil />
                         </header>
 
+                        {/* Desktop */}
                         <div className="hidden lg:block">
                             <Shortcuts />
                         </div>
                     </div>
 
                     <div className="py-3 lg:w-[50%]">
-                        <RoutineDay routine={routines[0] ? routines[0] : null} />
+                        <RoutineDay routine={routine ? routine : null} />
                     </div>
+                    {/* Mobile */}
                     <div className="block lg:hidden">
                         <Shortcuts />
                     </div>

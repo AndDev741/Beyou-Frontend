@@ -172,5 +172,6 @@
     "All week": "Toda a semana",
     "RoutineIdRequired": "Selecione uma rotina.",
     "DaysRequired": "Selecione pelo menos um dia.",
-    "DayInvalid": "Dia inválido."
+    "DayInvalid": "Dia inválido.",
+    "No Routines Scheduled for today": "Nenhuma rotina agendada para hoje"
 }

@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { Routine } from "../../../types/routine/routine";
 import RoutineSection from "./routineSection";
 
 export default function RoutineDay({routine}: {routine: Routine | null}) {
+    const {t} = useTranslation();
     if (routine !== null) {
         return (
             <div className="flex flex-col w-full items-center justify-center h-full">
@@ -18,6 +20,8 @@ export default function RoutineDay({routine}: {routine: Routine | null}) {
             </div>
         );
     } else {
-        return null;
+        return <h2 className="text-center mt-12 text-2xl text-blueMain font-semibold">
+            {t('No Routines Scheduled for today')}
+        </h2>;
     }
 }
