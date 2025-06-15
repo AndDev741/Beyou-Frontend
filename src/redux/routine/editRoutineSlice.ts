@@ -20,7 +20,10 @@ const editRoutineSlice = createSlice({
             return {...state, editMode};
         },
         routineEnter(state, action){
+            console.log("ACTION RECEIVED => ", action)
             const routine = action.payload;
+            console.log("ROUTINE NOW => ", routine)
+
             return {...state, routine};
         },
     }
