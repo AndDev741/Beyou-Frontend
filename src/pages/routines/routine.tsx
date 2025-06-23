@@ -43,39 +43,43 @@ const Routine = () => {
 
     return (
         <>
-            <Header pageName={t("Your Routines")}/>
-            <main className="flex flex-col items-center justify-start h-screen mt-8">
+            <Header pageName={t("Your Routines")} />
+            <main className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between h-screen mt-8">
 
+                <div className="w-full lg:w-[50%]">
                     <RenderRoutines />
+                </div>
 
+                <div className="lg:w-[50%] lg:flex flex-col items-center justify-center">
                     {editMode === false ? (
                         <>
-                            <AddRoutineButton 
-                            setOnCreateRoutine={setOnCreateRoutine}
-                            setRoutineType={setRoutineType}
+                            <AddRoutineButton
+                                setOnCreateRoutine={setOnCreateRoutine}
+                                setRoutineType={setRoutineType}
                             />
-        
+
                             {onCreateRoutine && (
                                 <div className='flex mt-6'>
-                                    <img src={routineIcon} 
-                                    alt={t('Routines icon alt')}
-                                    className="w-9 h-9 mr-2" />
+                                    <img src={routineIcon}
+                                        alt={t('Routines icon alt')}
+                                        className="w-9 h-9 mr-2" />
                                     <h1 className='text-3xl font-semibold'>{t("Create routine")}</h1>
                                 </div>
                             )}
-                            
+
                             {onCreateRoutine && (
                                 <div className="mt-4 w-full">
                                     <CreateRoutine setRoutineType={setRoutineType}
-                                    routineType={routineType}/>
+                                        routineType={routineType} />
                                 </div>
-                        )}
+                            )}
                         </>
                     ) : (
                         <>
                             <EditDailyRoutine />
                         </>
                     )}
+                </div>
             </main>
         </>
     );

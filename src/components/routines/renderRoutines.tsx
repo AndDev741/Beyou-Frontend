@@ -32,8 +32,8 @@ export default function RenderRoutines() {
     }
 
     const handleEdit = (routine: Routine) => {
-        dispatch(editModeEnter(true));
         dispatch(routineEnter(routine));
+        dispatch(editModeEnter(true));
     }
 
     return (

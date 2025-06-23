@@ -28,8 +28,8 @@ function IconsBoxSmall({
         setIcons((icons) => iconRender(search, selectedIcon, icons));
     }, [search, selectedIcon]);
 
-    const borderCss = "border-solid border-[1px] border-blueMain rounded w-[45vw] h-[100px] md:w-[160px] lg:w-[7rem]";
-    const labelCss = "text-base md:text-sm";
+    const borderCss = "border-solid border-[1px] border-blueMain rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem]";
+    const labelCss = "text-base md:text-lg";
     return (
         <>
             <div className='flex items-center justify-start'>
