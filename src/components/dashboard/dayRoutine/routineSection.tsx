@@ -42,10 +42,10 @@ export default function RoutineSection({ section }: { section: section }) {
 
             if (item.type === 'task') {
                 originalIndex = section.taskGroup?.findIndex(t => t.taskId === item.id) ?? -1;
-                itemObj = allTasks.find(task => task.id === item.id);
+                itemObj = allTasks?.find(task => task.id === item.id);
             } else {
                 originalIndex = section.habitGroup?.findIndex(h => h.habitId === item.id) ?? -1;
-                itemObj = allHabits.find(habit => habit.id === item.id);
+                itemObj = allHabits?.find(habit => habit.id === item.id);
             }
 
             if (!itemObj) return null;
