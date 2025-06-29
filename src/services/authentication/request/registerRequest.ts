@@ -18,7 +18,7 @@ const registerRequest = async (name: string, email: string, password:string, t:F
     try{
         await validationSchema.validate({name, email, password});
         try{
-            const response = await axios.post("http://localhost:8091/auth/register", registerData);
+            const response = await axios.post("http://localhost:8080/auth/register", registerData);
             return response.data;
         }catch(e){
             console.error(e);

@@ -4,8 +4,13 @@ import iconSearch from "../../icons/iconsSearch";
 import { FiEdit2 } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
+import { useDispatch } from "react-redux";
+import { itemGroupToCheck } from "../../../types/routine/itemGroupToCheck";
+import checkRoutine from "../../../services/routine/checkItem";
+import { enterTodayRoutine } from "../../../redux/routine/todayRoutineSlice";
 
-export default function RoutineSection({ section }: { section: section }) {
+export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
+    const dispatch = useDispatch();
     const { t } = useTranslation();
     const iconObj = iconSearch(section.iconId);
     const Icon = iconObj?.IconComponent;
@@ -17,13 +22,17 @@ export default function RoutineSection({ section }: { section: section }) {
         const tasks = section.taskGroup?.map(item => ({
             type: 'task' as const,
             id: item.taskId,
-            startTime: item?.startTime
+            groupId: item.id,
+            startTime: item?.startTime,
+            check: item?.taskGroupChecks
         })) || [];
 
         const habits = section.habitGroup?.map(item => ({
             type: 'habit' as const,
             id: item.habitId,
-            startTime: item?.startTime
+            groupId: item.id,
+            startTime: item?.startTime,
+            check: item?.habitGroupChecks
         })) || [];
 
         return [...tasks, ...habits].sort((a, b) =>
@@ -31,29 +40,74 @@ export default function RoutineSection({ section }: { section: section }) {
         );
     };
 
-    const mergedItems = getMergedItems();
+     const handleCheck = async (groupToCheck: itemGroupToCheck) => {
+        const routineWithItemChecked = await checkRoutine(groupToCheck, t);
 
-    console.log(mergedItems)
+        dispatch(enterTodayRoutine(routineWithItemChecked.success));
+     }
+
+    const mergedItems = getMergedItems();
 
     const renderItems = () => {
         return mergedItems.map((item, idx) => {
-            let itemObj;
+            let itemObj: any;
             let originalIndex: number;
 
             if (item.type === 'task') {
                 originalIndex = section.taskGroup?.findIndex(t => t.taskId === item.id) ?? -1;
                 itemObj = allTasks?.find(task => task.id === item.id);
+                itemObj = {
+                    ...itemObj,
+                    item
+                }
             } else {
                 originalIndex = section.habitGroup?.findIndex(h => h.habitId === item.id) ?? -1;
                 itemObj = allHabits?.find(habit => habit.id === item.id);
+                itemObj = {
+                    ...itemObj,
+                    item
+                }
             }
 
             if (!itemObj) return null;
 
+            console.log(itemObj)
+
+            let currentDate = new Date().toJSON().slice(0, 10);
+            console.log("ITEM => ", item)
+            const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
+            const checked: boolean = ItemCheck?.checked === true ? true : false;
+
+            console.log(`ITEM: ${item.check} is checked?: ${checked}`)
+
             return (
                 <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between p-1 mt-1">
                     <div className="flex items-center">
-                        <input type="checkbox" className="accent-[#0082E1] border-blueMain w-6 h-6 rounded-xl cursor-pointer" />
+                        <input
+                            type="checkbox"
+                            className="accent-[#0082E1] border-blueMain w-6 h-6 rounded-xl cursor-pointer"
+                            checked={checked}
+                            onChange={() => {
+                                const groupToCheck: itemGroupToCheck = {
+                                    routineId: routineId,
+                                    ...(item.type === 'task'
+                                        ? {
+                                            taskGroupDTO: {
+                                                taskGroupId: itemObj.item.groupId,
+                                                startTime: item.startTime
+                                            }
+                                        }
+                                        : {
+                                            habitGroupDTO: {
+                                                habitGroupId: itemObj.item.groupId,
+                                                startTime: item.startTime
+                                            }
+                                        }
+                                    )
+                                };
+                                handleCheck(groupToCheck);
+                            }}
+                        />
                         <span className="text-md text-gray-700 ml-2">
                             {itemObj.name}
                         </span>
