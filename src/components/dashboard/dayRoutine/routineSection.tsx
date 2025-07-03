@@ -8,12 +8,17 @@ import { useDispatch } from "react-redux";
 import { itemGroupToCheck } from "../../../types/routine/itemGroupToCheck";
 import checkRoutine from "../../../services/routine/checkItem";
 import { enterTodayRoutine } from "../../../redux/routine/todayRoutineSlice";
+import { useState } from "react";
+import Notify from "../../notify";
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const iconObj = iconSearch(section.iconId);
     const Icon = iconObj?.IconComponent;
+
+    const [openNotify, setOpenNotify] = useState<boolean>(false);
+    const [notifyText, setNotifyText] = useState<string>("");
 
     const allHabits = useSelector((state: RootState) => state.habits.habits);
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -43,6 +48,15 @@ export default function RoutineSection({ section, routineId}: { section: section
      const handleCheck = async (groupToCheck: itemGroupToCheck) => {
         const routineWithItemChecked = await checkRoutine(groupToCheck, t);
 
+        if(section?.habitGroup?.some(group => group.id === groupToCheck.habitGroupDTO?.habitGroupId)){
+            const habit = allHabits.find(item => item.id === section.habitGroup?.find(group => group.habitId === item.id)?.habitId);
+            
+            if(habit?.motivationalPhrase && section.habitGroup?.some(group => group.habitId === habit.id && group.habitGroupChecks?.some(check => check.checked === false && check.checkDate === new Date().toJSON().slice(0, 10)))) {
+                setNotifyText(habit.motivationalPhrase);
+                setOpenNotify(true);
+            }
+        }
+        
         dispatch(enterTodayRoutine(routineWithItemChecked.success));
      }
 
@@ -117,6 +131,11 @@ export default function RoutineSection({ section, routineId}: { section: section
                         </span>
 
                     </div>
+                    <Notify 
+                        text={notifyText}
+                        open={openNotify}
+                        onClose={() => setOpenNotify(false)}
+                    />
                 </div>
             );
         });
