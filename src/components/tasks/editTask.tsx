@@ -7,7 +7,7 @@ import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editNameEnter } from "../../redux/task/editTaskSlice";
+import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editNameEnter, editOneTimeTaskEnter } from "../../redux/task/editTaskSlice";
 import { RootState } from "../../redux/rootReducer";
 import category from "../../types/category/categoryType";
 import { task } from "../../types/tasks/taskType";
@@ -27,6 +27,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
     const importanceToEdit = useSelector((state: RootState) => state.editTask.importance);
     const difficultyToEdit = useSelector((state: RootState) => state.editTask.dificulty);
     const categoriesToEdit = useSelector((state: RootState) => state.editTask.categories || [], shallowEqual);
+    const oneTimeTaskToEdit = useSelector((state: RootState) => state.editTask.oneTimeTask);
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -45,6 +46,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
     const [unknownError, setUnknownError] = useState("");
 
     const [search, setSearch] = useState("");
+    const [oneTimeTask, setOneTimeTask] = useState(false);
 
     const [expandDetails, setExpandDetails] = useState(false);
     const [expandDetailsIcon, setExpandDetailsIcon] = useState(arrowDown);
@@ -71,6 +73,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
         }
 
         setAlreadyChosenCategories(categoriesToEdit)
+        setOneTimeTask(oneTimeTaskToEdit);
     }, [categoriesToEdit, descriptionToEdit, iconIdToEdit, importanceToEdit, nameToEdit, difficultyToEdit])
 
     const handleCancel = () => {
@@ -81,6 +84,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
         dispatch(editImportanceEnter(""));
         dispatch(editDificultyEnter(""));
         dispatch(editCaegoriesIdEnter(""));
+        dispatch(editOneTimeTaskEnter(false));
     };
 
 
@@ -101,7 +105,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
             })
         }
 
-        const response = await editTask(taskId, name, description, selectedIcon, importance, difficulty, categoriesId, t);
+        const response = await editTask(taskId, name, description, selectedIcon, importance, difficulty, categoriesId, oneTimeTask, t);
 
         if (response.success) {
             handleCancel();
@@ -210,6 +214,18 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                         setCategoriesIdList={setCategoriesId}
                         errorMessage={categoriesError}
                         chosenCategories={alreadyChosenCategories} />
+                     <div className="flex items-center justify-center mt-2">
+                        <input
+                            id="oneTimeTask"
+                            type="checkbox"
+                            checked={oneTimeTask}
+                            onChange={(e) => setOneTimeTask(e.target.checked)}
+                             className="accent-[#0082E1] border-blueMain w-8 h-8 rounded-xl cursor-pointer"
+                        />
+                        <label htmlFor="oneTimeTask" className="text-xl ml-2">
+                            {t('One-time Task')}
+                        </label>
+                    </div>
                 </div>
                 <p className='text-red-500 text-lg text-center underline'>{unknownError}</p>
                 <div className='flex w-full items-center justify-evenly mt-6'>

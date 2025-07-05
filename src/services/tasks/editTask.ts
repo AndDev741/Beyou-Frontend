@@ -10,6 +10,7 @@ async function editTask(
     importance: number,
     difficulty: number,
     categories: string[],
+    oneTimeTask: boolean,
     t: TFunction
 ): Promise<Record<string, string>> {
 
@@ -41,7 +42,8 @@ async function editTask(
         iconId: iconId,
         importance: Number(importance),
         difficulty: Number(difficulty),
-        categoriesId: categories
+        categoriesId: categories,
+        oneTimeTask: oneTimeTask,
     }
 
     console.log("EDIT TASK DATA => ", editTaskData);

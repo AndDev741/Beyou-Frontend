@@ -8,6 +8,8 @@ export type task = {
     importance?: number,
     dificulty?: number,
     categories?: category[],
+    oneTimeTask: boolean,
+    markedToDelete: Date,
     createdAt: Date,
     updatedAt: Date
 }

@@ -22,6 +22,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
     const [difficulty, setDifficulty] = useState(0);
     const [selectedIcon, setSelectedIcon] = useState("");
     const [categoriesId, setCategoriesIdList] = useState<string[]>([]);
+    const [oneTimeTask, setOneTimeTask] = useState(false);
 
     const [nameError, setNameError] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
@@ -58,7 +59,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
         setCategoriesError("");
         setUnknownError("");
 
-        const response = await createTask(name, description, selectedIcon, categoriesId, t, importance, difficulty);
+        const response = await createTask(name, description, selectedIcon, categoriesId, t, importance, difficulty, oneTimeTask);
 
         if (response?.success) {
             const newTasks = await getTasks(t);
@@ -71,6 +72,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
             setDifficulty(0);
             setSelectedIcon("");
             setCategoriesIdList([]);
+            setOneTimeTask(false);
         }
 
         if (response?.validation) {
@@ -182,6 +184,18 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                         setCategoriesIdList={setCategoriesIdList}
                         errorMessage={categoriesError}
                         chosenCategories={null} />
+                    <div className="flex items-center justify-center mt-2">
+                        <input
+                            id="oneTimeTask"
+                            type="checkbox"
+                            checked={oneTimeTask}
+                            onChange={(e) => setOneTimeTask(e.target.checked)}
+                             className="accent-[#0082E1] border-blueMain w-8 h-8 rounded-xl cursor-pointer"
+                        />
+                        <label htmlFor="oneTimeTask" className="text-xl ml-2">
+                            {t('One-time Task')}
+                        </label>
+                    </div>
                 </div>
                 <p className='text-red-500 text-lg text-center'>{unknownError}</p>
                 <div className="mb-3 mt-3">

@@ -50,7 +50,7 @@ const Routine = () => {
                     <RenderRoutines />
                 </div>
 
-                <div className="lg:w-[50%] lg:flex flex-col items-center justify-center">
+                <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">
                     {editMode === false ? (
                         <>
                             <AddRoutineButton

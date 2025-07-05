@@ -124,6 +124,7 @@
     "To do Icon": "To do Icon",
     "Edit Task": "Edit Task",
     "ConfirmDeleteOfTaskPhrase": "Confirm deletion of this task?",
+    "One-time Task": "One-time Task",
 
     "Your Routines": "Your Routines",
     "Create routine": "Create routine",
@@ -175,5 +176,7 @@
     "RoutineIdRequired": "Select a routine.",
     "DaysRequired": "Select at least one day.",
     "DayInvalid": "Day invalid.",
-    "No Routines Scheduled for today": "No Routines Scheduled for today"
+    "No Routines Scheduled for today": "No Routines Scheduled for today",
+    "One Time Task": "One Time Task",
+    "And Marked to Delete": "And Marked to Delete"
 }

@@ -10,6 +10,7 @@ const initialState: {
     importance: number | null;
     dificulty: number | null;
     categories: category[] | null;
+    oneTimeTask: boolean;
   } = {
     editMode: false,
     id: "",
@@ -19,6 +20,7 @@ const initialState: {
     importance: null,
     dificulty: null,
     categories: null,
+    oneTimeTask: false,
   };
 
 const editTaskSlice = createSlice({
@@ -56,11 +58,15 @@ const editTaskSlice = createSlice({
         editCaegoriesIdEnter(state, action){
             const categories = action.payload;
             return {...state, categories};
+        },
+        editOneTimeTaskEnter(state, action) {
+            const oneTimeTask = action.payload;
+            return {...state, oneTimeTask};
         }
     }
 
 });
 
-export const {editModeEnter, editIdEnter ,editNameEnter, editDescriptionEnter, editIconIdEnter, editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter} = editTaskSlice.actions;
+export const {editModeEnter, editIdEnter ,editNameEnter, editDescriptionEnter, editIconIdEnter, editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter, editOneTimeTaskEnter} = editTaskSlice.actions;
 
 export default editTaskSlice.reducer;

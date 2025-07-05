@@ -12,7 +12,8 @@ import iconSearch from "../icons/iconsSearch";
 import DeleteModal from "../DeleteModal";
 import getTasks from "../../services/tasks/getTasks";
 import deleteTask from "../../services/tasks/deleteTask";
-import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editIdEnter, editImportanceEnter, editModeEnter, editNameEnter } from "../../redux/task/editTaskSlice";
+import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editIdEnter, editImportanceEnter, editModeEnter, editNameEnter, editOneTimeTaskEnter } from "../../redux/task/editTaskSlice";
+import { MdOutlineCardMembership, MdWarningAmber } from "react-icons/md";
 
 type taskBoxProps = {
     id: string,
@@ -22,12 +23,14 @@ type taskBoxProps = {
     categories?: category[],
     importance?:number,
     dificulty?: number,
+    oneTimeTask: boolean,
     createdAt: Date,
     updatedAt: Date,
+    markedToDelete: Date,
     setTasks: React.Dispatch<React.SetStateAction<task[]>>
 }
 
-function TaskBox({id, iconId, name, description, categories, importance, dificulty, setTasks}: taskBoxProps){
+function TaskBox({id, iconId, name, description, categories, importance, dificulty, oneTimeTask, markedToDelete, setTasks}: taskBoxProps){
     const dispatch = useDispatch();
     
     const {t} = useTranslation();
@@ -62,6 +65,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
         dispatch(editImportanceEnter(importance));
         dispatch(editDificultyEnter(dificulty));
         dispatch(editCaegoriesIdEnter(categories));
+        dispatch(editOneTimeTaskEnter(oneTimeTask));
     }
     
     return(
@@ -79,7 +83,16 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 onClick={handleExpanded}/>
             </div>
 
-            <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1 mt-2`}>
+            {oneTimeTask && (
+                <>
+                    <span className="flex items-center">
+                        <MdWarningAmber className="text-green-800 text-xl my-2 mr-2" />
+                        <p>One Time Task</p>
+                    </span>
+                    {markedToDelete ? <p className="text-red-700 underline">And Marked to Delete</p> : null}
+                </>
+            )}
+            <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1`}>
                 <p>{description}</p>
             </div>
 

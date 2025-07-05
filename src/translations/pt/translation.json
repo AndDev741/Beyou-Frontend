@@ -122,6 +122,7 @@
     "To do Icon": "Ícone de lista de tarefas",
     "Edit Task": "Editar tarefa",
     "ConfirmDeleteOfTaskPhrase": "Confirmar deleção dessa tarefa?",
+    "One-time Task": "Tarefa única",
 
     "Your Routines": "Suas Rotinas",
     "Create routine": "Criar Rotina",
@@ -173,5 +174,8 @@
     "RoutineIdRequired": "Selecione uma rotina.",
     "DaysRequired": "Selecione pelo menos um dia.",
     "DayInvalid": "Dia inválido.",
-    "No Routines Scheduled for today": "Nenhuma rotina agendada para hoje"
+    "No Routines Scheduled for today": "Nenhuma rotina agendada para hoje",
+    "One Time Task": "Tarefa de única conlusão",
+    "And Marked to Delete": "E marcado para deleção"
+
 }

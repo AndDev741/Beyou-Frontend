@@ -12,6 +12,7 @@ async function createTask(
   t: TFunction,
   importance?: number,
   difficulty?: number,
+  oneTimeTask: boolean = false,
 ): apiResponse {
 
   const validation = Yup.object().shape({
@@ -42,6 +43,7 @@ async function createTask(
     importance: importance,
     difficulty: difficulty,
     categoriesId: categoriesId,
+    oneTimeTask: oneTimeTask,
   }
 
   console.log(taskData);

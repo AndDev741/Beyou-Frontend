@@ -24,7 +24,9 @@ function RenderTasks({tasks, setTasks}: renderTasksProps){
                             importance={task.importance}
                             dificulty={task.dificulty}
                             createdAt={task.createdAt}
+                            oneTimeTask={task.oneTimeTask}
                             updatedAt={task.updatedAt}
+                            markedToDelete={task.markedToDelete}
                             setTasks={setTasks}
                         />
                     </div>
