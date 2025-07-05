@@ -87,9 +87,9 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 <>
                     <span className="flex items-center">
                         <MdWarningAmber className="text-green-800 text-xl my-2 mr-2" />
-                        <p>One Time Task</p>
+                        <p>{t('One Time Task')}</p>
                     </span>
-                    {markedToDelete ? <p className="text-red-700 underline">And Marked to Delete</p> : null}
+                    {markedToDelete ? <p className="text-red-700 underline">{t('And Marked to Delete')}</p> : null}
                 </>
             )}
             <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1`}>
