@@ -104,8 +104,8 @@ function CreateCategory({generatedCategory, setCategories}: props){
             </div>
             <form onSubmit={handleCreate} 
             className='flex flex-col mt-8'>
-                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-4'>
+                <div className='flex md:items-start md:flex-row justify-center'>
+                    <div className='flex flex-col md:items-start md:justify-start'>
                         <GenericInput 
                         name='Name'
                         data={name} 
@@ -115,27 +115,35 @@ function CreateCategory({generatedCategory, setCategories}: props){
                         t={t} />
 
                         <DescriptionInput description={description}
-                        placeholder={"DescriptionPlaceholder"}
-                        setDescription={setDescription}
-                        descriptionError={descriptionError}
-                        minH={115}
-                        t={t} />
+                            placeholder={"DescriptionPlaceholder"}
+                            setDescription={setDescription}
+                            descriptionError={descriptionError}
+                            minH={115}
+                            t={t} 
+                        />
+           
+                    </div>
+
+                    <div className='mx-2'></div>
+
+                    <div className='flex flex-col mt-1 w-auto'>
+                         <IconsInput
+                            search={search}
+                            setSearch={setSearch}
+                            t={t}
+                            iconError={iconError}
+                            setSelectedIcon={setSelectedIcon}
+                            selectedIcon={selectedIcon}
+                            minLgH={263} 
+                        />
+
 
                         <ExperienceInput experience={experience}
                         setExperience={setExperience}
                         experienceError={experienceError}
                         t={t} />
-                    </div>
 
-                    <div className='flex flex-col mt-2 md:mt-0 w-auto'>
-                        <IconsInput
-                        search={search}
-                        setSearch={setSearch}
-                        t={t}
-                        iconError={iconError}
-                        setSelectedIcon={setSelectedIcon}
-                        selectedIcon={selectedIcon}
-                        minLgH={263} />
+                      
                     </div>
                 </div>
                 <div className='flex items-center justify-center mt-6'>
