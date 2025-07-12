@@ -12,6 +12,7 @@ import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiTyp
 import * as React from 'react';
 import categoryType from '../../types/category/categoryType';
 import GenericInput from '../inputs/genericInput';
+import SelectorInput from '../inputs/SelectorInput';
 
 type props = {
     generatedCategory: categoryGeneratedByAi,
@@ -137,13 +138,20 @@ function CreateCategory({generatedCategory, setCategories}: props){
                             minLgH={263} 
                         />
 
+                        <SelectorInput 
+                            value={experience}
+                            setValue={setExperience}
+                            errorPhrase={experienceError}
+                            valuesToSelect={[
+                                {value: 0, title: "Begginer"},
+                                {value: 1, title: "Intermediary"},
+                                {value: 2, title: "Advanced"},
+                            ]}
+                            title={t('YourExperience')}
 
-                        <ExperienceInput experience={experience}
-                        setExperience={setExperience}
-                        experienceError={experienceError}
-                        t={t} />
+                            t={t}
+                        />
 
-                      
                     </div>
                 </div>
                 <div className='flex items-center justify-center mt-6'>
