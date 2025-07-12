@@ -120,6 +120,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                             setDescription={setDescription}
                             descriptionError={descriptionError}
                             minH={115}
+                            minHSmallScreen={190}
                             t={t} 
                         />
            

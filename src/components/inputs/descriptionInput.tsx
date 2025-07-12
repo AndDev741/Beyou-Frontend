@@ -6,10 +6,11 @@ type descriptionInputProps = {
     placeholder: string,
     descriptionError: string,
     minH: number,
+    minHSmallScreen?: number,
     t: TFunction
 }
-function DescriptionInput({description, setDescription, placeholder, descriptionError, minH, t}: descriptionInputProps){
-    const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
+function DescriptionInput({description, setDescription, placeholder, descriptionError, minH, minHSmallScreen, t}: descriptionInputProps){
+    const borderCss = `border-solid border-[1px] border-blueMain rounded-md w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
     const labelCss = "text-2xl md:text-xl";
     return(
         <>
@@ -24,7 +25,7 @@ function DescriptionInput({description, setDescription, placeholder, description
                 onChange={(e) => setDescription(e.target.value)}
                 name='description'
                 placeholder={t(`${placeholder}`)}
-                className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 min-h-[192px] ${minH ? `lg:min-h-[${minH}px] lg:h-[${minH}px]` : "md:h-[161px] lg:min-h-[178px] "}`}
+                className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1 ] ${minH ? `lg:min-h-[${minH}px] lg:h-[${minH}px]` : "md:h-[161px] lg:min-h-[178px] "}`}
                 />
             </div>
         </>

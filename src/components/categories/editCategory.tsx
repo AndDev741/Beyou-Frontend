@@ -99,8 +99,8 @@ function EditCategory({setCategories}: prop){
             </div>
             <form onSubmit={handleEdit}
             className='flex flex-col mt-8 '>
-                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-4'>
+                <div className='flex md:items-start md:flex-row justify-center'>
+                    <div className='flex flex-col md:items-start md:justify-start'>
                         <GenericInput 
                         name='Name'
                         data={name} 
@@ -114,8 +114,13 @@ function EditCategory({setCategories}: prop){
                         setDescription={setDescription}
                         descriptionError={descriptionError}
                         minH={0}
+                        minHSmallScreen={145}
+
                         t={t} />
                     </div>
+
+                    <div className='mx-2'></div>
+
                     <div className='flex flex-col mt-2 md:mt-0'>
                         <IconsInput
                         search={search}
