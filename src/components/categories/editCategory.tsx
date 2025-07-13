@@ -125,7 +125,8 @@ function EditCategory({setCategories}: prop){
                         <IconsInput
                         search={search}
                         setSearch={setSearch}
-                        minLgH={200}
+                        minLgH={273}
+                        minHSmallScreen={200}
                         t={t}
                         iconError={iconError}
                         setSelectedIcon={setSelectedIcon}
