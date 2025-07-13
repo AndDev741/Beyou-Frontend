@@ -136,7 +136,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                             iconError={iconError}
                             setSelectedIcon={setSelectedIcon}
                             selectedIcon={selectedIcon}
-                            minLgH={263} 
+                            minLgH={200} 
                         />
 
                         <SelectorInput 
