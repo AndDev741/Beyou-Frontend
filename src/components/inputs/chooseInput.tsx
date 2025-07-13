@@ -43,7 +43,7 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
                             id={level}
                             value={index + 1}
                             onClick={() => handleClick(index + 1)}
-                            className="border-0 w-full h-[20px] md:h-[35px]  outline-none" />
+                            className="border-0 w-full h-[25px] md:h-[35px]  outline-none" />
                             <label htmlFor={level}
                             
                             className={`${choosedLevel === (index + 1) ? "text-blueMain" : ""}`}>{level}</label>

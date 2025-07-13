@@ -129,8 +129,8 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
             </div>
             <form  onSubmit={handleCreateHabit}
             className="flex flex-col items-center">
-                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-4'>
+                <div className='flex md:items-start md:flex-row justify-center'>
+                  <div className='flex flex-col md:items-start md:justify-start'>
                         <GenericInput 
                         name='Name'
                         data={name} 
@@ -145,7 +145,8 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                         setDescription={setDescription}
                         descriptionError={descriptionError}
                         placeholder={"HabitDescriptionPlaceholder"}
-                        minH={0}/>
+                        minH={178}
+                        minHSmallScreen={110}/>
 
                         <GenericInput
                         t={t}
@@ -156,6 +157,9 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                         name={"MotivationPhrase"} />
                         
                     </div>
+
+                    <div className='mx-2'></div>
+
                     <div className='flex flex-col mt-2 md:mt-0'>
                         <IconsBox 
                         search={search}
@@ -164,7 +168,9 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                         selectedIcon={selectedIcon}
                         setSelectedIcon={setSelectedIcon}
                         t={t}
-                        minLgH={272}/>
+                        minLgH={272}
+                        minHSmallScreen={200}
+                        />
 
                         <ExperienceInput t={t}
                         experience={experience} 

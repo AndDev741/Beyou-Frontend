@@ -159,8 +159,8 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
             </div>
             <form onSubmit={handleEdit} 
             className="flex flex-col items-center">
-                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-4'>
+                <div className='flex md:items-start md:flex-row justify-center'>
+                 <div className='flex flex-col md:items-start md:justify-start'>
                     <GenericInput 
                         name='Name'
                         data={name} 
@@ -184,27 +184,27 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                         placeholder={"MotivationalPhrasePlaceholder"}
                         name={"MotivationPhrase"} />
 
-                        <ChooseInput
-                        choosedLevel={importance}
-                        setLevel={setImportance}
-                        title={"Importance"}
-                        levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
-                        error={importanceError}
-                        name={"importance"}
-                        t={t} />
+                      
                     </div>
-                    <div className='flex flex-col-reverse md:flex-col md:mt-0'>
+
+                    <div className='mx-2'></div>
+
+                    <div className='flex flex-col md:flex-col md:mt-0'>
                         <IconsBox 
                         search={search}
                         setSearch={setSearch}
                         iconError={iconError}
                         selectedIcon={selectedIcon}
                         setSelectedIcon={setSelectedIcon}
-                        minLgH={265}
-                        t={t}/>
+                        minLgH={255}
+                        minHSmallScreen={262}
+                        t={t}/>    
+                    </div>
+                    
+                </div>
 
-                        <div className="mb-2 md:mb-0">
-                            <ChooseInput
+                <div className="flex flex-col md:flex-row items-center justify-center w-full md:w-[80%] ">
+                        <ChooseInput
                             choosedLevel={dificulty}
                             error={dificultyError}
                             setLevel={setDificulty}
@@ -212,10 +212,19 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                             levels={[t("Easy"), t("Normal"), t("Hard"), 
                             t("Terrible")]}
                             name={"dificulty"}
-                            t={t} />
-                        </div>
+                            t={t} 
+                        />        
+                        <ChooseInput
+                            choosedLevel={importance}
+                            setLevel={setImportance}
+                            title={"Importance"}
+                            levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
+                            error={importanceError}
+                            name={"importance"}
+                            t={t} 
+                        />
                     </div>
-                </div>
+                    
                 <div>
                     <ChooseCategories
                     categoriesIdList={categoriesId}
@@ -224,7 +233,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                     chosenCategories={alreadyChosenCategories}/>
                 </div>
                 <p className='text-red-500 text-lg text-center'>{unknownError}</p>
-                <div className='flex w-full items-center justify-evenly mt-6'>
+                <div className='flex w-full items-center justify-evenly my-6'>
                     <div>
                         <button type='button'
                         onClick={handleCancel}
