@@ -108,7 +108,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
     }
 
     return (
-        <div>
+        <div className="">
             <div className="flex text-3xl items-center justify-center mt-5 mb-3">
                 <img src={taskIcon}
                     alt={t("To do Icon")}
@@ -117,8 +117,8 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
             </div>
             <form onSubmit={handleCreateTask}
                 className="flex flex-col items-center">
-                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-4'>
+                <div className='flex md:items-start md:flex-row justify-center'>
+                    <div className='flex flex-col md:items-start md:justify-start'>
                         <GenericInput
                             name='Name'
                             data={name}
@@ -136,7 +136,10 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                             minH={0} />
 
                     </div>
-                    <div className='flex flex-col mt-2 md:mt-0'>
+
+                    <div className='mx-2'></div>
+
+                    <div className='flex flex-col mt-1'>
                         <IconsBox
                             search={search}
                             setSearch={setSearch}
@@ -144,7 +147,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                             selectedIcon={selectedIcon}
                             setSelectedIcon={setSelectedIcon}
                             t={t}
-                            minLgH={0} />
+                            minLgH={158} />
 
                     </div>
                 </div>
@@ -193,7 +196,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                              className="accent-[#0082E1] border-blueMain w-8 h-8 rounded-xl cursor-pointer"
                         />
                         <label htmlFor="oneTimeTask" className="text-xl ml-2">
-                            {t('One-time Task')}
+                            {t('One Time Task')}
                         </label>
                     </div>
                 </div>

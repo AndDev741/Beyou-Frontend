@@ -157,8 +157,8 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
             </div>
             <form onSubmit={handleEdit}
                 className="flex flex-col items-center">
-                <div className='flex flex-col items-center md:items-start md:flex-row justify-center'>
-                    <div className='flex flex-col md:items-start mx-4'>
+                <div className='flex md:items-start md:flex-row justify-center'>
+                    <div className='flex flex-col md:items-start md:justify-start'>
                         <GenericInput
                             name='Name'
                             data={name}
@@ -171,18 +171,13 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                             description={description}
                             setDescription={setDescription}
                             descriptionError={descriptionError}
-                            minH={75}
+                            minH={100}
                             placeholder={"Important to keep things organized"} />
 
-                        <ChooseInput
-                            choosedLevel={importance}
-                            setLevel={setImportance}
-                            title={"Importance"}
-                            levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
-                            error={importanceError}
-                            name={"importance"}
-                            t={t} />
                     </div>
+
+                    <div className='mx-2'></div>
+
 
                     <div className='flex flex-col-reverse md:flex-col md:mt-0'>
                         <IconsBox
@@ -191,22 +186,35 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                             iconError={iconError}
                             selectedIcon={selectedIcon}
                             setSelectedIcon={setSelectedIcon}
-                            minLgH={178}
+                            minLgH={194}
+                            minHSmallScreen={192}
                             t={t} />
-
-                        <div className="mb-2 md:mb-0">
-                            <ChooseInput
-                                choosedLevel={difficulty}
-                                error={difficultyError}
-                                setLevel={setDifficulty}
-                                title={"Difficulty"}
-                                levels={[t("Easy"), t("Normal"), t("Hard"),
-                                t("Terrible")]}
-                                name={"difficulty"}
-                                t={t} />
-                        </div>
                     </div>
                 </div>
+
+                <div className={`flex flex-col md:flex-row items-center justify-center w-full md:w-[65%]`}>
+
+                        <ChooseInput
+                            choosedLevel={importance}
+                            setLevel={setImportance}
+                            title={"Importance"}
+                            levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
+                            error={importanceError}
+                            name={"importance"}
+                            t={t} 
+                        />
+
+                        <ChooseInput
+                            choosedLevel={difficulty}
+                            error={difficultyError}
+                            setLevel={setDifficulty}
+                            title={"Difficulty"}
+                            levels={[t("Easy"), t("Normal"), t("Hard"),
+                            t("Terrible")]}
+                            name={"difficulty"}
+                            t={t} 
+                        />
+                    </div>
 
                 <div>
                     <ChooseCategories
