@@ -119,8 +119,8 @@ function CreateCategory({generatedCategory, setCategories}: props){
                             placeholder={"DescriptionPlaceholder"}
                             setDescription={setDescription}
                             descriptionError={descriptionError}
-                            minH={115}
-                            minHSmallScreen={190}
+                            minH={195}
+                            minHSmallScreen={195}
                             t={t} 
                         />
            

@@ -4,8 +4,8 @@ type genericInputProps = {
     t: TFunction,
     dataError: string,
     name: string,
-    setData: React.Dispatch<React.SetStateAction<string>>,
-    data: string,
+    setData: React.Dispatch<React.SetStateAction<any>>,
+    data: any,
     placeholder: string
 }
 function GenericInput({t, dataError, name, setData, data, placeholder}: genericInputProps){

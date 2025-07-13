@@ -113,8 +113,8 @@ function EditCategory({setCategories}: prop){
                         placeholder={"DescriptionPlaceholder"}
                         setDescription={setDescription}
                         descriptionError={descriptionError}
-                        minH={0}
-                        minHSmallScreen={145}
+                        minH={178}
+                        minHSmallScreen={110}
 
                         t={t} />
                     </div>
