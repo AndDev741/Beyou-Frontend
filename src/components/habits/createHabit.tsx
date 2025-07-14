@@ -128,7 +128,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                 <h1>{t('CreateHabit')}</h1>
             </div>
             <form  onSubmit={handleCreateHabit}
-            className="flex flex-col items-center">
+            className="flex flex-col items-center px-2">
                 <div className='flex md:items-start md:flex-row justify-center'>
                   <div className='flex flex-col md:items-start md:justify-start'>
                         <GenericInput 
