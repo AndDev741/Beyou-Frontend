@@ -2,13 +2,14 @@ import { TFunction } from "i18next";
 
 type genericInputProps = {
     t: TFunction,
+    type?: string,
     dataError: string,
     name: string,
     setData: React.Dispatch<React.SetStateAction<any>>,
     data: any,
     placeholder: string
 }
-function GenericInput({t, dataError, name, setData, data, placeholder}: genericInputProps){
+function GenericInput({t, dataError, name, setData, data, placeholder, type = "text"}: genericInputProps){
     const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl mt-2";
     return(
@@ -19,6 +20,7 @@ function GenericInput({t, dataError, name, setData, data, placeholder}: genericI
                 <p className='text-red-500 text-lg'>{dataError}</p>
                 <input
                 value={data}
+                type={type}
                 onChange={(e) => setData(e.target.value)}
                 name={`data`} 
                 id={`data`} 

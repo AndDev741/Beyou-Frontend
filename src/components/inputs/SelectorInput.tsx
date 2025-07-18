@@ -1,7 +1,7 @@
 import { TFunction } from "i18next";
 
 type selectorInputProps= {
-    value: number,
+    value: number | string,
     setValue: React.Dispatch<React.SetStateAction<any>>,
     errorPhrase: string,
     valuesToSelect: {

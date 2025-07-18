@@ -10,13 +10,11 @@ async function createGoal(
   targetValue: number,
   unit: string,
   currentValue: number,
-  complete: boolean,
-  categoryId: string,
+  categoriesId: string[],
   motivation: string,
   startDate: string,
   endDate: string,
-  xpReward: number,
-  status: string,
+  status: number,
   term: number,
   t: TFunction
 ): apiResponse {
@@ -26,34 +24,30 @@ async function createGoal(
     targetValue: Yup.number().required(t('YupRequiredValue')),
     unit: Yup.string().required(t('YupUnitRequired')),
     currentValue: Yup.number().required(t('YupRequiredValue')),
-    complete: Yup.boolean().required(t('YupRequired')),
-    categoryId: Yup.string().required(t('YupCategoryRequired')),
+    categoriesId: Yup.array().required(t('YupCategoryRequired')),
     motivation: Yup.string().max(256, t('YupDescriptionMaxValue')),
     startDate: Yup.date().required(t('YupDateRequired')),
     endDate: Yup.date().required(t('YupDateRequired')),
-    xpReward: Yup.number().required(t('YupRequiredValue')),
-    status: Yup.string().required(t('YupStatusRequired')),
+    status: Yup.number().required(t('YupStatusRequired')),
     term: Yup.string().required(t('YupTermRequired')),
   });
 
   const goalData = {
-    title,
+    name: title,
     description,
     targetValue,
     unit,
     currentValue,
-    complete,
-    categoryId,
+    categoriesId,
     motivation,
     startDate,
     endDate,
-    xpReward,
     status,
     term,
   };
 
   try {
-    await validation.validate({ title, description, targetValue, unit, currentValue, complete, categoryId, motivation, startDate, endDate, xpReward, status, term });
+    await validation.validate({ title, description, targetValue, unit, currentValue, categoriesId, motivation, startDate, endDate, status, term });
     try {
       const response = await axios.post('/goal', goalData);
       return response.data;
