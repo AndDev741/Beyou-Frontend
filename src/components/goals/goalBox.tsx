@@ -21,17 +21,19 @@ import {
   editXpRewardEnter,
   editStatusEnter,
   editTermEnter,
+  editIconIdEnter,
 } from "../../redux/goal/editGoalSlice";
 
 type GoalBoxProps = {
   id: string;
   title: string;
+  iconId: string;
   description: string;
   targetValue: number;
   unit: string;
   currentValue: number;
   complete: boolean;
-  category: GoalType["category"];
+  categories: GoalType["categories"];
   motivation: string;
   startDate: Date;
   endDate: Date;
@@ -44,12 +46,13 @@ type GoalBoxProps = {
 function GoalBox({
   id,
   title,
+  iconId,
   description,
   targetValue,
   unit,
   currentValue,
   complete,
-  category,
+  categories,
   motivation,
   startDate,
   endDate,
@@ -61,20 +64,21 @@ function GoalBox({
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
-
+  console.log("ICONID IN BOX => ", iconId)
   function handleEditMode() {
     dispatch(editModeEnter(true));
     dispatch(editGoalIdEnter(id));
     dispatch(editTitleEnter(title));
+    dispatch(editIconIdEnter(iconId));
     dispatch(editDescriptionEnter(description));
     dispatch(editTargetValueEnter(targetValue));
     dispatch(editUnitEnter(unit));
     dispatch(editCurrentValueEnter(currentValue));
     dispatch(editCompleteEnter(complete));
-    dispatch(editCategoryEnter(category));
+    dispatch(editCategoryEnter(categories));
     dispatch(editMotivationEnter(motivation));
-    dispatch(editStartDateEnter(startDate.toISOString()));
-    dispatch(editEndDateEnter(endDate.toISOString()));
+    dispatch(editStartDateEnter(startDate));
+    dispatch(editEndDateEnter(endDate));
     dispatch(editXpRewardEnter(xpReward));
     dispatch(editStatusEnter(status));
     dispatch(editTermEnter(term));

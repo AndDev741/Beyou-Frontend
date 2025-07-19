@@ -23,8 +23,8 @@ function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase, t}:
             <select id='value'
             name='value'
             value={value}
-            onChange={(e) => setValue(Number(e.target.value))}
-            className={`${borderCss} ${errorPhrase ? "border-red-500" : ""}} h-[50px] text-xl pl-1 outline-none`}>
+            onChange={(e) => setValue(e.target.value)}
+            className={`${borderCss} ${errorPhrase ? "border-red-500" : ""}} h-[50px] text-xl pl-1 outline-none bg-white`}>
                 {valuesToSelect.map(value => (
                     <option value={value.value}>{value.title}</option>
                 ))}

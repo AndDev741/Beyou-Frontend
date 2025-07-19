@@ -44,7 +44,8 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                             categoryId={category.id}
                             name={category.name}
                             iconId={category.iconId}
-                            chosenCategories={chosenCategories}/>
+                            chosenCategories={chosenCategories}
+                            />
                         </div>
                     
                     )): (

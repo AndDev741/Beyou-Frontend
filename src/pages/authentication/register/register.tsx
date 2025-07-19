@@ -65,30 +65,33 @@ function Register(){
 
                         <div className="my-4 lg:mt-1"></div>
 
-                        <Input 
-                        icon1={emailIcon} 
-                        icon2={null}
-                        icon3={null}
-                        seePasswordIconAlt={""}
-                        placeholder={"email@gmail.com"} inputType={"text"} 
-                        iconAlt={t('EmailIconAlt')}
-                        data={email}
-                        setData={setEmail}
-                        errorMessage={emailError} />
+                        <Input
+                            icon1={emailIcon}
+                            icon2={null}
+                            icon3={null}
+                            seePasswordIconAlt=""
+                            placeholder={t('EmailPlaceholder')}
+                            inputType="text"
+                            iconAlt={t('EmailIconAlt')}
+                            data={email}
+                            setData={setEmail}
+                            errorMessage={emailError}
+                        />
 
                         <div className="my-4 lg:mt-1"></div>
 
-                        <Input 
-                        icon1={passwordIcon} 
-                        placeholder={"xxxxxxxx"} 
-                        inputType={"password"} 
-                        icon2={eyeClosed} 
-                        icon3={eyeOpen} 
-                        iconAlt={t('PasswordIconAlt')}
-                        seePasswordIconAlt={t('EyeToSeePassword')}
-                        data={password}
-                        setData={setPassword}
-                        errorMessage={passwordError}/>
+                        <Input
+                            icon1={passwordIcon}
+                            placeholder={t('PasswordPlaceholder')}
+                            inputType="password"
+                            icon2={eyeClosed}
+                            icon3={eyeOpen}
+                            iconAlt={t('PasswordIconAlt')}
+                            seePasswordIconAlt={t('EyeToSeePassword')}
+                            data={password}
+                            setData={setPassword}
+                            errorMessage={passwordError}
+                        />
 
                         <div className="mt-8 lg:mt-4">
                             <Button text={t('ToRegister')}/>

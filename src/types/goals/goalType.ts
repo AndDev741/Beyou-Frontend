@@ -2,13 +2,14 @@ import category from "../category/categoryType";
 
 export type goal = {
   id: string;
-  title: string;
+  name: string;
+  iconId: string;
   description?: string;
   targetValue: number;
   unit: string;
   currentValue: number;
   complete: boolean;
-  category: category;
+  categories: category[];
   motivation?: string;
   startDate: Date;
   endDate: Date;

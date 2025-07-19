@@ -17,13 +17,14 @@ function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
           <div key={g.id} className="lg:mx-1">
             <GoalBox
               id={g.id}
-              title={g.title}
+              title={g.name}
+              iconId={g.iconId}
               description={g.description || ""}
               targetValue={g.targetValue}
               unit={g.unit}
               currentValue={g.currentValue}
               complete={g.complete}
-              category={g.category}
+              categories={g.categories}
               motivation={g.motivation || ""}
               startDate={g.startDate}
               endDate={g.endDate}

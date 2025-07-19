@@ -5,12 +5,13 @@ const initialState: {
   editMode: boolean;
   goalId: string;
   title: string;
+  iconId: string;
   description: string;
   targetValue: number;
   unit: string;
   currentValue: number;
   complete: boolean;
-  category: category | null;
+  categories: category[];
   motivation: string;
   startDate: string;
   endDate: string;
@@ -21,12 +22,13 @@ const initialState: {
   editMode: false,
   goalId: '',
   title: '',
+  iconId: '',
   description: '',
   targetValue: 0,
   unit: '',
   currentValue: 0,
   complete: false,
-  category: null,
+  categories: [],
   motivation: '',
   startDate: '',
   endDate: '',
@@ -51,6 +53,10 @@ const editGoalSlice = createSlice({
       const title = action.payload;
       return { ...state, title };
     },
+    editIconIdEnter(state, action) {
+      const iconId = action.payload;
+      return { ...state, iconId };
+    },
     editDescriptionEnter(state, action) {
       const description = action.payload;
       return { ...state, description };
@@ -72,8 +78,8 @@ const editGoalSlice = createSlice({
       return { ...state, complete };
     },
     editCategoryEnter(state, action) {
-      const category = action.payload;
-      return { ...state, category };
+      const categories = action.payload;
+      return { ...state, categories };
     },
     editMotivationEnter(state, action) {
       const motivation = action.payload;
@@ -109,6 +115,7 @@ export const {
   editDescriptionEnter,
   editTargetValueEnter,
   editUnitEnter,
+  editIconIdEnter,
   editCurrentValueEnter,
   editCompleteEnter,
   editCategoryEnter,

@@ -44,6 +44,7 @@ function CreateGoal({ setGoals }: Props) {
     setErrorMessage("");
     const response = await createGoal(
       title,
+      selectedIcon,
       description,
       targetValue,
       unit,
@@ -105,7 +106,7 @@ function CreateGoal({ setGoals }: Props) {
               t={t}
             />
             <GenericInput
-              name="TargetValue"
+              name="Target Value"
               type="number"
               placeholder="GoalTargetValuePlaceholder"
               data={targetValue}
@@ -132,21 +133,12 @@ function CreateGoal({ setGoals }: Props) {
               setData={setStartDate}
             />
             <SelectorInput
-              title="Status"
+              title={t("Status")}
               value={status}
               valuesToSelect={[
-                {
-                  title: "Not Started",
-                  value: 1,
-                },
-                {
-                  title: "In Progress",
-                  value: 2,
-                },
-                {
-                  title: "Completed",
-                  value: 3,
-                }
+                { title: t("Not Started"), value: 1 },
+                { title: t("In Progress"), value: 2 },
+                { title: t("Completed"), value: 3 }
               ]}
               setValue={setStatus}
               errorPhrase={""}
@@ -195,22 +187,13 @@ function CreateGoal({ setGoals }: Props) {
               setData={setEndDate}
             />
             <SelectorInput
-              title="Term"
+              title={t("Term")}
               value={term}
               setValue={setTerm}
               valuesToSelect={[
-                {
-                  title: "Short Term",
-                  value: 1,
-                },
-                {
-                  title: "Medium Term",
-                  value: 2,
-                },
-                {
-                  title: "Long Term",
-                  value: 3,
-                }
+                { title: t("Short Term"), value: 1 },
+                { title: t("Medium Term"), value: 2 },
+                { title: t("Long Term"), value: 3 }
               ]}
               t={t}
               errorPhrase=""

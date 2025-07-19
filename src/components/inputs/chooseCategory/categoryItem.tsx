@@ -10,12 +10,12 @@ type categoryItemProps = {
     categoriesIdList: string[],
     setCategoriesIdList: React.Dispatch<React.SetStateAction<string[]>>,
     chosenCategories: category[] | null
+    chosenCategoriesId?: string[]
 }
 
-function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategoriesIdList, chosenCategories}: categoryItemProps){
+function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategoriesIdList, chosenCategories, chosenCategoriesId}: categoryItemProps){
     const [Icon, setIcon] = useState<IconObject>();
     const [alreadyChosen, setAlreadyChosen] = useState(false);
-
     useEffect(() => {
         const result = iconSearch(iconId);
         setIcon(result);
@@ -38,15 +38,19 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
             const isChosen = chosenCategories.some((category) => category.id === categoryId)
             setAlreadyChosen(isChosen)
         }
-    }, [chosenCategories, categoryId])
+        if(chosenCategoriesId && chosenCategoriesId?.length > 0){
+            const isChosen = chosenCategoriesId.some((category) => category === categoryId)
+            setAlreadyChosen(isChosen)
+        }
+    }, [chosenCategories, categoryId, chosenCategoriesId])
 
     useEffect(() => {
-        if(categoriesIdList.length < 1){
+        if(categoriesIdList?.length < 1){
             setAlreadyChosen(false);
         }
     }, [categoriesIdList])
 
-    const isChosen = chosenCategories?.[0]?.id === categoryId && alreadyChosen !== false;
+    const isChosen = alreadyChosen;
     const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-blueMain rounded-md
         ${isChosen ? "text-white bg-lightBlue" : ""} 
         ${alreadyChosen ? "bg-blueMain text-white" : ""}`;

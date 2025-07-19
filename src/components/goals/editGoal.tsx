@@ -26,6 +26,9 @@ import {
   editTermEnter,
 } from "../../redux/goal/editGoalSlice";
 import { goal as GoalType } from "../../types/goals/goalType";
+import SelectorInput from "../inputs/SelectorInput";
+import IconsBox from "../inputs/iconsBox";
+import category from "../../types/category/categoryType";
 
 type Props = {
   setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
@@ -37,16 +40,18 @@ function EditGoal({ setGoals }: Props) {
 
   const goalId = useSelector((state: RootState) => state.editGoal.goalId);
   const titleEdit = useSelector((state: RootState) => state.editGoal.title);
+  const iconId = useSelector((state: RootState) => state.editGoal.iconId);
+  console.log("ICON ID => ", iconId)
   const descriptionEdit = useSelector((state: RootState) => state.editGoal.description);
   const targetValueEdit = useSelector((state: RootState) => state.editGoal.targetValue);
   const unitEdit = useSelector((state: RootState) => state.editGoal.unit);
   const currentValueEdit = useSelector((state: RootState) => state.editGoal.currentValue);
   const completeEdit = useSelector((state: RootState) => state.editGoal.complete);
-  const categoryEdit = useSelector((state: RootState) => state.editGoal.category);
+  const categories = useSelector((state: RootState) => state.editGoal.categories);
+  console.log(categories)
   const motivationEdit = useSelector((state: RootState) => state.editGoal.motivation);
   const startDateEdit = useSelector((state: RootState) => state.editGoal.startDate);
   const endDateEdit = useSelector((state: RootState) => state.editGoal.endDate);
-  const xpRewardEdit = useSelector((state: RootState) => state.editGoal.xpReward);
   const statusEdit = useSelector((state: RootState) => state.editGoal.status);
   const termEdit = useSelector((state: RootState) => state.editGoal.term);
 
@@ -54,37 +59,41 @@ function EditGoal({ setGoals }: Props) {
   const [description, setDescription] = useState("");
   const [targetValue, setTargetValue] = useState(0);
   const [unit, setUnit] = useState("");
-  const [categoriesIdList, setCategoriesIdList] = useState<string[]>([]);
+  const [categoriesList, setcategoriesList] = useState<string[]>([]);
+  const [chosenCategories, setChosenCategories] = useState<category[]>([]);
   const [motivation, setMotivation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [xpReward, setXpReward] = useState(0);
   const [status, setStatus] = useState("");
   const [term, setTerm] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState("");
+  const [actualProgress, setActualProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  const [iconError, setIconError] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     setTitle(titleEdit);
+    setSelectedIcon(iconId);
     setDescription(descriptionEdit);
     setTargetValue(targetValueEdit);
     setUnit(unitEdit);
-    setCategoriesIdList(categoryEdit ? [categoryEdit.id] : []);
+    setChosenCategories(categories);
     setMotivation(motivationEdit);
     setStartDate(startDateEdit);
     setEndDate(endDateEdit);
-    setXpReward(xpRewardEdit);
     setStatus(statusEdit);
     setTerm(termEdit);
+    setSearch(iconId);
   }, [
     titleEdit,
     descriptionEdit,
     targetValueEdit,
     unitEdit,
-    categoryEdit,
+    categories,
     motivationEdit,
     startDateEdit,
     endDateEdit,
-    xpRewardEdit,
     statusEdit,
     termEdit,
   ]);
@@ -102,7 +111,6 @@ function EditGoal({ setGoals }: Props) {
     dispatch(editMotivationEnter(""));
     dispatch(editStartDateEnter(""));
     dispatch(editEndDateEnter(""));
-    dispatch(editXpRewardEnter(0));
     dispatch(editStatusEnter(""));
     dispatch(editTermEnter(""));
   };
@@ -110,20 +118,19 @@ function EditGoal({ setGoals }: Props) {
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
-    const categoryId = categoriesIdList[0] || "";
     const response = await editGoal(
       goalId,
       title,
+      selectedIcon,
       description,
       targetValue,
       unit,
       currentValueEdit,
       completeEdit,
-      categoryId,
+      categoriesList,
       motivation,
       startDate,
       endDate,
-      xpReward,
       status,
       term,
       t
@@ -147,102 +154,129 @@ function EditGoal({ setGoals }: Props) {
         <h2>{t("Edit Goal")}</h2>
       </div>
       <form onSubmit={handleEdit} className="flex flex-col mt-4">
-        <GenericInput
-          name="Title"
-          placeholder="GoalTitlePlaceholder"
-          data={title}
-          setData={setTitle}
-          dataError={""}
-          t={t}
-        />
-        <DescriptionInput
-          description={description}
-          setDescription={setDescription}
-          placeholder="GoalDescriptionPlaceholder"
-          descriptionError={""}
-          minH={0}
-          t={t}
-        />
-        <div className="flex flex-col lg:flex-row lg:space-x-4">
-          <div className="flex flex-col">
-            <label className="text-2xl mt-2">{t("Target Value")}</label>
-            <input
+        <div className='flex md:items-start md:flex-row justify-center'>
+          <div className='flex flex-col md:items-start md:justify-start'>
+            <GenericInput
+              name="Title"
+              placeholder="GoalTitlePlaceholder"
+              data={title}
+              setData={setTitle}
+              dataError={""}
+              t={t}
+            />
+            <DescriptionInput
+              description={description}
+              setDescription={setDescription}
+              placeholder="GoalDescriptionPlaceholder"
+              descriptionError={""}
+              minH={178}
+              minHSmallScreen={102}
+              t={t}
+            />
+            <GenericInput
+              name="Target Value"
               type="number"
-              value={targetValue}
-              onChange={(e) => setTargetValue(Number(e.target.value))}
-              className="border border-blueMain rounded p-1 mt-1"
+              placeholder="GoalTargetValuePlaceholder"
+              data={targetValue}
+              setData={setTargetValue}
+              t={t}
+              dataError=""
+            />
+
+            <GenericInput
+              name="Motivation"
+              placeholder="GoalMotivationPlaceholder"
+              data={motivation}
+              setData={setMotivation}
+              dataError={""}
+              t={t}
+            />
+            <GenericInput
+              name="Start Date"
+              placeholder="GoalStartDatePlaceholder"
+              t={t}
+              dataError={""}
+              type="date"
+              data={startDate}
+              setData={setStartDate}
+            />
+            <SelectorInput
+              title={t("Status")}
+              value={status}
+              valuesToSelect={[
+                { title: t("Not Started"), value: "NOT_STARTED" },
+                { title: t("In Progress"), value: "IN_PROGRESS" },
+                { title: t("Completed"), value: "COMPLETED" }
+              ]}
+              setValue={setStatus}
+              errorPhrase={""}
+              t={t}
             />
           </div>
-          <GenericInput
-            name="Unit"
-            placeholder="GoalUnitPlaceholder"
-            data={unit}
-            setData={setUnit}
-            dataError={""}
-            t={t}
-          />
+
+          <div className='mx-2'></div>
+
+          <div className='flex flex-col'>
+            <IconsBox
+              search={search}
+              setSearch={setSearch}
+              iconError={iconError}
+              selectedIcon={selectedIcon}
+              setSelectedIcon={setSelectedIcon}
+              t={t}
+              minLgH={272}
+              minHSmallScreen={200}
+            />
+            <GenericInput
+              name="Unit"
+              placeholder="GoalUnitPlaceholder"
+              data={unit}
+              setData={setUnit}
+              dataError={""}
+              t={t}
+            />
+            <GenericInput
+              name="Actual Progress"
+              type="number"
+              placeholder="Progress"
+              data={actualProgress}
+              setData={setActualProgress}
+              dataError={""}
+              t={t}
+            />
+
+            <GenericInput
+              name="End Date"
+              placeholder="End date"
+              t={t}
+              dataError={""}
+              type="date"
+              data={endDate}
+              setData={setEndDate}
+            />
+            <SelectorInput
+              title={t("Term")}
+              value={term}
+              setValue={setTerm}
+              valuesToSelect={[
+                { title: t("Short Term"), value: "SHORT_TERM" },
+                { title: t("Medium Term"), value: "MEDIUM_TERM" },
+                { title: t("Long Term"), value: "LONG_TERM" }
+              ]}
+              t={t}
+              errorPhrase=""
+            />
+
+          </div>
         </div>
-        <GenericInput
-          name="Motivation"
-          placeholder="GoalMotivationPlaceholder"
-          data={motivation}
-          setData={setMotivation}
-          dataError={""}
-          t={t}
-        />
+
         <ChooseCategories
-          categoriesIdList={categoriesIdList}
-          setCategoriesIdList={setCategoriesIdList}
+          categoriesIdList={categoriesList}
+          setCategoriesIdList={setcategoriesList}
           errorMessage={""}
-          chosenCategories={categoryEdit ? [categoryEdit] : null}
+          chosenCategories={chosenCategories}
         />
-        <div className="flex flex-col lg:flex-row lg:space-x-4 mt-2">
-          <div className="flex flex-col">
-            <label className="text-2xl">{t("Start Date")}</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="border border-blueMain rounded p-1 mt-1"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-2xl">{t("End Date")}</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="border border-blueMain rounded p-1 mt-1"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col lg:flex-row lg:space-x-4 mt-2">
-          <div className="flex flex-col">
-            <label className="text-2xl">{t("XP Reward")}</label>
-            <input
-              type="number"
-              value={xpReward}
-              onChange={(e) => setXpReward(Number(e.target.value))}
-              className="border border-blueMain rounded p-1 mt-1"
-            />
-          </div>
-          <GenericInput
-            name="Status"
-            placeholder="GoalStatusPlaceholder"
-            data={status}
-            setData={setStatus}
-            dataError={""}
-            t={t}
-          />
-        </div>
-        <GenericInput
-          name="Term"
-          placeholder="GoalTermPlaceholder"
-          data={term}
-          setData={setTerm}
-          dataError={""}
-          t={t}
-        />
+
         <p className="text-red-500 text-center mt-2">{errorMessage}</p>
         <div className="flex items-center justify-evenly mt-4">
           <button
