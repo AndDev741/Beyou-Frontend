@@ -33,7 +33,7 @@ function Goals() {
         <div>
           <RenderGoals goals={goals} setGoals={setGoals} />
         </div>
-        <div className="lg:mr-12">
+        <div className="lg:mr-12 mt-4">
           <div className={`${isEditMode ? "hidden" : "block"}`}>
             <CreateGoal setGoals={setGoals} />
           </div>
