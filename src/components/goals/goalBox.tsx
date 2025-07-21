@@ -175,9 +175,9 @@ function GoalBox({
             <p className="text-gray-600">{startDate.toString()}</p>
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col text-end">
             <p className="text-lg">{t('End Date')}:</p>
-            <p className="text-gray-600 text-end">{endDate.toString()}</p>
+            <p className="text-gray-600">{endDate.toString()}</p>
           </div>
         </div>
 
@@ -192,9 +192,9 @@ function GoalBox({
                 </div>
             </div>
 
-          <div className={`${motivation ? "flex flex-col" : "hidden"}`}>
+          <div className={`${motivation ? "flex flex-col text-end" : "hidden"}`}>
             <p className="text-lg">{t('Motivation')}:</p>
-            <p className="text-gray-600 text-end">{motivation}</p>
+            <p className="text-gray-600 ">{motivation}</p>
           </div>
         </div>
 
@@ -204,9 +204,9 @@ function GoalBox({
             <p className="text-gray-600">{currentValue} {unit}</p>
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col text-end">
             <p className="text-lg">{t('Target Value')}:</p>
-            <p className="text-gray-600 text-end">{targetValue} {unit}</p>
+            <p className="text-gray-600 ">{targetValue} {unit}</p>
           </div>
         </div>
 
