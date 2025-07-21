@@ -30,7 +30,7 @@ function Goals() {
     <div className="lg:flex flex-col items-center w-full">
       <Header pageName="Your Goals" />
       <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
-        <div>
+        <div className="lg:w-[60%]">
           <RenderGoals goals={goals} setGoals={setGoals} />
         </div>
         <div className="lg:mr-12 mt-4">
