@@ -31,11 +31,11 @@ function Perfil(){
     return(
         <div className="flex items-center md:items-center md:justify-between bg-blueMain md:bg-white 
         md:border-solid md:border-blueMain md:border-[1px] 
-        w-[100vw] md:m-3 md:py-2 md:px-3 md:w-[700px] h-[75px] sm:h-[90px] md:min-h-[160px] rounded-b-[50px] md:rounded-md">
+        w-[100%] md:m-3 md:py-2 md:px-3 md:w-[700px] h-[75px] sm:h-[90px] md:min-h-[160px] rounded-b-[50px] md:rounded-md">
             <div 
             className="md:flex flex-col">
                 {/* Perfil photo and Name */}
-                <div className="flex items-center w-[100vw] md:w-auto h-[65px] md:h-auto">
+                <div className="flex items-center w-[100%] md:w-auto h-[65px] md:h-auto">
                     <img src={photo}
                     alt={t('PerfilPhotoAlt')}
                     className="w-[75px] h-[75px] sm:w-[100px] md:w-[80px] md:h-[80px] sm:h-[100px] bg-blue-200 rounded-full ml-6 md:ml-0 mt-6 md:mt-0 sm:mt-[35px]" />

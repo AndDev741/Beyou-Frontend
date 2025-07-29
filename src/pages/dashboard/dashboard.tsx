@@ -13,6 +13,9 @@ import { enterTasks } from "../../redux/task/tasksSlice";
 import getHabits from "../../services/habits/getHabits";
 import getTodayRoutine from "../../services/routine/getTodayRoutine";
 import { enterTodayRoutine } from "../../redux/routine/todayRoutineSlice";
+import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
+import getGoals from "../../services/goals/getGoals";
+import { enterGoals } from "../../redux/goal/goalsSlice";
 
 function Dashboard() {
     useAuthGuard();
@@ -31,6 +34,9 @@ function Dashboard() {
 
             const tasks = await getTasks(t);
             dispatch(enterTasks(tasks.success));
+
+            const goals = await getGoals(t);
+            dispatch(enterGoals(goals.success));
         }
         fetchRoutines();
     }, [dispatch, t])
@@ -59,10 +65,9 @@ function Dashboard() {
                     </div>
 
                 </div>
-
-
-
-
+                <div className="mt-12 min-h-[50vh]">
+                    <GoalsTab />
+                </div>
             </div>
         </>
     )
