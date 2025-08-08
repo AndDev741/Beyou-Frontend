@@ -16,7 +16,7 @@ import arrowIncreaseIcon from '../../../assets/arrowIncrease.svg';
 export default function GoalsTab() {
     const { t } = useTranslation();
     const goals = useSelector((state: RootState) => state.goals.goals);
-    const sortedGoals = sortGoalsByTime(goals);
+    const sortedGoals = sortGoalsByTime(goals || []);
     const scrollContainer = useDragScroll();
 
     return (
