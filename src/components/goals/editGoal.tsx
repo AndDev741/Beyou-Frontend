@@ -29,6 +29,7 @@ import { goal as GoalType } from "../../types/goals/goalType";
 import SelectorInput from "../inputs/SelectorInput";
 import IconsBox from "../inputs/iconsBox";
 import category from "../../types/category/categoryType";
+import { set } from "date-fns";
 
 type Props = {
   setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
@@ -77,6 +78,7 @@ function EditGoal({ setGoals }: Props) {
     setSelectedIcon(iconId);
     setDescription(descriptionEdit);
     setTargetValue(targetValueEdit);
+    setActualProgress(currentValueEdit);
     setUnit(unitEdit);
     setChosenCategories(categories);
     setMotivation(motivationEdit);
@@ -125,7 +127,7 @@ function EditGoal({ setGoals }: Props) {
       description,
       targetValue,
       unit,
-      currentValueEdit,
+      actualProgress,
       completeEdit,
       categoriesList,
       motivation,
