@@ -212,5 +212,8 @@
     "Short Term": "Short Term",
     "Medium Term": "Medium Term",
     "Long Term": "Long Term",
-    "ConfirmDeleteOfGoalPhrase": "Confirm deletion of this goal?"
+    "ConfirmDeleteOfGoalPhrase": "Confirm deletion of this goal?",
+    "Better Area": "Better Area",
+    "Daily Progress": "Daily Progress",
+    "Tasks": "Tasks"
 }

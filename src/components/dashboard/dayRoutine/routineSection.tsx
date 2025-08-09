@@ -85,14 +85,9 @@ export default function RoutineSection({ section, routineId}: { section: section
 
             if (!itemObj) return null;
 
-            console.log(itemObj)
-
             let currentDate = new Date().toJSON().slice(0, 10);
-            console.log("ITEM => ", item)
             const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
             const checked: boolean = ItemCheck?.checked === true ? true : false;
-
-            console.log(`ITEM: ${item.check} is checked?: ${checked}`)
 
             return (
                 <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between p-1 mt-1">

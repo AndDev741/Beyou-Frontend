@@ -4,7 +4,7 @@ import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
@@ -16,13 +16,24 @@ import { enterTodayRoutine } from "../../redux/routine/todayRoutineSlice";
 import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
 import getGoals from "../../services/goals/getGoals";
 import { enterGoals } from "../../redux/goal/goalsSlice";
+import Constance from "../../components/dashboard/widgets/constance";
+import DailyProgress from "../../components/dashboard/widgets/dailyProgress";
+import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
+import BetterArea from "../../components/dashboard/widgets/betterArea";
+import category from "../../types/category/categoryType";
+import getCategories from "../../services/categories/getCategories";
 
 function Dashboard() {
     useAuthGuard();
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
+    const constance = useSelector((state: RootState) => state.perfil.constance);
+    const [checkedItems, setCheckedItems] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+    const [categoryWithMoreXp, setCategoryWithMoreXp] = useState<category | null>(null);
     console.log("Today Routine: ", routine);
+
 
     useEffect(() => {
         const fetchRoutines = async () => {
@@ -37,10 +48,48 @@ function Dashboard() {
 
             const goals = await getGoals(t);
             dispatch(enterGoals(goals.success));
+
+            const categories = await getCategories(t);
+            if (categories.success.length > 0) {
+                const categoriesLoop = categories.success as category[];
+                const categoryWithMoreXp = categoriesLoop.reduce((prev, current) => {
+                    return (prev.xp > current.xp) ? prev : current;
+                }
+                );
+                setCategoryWithMoreXp(categoryWithMoreXp);
+            }
+
         }
         fetchRoutines();
     }, [dispatch, t])
 
+    useEffect(() => {
+        if (!routine) return;
+
+        let checkedCount = 0;
+        let totalCount = 0;
+
+        routine.routineSections.forEach(section => {
+            section?.habitGroup?.forEach(habitGroup => {
+                if (isItemChecked({ habitGroup })) {
+                    checkedCount++;
+                }
+                totalCount++;
+            });
+
+            section?.taskGroup?.forEach(taskGroup => {
+                if (isItemChecked({ taskGroup })) {
+                    checkedCount++;
+                }
+                totalCount++;
+            });
+    });
+
+    // Atualiza apenas uma vez
+    setCheckedItems(checkedCount);
+    setTotalItems(totalCount);
+
+}, [routine]);
     return (
         <>
             <div className="">
@@ -51,12 +100,23 @@ function Dashboard() {
                         </header>
 
                         {/* Desktop */}
-                        <div className="hidden lg:block">
+                        <div className="hidden lg:block lg:flex justify-between">
                             <Shortcuts />
+
+                            <div className="hidden lg:flex items-start py-3 mt-5 w-[70%]">
+                                
+                            </div>
                         </div>
                     </div>
 
-                    <div className="py-3 lg:w-[50%]">
+                    {/* Mobile */}
+                    <div className="flex items-center justify-evenly py-3 mt-5 lg:hidden">
+                        <BetterArea category={categoryWithMoreXp}/>
+                        <DailyProgress checked={checkedItems} total={totalItems} />
+                        <Constance constance={constance} />
+                    </div>
+
+                    <div className="lg:w-[50%]">
                         <RoutineDay routine={routine ? routine : null} />
                     </div>
                     {/* Mobile */}
