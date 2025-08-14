@@ -22,6 +22,8 @@ import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
 import BetterArea from "../../components/dashboard/widgets/betterArea";
 import category from "../../types/category/categoryType";
 import getCategories from "../../services/categories/getCategories";
+import FastTips from "../../components/dashboard/widgets/fastTips";
+import WorstArea from "../../components/dashboard/widgets/worstArea";
 
 function Dashboard() {
     useAuthGuard();
@@ -32,6 +34,7 @@ function Dashboard() {
     const [checkedItems, setCheckedItems] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [categoryWithMoreXp, setCategoryWithMoreXp] = useState<category | null>(null);
+    const [categoryWithLessXp, setCategoryWithLessXp] = useState<category | null>(null);
     console.log("Today Routine: ", routine);
 
 
@@ -54,9 +57,12 @@ function Dashboard() {
                 const categoriesLoop = categories.success as category[];
                 const categoryWithMoreXp = categoriesLoop.reduce((prev, current) => {
                     return (prev.xp > current.xp) ? prev : current;
-                }
-                );
+                });
+                const categoryWithLessXp = categoriesLoop.reduce((prev, current) => {
+                    return (prev.xp < current.xp) ? prev : current;
+                });
                 setCategoryWithMoreXp(categoryWithMoreXp);
+                setCategoryWithLessXp(categoryWithLessXp);
             }
 
         }
@@ -103,8 +109,13 @@ function Dashboard() {
                         <div className="hidden lg:block lg:flex justify-between">
                             <Shortcuts />
 
-                            <div className="hidden lg:flex items-start py-3 mt-5 w-[70%]">
-                                
+                            <div className="hidden lg:flex flex-col items-start py-3 mt-7 w-[35vw] mr-3">
+                                <FastTips/>
+                                <div className="flex justify-between my-3 w-[100%]"> {/* THink in a better way to handle the width */}
+                                    <BetterArea category={categoryWithMoreXp} />
+                                    <WorstArea category={categoryWithLessXp} />
+                                </div>
+                                <DailyProgress checked={checkedItems} total={totalItems} />
                             </div>
                         </div>
                     </div>

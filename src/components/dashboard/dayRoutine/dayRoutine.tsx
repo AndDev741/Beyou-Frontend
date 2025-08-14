@@ -6,7 +6,7 @@ export default function RoutineDay({routine}: {routine: Routine | null}) {
     const {t} = useTranslation();
     if (routine !== null) {
         return (
-            <div className="flex flex-col w-full items-center justify-center h-full">
+            <div className="flex flex-col w-full items-center justify-center h-full mt-2.5">
                 <h1 className="text-2xl font-bold mb-4 lg:hidden">{t('Daily Routine')}</h1>
                 <div className="flex flex-col items-center lg:items-start border border-blueMain rounded-md p-4 w-[97%]">
                     <h2 className="text-2xl font-semibold mb-2 lg:mb-4">
