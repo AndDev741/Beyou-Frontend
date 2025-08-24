@@ -28,8 +28,8 @@ function CreateGoal({ setGoals }: Props) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [xpReward, setXpReward] = useState(0);
-  const [status, setStatus] = useState(1);
-  const [term, setTerm] = useState(1);
+  const [status, setStatus] = useState("NOT_STARTED");
+  const [term, setTerm] = useState("SHORT_TERM");
 
   const [errorMessage, setErrorMessage] = useState("");
   const [iconError, setIconError] = useState("");
@@ -70,8 +70,8 @@ function CreateGoal({ setGoals }: Props) {
         setStartDate("");
         setEndDate("");
         setXpReward(0);
-        setStatus(1);
-        setTerm(1);
+        setStatus("SHORT_TERM");
+        setTerm("SHORT_TERM");
       }
     } else if (response.error) {
       setErrorMessage(response.error);
@@ -136,9 +136,9 @@ function CreateGoal({ setGoals }: Props) {
               title={t("Status")}
               value={status}
               valuesToSelect={[
-                { title: t("Not Started"), value: 1 },
-                { title: t("In Progress"), value: 2 },
-                { title: t("Completed"), value: 3 }
+                { title: t("Not Started"), value: "NOT_STARTED" },
+                { title: t("In Progress"), value: "IN_PROGRESS" },
+                { title: t("Completed"), value: "COMPLETED" }
               ]}
               setValue={setStatus}
               errorPhrase={""}
@@ -191,9 +191,9 @@ function CreateGoal({ setGoals }: Props) {
               value={term}
               setValue={setTerm}
               valuesToSelect={[
-                { title: t("Short Term"), value: 1 },
-                { title: t("Medium Term"), value: 2 },
-                { title: t("Long Term"), value: 3 }
+                { title: t("Short Term"), value: "SHORT_TERM" },
+                { title: t("Medium Term"), value: "MEDIUM_TERM" },
+                { title: t("Long Term"), value: "LONG_TERM" }
               ]}
               t={t}
               errorPhrase=""

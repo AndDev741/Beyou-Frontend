@@ -15,8 +15,8 @@ async function createGoal(
   motivation: string,
   startDate: string,
   endDate: string,
-  status: number,
-  term: number,
+  status: string,
+  term: string,
   t: TFunction
 ): apiResponse {
   const validation = Yup.object().shape({
@@ -30,7 +30,7 @@ async function createGoal(
     motivation: Yup.string().max(256, t('YupDescriptionMaxValue')),
     startDate: Yup.date().required(t('YupDateRequired')),
     endDate: Yup.date().required(t('YupDateRequired')),
-    status: Yup.number().required(t('YupStatusRequired')),
+    status: Yup.string().required(t('YupStatusRequired')),
     term: Yup.string().required(t('YupTermRequired')),
   });
 
