@@ -15,6 +15,7 @@ import markGoalAsComplete from "../../../services/goals/markGoalAsComplete";
 import getGoals from "../../../services/goals/getGoals";
 import { useDispatch } from "react-redux";
 import { enterGoals } from "../../../redux/goal/goalsSlice";
+import increaseCurrentValue from "../../../services/goals/increaseCurrentValue";
 
 
 export default function GoalsTab() {
@@ -54,7 +55,7 @@ export default function GoalsTab() {
 function GoalSection({ title, goals }: { title: string, goals: any[] }) {
     if (goals.length === 0) return null;
 
-    
+
     return (
         <div className="flex-shrink-0 w-80 border border-blueMain rounded-md p-2">
             <h3 className="text-2xl font-semibold mb-2">{title}</h3>
@@ -67,9 +68,9 @@ function GoalSection({ title, goals }: { title: string, goals: any[] }) {
     );
 }
 
-function GoalBox({goal}: {goal: goal}) {
+function GoalBox({ goal }: { goal: goal }) {
     const dispatch = useDispatch();
-    const {t, i18n} = useTranslation();
+    const { t, i18n } = useTranslation();
     const [Icon, setIcon] = useState<IconObject>();
 
     const [statusIcon, setStatusIcon] = useState(notStartedIcon);
@@ -79,41 +80,48 @@ function GoalBox({goal}: {goal: goal}) {
         const response = iconSearch(goal.iconId);
         setIcon(response);
 
-        switch(goal.term) {
-        case "SHORT_TERM" :
-            setTermPhrase(t('Short Term'));
-            break;
-        case "MEDIUM_TERM" :
-            setTermPhrase(t('Medium Term'));
-            break;
-        case "LONG_TERM" :
-            setTermPhrase(t('Long Term'));
-            break;
-        default:
-            break;
+        switch (goal.term) {
+            case "SHORT_TERM":
+                setTermPhrase(t('Short Term'));
+                break;
+            case "MEDIUM_TERM":
+                setTermPhrase(t('Medium Term'));
+                break;
+            case "LONG_TERM":
+                setTermPhrase(t('Long Term'));
+                break;
+            default:
+                break;
         }
 
-        switch(goal.status){
-        case "NOT_STARTED" :
-            setStatusPhrase(t('Not Started'));
-            setStatusIcon(notStartedIcon);
-            break;
-        case "IN_PROGRESS" :
-            setStatusPhrase(t('In Progress'));
-            setStatusIcon(inProgressIcon);
-            break;
-        case "COMPLETED" :
-            setStatusPhrase(t('Completed'));
-            setStatusIcon(completedIcon);
-            break;
-        default:
-            break;
+        switch (goal.status) {
+            case "NOT_STARTED":
+                setStatusPhrase(t('Not Started'));
+                setStatusIcon(notStartedIcon);
+                break;
+            case "IN_PROGRESS":
+                setStatusPhrase(t('In Progress'));
+                setStatusIcon(inProgressIcon);
+                break;
+            case "COMPLETED":
+                setStatusPhrase(t('Completed'));
+                setStatusIcon(completedIcon);
+                break;
+            default:
+                break;
         }
 
-  }, [goal.iconId, goal.term, goal.status]);
+    }, [goal.iconId, goal.term, goal.status]);
 
     const completeTask = async (id: string) => {
         await markGoalAsComplete(id, t);
+        const goals = await getGoals(t);
+        dispatch(enterGoals(goals.success));
+    }
+
+    const increaseTask = async (id: string) => {
+        console.log("tessst")
+        await increaseCurrentValue(id, t);
         const goals = await getGoals(t);
         dispatch(enterGoals(goals.success));
     }
@@ -128,7 +136,7 @@ function GoalBox({goal}: {goal: goal}) {
                     className="accent-[#0082E1] border-blueMain w-7 h-7 rounded-xl cursor-pointer"
                 />
                 <p className="text-blueMain text-[30px]">
-                    {Icon !== undefined ? <Icon.IconComponent/> : null}
+                    {Icon !== undefined ? <Icon.IconComponent /> : null}
                 </p>
                 <div className="font-medium line-clamp-2">{goal.name}</div>
             </div>
@@ -141,8 +149,14 @@ function GoalBox({goal}: {goal: goal}) {
                     <p className="text-md">{t('Actual Progress')}:</p>
                     <div className="flex items-center space-x-2 mt-2">
                         <p className="text-gray-600 text-sm">{goal.currentValue} {goal.unit}</p>
-                        <img src={arrowIncreaseIcon} 
-                        className="w-[20px] cursor-pointer hover:scale-110" />
+                        <button
+                            onClick={() => increaseTask(goal.id)}
+                        >
+                            <img src={arrowIncreaseIcon}
+                                className="w-[20px] cursor-pointer hover:scale-110"
+                            />
+                        </button>
+
                     </div>
                 </div>
 
@@ -160,7 +174,7 @@ function GoalBox({goal}: {goal: goal}) {
                 </div>
             </div>
 
-            
+
         </div>
     );
 }

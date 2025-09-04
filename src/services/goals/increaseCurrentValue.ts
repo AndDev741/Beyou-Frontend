@@ -4,9 +4,9 @@ import axios from 'axios';
 
 type apiResponse = Record<string, string>;
 
-async function markGoalAsComplete(id: string, t: TFunction): Promise<apiResponse> {
+async function increaseCurrentValue(id: string, t: TFunction): Promise<apiResponse> {
   try {
-    const response = await axiosWithCredentials.put<string>(`/goal/complete`, id, {
+    const response = await axiosWithCredentials.put<string>(`/goal/increase`, id, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -20,4 +20,4 @@ async function markGoalAsComplete(id: string, t: TFunction): Promise<apiResponse
   }
 }
 
-export default markGoalAsComplete;
+export default increaseCurrentValue;
