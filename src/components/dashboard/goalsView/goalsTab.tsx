@@ -11,6 +11,10 @@ import inProgressIcon from '../../../assets/inProgress.svg';
 import notStartedIcon from '../../../assets/Not Started Icon.svg';
 import completedIcon from '../../../assets/Completed Icon.svg';
 import arrowIncreaseIcon from '../../../assets/arrowIncrease.svg';
+import markGoalAsComplete from "../../../services/goals/markGoalAsComplete";
+import getGoals from "../../../services/goals/getGoals";
+import { useDispatch } from "react-redux";
+import { enterGoals } from "../../../redux/goal/goalsSlice";
 
 
 export default function GoalsTab() {
@@ -64,6 +68,7 @@ function GoalSection({ title, goals }: { title: string, goals: any[] }) {
 }
 
 function GoalBox({goal}: {goal: goal}) {
+    const dispatch = useDispatch();
     const {t, i18n} = useTranslation();
     const [Icon, setIcon] = useState<IconObject>();
 
@@ -107,11 +112,11 @@ function GoalBox({goal}: {goal: goal}) {
 
   }, [goal.iconId, goal.term, goal.status]);
 
-    const dateToString = new Date(goal.endDate).toLocaleDateString(i18n.language, {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    });
+    const completeTask = async (id: string) => {
+        await markGoalAsComplete(id, t);
+        const goals = await getGoals(t);
+        dispatch(enterGoals(goals.success));
+    }
 
     return (
         <div className="p-4 border border-blueMain rounded-md shadow-sm">
@@ -119,6 +124,7 @@ function GoalBox({goal}: {goal: goal}) {
                 <input
                     type="checkbox"
                     checked={goal.complete}
+                    onChange={() => completeTask(goal.id)}
                     className="accent-[#0082E1] border-blueMain w-7 h-7 rounded-xl cursor-pointer"
                 />
                 <p className="text-blueMain text-[30px]">
