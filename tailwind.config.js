@@ -17,7 +17,9 @@ module.exports = {
         blueMain: "#0082E1",
         ligthBlue: "#3FA5F2",
         darkBlue: "#0059AB",
-        ligthGray: "#D9D9D9"
+        ligthGray: "#D9D9D9",
+        darkGray: "#7F8B99",
+        descriptionColor: "#7f8b99ff"
       },
       border: {
         mainBorder: "border-solid, border-2px"

@@ -2,3 +2,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        /* Progress colors */
+        --progress-bg: 220 13% 91%;
+        --progress-fill: 217 91% 60%;
+    }
+}

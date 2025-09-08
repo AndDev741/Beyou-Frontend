@@ -11,7 +11,7 @@ function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap items-start justify-between md:justify-evenly lg:justify-start">
+    <div className="flex flex-wrap md:items-start justify-center md:justify-between md:justify-evenly lg:justify-start">
       {goals.length > 0 ? (
         goals.map((g) => (
           <div key={g.id} className="lg:mx-1">

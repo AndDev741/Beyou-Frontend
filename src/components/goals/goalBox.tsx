@@ -10,6 +10,7 @@ import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
 import inProgressIcon from '../../assets/inProgress.svg';
 import notStartedIcon from '../../assets/Not Started Icon.svg';
 import completedIcon from '../../assets/Completed Icon.svg';
+import { MdCalendarMonth } from "react-icons/md";
 import {
   editModeEnter,
   editGoalIdEnter,
@@ -31,6 +32,8 @@ import {
 import { IconObject } from "../../types/icons/IconObject";
 import iconSearch from "../icons/iconsSearch";
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
+import { ProgressRing } from "../progressRing";
+import { MdOutlineAlbum } from "react-icons/md";
 
 type GoalBoxProps = {
   id: string;
@@ -106,30 +109,30 @@ function GoalBox({
     const response = iconSearch(iconId);
     setIcon(response);
 
-    switch(term) {
-      case "SHORT_TERM" :
+    switch (term) {
+      case "SHORT_TERM":
         setTermPhrase(t('Short Term'));
         break;
-      case "MEDIUM_TERM" :
+      case "MEDIUM_TERM":
         setTermPhrase(t('Medium Term'));
         break;
-      case "LONG_TERM" :
+      case "LONG_TERM":
         setTermPhrase(t('Long Term'));
         break;
       default:
         break;
     }
 
-    switch(status){
-      case "NOT_STARTED" :
+    switch (status) {
+      case "NOT_STARTED":
         setStatusPhrase(t('Not Started'));
         setStatusIcon(notStartedIcon);
         break;
-      case "IN_PROGRESS" :
+      case "IN_PROGRESS":
         setStatusPhrase(t('In Progress'));
         setStatusIcon(inProgressIcon);
         break;
-      case "COMPLETED" :
+      case "COMPLETED":
         setStatusPhrase(t('Completed'));
         setStatusIcon(completedIcon);
         break;
@@ -139,82 +142,75 @@ function GoalBox({
 
   }, [iconId, term, status]);
 
+  function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short", // "Jan", "Feb", "Mar"...
+      day: "numeric"  // 1, 2, 3...
+    });
+  }
+
   return (
-    <div className="flex relative flex-col justify-between border-blueMain border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px]">
+    <div className="flex relative flex-col justify-between border-blueMain border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px] md:min-h-[262px]">
       <div className="flex justify-between items-start">
-        <div className="flex items-start">
-          <p className="text-blueMain text-[34px]">
-              {Icon !== undefined ? <Icon.IconComponent/> : null}
-          </p>
-          <h2 className={`text-2xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{title}</h2>
+        <div className="flex flex-col">
+          <div className="flex items-start">
+            <p className="text-blueMain text-[34px]">
+              {Icon !== undefined ? <Icon.IconComponent /> : null}
+            </p>
+            <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{title}</h2>
+          </div>
+          <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1 text-descriptionColor`}>
+            <p>{description}</p>
+          </div>
+          <p className="text-darkGray text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
         </div>
         <div className="flex items-center space-x-2">
-          <img className="w-[30px] cursor-pointer"
-            alt={t('ExpandBoxImgAlt')}
-            src={expandendIcon}
-            onClick={handleExpanded}
-          />
+          <ProgressRing progress={currentValue / targetValue * 100} size="md" className="flex-shrink-0" />
         </div>
       </div>
-      <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1`}>
-        <p>{description}</p>
+
+      <div className="w-full flex items-start justify-between my-1">
+        <div className="flex flex-wrap">
+          {categories.map((category, index) => (
+            <>
+              <CategoryNameAndIcon key={index}
+                name={category.name} iconId={category.iconId} />
+              <p className={`${index === categories.length - 1 ? "invisible" : "mr-1"}`}>,</p>
+            </>
+          ))}
+        </div>
       </div>
-      <div className="flex justify-between items-center">
-        <p className="text-xl font-semibold">{termPhrase}</p>
-        <div className="flex items-center">
+
+      <div className="flex justify-between">
+        <div className="flex items-center gap-1 text-darkGray">
+          <MdCalendarMonth />
+          <p>{formatDate(startDate.toString())}</p>
+          <p>-</p>
+          <p>{formatDate(endDate.toString())}</p>
+        </div>
+        <div className="flex items-center gap-1 text-darkGray">
+          <MdOutlineAlbum />
+          <p>{currentValue}</p>
+          <p> / </p>
+          <p>{targetValue} {unit}</p>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center mt-2">
+        <p className="text-lg font-medium">{termPhrase}</p>
+        <div className="flex items-center font-medium">
           <img className="w-[30px] mr-1" alt={t('InProgressImgAlt')} src={statusIcon} />
-          <p className="text-xl font-semibold">{statusPhrase}</p>
+          <p className="text-lg font-medium">{statusPhrase}</p>
         </div>
       </div>
-      
-      <div className={`${expanded ? "flex flex-col items-center" : "hidden"}`}>
+      <div className={`flex justify-between items-center my-2`}>
 
-        <div className="w-full flex items-center justify-between mt-2">
-          <div className="flex flex-col">
-            <p className="text-lg">{t('Start Date')}:</p>
-            <p className="text-gray-600">{startDate.toString()}</p>
-          </div>
-
-          <div className="flex flex-col text-end">
-            <p className="text-lg">{t('End Date')}:</p>
-            <p className="text-gray-600">{endDate.toString()}</p>
-          </div>
-        </div>
-
-        <div className="w-full flex items-start justify-between mt-2">
-          <div className={`flex flex-col`}>
-                <h4 className="font-semibold text-lg">{t('Categories')}:</h4>
-                <div className="flex flex-col">
-                    {categories.map((category, index) => (
-                    <CategoryNameAndIcon key={index}
-                    name={category.name} iconId={category.iconId}/>
-                    ))}
-                </div>
-            </div>
-
-          <div className={`${motivation ? "flex flex-col text-end" : "hidden"}`}>
-            <p className="text-lg">{t('Motivation')}:</p>
-            <p className="text-gray-600 ">{motivation}</p>
-          </div>
-        </div>
-
-        <div className="w-full flex items-center justify-between mt-2">
-          <div className="flex flex-col">
-            <p className="text-lg">{t('Actual Progress')}:</p>
-            <p className="text-gray-600">{currentValue} {unit}</p>
-          </div>
-
-          <div className="flex flex-col text-end">
-            <p className="text-lg">{t('Target Value')}:</p>
-            <p className="text-gray-600 ">{targetValue} {unit}</p>
-          </div>
-        </div>
-
-        <button onClick={handleEditMode} className="bg-blueMain text-white px-4 py-1 rounded">
+        <button onClick={handleEditMode} className="bg-blueMain text-white px-4 py-1 rounded cursor-pointer">
           {t("Edit")}
         </button>
         <div className="my-1"></div>
-        <button onClick={() => setOnDelete(true)} className="bg-red-600 text-white px-4 py-1 rounded">
+        <button onClick={() => setOnDelete(true)} className="bg-red-600 text-white px-4 py-1 rounded cursor-pointer">
           {t("Delete")}
         </button>
         <DeleteModal
