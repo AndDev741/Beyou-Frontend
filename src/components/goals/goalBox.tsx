@@ -34,6 +34,10 @@ import iconSearch from "../icons/iconsSearch";
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
 import { ProgressRing } from "../progressRing";
 import { MdOutlineAlbum } from "react-icons/md";
+import { Button } from "../ActionButton";
+import markGoalAsComplete from "../../services/goals/markGoalAsComplete";
+import { enterGoals } from "../../redux/goal/goalsSlice";
+import increaseCurrentValue from "../../services/goals/increaseCurrentValue";
 
 type GoalBoxProps = {
   id: string;
@@ -52,6 +56,7 @@ type GoalBoxProps = {
   status: string;
   term: string;
   setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
+  readonly?: boolean;
 };
 
 function GoalBox({
@@ -71,21 +76,16 @@ function GoalBox({
   status,
   term,
   setGoals,
+  readonly = false
 }: GoalBoxProps) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
   const [Icon, setIcon] = useState<IconObject>();
-  const [expanded, setExpanded] = useState(false);
-  const [expandendIcon, setExpandedIcon] = useState(increaseIcon)
   const [statusIcon, setStatusIcon] = useState(notStartedIcon);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
 
-  const handleExpanded = () => {
-    setExpanded(!expanded);
-    expanded ? setExpandedIcon(increaseIcon) : setExpandedIcon(decreaseIcon);
-  }
   function handleEditMode() {
     dispatch(editModeEnter(true));
     dispatch(editGoalIdEnter(id));
@@ -150,17 +150,29 @@ function GoalBox({
     });
   }
 
+  const completeTask = async (id: string) => {
+    await markGoalAsComplete(id, t);
+    const goals = await getGoals(t);
+    dispatch(enterGoals(goals.success));
+  }
+
+  const increaseTask = async (id: string) => {
+    await increaseCurrentValue(id, t);
+    const goals = await getGoals(t);
+    dispatch(enterGoals(goals.success));
+  }
+
   return (
-    <div className="flex relative flex-col justify-between border-blueMain border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px] md:min-h-[262px]">
+    <div className={`flex relative flex-col justify-between border-blueMain border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px] ${readonly ? "min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <div className="flex items-start">
             <p className="text-blueMain text-[34px]">
               {Icon !== undefined ? <Icon.IconComponent /> : null}
             </p>
-            <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{title}</h2>
+            <h2 className={`text-xl ml-1 font-semibold line-clamp-1`}>{title}</h2>
           </div>
-          <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1 text-descriptionColor`}>
+          <div className={`line-clamp-2 leading-tight my-1 text-descriptionColor`}>
             <p>{description}</p>
           </div>
           <p className="text-darkGray text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
@@ -183,18 +195,53 @@ function GoalBox({
       </div>
 
       <div className="flex justify-between">
-        <div className="flex items-center gap-1 text-darkGray">
-          <MdCalendarMonth />
-          <p>{formatDate(startDate.toString())}</p>
-          <p>-</p>
-          <p>{formatDate(endDate.toString())}</p>
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-1 text-darkGray">
+            <MdOutlineAlbum />
+            <p>{currentValue}</p>
+            <p> / </p>
+            <p>{targetValue} {unit}</p>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => increaseTask(id)}
+              disabled={currentValue === 0}
+              className="h-8 w-8 p-0"
+            >
+              <p className="text-xl" >-</p>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => increaseTask(id)}
+              className="h-8 w-8 p-0"
+            >
+              <p className="text-lg" >+</p>
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-1 text-darkGray">
-          <MdOutlineAlbum />
-          <p>{currentValue}</p>
-          <p> / </p>
-          <p>{targetValue} {unit}</p>
+        <div className="flex flex-col items-end">
+          <div className="flex items-center gap-1 text-darkGray">
+            <MdCalendarMonth />
+            <p>{formatDate(startDate.toString())}</p>
+            <p>-</p>
+            <p>{formatDate(endDate.toString())}</p>
+          </div>
+          <div className={`${status === "COMPLETED" ? "hidden" : "flex items-center gap-1"}`}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markGoalAsComplete(id, t)}
+              disabled={currentValue === 0}
+              className=""
+            >
+              <p className="text-md" >Mark Complete</p> {/* I STOP HERE */}
+            </Button>
+          </div>
         </div>
+
       </div>
 
       <div className="flex justify-between items-center mt-2">
@@ -204,7 +251,7 @@ function GoalBox({
           <p className="text-lg font-medium">{statusPhrase}</p>
         </div>
       </div>
-      <div className={`flex justify-between items-center my-2`}>
+      <div className={`${readonly ? "hidden" : ""} flex justify-between items-center my-2`}>
 
         <button onClick={handleEditMode} className="bg-blueMain text-white px-4 py-1 rounded cursor-pointer">
           {t("Edit")}
