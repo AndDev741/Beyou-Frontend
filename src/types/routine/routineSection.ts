@@ -1,5 +1,5 @@
 export type RoutineSection = {
-    id?: string,
+    id: string,
     name: string;
     iconId: string;
     startTime: string;
@@ -16,4 +16,5 @@ export type RoutineSection = {
         habitId: string;
         startTime: string;
     }>;
+    order: number
 };

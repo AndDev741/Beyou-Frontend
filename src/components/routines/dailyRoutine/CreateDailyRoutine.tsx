@@ -11,10 +11,12 @@ import createRoutine from "../../../services/routine/createRoutine";
 import { useDispatch } from "react-redux";
 import { enterRoutines } from "../../../redux/routine/routinesSlice";
 import getRoutines from "../../../services/routine/getRoutines";
+import { DragDropContext, Draggable } from "react-beautiful-dnd";
+import Droppable from "../../../components/utils/StrictModeDroppable";
 
 type CreateDailyRoutineProps = {}
 
-const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
+const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [routineName, setRoutineName] = useState<string>("");
@@ -56,25 +58,39 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
     const handleCreate = async () => {
         setErrorMessage("");
 
+        console.log(routineSection.filter(section => section.id = ""))
+
         const routine: Routine = {
             name: routineName,
             type: "DAILY",
             iconId: "",
-            routineSections: routineSection
+            routineSections: routineSection.map(section => ({
+                ...section,
+                id: section.id ?? ""
+            }))
         }
 
         const response = await createRoutine(routine, t);
 
         console.log(response)
-        if(response?.error || response?.validation){
+        if (response?.error || response?.validation) {
             setErrorMessage(response.error || response?.validation);
-        }else{
+        } else {
             const routines = await getRoutines(t);
             dispatch(enterRoutines(routines?.success));
             setRoutineName("");
             setRoutineSection([]);
         }
- 
+
+    }
+
+    const handleOnDragEnd = (result: any) => {
+        console.log("result", result);
+        if (!result.destination) return;
+        const items = Array.from(routineSection);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+        setRoutineSection(items);
     }
 
     return (
@@ -105,21 +121,54 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                     </span>
                 </button>
 
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                    <Droppable droppableId="sections">
+                        {(provided) => (
+                            <div className="w-full flex flex-col items-center justify-start mt-5"
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >
+                                {routineSection.length > 0 ? (
+                                    routineSection.map((section, index) => (
+                                        <Draggable
+                                            key={section.id.toString()}
+                                            draggableId={section.id.toString()}
+                                            index={index}
+                                        >
+                                            {(provided) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    className="flex items-start w-full">
+                                                    <div
+                                                        {...provided.dragHandleProps}
+                                                        className="cursor-grab mt-3 mr-2"
+                                                    >
+                                                        ⠿
+                                                    </div>
+                                                    <SectionItem
+                                                        key={index}
+                                                        section={section}
+                                                        onEdit={() => handleEditSection(index)}
+                                                        onDelete={() => handleDeleteSection(index)}
+                                                        setRoutineSection={setRoutineSection}
+                                                        index={index}
+                                                    />
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">{t("No sections added")}</p>
+                                )}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+
                 <div className="w-full flex flex-col items-center justify-start mt-5">
-                    {routineSection.length > 0 ? (
-                        routineSection.map((section, index) => (
-                            <SectionItem
-                                key={index}
-                                section={section}
-                                onEdit={() => handleEditSection(index)}
-                                onDelete={() => handleDeleteSection(index)}
-                                setRoutineSection={setRoutineSection}
-                                index={index}
-                            />
-                        ))
-                    ) : (
-                        <p className="text-gray-500">{t("No sections added")}</p>
-                    )}
+
                 </div>
             </div>
 
@@ -146,12 +195,12 @@ const CreateDailyRoutine = ({}: CreateDailyRoutineProps) => {
                 </div>
             )}
             <div className="my-2 mb-6 flex flex-col items-center"
-            onClick={handleCreate}
+                onClick={handleCreate}
             >
                 <Button text={t('create')} />
                 <p className="text-center text-red-700 mt-2">{errorMessage}</p>
             </div>
-           
+
         </div>
     )
 }

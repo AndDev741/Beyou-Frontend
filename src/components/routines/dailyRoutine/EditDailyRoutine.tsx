@@ -14,20 +14,21 @@ import getRoutines from "../../../services/routine/getRoutines";
 import { RootState } from "../../../redux/rootReducer";
 import { editModeEnter } from "../../../redux/routine/editRoutineSlice";
 import editRoutine from "../../../services/routine/editRoutine";
+import { DragDropContext, Draggable } from "react-beautiful-dnd";
+import Droppable from "../../../components/utils/StrictModeDroppable";
 
 type EditDailyRoutineProps = {}
 
-const EditDailyRoutine = ({}: EditDailyRoutineProps) => {
+const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const routineToEdit = useSelector((state: RootState) => state.editRoutine.routine);
     const routineNameToEdit = routineToEdit?.name;
     const routineSectionsToEdit = routineToEdit?.routineSections;
-    
+
     const [routineName, setRoutineName] = useState<string>(routineNameToEdit || "");
     const [routineSection, setRoutineSection] = useState<RoutineSection[]>(routineSectionsToEdit || []);
-    console.log("routineSection", routineSection);
     const [showModal, setShowModal] = useState(false);
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
@@ -74,16 +75,25 @@ const EditDailyRoutine = ({}: EditDailyRoutineProps) => {
         const response = await editRoutine(routine, t);
 
         console.log(response)
-        if(response?.error || response?.validation){
+        if (response?.error || response?.validation) {
             setErrorMessage(response.error || response?.validation);
-        }else{
+        } else {
             const routines = await getRoutines(t);
             dispatch(enterRoutines(routines?.success));
             setRoutineName("");
             setRoutineSection([]);
             dispatch(editModeEnter(false));
         }
- 
+
+    }
+
+    const handleOnDragEnd = (result: any) => {
+        console.log("result", result);
+        if (!result.destination) return;
+        const items = Array.from(routineSection);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+        setRoutineSection(items);
     }
 
     return (
@@ -114,22 +124,52 @@ const EditDailyRoutine = ({}: EditDailyRoutineProps) => {
                     </span>
                 </button>
 
-                <div className="w-full flex flex-col items-center justify-start mt-5">
-                    {routineSection.length > 0 ? (
-                        routineSection.map((section, index) => (
-                            <SectionItem
-                                key={index}
-                                section={section}
-                                onEdit={() => handleEditSection(index)}
-                                onDelete={() => handleDeleteSection(index)}
-                                setRoutineSection={setRoutineSection}
-                                index={index}
-                            />
-                        ))
-                    ) : (
-                        <p className="text-gray-500">{t("No sections added")}</p>
-                    )}
-                </div>
+
+                <DragDropContext onDragEnd={handleOnDragEnd}>
+                    <Droppable droppableId="sections">
+                        {(provided) => (
+                            <div className="w-full flex flex-col items-center justify-start mt-5"
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >
+                                {routineSection.length > 0 ? (
+                                    routineSection.map((section, index) => (
+                                        <Draggable
+                                            key={section.id.toString()}
+                                            draggableId={section.id.toString()}
+                                            index={index}
+                                        >
+                                            {(provided) => (
+                                                <div 
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                className="flex items-start w-full">
+                                                    <div
+                                                        {...provided.dragHandleProps}
+                                                        className="cursor-grab mt-3 mr-2"
+                                                    >
+                                                        ⠿
+                                                    </div>
+                                                    <SectionItem
+                                                        section={section}
+                                                        onEdit={() => handleEditSection(index)}
+                                                        onDelete={() => handleDeleteSection(index)}
+                                                        setRoutineSection={setRoutineSection}
+                                                        index={index}
+                                                    />
+                                                </div>
+
+                                            )}
+                                        </Draggable>
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">{t("No sections added")}</p>
+                                )}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             </div>
 
             {showModal && (
@@ -155,10 +195,10 @@ const EditDailyRoutine = ({}: EditDailyRoutineProps) => {
                 </div>
             )}
             <div className="my-2 mb-6 flex flex-col items-center"
-            onClick={handleEdit}
+                onClick={handleEdit}
             >
                 <div className="w-full flex">
-                    <button 
+                    <button
                         className='w-[120px] md:w-[200px] h-[45px] bg-blueMain rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-ligthBlue hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 mx-4'>
                         {t('Edit')}
                     </button>
@@ -167,12 +207,12 @@ const EditDailyRoutine = ({}: EditDailyRoutineProps) => {
                     <button type='button'
                         onClick={() => dispatch(editModeEnter(false))}
                         className='w-[120px] md:w-[200px] h-[45px] bg-gray-500 rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-gray-400 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 mx-4'>
-                            {t('Cancel')}
+                        {t('Cancel')}
                     </button>
                 </div>
                 <p className="text-center text-red-700 mt-2">{errorMessage}</p>
             </div>
-           
+
         </div>
     )
 }

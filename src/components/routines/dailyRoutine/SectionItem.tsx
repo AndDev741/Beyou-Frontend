@@ -26,8 +26,6 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     const allHabits = useSelector((state: RootState) => state.habits.habits);
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
 
-    console.log(allTasks)
-
     const getMergedItems = () => {
         const tasks = section.taskGroup?.map(item => ({
             type: 'task' as const,
@@ -123,7 +121,6 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     }
 
     const renderItems = () => {
-            console.log("MERGE ITEMS => ", mergedItems)
 
         return mergedItems.map((item, idx) => {
             let itemObj;
@@ -136,7 +133,6 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                 originalIndex = section.habitGroup?.findIndex(h => h.habitId === item.id) ?? -1;
                 itemObj = allHabits.find(habit => habit.id === item.id);
             }
-                            console.log(itemObj)
 
             if (!itemObj) return null;
 

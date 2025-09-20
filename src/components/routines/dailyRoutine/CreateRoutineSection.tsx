@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
 import { RoutineSection } from "../../../types/routine/routineSection";
+import {v4 as uuidv4} from "uuid";
 
 interface CreateRoutineSectionProps {
     setRoutineSection: React.Dispatch<React.SetStateAction<any>>;
@@ -44,10 +45,12 @@ const CreateRoutineSection = ({
 
     const handleCreate = () => {
         const newSection: RoutineSection = {
+            id: uuidv4(),
             name,
             startTime,
             endTime,
             iconId: selectedIcon,
+            order: 0
         };
         setRoutineSection((prev: RoutineSection[]) => [...prev, newSection]);
         setName("");
@@ -61,12 +64,14 @@ const CreateRoutineSection = ({
         console.log("editIndex", editIndex);
         if (onUpdateSection) {
             const updatedSection: RoutineSection = {
+                id: editSection?.id || uuidv4(),
                 name,
                 startTime,
                 endTime,
                 iconId: selectedIcon,
                 taskGroup: editSection?.taskGroup || [],
                 habitGroup: editSection?.habitGroup || [],
+                order: editSection?.order || 0
             };
             onUpdateSection(updatedSection);
         }
