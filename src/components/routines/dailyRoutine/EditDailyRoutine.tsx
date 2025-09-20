@@ -24,12 +24,18 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
     const dispatch = useDispatch();
 
     const routineToEdit = useSelector((state: RootState) => state.editRoutine.routine);
-    const routineNameToEdit = routineToEdit?.name;
-    const routineSectionsToEdit = routineToEdit?.routineSections;
+    console.log("Routine to edit: (INSIDE EDIT)", routineToEdit);
 
-    const [routineName, setRoutineName] = useState<string>(routineNameToEdit || "");
-    const [routineSection, setRoutineSection] = useState<RoutineSection[]>(routineSectionsToEdit || []);
+    const [routineName, setRoutineName] = useState<string>("");
+    const [routineSection, setRoutineSection] = useState<RoutineSection[]>([]);
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        if (routineToEdit) {
+            setRoutineName(routineToEdit.name);
+            setRoutineSection(routineToEdit.routineSections);
+        }
+    }, [routineToEdit]);
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
