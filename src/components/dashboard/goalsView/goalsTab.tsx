@@ -14,9 +14,10 @@ import arrowIncreaseIcon from '../../../assets/arrowIncrease.svg';
 import markGoalAsComplete from "../../../services/goals/markGoalAsComplete";
 import getGoals from "../../../services/goals/getGoals";
 import { useDispatch } from "react-redux";
-import { enterGoals } from "../../../redux/goal/goalsSlice";
+import { enterGoals, updateGoal } from "../../../redux/goal/goalsSlice";
 import increaseCurrentValue from "../../../services/goals/increaseCurrentValue";
 import GoalBox from "../../goals/goalBox";
+import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 
 export default function GoalsTab() {
@@ -24,6 +25,7 @@ export default function GoalsTab() {
     const goals = useSelector((state: RootState) => state.goals.goals);
     const sortedGoals = sortGoalsByTime(goals || []);
     const scrollContainer = useDragScroll();
+    const dispatch = useDispatch();
 
     return (
         <div className="lg:m-4 space-y-4">
@@ -40,11 +42,11 @@ export default function GoalsTab() {
                     onTouchMove={scrollContainer.onTouchMove}
                 >
                     {/* TODO: Traduzir os títulos usando a função t() */}
-                    <GoalSection title="Esta Semana" goals={sortedGoals.thisWeek} />
-                    <GoalSection title="Este Mês" goals={sortedGoals.thisMonth} />
-                    <GoalSection title="Este Ano" goals={sortedGoals.thisYear} />
-                    <GoalSection title="Futuras" goals={sortedGoals.beyond} />
-                    <GoalSection title="Metas Passadas" goals={sortedGoals.past} />
+                    <GoalSection title="Esta Semana" goals={sortedGoals.thisWeek} dispatch={dispatch}/>
+                    <GoalSection title="Este Mês" goals={sortedGoals.thisMonth} dispatch={dispatch}/>
+                    <GoalSection title="Este Ano" goals={sortedGoals.thisYear} dispatch={dispatch}/>
+                    <GoalSection title="Futuras" goals={sortedGoals.beyond} dispatch={dispatch}/>
+                    <GoalSection title="Metas Passadas" goals={sortedGoals.past} dispatch={dispatch} />
                 </div>
             </div>
         </div>
@@ -53,7 +55,7 @@ export default function GoalsTab() {
     );
 }
 
-function GoalSection({ title, goals }: { title: string, goals: goal[] }) {
+function GoalSection({ title, goals, dispatch }: { title: string, goals: goal[], dispatch: Dispatch<UnknownAction> }) {
     if (goals.length === 0) return null;
 
     return (
@@ -78,6 +80,7 @@ function GoalSection({ title, goals }: { title: string, goals: goal[] }) {
                     status={goal.status}
                     term={goal.term}
                     setGoals={() => {}}
+                    dispatchAction={dispatch}
                     readonly={true}
                     />
                 ))}

@@ -3,9 +3,10 @@ import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import { goal } from "../../types/goals/goalType";
 
-async function increaseCurrentValue(id: string, t: TFunction): Promise<goal> {
+
+async function decreaseCurrentValue(id: string, t: TFunction): Promise<goal> {
   try {
-    const response = await axiosWithCredentials.put<goal>(`/goal/increase`, id, {
+    const response = await axiosWithCredentials.put<goal>(`/goal/decrease`, id, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -19,4 +20,4 @@ async function increaseCurrentValue(id: string, t: TFunction): Promise<goal> {
   }
 }
 
-export default increaseCurrentValue;
+export default decreaseCurrentValue;

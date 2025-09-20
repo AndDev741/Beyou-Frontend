@@ -36,8 +36,10 @@ import { ProgressRing } from "../progressRing";
 import { MdOutlineAlbum } from "react-icons/md";
 import { Button } from "../ActionButton";
 import markGoalAsComplete from "../../services/goals/markGoalAsComplete";
-import { enterGoals } from "../../redux/goal/goalsSlice";
+import { enterGoals, updateGoal } from "../../redux/goal/goalsSlice";
 import increaseCurrentValue from "../../services/goals/increaseCurrentValue";
+import decreaseCurrentValue from "../../services/goals/decreaseCurrentValue";
+import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 type GoalBoxProps = {
   id: string;
@@ -56,6 +58,7 @@ type GoalBoxProps = {
   status: string;
   term: string;
   setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
+  dispatchAction?: Dispatch<UnknownAction>;
   readonly?: boolean;
 };
 
@@ -76,7 +79,8 @@ function GoalBox({
   status,
   term,
   setGoals,
-  readonly = false
+  readonly = false,
+  dispatchAction
 }: GoalBoxProps) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -157,9 +161,22 @@ function GoalBox({
   }
 
   const increaseTask = async (id: string) => {
-    await increaseCurrentValue(id, t);
-    const goals = await getGoals(t);
-    dispatch(enterGoals(goals.success));
+    const goal = await increaseCurrentValue(id, t);
+    mountGoalWithNewValues(goal);
+  }
+
+  const decreaseTask = async (id: string) => {
+    const goal = await decreaseCurrentValue(id, t);
+    console.log(goal);
+    mountGoalWithNewValues(goal);
+  }
+
+  const mountGoalWithNewValues = (goal: GoalType) => {
+    if(dispatchAction){
+      dispatchAction(updateGoal(goal));
+    }else{
+      setGoals((prevGoals) => prevGoals.map((g) => (g.id === goal.id ? goal : g))); 
+    }
   }
 
   return (
@@ -206,7 +223,7 @@ function GoalBox({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => increaseTask(id)}
+              onClick={() => decreaseTask(id)}
               disabled={currentValue === 0}
               className="h-8 w-8 p-0"
             >
@@ -233,7 +250,7 @@ function GoalBox({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => markGoalAsComplete(id, t)}
+              onClick={() => completeTask(id)}
               disabled={currentValue === 0}
               className=""
             >

@@ -13,8 +13,14 @@ const goalsSlice = createSlice({
       const goals = action.payload;
       return { ...state, goals };
     },
+    updateGoal(state, action) {
+      return {
+        ...state,
+        goals: state.goals.map(g => g.id === action.payload.id ? action.payload : g)
+      };
+    }
   },
 });
 
-export const { enterGoals } = goalsSlice.actions;
+export const { enterGoals, updateGoal } = goalsSlice.actions;
 export default goalsSlice.reducer;
