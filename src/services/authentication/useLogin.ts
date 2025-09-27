@@ -1,7 +1,7 @@
 //functions
 import loginRequest from "./request/loginRequest";
 //redux
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/dashboard/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/user/perfilSlice";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 //types
 import { TFunction } from "i18next";

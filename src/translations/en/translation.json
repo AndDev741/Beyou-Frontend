@@ -218,5 +218,17 @@
     "Tasks": "Tasks",
     "Fast Tips": "Fast Tips",
     "Worst Area": "Worst Area",
-    "Daily progress phrase": "You can make this day\na great day"
+    "Daily progress phrase": "You can make this day\na great day",
+    "Configuration": "Configuration",
+    "Profile": "Profile",
+    "Your name": "Your name",
+    "PhrasePlaceholder": "Inspire yourself with your phrase",
+    "AuthorPlaceholder": "The author of the phrase",
+    "Phrase": "Phrase",
+    "Author": "Author",
+    "SuccessEditProfile": "Profile edited successfully",
+    "ChangeProfilePhoto": "Change profile photo",
+    "PhotoPreviewInfo": "Photo preview",
+    "ImageURL": "Image URL",
+    "EnterPhotoURL": "Enter photo URL"
 }

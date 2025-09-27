@@ -1,6 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import registerSlice from "./authentication/registerSlice";
-import perfilSlice from './dashboard/perfilSlice';
+import perfilSlice from './user/perfilSlice';
 import editCategorySlice from './category/editCategorySlice';
 import editHabitSlice from './habit/editHabitSlice';
 import errorHandlerSlice from './errorHandler/errorHandlerSlice';

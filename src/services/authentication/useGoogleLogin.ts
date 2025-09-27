@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import googleRequest from "./request/googleRequest";
 //Redux
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/dashboard/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/user/perfilSlice";
 //Types
 import { UserType } from "../../types/user/UserType";
 import { TFunction } from "i18next";

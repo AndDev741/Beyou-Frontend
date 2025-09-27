@@ -216,6 +216,18 @@
     "Tasks": "Tarefas",
     "Fast Tips": "Dicas Rápidas",
     "Worst Area": "Pior Área",
-    "Daily progress phrase": "Você consegue transformar \n este dia em um grande dia"
+    "Daily progress phrase": "Você consegue transformar \n este dia em um grande dia",
+    "Configuration": "Configuração",
+    "Profile": "Perfil",
+    "Your name": "Seu nome",
+    "PhrasePlaceholder": "Inspire a si mesmo com sua frase",
+    "AuthorPlaceholder": "O autor da frase",
+    "Phrase": "Frase",
+    "Author": "Autor",
+    "SuccessEditProfile": "Perfil editado com sucesso",
+    "ChangeProfilePhoto": "Alterar foto de perfil",
+    "PhotoPreviewInfo": "Previsualização da foto",
+    "ImageURL": "URL da imagem",
+    "EnterPhotoURL": "Insira a URL da imagem"
 
 }
