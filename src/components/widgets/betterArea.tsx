@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import iconSearch from "../icons/iconsSearch";
 import { IconObject } from "../../types/icons/IconObject";
 
-type betterAreaProps = {
+export type betterAreaProps = {
     category: category | null;
 }
 

@@ -11,7 +11,7 @@ import { useEffect, useRef } from "react"
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
 
-type dailyProgressProps = {
+export type dailyProgressProps = {
     checked: number
     total: number
 }

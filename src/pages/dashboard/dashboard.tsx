@@ -24,6 +24,7 @@ import category from "../../types/category/categoryType";
 import getCategories from "../../services/categories/getCategories";
 import FastTips from "../../components/widgets/fastTips";
 import WorstArea from "../../components/widgets/worstArea";
+import WidgetsFabric from "../../components/widgets/utils/widgetsFabric";
 
 function Dashboard() {
     useAuthGuard();
@@ -110,21 +111,39 @@ function Dashboard() {
                             <Shortcuts />
 
                             <div className="hidden lg:flex flex-col items-start py-3 mt-7 w-[35vw] mr-3">
-                                <FastTips/>
+                                {/* <FastTips/> */}
+                                <WidgetsFabric widgetId="fastTips" />
                                 <div className="flex justify-between my-3 w-[100%]"> {/* THink in a better way to handle the width */}
-                                    <BetterArea category={categoryWithMoreXp} />
-                                    <WorstArea category={categoryWithLessXp} />
+                                    <WidgetsFabric 
+                                    widgetId="betterArea" 
+                                    category={categoryWithMoreXp} />
+                                    <WidgetsFabric 
+                                    widgetId="worstArea" 
+                                    category={categoryWithLessXp} />
                                 </div>
-                                <DailyProgress checked={checkedItems} total={totalItems} />
+
+                                <WidgetsFabric 
+                                widgetId="dailyProgress" 
+                                checked={checkedItems} 
+                                total={totalItems} />
                             </div>
                         </div>
                     </div>
 
                     {/* Mobile */}
                     <div className="flex items-center justify-evenly py-3 mt-5 lg:hidden">
-                        <BetterArea category={categoryWithMoreXp}/>
-                        <DailyProgress checked={checkedItems} total={totalItems} />
-                        <Constance constance={constance} />
+                        <WidgetsFabric 
+                        widgetId="betterArea" 
+                        category={categoryWithMoreXp} />
+
+                        <WidgetsFabric 
+                        widgetId="dailyProgress" 
+                        checked={checkedItems} 
+                        total={totalItems} />
+
+                        <WidgetsFabric
+                        widgetId="constance" 
+                        constance={constance} />
                     </div>
 
                     <div className="lg:w-[50%]">

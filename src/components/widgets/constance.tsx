@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import BaseDiv from "./baseDiv"
 
-type constanceProps = {
+export type constanceProps = {
     constance: number
 }
 
