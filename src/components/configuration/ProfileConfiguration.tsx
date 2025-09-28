@@ -62,18 +62,18 @@ export default function ProfileConfiguration(){
             <h1 className="text-2xl font-semibold">{t('Profile')}</h1>
             <form className="w-full flex items-center">
                 
-                <div className="w-[30%] flex flex-col items-center mb-10"
+                <div className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10"
                 onClick={() => setEditPhotoModal(true)}>
                     <img src={editPhoto}
                     alt={t('Profile')}
-                    className="w-24 h-24 rounded-full cursor-pointer"/>
+                    className="w-24 h-24 lg:w-32 lg:h-32 rounded-full cursor-pointer"/>
 
                     <label className=" font-medium text-center text-blueMain flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />
                     </label>
                 </div>
 
-                <div className="w-[80%] flex flex-col items-end">
+                <div className="w-[80%] lg:w-[75%] flex flex-col items-end">
                     <label className={labelStyle} htmlFor="name">{t('Name')}</label>
                     <input type="text" placeholder={t('NamePlaceholder')} 
                     value={editName}
