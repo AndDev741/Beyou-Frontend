@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next"
 import BaseDiv from "./baseDiv";
-import category from "../../../types/category/categoryType";
+import category from "../../types/category/categoryType";
 import { useEffect, useState } from "react";
-import iconSearch from "../../icons/iconsSearch";
-import { IconObject } from "../../../types/icons/IconObject";
+import iconSearch from "../icons/iconsSearch";
+import { IconObject } from "../../types/icons/IconObject";
 
 type betterAreaProps = {
     category: category | null;

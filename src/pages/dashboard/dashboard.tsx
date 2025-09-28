@@ -16,14 +16,14 @@ import { enterTodayRoutine } from "../../redux/routine/todayRoutineSlice";
 import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
 import getGoals from "../../services/goals/getGoals";
 import { enterGoals } from "../../redux/goal/goalsSlice";
-import Constance from "../../components/dashboard/widgets/constance";
-import DailyProgress from "../../components/dashboard/widgets/dailyProgress";
+import Constance from "../../components/widgets/constance";
+import DailyProgress from "../../components/widgets/dailyProgress";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
-import BetterArea from "../../components/dashboard/widgets/betterArea";
+import BetterArea from "../../components/widgets/betterArea";
 import category from "../../types/category/categoryType";
 import getCategories from "../../services/categories/getCategories";
-import FastTips from "../../components/dashboard/widgets/fastTips";
-import WorstArea from "../../components/dashboard/widgets/worstArea";
+import FastTips from "../../components/widgets/fastTips";
+import WorstArea from "../../components/widgets/worstArea";
 
 function Dashboard() {
     useAuthGuard();
