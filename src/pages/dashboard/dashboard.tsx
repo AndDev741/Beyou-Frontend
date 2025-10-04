@@ -16,15 +16,11 @@ import { enterTodayRoutine } from "../../redux/routine/todayRoutineSlice";
 import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
 import getGoals from "../../services/goals/getGoals";
 import { enterGoals } from "../../redux/goal/goalsSlice";
-import Constance from "../../components/widgets/constance";
-import DailyProgress from "../../components/widgets/dailyProgress";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
-import BetterArea from "../../components/widgets/betterArea";
 import category from "../../types/category/categoryType";
 import getCategories from "../../services/categories/getCategories";
-import FastTips from "../../components/widgets/fastTips";
-import WorstArea from "../../components/widgets/worstArea";
 import WidgetsFabric from "../../components/widgets/utils/widgetsFabric";
+import { categoryWithLessXpEnter, categoryWithMoreXpEnter, checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
 
 function Dashboard() {
     useAuthGuard();
@@ -32,10 +28,11 @@ function Dashboard() {
     const { t } = useTranslation();
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const constance = useSelector((state: RootState) => state.perfil.constance);
-    const [checkedItems, setCheckedItems] = useState(0);
-    const [totalItems, setTotalItems] = useState(0);
-    const [categoryWithMoreXp, setCategoryWithMoreXp] = useState<category | null>(null);
-    const [categoryWithLessXp, setCategoryWithLessXp] = useState<category | null>(null);
+    const categoryWithMoreXp = useSelector((state: RootState) => state.perfil.categoryWithMoreXp);
+    const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
+    const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
+    const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
+
     console.log("Today Routine: ", routine);
 
 
@@ -62,10 +59,10 @@ function Dashboard() {
                 const categoryWithLessXp = categoriesLoop.reduce((prev, current) => {
                     return (prev.xp < current.xp) ? prev : current;
                 });
-                setCategoryWithMoreXp(categoryWithMoreXp);
-                setCategoryWithLessXp(categoryWithLessXp);
-            }
 
+                dispatch(categoryWithMoreXpEnter(categoryWithMoreXp));
+                dispatch(categoryWithLessXpEnter(categoryWithLessXp));
+            }
         }
         fetchRoutines();
     }, [dispatch, t])
@@ -90,13 +87,14 @@ function Dashboard() {
                 }
                 totalCount++;
             });
-    });
+        });
 
-    // Atualiza apenas uma vez
-    setCheckedItems(checkedCount);
-    setTotalItems(totalCount);
+        // Atualiza apenas uma vez
+        dispatch(checkedItemsInScheduledRoutineEnter(checkedCount));
+        dispatch(totalItemsInScheduledRoutineEnter(totalCount));
 
-}, [routine]);
+    }, [routine]);
+
     return (
         <>
             <div className="">
@@ -124,8 +122,8 @@ function Dashboard() {
 
                                 <WidgetsFabric 
                                 widgetId="dailyProgress" 
-                                checked={checkedItems} 
-                                total={totalItems} />
+                                checked={checkedItemsInScheduledRoutine} 
+                                total={totalItemsInScheduledRoutine} />
                             </div>
                         </div>
                     </div>
@@ -138,8 +136,8 @@ function Dashboard() {
 
                         <WidgetsFabric 
                         widgetId="dailyProgress" 
-                        checked={checkedItems} 
-                        total={totalItems} />
+                        checked={checkedItemsInScheduledRoutine} 
+                        total={totalItemsInScheduledRoutine} />
 
                         <WidgetsFabric
                         widgetId="constance" 
