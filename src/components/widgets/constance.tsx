@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import BaseDiv from "./baseDiv"
 
 export type constanceProps = {
-    constance: number
+    constance: number;
 }
 
 export default function Constance({constance}: constanceProps){

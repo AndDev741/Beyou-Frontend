@@ -4,7 +4,9 @@ import DailyProgress, { dailyProgressProps } from "../dailyProgress";
 import FastTips from "../fastTips";
 import WorstArea, { worstAreaProps } from "../worstArea";
 
-type WidgetProps = {
+export const widgetsIds = ["worstArea", "constance", "betterArea", "dailyProgress", "fastTips"];
+
+export type WidgetProps = {
     betterArea: betterAreaProps;
     constance: constanceProps;
     dailyProgress: dailyProgressProps;
@@ -22,9 +24,10 @@ const widgetMap = {
 
 export default function WidgetsFabric<K extends keyof WidgetProps>({
     widgetId,
+    draggable,
     ...props
-}: {widgetId: K} & WidgetProps[K]){
+}: {widgetId: K, draggable?: boolean} & WidgetProps[K]){
 
     const Component = widgetMap[widgetId];
-    return <Component {...(props as any)} />
+    return <Component {...(props as any)} draggable={draggable} />
 }

@@ -9,7 +9,7 @@ export type betterAreaProps = {
     category: category | null;
 }
 
-export default function BetterArea({category}: betterAreaProps){
+export default function BetterArea({category, ...props}: betterAreaProps){
     const {t} = useTranslation();
     const [Icon, setIcon] = useState<IconObject>();
 
