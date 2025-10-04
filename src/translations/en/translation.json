@@ -230,5 +230,9 @@
     "ChangeProfilePhoto": "Change profile photo",
     "PhotoPreviewInfo": "Photo preview",
     "ImageURL": "Image URL",
-    "EnterPhotoURL": "Enter photo URL"
+    "EnterPhotoURL": "Enter photo URL",
+    "Widgets": "Widgets",
+    "Drag and drop to add": "Drag and drop to add",
+    "Current": "Current",
+    "Availables": "Availables"
 }
