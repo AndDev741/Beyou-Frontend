@@ -5,7 +5,7 @@ import { RootState } from "../../redux/rootReducer";
 import { useState } from "react";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../components/utils/StrictModeDroppable";
-import { set } from "date-fns";
+import { t } from "i18next";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -19,129 +19,156 @@ export default function WidgetsConfiguration() {
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
 
-    console.log("Current Widgets: ", currentWidgets);
-    console.log("Available Widgets: ", availableWidgets);
-
     const handleOnDragEnd = (result: any) => {
-        console.log("result", result);
-        if (result?.destination?.droppableId === "currentWidgets") {
-            console.log("Adding widget", result.draggableId);
-            setCurrentWidgets(prev => {
-                if (prev.includes(result.draggableId)) {
-                    return prev;
-                }
-                return [...prev, result.draggableId];
-            });
-            
-            setAvailableWidgets(prev => prev.filter(id => id !== result.draggableId));
-        } else if (result?.destination?.droppableId === "availableWidgets") {
-            console.log("Removing widget", result.draggableId);
-            setCurrentWidgets(prev => prev.filter(id => id !== result.draggableId));
+        const { source, destination, draggableId } = result;
+        if (!destination) return;
 
-            setAvailableWidgets(prev => {
-                if(prev.includes(result.draggableId)) {
-                    return prev
-                } 
-                return [...prev, result.draggableId];
-            });
+        // 🟡 Drag in the same list
+        if (source.droppableId === destination.droppableId) {
+            if (source.droppableId === "currentWidgets") {
+                setCurrentWidgets(prev => {
+                    const items = Array.from(prev);
+                    const [moved] = items.splice(source.index, 1);
+                    items.splice(destination.index, 0, moved);
+                    return items;
+                });
+            } else if (source.droppableId === "availableWidgets") {
+                setAvailableWidgets(prev => {
+                    const items = Array.from(prev);
+                    const [moved] = items.splice(source.index, 1);
+                    items.splice(destination.index, 0, moved);
+                    return items;
+                });
+            }
         }
-    }
+
+        // 🔵 Drag between different lists
+        else {
+            if (destination.droppableId === "currentWidgets") {
+                setAvailableWidgets(prev => prev.filter(id => id !== draggableId));
+                setCurrentWidgets(prev => {
+                    const items = Array.from(prev);
+                    if (!items.includes(draggableId)) {
+                        items.splice(destination.index, 0, draggableId); // Inserction in the right index
+                    }
+                    return items;
+                });
+            } else if (destination.droppableId === "availableWidgets") {
+                setCurrentWidgets(prev => prev.filter(id => id !== draggableId));
+                setAvailableWidgets(prev => {
+                    const items = Array.from(prev);
+                    if (!items.includes(draggableId)) {
+                        items.splice(destination.index, 0, draggableId);
+                    }
+                    return items;
+                });
+            }
+        }
+    };
+
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-2">
-            <h2 className="text-2xl font-semibold">{t('Widgets')}</h2>
-            <p className="text-gray-500 text-sm">{t('Drag and drop to add')}</p>
+        <div className="w-full h-full flex flex-col justify-start items-start p-4">
+            <h2 className="text-2xl font-semibold mb-1">{t("Widgets")}</h2>
+            <p className="text-gray-500 text-sm mb-4">{t("Drag and drop to add")}</p>
 
             <DragDropContext onDragEnd={handleOnDragEnd}>
-                <h3 className="p-2 text-lg font-medium">{t('Current')}</h3>
-                <Droppable droppableId="currentWidgets">
-                    {(provided) => (
-                        <div className="px-2 flex flex-wrap items-center justify-evenly gap-2 min-h-[100px] w-full"
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                        >
-                            {currentWidgets.map((id, index) => (
-                                <Draggable
-                                    key={id}
-                                    draggableId={id}
-                                    index={index}
-                                >
-                                    {(provided) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            className="flex flex-wrap items-start justify-evenly">
-                                            <div
-                                                {...provided.dragHandleProps}
-                                                className="cursor-grab mt-3 mr-2"
-                                            >
-                                                ⠿
-                                            </div>
-                                            <WidgetsFabric key={id}
-                                                widgetId={id as keyof WidgetProps}
-                                                category={id === 'betterArea' ? categoryWithMoreXp : categoryWithLessXp}
-                                                constance={constance}
-                                                checked={checkedItemsInScheduledRoutine}
-                                                total={totalItemsInScheduledRoutine}
-                                                draggable={true}
-                                            />
-                                        </div>
-                                    )}
-
-                                </Draggable>
-                            ))}
-                            {provided.placeholder}
-
-                        </div>
-                    )}
-                </Droppable>
-
-                <h3 className="p-2 text-lg font-medium">{t('Availables')}</h3>
-                <Droppable droppableId="availableWidgets">
-                    {(provided) => (
-                        <div className="px-2 flex flex-wrap items-center justify-evenly gap-2  min-h-[100px] w-full"
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                        >
-
-                            {availableWidgets.map((id, index) => (
-                                <Draggable
-                                    key={id}
-                                    draggableId={id}
-                                    index={index}
-                                >
-                                    {(provided) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            className="flex flex-wrap items-start justify-evenly">
-                                            <div
-                                                {...provided.dragHandleProps}
-                                                className="cursor-grab mt-3 mr-2"
-                                            >
-                                                ⠿
-                                            </div>
-                                            <WidgetsFabric key={id}
-                                                widgetId={id as keyof WidgetProps}
-                                                category={id === 'betterArea' ? categoryWithMoreXp : categoryWithLessXp}
-                                                constance={constance}
-                                                checked={checkedItemsInScheduledRoutine}
-                                                total={totalItemsInScheduledRoutine}
-                                                draggable={true}
-                                            />
-                                        </div>
-                                    )}
-
-                                </Draggable>
-
-                            ))}
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-
+                <DroppableList
+                    title={t("Current")}
+                    widgets={currentWidgets}
+                    droppableId="currentWidgets"
+                    categoryWithMoreXp={categoryWithMoreXp}
+                    categoryWithLessXp={categoryWithLessXp}
+                    constance={constance}
+                    checked={checkedItemsInScheduledRoutine}
+                    total={totalItemsInScheduledRoutine}
+                />
+                <DroppableList
+                    title={t("Available")}
+                    widgets={availableWidgets}
+                    droppableId="availableWidgets"
+                    categoryWithMoreXp={categoryWithMoreXp}
+                    categoryWithLessXp={categoryWithLessXp}
+                    constance={constance}
+                    checked={checkedItemsInScheduledRoutine}
+                    total={totalItemsInScheduledRoutine}
+                />
             </DragDropContext>
 
+            <div className="flex items-center justify-center w-full">
+                <button
+                    //onClick={onSubmit}
+                    className="px-6 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {t('Save')}
+                </button>
+            </div>
         </div>
-    )
+    );
+}
+
+function DroppableList({
+    title,
+    widgets,
+    droppableId,
+    categoryWithMoreXp,
+    categoryWithLessXp,
+    constance,
+    checked,
+    total,
+}: any) {
+    return (
+        <div className="mb-6 w-full">
+            <h3 className="p-1 text-lg font-medium">{title}</h3>
+            <Droppable droppableId={droppableId} direction={widgets.length > 2 ? "vertical" : "horizontal"}>
+                {(provided, snapshot) => (
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`flex flex-wrap items-center justify-center gap-3 p-1 rounded-xl border-2 border-dashed transition-all ${snapshot.isDraggingOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-gray-50"
+                            }`}
+                    >
+                        {widgets.length === 0 && (
+                            <p className="text-sm text-gray-400 italic">
+                                {title === "Current"
+                                    ? t("No current widgets")
+                                    : t('No widgets available')}
+                            </p>
+                        )}
+
+                        {widgets.map((id: string, index: number) => (
+                            <Draggable key={id} draggableId={id} index={index}>
+                                {(provided, snapshot) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        className={`flex items-start gap-2 transition-transform duration-150
+                      ${snapshot.isDragging ? "scale-105 shadow-lg opacity-90" : "scale-100"}`}
+                                    >
+                                        <div
+                                            {...provided.dragHandleProps}
+                                            className="cursor-grab select-none mt-3 mr-1 text-gray-500"
+                                        >
+                                            ⠿
+                                        </div>
+
+                                        <WidgetsFabric
+                                            key={id}
+                                            widgetId={id as keyof WidgetProps}
+                                            category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                            constance={constance}
+                                            checked={checked}
+                                            total={total}
+                                            draggable
+                                        />
+                                    </div>
+                                )}
+                            </Draggable>
+                        ))}
+                        {provided.placeholder}
+                    </div>
+                )}
+            </Droppable>
+        </div>
+    );
 }

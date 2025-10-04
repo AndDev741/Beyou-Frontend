@@ -234,5 +234,7 @@
     "Widgets": "Widgets",
     "Drag and drop to add": "Drag and drop to add",
     "Current": "Current",
-    "Availables": "Availables"
+    "Availables": "Availables",
+    "No widgets added yet" :"No widgets added yet",
+    "No widgets available": "No widgets available"
 }
