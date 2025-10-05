@@ -234,6 +234,8 @@
     "Current": "Atuais",
     "Availables": "Disponíveis",
     "No widgets added yet" :"Nenhum widget adicionado ainda",
-    "No widgets available": "Nenhum widget disponível"
+    "No widgets available": "Nenhum widget disponível",
+    "NoWidgets": "Nenhum widget, adicione alguns nas configurações",
+    "SuccessEditWidgets": "Widgets editados com sucesso"
 
 }

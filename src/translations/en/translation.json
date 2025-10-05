@@ -236,5 +236,7 @@
     "Current": "Current",
     "Availables": "Availables",
     "No widgets added yet" :"No widgets added yet",
-    "No widgets available": "No widgets available"
+    "No widgets available": "No widgets available",
+    "NoWidgets": "No widgets, add some in the configurations page",
+    "SuccessEditWidgets": "Widgets edited successfully"
 }

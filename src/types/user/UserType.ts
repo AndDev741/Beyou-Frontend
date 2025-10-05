@@ -5,5 +5,6 @@ export type UserType = {
     phrase_author: string,
     constance: number,
     photo: string,
-    isGoogleAccount: boolean
+    isGoogleAccount: boolean,
+    widgetsId: string[],
 }

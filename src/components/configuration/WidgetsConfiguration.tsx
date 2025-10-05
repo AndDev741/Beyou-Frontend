@@ -1,18 +1,27 @@
 import { useTranslation } from "react-i18next";
 import WidgetsFabric, { WidgetProps, widgetsIds } from "../widgets/utils/widgetsFabric";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { useState } from "react";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { t } from "i18next";
+import editWidgets from "../../services/user/editWidgets";
+import { EditUser } from "../../types/user/EditUser";
+import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
 
-    const [currentWidgets, setCurrentWidgets] = useState<string[]>([]);
-    const [availableWidgets, setAvailableWidgets] = useState<string[]>(widgetsIds);
+    const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
 
+    const [currentWidgets, setCurrentWidgets] = useState<string[]>(widgetsIdsInUse);
+    const [availableWidgets, setAvailableWidgets] = useState<string[]>(
+        widgetsIds.filter(id => !currentWidgets.includes(id))
+    );
+    const [successMessage, setSuccessMessage] = useState<string>("");
+
+    const dispatch = useDispatch();
     const constance = useSelector((state: RootState) => state.perfil.constance);
     const categoryWithMoreXp = useSelector((state: RootState) => state.perfil.categoryWithMoreXp);
     const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
@@ -66,6 +75,22 @@ export default function WidgetsConfiguration() {
         }
     };
 
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const editWidget: EditUser = {
+                widgetsId: currentWidgets
+        }
+
+        const response = await editWidgets(editWidget);
+        if (response.error) {
+            console.error(response.error);
+        }else{
+            console.log("Widgets edited successfully");
+            setSuccessMessage(t('SuccessEditWidgets'));
+            dispatch(widgetsIdInUseEnter(currentWidgets));
+        }
+    };
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-4">
@@ -95,13 +120,14 @@ export default function WidgetsConfiguration() {
                 />
             </DragDropContext>
 
-            <div className="flex items-center justify-center w-full">
+            <div className="flex flex-col items-center justify-center w-full">
                 <button
-                    //onClick={onSubmit}
+                    onClick={onSubmit}
                     className="px-6 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {t('Save')}
                 </button>
+                <p className="text-green-600">{successMessage}</p>
             </div>
         </div>
     );

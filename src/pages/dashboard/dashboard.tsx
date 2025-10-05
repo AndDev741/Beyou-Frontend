@@ -19,7 +19,7 @@ import { enterGoals } from "../../redux/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
 import category from "../../types/category/categoryType";
 import getCategories from "../../services/categories/getCategories";
-import WidgetsFabric from "../../components/widgets/utils/widgetsFabric";
+import WidgetsFabric, { WidgetProps } from "../../components/widgets/utils/widgetsFabric";
 import { categoryWithLessXpEnter, categoryWithMoreXpEnter, checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
 
 function Dashboard() {
@@ -27,6 +27,7 @@ function Dashboard() {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
+    const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
     const constance = useSelector((state: RootState) => state.perfil.constance);
     const categoryWithMoreXp = useSelector((state: RootState) => state.perfil.categoryWithMoreXp);
     const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
@@ -112,25 +113,40 @@ function Dashboard() {
                                 {/* <FastTips/> */}
                                 <WidgetsFabric widgetId="fastTips" />
                                 <div className="flex justify-between my-3 w-[100%]"> {/* THink in a better way to handle the width */}
-                                    <WidgetsFabric 
-                                    widgetId="betterArea" 
-                                    category={categoryWithMoreXp} />
-                                    <WidgetsFabric 
-                                    widgetId="worstArea" 
-                                    category={categoryWithLessXp} />
+                                    <WidgetsFabric
+                                        widgetId="betterArea"
+                                        category={categoryWithMoreXp} />
+                                    <WidgetsFabric
+                                        widgetId="worstArea"
+                                        category={categoryWithLessXp} />
                                 </div>
 
-                                <WidgetsFabric 
-                                widgetId="dailyProgress" 
-                                checked={checkedItemsInScheduledRoutine} 
-                                total={totalItemsInScheduledRoutine} />
+                                <WidgetsFabric
+                                    widgetId="dailyProgress"
+                                    checked={checkedItemsInScheduledRoutine}
+                                    total={totalItemsInScheduledRoutine} />
                             </div>
                         </div>
                     </div>
 
                     {/* Mobile */}
-                    <div className="flex items-center justify-evenly py-3 mt-5 lg:hidden">
-                        <WidgetsFabric 
+                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-2 py-3 mt-5 lg:hidden">
+                        {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string, index: number) => (
+                            <WidgetsFabric
+                                key={id}
+                                widgetId={id as keyof WidgetProps}
+                                category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                constance={constance}
+                                checked={checkedItemsInScheduledRoutine}
+                                total={totalItemsInScheduledRoutine}
+                                draggable
+                            />
+                        )) : (
+                            <p className="text-gray-400">{t('NoWidgets')}</p>
+                        )}
+
+
+                        {/* <WidgetsFabric 
                         widgetId="betterArea" 
                         category={categoryWithMoreXp} />
 
@@ -141,7 +157,7 @@ function Dashboard() {
 
                         <WidgetsFabric
                         widgetId="constance" 
-                        constance={constance} />
+                        constance={constance} /> */}
                     </div>
 
                     <div className="lg:w-[50%]">

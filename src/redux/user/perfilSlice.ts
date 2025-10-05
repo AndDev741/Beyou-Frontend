@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import category from "../../types/category/categoryType";
+import { widgetsIds } from "../../components/widgets/utils/widgetsFabric";
 
 type userInitialState = {
     username: string;
@@ -13,6 +14,7 @@ type userInitialState = {
     categoryWithLessXp: category | null;
     checkedItemsInScheduledRoutine: number;
     totalItemsInScheduledRoutine: number;
+    widgetsIdInUse: string[]
 }
 
 const initialState = {
@@ -26,7 +28,8 @@ const initialState = {
     categoryWithMoreXp: null,
     categoryWithLessXp: null,
     checkedItemsInScheduledRoutine: 0,
-    totalItemsInScheduledRoutine: 0
+    totalItemsInScheduledRoutine: 0,
+    widgetsIdsInUse: []
 }
 
 const perfilSlice = createSlice({
@@ -76,6 +79,10 @@ const perfilSlice = createSlice({
         totalItemsInScheduledRoutineEnter(state, action){
             const totalItemsInScheduledRoutine = action.payload;
             return {...state, totalItemsInScheduledRoutine};
+        },
+        widgetsIdInUseEnter(state, action){
+            const widgetsIdsInUse = action.payload;
+            return {...state, widgetsIdsInUse};
         }
     }
 });
@@ -91,7 +98,8 @@ export const {
     categoryWithMoreXpEnter,
     categoryWithLessXpEnter,
     checkedItemsInScheduledRoutineEnter,
-    totalItemsInScheduledRoutineEnter
+    totalItemsInScheduledRoutineEnter,
+    widgetsIdInUseEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

@@ -3,4 +3,5 @@ export type EditUser = {
     photo?: string
     phrase?: string,
     phrase_author?: string
+    widgetsId?: string[]
 }

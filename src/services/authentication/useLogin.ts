@@ -1,7 +1,7 @@
 //functions
 import loginRequest from "./request/loginRequest";
 //redux
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter } from "../../redux/user/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 //types
 import { TFunction } from "i18next";
@@ -50,6 +50,7 @@ export default async function handleLogin (
         setDefaultError(t('WrongPassOrEmailError'));
     }else if(response.success){
         const data = response.success as UserType;
+        console.log(data);
         dispatch(nameEnter(data.name));
         dispatch(emailEnter(data.email));
         dispatch(phraseEnter(data.phrase));
@@ -57,7 +58,7 @@ export default async function handleLogin (
         dispatch(constaceEnter(data.constance));
         dispatch(photoEnter(data.photo));
         dispatch(isGoogleAccountEnter(data.isGoogleAccount));
-        
+        dispatch(widgetsIdInUseEnter(data.widgetsId));
         navigate("/dashboard");
     }
 }
