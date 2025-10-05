@@ -109,22 +109,20 @@ function Dashboard() {
                         <div className="hidden lg:block lg:flex justify-between">
                             <Shortcuts />
 
-                            <div className="hidden lg:flex flex-col items-start py-3 mt-7 w-[35vw] mr-3">
-                                {/* <FastTips/> */}
-                                <WidgetsFabric widgetId="fastTips" />
-                                <div className="flex justify-between my-3 w-[100%]"> {/* THink in a better way to handle the width */}
+                            <div className="hidden lg:flex flex-wrap justify-between items-center py-3 mt-7 w-[35vw] mr-3 gap-4">
+                                {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string, index: number) => (
                                     <WidgetsFabric
-                                        widgetId="betterArea"
-                                        category={categoryWithMoreXp} />
-                                    <WidgetsFabric
-                                        widgetId="worstArea"
-                                        category={categoryWithLessXp} />
-                                </div>
-
-                                <WidgetsFabric
-                                    widgetId="dailyProgress"
-                                    checked={checkedItemsInScheduledRoutine}
-                                    total={totalItemsInScheduledRoutine} />
+                                        key={id}
+                                        widgetId={id as keyof WidgetProps}
+                                        category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                        constance={constance}
+                                        checked={checkedItemsInScheduledRoutine}
+                                        total={totalItemsInScheduledRoutine}
+                                        draggable
+                                    />
+                                )) : (
+                                    <p className="text-gray-400">{t('NoWidgets')}</p>
+                                )}
                             </div>
                         </div>
                     </div>

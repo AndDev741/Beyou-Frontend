@@ -9,8 +9,7 @@ export default function Configuration() {
 
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%]">
                 <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%]">
-                    {/* Wrapper com borda direita apenas em lg */}
-                    <div className="w-full lg:border-r-[1px] lg:border-blueMain lg:pr-4">
+                    <div className="w-full lg:border-blueMain lg:pr-4">
                         <ProfileConfiguration />
                     </div>
 
@@ -18,9 +17,8 @@ export default function Configuration() {
                     <div className="border-b-[1px] w-[100%] border-blueMain mt-2 lg:hidden"></div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%]">
-                    {/* Wrapper com borda direita apenas em lg */}
-                    <div className="w-full lg:border-r-[1px] lg:border-blueMain lg:pr-4">
+                <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%] lg:border-l-[1px] border-blueMain">
+                    <div className="w-full lg:border-blueMain lg:pr-4">
                         <WidgetsConfiguration />
                     </div>
 

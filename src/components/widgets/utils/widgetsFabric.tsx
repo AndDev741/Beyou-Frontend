@@ -29,5 +29,5 @@ export default function WidgetsFabric<K extends keyof WidgetProps>({
 }: {widgetId: K, draggable?: boolean} & WidgetProps[K]){
 
     const Component = widgetMap[widgetId];
-    return <Component {...(props as any)} draggable={draggable} />
+    return <Component {...(props as any)}  />
 }

@@ -79,13 +79,13 @@ export default function WidgetsConfiguration() {
         e.preventDefault();
 
         const editWidget: EditUser = {
-                widgetsId: currentWidgets
+            widgetsId: currentWidgets
         }
 
         const response = await editWidgets(editWidget);
         if (response.error) {
             console.error(response.error);
-        }else{
+        } else {
             console.log("Widgets edited successfully");
             setSuccessMessage(t('SuccessEditWidgets'));
             dispatch(widgetsIdInUseEnter(currentWidgets));
@@ -108,6 +108,7 @@ export default function WidgetsConfiguration() {
                     checked={checkedItemsInScheduledRoutine}
                     total={totalItemsInScheduledRoutine}
                 />
+
                 <DroppableList
                     title={t("Available")}
                     widgets={availableWidgets}
@@ -118,6 +119,7 @@ export default function WidgetsConfiguration() {
                     checked={checkedItemsInScheduledRoutine}
                     total={totalItemsInScheduledRoutine}
                 />
+
             </DragDropContext>
 
             <div className="flex flex-col items-center justify-center w-full">
@@ -146,16 +148,21 @@ function DroppableList({
     return (
         <div className="mb-6 w-full">
             <h3 className="p-1 text-lg font-medium">{title}</h3>
-            <Droppable droppableId={droppableId} direction={widgets.length > 2 ? "vertical" : "horizontal"}>
+            <Droppable
+                droppableId={droppableId}
+                direction={widgets.length > 2 ? "vertical" : "horizontal"}
+                key={`${droppableId}-${widgets.length}`}
+            >
                 {(provided, snapshot) => (
                     <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`flex flex-wrap items-center justify-center gap-3 p-1 rounded-xl border-2 border-dashed transition-all ${snapshot.isDraggingOver ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-gray-50"
-                            }`}
+                        className={`flex flex-wrap items-center justify-center md:justify-between gap-3 p-1 md:p-4 rounded-xl border-2 border-dashed transition-all md:min-h-[150px]
+                        ${snapshot.isDraggingOver ? "border-blue-400 bg-blue-50 min-h-[200px]" : "border-gray-300 bg-gray-50"}
+                        ${snapshot.draggingFromThisWith ? "max-h-[630px]" : ""}`}
                     >
                         {widgets.length === 0 && (
-                            <p className="text-sm text-gray-400 italic">
+                            <p className="text-sm text-gray-400 italic ">
                                 {title === "Current"
                                     ? t("No current widgets")
                                     : t('No widgets available')}
@@ -168,8 +175,10 @@ function DroppableList({
                                     <div
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
-                                        className={`flex items-start gap-2 transition-transform duration-150
-                      ${snapshot.isDragging ? "scale-105 shadow-lg opacity-90" : "scale-100"}`}
+                                        className={`
+                                        ${id === "dailyProgress" || id === "fastTips" ? "md:w-full" : ""}
+                                        flex items-start gap-2 transition-transform duration-150
+                                        ${snapshot.isDragging ? "scale-105 shadow-xl opacity-90" : "scale-100"}`}
                                     >
                                         <div
                                             {...provided.dragHandleProps}
@@ -178,15 +187,18 @@ function DroppableList({
                                             ⠿
                                         </div>
 
-                                        <WidgetsFabric
-                                            key={id}
-                                            widgetId={id as keyof WidgetProps}
-                                            category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
-                                            constance={constance}
-                                            checked={checked}
-                                            total={total}
-                                            draggable
-                                        />
+                                        <div className={`${id === "dailyProgress" || id === "fastTips" ? "md:w-full" : ""}`}>
+                                            <WidgetsFabric
+                                                key={id}
+                                                widgetId={id as keyof WidgetProps}
+                                                category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                                constance={constance}
+                                                checked={checked}
+                                                total={total}
+                                                draggable
+                                            />
+                                        </div>
+
                                     </div>
                                 )}
                             </Draggable>
