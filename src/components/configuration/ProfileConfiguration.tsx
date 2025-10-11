@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { MdClose, MdCreate } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { EditUser } from "../../types/user/EditUser";
 import editUser from "../../services/user/editUser";
 import { useDispatch } from "react-redux";
@@ -26,14 +26,21 @@ export default function ProfileConfiguration() {
 
     const [editPhotoModal, setEditPhotoModal] = useState(false);
     const [successPhrase, setSuccessPhrase] = useState("");
+    const [errorMessage, setErrorMessage] = useState<string>("");
+
     // const [editEmail, setEditEmail] = useState(email);
 
     const labelStyle = "mb-1font-medium text-lg self-start";
     const inputStyle = "border-[1px] border-blueMain rounded-md pl-1 outline-none w-full mb-2";
 
-    const onSubmit = async (e: React.FormEvent) => {
+    const resetErrorAndSuccessMessage = () => {
+        setErrorMessage("");
         setSuccessPhrase("");
+    }
+
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        resetErrorAndSuccessMessage();
 
         const editUserDTO: EditUser = {
             name: editName,
@@ -46,6 +53,7 @@ export default function ProfileConfiguration() {
 
         if (response.error) {
             console.error(response.error);
+            setErrorMessage(t('UnkownError'));
         } else {
             console.log("User edited successfully");
             setSuccessPhrase(t('SuccessEditProfile'));
@@ -56,6 +64,12 @@ export default function ProfileConfiguration() {
             dispatch(photoEnter(editPhoto));
         }
     }
+
+    useEffect(() => {
+        if(successPhrase.length > 0 || errorMessage.length > 0){
+            resetErrorAndSuccessMessage();
+        }
+    }, [editName, editPhoto, editPhrase, editPhraseAuthor])
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-2">

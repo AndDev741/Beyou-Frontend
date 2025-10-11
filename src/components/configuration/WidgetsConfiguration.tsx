@@ -20,6 +20,7 @@ export default function WidgetsConfiguration() {
         widgetsIds.filter(id => !currentWidgets.includes(id))
     );
     const [successMessage, setSuccessMessage] = useState<string>("");
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     const dispatch = useDispatch();
     const constance = useSelector((state: RootState) => state.perfil.constance);
@@ -28,7 +29,13 @@ export default function WidgetsConfiguration() {
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
 
+    const resetErrorAndSuccessMessage = () => {
+        setErrorMessage("");
+        setSuccessMessage("");
+    }
+
     const handleOnDragEnd = (result: any) => {
+        resetErrorAndSuccessMessage();
         const { source, destination, draggableId } = result;
         if (!destination) return;
 
@@ -77,6 +84,7 @@ export default function WidgetsConfiguration() {
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        resetErrorAndSuccessMessage();
 
         const editWidget: EditUser = {
             widgetsId: currentWidgets
@@ -85,6 +93,7 @@ export default function WidgetsConfiguration() {
         const response = await editWidgets(editWidget);
         if (response.error) {
             console.error(response.error);
+            setErrorMessage(t('UnkownError'));
         } else {
             console.log("Widgets edited successfully");
             setSuccessMessage(t('SuccessEditWidgets'));
