@@ -30,7 +30,7 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider = ({children}: {children: ReactNode}) => {
-    const prefersDark = !window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const [theme, setTheme] = useState(
         prefersDark ? defaultDark : defaultLight
     );
