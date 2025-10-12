@@ -1,6 +1,7 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
@@ -14,6 +15,11 @@ module.exports = {
     },
     extend: {
       colors: {
+        background: "var(--background)",
+        primary: "var(--text-primary)",
+        secondary: "var(--text-secondary)",
+        description: "var(--text-description)",
+        
         blueMain: "#0082E1",
         ligthBlue: "#3FA5F2",
         darkBlue: "#0059AB",

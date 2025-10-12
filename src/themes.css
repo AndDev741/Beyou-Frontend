@@ -1,0 +1,13 @@
+:root {
+    --background: #ffffff;
+    --primary: #0082e1;
+    --secondary: #000000;
+    --description: "#7f8b99ff"
+}
+
+.dark {
+    --background: #000000;
+    --primary: #0082e1;
+    --secondary: #ffffff;
+    --description: "#7f8b99ff"
+}

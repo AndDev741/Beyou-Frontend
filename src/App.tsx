@@ -8,24 +8,27 @@ import Goals from "./pages/goals/goals";
 import Tasks from "./pages/tasks/Tasks";
 import Routine from "./pages/routines/routine";
 import Configuration from "./pages/configuration/Configuration";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="font-mainFont">
-        <Routes>
-          <Route path="/" element={<Login/>}/>
-          <Route path="/register" element={<Register/>} />
-          <Route path="/dashboard" element={<Dashboard/>} />
-          <Route path="/categories" element={<Categories/>}/>
-          <Route path="/habits" element={<Habits/>} />
-          <Route path="/goals" element={<Goals/>} />
-          <Route path="/tasks" element={<Tasks/>} />
-          <Route path="/routines" element={<Routine/>} />
-          <Route path="/configuration" element={<Configuration/>} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="font-mainFont">
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/habits" element={<Habits />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/routines" element={<Routine />} />
+            <Route path="/configuration" element={<Configuration />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
