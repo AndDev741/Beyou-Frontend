@@ -60,14 +60,14 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
 
     return (
         <BaseDiv title={t('Daily Progress')} bigSize={true}>
-            <p className="hidden md:block text-blueMain text-lg font-semibold whitespace-pre-line">
+            <p className="hidden md:block text-primary text-lg font-semibold whitespace-pre-line">
                 {t('Daily progress phrase')}
             </p>
-            <p className="text-blueMain text-lg font-semibold">{t('Tasks')}</p>
+            <p className="text-primary text-lg font-semibold">{t('Tasks')}</p>
             <div className="hidden md:block">
                 <canvas ref={chartRef} className="w-full h-[200px]"></canvas>
             </div>
-            <p className="text-blueMain text-lg font-semibold">{checked}/{total}</p>
+            <p className="text-secondary text-lg font-semibold">{checked}/{total}</p>
         </BaseDiv>
     )
 }

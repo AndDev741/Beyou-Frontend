@@ -37,7 +37,7 @@ export function ProgressRing({
           cx={outer / 2}
           cy={outer / 2}
           r={inner / 2}
-          stroke="hsl(var(--progress-bg))"
+          stroke="var(--background)"
           strokeWidth={stroke}
           fill="transparent"
         />
@@ -46,7 +46,7 @@ export function ProgressRing({
           cx={outer / 2}
           cy={outer / 2}
           r={inner / 2}
-          stroke="hsl(var(--progress-fill))"
+          stroke="var(--primary)"
           strokeWidth={stroke}
           fill="transparent"
           strokeDasharray={circumference}
@@ -57,7 +57,7 @@ export function ProgressRing({
       </svg>
       {showText && (
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center font-semibold text-foreground text-center",
+          "absolute inset-0 flex items-center justify-center font-semibold text-foreground text-center text-secondary",
           text
         )}>
           {Math.round(normalizedProgress)}%

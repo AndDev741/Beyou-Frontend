@@ -7,9 +7,9 @@ export default function RoutineDay({routine}: {routine: Routine | null}) {
     if (routine !== null) {
         return (
             <div className="flex flex-col w-full items-center justify-center h-full mt-2.5">
-                <h1 className="text-2xl font-bold mb-4 lg:hidden">{t('Daily Routine')}</h1>
-                <div className="flex flex-col items-center lg:items-start border border-blueMain rounded-md p-4 w-[97%]">
-                    <h2 className="text-2xl font-semibold mb-2 lg:mb-4">
+                <h1 className="text-2xl font-bold mb-4 lg:hidden text-secondary">{t('Daily Routine')}</h1>
+                <div className="flex flex-col items-center lg:items-start border border-primary rounded-md p-4 w-[97%]">
+                    <h2 className="text-2xl font-semibold mb-2 lg:mb-4 text-secondary">
                         {routine.name}
                     </h2>
 
@@ -20,7 +20,7 @@ export default function RoutineDay({routine}: {routine: Routine | null}) {
             </div>
         );
     } else {
-        return <h2 className="text-center mt-12 text-2xl text-blueMain font-semibold">
+        return <h2 className="text-center mt-12 text-2xl text-description font-semibold">
             {t('No Routines Scheduled for today')}
         </h2>;
     }

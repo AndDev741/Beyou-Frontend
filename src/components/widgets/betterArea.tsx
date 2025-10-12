@@ -35,12 +35,12 @@ export default function BetterArea({category, ...props}: betterAreaProps){
                 <h3 className={`text-lg text-blueMain md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{category.name}</h3>
             </div>
             <div className="flex w-[100%]">
-                <div className={`border-[1px] border-darkBlue bg-blueMain h-[15px] rounded-l-xl`}
+                <div className={`border-[1px] border-darkBlue bg-primary h-[15px] rounded-l-xl`}
                 style={{width: `${actualProgress}%`}}></div>
                 <div className={`border-[1px] border-darkBlue bg-white h-[15px] rounded-r-xl`}
                 style={{width: `${100 - actualProgress}%`}}></div>
             </div>
-            <h3>LV {category.level}</h3>
+            <h3 className="text-secondary">LV {category.level}</h3>
         </BaseDiv>
     )
 }

@@ -16,9 +16,10 @@ module.exports = {
     extend: {
       colors: {
         background: "var(--background)",
-        primary: "var(--text-primary)",
-        secondary: "var(--text-secondary)",
-        description: "var(--text-description)",
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
+        description: "var(--description)",
+        icon: "var(--icon)",
         
         blueMain: "#0082E1",
         ligthBlue: "#3FA5F2",

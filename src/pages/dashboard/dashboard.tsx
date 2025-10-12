@@ -98,7 +98,7 @@ function Dashboard() {
 
     return (
         <>
-            <div className="">
+            <div>
                 <div className="lg:flex lg:justify-between items-start">
                     <div className="flex flex-col lg:w-[50%]">
                         <header className="md:flex md:justify-center lg:justify-start ">
@@ -121,7 +121,7 @@ function Dashboard() {
                                         draggable
                                     />
                                 )) : (
-                                    <p className="text-gray-400">{t('NoWidgets')}</p>
+                                    <p className="text-description">{t('NoWidgets')}</p>
                                 )}
                             </div>
                         </div>
@@ -140,22 +140,8 @@ function Dashboard() {
                                 draggable
                             />
                         )) : (
-                            <p className="text-gray-400">{t('NoWidgets')}</p>
+                            <p className="text-description">{t('NoWidgets')}</p>
                         )}
-
-
-                        {/* <WidgetsFabric 
-                        widgetId="betterArea" 
-                        category={categoryWithMoreXp} />
-
-                        <WidgetsFabric 
-                        widgetId="dailyProgress" 
-                        checked={checkedItemsInScheduledRoutine} 
-                        total={totalItemsInScheduledRoutine} />
-
-                        <WidgetsFabric
-                        widgetId="constance" 
-                        constance={constance} /> */}
                     </div>
 
                     <div className="lg:w-[50%]">

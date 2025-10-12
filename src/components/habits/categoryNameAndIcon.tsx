@@ -17,10 +17,10 @@ function CategoryNameAndIcon({iconId, name}: categoryNameAndIconProps){
 
     return(
         <div className="flex items-center">
-            <p className="text-[20px] text-blueMain">
+            <p className="text-[20px] text-icon">
                 {IconComponent !== undefined ? <IconComponent.IconComponent/> : null}
             </p>
-            <p className="ml-1">{name}</p>
+            <p className="ml-1 text-secondary">{name}</p>
         </div>
     )
 }

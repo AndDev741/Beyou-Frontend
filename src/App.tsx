@@ -14,7 +14,7 @@ function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <div className="font-mainFont">
+        <div className="font-mainFont bg-background">
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />

@@ -28,8 +28,8 @@ export default function GoalsTab() {
     const dispatch = useDispatch();
 
     return (
-        <div className="lg:m-4 space-y-4">
-            <h2 className="text-center text-3xl font-semibold lg:text-start">{t('Goals')}</h2>
+        <div className="lg:p-4 space-y-4">
+            <h2 className="text-center text-3xl font-semibold lg:text-start text-secondary">{t('Goals')}</h2>
             <div className="flex overflow-x-auto flex-nowrap space-x-4 pb-4">
                 <div
                     className="flex overflow-x-auto flex-nowrap space-x-4 p-2 active:cursor-grabbing"
@@ -60,7 +60,7 @@ function GoalSection({ title, goals, dispatch }: { title: string, goals: goal[],
 
     return (
         <div className="flex-shrink-0 p-2">
-            <h3 className="text-2xl font-semibold mb-2">{title}</h3>
+            <h3 className="text-2xl font-semibold mb-2 text-secondary">{title}</h3>
             <ul className="space-y-2">
                 {goals.map(goal => (
                     <GoalBox key={goal.id}
@@ -88,114 +88,3 @@ function GoalSection({ title, goals, dispatch }: { title: string, goals: goal[],
         </div>
     );
 }
-
-// function GoalBox({ goal }: { goal: goal }) {
-//     const dispatch = useDispatch();
-//     const { t, i18n } = useTranslation();
-//     const [Icon, setIcon] = useState<IconObject>();
-
-//     const [statusIcon, setStatusIcon] = useState(notStartedIcon);
-//     const [termPhrase, setTermPhrase] = useState("");
-//     const [statusPhrase, setStatusPhrase] = useState("");
-//     useEffect(() => {
-//         const response = iconSearch(goal.iconId);
-//         setIcon(response);
-
-//         switch (goal.term) {
-//             case "SHORT_TERM":
-//                 setTermPhrase(t('Short Term'));
-//                 break;
-//             case "MEDIUM_TERM":
-//                 setTermPhrase(t('Medium Term'));
-//                 break;
-//             case "LONG_TERM":
-//                 setTermPhrase(t('Long Term'));
-//                 break;
-//             default:
-//                 break;
-//         }
-
-//         switch (goal.status) {
-//             case "NOT_STARTED":
-//                 setStatusPhrase(t('Not Started'));
-//                 setStatusIcon(notStartedIcon);
-//                 break;
-//             case "IN_PROGRESS":
-//                 setStatusPhrase(t('In Progress'));
-//                 setStatusIcon(inProgressIcon);
-//                 break;
-//             case "COMPLETED":
-//                 setStatusPhrase(t('Completed'));
-//                 setStatusIcon(completedIcon);
-//                 break;
-//             default:
-//                 break;
-//         }
-
-//     }, [goal.iconId, goal.term, goal.status]);
-
-//     const completeTask = async (id: string) => {
-//         await markGoalAsComplete(id, t);
-//         const goals = await getGoals(t);
-//         dispatch(enterGoals(goals.success));
-//     }
-
-//     const increaseTask = async (id: string) => {
-//         console.log("tessst")
-//         await increaseCurrentValue(id, t);
-//         const goals = await getGoals(t);
-//         dispatch(enterGoals(goals.success));
-//     }
-
-//     return (
-//         <div className="p-4 border border-blueMain rounded-md shadow-sm">
-//             <div className="flex items-center space-x-2">
-//                 <input
-//                     type="checkbox"
-//                     checked={goal.complete}
-//                     onChange={() => completeTask(goal.id)}
-//                     className="accent-[#0082E1] border-blueMain w-7 h-7 rounded-xl cursor-pointer"
-//                 />
-//                 <p className="text-blueMain text-[30px]">
-//                     {Icon !== undefined ? <Icon.IconComponent /> : null}
-//                 </p>
-//                 <div className="font-medium line-clamp-2">{goal.name}</div>
-//             </div>
-
-//             <div className="text-sm text-gray-500 line-clamp-2 my-1.5">{goal.description}</div>
-
-
-//             <div className="w-full flex items-center justify-between my-2">
-//                 <div className="flex flex-col">
-//                     <p className="text-md">{t('Actual Progress')}:</p>
-//                     <div className="flex items-center space-x-2 mt-2">
-//                         <p className="text-gray-600 text-sm">{goal.currentValue} {goal.unit}</p>
-//                         <button
-//                             onClick={() => increaseTask(goal.id)}
-//                         >
-//                             <img src={arrowIncreaseIcon}
-//                                 className="w-[20px] cursor-pointer hover:scale-110"
-//                             />
-//                         </button>
-
-//                     </div>
-//                 </div>
-
-//                 <div className="flex flex-col text-end">
-//                     <p className="text-md">{t('Target Value')}:</p>
-//                     <p className="text-gray-600 text-sm mt-2">{goal.targetValue} {goal.unit}</p>
-//                 </div>
-//             </div>
-
-//             <div className="flex justify-between items-center">
-//                 <p className="font-medium">{termPhrase}</p>
-//                 <div className="flex items-center">
-//                     <img className="w-[30px] mr-1" alt={t('InProgressImgAlt')} src={statusIcon} />
-//                     <p className="font-medium">{statusPhrase}</p>
-//                 </div>
-//             </div>
-
-
-//         </div>
-//     );
-// }

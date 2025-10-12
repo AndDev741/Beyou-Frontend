@@ -180,19 +180,19 @@ function GoalBox({
   }
 
   return (
-    <div className={`flex relative flex-col justify-between border-blueMain border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px] ${readonly ? "min-h-[200px]" : "md:min-h-[262px]"}`}>
+    <div className={`flex relative flex-col justify-between border-primary border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px] ${readonly ? "min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <div className="flex items-start">
-            <p className="text-blueMain text-[34px]">
+            <p className="text-icon text-[34px]">
               {Icon !== undefined ? <Icon.IconComponent /> : null}
             </p>
-            <h2 className={`text-xl ml-1 font-semibold line-clamp-1`}>{title}</h2>
+            <h2 className={`text-xl ml-1 font-semibold line-clamp-1 text-secondary`}>{title}</h2>
           </div>
-          <div className={`line-clamp-2 leading-tight my-1 text-descriptionColor`}>
+          <div className={`line-clamp-2 leading-tight my-1 text-description`}>
             <p>{description}</p>
           </div>
-          <p className="text-darkGray text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
+          <p className="text-description text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
         </div>
         <div className="flex items-center space-x-2">
           <ProgressRing progress={currentValue / targetValue * 100} size="md" className="flex-shrink-0" />
@@ -205,43 +205,43 @@ function GoalBox({
             <>
               <CategoryNameAndIcon key={index}
                 name={category.name} iconId={category.iconId} />
-              <p className={`${index === categories.length - 1 ? "invisible" : "mr-1"}`}>,</p>
+              <p className={`${index === categories.length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
             </>
           ))}
         </div>
       </div>
 
       <div className="flex justify-between">
-        <div className="flex flex-col items-start">
-          <div className="flex items-center gap-1 text-darkGray">
-            <MdOutlineAlbum />
+        <div className="flex flex-col items-start gap-1">
+          <div className="flex items-center gap-1 text-description">
+            <MdOutlineAlbum className="text-icon"/>
             <p>{currentValue}</p>
             <p> / </p>
             <p>{targetValue} {unit}</p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 ">
             <Button
               variant="outline"
               size="sm"
               onClick={() => decreaseTask(id)}
               disabled={currentValue === 0}
-              className="h-8 w-8 p-0"
+              className="h-8 w-10 p-0 border-primary"
             >
-              <p className="text-xl" >-</p>
+              <p className="text-xl text-secondary" >-</p>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => increaseTask(id)}
-              className="h-8 w-8 p-0"
+              className="h-8 w-10 p-0 border-primary"
             >
-              <p className="text-lg" >+</p>
+              <p className="text-lg text-secondary" >+</p>
             </Button>
           </div>
         </div>
-        <div className="flex flex-col items-end">
-          <div className="flex items-center gap-1 text-darkGray">
-            <MdCalendarMonth />
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-1 text-description">
+            <MdCalendarMonth className="text-icon"/>
             <p>{formatDate(startDate.toString())}</p>
             <p>-</p>
             <p>{formatDate(endDate.toString())}</p>
@@ -252,9 +252,9 @@ function GoalBox({
               size="sm"
               onClick={() => completeTask(id)}
               disabled={currentValue === 0}
-              className=""
+              className="border-primary"
             >
-              <p className="text-md" >Mark Complete</p> {/* I STOP HERE */}
+              <p className="text-md text-secondary" >Mark Complete</p> {/* I STOP HERE */}
             </Button>
           </div>
         </div>
@@ -262,10 +262,10 @@ function GoalBox({
       </div>
 
       <div className="flex justify-between items-center mt-2">
-        <p className="text-lg font-medium">{termPhrase}</p>
+        <p className="text-lg font-medium text-secondary">{termPhrase}</p>
         <div className="flex items-center font-medium">
           <img className="w-[30px] mr-1" alt={t('InProgressImgAlt')} src={statusIcon} />
-          <p className="text-lg font-medium">{statusPhrase}</p>
+          <p className="text-lg font-medium text-secondary">{statusPhrase}</p>
         </div>
       </div>
       <div className={`${readonly ? "hidden" : ""} flex justify-between items-center my-2`}>

@@ -94,7 +94,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                     <div className="flex items-center">
                         <input
                             type="checkbox"
-                            className="accent-[#0082E1] border-blueMain w-6 h-6 rounded-xl cursor-pointer"
+                            className="accent-[#0082E1] border-primary w-6 h-6 rounded-xl cursor-pointer"
                             checked={checked}
                             onChange={() => {
                                 const groupToCheck: itemGroupToCheck = {
@@ -117,11 +117,11 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 handleCheck(groupToCheck);
                             }}
                         />
-                        <span className="text-md text-gray-700 ml-2">
+                        <span className="text-md text-secondary ml-2">
                             {itemObj.name}
                         </span>
-                        <span className="mx-2">-</span>
-                        <span className="text-center text-blueMain text-lg">
+                        <span className="mx-2 text-secondary">-</span>
+                        <span className="text-center text-primary text-lg">
                             {item.startTime}
                         </span>
 
@@ -139,9 +139,9 @@ export default function RoutineSection({ section, routineId}: { section: section
     return (
         <div className="flex flex-col items-start justify-center w-full h-full">
             <div className="flex items-center gap-2">
-                {Icon && <span className="text-[30px]"><Icon /></span>}
-                <span className="text-xl font-semibold text-blueMain line-clamp-1">{section.name}
-                    <span className="ml-4 text-lg text-gray-600">
+                {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
+                <span className="text-xl font-bold text-primary line-clamp-1">{section.name}
+                    <span className="ml-4 text-lg text-description">
                         {section.startTime} - {section.endTime}
                     </span>
                 </span>
