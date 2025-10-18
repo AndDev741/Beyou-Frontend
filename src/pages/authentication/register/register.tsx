@@ -12,11 +12,11 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import handleRegister from "../../../services/authentication/handleRegister";
 //Assets
-import personIcon from '../../../assets/authentication/personIcon.svg';
-import emailIcon from '../../../assets/authentication/emailIcon.svg';
-import passwordIcon from '../../../assets/authentication/passwordIcon.svg';
-import eyeOpen from '../../../assets/authentication/eyeOpen.svg';
-import eyeClosed from '../../../assets/authentication/eyeClosed.svg';
+import { ReactComponent as PersonIcon } from "../../../assets/authentication/personIcon.svg";
+import { ReactComponent as EmailIcon } from "../../../assets/authentication/emailIcon.svg";
+import { ReactComponent as PasswordIcon } from "../../../assets/authentication/passwordIcon.svg";
+import { ReactComponent as EyeOpenIcon } from "../../../assets/authentication/eyeOpen.svg";
+import { ReactComponent as EyeClosedIcon } from "../../../assets/authentication/eyeClosed.svg";
 
 function Register(){
     const {t} = useTranslation();
@@ -33,32 +33,31 @@ function Register(){
     const [defaultError, setDefaultError] = useState("");
 
     return(
-        <div className="min-h-[100vh] lg:flex items-center justify-center">
+        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
 
-            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] min-h-[95vh] bg-blueMain rounded-l-md">
+            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] min-h-[95vh] bg-primary rounded-l-md">
                 <Logo/>
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-blueMain lg:rounded-r-md">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
                 <Header />
 
-                <main className="flex flex-col items-center mt-6 lg:mt-2">
+                <main className="flex flex-col items-center mt-6 lg:mt-2 text-secondary">
                     <h1 className="text-center text-[40px] font-bold whitespace-pre-line">
                         {t('Welcome')} {t('To')} 
-                        <span className="text-blueMain"> {t('BeYou')} </span>
+                        <span className="text-primary"> {t('BeYou')} </span>
                     </h1>
 
                     <form onSubmit={(e) => handleRegister(e, name, email, password, t, dispatch, navigate, setNameError, setEmailError, setPasswordError, setDefaultError)}
                     className="flex flex-col items-center mt-8 lg:mt-2  mb-6 lg:mb-3">
 
                         <Input 
-                        icon1={personIcon} 
+                        icon1={PersonIcon} 
                         icon2={null}
                         icon3={null}
                         seePasswordIconAlt={""}
                         placeholder={t('NamePlaceholder')} 
                         inputType={"text"} 
-                        iconAlt={t('EmailIconAlt')}
                         data={name}
                         setData={setName}
                         errorMessage={nameError} />
@@ -66,13 +65,12 @@ function Register(){
                         <div className="my-4 lg:mt-1"></div>
 
                         <Input
-                            icon1={emailIcon}
+                            icon1={EmailIcon}
                             icon2={null}
                             icon3={null}
                             seePasswordIconAlt=""
                             placeholder={t('EmailPlaceholder')}
                             inputType="text"
-                            iconAlt={t('EmailIconAlt')}
                             data={email}
                             setData={setEmail}
                             errorMessage={emailError}
@@ -81,12 +79,11 @@ function Register(){
                         <div className="my-4 lg:mt-1"></div>
 
                         <Input
-                            icon1={passwordIcon}
+                            icon1={PasswordIcon}
                             placeholder={t('PasswordPlaceholder')}
                             inputType="password"
-                            icon2={eyeClosed}
-                            icon3={eyeOpen}
-                            iconAlt={t('PasswordIconAlt')}
+                            icon2={EyeClosedIcon}
+                            icon3={EyeOpenIcon}
                             seePasswordIconAlt={t('EyeToSeePassword')}
                             data={password}
                             setData={setPassword}
@@ -96,12 +93,12 @@ function Register(){
                         <div className="mt-8 lg:mt-4">
                             <Button text={t('ToRegister')}/>
                         </div>
-                        <p className={`${defaultError ? "block text-red-800 underline text-xl text-center" : "hidden"}`}>{defaultError}</p>
+                        <p className={`${defaultError ? "block text-error underline text-xl text-center" : "hidden"}`}>{defaultError}</p>
                     </form>
 
                     <GoogleIcon />
                     
-                    <div className="block lg:hidden my-8">
+                    <div className="block lg:hidden py-8">
                         <TranslationButton/>
                     </div>
                 </main>

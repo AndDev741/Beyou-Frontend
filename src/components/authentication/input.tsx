@@ -1,55 +1,88 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import type { FunctionComponent, SVGProps } from "react";
+
+type IconComponent = FunctionComponent<
+    SVGProps<SVGSVGElement> & { title?: string }
+>;
 
 type InputProps = {
-    icon1: string,
-    placeholder: string,
-    inputType: string,
-    icon2: string | null,
-    icon3: string | null,
-    iconAlt: string,
-    seePasswordIconAlt: string,
-    data: string,
-    setData: React.Dispatch<React.SetStateAction<string>>,
-    errorMessage: string
-}
+    icon1: IconComponent;
+    placeholder: string;
+    inputType: string;
+    icon2: IconComponent | null;
+    icon3: IconComponent | null;
+    seePasswordIconAlt: string;
+    data: string;
+    setData: React.Dispatch<React.SetStateAction<string>>;
+    errorMessage: string;
+};
 
-function Input({icon1, placeholder, inputType, icon2, icon3, iconAlt, seePasswordIconAlt, data, setData, errorMessage}: InputProps){
-    const [InputType, setInputType] = useState(inputType);
-    const [seePasswordIcon, setSeePasswordIcon] = useState(icon2);
+function Input({
+    icon1: IconStart,
+    placeholder,
+    inputType,
+    icon2: IconToggleHidden,
+    icon3: IconToggleVisible,
+    seePasswordIconAlt,
+    data,
+    setData,
+    errorMessage,
+}: InputProps) {
+    const isPasswordField = useMemo(() => inputType === "password", [inputType]);
+    const [currentType, setCurrentType] = useState(inputType);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const handlePasswordType = () => {
-        if(InputType === "password"){
-            setInputType("text");
-            setSeePasswordIcon(icon3);
-        }else{
-            setInputType("password");
-            setSeePasswordIcon(icon2);
-        }
-    }
+        if (!isPasswordField) return;
+        setIsPasswordVisible((prev) => !prev);
+        setCurrentType((prevType) => (prevType === "password" ? "text" : "password"));
+    };
 
-    return(
+    const ShouldRenderToggle = Boolean(IconToggleHidden && IconToggleVisible && isPasswordField);
+
+    return (
         <>
-        <label className={`flex border-2 border-solid border-blueMain rounded-md w-[90vw] lg:w-[100%] h-[64px] 
-            ${errorMessage ? "border-red-600" : ""}`}>
-            <img className="w-[35px] m-2 " 
-            src={icon1}
-            alt={iconAlt}/>
+            <label
+                className={`flex items-center border-2 border-solid rounded-md w-[90vw] lg:w-[100%] h-[64px] bg-background transition-colors duration-200 ${
+                    errorMessage ? "border-error" : "border-primary"
+                }`}
+            >
+                <IconStart
+                    className="w-[35px] m-2 text-icon"
+                    aria-hidden="true"
+                    focusable="false"
+                />
 
-            <input
-            type={InputType}
-            placeholder={placeholder}
-            value={data}
-            onChange={(e) => setData(e.target.value)}
-            className={`w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none`}/>
+                <input
+                    type={currentType}
+                    placeholder={placeholder}
+                    value={data}
+                    onChange={(e) => setData(e.target.value)}
+                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none bg-background text-secondary placeholder:text-description"
+                />
 
-            <img onClick={handlePasswordType}
-            className={`${icon2 || icon3 ? "block mx-4" : "hidden"} w-[35px] cursor-pointer`}
-            src={seePasswordIcon ? seePasswordIcon : ""}
-            alt={seePasswordIconAlt}/>
-        </label>
-        <p className={`${errorMessage ? "block text-red-800 underline text-xl text-center" : "hidden"}`}>{errorMessage}</p>
+                {ShouldRenderToggle && (
+                    <button
+                        type="button"
+                        onClick={handlePasswordType}
+                        aria-label={seePasswordIconAlt}
+                        className="mx-4 flex items-center justify-center"
+                    >
+                        {isPasswordVisible && IconToggleVisible ? (
+                            <IconToggleVisible className="w-[35px] text-icon" aria-hidden="true" focusable="false" />
+                        ) : (
+                            IconToggleHidden && (
+                                <IconToggleHidden className="w-[35px] text-icon" aria-hidden="true" focusable="false" />
+                            )
+                        )}
+                    </button>
+                )}
+            </label>
+            <p className={`${errorMessage ? "block text-error underline text-xl text-center" : "hidden"}`}>
+                {errorMessage}
+            </p>
         </>
-    )
+    );
 }
 
 export default Input;
