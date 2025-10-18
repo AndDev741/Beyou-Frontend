@@ -19,7 +19,7 @@ const defaultDark = {
     description: "#c2c4c7ff",
     icon: "#8cbceeff",
     success: "#22c55e",
-    error: "#f87171"
+    error: "#dc2626"
 }
 
 type ThemeType = typeof defaultLight;

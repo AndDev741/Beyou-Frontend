@@ -54,13 +54,13 @@ export default function GenerateCategoryByAi({setGeneratedCategory}: prop){
       };
 
       return(
-        <div className="flex flex-col items-center">
-            <p className="text-lg text-center text-red-500 my-3">{error}</p>
-            <p className={`${isLoading === true ? "text-center animate-pulse text-xl text-blueMain" : "hidden"}`}>
+        <div className="flex flex-col items-center text-secondary bg-background">
+            <p className="text-lg text-center text-error my-3">{error}</p>
+            <p className={`${isLoading === true ? "text-center animate-pulse text-xl text-primary" : "hidden"}`}>
                 {t("Generating")}...
             </p>
             <div onClick={() => fetchSuggestion()}
-            className="flex items-center justify-center border-[1px] border-blueMain rounded-xl p-2 md:w-[450px] h-[60px] mb-8 mx-8 cursor-pointer hover:scale-105">
+            className="flex items-center justify-center border border-primary rounded-xl p-2 md:w-[450px] h-[60px] mb-8 mx-8 cursor-pointer hover:scale-105 transition-transform duration-200 bg-primary/10 hover:bg-primary/20">
                 <img src={IAImg}
                 alt="ia icon"
                 className="w-[60px] md:w-[70px]"/>

@@ -31,7 +31,7 @@ function RenderCategories({categories, setCategories}: props){
     }, [setCategories, t])
 
     return(
-        <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start">
+        <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start text-secondary">
             {categories.length > 0 ? (
                 categories.map((category) => (
                 <div key={category.id} 
@@ -50,7 +50,7 @@ function RenderCategories({categories, setCategories}: props){
                 </div>
                 ))    
             ) : (
-                <h2 className="text-blueMain font-semibold text-[30px] md:text-[40px] text-center lg:text-start lg:mt-12">{t('0CategoriesMessage')}</h2>
+                <h2 className="text-primary font-semibold text-[30px] md:text-[40px] text-center lg:text-start lg:mt-12">{t('0CategoriesMessage')}</h2>
             )}
         </div>
     )

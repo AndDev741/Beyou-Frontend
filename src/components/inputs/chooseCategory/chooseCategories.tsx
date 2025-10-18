@@ -29,9 +29,9 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
     }, [t])
     return(
         <>
-            <h3 className="text-2xl mt-2 text-center">Categories</h3>
-            <p className='text-red-500 text-lg text-center'>{errorMessage}</p>
-            <div className="flex flex-wrap flex-col items-center w-[95vw] max-h-[200px] md:w-[100%] overflow-x-auto mt-2">
+            <h3 className="text-2xl mt-2 text-center text-secondary">Categories</h3>
+            <p className='text-error text-lg text-center'>{errorMessage}</p>
+            <div className="flex flex-wrap flex-col items-center w-[95vw] max-h-[200px] md:w-[100%] overflow-x-auto mt-2 text-secondary">
                 <div className="flex flex-wrap items-center justify-evenly px-1 mb-2">
                     {categories.length > 0 ? categories.map((category) => (
                         
@@ -50,7 +50,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                     
                     )): (
 
-                    <h1>{t("YouDontHaveCategories")}</h1>
+                    <h1 className="text-primary">{t("YouDontHaveCategories")}</h1>
                     )}
                 </div>
             </div>

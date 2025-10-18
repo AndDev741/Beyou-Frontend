@@ -28,11 +28,11 @@ function IconsBoxSmall({
         setIcons((icons) => iconRender(search, selectedIcon, icons));
     }, [search, selectedIcon]);
 
-    const borderCss = "border-solid border-[1px] border-blueMain rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem]";
-    const labelCss = "text-base md:text-lg";
+    const borderCss = "border border-primary rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-background";
+    const labelCss = "text-base md:text-lg text-secondary";
     return (
         <>
-            <div className='flex items-center justify-start'>
+            <div className='flex items-center justify-start text-secondary'>
                 <label htmlFor='icon-small' className={labelCss}>
                     {t('Icon')}
                 </label>
@@ -41,22 +41,22 @@ function IconsBoxSmall({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     name='icon-small'
-                    className='w-[110px] md:w-[90px] ml-1 pl-1 border-[1px] rounded outline-none text-xs'
+                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-primary rounded outline-none text-xs bg-background text-secondary placeholder:text-description transition-colors duration-200'
                     placeholder={t('IconPlaceholder')}
                 />
             </div>
-            <p className='text-red-500 text-xs'>{iconError}</p>
+            <p className='text-error text-xs'>{iconError}</p>
             <div
-                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} min-h-[180px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[100px]"} p-1`}
+                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-error" : ""} min-h-[180px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[100px]"} p-1`}
             >
                 {icons.map((icon) => (
                     <span
                         onClick={() => setSelectedIcon(icon.name)}
                         key={icon.name}
                         className={`${icon.name === selectedIcon
-                            ? "scale-110 text-blueMain border border-blueMain rounded"
-                            : "text-gray-500"
-                            } text-3xl m-1 hover:text-blueMain hover:scale-105 cursor-pointer`}
+                            ? "scale-110 text-primary border border-primary rounded"
+                            : "text-description"
+                            } text-3xl m-1 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
                     >
                         <icon.IconComponent />
                     </span>

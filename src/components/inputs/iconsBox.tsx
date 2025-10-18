@@ -49,8 +49,8 @@ function IconsBox({
     }, [matches, minLgH, minHSmallScreen]);
 
     const borderCss =
-        "border-solid border-[1px] border-blueMain rounded-md w-[45vw] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-2xl md:text-xl";
+        "border border-primary rounded-md w-[45vw] md:w-[320px] lg:w-[15rem] bg-background";
+    const labelCss = "text-2xl md:text-xl text-secondary";
 
     return (
         <div className="flex flex-col">
@@ -63,14 +63,14 @@ function IconsBox({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     name="icon"
-                    className="w-[30vw] md:w-[190px] ml-1 pl-1 border-[1px] rounded-md outline-none"
+                    className="w-[30vw] md:w-[190px] ml-1 pl-1 border border-primary rounded-md outline-none bg-background text-secondary placeholder:text-description transition-colors duration-200"
                     placeholder={t("IconPlaceholder")}
                 />
             </div>
-            <p className="text-red-500 text-lg">{iconError}</p>
+            <p className="text-error text-lg">{iconError}</p>
 
             <div
-                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-red-500" : ""} p-2`}
+                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-error" : ""} p-2`}
                 style={dynamicStyle}
             >
                 {icons.map((index) => (
@@ -79,9 +79,9 @@ function IconsBox({
                         key={index.name}
                         className={`${
                             index.name === selectedIcon
-                                ? "scale-110 text-blueMain border-2 border-blueMain rounded-md"
-                                : "text-gray-500"
-                        } text-4xl m-1 hover:text-blueMain hover:scale-105 cursor-pointer`}
+                                ? "scale-110 text-primary border-2 border-primary rounded-md"
+                                : "text-description"
+                        } text-4xl m-1 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
                     >
                         <index.IconComponent />
                     </p>

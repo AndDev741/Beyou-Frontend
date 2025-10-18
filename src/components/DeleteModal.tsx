@@ -26,16 +26,16 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
         }
     }
     return(
-        <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-white rounded-md`}>
+        <div className={`${onDelete ? "flex" : "hidden"} flex-col items-center justify-center absolute top-0 left-0 h-[100%] w-[100%] bg-background rounded-md text-secondary border border-primary/20`}>
             <h1 className="text-center font-semibold">{deletePhrase}</h1>
-            <h2 className="underline my-3">{name}</h2>
+            <h2 className="underline my-3 text-description">{name}</h2>
             <div className="flex lg:flex-row flex-col items-center">
                 <button onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-500 lg:mr-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
+                className="bg-error hover:bg-error/90 lg:mr-1 text-white font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
                     {t('Delete')}
                 </button>
                 <button onClick={() => setOnDelete(false)}
-                className="bg-gray-600 hover:bg-gray-500 mt-1 lg:mt-0 lg:ml-1 text-white font-semibold w-[100px] h-[28px] rounded-md">
+                className="bg-secondary/10 hover:bg-secondary/20 mt-1 lg:mt-0 lg:ml-1 text-secondary font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
                     {t('Cancel')}
                 </button>
             </div>

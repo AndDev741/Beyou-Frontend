@@ -21,8 +21,8 @@ function DescriptionInput({description, setDescription, placeholder, description
         .addEventListener('change', e => setMatches( e.matches ));
     }, []);
 
-    const borderCss = `border-solid border-[1px] border-blueMain rounded-md w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
-    const labelCss = "text-2xl md:text-xl";
+    const borderCss = `border border-primary rounded-md w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
+    const labelCss = "text-2xl md:text-xl text-secondary";
     return(
         <>
             <div className="flex flex-col">
@@ -30,14 +30,14 @@ function DescriptionInput({description, setDescription, placeholder, description
                 className={`${labelCss} mt-2`}>
                     {t('Description')}
                 </label>
-                <p className='text-red-500 text-lg'>{descriptionError}</p>
+                <p className='text-error text-lg'>{descriptionError}</p>
                 <textarea
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     name="description"
                     placeholder={t(`${placeholder}`)}
-                    className={`${borderCss} ${descriptionError ? "border-red-500" : ""} outline-none text-lg p-1`}
+                    className={`${borderCss} ${descriptionError ? "border-error" : ""} outline-none text-lg p-1 bg-background text-secondary placeholder:text-description transition-colors duration-200`}
                     style={{
                         minHeight: minH ? `${minH}px` : undefined,
                         height: minH ? `${minH}px` : undefined,

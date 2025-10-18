@@ -13,20 +13,20 @@ type selectorInputProps= {
 }
 
 function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase, t}: selectorInputProps){ 
-    const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-2xl md:text-xl";
+    const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
+    const labelCss = "text-2xl md:text-xl text-secondary";
     return(
         <>
             <label htmlFor='value' 
             className={`${labelCss} mt-2`}>{title}</label>
-            <p className='text-red-500 text-lg'>{errorPhrase}</p>
+            <p className='text-error text-lg'>{errorPhrase}</p>
             <select id='value'
             name='value'
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className={`${borderCss} ${errorPhrase ? "border-red-500" : ""}} h-[50px] text-xl pl-1 outline-none bg-white`}>
-                {valuesToSelect.map(value => (
-                    <option value={value.value}>{value.title}</option>
+            className={`${borderCss} ${errorPhrase ? "border-error" : ""} h-[50px] text-xl pl-1 outline-none bg-background text-secondary transition-colors duration-200`}>
+                {valuesToSelect.map(option => (
+                    <option key={option.value} value={option.value}>{option.title}</option>
                 ))}
             </select>
         </>

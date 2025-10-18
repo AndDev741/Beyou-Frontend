@@ -13,6 +13,7 @@ import * as React from 'react';
 import categoryType from '../../types/category/categoryType';
 import GenericInput from '../inputs/genericInput';
 import SelectorInput from '../inputs/SelectorInput';
+import { CgAddR } from "react-icons/cg";
 
 type props = {
     generatedCategory: categoryGeneratedByAi,
@@ -96,11 +97,9 @@ function CreateCategory({generatedCategory, setCategories}: props){
     }
     
     return(
-        <div>
+        <div className="bg-background">
             <div className='flex items-center justify-center text-3xl font-semibold'>
-                <img className='w-[40px] mr-1'
-                alt={t('CreateCategoryImgAlt')} 
-                src={addIcon}/>
+                <CgAddR className='w-[40px] h-[40px] mr-1'/>
                 <h2>{t('CreateCategory')}</h2>
             </div>
             <form onSubmit={handleCreate} 
@@ -155,8 +154,8 @@ function CreateCategory({generatedCategory, setCategories}: props){
 
                     </div>
                 </div>
-                <div className='flex items-center justify-center mt-6'>
-                <p className='text-red-500 text-lg'>{unknownError}</p>
+                <div className='flex flex-col items-center justify-center mt-6'>
+                <p className='text-error text-lg'>{unknownError}</p>
                     <Button text={t('Create')} />
                 </div>
             </form>

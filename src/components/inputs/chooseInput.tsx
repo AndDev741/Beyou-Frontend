@@ -12,7 +12,7 @@ type chooseInputProps = {
 }
 
 function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: chooseInputProps){
-    const labelCss = "text-2xl md:text-xl";
+    const labelCss = "text-2xl md:text-xl text-secondary";
     const radioRef = useRef<HTMLInputElement>(null);
 
     const handleClick = (value: number) => {
@@ -25,10 +25,10 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
     
     return(
         <>
-            <div className="flex flex-col items-center mt-3 md:w-full">
+            <div className="flex flex-col items-center mt-3 md:w-full text-secondary">
                 <label htmlFor='importance' 
                 className={labelCss}>{t(`${title}`)}</label>
-                <p className='text-red-500 text-lg underline'>{error}</p>
+                <p className='text-error text-lg underline'>{error}</p>
                 <div className="flex flex-row items-center justify-evenly w-[80vw] md:w-[300px] lg:w-[250px] mt-2">
                     {levels.map((level, index) => (
                         <div key={level}
@@ -43,10 +43,10 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
                             id={level}
                             value={index + 1}
                             onClick={() => handleClick(index + 1)}
-                            className="border-0 w-full h-[25px] md:h-[35px]  outline-none" />
+                            className="border-0 w-full h-[25px] md:h-[35px] outline-none accent-primary bg-background" />
                             <label htmlFor={level}
                             
-                            className={`${choosedLevel === (index + 1) ? "text-blueMain" : ""}`}>{level}</label>
+                            className={`${choosedLevel === (index + 1) ? "text-primary" : "text-secondary"}`}>{level}</label>
                         </div>
                     ))}
                     
@@ -57,4 +57,3 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
 }
 
 export default ChooseInput;
-

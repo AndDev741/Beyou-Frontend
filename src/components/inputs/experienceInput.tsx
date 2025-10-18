@@ -8,18 +8,18 @@ type experienceInputProps= {
 }
 
 function ExperienceInput({experience, setExperience, experienceError, t}: experienceInputProps){
-    const borderCss = "border-solid border-[1px] border-blueMain rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-2xl md:text-xl";
+    const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
+    const labelCss = "text-2xl md:text-xl text-secondary";
     return(
         <>
             <label htmlFor='experience' 
             className={`${labelCss} mt-2`}>{t('YourExperience')}</label>
-            <p className='text-red-500 text-lg'>{experienceError}</p>
+            <p className='text-error text-lg'>{experienceError}</p>
             <select id='experience'
             name='experience'
             value={experience}
             onChange={(e) => setExperience(Number(e.target.value))}
-            className={`${borderCss} ${experienceError ? "border-red-500" : ""}} h-[50px] text-xl pl-1 outline-none`}>
+            className={`${borderCss} ${experienceError ? "border-error" : ""} h-[50px] text-xl pl-1 outline-none bg-background text-secondary transition-colors duration-200`}>
                 <option value={0}>{t("Begginer")}</option>
                 <option value={1}>{t('Intermediary')}</option>
                 <option value={2}>{t('Advanced')}</option>

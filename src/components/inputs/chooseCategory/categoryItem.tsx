@@ -51,11 +51,11 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
     }, [categoriesIdList])
 
     const isChosen = alreadyChosen;
-    const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-blueMain rounded-md
-        ${isChosen ? "text-white bg-lightBlue" : ""} 
-        ${alreadyChosen ? "bg-blueMain text-white" : ""}`;
+    const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-primary rounded-md bg-background text-secondary transition-colors duration-200
+        ${isChosen ? "bg-primary text-white" : ""} 
+        ${alreadyChosen ? "bg-primary text-white" : ""}`;
     
-    const iconClasses = `min-w-[30px] text-[30px] text-blueMain 
+    const iconClasses = `min-w-[30px] text-[30px] text-icon 
         ${isChosen ? "text-white" : ""} 
         ${alreadyChosen ? "text-white" : ""}`;
     
