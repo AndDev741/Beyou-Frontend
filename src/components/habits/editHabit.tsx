@@ -13,6 +13,7 @@ import { RootState } from "../../redux/rootReducer";
 import category from "../../types/category/categoryType";
 import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
+import { CgAddR } from "react-icons/cg";
 
 function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -150,11 +151,9 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
     }
 
     return(
-        <div>
+        <div className="bg-background">
             <div className="flex text-3xl items-center justify-center mt-5 mb-3"> 
-                <img src={habitIcon}
-                alt={t("HabitImgAlt")}
-                className="w-[35px] h-[35px] mr-2" />
+                <CgAddR className='w-[40px] h-[40px] mr-1'/>
                 <h1>{t('EditHabit')}</h1>
             </div>
             <form onSubmit={handleEdit} 
@@ -232,18 +231,18 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                     errorMessage={categoriesError}
                     chosenCategories={alreadyChosenCategories}/>
                 </div>
-                <p className='text-red-500 text-lg text-center'>{unknownError}</p>
+                <p className='text-error text-lg text-center'>{unknownError}</p>
                 <div className='flex w-full items-center justify-evenly my-6'>
                     <div>
                         <button type='button'
                         onClick={handleCancel}
-                        className='w-[120px] md:w-[200px] h-[45px] bg-gray-500 rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-gray-400 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
+                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold bg-secondary/10 text-secondary hover:bg-secondary/20 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border-primary border-[1px]'>
                             {t('Cancel')}
                         </button>
                     </div>
                     <div>
                         <button 
-                        className='w-[120px] md:w-[200px] h-[45px] bg-blueMain rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-ligthBlue hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
+                        className='w-[120px] md:w-[200px] h-[45px] bg-primary rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
                             {t('Edit')}
                         </button>
                     </div>
@@ -254,7 +253,6 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
 }
 
 export default EditHabit;
-
 
 
 

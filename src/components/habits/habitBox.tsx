@@ -80,10 +80,10 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
     }
 
     return(
-        <div className={`relative flex flex-col justify-between w-[46vw] md:w-[350px] lg:w-[230px] ${expanded ? "min-h-[300px]" : "min-h-[150px]"} border-blueMain border-[1px] rounded-md p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out`}>
+        <div className={`relative flex flex-col justify-between w-[46vw] md:w-[350px] lg:w-[230px] ${expanded ? "min-h-[300px]" : "min-h-[150px]"} border border-primary rounded-md p-3 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary shadow-sm`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
-                    <p className="text-blueMain text-[34px]">
+                    <p className="text-icon text-[34px]">
                         {Icon !== undefined ? <Icon.IconComponent/> : null}
                     </p>
                     <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
@@ -94,7 +94,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                 onClick={handleExpanded}/>
             </div>
 
-            <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight`}>
+            <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight text-description`}>
                 <p>{description}</p>
             </div>
 
@@ -110,7 +110,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
 
             <div className={`${expanded ? "flex flex-col" : "hidden"}`}>
                 <h4 className="font-semibold text-lg">{t('UsingIn')}:</h4>
-                <ul className="ml-6">
+                <ul className="ml-6 text-description">
                     <li className="list-disc">Study Routine</li>
                     <li className="list-disc">Morning Routine</li>
                 </ul>
@@ -118,7 +118,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
 
             <div className={`${expanded && motivationalPhrase ? "flex flex-col" : "hidden"}`}>
                 <h4 className="font-semibold text-md">{t('MotivationPhrase')}:</h4>
-                <p>{motivationalPhrase}</p>
+                <p className="text-description">{motivationalPhrase}</p>
             </div>
 
             <div className={`${expanded ? "flex" : "hidden"} justify-evenly items-center`}>
@@ -146,12 +146,12 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
             <div className={`${expanded ? "flex" : "hidden"} flex-col mb-1`}>
                 <div className="flex justify-between">
                     <p>Level {level}</p>
-                    <p><span className="text-blueMain">{xp}</span>/{nextLevelXp}</p>
+                    <p><span className="text-primary">{xp}</span>/{nextLevelXp}</p>
                 </div>
                 <div className="flex w-[100%]">
-                    <div className={`border-[1px] border-darkBlue bg-blueMain h-[15px] rounded-l-xl`}
+                    <div className="border border-primary bg-primary h-[15px] rounded-l-xl"
                     style={{width: `${actualProgress}%`}}></div>
-                    <div className={`border-[1px] border-darkBlue bg-ligthGray  h-[15px] rounded-r-xl`}
+                    <div className="border border-primary/40 bg-description/20 h-[15px] rounded-r-xl"
                     style={{width: `${100 - actualProgress}%`}}></div>
                 </div>
             </div>
@@ -164,7 +164,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                     </div>
 
                     <div>
-                        <p><span className="text-blueMain">{xp}</span>/{nextLevelXp}xp</p>
+                        <p><span className="text-primary">{xp}</span>/{nextLevelXp}xp</p>
                     </div>
                 </div>
 
@@ -181,12 +181,14 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                  
             </div>
             <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
-                <button onClick={handleEditMode}
-                className="bg-blueMain mb-2 hover:bg-ligthBlue text-white font-semibold w-[100px] h-[28px] rounded-md">
+                <button
+                onClick={handleEditMode}
+                className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[110px] h-[32px] rounded-md transition-colors duration-200">
                     {t('Edit')}
                 </button>
-                <button onClick={() => setOnDelete(true)}
-                className="bg-red-600 hover:bg-red-500 text-white font-semibold w-[90px] h-[25px] rounded-md">
+                <button
+                onClick={() => setOnDelete(true)}
+                className="bg-error hover:bg-error/90 text-white font-semibold w-[110px] h-[32px] rounded-md transition-colors duration-200">
                     {t('Delete')}
                 </button>
                 <DeleteModal

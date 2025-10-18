@@ -11,6 +11,7 @@ import ExperienceInput from "../inputs/experienceInput";
 import createHabit from "../../services/habits/createHabit";
 import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
+import { CgAddR } from "react-icons/cg";
 
 function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -35,7 +36,6 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
     const [unknownError, setUnknownError] = useState("");
     
     const [search, setSearch] = useState("");
-    console.log("habitCreate", search)
 
     const scrollToTop = () => {
         window.scrollTo({
@@ -120,11 +120,9 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
     }
 
     return(
-        <div>
+        <div className="bg-background">
             <div className="flex text-3xl items-center justify-center mt-3 mb-3"> 
-                <img src={habitIcon}
-                alt={t("HabitImgAlt")}
-                className="w-[35px] h-[35px] mr-2" />
+                <CgAddR className='w-[40px] h-[40px] mr-1'/>
                 <h1>{t('CreateHabit')}</h1>
             </div>
             <form  onSubmit={handleCreateHabit}
@@ -206,7 +204,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                     errorMessage={categoriesError}
                     chosenCategories={null}/>
                 </div>
-                <p className='text-red-500 text-lg text-center'>{unknownError}</p>
+                <p className='text-error text-lg text-center'>{unknownError}</p>
                 <div className="mb-3">
                     <Button text={t("Create")}/>
                 </div>

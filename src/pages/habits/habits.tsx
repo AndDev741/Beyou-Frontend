@@ -15,13 +15,13 @@ function Habits(){
     const [habits, setHabits] = useState<habit[]>([]);
 
     return(
-        <div className="lg:flex flex-col items-center w-full">
+        <div className="bg-background min-h-screen text-secondary flex flex-col">
             <Header pageName={"YourHabits"} />
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] lg:p-2 lg:pr-4">
-                <div className="">
+            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] lg:px-6 lg:py-4 gap-6">
+                <div className="w-full lg:w-[60%]">
                     <RenderHabits habits={habits} setHabits={setHabits}/>
                 </div>
-                <div>
+                <div className="w-full lg:w-[40%] flex flex-col gap-4">
                     <div className={`${isEditMode ? "hidden" : "block"}`}>
                         <CreateHabit setHabits={setHabits}/>
                     </div>
