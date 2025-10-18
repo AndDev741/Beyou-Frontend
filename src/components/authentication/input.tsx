@@ -58,7 +58,7 @@ function Input({
                     placeholder={placeholder}
                     value={data}
                     onChange={(e) => setData(e.target.value)}
-                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none bg-background text-secondary placeholder:text-description"
+                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none bg-background text-secondary placeholder:text-placeholder"
                 />
 
                 {ShouldRenderToggle && (

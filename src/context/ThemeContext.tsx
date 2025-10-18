@@ -7,6 +7,7 @@ const defaultLight = {
     secondary: "#000000",
     description: "#616366ff",
     icon: "#4a4f55ff",
+    placeholder: "#9ca3afff",
     success: "#16a34a",
     error: "#dc2626"
 }
@@ -18,6 +19,7 @@ const defaultDark = {
     secondary: "#e7e0e0ff",
     description: "#c2c4c7ff",
     icon: "#8cbceeff",
+    placeholder: "#71717aff",
     success: "#22c55e",
     error: "#dc2626"
 }
@@ -34,7 +36,7 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider = ({children}: {children: ReactNode}) => {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = !window.matchMedia("(prefers-color-scheme: dark)").matches;
     const [theme, setTheme] = useState(
         prefersDark ? defaultDark : defaultLight
     );
@@ -51,6 +53,7 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
         root.style.setProperty("--secondary", theme.secondary);
         root.style.setProperty("--description", theme.description);
         root.style.setProperty("--icon", theme.icon);
+        root.style.setProperty("--placeholder", theme.placeholder);
         root.style.setProperty("--success", theme.success);
         root.style.setProperty("--error", theme.error);
     }, [theme]);
@@ -64,4 +67,3 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
 }
 
 export const useTheme = () => useContext(ThemeContext);
-

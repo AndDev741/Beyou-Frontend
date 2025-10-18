@@ -37,7 +37,7 @@ function DescriptionInput({description, setDescription, placeholder, description
                     onChange={(e) => setDescription(e.target.value)}
                     name="description"
                     placeholder={t(`${placeholder}`)}
-                    className={`${borderCss} ${descriptionError ? "border-error" : ""} outline-none text-lg p-1 bg-background text-secondary placeholder:text-description transition-colors duration-200`}
+                    className={`${borderCss} ${descriptionError ? "border-error" : ""} outline-none text-lg p-1 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200`}
                     style={{
                         minHeight: minH ? `${minH}px` : undefined,
                         height: minH ? `${minH}px` : undefined,

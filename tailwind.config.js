@@ -20,6 +20,7 @@ module.exports = {
         secondary: "var(--secondary)",
         description: "var(--description)",
         icon: "var(--icon)",
+        placeholder: "var(--placeholder)",
         success: "var(--success)",
         error: "var(--error)",
         

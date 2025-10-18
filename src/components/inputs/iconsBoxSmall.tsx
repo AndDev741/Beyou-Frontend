@@ -41,7 +41,7 @@ function IconsBoxSmall({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     name='icon-small'
-                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-primary rounded outline-none text-xs bg-background text-secondary placeholder:text-description transition-colors duration-200'
+                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-primary rounded outline-none text-xs bg-background text-secondary placeholder:text-placeholder transition-colors duration-200'
                     placeholder={t('IconPlaceholder')}
                 />
             </div>

@@ -92,7 +92,7 @@ const CreateRoutineSection = ({
                             placeholder={t("Cozy Morning")}
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            className="block w-full mt-1 border-2 border-[#0082E1] rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-sm"
+                            className="block w-full mt-1 border-2 border-[#0082E1] rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
                         />
                     </label>
                     <label className="font-medium">
