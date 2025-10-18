@@ -6,7 +6,9 @@ const defaultLight = {
     primary: "#0082e1",
     secondary: "#000000",
     description: "#616366ff",
-    icon: "#4a4f55ff"
+    icon: "#4a4f55ff",
+    success: "#16a34a",
+    error: "#dc2626"
 }
 
 const defaultDark = {
@@ -15,7 +17,9 @@ const defaultDark = {
     primary: "#0082e1",
     secondary: "#e7e0e0ff",
     description: "#c2c4c7ff",
-    icon: "#8cbceeff"
+    icon: "#8cbceeff",
+    success: "#22c55e",
+    error: "#f87171"
 }
 
 type ThemeType = typeof defaultLight;
@@ -46,7 +50,9 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
         root.style.setProperty("--primary", theme.primary);
         root.style.setProperty("--secondary", theme.secondary);
         root.style.setProperty("--description", theme.description);
-        root.style.setProperty("--icon", theme.icon)
+        root.style.setProperty("--icon", theme.icon);
+        root.style.setProperty("--success", theme.success);
+        root.style.setProperty("--error", theme.error);
     }, [theme]);
 
     return (
@@ -58,5 +64,4 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
 }
 
 export const useTheme = () => useContext(ThemeContext);
-
 

@@ -20,6 +20,8 @@ module.exports = {
         secondary: "var(--secondary)",
         description: "var(--description)",
         icon: "var(--icon)",
+        success: "var(--success)",
+        error: "var(--error)",
         
         blueMain: "#0082E1",
         ligthBlue: "#3FA5F2",
