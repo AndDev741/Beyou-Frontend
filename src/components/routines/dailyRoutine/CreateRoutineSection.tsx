@@ -85,34 +85,34 @@ const CreateRoutineSection = ({
             </h2>
             <div className="flex gap-4">
                 <div className="flex-1 flex flex-col gap-4">
-                    <label className="font-medium">
+                    <label className="font-medium text-secondary">
                         {t("name")}
                         <input
                             type="text"
                             placeholder={t("Cozy Morning")}
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            className="block w-full mt-1 border-2 border-[#0082E1] rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
+                            className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
                         />
                     </label>
-                    <label className="font-medium">
+                    <label className="font-medium text-secondary">
                         {t("Start time")}
                         <input
                             type="time"
                             placeholder={"06:00"}
                             value={startTime}
                             onChange={e => setStartTime(e.target.value)}
-                            className="block w-full mt-1 border-2 border-[#0082E1] rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
                         />
                     </label>
-                    <label className="font-medium">
+                    <label className="font-medium text-secondary">
                         {t("End time")}
                         <input
                             type="time"
                             placeholder={"12:00"}
                             value={endTime}
                             onChange={e => setEndTime(e.target.value)}
-                            className="block w-full mt-1 border-2 border-[#0082E1] rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                            className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
                         />
                     </label>
                 </div>
@@ -128,7 +128,7 @@ const CreateRoutineSection = ({
                     {editSection ? (
                         <button
                             type="button"
-                            className="mt-6 px-6 py-2 bg-blueMain text-white rounded-md font-semibold shadow transition hover:bg-blue-700"
+                            className="mt-6 px-6 py-2 bg-primary text-background dark:text-secondary rounded-md font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
                             onClick={handleUpdate}
                         >
                             {t("Edit")}
@@ -136,7 +136,7 @@ const CreateRoutineSection = ({
                     ) : (
                         <button
                             type="button"
-                            className="mt-6 px-6 py-2 bg-blueMain text-white rounded-md font-semibold shadow transition hover:bg-blue-700"
+                            className="mt-6 px-6 py-2 bg-primary text-background dark:text-secondary rounded-md font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
                             onClick={handleCreate}
                         >
                             {t("Create")}

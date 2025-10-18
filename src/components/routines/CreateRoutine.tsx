@@ -15,20 +15,20 @@ const CreateRoutine = ({ setRoutineType, routineType }: createRoutineProps) => {
     const { t } = useTranslation();
 
     return (
-        <div className='w-full w-full flex flex-col items-center justify-center'>
+        <div className='w-full flex flex-col items-center justify-center text-secondary'>
             {!routineType && (
                 <div className='w-full flex flex-col items-center justify-center'>
-                    <h2 className='text-2xl'>{t('Do you want a')}</h2>
+                    <h2 className='text-2xl text-secondary'>{t('Do you want a')}</h2>
 
                     <div className='w-full flex items-center justify-evenly mt-5'>
                         <div className='flex flex-col items-center justify-center'>
-                            <h3 className='text-lg mb-2'>{t('Daily Routine')}</h3>
+                            <h3 className='text-lg mb-2 text-secondary'>{t('Daily Routine')}</h3>
                             <div>
                                 <DailyRoutineExample setRoutineType={setRoutineType} />
                             </div>
                         </div>
                         <div className='flex flex-col items-center justify-center'>
-                            <h3 className='text-lg mb-2'>{t('Todo Routine')}</h3>
+                            <h3 className='text-lg mb-2 text-secondary'>{t('Todo Routine')}</h3>
                             <div>
                                 <TodoRoutineExample />
                             </div>

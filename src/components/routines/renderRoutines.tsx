@@ -37,46 +37,46 @@ export default function RenderRoutines() {
     }
 
     return (
-        <div className="w-full flex flex-col items-center justify-center">
+        <div className="w-full flex flex-col items-center justify-center text-secondary">
             {routines.length > 0 && routines.map((routine, index) => (
-                <div key={index} className="flex p-4 mb-4 w-[90%] bg-white rounded-md border-[2px] border-blueMain shadow">
+                <div key={index} className="flex p-4 mb-4 w-[90%] bg-background rounded-md border-[2px] border-primary shadow transition-colors duration-200">
                     <div className="w-full flex flex-col items-start justify-center">
                         <div>
-                            <h2 className="text-xl font-bold">{routine.name}</h2>
-                            <p className="text-gray-500 my-1">{routine?.type === "DIARY" ? "Diary Routine" : "Diary Routine"}</p>
+                            <h2 className="text-xl font-bold text-secondary">{routine.name}</h2>
+                            <p className="text-description my-1">{routine?.type === "DIARY" ? "Diary Routine" : "Diary Routine"}</p>
                         </div>
                         <div className=" flex p-1">
-                            <button className={`${confirmDelete !== routine.id ? "text-[25px] text-blueMain cursor-pointer hover:text-[27px]" : "hidden"}`}
+                            <button className={`${confirmDelete !== routine.id ? "text-[25px] text-primary cursor-pointer hover:text-primary/80" : "hidden"}`}
                                 onClick={() => handleEdit(routine)}
                             >
                                 <FaRegEdit />
                             </button>
 
-                            <button className={`${confirmDelete !== routine.id ? "text-[25px] ml-4 text-red-600 cursor-pointer hover:text-[27px]" : "hidden"}`}
+                            <button className={`${confirmDelete !== routine.id ? "text-[25px] ml-4 text-error cursor-pointer hover:text-error/80" : "hidden"}`}
                                 onClick={() => setConfirmDelete(routine.id!)}
                             >
                                 <FaRegTrashAlt />
                             </button>
 
                             <div className={`${confirmDelete === routine.id ? "flex items-center justify-center" : "hidden"}`}>
-                                <p className="text-red-600 text-lg">{t("Confirm Deletion")}</p>
-                                <button className="text-red-600 ml-3"
+                                <p className="text-error text-lg">{t("Confirm Deletion")}</p>
+                                <button className="text-error ml-3 hover:underline"
                                     onClick={() => handleDelete(routine.id!)}>{t("Yes")}</button>
-                                <button className="text-blueMain ml-6"
+                                <button className="text-primary ml-6 hover:underline"
                                     onClick={() => setConfirmDelete("")}>{t("No")}</button>
                             </div>
 
                         </div>
                     </div>
-                    <div className="flex flex-col items-center justify-start cursor-pointer">
+                    <div className="flex flex-col items-center justify-start cursor-pointer w-[50%]">
                         <p
-                            className="text-[30px] text-blue-600 cursor-pointer hover:text-[32px]"
+                            className="text-[30px] text-primary cursor-pointer hover:text-primary/80 transition-colors duration-200 hover:scale-105s"
                             onClick={() => handleSchedule(routine)}
                         >
                             <FaRegClock />
                         </p>
-                        <p className="mt-1">{t("Schedule")}</p>
-                        <p className="line-clamp-1 text-center text-gray-500 text-sm">
+                        <p className="mt-1 text-secondary">{t("Schedule")}</p>
+                        <p className="line-clamp-1 text-center text-description text-sm">
                             {routine.schedule ? routine.schedule.days.join(", ") : null}
                         </p>
                     </div>
@@ -86,7 +86,7 @@ export default function RenderRoutines() {
 
             {routines.length === 0 && (
                 <div className="w-full flex items-center justify-center p-4">
-                    <p className="text-gray-800 text-center">{t("No routines available, start create some to track you tasks!")}</p>
+                    <p className="text-secondary text-center">{t("No routines available, start create some to track you tasks!")}</p>
                 </div>
             )}
 

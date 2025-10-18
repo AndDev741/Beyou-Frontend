@@ -16,6 +16,7 @@ import RenderRoutines from "../../components/routines/renderRoutines";
 import { RootState } from "../../redux/rootReducer";
 import { editModeEnter } from "../../redux/routine/editRoutineSlice";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
+import { CgAddR } from "react-icons/cg";
 
 const Routine = () => {
     const { t } = useTranslation();
@@ -42,9 +43,9 @@ const Routine = () => {
     }, []);
 
     return (
-        <>
-            <Header pageName={t("Your Routines")} />
-            <main className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between h-screen mt-8">
+        <div className="bg-background text-secondary min-h-screen">
+            <Header pageName="Your Routines" />
+            <main className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between min-h-[80vh] mt-8">
 
                 <div className="w-full lg:w-[50%]">
                     <RenderRoutines />
@@ -59,11 +60,9 @@ const Routine = () => {
                             />
 
                             {onCreateRoutine && (
-                                <div className='flex mt-6'>
-                                    <img src={routineIcon}
-                                        alt={t('Routines icon alt')}
-                                        className="w-9 h-9 mr-2" />
-                                    <h1 className='text-3xl font-semibold'>{t("Create routine")}</h1>
+                                <div className='flex items-center mt-6'>
+                                    <CgAddR className='w-[30px] h-[30px] mr-1'/>                          
+                                    <h1 className='text-3xl font-semibold text-secondary'>{t("Create routine")}</h1>
                                 </div>
                             )}
 
@@ -81,7 +80,7 @@ const Routine = () => {
                     )}
                 </div>
             </main>
-        </>
+        </div>
     );
 };
 

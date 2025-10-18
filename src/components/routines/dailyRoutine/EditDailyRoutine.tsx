@@ -16,6 +16,7 @@ import { editModeEnter } from "../../../redux/routine/editRoutineSlice";
 import editRoutine from "../../../services/routine/editRoutine";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
+import { CgAddR } from "react-icons/cg";
 
 type EditDailyRoutineProps = {}
 
@@ -103,16 +104,16 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
     }
 
     return (
-        <div className="w-full flex flex-col items-center justify-center">
-            <h2 className='text-2xl'>{t("Editing daily routine")}</h2>
+        <div className="w-full flex flex-col items-center justify-center text-secondary">
+            <h2 className='text-2xl text-secondary'>{t("Editing daily routine")}</h2>
 
-            <div className="relative w-[95%] flex flex-col items-center justify-start border-2 border-blueMain rounded-lg p-3 mt-4 bg-white shadow-sm min-h-[400px]">
+            <div className="relative w-[95%] flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
 
                 <input
                     type="text"
                     value={routineName}
                     onChange={e => setRoutineName(e.target.value)}
-                    className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-blueMain rounded-none text-2xl font-semibold text-center focus:outline-none"
+                    className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
                     placeholder={t("Routine name")}
                 />
 
@@ -120,12 +121,8 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                     className="absolute top-3 right-3 flex flex-col items-center"
                     onClick={() => { setShowModal(true); setEditIndex(null); }}
                 >
-                    <img
-                        src={AddIcon}
-                        alt={t('Routines icon alt')}
-                        className="w-8 h-8"
-                    />
-                    <span className='text-sm text-center font-medium mt-1 whitespace-pre-line'>
+                    <CgAddR className='w-[30px] h-[30px] mr-1'/>    
+                    <span className='text-sm text-center font-medium mt-1 whitespace-pre-line text-secondary'>
                         {t("add section")}
                     </span>
                 </button>
@@ -134,7 +131,7 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="sections">
                         {(provided) => (
-                            <div className="w-full flex flex-col items-center justify-start mt-5"
+                            <div className="w-full flex flex-col items-center justify-start mt-5 text-secondary"
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >
@@ -152,7 +149,7 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                                                 className="flex items-start w-full">
                                                     <div
                                                         {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 mr-2"
+                                                        className="cursor-grab mt-3 mr-2 text-icon"
                                                     >
                                                         ⠿
                                                     </div>
@@ -169,7 +166,7 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                                         </Draggable>
                                     ))
                                 ) : (
-                                    <p className="text-gray-500">{t("No sections added")}</p>
+                                    <p className="text-description">{t("No sections added")}</p>
                                 )}
                                 {provided.placeholder}
                             </div>
@@ -183,7 +180,7 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                     className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
                     onClick={handleOverlayClick}
                 >
-                    <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative" onClick={e => e.stopPropagation()}>
+                    <div className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200" onClick={e => e.stopPropagation()}>
                         <CreateRoutineSection
                             setRoutineSection={editIndex === null ? setRoutineSection : (updatedSections => {
                                 if (updatedSections.length > routineSection.length) {
@@ -205,18 +202,18 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
             >
                 <div className="w-full flex">
                     <button
-                        className='w-[120px] md:w-[200px] h-[45px] bg-blueMain rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-ligthBlue hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 mx-4'>
+                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 mx-4 bg-primary text-background dark:text-secondary hover:bg-primary/90 hover:shadow-lg'>
                         {t('Edit')}
                     </button>
 
 
                     <button type='button'
                         onClick={() => dispatch(editModeEnter(false))}
-                        className='w-[120px] md:w-[200px] h-[45px] bg-gray-500 rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-gray-400 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 mx-4'>
+                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 mx-4 bg-secondary/20 text-secondary hover:bg-secondary/30'>
                         {t('Cancel')}
                     </button>
                 </div>
-                <p className="text-center text-red-700 mt-2">{errorMessage}</p>
+                <p className="text-center text-error mt-2">{errorMessage}</p>
             </div>
 
         </div>

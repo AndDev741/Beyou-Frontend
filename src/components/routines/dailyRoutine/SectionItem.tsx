@@ -8,6 +8,7 @@ import TaskSelector from "./taskSelector/TaskAndHabitSelector";
 import TaskAndHabitSelector from "./taskSelector/TaskAndHabitSelector";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
+import { CgAddR } from "react-icons/cg";
 
 interface SectionItemProps {
     section: RoutineSection;
@@ -140,13 +141,13 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             const isEditing = editingItem?.type === item.type && editingItem?.index === originalIndex;
 
             return (
-                <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between p-1 my-1">
+                <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between my-1 bg-background transition-colors duration-200">
                     <div className="flex items-center">
-                        <input type="checkbox" className="accent-[#0082E1] w-6 h-6 rounded-lg" />
-                        <span className="text-md text-gray-700 ml-2">
+                        <input type="checkbox" className="accent-primary w-6 h-6 rounded-lg border border-primary/30 bg-background transition-colors duration-200" />
+                        <span className="text-md text-secondary ml-2">
                             {itemObj.name}
                         </span>
-                        <span className="mx-2">-</span>
+                        <span className="mx-2 text-description">-</span>
 
                         {isEditing ? (
                             <div className="flex items-center gap-2">
@@ -156,40 +157,40 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                     onChange={(e) => setEditingItem(prev =>
                                         prev ? { ...prev, startTime: e.target.value } : null
                                     )}
-                                    className="border border-blueMain rounded p-1"
+                                    className="border border-primary rounded p-1 bg-background text-secondary"
                                 />
                                 <button
                                     onClick={() => handleSaveEditItem(editingItem.startTime)}
-                                    className="text-green-500 hover:bg-green-100 p-1 rounded"
+                                    className="text-success hover:bg-success/10 p-1 rounded transition-colors duration-200"
                                 >
                                     Salvar
                                 </button>
                                 <button
                                     onClick={handleCancelEdit}
-                                    className="text-red-500 hover:bg-red-100 p-1 rounded"
+                                    className="text-error hover:bg-error/10 p-1 rounded transition-colors duration-200"
                                 >
                                     Cancelar
                                 </button>
                             </div>
                         ) : (
                             <>
-                                <span className="text-center text-blueMain text-lg">
+                                <span className="text-center text-primary text-lg">
                                     {item.startTime}
                                 </span>
                                 <div className="flex items-center gap-2 ml-2">
                                     <button
-                                        className="p-1 rounded hover:bg-blue-100 transition"
+                                        className="p-1 rounded hover:bg-primary/10 transition-colors duration-200"
                                         title={t("Edit")}
                                         onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime)}
                                     >
-                                        <FiEdit2 className="text-blue-500 text-lg" />
+                                        <FiEdit2 className="text-primary text-lg" />
                                     </button>
                                     <button
-                                        className="p-1 rounded hover:bg-red-100 transition"
+                                        className="p-1 rounded hover:bg-error/10 transition-colors duration-200"
                                         title={t("Delete")}
                                         onClick={() => handleDeleteItem(item.type, originalIndex)}
                                     >
-                                        <FiTrash2 className="text-red-500 text-lg" />
+                                        <FiTrash2 className="text-error text-lg" />
                                     </button>
                                 </div>
                             </>
@@ -205,32 +206,32 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             {/* Section  Header */}
             <div className="w-full flex items-center justify-between py-2">
                 <div className="flex items-center gap-2">
-                    {Icon && <span className="text-[30px]"><Icon /></span>}
-                    <span className="text-xl font-semibold text-blueMain line-clamp-1">{section.name}</span>
+                    {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
+                    <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 text-description">
                         <span>
                             {section.startTime}
                         </span>
-                        <span> - </span>
+                        <span className="text-description"> - </span>
                         <span>
                             {section.endTime}
                         </span>
                     </div>
                     <button
-                        className="p-1 rounded hover:bg-blue-100 transition"
+                        className="p-1 rounded hover:bg-primary/10 transition-colors duration-200"
                         title={t("Edit")}
                         onClick={onEdit}
                     >
-                        <FiEdit2 className="text-blue-500 text-lg" />
+                        <FiEdit2 className="text-primary text-lg" />
                     </button>
                     <button
-                        className="p-1 rounded hover:bg-red-100 transition"
+                        className="p-1 rounded hover:bg-error/10 transition-colors duration-200"
                         title={t("Delete")}
                         onClick={onDelete}
                     >
-                        <FiTrash2 className="text-red-500 text-lg" />
+                        <FiTrash2 className="text-error text-lg" />
                     </button>
                 </div>
             </div>
@@ -243,26 +244,22 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             </div>
 
             {/* Task or Habit Added and to add */}
-            <div className="w-full flex items-start justify-start ml-[-2px] hover:cursor-pointer"
+            <div className="w-full flex items-start justify-starthover:cursor-pointer"
                 onClick={() => setOpenTaskSelector(!openTaskSelector)}
             >
                 <button
-                    className="flex items-center justify-center"
+                    className="flex items-center justify-center hover:scale-105"
                 // onClick={() => { setShowModal(true); setEditIndex(null); }}
                 >
-                    <img
-                        src={AddIcon}
-                        alt={t('Routines icon alt')}
-                        className="w-9 h-9 hover:scale-105 transition-all duration-200"
-                    />
-                    <span className='text-sm text-center font-medium ml-2 text-gray-700'>
+                    <CgAddR className='w-[30px] h-[30px] mr-1 '/>    
+                    <span className='text-sm text-center font-medium ml-1 text-secondary'>
                         {!openTaskSelector ? t("Add Habit or task") : t("Cancel Habit or task")}
                     </span>
                 </button>
             </div>
 
             {openTaskSelector && (
-                <div className="w-full flex flex-col items-center justify-center">
+                <div className="w-[100%] md:w-full flex flex-col items-center justify-center ml-[-20px]">
                     <TaskAndHabitSelector
                         setRoutineSection={setRoutineSection}
                         index={index}

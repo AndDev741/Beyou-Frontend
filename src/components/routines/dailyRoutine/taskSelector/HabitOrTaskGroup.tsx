@@ -54,21 +54,21 @@ const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSe
     };
 
     return (
-        <div className={`flex-shrink-0 w-[180px] max-w-[180px] flex flex-col items-start justify-start p-2 mt-2 border-[2px] border-blueMain rounded-lg mb-2  cursor-pointer mx-1 ${isSelected ? "bg-blueMain text-white" : "hover:bg-blue-50 transition-colors"}`}
+        <div className={`flex-shrink-0 w-[180px] max-w-[180px] flex flex-col items-start justify-start p-2 mt-2 border-[2px] border-primary rounded-lg mb-2 cursor-pointer mx-1 transition-colors duration-200 ${isSelected ? "bg-primary text-background dark:text-secondary" : "hover:bg-primary/10"}`}
             onClick={() => habit ? addHabitToSection(habit.id) : addTaskToSection(task!.id)}>
             {/* Habit or Task Name and Icon */}
             <div key={habit?.id || task?.id}
                 className="w-full flex items-center">
-                {Icon && <span className={`text-[30px] ${isSelected ? "black" : "text-blueMain"}`}><Icon /></span>}
+                {Icon && <span className={`text-[30px] ${isSelected ? "text-background dark:text-secondary" : "text-icon"}`}><Icon /></span>}
 
-                <span className="text-md line-clamp-1 ml-1">{habit?.name || task?.name}</span>
+                <span className={`text-md line-clamp-1 ml-1 ${isSelected ? "text-background dark:text-secondary" : "text-secondary"}`}>{habit?.name || task?.name}</span>
             </div>
             <div className="w-full flex items-center justify-between mt-3">
-                <p className={`text-sm line-clamp-1 ${isSelected ? "test-white" : "text-gray-700"}`}>
+                <p className={`text-sm line-clamp-1 ${isSelected ? "text-background dark:text-secondary" : "text-description"}`}>
                     {habit?.level || habit?.level === 0 ? `Level ${habit?.level}` : task?.description || ""}
                 </p>
 
-                <p className={`text-sm ${isSelected ? "tex-gray-700" : "text-blueMain"}`}>{habit ? "habit" : "task"}</p>
+                <p className={`text-sm ${isSelected ? "text-background dark:text-secondary" : "text-primary"}`}>{habit ? "habit" : "task"}</p>
             </div>
         </div>
     );

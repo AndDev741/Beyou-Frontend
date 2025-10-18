@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
-import AddIcon from '../../../assets/addIcon.svg';
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateRoutineSection from "./CreateRoutineSection";
 import { RoutineSection } from "../../../types/routine/routineSection";
-import { IconObject } from "../../../types/icons/IconObject";
 import SectionItem from "./SectionItem";
 import Button from "../../Button";
 import { Routine } from "../../../types/routine/routine";
@@ -13,6 +11,7 @@ import { enterRoutines } from "../../../redux/routine/routinesSlice";
 import getRoutines from "../../../services/routine/getRoutines";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
+import { CgAddR } from "react-icons/cg";
 
 type CreateDailyRoutineProps = {}
 
@@ -94,16 +93,16 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
     }
 
     return (
-        <div className="w-full flex flex-col items-center justify-center">
-            <h2 className='text-2xl'>{t("Creating daily routine")}</h2>
+        <div className="w-full flex flex-col items-center justify-center text-secondary">
+            <h2 className='text-2xl text-secondary'>{t("Creating daily routine")}</h2>
 
-            <div className="relative w-[95%] flex flex-col items-center justify-start border-2 border-blueMain rounded-lg p-3 mt-4 bg-white shadow-sm min-h-[400px]">
+            <div className="relative w-[95%] flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
 
                 <input
                     type="text"
                     value={routineName}
                     onChange={e => setRoutineName(e.target.value)}
-                    className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-blueMain rounded-none text-2xl font-semibold text-center focus:outline-none"
+                    className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
                     placeholder={t("Routine name")}
                 />
 
@@ -111,11 +110,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                     className="absolute top-3 right-3 flex flex-col items-center"
                     onClick={() => { setShowModal(true); setEditIndex(null); }}
                 >
-                    <img
-                        src={AddIcon}
-                        alt={t('Routines icon alt')}
-                        className="w-8 h-8"
-                    />
+                    <CgAddR className='w-[30px] h-[30px] mr-1'/>    
                     <span className='text-sm text-center font-medium mt-1 whitespace-pre-line'>
                         {t("add section")}
                     </span>
@@ -124,7 +119,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="sections">
                         {(provided) => (
-                            <div className="w-full flex flex-col items-center justify-start mt-5"
+                            <div className="w-full flex flex-col items-center justify-start mt-5 text-secondary"
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >
@@ -142,7 +137,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                                                     className="flex items-start w-full">
                                                     <div
                                                         {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 mr-2"
+                                                        className="cursor-grab mt-3 mr-2 text-icon"
                                                     >
                                                         ⠿
                                                     </div>
@@ -159,7 +154,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                                         </Draggable>
                                     ))
                                 ) : (
-                                    <p className="text-gray-500">{t("No sections added")}</p>
+                                    <p className="text-description">{t("No sections added")}</p>
                                 )}
                                 {provided.placeholder}
                             </div>
@@ -177,7 +172,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                     className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
                     onClick={handleOverlayClick}
                 >
-                    <div className="bg-white rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative" onClick={e => e.stopPropagation()}>
+                    <div className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200" onClick={e => e.stopPropagation()}>
                         <CreateRoutineSection
                             setRoutineSection={editIndex === null ? setRoutineSection : (updatedSections => {
                                 if (updatedSections.length > routineSection.length) {
@@ -198,7 +193,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                 onClick={handleCreate}
             >
                 <Button text={t('create')} />
-                <p className="text-center text-red-700 mt-2">{errorMessage}</p>
+                <p className="text-center text-error mt-2">{errorMessage}</p>
             </div>
 
         </div>
