@@ -28,7 +28,7 @@ function Tasks() {
     }, [])
 
     return (
-        <div className="lg:flex flex-col items-center w-full">
+        <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
             <Header pageName="Your Tasks" />
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
                 <div>

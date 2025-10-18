@@ -12,6 +12,7 @@ import createTask from "../../services/tasks/createTask";
 import getTasks from "../../services/tasks/getTasks";
 import arrowDown from "../../assets/arrowDown.svg";
 import arrowUp from "../../assets/arrowUp.svg"
+import { CgAddR } from "react-icons/cg";
 
 function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -108,11 +109,9 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
     }
 
     return (
-        <div className="">
-            <div className="flex text-3xl items-center justify-center mt-5 mb-3">
-                <img src={taskIcon}
-                    alt={t("To do Icon")}
-                    className="w-[35px] h-[35px] mr-2" />
+        <div className="w-full bg-background text-secondary">
+            <div className="flex items-center justify-center mt-5 mb-3 text-3xl text-secondary">
+                <CgAddR className='w-[40px] h-[40px] mr-1'/>
                 <h1>{t('Create Task')}</h1>
             </div>
             <form onSubmit={handleCreateTask}
@@ -152,7 +151,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                     </div>
                 </div>
 
-                <div className="flex items-center text-2xl font-medium mt-5 cursor-pointer"
+                <div className="flex items-center text-2xl font-medium mt-5 cursor-pointer text-secondary transition-colors duration-200 hover:text-primary"
                     onClick={handleMoreDetails}>
                     <img src={expandDetailsIcon}
                         className="w-[40px]" />
@@ -181,7 +180,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                         name={"Difficulty"}
                         t={t} />
                 </div>
-                <div className={`${expandDetails ? "" : "hidden"}`}>
+                <div className={`${expandDetails ? "md:w-[80%]" : "hidden"}`}>
                     <ChooseCategories
                         categoriesIdList={categoriesId}
                         setCategoriesIdList={setCategoriesIdList}
@@ -193,14 +192,14 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                             type="checkbox"
                             checked={oneTimeTask}
                             onChange={(e) => setOneTimeTask(e.target.checked)}
-                             className="accent-[#0082E1] border-blueMain w-8 h-8 rounded-xl cursor-pointer"
+                            className="accent-primary border border-primary w-8 h-8 rounded-xl cursor-pointer bg-background transition-colors duration-200"
                         />
-                        <label htmlFor="oneTimeTask" className="text-xl ml-2">
+                        <label htmlFor="oneTimeTask" className="ml-2 text-xl text-secondary">
                             {t('One Time Task')}
                         </label>
                     </div>
                 </div>
-                <p className='text-red-500 text-lg text-center'>{unknownError}</p>
+                <p className='text-error text-lg text-center'>{unknownError}</p>
                 <div className="mb-3 mt-3">
                     <Button text={t("Create")} />
                 </div>

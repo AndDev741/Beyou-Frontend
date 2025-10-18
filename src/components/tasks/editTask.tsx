@@ -15,6 +15,7 @@ import editTask from "../../services/tasks/editTask";
 import getTasks from "../../services/tasks/getTasks";
 import arrowDown from "../../assets/arrowDown.svg";
 import arrowUp from "../../assets/arrowUp.svg"
+import { CgAddR } from "react-icons/cg";
 
 function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -148,11 +149,9 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
     }
 
     return (
-        <div>
-            <div className="flex text-3xl items-center justify-center mt-5 mb-3">
-                <img src={taskIcon}
-                    alt={t("To do Icon")}
-                    className="w-[35px] h-[35px] mr-2" />
+        <div className="w-full bg-background text-secondary">
+            <div className="flex items-center justify-center mt-5 mb-3 text-3xl">
+                <CgAddR className='w-[40px] h-[40px] mr-1'/>
                 <h1>{t('Edit Task')}</h1>
             </div>
             <form onSubmit={handleEdit}
@@ -228,25 +227,25 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                             type="checkbox"
                             checked={oneTimeTask}
                             onChange={(e) => setOneTimeTask(e.target.checked)}
-                             className="accent-[#0082E1] border-blueMain w-8 h-8 rounded-xl cursor-pointer"
+                            className="accent-primary border border-primary w-8 h-8 rounded-xl cursor-pointer bg-background transition-colors duration-200"
                         />
-                        <label htmlFor="oneTimeTask" className="text-xl ml-2">
+                        <label htmlFor="oneTimeTask" className="ml-2 text-xl text-secondary">
                             {t('One-time Task')}
                         </label>
                     </div>
                 </div>
-                <p className='text-red-500 text-lg text-center underline'>{unknownError}</p>
+                <p className='text-error text-lg text-center underline'>{unknownError}</p>
                 <div className='flex w-full items-center justify-evenly mt-6'>
                     <div>
                         <button type='button'
                             onClick={handleCancel}
-                            className='w-[120px] md:w-[200px] h-[45px] bg-gray-500 rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-gray-400 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
+                            className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 bg-secondary/20 text-secondary hover:bg-secondary/30'>
                             {t('Cancel')}
                         </button>
                     </div>
                     <div>
                         <button
-                            className='w-[120px] md:w-[200px] h-[45px] bg-blueMain rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-ligthBlue hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
+                            className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 bg-primary text-background dark:text-secondary hover:bg-primary/90 hover:shadow-lg'>
                             {t('Edit')}
                         </button>
                     </div>
