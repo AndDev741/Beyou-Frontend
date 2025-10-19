@@ -81,7 +81,7 @@ function CreateGoal({ setGoals }: Props) {
   };
 
   return (
-    <div>
+    <div className="bg-background text-secondary transition-colors duration-200 rounded-lg lg:p-6">
       <div className="flex items-center justify-center text-3xl font-semibold">
         <h2>{t("Create Goal")}</h2>
       </div>
@@ -209,7 +209,7 @@ function CreateGoal({ setGoals }: Props) {
           chosenCategories={null}
         />
 
-        <p className="text-red-500 text-center mt-2">{errorMessage}</p>
+        <p className="text-error text-center mt-2">{errorMessage}</p>
         <div className="flex justify-center mt-4">
           <Button text={t("Create")} />
         </div>

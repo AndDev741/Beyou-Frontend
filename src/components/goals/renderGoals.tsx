@@ -11,7 +11,7 @@ function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap md:items-start justify-center md:justify-between md:justify-evenly lg:justify-start">
+    <div className="flex flex-wrap md:items-start justify-center md:justify-between md:justify-evenly lg:justify-start text-secondary">
       {goals.length > 0 ? (
         goals.map((g) => (
           <div key={g.id} className="lg:mx-1">
@@ -36,7 +36,7 @@ function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
           </div>
         ))
       ) : (
-        <h2 className="text-blueMain font-semibold text-[30px] text-center lg:text-start lg:mt-12">
+        <h2 className="text-primary font-semibold text-[30px] text-center lg:text-start lg:mt-12">
           {t("Start creating amazing goals to track your progress!")}
         </h2>
       )}

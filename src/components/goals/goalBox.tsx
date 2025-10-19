@@ -180,16 +180,16 @@ function GoalBox({
   }
 
   return (
-    <div className={`flex relative flex-col justify-between border-primary border-[1px] rounded-md p-2 m-1 w-[90vw] md:w-[80vwpx] lg:w-[430px] ${readonly ? "min-h-[200px]" : "md:min-h-[262px]"}`}>
+    <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 w-[90vw] md:w-[45vwpx] lg:w-[420px] bg-background text-secondary transition-colors duration-200 ${readonly ? "min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <div className="flex items-start">
             <p className="text-icon text-[34px]">
               {Icon !== undefined ? <Icon.IconComponent /> : null}
             </p>
-            <h2 className={`text-xl ml-1 font-semibold line-clamp-1 text-secondary`}>{title}</h2>
+            <h2 className="text-xl ml-1 font-semibold line-clamp-1">{title}</h2>
           </div>
-          <div className={`line-clamp-2 leading-tight my-1 text-description`}>
+          <div className="line-clamp-2 leading-tight my-1 text-description">
             <p>{description}</p>
           </div>
           <p className="text-description text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
@@ -202,11 +202,11 @@ function GoalBox({
       <div className="w-full flex items-start justify-between my-1">
         <div className="flex flex-wrap">
           {categories.map((category, index) => (
-            <>
-              <CategoryNameAndIcon key={index}
+            <span className="flex items-center" key={`${category.id}-${index}`}>
+              <CategoryNameAndIcon
                 name={category.name} iconId={category.iconId} />
               <p className={`${index === categories.length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
-            </>
+            </span>
           ))}
         </div>
       </div>
@@ -254,7 +254,7 @@ function GoalBox({
               disabled={currentValue === 0}
               className="border-primary"
             >
-              <p className="text-md text-secondary" >Mark Complete</p> {/* I STOP HERE */}
+              <p className="text-md text-secondary">{t("Mark Complete")}</p>
             </Button>
           </div>
         </div>
@@ -270,11 +270,11 @@ function GoalBox({
       </div>
       <div className={`${readonly ? "hidden" : ""} flex justify-between items-center my-2`}>
 
-        <button onClick={handleEditMode} className="bg-blueMain text-white px-4 py-1 rounded cursor-pointer">
+        <button onClick={handleEditMode} className="px-4 py-1 rounded cursor-pointer bg-primary text-background dark:text-secondary transition-colors duration-200 hover:bg-primary/90">
           {t("Edit")}
         </button>
         <div className="my-1"></div>
-        <button onClick={() => setOnDelete(true)} className="bg-red-600 text-white px-4 py-1 rounded cursor-pointer">
+        <button onClick={() => setOnDelete(true)} className="px-4 py-1 rounded cursor-pointer bg-error text-background dark:text-secondary transition-colors duration-200 hover:bg-error/90">
           {t("Delete")}
         </button>
         <DeleteModal

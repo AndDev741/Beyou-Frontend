@@ -151,7 +151,7 @@ function EditGoal({ setGoals }: Props) {
   };
 
   return (
-    <div>
+    <div className="bg-background text-secondary transition-colors duration-200 rounded-lg p-4 lg:p-6">
       <div className="flex items-center justify-center text-3xl font-semibold">
         <h2>{t("Edit Goal")}</h2>
       </div>
@@ -279,12 +279,12 @@ function EditGoal({ setGoals }: Props) {
           chosenCategories={chosenCategories}
         />
 
-        <p className="text-red-500 text-center mt-2">{errorMessage}</p>
+        <p className="text-error text-center mt-2">{errorMessage}</p>
         <div className="flex items-center justify-evenly mt-4">
           <button
             type="button"
             onClick={handleCancel}
-            className="w-[120px] h-[40px] bg-gray-500 text-white rounded hover:bg-gray-400"
+            className="w-[120px] h-[40px] rounded bg-secondary/20 text-secondary hover:bg-secondary/30 transition-colors duration-200"
           >
             {t("Cancel")}
           </button>
