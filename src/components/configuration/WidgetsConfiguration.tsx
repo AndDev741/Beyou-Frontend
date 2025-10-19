@@ -102,9 +102,9 @@ export default function WidgetsConfiguration() {
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4">
+        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
             <h2 className="text-2xl font-semibold mb-1">{t("Widgets")}</h2>
-            <p className="text-gray-500 text-sm mb-4">{t("Drag and drop to add")}</p>
+            <p className="text-description text-sm mb-4">{t("Drag and drop to add")}</p>
 
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <DroppableList
@@ -134,11 +134,11 @@ export default function WidgetsConfiguration() {
             <div className="flex flex-col items-center justify-center w-full">
                 <button
                     onClick={onSubmit}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-primary text-background dark:text-secondary rounded-lg font-semibold hover:bg-primary/90 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {t('Save')}
                 </button>
-                <p className="text-green-600">{successMessage}</p>
+                <p className="text-success">{successMessage}</p>
             </div>
         </div>
     );
@@ -156,7 +156,7 @@ function DroppableList({
 }: any) {
     return (
         <div className="mb-6 w-full">
-            <h3 className="p-1 text-lg font-medium">{title}</h3>
+            <h3 className="p-1 text-lg font-medium text-secondary">{title}</h3>
             <Droppable
                 droppableId={droppableId}
                 direction={widgets.length > 2 ? "vertical" : "horizontal"}
@@ -167,12 +167,12 @@ function DroppableList({
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className={`flex flex-wrap items-center justify-center md:justify-between gap-3 p-1 md:p-4 rounded-xl border-2 border-dashed transition-all md:min-h-[150px]
-                        ${snapshot.isDraggingOver ? "border-blue-400 bg-blue-50 min-h-[200px]" : "border-gray-300 bg-gray-50"}
+                        ${snapshot.isDraggingOver ? "border-primary bg-primary/10 min-h-[200px]" : "border-primary/20 bg-background"}
                         ${snapshot.draggingFromThisWith ? "max-h-[630px]" : ""}`}
                     >
                         {widgets.length === 0 && (
-                            <p className="text-sm text-gray-400 italic ">
-                                {title === "Current"
+                            <p className="text-sm text-description italic ">
+                                {droppableId === "currentWidgets"
                                     ? t("No current widgets")
                                     : t('No widgets available')}
                             </p>
@@ -191,7 +191,7 @@ function DroppableList({
                                     >
                                         <div
                                             {...provided.dragHandleProps}
-                                            className="cursor-grab select-none mt-3 mr-1 text-gray-500"
+                                            className="cursor-grab select-none mt-3 mr-1 text-icon"
                                         >
                                             ⠿
                                         </div>

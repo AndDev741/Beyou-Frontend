@@ -30,8 +30,8 @@ export default function ProfileConfiguration() {
 
     // const [editEmail, setEditEmail] = useState(email);
 
-    const labelStyle = "mb-1font-medium text-lg self-start";
-    const inputStyle = "border-[1px] border-blueMain rounded-md pl-1 outline-none w-full mb-2";
+    const labelStyle = "mb-1 font-medium text-lg self-start text-secondary";
+    const inputStyle = "border border-primary rounded-md pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
@@ -72,8 +72,8 @@ export default function ProfileConfiguration() {
     }, [editName, editPhoto, editPhrase, editPhraseAuthor])
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-2">
-            <h1 className="text-2xl font-semibold">{t('Profile')}</h1>
+        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
+            <h1 className="text-2xl font-semibold mb-4">{t('Profile')}</h1>
             <form className="w-full flex items-center">
 
                 <div className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10"
@@ -82,7 +82,7 @@ export default function ProfileConfiguration() {
                         alt={t('Profile')}
                         className="w-24 h-24 lg:w-32 lg:h-32 rounded-full cursor-pointer" />
 
-                    <label className=" font-medium text-center text-blueMain flex items-center gap-1 cursor-pointer underline">
+                    <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />
                     </label>
                 </div>
@@ -103,7 +103,7 @@ export default function ProfileConfiguration() {
                         disabled
                         onChange={(e) => setEditPhoto(e.target.value)}
                         id="email"
-                        className={`${inputStyle} text-gray-400 cursor-not-allowed`}
+                        className={`${inputStyle} text-description cursor-not-allowed`}
                     />
 
                     <label className={labelStyle} htmlFor="phrase">{t('Phrase')}</label>
@@ -128,11 +128,11 @@ export default function ProfileConfiguration() {
             <div className="flex flex-col items-center justify-center w-full pt-2">
                 <button
                     onClick={onSubmit}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-primary text-background dark:text-secondary rounded-lg font-semibold hover:bg-primary/90 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {t('Save')}
                 </button>
-                <p className="text-green-600">{successPhrase}</p>
+                <p className="text-success">{successPhrase}</p>
             </div>
             {/* {editPhoto && <EditPhotoUrl />} */}
             <div className={`${editPhotoModal ? "block" : "hidden"}`}>
@@ -170,13 +170,13 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
 
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 flex flex-col gap-4 transform transition-all duration-300 scale-100">
+            <div className="bg-background text-secondary border border-primary/20 rounded-xl shadow-2xl w-full max-w-lg p-6 flex flex-col gap-4 transform transition-all duration-300 scale-100">
 
                 <div className="flex justify-between items-center border-b pb-3">
-                    <h2 className="text-xl font-bold text-gray-800">{t('ChangeProfilePhoto')}</h2>
+                    <h2 className="text-xl font-bold">{t('ChangeProfilePhoto')}</h2>
                     <button
                         onClick={handleClose}
-                        className="text-gray-500 hover:text-red-500 transition duration-150"
+                        className="text-description hover:text-error transition duration-150"
                         aria-label={t('Close')}
                     >
                         <MdClose size={24} />
@@ -190,15 +190,15 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                         onError={(e) => {
                             e.currentTarget.src = 'https://placehold.co/128x128/ccc/333?text=URL+Inválida';
                         }}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 shadow-lg"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
                     />
-                    <p className="text-sm text-gray-500 text-center">
+                    <p className="text-sm text-description text-center">
                         {t('PhotoPreviewInfo')}
                     </p>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                    <label htmlFor="photoUrl" className="font-medium text-gray-700">
+                    <label htmlFor="photoUrl" className="font-medium text-secondary">
                         {t('ImageURL')}
                     </label>
                     <input
@@ -207,21 +207,21 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                         placeholder={t('EnterPhotoURL')}
                         value={tempPhotoUrl}
                         onChange={(e) => setTempPhotoUrl(e.target.value)}
-                        className="border-[1px] border-blue-300 rounded-lg p-3 outline-none w-full focus:ring-2 focus:ring-blue-500 transition duration-150"
+                        className="border border-primary rounded-lg p-3 outline-none w-full bg-background text-secondary placeholder:text-placeholder focus:ring-2 focus:ring-primary/40 transition duration-150"
                     />
                 </div>
 
                 <div className="flex justify-end gap-3 pt-3 border-t">
                     <button
                         onClick={handleClose}
-                        className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-150"
+                        className="px-4 py-2 text-secondary border border-primary/20 rounded-lg hover:bg-secondary/10 transition duration-150"
                     >
                         {t('Cancel')}
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={!tempPhotoUrl.trim()}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-primary text-background dark:text-secondary rounded-lg font-semibold hover:bg-primary/90 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {t('Save')}
                     </button>
