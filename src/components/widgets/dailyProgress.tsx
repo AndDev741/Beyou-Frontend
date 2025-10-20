@@ -60,7 +60,7 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
 
     return (
         <BaseDiv title={t('Daily Progress')} bigSize={true}>
-            <p className="hidden md:block text-primary text-lg font-semibold whitespace-pre-line">
+            <p className="hidden md:block text-primary text-lg font-semibold whitespace-pre-line lg:whitespace-nowrap text-center">
                 {t('Daily progress phrase')}
             </p>
             <p className="text-primary text-lg font-semibold">{t('Tasks')}</p>

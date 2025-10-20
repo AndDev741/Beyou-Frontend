@@ -38,7 +38,7 @@ function Perfil(){
                 <div className="flex items-center w-[100%] md:w-auto h-[65px] md:h-auto">
                     <img src={photo}
                     alt={t('PerfilPhotoAlt')}
-                    className="w-[75px] h-[75px] sm:w-[100px] md:w-[80px] md:h-[80px] sm:h-[100px] bg-blue-200 rounded-full ml-6 md:ml-0 mt-6 md:mt-0 sm:mt-[35px]" />
+                    className="w-[75px] h-[75px] sm:w-[100px] md:w-[80px] md:h-[80px] sm:h-[100px] bg-primary/20 rounded-full ml-6 md:ml-0 mt-6 md:mt-0 sm:mt-[35px]" />
                     <div className="flex flex-col ml-4 text-secondary md:text-secondary">
                         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">{t('GoodMorning')} {name}</h2>
                         <h3 className="text-md md:text-lg font-normal md:text-primary">{t('BeYourBestVersion')}</h3>

@@ -29,15 +29,15 @@ export default function BetterArea({category, ...props}: betterAreaProps){
     return (
         <BaseDiv title={t('Better Area')}>
             <div className="flex items-center justify-center w-full">
-                <p className="text-[25px] text-blueMain">
+                <p className="text-[25px] text-primary">
                 {Icon !== undefined && Icon !== null ? <Icon.IconComponent/> : null}
                 </p>
-                <h3 className={`text-lg text-blueMain md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{category.name}</h3>
+                <h3 className={`text-lg text-primary md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{category.name}</h3>
             </div>
-            <div className="flex w-[100%]">
-                <div className={`border-[1px] border-darkBlue bg-primary h-[15px] rounded-l-xl`}
+            <div className="flex w-full">
+                <div className="border border-primary bg-primary h-[15px] rounded-l-xl"
                 style={{width: `${actualProgress}%`}}></div>
-                <div className={`border-[1px] border-darkBlue bg-white h-[15px] rounded-r-xl`}
+                <div className="border border-primary bg-primary/10 h-[15px] rounded-r-xl"
                 style={{width: `${100 - actualProgress}%`}}></div>
             </div>
             <h3 className="text-secondary">LV {category.level}</h3>
