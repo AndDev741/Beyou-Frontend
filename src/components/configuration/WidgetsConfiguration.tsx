@@ -119,7 +119,7 @@ export default function WidgetsConfiguration() {
                 />
 
                 <DroppableList
-                    title={t("Available")}
+                    title={t("Availables")}
                     widgets={availableWidgets}
                     droppableId="availableWidgets"
                     categoryWithMoreXp={categoryWithMoreXp}
