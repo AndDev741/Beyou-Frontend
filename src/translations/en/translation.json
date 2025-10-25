@@ -238,5 +238,7 @@
     "No widgets added yet" :"No widgets added yet",
     "No widgets available": "No widgets available",
     "NoWidgets": "No widgets, add some in the configurations page",
-    "SuccessEditWidgets": "Widgets edited successfully"
+    "SuccessEditWidgets": "Widgets edited successfully",
+    "Language": "Language",
+    "Help translate phrase": "Help translate the app for more languages"
 }
