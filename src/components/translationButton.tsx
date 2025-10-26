@@ -8,7 +8,7 @@ function TranslationButton(){
         <div className="flex items-center justify-center w-[100px] cursor-pointer">
             <button
             onClick={() => changeLanguage("en")}
-            className={`border-solid border-2 border-primary p-3 lg:p-2 font-bold text-2xl transition-colors duration-200 ${i18n.language === "en" ? "bg-primary text-secondary" : "text-secondary hover:bg-primary/10"}`}>
+            className={`border-solid border-2 border-primary p-3 lg:p-2 font-bold text-2xl transition-colors duration-200 ${i18n.language === "en" ? "bg-primary text-white" : "text-secondary hover:bg-primary/10"}`}>
                 EN
             </button>
             <button

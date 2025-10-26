@@ -1,28 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
-
-const defaultLight = {
-    mode: "light",
-    background: "#ffffff",
-    primary: "#0082e1",
-    secondary: "#000000",
-    description: "#616366ff",
-    icon: "#4a4f55ff",
-    placeholder: "#9ca3afff",
-    success: "#16a34a",
-    error: "#dc2626"
-}
-
-const defaultDark = {
-    mode: "dark",
-    background: "#18181B",
-    primary: "#0082e1",
-    secondary: "#e7e0e0ff",
-    description: "#c2c4c7ff",
-    icon: "#8cbceeff",
-    placeholder: "#71717aff",
-    success: "#22c55e",
-    error: "#dc2626"
-}
+import {defaultDark, defaultLight} from "../components/utils/listOfThemes";
 
 type ThemeType = typeof defaultLight;
 type ThemeContextType = {
@@ -32,10 +9,10 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType>({
     theme: defaultLight,
-    setTheme: () => {},
+    setTheme: () => { },
 });
 
-export const ThemeProvider = ({children}: {children: ReactNode}) => {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const [theme, setTheme] = useState(
         prefersDark ? defaultDark : defaultLight
@@ -45,7 +22,7 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
     useEffect(() => {
         const root = document.documentElement;
 
-        if(theme.mode === "dark") root.classList.add("dark");
+        if (theme.mode === "dark") root.classList.add("dark");
         else root.classList.remove("dark");
 
         root.style.setProperty("--background", theme.background);
@@ -59,7 +36,7 @@ export const ThemeProvider = ({children}: {children: ReactNode}) => {
     }, [theme]);
 
     return (
-        <ThemeContext.Provider value={{theme, setTheme}}>
+        <ThemeContext.Provider value={{ theme, setTheme }}>
             {children}
         </ThemeContext.Provider>
     )

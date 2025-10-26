@@ -238,6 +238,11 @@
     "NoWidgets": "Nenhum widget, adicione alguns nas configurações",
     "SuccessEditWidgets": "Widgets editados com sucesso",
     "Language": "Idioma",
-    "Help translate phrase": "Ajude a traduzir o app para mais idiomas"
+    "Help translate phrase": "Ajude a traduzir o app para mais idiomas",
+    "Theme": "Tema",
+    "beYou": "Be you",
+    "beYouDark": "Escuro",
+    "dark": "escuro",
+    "light": "Claro"
 
 }
