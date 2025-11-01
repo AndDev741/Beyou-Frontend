@@ -4,4 +4,5 @@ export type EditUser = {
     phrase?: string,
     phrase_author?: string
     widgetsId?: string[]
+    theme?: string
 }

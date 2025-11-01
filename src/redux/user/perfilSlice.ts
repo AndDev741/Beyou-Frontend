@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import category from "../../types/category/categoryType";
 import { widgetsIds } from "../../components/widgets/utils/widgetsFabric";
+import { ThemeType } from "../../context/ThemeContext";
+import { themes } from "../../components/utils/listOfThemes";
 
 type userInitialState = {
     username: string;
@@ -14,7 +16,8 @@ type userInitialState = {
     categoryWithLessXp: category | null;
     checkedItemsInScheduledRoutine: number;
     totalItemsInScheduledRoutine: number;
-    widgetsIdInUse: string[]
+    widgetsIdInUse: string[];
+    themeInUse: ThemeType;
 }
 
 const initialState = {
@@ -29,7 +32,8 @@ const initialState = {
     categoryWithLessXp: null,
     checkedItemsInScheduledRoutine: 0,
     totalItemsInScheduledRoutine: 0,
-    widgetsIdsInUse: []
+    widgetsIdsInUse: [],
+    themeInUse: themes[0]
 }
 
 const perfilSlice = createSlice({
@@ -83,7 +87,11 @@ const perfilSlice = createSlice({
         widgetsIdInUseEnter(state, action){
             const widgetsIdsInUse = action.payload;
             return {...state, widgetsIdsInUse};
-        }
+        },
+        themeInUseEnter(state, action){
+            const themeInUse = action.payload;
+            return {...state, themeInUse};
+        },
     }
 });
 
@@ -99,7 +107,8 @@ export const {
     categoryWithLessXpEnter,
     checkedItemsInScheduledRoutineEnter,
     totalItemsInScheduledRoutineEnter,
-    widgetsIdInUseEnter
+    widgetsIdInUseEnter,
+    themeInUseEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

@@ -7,4 +7,5 @@ export type UserType = {
     photo: string,
     isGoogleAccount: boolean,
     widgetsId: string[],
+    themeInUse: string
 }

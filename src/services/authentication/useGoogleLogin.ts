@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import googleRequest from "./request/googleRequest";
 //Redux
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter, themeInUseEnter } from "../../redux/user/perfilSlice";
 //Types
 import { UserType } from "../../types/user/UserType";
 import { TFunction } from "i18next";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
+import { themes } from "../../components/utils/listOfThemes";
 
 function useGoogleLogin(
     navigate: NavigateFunction,
@@ -37,6 +38,7 @@ function useGoogleLogin(
                     dispatch(photoEnter(data.photo));
                     dispatch(isGoogleAccountEnter(data.isGoogleAccount));
                     dispatch(widgetsIdInUseEnter(data.widgetsId));
+                    dispatch(themeInUseEnter(themes.find(theme => theme.mode === data?.themeInUse) || null))
                     navigate("/dashboard");
                 }else if(response.error){
                     setDefaultError(t('GoogleLoginError'))

@@ -1,13 +1,15 @@
 //functions
 import loginRequest from "./request/loginRequest";
 //redux
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter, themeInUseEnter } from "../../redux/user/perfilSlice";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 //types
 import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { UserType } from "../../types/user/UserType";
 import { NavigateFunction } from "react-router-dom";
+import { ThemeType, useTheme } from "../../context/ThemeContext";
+import { themes } from "../../components/utils/listOfThemes";
 
 export default async function handleLogin (
     e: React.FormEvent<HTMLFormElement>,
@@ -18,7 +20,7 @@ export default async function handleLogin (
     navigate: NavigateFunction,
     setEmailError: React.Dispatch<React.SetStateAction<string>>,
     setPasswordError: React.Dispatch<React.SetStateAction<string>>,
-    setDefaultError: React.Dispatch<React.SetStateAction<string>>
+    setDefaultError: React.Dispatch<React.SetStateAction<string>>,
 ) {
     e.preventDefault();
     setEmailError("");
@@ -59,6 +61,7 @@ export default async function handleLogin (
         dispatch(photoEnter(data.photo));
         dispatch(isGoogleAccountEnter(data.isGoogleAccount));
         dispatch(widgetsIdInUseEnter(data.widgetsId));
+        dispatch(themeInUseEnter(themes.find(theme => theme.mode === data?.themeInUse) || null))
         navigate("/dashboard");
     }
 }
