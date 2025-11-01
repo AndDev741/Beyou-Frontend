@@ -9,6 +9,7 @@ import { t } from "i18next";
 import editWidgets from "../../services/user/editWidgets";
 import { EditUser } from "../../types/user/EditUser";
 import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
+import SmallButton from "../SmallButton";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -132,12 +133,11 @@ export default function WidgetsConfiguration() {
             </DragDropContext>
 
             <div className="flex flex-col items-center justify-center w-full">
-                <button
+                <SmallButton
+                    text={t('Save')}
+                    disabled={false}
                     onClick={onSubmit}
-                    className="px-6 py-2 bg-primary text-background dark:text-secondary rounded-lg font-semibold hover:bg-primary/90 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {t('Save')}
-                </button>
+                />
                 <p className="text-success">{successMessage}</p>
             </div>
         </div>

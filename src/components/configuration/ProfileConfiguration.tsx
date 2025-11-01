@@ -7,6 +7,7 @@ import { EditUser } from "../../types/user/EditUser";
 import editUser from "../../services/user/editUser";
 import { useDispatch } from "react-redux";
 import { nameEnter, photoEnter, phraseAuthorEnter, phraseEnter } from "../../redux/user/perfilSlice";
+import SmallButton from "../SmallButton";
 
 
 export default function ProfileConfiguration() {
@@ -123,15 +124,13 @@ export default function ProfileConfiguration() {
                     />
 
                 </div>
-
             </form>
             <div className="flex flex-col items-center justify-center w-full pt-2">
-                <button
+                <SmallButton
+                    text={t('Save')}
+                    disabled={false}
                     onClick={onSubmit}
-                    className="px-6 py-2 bg-primary text-background dark:text-secondary rounded-lg font-semibold hover:bg-primary/90 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {t('Save')}
-                </button>
+                />
                 <p className="text-success">{successPhrase}</p>
             </div>
             {/* {editPhoto && <EditPhotoUrl />} */}
@@ -218,13 +217,11 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                     >
                         {t('Cancel')}
                     </button>
-                    <button
-                        onClick={handleSave}
+                    <SmallButton
+                        text={t('Save')}
                         disabled={!tempPhotoUrl.trim()}
-                        className="px-4 py-2 bg-primary text-background dark:text-secondary rounded-lg font-semibold hover:bg-primary/90 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {t('Save')}
-                    </button>
+                        onClick={handleSave}
+                    />
                 </div>
 
             </div>
