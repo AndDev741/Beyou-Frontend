@@ -1,6 +1,6 @@
 import iconSearch from "../../icons/iconsSearch";
 import { RoutineSection } from "../../../types/routine/routineSection";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiStar, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import AddIcon from '../../../assets/addIcon.svg';
 import { useState } from "react";
@@ -9,6 +9,7 @@ import TaskAndHabitSelector from "./taskSelector/TaskAndHabitSelector";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
 import { CgAddR } from "react-icons/cg";
+import { AiFillStar } from "react-icons/ai";
 
 interface SectionItemProps {
     section: RoutineSection;
@@ -91,6 +92,18 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     const handleCancelEdit = () => {
         setEditingItem(null);
     };
+
+    const handleFavorite = (itemIndex: number) => {
+        if (!setRoutineSection) return;
+
+        setRoutineSection(prev => 
+            prev.map((sectionItem, sectionIdx) => {
+                if (sectionIdx !== index) return sectionItem;
+
+                return {...sectionItem, favorite: !sectionItem?.favorite}
+            })
+        )
+    }
 
     // Função para deletar um item
     const handleDeleteItem = (itemType: 'task' | 'habit', itemIndex: number) => {
@@ -205,11 +218,12 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
         <div className="flex flex-col items-start justify-start w-full">
             {/* Section  Header */}
             <div className="w-full flex items-center justify-between py-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full">
                     {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
                     <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
                 </div>
-                <div className="flex items-center gap-3">
+                {/* I ALREADY SPEND TOO MUCH TIME TRYING TO UNDERSTAND WHY WHEN I OPEN THE TASK SELECTOR THE HEADER JUST GO TO THE RIGHT... THIS WILL FIX ****  */}
+                <div className={`${openTaskSelector ? "mr-3" : ""} flex items-center gap-2`}>
                     <div className="flex items-center gap-1 text-description">
                         <span>
                             {section.startTime}
@@ -220,18 +234,25 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                         </span>
                     </div>
                     <button
-                        className="p-1 rounded hover:bg-primary/10 transition-colors duration-200"
+                        className="rounded hover:bg-primary/10 transition-colors duration-200"
                         title={t("Edit")}
                         onClick={onEdit}
                     >
                         <FiEdit2 className="text-primary text-lg" />
                     </button>
                     <button
-                        className="p-1 rounded hover:bg-error/10 transition-colors duration-200"
+                        className="rounded hover:bg-error/10 transition-colors duration-200"
                         title={t("Delete")}
                         onClick={onDelete}
                     >
                         <FiTrash2 className="text-error text-lg" />
+                    </button>
+                     <button
+                        className="rounded hover:bg-error/10 transition-colors duration-200"
+                        //title={t("Delete")}
+                        onClick={() => handleFavorite(index)}
+                    >
+                        <AiFillStar className={`${section.favorite ? "text-yellow-500" : "text-secondary"} text-lg`} />
                     </button>
                 </div>
             </div>

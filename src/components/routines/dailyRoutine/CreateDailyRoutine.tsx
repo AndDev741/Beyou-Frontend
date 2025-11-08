@@ -6,22 +6,22 @@ import SectionItem from "./SectionItem";
 import Button from "../../Button";
 import { Routine } from "../../../types/routine/routine";
 import createRoutine from "../../../services/routine/createRoutine";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { enterRoutines } from "../../../redux/routine/routinesSlice";
 import getRoutines from "../../../services/routine/getRoutines";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
+import { RootState } from "../../../redux/rootReducer";
 
-type CreateDailyRoutineProps = {}
-
-const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
+const CreateDailyRoutine = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [routineName, setRoutineName] = useState<string>("");
     const [routineSection, setRoutineSection] = useState<RoutineSection[]>([]);
     console.log("routineSection", routineSection);
     const [showModal, setShowModal] = useState(false);
+    const routines = useSelector((state: RootState) => state.routines.routines) || [];
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
@@ -135,12 +135,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     className="flex items-start w-full">
-                                                    <div
-                                                        {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 mr-2 text-icon"
-                                                    >
-                                                        ⠿
-                                                    </div>
+                                            
                                                     <SectionItem
                                                         key={index}
                                                         section={section}
@@ -185,6 +180,7 @@ const CreateDailyRoutine = ({ }: CreateDailyRoutineProps) => {
                             onUpdateSection={handleUpdateSection}
                             editIndex={editIndex}
                             editSection={editIndex !== null ? routineSection[editIndex] : undefined}
+                            routineSections={routines.flatMap(section => section.routineSections)}
                         />
                     </div>
                 </div>

@@ -18,12 +18,11 @@ import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
 
-type EditDailyRoutineProps = {}
 
-const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
+const EditDailyRoutine = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
-
+    const routines = useSelector((state: RootState) => state.routines.routines) || [];
     const routineToEdit = useSelector((state: RootState) => state.editRoutine.routine);
     console.log("Routine to edit: (INSIDE EDIT)", routineToEdit);
 
@@ -149,7 +148,7 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                                                 className="flex items-start w-full">
                                                     <div
                                                         {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 mr-2 text-icon"
+                                                        className="cursor-grab mt-3 text-icon"
                                                     >
                                                         ⠿
                                                     </div>
@@ -193,15 +192,16 @@ const EditDailyRoutine = ({ }: EditDailyRoutineProps) => {
                             onUpdateSection={handleUpdateSection}
                             editIndex={editIndex}
                             editSection={editIndex !== null ? routineSection[editIndex] : undefined}
+                            routineSections={routines.flatMap(section => section.routineSections)}
                         />
                     </div>
                 </div>
             )}
             <div className="my-2 mb-6 flex flex-col items-center"
-                onClick={handleEdit}
             >
                 <div className="w-full flex">
                     <button
+                        onClick={handleEdit}
                         className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 mx-4 bg-primary text-background dark:text-secondary hover:bg-primary/90 hover:shadow-lg'>
                         {t('Edit')}
                     </button>

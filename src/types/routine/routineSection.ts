@@ -16,5 +16,6 @@ export type RoutineSection = {
         habitId: string;
         startTime: string;
     }>;
-    order: number
+    order: number;
+    favorite?: boolean;
 };

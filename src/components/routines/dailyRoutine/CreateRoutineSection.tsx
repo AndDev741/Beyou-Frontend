@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
 import { RoutineSection } from "../../../types/routine/routineSection";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
+import iconSearch from "../../icons/iconsSearch";
 
 interface CreateRoutineSectionProps {
     setRoutineSection: React.Dispatch<React.SetStateAction<any>>;
@@ -10,6 +11,7 @@ interface CreateRoutineSectionProps {
     editIndex?: number | null;
     onUpdateSection?: (updatedSection: RoutineSection) => void;
     onClose?: () => void;
+    routineSections: RoutineSection[];
 }
 
 const CreateRoutineSection = ({
@@ -17,7 +19,8 @@ const CreateRoutineSection = ({
     editSection,
     editIndex,
     onUpdateSection,
-    onClose
+    onClose,
+    routineSections
 }: CreateRoutineSectionProps) => {
     const { t } = useTranslation();
     const [name, setName] = useState("");
@@ -25,6 +28,8 @@ const CreateRoutineSection = ({
     const [endTime, setEndTime] = useState("");
     const [search, setSearch] = useState("");
     const [selectedIcon, setSelectedIcon] = useState("");
+
+    const favoritedSections = routineSections.filter(section => section.favorite === true);
 
     useEffect(() => {
         console.log("editSection", editSection);
@@ -77,6 +82,27 @@ const CreateRoutineSection = ({
         }
         if (onClose) onClose();
     };
+
+    const handleUseFavorite = (section: RoutineSection) => {
+        const sectionWithId = {
+            ...section,
+            id: uuidv4(),
+            taskGroup: section?.taskGroup?.map(group => {
+                return {...group, id: null}
+            }),
+            habitGroup: section?.habitGroup?.map(group => {
+                return {...group, id: null}
+            }),
+            favorite: false
+        }
+
+        setRoutineSection((prev: RoutineSection[]) => [...prev, sectionWithId]);
+        setName("");
+        setStartTime("");
+        setEndTime("");
+        setSelectedIcon("");
+        if (onClose) onClose();
+    }
 
     return (
         <div>
@@ -143,6 +169,34 @@ const CreateRoutineSection = ({
                         </button>
                     )}
                 </div>
+
+
+            </div>
+
+            <h1 className={`${editSection == null && favoritedSections?.length > 0 ? "" : "hidden"} text-center mt-2 text-secondary font-semibold text-lg`}>
+                {t("Your favorite sections")}
+            </h1>
+            <div className="flex flex-col items-start justify-start w-full">
+
+                {editSection == null && favoritedSections.map((section) => {
+                    const iconObj = iconSearch(section.iconId);
+                    const Icon = iconObj?.IconComponent;
+
+                    return (
+                        <div className="w-full flex items-center justify-between py-2">
+                            <div className="flex items-center gap-2 w-full">
+                                {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
+                                <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
+                            </div>
+
+                            <button className="hover:text-primary hover:scale-105"
+                            onClick={() => handleUseFavorite(section)}
+                            >
+                                {t("Use")}
+                            </button>
+                        </div>
+                    )
+                })}
             </div>
         </div>
     );
