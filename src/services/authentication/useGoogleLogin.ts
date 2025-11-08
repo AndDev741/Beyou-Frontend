@@ -10,6 +10,7 @@ import { TFunction } from "i18next";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { themes } from "../../components/utils/listOfThemes";
+import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 
 function useGoogleLogin(
     navigate: NavigateFunction,
@@ -28,6 +29,7 @@ function useGoogleLogin(
             googleRequest(authCode).then((response) => {
                 if(response.successRegister){
                     dispatch(successRegisterEnter(true));
+                    dispatch(defaultErrorEnter(""));
                 }else if(response.success){
                     const data = response.success as UserType;
                     dispatch(nameEnter(data.name));

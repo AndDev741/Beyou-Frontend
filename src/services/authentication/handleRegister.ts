@@ -6,6 +6,7 @@ import { successRegisterEnter } from "../../redux/authentication/registerSlice";
 import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { NavigateFunction } from "react-router-dom";
+import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 
 export default async function handleRegister(
     e: React.FormEvent<HTMLFormElement>,
@@ -56,6 +57,7 @@ export default async function handleRegister(
             }
         }else if(response.success){
             dispatch(successRegisterEnter(true));
+            dispatch(defaultErrorEnter(""));
             navigate("/");
         }else if(response.error){
             setEmailError(t('EmailInUseError'));
