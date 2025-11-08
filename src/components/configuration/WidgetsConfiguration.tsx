@@ -18,7 +18,7 @@ export default function WidgetsConfiguration() {
 
     const [currentWidgets, setCurrentWidgets] = useState<string[]>(widgetsIdsInUse);
     const [availableWidgets, setAvailableWidgets] = useState<string[]>(
-        widgetsIds.filter(id => !currentWidgets.includes(id))
+        widgetsIds.filter(id => !currentWidgets?.includes(id))
     );
     const [successMessage, setSuccessMessage] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -159,8 +159,8 @@ function DroppableList({
             <h3 className="p-1 text-lg font-medium text-secondary">{title}</h3>
             <Droppable
                 droppableId={droppableId}
-                direction={widgets.length > 2 ? "vertical" : "horizontal"}
-                key={`${droppableId}-${widgets.length}`}
+                direction={widgets?.length > 2 ? "vertical" : "horizontal"}
+                key={`${droppableId}-${widgets?.length}`}
             >
                 {(provided, snapshot) => (
                     <div
@@ -170,7 +170,7 @@ function DroppableList({
                         ${snapshot.isDraggingOver ? "border-primary bg-primary/10 min-h-[200px]" : "border-primary/20 bg-background"}
                         ${snapshot.draggingFromThisWith ? "max-h-[630px]" : ""}`}
                     >
-                        {widgets.length === 0 && (
+                        {widgets?.length === 0 && (
                             <p className="text-sm text-description italic ">
                                 {droppableId === "currentWidgets"
                                     ? t("No current widgets")
@@ -178,7 +178,7 @@ function DroppableList({
                             </p>
                         )}
 
-                        {widgets.map((id: string, index: number) => (
+                        {widgets?.map((id: string, index: number) => (
                             <Draggable key={id} draggableId={id} index={index}>
                                 {(provided, snapshot) => (
                                     <div

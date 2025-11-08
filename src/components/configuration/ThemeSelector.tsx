@@ -26,7 +26,9 @@ export default function ThemeSelector(){
             <h1 className="text-2xl font-semibold mb-4">{t('Theme')}</h1>
             <div className="flex items-center justify-evenly w-full flex-wrap">
                 {themes.map(theme => (
-                    <div className="flex flex-col items-center">
+                    <div className="flex flex-col items-center"
+                    key={theme.mode}
+                    >
                         <div className={`border-[1px] rounded-full w-[40px] h-[40px] cursor-pointer mx-5 my-1`}
                         style={{background: `linear-gradient(90deg, ${theme.background} 50%, ${theme.primary} 50%)`,
                         borderColor: theme.primary}}

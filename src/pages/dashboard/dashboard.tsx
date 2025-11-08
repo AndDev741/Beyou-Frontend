@@ -52,7 +52,7 @@ function Dashboard() {
             dispatch(enterGoals(goals.success));
 
             const categories = await getCategories(t);
-            if (categories.success.length > 0) {
+            if (categories?.success?.length > 0) {
                 const categoriesLoop = categories.success as category[];
                 const categoryWithMoreXp = categoriesLoop.reduce((prev, current) => {
                     return (prev.xp > current.xp) ? prev : current;

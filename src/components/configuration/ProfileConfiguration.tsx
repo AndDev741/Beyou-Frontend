@@ -219,7 +219,7 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                     </button>
                     <SmallButton
                         text={t('Save')}
-                        disabled={!tempPhotoUrl.trim()}
+                        disabled={!tempPhotoUrl?.trim()}
                         onClick={handleSave}
                     />
                 </div>
