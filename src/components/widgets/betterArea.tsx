@@ -6,25 +6,36 @@ import iconSearch from "../icons/iconsSearch";
 import { IconObject } from "../../types/icons/IconObject";
 
 export type betterAreaProps = {
-    category: category | null;
+    categoriePassed: category | null;
 }
 
-export default function BetterArea({category, ...props}: betterAreaProps){
+const categoryExample: category = {
+    id: "dsadsadsa",
+    iconId: "MdSportsGymnastics",
+    name: "Example",
+    xp: 450,
+    actualLevelXp: 400,
+    nextLevelXp: 480,
+    level: 6,
+    description: "Just a mock",
+    habits: [],
+    createdAt: new Date()
+}
+
+export default function BetterArea({categoriePassed}: betterAreaProps){
     const {t} = useTranslation();
+    const [categoryToUse, setCategoryToUse] = useState<category>(categoryExample);
     const [Icon, setIcon] = useState<IconObject>();
 
     useEffect(() => {
-        if(category){
-            const response = iconSearch(category.iconId) ;
+        if(categoriePassed){
+            setCategoryToUse(categoriePassed);
+            const response = iconSearch(categoriePassed.iconId) ;
             setIcon(response as IconObject);
         }
-    }, [category]);
+    }, [categoriePassed]);
 
-    
-    if(!category) {
-        return null;
-    }
-    const actualProgress = Math.round(((category.xp - category.actualLevelXp) / (category.nextLevelXp - category.actualLevelXp)) * 100);
+    const actualProgress = Math.round(((categoryToUse.xp - categoryToUse.actualLevelXp) / (categoryToUse.nextLevelXp - categoryToUse.actualLevelXp)) * 100);
 
     return (
         <BaseDiv title={t('Better Area')}>
@@ -32,7 +43,7 @@ export default function BetterArea({category, ...props}: betterAreaProps){
                 <p className="text-[25px] text-primary">
                 {Icon !== undefined && Icon !== null ? <Icon.IconComponent/> : null}
                 </p>
-                <h3 className={`text-lg text-primary md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{category.name}</h3>
+                <h3 className={`text-lg text-primary md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{categoryToUse.name}</h3>
             </div>
             <div className="flex w-full">
                 <div className="border border-primary bg-primary h-[15px] rounded-l-xl"
@@ -40,7 +51,7 @@ export default function BetterArea({category, ...props}: betterAreaProps){
                 <div className="border border-primary bg-primary/10 h-[15px] rounded-r-xl"
                 style={{width: `${100 - actualProgress}%`}}></div>
             </div>
-            <h3 className="text-secondary">LV {category.level}</h3>
+            <h3 className="text-secondary">LV {categoryToUse.level}</h3>
         </BaseDiv>
     )
 }

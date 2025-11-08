@@ -81,7 +81,7 @@ export default function ProfileConfiguration() {
                     onClick={() => setEditPhotoModal(true)}>
                     <img src={editPhoto}
                         alt={t('Profile')}
-                        className="w-24 h-24 lg:w-32 lg:h-32 rounded-full cursor-pointer" />
+                        className="w-24 h-24 lg:w-32 lg:h-32 rounded-full cursor-pointer border border'[1px] border-primary" />
 
                     <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />

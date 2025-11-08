@@ -114,7 +114,7 @@ function Dashboard() {
                                     <WidgetsFabric
                                         key={id}
                                         widgetId={id as keyof WidgetProps}
-                                        category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                        categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
                                         constance={constance}
                                         checked={checkedItemsInScheduledRoutine}
                                         total={totalItemsInScheduledRoutine}
@@ -133,7 +133,7 @@ function Dashboard() {
                             <WidgetsFabric
                                 key={id}
                                 widgetId={id as keyof WidgetProps}
-                                category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
                                 constance={constance}
                                 checked={checkedItemsInScheduledRoutine}
                                 total={totalItemsInScheduledRoutine}

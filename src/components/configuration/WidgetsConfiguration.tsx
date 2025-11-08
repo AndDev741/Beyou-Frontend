@@ -16,7 +16,7 @@ export default function WidgetsConfiguration() {
 
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
 
-    const [currentWidgets, setCurrentWidgets] = useState<string[]>(widgetsIdsInUse);
+    const [currentWidgets, setCurrentWidgets] = useState<string[]>(widgetsIdsInUse || []);
     const [availableWidgets, setAvailableWidgets] = useState<string[]>(
         widgetsIds.filter(id => !currentWidgets?.includes(id))
     );
@@ -200,7 +200,7 @@ function DroppableList({
                                             <WidgetsFabric
                                                 key={id}
                                                 widgetId={id as keyof WidgetProps}
-                                                category={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                                categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
                                                 constance={constance}
                                                 checked={checked}
                                                 total={total}
