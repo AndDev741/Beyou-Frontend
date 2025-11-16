@@ -76,9 +76,13 @@ export default function RenderRoutines() {
                             <FaRegClock />
                         </p>
                         <p className="mt-1 text-secondary">{t("Schedule")}</p>
-                        <p className="line-clamp-1 text-center text-description text-sm">
-                            {routine.schedule ? routine.schedule.days.join(", ") : null}
-                        </p>
+                        <div className="flex items-center gap-1">
+                            {routine?.schedule?.days ? routine.schedule?.days?.map((day, index) => (
+                                <p className="line-clamp-1 text-center text-description text-sm">
+                                    {t(day)}{index === routine.schedule?.days?.length! - 1 ? "" : ", "}
+                                </p>
+                            )) : null}
+                        </div>
                     </div>
                 </div>
 
