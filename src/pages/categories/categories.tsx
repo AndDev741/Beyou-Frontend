@@ -3,7 +3,6 @@ import RenderCategories from "../../components/categories/renderCategories";
 import EditCategory from "../../components/categories/editCategory";
 import { useSelector } from "react-redux";
 import Header from "../../components/header";
-import GenerateCategoryByAi from "../../components/categories/generateCategoryByAi";
 import { useState } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
@@ -27,9 +26,6 @@ function Categories(){
                 <div className="lg:flex lg:flex-col w-[100%] lg:w-[42%]">
                     {editMode ? <EditCategory setCategories={setCategories}/> : 
                     <CreateCategory generatedCategory={generatedCategory} setCategories={setCategories} />}
-                    
-                    {editMode ? null : <GenerateCategoryByAi
-                    setGeneratedCategory={setGeneratedCategory}/>}
                 </div>
             </main>
         </div>
