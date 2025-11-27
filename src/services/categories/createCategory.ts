@@ -16,7 +16,7 @@ async function createCategory (
     let level = 0;
     let xp = 0;
 
-    switch(experience){
+    switch(Number(experience)){
         case 1:
             level += 5
             xp += 750;
