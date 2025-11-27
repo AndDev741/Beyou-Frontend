@@ -18,7 +18,6 @@ const categoryExample: category = {
     nextLevelXp: 480,
     level: 6,
     description: "Just a mock",
-    habits: [],
     createdAt: new Date()
 }
 

@@ -30,6 +30,8 @@ function RenderCategories({categories, setCategories}: props){
         returnCategories();
     }, [setCategories, t])
 
+    console.log("CATEGORIES +> ", categories);
+
     return(
         <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start text-secondary">
             {categories.length > 0 ? (
@@ -46,6 +48,9 @@ function RenderCategories({categories, setCategories}: props){
                     nextLevelXp={category.nextLevelXp}
                     actualLevelXp={category.actualLevelXp}
                     setCategories={setCategories}
+                    habits={category.habits ? new Map(Object.entries(category.habits)) : undefined}
+                    tasks={category.tasks ? new Map(Object.entries(category.tasks)) : undefined}
+                    goals={category.goals ? new Map(Object.entries(category.goals)) : undefined}
                     />
                 </div>
                 ))    

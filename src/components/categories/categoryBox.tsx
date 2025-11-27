@@ -14,9 +14,13 @@ import DeleteModal from "../DeleteModal";
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 
     setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>,
+    habits?: Map<string, string>,
+    tasks?: Map<string, string>,
+    goals?: Map<string, string>
+
 }
 
-function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories}: props){
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories, habits, tasks, goals}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [Icon, setIcon]= useState<IconObject>();
@@ -61,14 +65,44 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
 
             <p className={`text-[15px] leading-tight text-description ${expanded ? "line-clamp-none my-2" : "line-clamp-2"}`}>{description}</p>
 
-            <div className={`${expanded ? "block my-2" : "hidden"}`}>
-                <h2 className="text-lg font-semibold">Using in:</h2>
-                <ul className="text-description">
-                    <li className="ml-6 list-disc">Habit: SomeHabit</li>
-                    <li className="ml-6 list-disc">Task: SomeTask</li>
-                    <li className="ml-6 list-disc">Goal: Some Goal</li>
-                </ul>
-            </div>
+            {(habits?.size || tasks?.size || goals?.size) ? (
+                <div className={`${expanded ? "block my-2" : "hidden"}`}>
+                    <h2 className="text-lg font-semibold">{t('Using in')}:</h2>
+                    <ul className="text-description">
+                        {habits && habits.size > 0 ? (
+                            <>
+                            <li className="font-semibold">{t('Habits')}:</li>
+                            {[...habits?.values()].map(name => (
+                                <li className="ml-6 list-disc">{name}</li>
+                            ))}
+                            </>
+                        ) : null}
+
+                        {tasks && tasks.size > 0 ? (
+                            <>
+                            <li className="font-semibold">{t('Tasks')}:</li>
+                            {[...tasks?.values()].map(name => (
+                                <li className="ml-6 list-disc">{name}</li>
+                            ))}
+                            </>
+                        ) : null}
+
+                        {goals && goals.size > 0 ? (
+                            <>
+                            <li className="font-semibold">{t('Goals')}:</li>
+                            {[...goals?.values()].map(name => (
+                                <li className="ml-6 list-disc">{name}</li>
+                            ))}
+                            </>
+                        ) : null}
+                    </ul>
+                </div>
+            ) : (
+                <p  className={`${expanded ? "block mb-2 text-sm text-description" : "hidden"}`}>
+                    {t('Add this category in a habit, task or goal!')}
+                </p>
+            )}
+           
 
             <div className="flex flex-col mb-1">
                 <div className="flex justify-between">
