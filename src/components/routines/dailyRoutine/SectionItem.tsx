@@ -280,7 +280,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             </div>
 
             {openTaskSelector && (
-                <div className="w-[100%] md:w-full flex flex-col items-center justify-center ml-[-20px]">
+                <div className="w-[100%] md:w-full flex flex-col items-center justify-center">
                     <TaskAndHabitSelector
                         setRoutineSection={setRoutineSection}
                         index={index}
