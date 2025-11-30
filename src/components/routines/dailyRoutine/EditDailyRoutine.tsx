@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
-import AddIcon from '../../../assets/addIcon.svg';
 import { useTranslation } from "react-i18next";
 import CreateRoutineSection from "./CreateRoutineSection";
 import { RoutineSection } from "../../../types/routine/routineSection";
-import { IconObject } from "../../../types/icons/IconObject";
 import SectionItem from "./SectionItem";
-import Button from "../../Button";
 import { Routine } from "../../../types/routine/routine";
-import createRoutine from "../../../services/routine/createRoutine";
 import { useDispatch, useSelector } from "react-redux";
 import { enterRoutines } from "../../../redux/routine/routinesSlice";
 import getRoutines from "../../../services/routine/getRoutines";
@@ -17,6 +13,7 @@ import editRoutine from "../../../services/routine/editRoutine";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
+import Button from "../../Button";
 
 
 const EditDailyRoutine = () => {
@@ -199,19 +196,12 @@ const EditDailyRoutine = () => {
             )}
             <div className="my-2 mb-6 flex flex-col items-center"
             >
-                <div className="w-full flex">
-                    <button
-                        onClick={handleEdit}
-                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 mx-4 bg-primary text-background dark:text-secondary hover:bg-primary/90 hover:shadow-lg'>
-                        {t('Edit')}
-                    </button>
+                <div className="w-full flex mt-2">
+                    <Button text={t('Cancel')} mode="cancel" size="medium" onClick={() => dispatch(editModeEnter(false))} />
 
+                    <div className="mx-3"></div>
 
-                    <button type='button'
-                        onClick={() => dispatch(editModeEnter(false))}
-                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 mx-4 bg-secondary/20 text-secondary hover:bg-secondary/30'>
-                        {t('Cancel')}
-                    </button>
+                    <Button text={t('Edit')} mode="create" size="medium" onClick={handleEdit} />
                 </div>
                 <p className="text-center text-error mt-2">{errorMessage}</p>
             </div>

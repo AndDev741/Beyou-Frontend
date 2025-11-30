@@ -11,6 +11,7 @@ import categoryType from '../../types/category/categoryType';
 import { RootState } from '../../redux/rootReducer';
 import GenericInput from '../inputs/genericInput';
 import { CgAddR } from 'react-icons/cg';
+import Button from '../Button';
 
 type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>};
 
@@ -136,17 +137,10 @@ function EditCategory({setCategories}: prop){
                 <p className='text-success text-xl text-center underline mt-3'>{successMessage}</p>
                 <div className='flex items-center justify-evenly mt-3'>
                     <div>
-                        <button type='button'
-                        onClick={handleCancel}
-                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold bg-secondary/10 text-secondary hover:bg-secondary/20 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border border-primary'>
-                            {t('Cancel')}
-                        </button>
+                        <Button text={t('Cancel')} mode='cancel' size='medium' onClick={handleCancel} />
                     </div>
                     <div>
-                        <button 
-                        className='w-[120px] md:w-[200px] h-[45px] bg-primary rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
-                            {t('Edit')}
-                        </button>
+                        <Button text={t('Edit')} mode='create' size='medium' />
                     </div>
                 </div>
             </form>

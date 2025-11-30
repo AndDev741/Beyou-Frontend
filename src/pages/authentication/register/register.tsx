@@ -91,7 +91,7 @@ function Register(){
                         />
 
                         <div className="mt-8 lg:mt-4">
-                            <Button text={t('ToRegister')}/>
+                            <Button text={t('ToRegister')} mode='create' size='big'/>
                         </div>
                         <p className={`${defaultError ? "block text-error underline text-xl text-center" : "hidden"}`}>{defaultError}</p>
                     </form>

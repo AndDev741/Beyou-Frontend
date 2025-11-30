@@ -14,6 +14,7 @@ import category from "../../types/category/categoryType";
 import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
 import { CgAddR } from "react-icons/cg";
+import Button from "../Button";
 
 function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -234,17 +235,10 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                 <p className='text-error text-lg text-center'>{unknownError}</p>
                 <div className='flex w-full items-center justify-evenly my-6'>
                     <div>
-                        <button type='button'
-                        onClick={handleCancel}
-                        className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold bg-secondary/10 text-secondary hover:bg-secondary/20 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border-primary border-[1px]'>
-                            {t('Cancel')}
-                        </button>
+                        <Button text={t("Cancel")} mode='cancel' size='medium' onClick={handleCancel}/>
                     </div>
                     <div>
-                        <button 
-                        className='w-[120px] md:w-[200px] h-[45px] bg-primary rounded-[20px] text-white text-lg lg:text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105'>
-                            {t('Edit')}
-                        </button>
+                        <Button text={t("Edit")} mode='create' size='medium'/>
                     </div>
                 </div>
             </form>

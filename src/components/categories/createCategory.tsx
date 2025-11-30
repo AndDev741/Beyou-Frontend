@@ -156,7 +156,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
                 </div>
                 <div className='flex flex-col items-center justify-center mt-6'>
                 <p className='text-error text-lg'>{unknownError}</p>
-                    <Button text={t('Create')} />
+                    <Button text={t('Create')} mode='create' size='big' />
                 </div>
             </form>
         </div>

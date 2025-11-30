@@ -16,6 +16,7 @@ import getTasks from "../../services/tasks/getTasks";
 import arrowDown from "../../assets/arrowDown.svg";
 import arrowUp from "../../assets/arrowUp.svg"
 import { CgAddR } from "react-icons/cg";
+import Button from "../Button";
 
 function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -237,17 +238,10 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                 <p className='text-error text-lg text-center underline'>{unknownError}</p>
                 <div className='flex w-full items-center justify-evenly mt-6'>
                     <div>
-                        <button type='button'
-                            onClick={handleCancel}
-                            className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 bg-secondary/20 text-secondary hover:bg-secondary/30'>
-                            {t('Cancel')}
-                        </button>
+                        <Button text={t("Cancel")} mode='cancel' size='medium' onClick={handleCancel}/>
                     </div>
                     <div>
-                        <button
-                            className='w-[120px] md:w-[200px] h-[45px] rounded-[20px] text-lg lg:text-2xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 bg-primary text-background dark:text-secondary hover:bg-primary/90 hover:shadow-lg'>
-                            {t('Edit')}
-                        </button>
+                        <Button text={t("Edit")} mode='create' size='medium'/>
                     </div>
                 </div>
             </form>

@@ -188,7 +188,7 @@ const CreateDailyRoutine = () => {
             <div className="my-2 mb-6 flex flex-col items-center"
                 onClick={handleCreate}
             >
-                <Button text={t('create')} />
+                <Button text={t('create')} mode='create' size='big'/>
                 <p className="text-center text-error mt-2">{errorMessage}</p>
             </div>
 

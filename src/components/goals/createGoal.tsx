@@ -211,7 +211,7 @@ function CreateGoal({ setGoals }: Props) {
 
         <p className="text-error text-center mt-2">{errorMessage}</p>
         <div className="flex justify-center mt-4">
-          <Button text={t("Create")} />
+          <Button text={t("Create")} mode='create' size='big' />
         </div>
       </form>
     </div>

@@ -82,7 +82,7 @@ function Login(){
 
                         <p className="mt-4 lg:mt-3 mb-6 lg:mb-4 text-xl text-primary underline font-medium cursor-pointer">{t('ForgotPassword')}</p>
 
-                        <Button text={t('Enter')}/>
+                        <Button text={t('Enter')} mode='create' size='big'/>
                         
                     </form>
 

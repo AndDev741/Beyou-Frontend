@@ -201,7 +201,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                 </div>
                 <p className='text-error text-lg text-center'>{unknownError}</p>
                 <div className="mb-3 mt-3">
-                    <Button text={t("Create")} />
+                    <Button text={t("Create")} mode='create' size='big'/>
                 </div>
             </form>
         </div>

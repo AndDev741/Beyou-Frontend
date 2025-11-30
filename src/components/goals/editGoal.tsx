@@ -21,7 +21,6 @@ import {
   editMotivationEnter,
   editStartDateEnter,
   editEndDateEnter,
-  editXpRewardEnter,
   editStatusEnter,
   editTermEnter,
 } from "../../redux/goal/editGoalSlice";
@@ -29,7 +28,6 @@ import { goal as GoalType } from "../../types/goals/goalType";
 import SelectorInput from "../inputs/SelectorInput";
 import IconsBox from "../inputs/iconsBox";
 import category from "../../types/category/categoryType";
-import { set } from "date-fns";
 
 type Props = {
   setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
@@ -102,19 +100,6 @@ function EditGoal({ setGoals }: Props) {
 
   const handleCancel = () => {
     dispatch(editModeEnter(false));
-    dispatch(editGoalIdEnter(""));
-    dispatch(editTitleEnter(""));
-    dispatch(editDescriptionEnter(""));
-    dispatch(editTargetValueEnter(0));
-    dispatch(editUnitEnter(""));
-    dispatch(editCurrentValueEnter(0));
-    dispatch(editCompleteEnter(false));
-    dispatch(editCategoryEnter(null));
-    dispatch(editMotivationEnter(""));
-    dispatch(editStartDateEnter(""));
-    dispatch(editEndDateEnter(""));
-    dispatch(editStatusEnter(""));
-    dispatch(editTermEnter(""));
   };
 
   const handleEdit = async (e: React.FormEvent) => {
@@ -281,14 +266,8 @@ function EditGoal({ setGoals }: Props) {
 
         <p className="text-error text-center mt-2">{errorMessage}</p>
         <div className="flex items-center justify-evenly mt-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="w-[120px] h-[40px] rounded bg-secondary/20 text-secondary hover:bg-secondary/30 transition-colors duration-200"
-          >
-            {t("Cancel")}
-          </button>
-          <Button text={t("Edit")} />
+          <Button text={t("Cancel")} mode='cancel' size='medium' onClick={handleCancel}/>
+          <Button text={t("Edit")} mode='create' size='medium' />
         </div>
       </form>
     </div>
