@@ -2,6 +2,7 @@ import { TFunction } from "i18next";
 import { IconObject } from "../../types/icons/IconObject";
 import { useEffect, useState } from "react";
 import iconRender from "../icons/iconsRender";
+import React from "react";
 
 type IconsBoxSmallProps = {
     search: string,
@@ -66,4 +67,4 @@ function IconsBoxSmall({
     );
 }
 
-export default IconsBoxSmall;
+export default React.memo(IconsBoxSmall);
