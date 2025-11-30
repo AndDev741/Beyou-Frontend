@@ -2,6 +2,7 @@ import { TFunction } from "i18next";
 import { IconObject } from "../../types/icons/IconObject";
 import { useEffect, useState, useMemo } from "react";
 import iconRender from "../icons/iconsRender";
+import React from "react";
 
 type iconsInputProps = {
     search: string;
@@ -92,4 +93,4 @@ function IconsBox({
     );
 }
 
-export default IconsBox;
+export default React.memo(IconsBox);
