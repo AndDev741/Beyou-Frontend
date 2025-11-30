@@ -63,6 +63,7 @@ function IconsBox({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     name="icon"
+                    id="icon"
                     className="w-[30vw] md:w-[190px] ml-1 pl-1 border border-primary rounded-md outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
                     placeholder={t("IconPlaceholder")}
                 />
