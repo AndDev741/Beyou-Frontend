@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { goal } from "../../types/goals/goalType";
 import GoalBox from "./goalBox";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { editModeEnter } from "../../redux/goal/editGoalSlice";
 
 type RenderGoalsProps = {
   goals: goal[];
@@ -9,7 +12,12 @@ type RenderGoalsProps = {
 
 function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
   const { t } = useTranslation();
-
+  const dispatch = useDispatch();
+  
+  //When open the page
+  useEffect(() => {
+      dispatch(editModeEnter(false));
+  }, []); 
   return (
     <div className="flex flex-wrap md:items-start justify-center md:justify-between md:justify-evenly lg:justify-start text-secondary">
       {goals.length > 0 ? (

@@ -146,6 +146,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
             deleteObject={deleteTask}
             getObjects={getTasks}
             deletePhrase={t('ConfirmDeleteOfTaskPhrase')}
+            mode="task"
             />
             </div>
         </div>

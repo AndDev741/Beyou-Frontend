@@ -1,4 +1,11 @@
 import { TFunction } from "i18next";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/rootReducer";
+import { useDispatch } from "react-redux";
+import { editModeEnter as editCategoryMode } from "../redux/category/editCategorySlice";
+import { editModeEnter as editHabitMode } from "../redux/habit/editHabitSlice";
+import { editIdEnter as editTaskMode } from "../redux/task/editTaskSlice";
+import { editModeEnter as editGoalMode } from "../redux/goal/editGoalSlice";
 
 
 type deleteProps = {
@@ -10,18 +17,49 @@ type deleteProps = {
     setObjects: any,
     deleteObject: any,
     getObjects: any,
-    deletePhrase: string
+    deletePhrase: string,
+    mode: "category" | "habit" | "task" | "goal";
 }
 
-function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, deleteObject, getObjects, deletePhrase}: deleteProps){
+function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, deleteObject, getObjects, deletePhrase, mode}: deleteProps){
+    const dispatch = useDispatch();
+    const categoryIdInEdit = useSelector((state: RootState) => state.editCategory.id);
+    const habitIdInEdit = useSelector((state: RootState) => state.editHabit.id);
+    const taskIdInEdit = useSelector((state: RootState) => state.editTask.id);
+    const goalIdInEdit = useSelector((state: RootState) => state.editGoal.goalId);
 
     const handleDelete = async () => {
         const response = await deleteObject(objectId, t);
 
+        switch(mode){
+            case "category":
+                if(categoryIdInEdit === objectId){
+                    dispatch(editCategoryMode(false));
+                }
+                break;
+            case "habit":
+                if(habitIdInEdit === objectId){
+                    dispatch(editHabitMode(false));
+                }
+                break;
+            case "task":
+                if(taskIdInEdit === objectId){
+                    dispatch(editTaskMode(false));
+                }
+                break;
+            case "goal":
+                if(goalIdInEdit === objectId){
+                    dispatch(editGoalMode(false));
+                }
+                break
+            default:
+                console.log("No mode found");
+        }
+
         if(response.success){
-           const newHabits = await getObjects(t);
-           if(Array.isArray(newHabits.success)){
-            setObjects(newHabits.success);
+           const newObjects = await getObjects(t);
+           if(Array.isArray(newObjects.success)){
+            setObjects(newObjects.success);
            }
         }
     }

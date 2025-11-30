@@ -287,6 +287,7 @@ function GoalBox({
           deleteObject={deleteGoal}
           getObjects={getGoals}
           deletePhrase={t("ConfirmDeleteOfGoalPhrase")}
+          mode="goal"
         />
       </div>
     </div>

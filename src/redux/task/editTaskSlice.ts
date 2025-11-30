@@ -1,6 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 import category from "../../types/category/categoryType";
 
+const initialObject = {
+    editMode: false,
+    id: "",
+    name: "",
+    description: "",
+    iconId: "",
+    importance: null,
+    dificulty: null,
+    categories: null,
+    oneTimeTask: false,
+  }
+
 const initialState: {
     editMode: boolean;
     id: string;
@@ -11,17 +23,7 @@ const initialState: {
     dificulty: number | null;
     categories: category[] | null;
     oneTimeTask: boolean;
-  } = {
-    editMode: false,
-    id: "",
-    name: "",
-    description: "",
-    iconId: "",
-    importance: null,
-    dificulty: null,
-    categories: null,
-    oneTimeTask: false,
-  };
+  } = initialObject;
 
 const editTaskSlice = createSlice({
     name: 'editHabit',
@@ -29,6 +31,9 @@ const editTaskSlice = createSlice({
     reducers: {
         editModeEnter(state, action){
             const editMode = action.payload;
+            if(editMode === false){
+                return {...initialObject};
+            }
             return {...state, editMode};
         },
         editIdEnter(state, action){

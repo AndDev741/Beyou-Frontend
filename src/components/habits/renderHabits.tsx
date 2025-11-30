@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import HabitBox from "./habitBox";
 import { habit } from "../../types/habit/habitType";
 import { t } from "i18next";
+import { useDispatch } from "react-redux";
+import { editModeEnter } from "../../redux/habit/editHabitSlice";
 
 type renderHabitsProps = {
     habits: habit[],
@@ -10,7 +12,13 @@ type renderHabitsProps = {
 }
 
 function RenderHabits({habits, setHabits}: renderHabitsProps){
+    const dispatch = useDispatch();
 
+    //When open the page
+    useEffect(() => {
+        dispatch(editModeEnter(false));
+    }, []);
+    
     useEffect(() => {
         const returnHabits = async () => {
             const response = await getHabits(t);

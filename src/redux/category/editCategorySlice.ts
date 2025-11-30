@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-
-const initialState = {
+const initialObject = {
     editMode: false,
     id: "",
     name: "",
@@ -9,12 +8,17 @@ const initialState = {
     icon: ""
 }
 
+const initialState = initialObject;
+
 const editCategorySlice = createSlice({
     name: 'editCategory',
     initialState,
     reducers: {
         editModeEnter(state, action){
             const editMode = action.payload;
+            if(editMode === false) {
+                return {...initialObject}
+            }
             return {...state, editMode};
         },
         idEnter(state, action){

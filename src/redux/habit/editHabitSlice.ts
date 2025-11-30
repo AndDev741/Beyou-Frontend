@@ -1,6 +1,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 import category from "../../types/category/categoryType";
 
+const initialObject = {
+    editMode: false,
+    id: "",
+    name: "",
+    description: "",
+    motivationalPhrase: "",
+    iconId: "",
+    importance: 0,
+    dificulty: 0,
+    categories: [],
+  }
+
 const initialState: {
     editMode: boolean;
     id: string;
@@ -10,18 +22,8 @@ const initialState: {
     iconId: string;
     importance: number;
     dificulty: number;
-    categories: category[]; // ⬅️ Corrigido para um array do tipo Category
-  } = {
-    editMode: false,
-    id: "",
-    name: "",
-    description: "",
-    motivationalPhrase: "",
-    iconId: "",
-    importance: 0,
-    dificulty: 0,
-    categories: [], // ⬅️ Agora TypeScript entende que é um array de Category
-  };
+    categories: category[];
+  } = initialObject;
 
 const editHabitSlice = createSlice({
     name: 'editHabit',
@@ -29,6 +31,9 @@ const editHabitSlice = createSlice({
     reducers: {
         editModeEnter(state, action){
             const editMode = action.payload;
+            if(editMode === false){
+                return {...initialObject}
+            }
             return {...state, editMode};
         },
         editIdEnter(state, action){

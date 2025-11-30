@@ -1,6 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { task } from "../../types/tasks/taskType";
 import TaskBox from "./taskBox";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { editModeEnter } from "../../redux/task/editTaskSlice";
 
 type renderTasksProps = {
     tasks: task[],
@@ -9,7 +12,12 @@ type renderTasksProps = {
 
 function RenderTasks({tasks, setTasks}: renderTasksProps){
     const {t} = useTranslation();
-
+    const dispatch = useDispatch();
+  
+    //When open the page
+    useEffect(() => {
+        dispatch(editModeEnter(false));
+    }, []); 
     return(
         <div className="flex flex-wrap items-start justify-between md:justify-evenly lg:justify-start text-secondary">
            {tasks.length > 0 ? (

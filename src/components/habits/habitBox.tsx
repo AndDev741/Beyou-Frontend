@@ -201,6 +201,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                 deleteObject={deleteHabit}
                 getObjects={getHabits}
                 deletePhrase={t('DeleteHabitPhrase')}
+                mode="habit"
                 />
                 </div>
            

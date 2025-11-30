@@ -72,8 +72,8 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                         {habits && habits.size > 0 ? (
                             <>
                             <li className="font-semibold">{t('Habits')}:</li>
-                            {[...habits?.values()].map(name => (
-                                <li className="ml-6 list-disc">{name}</li>
+                            {[...habits?.values()].map((name, index) => (
+                                <li className="ml-6 list-disc" key={name}>{name}</li>
                             ))}
                             </>
                         ) : null}
@@ -82,7 +82,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                             <>
                             <li className="font-semibold">{t('Tasks')}:</li>
                             {[...tasks?.values()].map(name => (
-                                <li className="ml-6 list-disc">{name}</li>
+                                <li className="ml-6 list-disc" key={name}>{name}</li>
                             ))}
                             </>
                         ) : null}
@@ -91,7 +91,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                             <>
                             <li className="font-semibold">{t('Goals')}:</li>
                             {[...goals?.values()].map(name => (
-                                <li className="ml-6 list-disc">{name}</li>
+                                <li className="ml-6 list-disc" key={name}>{name}</li>
                             ))}
                             </>
                         ) : null}
@@ -135,7 +135,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
             deleteObject={deleteCategory}
             getObjects={getCategories}
             deletePhrase={t('ConfirmDeleteOfCategoryPhrase')}
-
+            mode="category"
             />
         </div>
     )
