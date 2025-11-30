@@ -15,15 +15,15 @@ function GenericInput({t, dataError, name, setData, data, placeholder, type = "t
     return(
         <>
             <div className="flex flex-col">
-                <label htmlFor={`data`} 
+                <label htmlFor={name} 
                 className={labelCss}>{t(`${name}`)}</label>
                 <p className='text-error text-lg'>{dataError}</p>
                 <input
                 value={data}
                 type={type}
                 onChange={(e) => setData(e.target.value)}
-                name={`data`} 
-                id={`data`} 
+                name={name} 
+                id={name} 
                 placeholder={t(`${placeholder}`)}
                 className={`${borderCss} ${dataError ? "border-error" : ""} h-[40px] outline-none pl-2 text-lg`}
                 />

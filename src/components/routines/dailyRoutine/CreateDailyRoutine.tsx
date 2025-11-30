@@ -135,6 +135,13 @@ const CreateDailyRoutine = () => {
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     className="flex items-start w-full">
+
+                                                    <div
+                                                        {...provided.dragHandleProps}
+                                                        className="cursor-grab mt-3 text-icon"
+                                                    >
+                                                        ⠿
+                                                    </div>
                                             
                                                     <SectionItem
                                                         key={index}

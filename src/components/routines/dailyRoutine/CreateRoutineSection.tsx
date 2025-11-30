@@ -187,6 +187,7 @@ const CreateRoutineSection = ({
                             <div className="flex items-center gap-2 w-full">
                                 {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
                                 <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
+                                <span>{section.startTime}</span>
                             </div>
 
                             <button className="hover:text-primary hover:scale-105"
