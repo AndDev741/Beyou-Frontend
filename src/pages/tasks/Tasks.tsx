@@ -31,13 +31,13 @@ function Tasks() {
         <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
             <Header pageName="Your Tasks" />
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
-                <div>
+                <div className="lg:w-[60%]">
                     <RenderTasks
                         tasks={tasks}
                         setTasks={setTasks}
                     />
                 </div>
-                <div className="lg:mr-12">
+                <div className="lg:mr-12 lg:w-[40%]">
                     <div className={`${isEditMode ? "hidden" : "block"}`}>
                         <CreateTask setTasks={setTasks} />
                     </div>
