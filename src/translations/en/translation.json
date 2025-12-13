@@ -279,5 +279,11 @@
     "evening": "Evening",
     "night": "Night",
     "This action cannot be undone.": "This action cannot be undone.",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "Close": "Close",
+    "Pick your days": "Pick your days",
+    "Quick select": "Quick select",
+    "Reset to current": "Reset to current",
+    "Save schedule": "Save schedule",
+    "Saving...": "Saving..."
 }

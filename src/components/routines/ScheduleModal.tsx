@@ -6,130 +6,172 @@ import { useDispatch } from "react-redux";
 import getRoutines from "../../services/routine/getRoutines";
 import { enterRoutines } from "../../redux/routine/routinesSlice";
 import editSchedule from "../../services/schedule/editSchedule";
+import { FiX, FiCalendar, FiCheck, FiRotateCcw } from "react-icons/fi";
 
 interface ScheduleModalProps {
     routine: Routine;
     onClose: () => void;
 }
 
+const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const WEEKDAY_GROUP = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const WEEKEND_GROUP = ["Saturday", "Sunday"];
+
 export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const [selectedDays, setSelectedDays] = useState<string[]>(routine?.schedule?.days || []);
-    const [routineName, setRoutineName] = useState(routine.name);
-    const [handleBgColor, setHandleBgColor] = useState<number[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const dayMapping: { [key: string]: string } = {
-        "Monday": t("Monday"),
-        "Tuesday": t("Tuesday"),
-        "Wednesday": t("Wednesday"),
-        "Thursday": t("Thursday"),
-        "Friday": t("Friday"),
-        "Saturday": t("Saturday"),
-        "Sunday": t("Sunday"),
-    };
-
-    const reverseDayMapping: { [key: string]: string } = Object.fromEntries(
-        Object.entries(dayMapping).map(([key, value]) => [value, key])
-    );
-
-    const handleDayToggle = (day: string) => {
+    const toggleDay = (day: string) => {
         setSelectedDays((prev) =>
             prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
         );
     };
 
-    const handleDays = (days: string[], buttonId: number) => {
-        const allDaysPresent = days.every((day) => selectedDays.includes(day));
-        let newSelectedDays: string[];
-        let newBgColor: number[];
-
-        if (allDaysPresent) {
-            newSelectedDays = selectedDays.filter((day) => !days.includes(day));
-            newBgColor = handleBgColor.filter((id) => id !== buttonId);
-        } else {
-            newSelectedDays = [...selectedDays.filter((day) => !days.some((d) => d === day)), ...days];
-            newBgColor = [...handleBgColor.filter((id) => id !== buttonId), buttonId];
-        }
-
-        setSelectedDays(newSelectedDays);
-        setHandleBgColor(newBgColor);
+    const toggleGroup = (days: string[]) => {
+        const allPresent = days.every((d) => selectedDays.includes(d));
+        setSelectedDays((prev) => {
+            if (allPresent) return prev.filter((d) => !days.includes(d));
+            const filtered = prev.filter((d) => !days.includes(d));
+            return [...filtered, ...days];
+        });
     };
 
     const handleSchedule = async () => {
-        console.log("Scheduled:", { routineName, days: selectedDays });
-
+        if (loading) return;
+        setLoading(true);
         const scheduleId = routine.schedule?.id || "";
         if (!scheduleId) {
-            const scheduleSaved = await createSchedule(selectedDays, routine.id!, t);
-            console.log("Schedule saved:", scheduleSaved);
-        }
-        else {
-            const scheduleUpdated = await editSchedule(scheduleId, selectedDays, routine.id!, t);
-            console.log("Schedule updated:", scheduleUpdated);
+            await createSchedule(selectedDays, routine.id!, t);
+        } else {
+            await editSchedule(scheduleId, selectedDays, routine.id!, t);
         }
         const routines = await getRoutines(t);
-        console.log("Routines fetched:", routines);
         dispatch(enterRoutines(routines.success));
+        setLoading(false);
         onClose();
     };
 
-    const getTranslatedLabel = (key: string) => t(key);
+    const resetSelection = () => setSelectedDays(routine?.schedule?.days || []);
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-background rounded-lg p-6 w-[90%] max-w-md border-2 border-primary text-secondary transition-colors duration-200">
-                <h2 className="text-xl font-bold mb-4 text-secondary">{routineName}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+            <div className="relative z-10 w-full max-w-xl rounded-2xl border border-primary/25 bg-background p-6 shadow-2xl">
+                <header className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <div className="rounded-full bg-primary/10 p-2 text-primary">
+                            <FiCalendar />
+                        </div>
+                        <div>
+                            <p className="text-xs uppercase tracking-wide text-description">{t("Schedule")}</p>
+                            <h2 className="text-xl font-semibold text-secondary">{routine.name}</h2>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        className="rounded-full p-2 text-description transition hover:bg-primary/10 hover:text-primary"
+                        onClick={onClose}
+                        aria-label={t("Close")}
+                    >
+                        <FiX className="h-5 w-5" />
+                    </button>
+                </header>
 
-                <div className="w-full flex items-center justify-between">
-                    <div className="flex flex-wrap w-[60%]">
-                        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
-                            <div className="flex flex-col items-center justify-center" key={day}>
-                                <button
-                                    className={`w-[50px] h-[50px] p-2 mx-3 my-1 rounded-full border-[2px] border-primary transition-colors duration-200 ${selectedDays.includes(day) ? "bg-primary text-background dark:text-secondary" : "bg-background text-primary hover:bg-primary/10"
-                                        }`}
-                                    onClick={() => handleDayToggle(day)}
-                                >
-
-                                </button>
-                                <p className="text-description mt-1">{getTranslatedLabel(day)}</p>
-                            </div>
-                        ))}
+                <div className="mt-6 grid gap-4 md:grid-cols-[2fr,1fr]">
+                    <div className="rounded-xl border border-primary/20 bg-background/80 p-4">
+                        <p className="text-sm font-semibold text-secondary mb-3">{t("Pick your days")}</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 gap-3">
+                            {ALL_DAYS.map((day) => {
+                                const active = selectedDays.includes(day);
+                                return (
+                                    <button
+                                        key={day}
+                                        type="button"
+                                        className={`flex items-center justify-between rounded-lg border px-2 py-2 text-sm font-medium transition ${active
+                                            ? "border-primary bg-primary/10 text-primary shadow-sm"
+                                            : "border-primary/20 bg-background text-secondary hover:border-primary/50"
+                                            }`}
+                                        onClick={() => toggleDay(day)}
+                                    >
+                                        <span>{t(day)}</span>
+                                        {active ? <FiCheck className="h-4 w-4" /> : null}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
 
-                    <div className="w-[30%] flex flex-col items-center justify-evenly">
-                        <button className={`px-4 py-2 my-2 border border-primary rounded transition-colors duration-200 ${handleBgColor.includes(1) ? "bg-primary text-background dark:text-secondary" : "bg-background text-primary hover:bg-primary/10"}`}
-                            onClick={() => handleDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], 1)}
+                    <div className="space-y-3">
+                        <div className="rounded-xl border border-primary/20 bg-background/80 p-4 space-y-3">
+                            <p className="text-sm font-semibold text-secondary">{t("Quick select")}</p>
+                            <GroupButton
+                                label={t("Mon - Fri")}
+                                active={WEEKDAY_GROUP.every((d) => selectedDays.includes(d))}
+                                onClick={() => toggleGroup(WEEKDAY_GROUP)}
+                            />
+                            <GroupButton
+                                label={t("Weekend")}
+                                active={WEEKEND_GROUP.every((d) => selectedDays.includes(d))}
+                                onClick={() => toggleGroup(WEEKEND_GROUP)}
+                            />
+                            <GroupButton
+                                label={t("All week")}
+                                active={ALL_DAYS.every((d) => selectedDays.includes(d))}
+                                onClick={() => toggleGroup(ALL_DAYS)}
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
+                            onClick={resetSelection}
                         >
-                            {t('Mon - Fri')}
-                        </button>
-                        <button className={`px-4 py-2 my-2 border border-primary rounded transition-colors duration-200 ${handleBgColor.includes(2) ? "bg-primary text-background dark:text-secondary" : "bg-background text-primary hover:bg-primary/10"}`}
-                            onClick={() => handleDays(["Saturday", "Sunday"], 2)}
-                        >
-                            {t('Weekend')}
-                        </button>
-                        <button className={`px-4 py-2 my-2 border border-primary rounded transition-colors duration-200 ${handleBgColor.includes(3) ? "bg-primary text-background dark:text-secondary" : "bg-background text-primary hover:bg-primary/10"}`}
-                            onClick={() => handleDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], 3)}
-                        >
-                            {t('All week')}
+                            <FiRotateCcw className="h-4 w-4" />
+                            {t("Reset to current")}
                         </button>
                     </div>
                 </div>
 
-                <div className="flex justify-evenly mt-6">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
                     <button
-                        className="px-4 py-2 bg-primary text-background dark:text-secondary rounded hover:bg-primary/90 transition-colors duration-200"
-                        onClick={() => {
-                            handleSchedule();
-                        }}
+                        type="button"
+                        className="w-full sm:w-auto rounded-lg border border-primary/30 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-primary/10"
+                        onClick={onClose}
                     >
-                        {t("Schedule")}
+                        {t("Cancel")}
                     </button>
-                    <button className="px-4 py-2 bg-secondary/20 text-secondary rounded hover:bg-secondary/30 transition-colors duration-200" onClick={onClose}>
-                        {t('Cancel')}
+                    <button
+                        type="button"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-background transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                        onClick={handleSchedule}
+                        disabled={loading}
+                    >
+                        <FiCheck className="h-4 w-4" />
+                        {loading ? t("Saving...") : t("Save schedule")}
                     </button>
                 </div>
             </div>
         </div>
     );
 }
+
+type GroupButtonProps = {
+    label: string;
+    active: boolean;
+    onClick: () => void;
+};
+
+const GroupButton = ({ label, active, onClick }: GroupButtonProps) => (
+    <button
+        type="button"
+        className={`w-full rounded-lg border px-3 py-2 text-sm font-semibold transition ${active
+            ? "border-primary bg-primary/10 text-primary shadow-sm"
+            : "border-primary/20 text-secondary hover:border-primary/50"
+            }`}
+        onClick={onClick}
+    >
+        {label}
+    </button>
+);

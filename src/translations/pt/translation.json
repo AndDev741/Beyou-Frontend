@@ -277,6 +277,12 @@
     "evening": "Entardecer",
     "night": "Noite",
     "This action cannot be undone.": "Essa ação não pode ser desfeita.",
-    "Cancel": "Cancelar"
+    "Cancel": "Cancelar",
+    "Close": "Fechar",
+    "Pick your days": "Escolha os dias",
+    "Quick select": "Seleção rápida",
+    "Reset to current": "Resetar para atual",
+    "Save schedule": "Salvar agenda",
+    "Saving...": "Salvando..."
 
 }
