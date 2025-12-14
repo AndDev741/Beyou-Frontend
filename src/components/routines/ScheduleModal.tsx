@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Routine } from "../../types/routine/routine";
 import { useTranslation } from "react-i18next";
 import createSchedule from "../../services/schedule/createSchedule";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import getRoutines from "../../services/routine/getRoutines";
 import { enterRoutines } from "../../redux/routine/routinesSlice";
 import editSchedule from "../../services/schedule/editSchedule";
 import { FiX, FiCalendar, FiCheck, FiRotateCcw } from "react-icons/fi";
+import { RootState } from "../../redux/rootReducer";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -20,10 +21,31 @@ const WEEKEND_GROUP = ["Saturday", "Sunday"];
 export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
+    const allRoutines = useSelector((state: RootState) => state.routines.routines) as Routine[] || [];
     const [selectedDays, setSelectedDays] = useState<string[]>(routine?.schedule?.days || []);
     const [loading, setLoading] = useState(false);
+    const [overrides, setOverrides] = useState<Set<string>>(new Set());
+
+    const blockedByDay = useMemo(() => {
+        const map: Record<string, string[]> = {};
+        allRoutines
+            .filter((r) => r.id !== routine.id)
+            .forEach((r) => {
+                r.schedule?.days?.forEach((day) => {
+                    if (!map[day]) map[day] = [];
+                    map[day].push(r.name);
+                });
+            });
+        return map;
+    }, [allRoutines, routine.id]);
+
+    const blockedSet = useMemo(() => new Set(Object.keys(blockedByDay)), [blockedByDay]);
 
     const toggleDay = (day: string) => {
+        const blocked = blockedSet.has(day) && !overrides.has(day);
+        if (blocked) {
+            return;
+        }
         setSelectedDays((prev) =>
             prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
         );
@@ -34,8 +56,18 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         setSelectedDays((prev) => {
             if (allPresent) return prev.filter((d) => !days.includes(d));
             const filtered = prev.filter((d) => !days.includes(d));
-            return [...filtered, ...days];
+            const allowed = days.filter((d) => !blockedSet.has(d) || overrides.has(d));
+            return [...filtered, ...allowed];
         });
+    };
+
+    const handleOverrideDay = (day: string) => {
+        setOverrides((prev) => {
+            const next = new Set(prev);
+            next.add(day);
+            return next;
+        });
+        setSelectedDays((prev) => (prev.includes(day) ? prev : [...prev, day]));
     };
 
     const handleSchedule = async () => {
@@ -84,22 +116,68 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                         <p className="text-sm font-semibold text-secondary mb-3">{t("Pick your days")}</p>
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 gap-3">
                             {ALL_DAYS.map((day) => {
+                                const isBlocked = blockedSet.has(day) && !overrides.has(day);
                                 const active = selectedDays.includes(day);
+                                const names = blockedByDay[day] || [];
+
                                 return (
-                                    <button
-                                        key={day}
-                                        type="button"
-                                        className={`flex items-center justify-between rounded-lg border px-2 py-2 text-sm font-medium transition ${active
-                                            ? "border-primary bg-primary/10 text-primary shadow-sm"
-                                            : "border-primary/20 bg-background text-secondary hover:border-primary/50"
-                                            }`}
-                                        onClick={() => toggleDay(day)}
-                                    >
-                                        <span>{t(day)}</span>
-                                        {active ? <FiCheck className="h-4 w-4" /> : null}
-                                    </button>
+                                    <div key={day} className="relative group">
+                                        <button
+                                            type="button"
+                                            className={`flex w-full items-center justify-between rounded-lg border p-2 text-sm font-medium transition
+                                                ${active
+                                                    ? "border-primary bg-primary/10 text-primary shadow-sm"
+                                                    : isBlocked
+                                                        ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
+                                                        : "border-primary/20 bg-background text-secondary hover:border-primary/50"
+                                                }
+                                        `}
+                                            onClick={() => toggleDay(day)}
+                                            aria-disabled={isBlocked && !selectedDays.includes(day)}
+                                        >
+                                            <span>{t(day)}</span>
+                                            {active && <FiCheck className="h-4 w-4" />}
+                                        </button>
+
+                                        {/* TOOLTIP */}
+                                        {isBlocked && (
+                                            <div
+                                                className="
+                                                        pointer-events-auto
+                                                        absolute left-1/2 top-full z-20 w-56
+                                                        -translate-x-1/2 translate-y-0
+                                                        rounded-md border border-error/30 bg-background
+                                                        p-3 text-xs shadow-lg
+
+                                                        invisible opacity-0
+                                                        group-hover:visible group-hover:opacity-100
+                                                        group-focus-within:visible group-focus-within:opacity-100
+                                                        hover:visible hover:opacity-100
+
+                                                        transition-opacity duration-150
+                                                        "
+                                            >
+                                                <p className="font-semibold text-error">
+                                                    {t('Already scheduled for')}
+                                                </p>
+
+                                                <p className="mt-1 text-description">
+                                                    {names.join(', ')}
+                                                </p>
+
+                                                <button
+                                                    type="button"
+                                                    className="mt-2 w-full rounded-md bg-primary px-3 py-2 text-xs font-semibold text-background transition hover:bg-primary/90"
+                                                    onClick={() => handleOverrideDay(day)}
+                                                >
+                                                    {t('Override day')}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 );
                             })}
+
                         </div>
                     </div>
 

@@ -15,7 +15,6 @@ async function editSchedule(
 
         days: Yup.array()
             .of(Yup.string().required(t('DayInvalid')))
-            .min(1, t('DaysRequired'))
             .required(t('DaysRequired'))
     });
 
