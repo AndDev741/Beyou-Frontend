@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
 import { RoutineSection } from "../../../types/routine/routineSection";

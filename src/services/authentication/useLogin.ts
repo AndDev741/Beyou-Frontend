@@ -8,7 +8,6 @@ import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { UserType } from "../../types/user/UserType";
 import { NavigateFunction } from "react-router-dom";
-import { ThemeType, useTheme } from "../../context/ThemeContext";
 import { themes } from "../../components/utils/listOfThemes";
 
 export default async function handleLogin (

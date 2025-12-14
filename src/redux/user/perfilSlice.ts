@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import category from "../../types/category/categoryType";
-import { widgetsIds } from "../../components/widgets/utils/widgetsFabric";
 import { ThemeType } from "../../context/ThemeContext";
 import { themes } from "../../components/utils/listOfThemes";
 
@@ -16,11 +15,11 @@ type userInitialState = {
     categoryWithLessXp: category | null;
     checkedItemsInScheduledRoutine: number;
     totalItemsInScheduledRoutine: number;
-    widgetsIdInUse: string[];
+    widgetsIdsInUse: string[];
     themeInUse: ThemeType;
 }
 
-const initialState = {
+const initialState: userInitialState = {
     username: "",
     email: "",
     phrase: "",

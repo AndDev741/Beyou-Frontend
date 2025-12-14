@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import habitIcon from '../../assets/dashboard/shortcuts/habits.svg'
 import IconsBox from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";

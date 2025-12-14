@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import AddIcon from '../../assets/addIcon.svg';
 import { CgAddR } from 'react-icons/cg';
 
 type addRoutineButtonProps = {

@@ -5,8 +5,6 @@ import { goal as GoalType } from "../../types/goals/goalType";
 import DeleteModal from "../DeleteModal";
 import getGoals from "../../services/goals/getGoals";
 import deleteGoal from "../../services/goals/deleteGoal";
-import increaseIcon from '../../assets/categories/increaseIcon.svg'
-import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
 import inProgressIcon from '../../assets/inProgress.svg';
 import notStartedIcon from '../../assets/Not Started Icon.svg';
 import completedIcon from '../../assets/Completed Icon.svg';

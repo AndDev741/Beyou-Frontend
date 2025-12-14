@@ -139,6 +139,7 @@ export default function WidgetsConfiguration() {
                     onClick={onSubmit}
                 />
                 <p className="text-success">{successMessage}</p>
+                <p className="text-error">{errorMessage}</p>
             </div>
         </div>
     );

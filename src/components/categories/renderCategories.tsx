@@ -1,8 +1,8 @@
 //Components
 import CategoryBox from "./categoryBox";
 //Functions
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import getCategories from "../../services/categories/getCategories";
 import { useNavigate } from "react-router-dom";

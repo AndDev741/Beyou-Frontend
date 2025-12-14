@@ -12,7 +12,7 @@ type selectorInputProps= {
     t: TFunction
 }
 
-function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase, t}: selectorInputProps){ 
+function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase}: selectorInputProps){ 
     const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl text-secondary";
     return(

@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import taskIcon from '../../assets/dashboard/shortcuts/taskIcon.svg'
 import IconsBox from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";

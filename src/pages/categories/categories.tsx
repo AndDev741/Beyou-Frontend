@@ -7,13 +7,13 @@ import { useState } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
 import categoryType from "../../types/category/categoryType";
-import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
+// import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
 
 function Categories(){
     useAuthGuard();
 
     const editMode: boolean = useSelector((state: RootState) => state.editCategory.editMode);
-    const [generatedCategory, setGeneratedCategory] = useState<categoryGeneratedByAi>({categoryName: "", description: ""});
+    // const [generatedCategory, setGeneratedCategory] = useState<categoryGeneratedByAi>({categoryName: "", description: ""});
     const [categories, setCategories] = useState<Array<categoryType>>([]);
     
     return(
@@ -25,7 +25,7 @@ function Categories(){
                 </div>
                 <div className="lg:flex lg:flex-col w-[100%] lg:w-[42%]">
                     {editMode ? <EditCategory setCategories={setCategories}/> : 
-                    <CreateCategory generatedCategory={generatedCategory} setCategories={setCategories} />}
+                    <CreateCategory setCategories={setCategories} />}
                 </div>
             </main>
         </div>

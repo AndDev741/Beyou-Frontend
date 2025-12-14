@@ -27,12 +27,11 @@ function CreateGoal({ setGoals }: Props) {
   const [selectedIcon, setSelectedIcon] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [xpReward, setXpReward] = useState(0);
+  // const [xpReward, setXpReward] = useState(0);
   const [status, setStatus] = useState("NOT_STARTED");
   const [term, setTerm] = useState("SHORT_TERM");
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [iconError, setIconError] = useState("");
 
   const [search, setSearch] = useState("");
 
@@ -69,7 +68,6 @@ function CreateGoal({ setGoals }: Props) {
         setCategoriesIdList([]);
         setStartDate("");
         setEndDate("");
-        setXpReward(0);
         setStatus("SHORT_TERM");
         setTerm("SHORT_TERM");
       }
@@ -152,7 +150,7 @@ function CreateGoal({ setGoals }: Props) {
             <IconsBox
               search={search}
               setSearch={setSearch}
-              iconError={iconError}
+              iconError={""}
               selectedIcon={selectedIcon}
               setSelectedIcon={setSelectedIcon}
               t={t}

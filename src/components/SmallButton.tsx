@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, Dispatch, MouseEventHandler } from "react"
+import { MouseEventHandler } from "react"
 
 export default function SmallButton({text, disabled, onClick}: {text: string, disabled: boolean, onClick: MouseEventHandler<HTMLButtonElement>}){
     return (

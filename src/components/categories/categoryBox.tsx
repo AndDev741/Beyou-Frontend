@@ -72,7 +72,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                         {habits && habits.size > 0 ? (
                             <>
                             <li className="font-semibold">{t('Habits')}:</li>
-                            {[...habits?.values()].map((name, index) => (
+                            {[...habits?.values()].map((name) => (
                                 <li className="ml-6 list-disc" key={name}>{name}</li>
                             ))}
                             </>

@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next"
 import { useTheme } from "../../context/ThemeContext";
 import { themes } from "../utils/listOfThemes";
-import SmallButton from "../SmallButton";
 import editUser from "../../services/user/editUser";
 import { useDispatch } from "react-redux";
 import { themeInUseEnter } from "../../redux/user/perfilSlice";

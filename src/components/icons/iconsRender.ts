@@ -15,7 +15,7 @@ const ICON_SETS: Record<string, Record<string, IconType>> = {
 function getAllIcons(): IconObject[] {
   const allIcons: IconObject[] = [];
 
-  for (const [prefix, icons] of Object.entries(ICON_SETS)) {
+  for (const [_, icons] of Object.entries(ICON_SETS)) {
     for (const iconName of Object.keys(icons)) {
       allIcons.push({
         name: `${iconName}`, // Ex: "md/MdAlarm" ou "fa/FaBeer"

@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import taskIcon from '../../assets/dashboard/shortcuts/taskIcon.svg'
 import IconsBox from "../inputs/iconsBox";
 import DescriptionInput from "../inputs/descriptionInput";
 import GenericInput from "../inputs/genericInput";
@@ -13,8 +12,6 @@ import category from "../../types/category/categoryType";
 import { task } from "../../types/tasks/taskType";
 import editTask from "../../services/tasks/editTask";
 import getTasks from "../../services/tasks/getTasks";
-import arrowDown from "../../assets/arrowDown.svg";
-import arrowUp from "../../assets/arrowUp.svg"
 import { CgAddR } from "react-icons/cg";
 import Button from "../Button";
 
@@ -50,13 +47,6 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
     const [search, setSearch] = useState("");
     const [oneTimeTask, setOneTimeTask] = useState(false);
 
-    const [expandDetails, setExpandDetails] = useState(false);
-    const [expandDetailsIcon, setExpandDetailsIcon] = useState(arrowDown);
-
-    const handleMoreDetails = () => {
-        setExpandDetails(!expandDetails);
-        expandDetails === true ? setExpandDetailsIcon(arrowDown) : setExpandDetailsIcon(arrowUp);
-    }
 
     useEffect(() => {
         setName(nameToEdit);

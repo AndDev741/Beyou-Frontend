@@ -1,16 +1,6 @@
 import { TFunction } from "i18next";
 import { useEffect } from "react";
 
-type useColorsProps = {
-    dificulty: number,
-    importance: number,
-    setDificultyColor: React.Dispatch<React.SetStateAction<string>>,
-    setDificultyPhrase: React.Dispatch<React.SetStateAction<string>>,
-    setImportanceColor: React.Dispatch<React.SetStateAction<string>>,
-    setImportancePhrase: React.Dispatch<React.SetStateAction<string>>,
-    t: TFunction
-}
-
 export default function useColors(dificulty: number,
     importance: number,
     setDificultyColor: React.Dispatch<React.SetStateAction<string>>,

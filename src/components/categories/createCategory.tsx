@@ -4,9 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../Button';
 import createCategory from '../../services/categories/createCategory';
 import getCategories from '../../services/categories/getCategories';
-import addIcon from "../../assets/addIcon.svg";
 import DescriptionInput from '../inputs/descriptionInput';
-import ExperienceInput from '../inputs/experienceInput';
 import IconsInput from '../inputs/iconsBox';
 import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiType';
 import * as React from 'react';
@@ -16,7 +14,7 @@ import SelectorInput from '../inputs/SelectorInput';
 import { CgAddR } from "react-icons/cg";
 
 type props = {
-    generatedCategory: categoryGeneratedByAi,
+    generatedCategory?: categoryGeneratedByAi,
     setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
 }
 

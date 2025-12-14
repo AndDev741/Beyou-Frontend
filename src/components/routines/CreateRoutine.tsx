@@ -2,8 +2,6 @@ import { useTranslation } from 'react-i18next';
 import DailyRoutineExample from './routineTypeExample/dailyRoutineExample';
 import TodoRoutineExample from './routineTypeExample/todoRoutineExample';
 import CreateDailyRoutine from './dailyRoutine/CreateDailyRoutine';
-import { useState } from 'react';
-import { RoutineSection } from '../../types/routine/routineSection';
 
 type createRoutineProps = {
     setRoutineType: (value: string) => void;

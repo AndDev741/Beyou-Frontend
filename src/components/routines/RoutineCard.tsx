@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiStar, FiCheckCircle, FiLayers } from "react-icons/fi";
+import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle, FiLayers } from "react-icons/fi";
 import { Routine } from "../../types/routine/routine";
 import { RoutineSection } from "../../types/routine/routineSection";
 import iconSearch from "../icons/iconsSearch";

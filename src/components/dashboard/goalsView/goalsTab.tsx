@@ -3,19 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
 import { sortGoalsByTime } from "./sortGoalsByTime";
 import { useDragScroll } from "../../../hooks/useDragScroll";
-import { useEffect, useState } from "react";
-import iconSearch from "../../icons/iconsSearch";
-import { IconObject } from "../../../types/icons/IconObject";
 import { goal } from "../../../types/goals/goalType";
-import inProgressIcon from '../../../assets/inProgress.svg';
-import notStartedIcon from '../../../assets/Not Started Icon.svg';
-import completedIcon from '../../../assets/Completed Icon.svg';
-import arrowIncreaseIcon from '../../../assets/arrowIncrease.svg';
-import markGoalAsComplete from "../../../services/goals/markGoalAsComplete";
-import getGoals from "../../../services/goals/getGoals";
 import { useDispatch } from "react-redux";
-import { enterGoals, updateGoal } from "../../../redux/goal/goalsSlice";
-import increaseCurrentValue from "../../../services/goals/increaseCurrentValue";
 import GoalBox from "../../goals/goalBox";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
@@ -41,12 +30,11 @@ export default function GoalsTab() {
                     onTouchStart={scrollContainer.onTouchStart}
                     onTouchMove={scrollContainer.onTouchMove}
                 >
-                    {/* TODO: Traduzir os títulos usando a função t() */}
-                    <GoalSection title="Esta Semana" goals={sortedGoals.thisWeek} dispatch={dispatch}/>
-                    <GoalSection title="Este Mês" goals={sortedGoals.thisMonth} dispatch={dispatch}/>
-                    <GoalSection title="Este Ano" goals={sortedGoals.thisYear} dispatch={dispatch}/>
-                    <GoalSection title="Futuras" goals={sortedGoals.beyond} dispatch={dispatch}/>
-                    <GoalSection title="Metas Passadas" goals={sortedGoals.past} dispatch={dispatch} />
+                    <GoalSection title={t("This Week")} goals={sortedGoals.thisWeek} dispatch={dispatch}/>
+                    <GoalSection title={t("This Month")} goals={sortedGoals.thisMonth} dispatch={dispatch}/>
+                    <GoalSection title={t("This Year")} goals={sortedGoals.thisYear} dispatch={dispatch}/>
+                    <GoalSection title={t("Future Goals")} goals={sortedGoals.beyond} dispatch={dispatch}/>
+                    <GoalSection title={t("Past Goals")} goals={sortedGoals.past} dispatch={dispatch} />
                 </div>
             </div>
         </div>

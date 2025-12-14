@@ -13,7 +13,7 @@ import DeleteModal from "../DeleteModal";
 import getTasks from "../../services/tasks/getTasks";
 import deleteTask from "../../services/tasks/deleteTask";
 import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editIdEnter, editImportanceEnter, editModeEnter, editNameEnter, editOneTimeTaskEnter } from "../../redux/task/editTaskSlice";
-import { MdOutlineCardMembership, MdWarningAmber } from "react-icons/md";
+import { MdWarningAmber } from "react-icons/md";
 
 type taskBoxProps = {
     id: string,

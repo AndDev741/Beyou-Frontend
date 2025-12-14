@@ -4,7 +4,7 @@ import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
@@ -110,7 +110,7 @@ function Dashboard() {
                             <Shortcuts />
 
                             <div className="hidden lg:flex flex-wrap justify-between items-center py-3 mt-7 w-[35vw] mr-3 gap-4">
-                                {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string, index: number) => (
+                                {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
                                     <WidgetsFabric
                                         key={id}
                                         widgetId={id as keyof WidgetProps}
@@ -129,7 +129,7 @@ function Dashboard() {
 
                     {/* Mobile */}
                     <div className="flex flex-wrap items-center justify-evenly gap-3 p-2 py-3 mt-5 lg:hidden">
-                        {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string, index: number) => (
+                        {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
                             <WidgetsFabric
                                 key={id}
                                 widgetId={id as keyof WidgetProps}

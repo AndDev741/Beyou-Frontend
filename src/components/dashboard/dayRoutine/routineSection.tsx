@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { RoutineSection as section } from "../../../types/routine/routineSection";
 import iconSearch from "../../icons/iconsSearch";
-import { FiEdit2 } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
 import { useDispatch } from "react-redux";
@@ -63,19 +62,16 @@ export default function RoutineSection({ section, routineId}: { section: section
     const mergedItems = getMergedItems();
 
     const renderItems = () => {
-        return mergedItems.map((item, idx) => {
+        return mergedItems.map((item) => {
             let itemObj: any;
-            let originalIndex: number;
 
             if (item.type === 'task') {
-                originalIndex = section.taskGroup?.findIndex(t => t.taskId === item.id) ?? -1;
                 itemObj = allTasks?.find(task => task.id === item.id);
                 itemObj = {
                     ...itemObj,
                     item
                 }
             } else {
-                originalIndex = section.habitGroup?.findIndex(h => h.habitId === item.id) ?? -1;
                 itemObj = allHabits?.find(habit => habit.id === item.id);
                 itemObj = {
                     ...itemObj,

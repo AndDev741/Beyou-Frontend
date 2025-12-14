@@ -9,11 +9,9 @@ import { useDispatch } from "react-redux";
 import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
 import { habit } from "../../types/habit/habitType";
 import { IconObject } from "../../types/icons/IconObject";
-import { TFunction } from "i18next";
 import deleteHabit from "../../services/habits/deleteHabit";
 import category from "../../types/category/categoryType";
 import getHabits from "../../services/habits/getHabits";
-import { RootState } from "../../redux/rootReducer";
 import useColors from "./utils/useColors";
 import DeleteModal from "../DeleteModal";
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
 import { useTranslation } from 'react-i18next';
-import addIcon from "../../assets/addIcon.svg";
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsBox';
 import editCategory from '../../services/categories/editCategory';

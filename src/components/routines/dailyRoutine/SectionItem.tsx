@@ -1,10 +1,8 @@
 import iconSearch from "../../icons/iconsSearch";
 import { RoutineSection } from "../../../types/routine/routineSection";
-import { FiEdit2, FiStar, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import AddIcon from '../../../assets/addIcon.svg';
 import { useState } from "react";
-import TaskSelector from "./taskSelector/TaskAndHabitSelector";
 import TaskAndHabitSelector from "./taskSelector/TaskAndHabitSelector";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
@@ -93,7 +91,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
         setEditingItem(null);
     };
 
-    const handleFavorite = (itemIndex: number) => {
+    const handleFavorite = () => {
         if (!setRoutineSection) return;
 
         setRoutineSection(prev => 
@@ -124,19 +122,9 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
         );
     };
 
-    const validateTime = (newTime: string) => {
-        if (newTime < section.startTime) {
-            return false
-        } else if (newTime > section.endTime) {
-            return false
-        }else{
-            return true
-        }
-    }
-
     const renderItems = () => {
 
-        return mergedItems.map((item, idx) => {
+        return mergedItems.map((item) => {
             let itemObj;
             let originalIndex: number;
 
@@ -250,7 +238,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                      <button
                         className="rounded hover:bg-error/10 transition-colors duration-200"
                         //title={t("Delete")}
-                        onClick={() => handleFavorite(index)}
+                        onClick={() => handleFavorite()}
                     >
                         <AiFillStar className={`${section.favorite ? "text-yellow-500" : "text-secondary"} text-lg`} />
                     </button>

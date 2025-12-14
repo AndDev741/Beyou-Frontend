@@ -10,19 +10,6 @@ import editGoal from "../../services/goals/editGoal";
 import getGoals from "../../services/goals/getGoals";
 import {
   editModeEnter,
-  editGoalIdEnter,
-  editTitleEnter,
-  editDescriptionEnter,
-  editTargetValueEnter,
-  editUnitEnter,
-  editCurrentValueEnter,
-  editCompleteEnter,
-  editCategoryEnter,
-  editMotivationEnter,
-  editStartDateEnter,
-  editEndDateEnter,
-  editStatusEnter,
-  editTermEnter,
 } from "../../redux/goal/editGoalSlice";
 import { goal as GoalType } from "../../types/goals/goalType";
 import SelectorInput from "../inputs/SelectorInput";
@@ -68,7 +55,6 @@ function EditGoal({ setGoals }: Props) {
   const [selectedIcon, setSelectedIcon] = useState("");
   const [actualProgress, setActualProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
-  const [iconError, setIconError] = useState("");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -207,7 +193,7 @@ function EditGoal({ setGoals }: Props) {
             <IconsBox
               search={search}
               setSearch={setSearch}
-              iconError={iconError}
+              iconError={""}
               selectedIcon={selectedIcon}
               setSelectedIcon={setSelectedIcon}
               t={t}
