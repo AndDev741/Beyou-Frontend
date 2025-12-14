@@ -12,6 +12,7 @@ import {
     getTimeOfDay,
 } from "./routineMetrics";
 import { AiFillStar } from "react-icons/ai";
+import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
 
 type ItemLookup = Record<string, { name?: string; iconId?: string }>;
 
@@ -22,6 +23,7 @@ type RoutineCardProps = {
     habitLookup: ItemLookup;
     onEdit: (routine: Routine) => void;
     onSchedule: (routine: Routine) => void;
+    onCheckItem: (payload: itemGroupToCheck) => Promise<void>;
     onRequestDelete: (routineId: string) => void;
     onConfirmDelete: (routineId: string) => void;
     onCancelDelete: () => void;
@@ -42,6 +44,7 @@ export const RoutineCard = ({
     habitLookup,
     onEdit,
     onSchedule,
+    onCheckItem,
     onRequestDelete,
     onConfirmDelete,
     onCancelDelete,
@@ -197,6 +200,8 @@ export const RoutineCard = ({
                                 selectedDate={selectedDate}
                                 taskLookup={taskLookup}
                                 habitLookup={habitLookup}
+                                routineId={routine.id}
+                                onCheckItem={onCheckItem}
                             />
                         ))}
                     </div>
@@ -216,9 +221,11 @@ type SectionRowProps = {
     selectedDate: string;
     taskLookup: ItemLookup;
     habitLookup: ItemLookup;
+    routineId?: string;
+    onCheckItem: (payload: itemGroupToCheck) => Promise<void>;
 };
 
-const SectionRow = ({ section, selectedDate, taskLookup, habitLookup }: SectionRowProps) => {
+const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem }: SectionRowProps) => {
     const { t } = useTranslation();
     const sectionStats = useMemo(() => getSectionStats(section, selectedDate), [section, selectedDate]);
     const Icon = iconSearch(section.iconId || "")?.IconComponent;
@@ -236,7 +243,8 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup }: SectionR
                 )?.xpGenerated;
 
                 return {
-                    id: task.id || task.taskId,
+                    id: task.taskId,
+                    groupId: task.id || task.taskId,
                     label: data.name || t("Task"),
                     iconId: data.iconId,
                     startTime: task.startTime,
@@ -257,7 +265,8 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup }: SectionR
                 )?.xpGenerated;
 
                 return {
-                    id: habit.id || habit.habitId,
+                    id: habit.habitId,
+                    groupId: habit.id || habit.habitId,
                     label: data.name || t("Habit"),
                     iconId: data.iconId,
                     startTime: habit.startTime,
@@ -306,6 +315,27 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup }: SectionR
                 <div className="mt-3 space-y-2">
                     {items.map((item) => {
                         const ItemIcon = item.iconId ? iconSearch(item.iconId)?.IconComponent : null;
+                        const handleToggle = () => {
+                            if (!routineId) return;
+                            const payload: itemGroupToCheck = {
+                                routineId,
+                                localDate: selectedDate,
+                                ...(item.type === "task"
+                                    ? {
+                                        taskGroupDTO: {
+                                            taskGroupId: item.groupId,
+                                            startTime: item.startTime,
+                                        },
+                                    }
+                                    : {
+                                        habitGroupDTO: {
+                                            habitGroupId: item.groupId,
+                                            startTime: item.startTime,
+                                        },
+                                    }),
+                            };
+                            onCheckItem(payload);
+                        };
                         return (
                             <div
                                 key={item.id}
@@ -329,7 +359,14 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup }: SectionR
                                         {item.completed && <span className="text-success font-semibold">{t("Completed")}</span>}
                                         {item.xp ? <span className="text-primary font-semibold">+{item.xp} XP</span> : null}
                                     </div>
+
                                 </div>
+                                <input
+                                    type="checkbox"
+                                    className="h-5 w-5 accent-primary cursor-pointer"
+                                    checked={item.completed}
+                                    onChange={handleToggle}
+                                />
                             </div>
                         );
                     })}

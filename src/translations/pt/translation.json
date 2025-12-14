@@ -283,6 +283,12 @@
     "Quick select": "Seleção rápida",
     "Reset to current": "Resetar para atual",
     "Save schedule": "Salvar agenda",
-    "Saving...": "Salvando..."
+    "Saving...": "Salvando...",
+    "Schedule items completed": "Itens da agenda concluídos",
+    "Already scheduled for": "Já agendado para",
+    "Override?": "Sobrescrever?",
+    "Override this day for": "Substituir este dia para",
+    "Keep current": "Manter atual",
+    "Override day": "Substituir dia"
 
 }

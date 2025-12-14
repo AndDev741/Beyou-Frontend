@@ -19,6 +19,19 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
         return weekDays[index];
     }, [selectedDate]);
 
+    const allSections = useMemo(
+        () => routines.reduce((acc, routine) => acc + (routine.routineSections?.length || 0), 0),
+        [routines]
+    );
+
+    const allActiveDays = useMemo(() => {
+        const daySet = new Set<string>();
+        routines.forEach((routine) => {
+            routine.schedule?.days?.forEach((day) => daySet.add(day));
+        });
+        return daySet.size;
+    }, [routines]);
+
     const routinesForDay = useMemo(
         () =>
             routines.filter((routine) =>
@@ -27,10 +40,8 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
         [routines, selectedWeekday]
     );
 
-    const summary = useMemo(() => {
-        const daySet = new Set<string>();
-        const scopedRoutines = routinesForDay.length > 0 ? routinesForDay : [];
-        return scopedRoutines.reduce(
+    const scheduleSummary = useMemo(() => {
+        return routinesForDay.reduce(
             (acc, routine) => {
                 acc.totalRoutines += 1;
                 acc.totalSections += routine.routineSections?.length || 0;
@@ -39,12 +50,9 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
                 acc.totalItems += routineStats.totalItems;
                 acc.completed += routineStats.completedItems;
                 acc.xp += routineStats.xpEarned;
-
-                routine.schedule?.days?.forEach((day) => daySet.add(day));
-                acc.activeDays = daySet.size;
                 return acc;
             },
-            { totalRoutines: 0, totalSections: 0, totalItems: 0, completed: 0, xp: 0, activeDays: 0 }
+            { totalRoutines: 0, totalSections: 0, totalItems: 0, completed: 0, xp: 0 }
         );
     }, [routinesForDay, selectedDate]);
 
@@ -66,14 +74,14 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
                 </label>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-                <SummaryCard title={t("Routines")} value={summary.totalRoutines} />
-                <SummaryCard title={t("Sections")} value={summary.totalSections} />
+                <SummaryCard title={t("Routines")} value={routines.length} />
+                <SummaryCard title={t("Sections")} value={allSections} />
                 <SummaryCard
-                    title={t("Items completed")}
-                    value={`${summary.completed}/${summary.totalItems || 0}`}
+                    title={t("Schedule items completed")}
+                    value={`${scheduleSummary.completed}/${scheduleSummary.totalItems || 0}`}
                     accent="success"
                 />
-                <SummaryCard title={t("Active days")} value={summary.activeDays} />
+                <SummaryCard title={t("Active days")} value={allActiveDays} />
             </div>
         </div>
     );

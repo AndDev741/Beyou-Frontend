@@ -11,6 +11,8 @@ import ScheduleModal from "./ScheduleModal";
 import { RoutineCard } from "./RoutineCard";
 import { task } from "../../types/tasks/taskType";
 import { habit } from "../../types/habit/habitType";
+import checkRoutine from "../../services/routine/checkItem";
+import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
 
 type RenderRoutinesProps = {
     selectedDate: string;
@@ -54,6 +56,12 @@ export default function RenderRoutines({ selectedDate }: RenderRoutinesProps) {
         dispatch(editModeEnter(true));
     };
 
+    const handleCheck = async (payload: itemGroupToCheck) => {
+        await checkRoutine(payload, t, selectedDate);
+        const routinesResponse = await getRoutines(t);
+        dispatch(enterRoutines(routinesResponse?.success));
+    };
+
     useEffect(() => {
         dispatch(editModeEnter(false));
     }, [])
@@ -71,6 +79,7 @@ export default function RenderRoutines({ selectedDate }: RenderRoutinesProps) {
                             habitLookup={habitLookup}
                             onEdit={handleEdit}
                             onSchedule={handleSchedule}
+                            onCheckItem={handleCheck}
                             onRequestDelete={(id) => setConfirmDelete(id)}
                             onConfirmDelete={handleDelete}
                             onCancelDelete={() => setConfirmDelete("")}

@@ -6,9 +6,10 @@ import { itemGroupToCheck } from '../../types/routine/itemGroupToCheck';
 
 type apiResponse = Record<string, Routine | string>
 
-async function checkRoutine(groupDto: itemGroupToCheck, t: TFunction): Promise<apiResponse>{
+async function checkRoutine(groupDto: itemGroupToCheck, t: TFunction, date?: string): Promise<apiResponse>{
     try{
-        const response = await axiosWithCredentials.post<Routine>(`/routine/check`, groupDto);
+        const payload = date ? { ...groupDto, date } : groupDto;
+        const response = await axiosWithCredentials.post<Routine>(`/routine/check`, payload);
         return {success: response.data};
     }catch(e){
         if(axios.isAxiosError(e)){

@@ -285,5 +285,11 @@
     "Quick select": "Quick select",
     "Reset to current": "Reset to current",
     "Save schedule": "Save schedule",
-    "Saving...": "Saving..."
+    "Saving...": "Saving...",
+    "Schedule items completed": "Schedule items completed",
+    "Already scheduled for": "Already scheduled for",
+    "Override?": "Override?",
+    "Override this day for": "Override this day for",
+    "Keep current": "Keep current",
+    "Override day": "Override day"
 }
