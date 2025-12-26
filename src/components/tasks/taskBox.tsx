@@ -1,5 +1,4 @@
 import { useDispatch } from "react-redux";
-import category from "../../types/category/categoryType"
 import { task } from "../../types/tasks/taskType"
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -14,13 +13,14 @@ import getTasks from "../../services/tasks/getTasks";
 import deleteTask from "../../services/tasks/deleteTask";
 import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editIdEnter, editImportanceEnter, editModeEnter, editNameEnter, editOneTimeTaskEnter } from "../../redux/task/editTaskSlice";
 import { MdWarningAmber } from "react-icons/md";
+import { CategoryMiniDTO } from "../../types/category/CategoryMiniDTO";
 
 type taskBoxProps = {
     id: string,
     name: string,
     description: string,
     iconId: string,
-    categories?: category[],
+    categories?: Record<string, CategoryMiniDTO>,
     importance?:number,
     dificulty?: number,
     oneTimeTask: boolean,
@@ -96,12 +96,19 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 <p className="text-description">{description}</p>
             </div>
 
-            <div className={`${expanded && categories !== undefined && categories?.length > 0 ? "flex flex-col" : "hidden"}`}>
+            <div className={`${expanded && categories !== undefined && Object.entries(categories)?.length > 0 ? "flex flex-col" : "hidden"}`}>
                 <h4 className="font-semibold text-lg text-secondary">{t('Categories')}:</h4>
                 <div className="flex flex-col">
-                    {categories?.map((category, index) => (
+                    {/* {categories?.map((category, index) => (
                     <CategoryNameAndIcon key={index}
                     name={category.name} iconId={category.iconId}/>
+                    ))} */}
+                    {Object.entries(categories!).map(([categoryId, {name, iconId}], index) => (
+                        <span className="flex items-center" key={`${categoryId}-${index}`}>
+                        <CategoryNameAndIcon
+                            name={name} iconId={iconId} />
+                        <p className={`${index === Object.entries(categories!).length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
+                        </span>
                     ))}
                 </div>
             </div>

@@ -13,7 +13,7 @@ export type habit = {
     xp: number,
     level: number,
     nextLevelXp: number,
-    actualBaseXp: number,
+    actualLevelXp: number,
     constance: number,
     createdAt: Date,
     updatedAt: Date

@@ -177,6 +177,8 @@ function GoalBox({
     }
   }
 
+  console.log("CATEGORIES => ", categories)
+
   return (
     <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 w-[90vw] md:w-[45vwpx] lg:w-[420px] bg-background text-secondary transition-colors duration-200 ${readonly ? "min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
@@ -199,11 +201,18 @@ function GoalBox({
 
       <div className="w-full flex items-start justify-between my-1">
         <div className="flex flex-wrap">
-          {categories.map((category, index) => (
+          {/* {categories.map((category, index) => (
             <span className="flex items-center" key={`${category.id}-${index}`}>
               <CategoryNameAndIcon
                 name={category.name} iconId={category.iconId} />
               <p className={`${index === categories.length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
+            </span>
+          ))} */}
+          {Object.entries(categories).map(([categoryId, {name, iconId}], index) => (
+            <span className="flex items-center" key={`${categoryId}-${index}`}>
+              <CategoryNameAndIcon
+                name={name} iconId={iconId} />
+              <p className={`${index === Object.entries(categories).length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
             </span>
           ))}
         </div>

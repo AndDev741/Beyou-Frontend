@@ -41,7 +41,7 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
                     level={habit.level}
                     xp={habit.xp}
                     nextLevelXp={habit.nextLevelXp}
-                    actualBaseXp={habit.actualBaseXp}
+                    actualBaseXp={habit.actualLevelXp}
                     constance={habit.constance}
                     categories={habit.categories}
                     motivationalPhrase={habit.motivationalPhrase}

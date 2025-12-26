@@ -29,6 +29,8 @@ export default function RenderRoutines({ selectedDate }: RenderRoutinesProps) {
     const [showModal, setShowModal] = useState(false);
     const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
+    console.log("HABITS => ", habits);
+
     const taskLookup = tasks?.reduce<Record<string, { name?: string; iconId?: string }>>((map, taskItem) => {
         map[taskItem.id] = { name: taskItem.name, iconId: taskItem.iconId };
         return map;
@@ -36,6 +38,7 @@ export default function RenderRoutines({ selectedDate }: RenderRoutinesProps) {
 
     const habitLookup = habits?.reduce<Record<string, { name?: string; iconId?: string }>>((map, habitItem) => {
         map[habitItem.id] = { name: habitItem.name, iconId: habitItem.iconId };
+        console.log("MAP => ", map)
         return map;
     }, {}) || {};
 
@@ -70,7 +73,7 @@ export default function RenderRoutines({ selectedDate }: RenderRoutinesProps) {
         <div className="w-full text-secondary space-y-4">
             {routines.length > 0 ? (
                 <div className="flex flex-col gap-4">
-                    {routines.map((routine) => (
+                    {routines.map((routine: Routine) => (
                         <RoutineCard
                             key={routine.id}
                             routine={routine}

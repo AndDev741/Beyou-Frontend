@@ -1,4 +1,4 @@
-import category from "../category/categoryType";
+import { CategoryMiniDTO } from "../category/CategoryMiniDTO";
 
 export type goal = {
   id: string;
@@ -9,7 +9,7 @@ export type goal = {
   unit: string;
   currentValue: number;
   complete: boolean;
-  categories: category[];
+  categories: Record<string, CategoryMiniDTO>;
   motivation?: string;
   startDate: Date;
   endDate: Date;

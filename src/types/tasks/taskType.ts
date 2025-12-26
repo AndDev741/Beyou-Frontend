@@ -1,4 +1,4 @@
-import category from "../category/categoryType"
+import { CategoryMiniDTO } from "../category/CategoryMiniDTO";
 
 export type task = {
     id: string,
@@ -7,7 +7,7 @@ export type task = {
     iconId: string,
     importance?: number,
     dificulty?: number,
-    categories?: category[],
+    categories?: Record<string, CategoryMiniDTO>;
     oneTimeTask: boolean,
     markedToDelete: Date,
     createdAt: Date,
