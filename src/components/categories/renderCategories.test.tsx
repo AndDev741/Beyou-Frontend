@@ -16,3 +16,21 @@ test('Should show a custom message of 0 categories created', async () => {
     const message = await screen.findByText('0CategoriesMessage');
     expect(message).toBeInTheDocument();
 });
+
+test('Should render the received categories', async () => {
+    const fakeCategories = [
+        { id: '1', name: 'Saúde', xp: 10, nextLevelXp: 50, actualLevelXp: 10, iconId: 'icon1', level: 1 },
+        { id: '2', name: 'Trabalho', xp: 20, nextLevelXp: 50, actualLevelXp: 20, iconId: 'icon2', level: 1 },
+    ];
+
+    (getCategories as jest.Mock).mockResolvedValue({ success: fakeCategories });
+
+    await act(async () => {
+        renderWithProviders(<Categories />);
+    });
+
+    for (const cat of fakeCategories) {
+        const elemenmt = await screen.findByText(cat.name);
+        expect(elemenmt).toBeInTheDocument();
+    }
+})

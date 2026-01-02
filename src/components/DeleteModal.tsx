@@ -28,6 +28,8 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
     const taskIdInEdit = useSelector((state: RootState) => state.editTask.id);
     const goalIdInEdit = useSelector((state: RootState) => state.editGoal.goalId);
 
+    if(!onDelete) return null;
+    
     const handleDelete = async () => {
         const response = await deleteObject(objectId, t);
 
