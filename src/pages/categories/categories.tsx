@@ -1,18 +1,25 @@
 import CreateCategory from "../../components/categories/createCategory";
 import RenderCategories from "../../components/categories/renderCategories";
 import EditCategory from "../../components/categories/editCategory";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
 import categoryType from "../../types/category/categoryType";
+import { editModeEnter } from "../../redux/category/editCategorySlice";
 // import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
 
 function Categories(){
     useAuthGuard();
+    const dispatch = useDispatch();
 
-    const editMode: boolean = useSelector((state: RootState) => state.editCategory.editMode);
+    //When open the page
+    useEffect(() => {
+        dispatch(editModeEnter(false));
+    }, []);
+
+    const editMode = useSelector((state: RootState) => state.editCategory.editMode);
     // const [generatedCategory, setGeneratedCategory] = useState<categoryGeneratedByAi>({categoryName: "", description: ""});
     const [categories, setCategories] = useState<Array<categoryType>>([]);
     

@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 //Types
 import categoryType from "../../types/category/categoryType";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
-import { editModeEnter } from "../../redux/category/editCategorySlice";
 
 type props = {categories: Array<categoryType>, setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>}
 
@@ -17,11 +16,6 @@ function RenderCategories({categories, setCategories}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    
-    //When open the page
-    useEffect(() => {
-        dispatch(editModeEnter(false));
-    }, []);
 
     useEffect(() => {
         async function returnCategories(){
