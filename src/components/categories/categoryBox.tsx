@@ -39,10 +39,14 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
         dispatch(nameEnter(name));
         dispatch(descriptionEnter(description));
         dispatch(iconEnter(iconId));
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-        })
+        
+        //Scroll to bottom if mobile
+        if(window.innerWidth <= 1100){
+            window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
     }
 
     return(
@@ -65,7 +69,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
 
             <p className={`text-[15px] leading-tight text-description ${expanded ? "line-clamp-none my-2" : "line-clamp-2"}`}>{description}</p>
 
-            {(habits?.size || tasks?.size || goals?.size) ? (
+            {expanded && (habits?.size || tasks?.size || goals?.size) ? (
                 <div className={`${expanded ? "block my-2" : "hidden"}`}>
                     <h2 className="text-lg font-semibold">{t('Using in')}:</h2>
                     <ul className="text-description">
@@ -117,26 +121,30 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                 </div>
             </div>
 
-            <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
-                <button onClick={handleEdit}
-                className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
-                    {t('Edit')}
-                </button>
-                <button onClick={() => setOnDelete(true)}
-                className="bg-error hover:bg-error/90 text-white font-semibold w-[90px] h-[28px] rounded-md transition-colors duration-200">
-                    {t('Delete')}
-                </button>
-            </div>
-            <DeleteModal objectId={id}
-            onDelete={onDelete} 
-            setOnDelete={setOnDelete}
-            t={t} name={name}
-            setObjects={setCategories}
-            deleteObject={deleteCategory}
-            getObjects={getCategories}
-            deletePhrase={t('ConfirmDeleteOfCategoryPhrase')}
-            mode="category"
-            />
+            {expanded && (
+                <>
+                <div className={`flex flex-col my-2 items-center justify-center`}>
+                    <button onClick={handleEdit}
+                    className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
+                        {t('Edit')}
+                    </button>
+                    <button onClick={() => setOnDelete(true)}
+                    className="bg-error hover:bg-error/90 text-white font-semibold w-[90px] h-[28px] rounded-md transition-colors duration-200">
+                        {t('Delete')}
+                    </button>
+                </div>
+                <DeleteModal objectId={id}
+                onDelete={onDelete} 
+                setOnDelete={setOnDelete}
+                t={t} name={name}
+                setObjects={setCategories}
+                deleteObject={deleteCategory}
+                getObjects={getCategories}
+                deletePhrase={t('ConfirmDeleteOfCategoryPhrase')}
+                mode="category"
+                />
+            </>
+            )}
         </div>
     )
 }
