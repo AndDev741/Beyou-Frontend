@@ -253,7 +253,7 @@ function GoalBox({
             <p>-</p>
             <p>{formatDate(endDate.toString())}</p>
           </div>
-          <div className={`${status === "COMPLETED" ? "hidden" : "flex items-center gap-1"}`}>
+          <div className={`${ "flex items-center gap-1"}`}>
             <Button
               variant="outline"
               size="sm"
@@ -261,7 +261,7 @@ function GoalBox({
               disabled={currentValue === 0}
               className="border-primary"
             >
-              <p className="text-md text-secondary">{t("Mark Complete")}</p>
+              <p className="text-md text-secondary">{status === "COMPLETED" ? t("Remove Complete") : t("Mark Complete")}</p>
             </Button>
           </div>
         </div>
