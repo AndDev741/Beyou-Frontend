@@ -33,6 +33,10 @@ function Dashboard() {
     const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
+    const xp = useSelector((state: RootState) => state.perfil.xp);
+    const level = useSelector((state: RootState) => state.perfil.level);
+    const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
+    const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
 
     console.log("Today Routine: ", routine);
 
@@ -118,6 +122,10 @@ function Dashboard() {
                                         constance={constance}
                                         checked={checkedItemsInScheduledRoutine}
                                         total={totalItemsInScheduledRoutine}
+                                        xp={xp}
+                                        level={level}
+                                        nextLevelXp={nextLevelXp}
+                                        actualLevelXp={actualLevelXp}
                                         draggable
                                     />
                                 )) : (
@@ -137,6 +145,10 @@ function Dashboard() {
                                 constance={constance}
                                 checked={checkedItemsInScheduledRoutine}
                                 total={totalItemsInScheduledRoutine}
+                                xp={xp}
+                                level={level}
+                                nextLevelXp={nextLevelXp}
+                                actualLevelXp={actualLevelXp}
                                 draggable
                             />
                         )) : (

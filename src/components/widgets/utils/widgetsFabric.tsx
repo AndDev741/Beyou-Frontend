@@ -3,15 +3,17 @@ import Constance, { constanceProps } from "../constance";
 import DailyProgress, { dailyProgressProps } from "../dailyProgress";
 import FastTips from "../fastTips";
 import WorstArea, { worstAreaProps } from "../worstArea";
+import LevelProgress, { levelProgressProps } from "../levelProgress";
 
-export const widgetsIds = ["worstArea", "constance", "betterArea", "dailyProgress", "fastTips"];
+export const widgetsIds = ["worstArea", "constance", "betterArea", "dailyProgress", "fastTips", "levelProgress"];
 
 export type WidgetProps = {
     betterArea: betterAreaProps;
     constance: constanceProps;
     dailyProgress: dailyProgressProps;
     fastTips: {};
-    worstArea: worstAreaProps
+    worstArea: worstAreaProps;
+    levelProgress: levelProgressProps;
 }
 
 const widgetMap = {
@@ -19,7 +21,8 @@ const widgetMap = {
     constance: Constance,
     dailyProgress: DailyProgress,
     fastTips: FastTips,
-    worstArea: WorstArea
+    worstArea: WorstArea,
+    levelProgress: LevelProgress,
 }
 
 export default function WidgetsFabric<K extends keyof WidgetProps>({

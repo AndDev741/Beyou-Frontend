@@ -17,6 +17,10 @@ type userInitialState = {
     totalItemsInScheduledRoutine: number;
     widgetsIdsInUse: string[];
     themeInUse: ThemeType;
+    xp: number,
+    level: number,
+    nextLevelXp: number,
+    actualLevelXp: number,
 }
 
 const initialState: userInitialState = {
@@ -32,7 +36,11 @@ const initialState: userInitialState = {
     checkedItemsInScheduledRoutine: 0,
     totalItemsInScheduledRoutine: 0,
     widgetsIdsInUse: [],
-    themeInUse: themes[0]
+    themeInUse: themes[0],
+    xp: 0,
+    level: 0,
+    nextLevelXp: 0,
+    actualLevelXp: 0,
 }
 
 const perfilSlice = createSlice({
@@ -91,6 +99,22 @@ const perfilSlice = createSlice({
             const themeInUse = action.payload;
             return {...state, themeInUse};
         },
+        xpEnter(state, action){
+            const xp = action.payload;
+            return {...state, xp};
+        },
+        levelEnter(state, action){
+            const level = action.payload;
+            return {...state, level};
+        },
+        nextLevelXpEnter(state, action){
+            const nextLevelXp = action.payload;
+            return {...state, nextLevelXp};
+        },
+        actualLevelXpEnter(state, action){
+            const actualLevelXp = action.payload;
+            return {...state, actualLevelXp};
+        },
     }
 });
 
@@ -107,7 +131,11 @@ export const {
     checkedItemsInScheduledRoutineEnter,
     totalItemsInScheduledRoutineEnter,
     widgetsIdInUseEnter,
-    themeInUseEnter
+    themeInUseEnter,
+    xpEnter,
+    levelEnter,
+    nextLevelXpEnter,
+    actualLevelXpEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

@@ -29,6 +29,10 @@ export default function WidgetsConfiguration() {
     const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
+    const xp = useSelector((state: RootState) => state.perfil.xp);
+    const level = useSelector((state: RootState) => state.perfil.level);
+    const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
+    const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
@@ -117,6 +121,10 @@ export default function WidgetsConfiguration() {
                     constance={constance}
                     checked={checkedItemsInScheduledRoutine}
                     total={totalItemsInScheduledRoutine}
+                    xp={xp}
+                    level={level}
+                    nextLevelXp={nextLevelXp}
+                    actualLevelXp={actualLevelXp}
                 />
 
                 <DroppableList
@@ -128,6 +136,10 @@ export default function WidgetsConfiguration() {
                     constance={constance}
                     checked={checkedItemsInScheduledRoutine}
                     total={totalItemsInScheduledRoutine}
+                    xp={xp}
+                    level={level}
+                    nextLevelXp={nextLevelXp}
+                    actualLevelXp={actualLevelXp}
                 />
 
             </DragDropContext>
@@ -154,6 +166,10 @@ function DroppableList({
     constance,
     checked,
     total,
+    xp,
+    level,
+    nextLevelXp,
+    actualLevelXp,
 }: any) {
     return (
         <div className="mb-6 w-full">
@@ -197,7 +213,7 @@ function DroppableList({
                                             ⠿
                                         </div>
 
-                                        <div className={`${id === "dailyProgress" || id === "fastTips" ? "md:w-full" : ""}`}>
+                                        <div className={`${id === "dailyProgress" || id === "fastTips" || id === "levelProgress" ? "md:w-full" : ""}`}>
                                             <WidgetsFabric
                                                 key={id}
                                                 widgetId={id as keyof WidgetProps}
@@ -205,6 +221,10 @@ function DroppableList({
                                                 constance={constance}
                                                 checked={checked}
                                                 total={total}
+                                                xp={xp}
+                                                level={level}
+                                                nextLevelXp={nextLevelXp}
+                                                actualLevelXp={actualLevelXp}
                                                 draggable
                                             />
                                         </div>
