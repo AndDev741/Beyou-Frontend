@@ -8,4 +8,8 @@ export type Routine = {
     iconId: string;
     routineSections: Array<RoutineSection>;
     schedule?: schedule;
+    xp?: number,
+    level?: number,
+    nextLevelXp?: number,
+    actualLevelXp?: number,
 }

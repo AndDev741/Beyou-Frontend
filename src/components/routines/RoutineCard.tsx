@@ -187,11 +187,21 @@ export const RoutineCard = ({
                         </div>
                         <span className="text-sm font-semibold text-secondary w-14 text-right">{completion}%</span>
                     </div>
-                    {stats.xpEarned > 0 && (
-                        <p className="text-xs text-success font-medium">
-                            +{stats.xpEarned} XP {t("earned on")} {formatDate(selectedDate)}
-                        </p>
-                    )}
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-secondary">
+                        {stats.xpEarned > 0 ? (
+                            <p className="text-success flex-1 min-w-[140px]">
+                                +{stats.xpEarned} XP {t("earned on")} {formatDate(selectedDate)}
+                            </p>
+                        ) : (
+                            <span className="flex-1 min-w-[140px]" />
+                        )}
+                        <div className="flex items-center gap-2 text-right">
+                            <span className="text-secondary font-semibold whitespace-nowrap">LV {routine.level ?? 0}</span>
+                            <span className="text-description whitespace-nowrap">
+                                {routine.xp ?? 0}/{routine.nextLevelXp ?? 0} XP
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {expanded && (
