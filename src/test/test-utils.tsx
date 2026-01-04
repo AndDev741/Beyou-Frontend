@@ -1,16 +1,8 @@
-import { render, RenderOptions } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { PreloadedStateShapeFromReducersMapObject } from "@reduxjs/toolkit";
 import { MemoryRouter } from "react-router-dom";
 import store  from '../redux/store';
-import { RootState } from "../redux/rootReducer";
 import React from "react";
-
-interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
-    route?: string;
-    preloadedState?: PreloadedStateShapeFromReducersMapObject<RootState>;
-    storeOverride?: typeof store;
-}
 
 export function renderWithProviders(
     ui: React.ReactElement,
@@ -19,7 +11,7 @@ export function renderWithProviders(
         preloadedState,
         storeOverride,
         ...renderOptions
-    }: ExtendedRenderOptions = {}
+    }: any = {}
 ) {
     const Wrapper = ({children}: {children: React.ReactNode}) => (
         <Provider store={storeOverride || store}>

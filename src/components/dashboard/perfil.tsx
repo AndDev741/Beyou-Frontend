@@ -39,6 +39,7 @@ function Perfil() {
                         <img 
                             src={photo}
                             alt={t('PerfilPhotoAlt')}
+                            aria-label={t('PerfilPhotoAlt')}
                             className="w-[80px] h-[80px] md:w-[80px] md:h-[80px] bg-white/20 rounded-full object-cover border-2 border-background md:border-primary" 
                         />
                         <div className="flex flex-col ml-4 text-background md:text-secondary">
