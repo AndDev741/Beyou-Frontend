@@ -1,3 +1,4 @@
+import ConstanceConfiguration from "../../components/configuration/ConstanceConfiguration";
 import LanguageSelector from "../../components/configuration/LanguageSelector";
 import ProfileConfiguration from "../../components/configuration/ProfileConfiguration";
 import ThemeSelector from "../../components/configuration/ThemeSelector";
@@ -25,6 +26,12 @@ export default function Configuration() {
 
                     <div className="w-full lg:pr-4">
                         <ThemeSelector />
+                    </div>
+
+                    <div className="border-b w-full border-primary mt-2 "></div>
+
+                    <div className="w-full lg:pr-4">
+                        <ConstanceConfiguration />
                     </div>
 
                     {/* Horizontal divider for mobile screens */}

@@ -289,6 +289,15 @@
     "Past Goals": "Metas passadas",
     "Remove Complete": "Retirar",
     "Mark Complete": "Completar",
-    "Your life progress": "Progresso de vida"
+    "Your life progress": "Progresso de vida",
+    "ConstanceTitle": "Constância",
+    "ConstanceDescription": "Escolha como sua constância deve crescer. Conte qualquer tarefa concluída ou só quando a rotina estiver completa.",
+    "ConstanceOptionTaskTitle": "Qualquer tarefa concluída",
+    "ConstanceOptionTaskDescription": "Qualquer tarefa individual finalizada no dia aumenta sua constância.",
+    "ConstanceOptionTaskDetail": "Bom para dias flexíveis ou listas menores.",
+    "ConstanceOptionRoutineTitle": "Apenas rotina completa",
+    "ConstanceOptionRoutineDescription": "A constância aumenta somente após finalizar todas as tarefas da rotina agendada.",
+    "ConstanceOptionRoutineDetail": "Ideal para manter um padrão alto porém desafiador.",
+    "ConstanceSaveFeedback": "Salvo localmente. Integração com backend pendente."
 
 }
