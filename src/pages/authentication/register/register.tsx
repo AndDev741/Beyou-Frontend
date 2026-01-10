@@ -12,11 +12,11 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import handleRegister from "../../../services/authentication/handleRegister";
 //Assets
-import { ReactComponent as PersonIcon } from "../../../assets/authentication/personIcon.svg";
-import { ReactComponent as EmailIcon } from "../../../assets/authentication/emailIcon.svg";
-import { ReactComponent as PasswordIcon } from "../../../assets/authentication/passwordIcon.svg";
-import { ReactComponent as EyeOpenIcon } from "../../../assets/authentication/eyeOpen.svg";
-import { ReactComponent as EyeClosedIcon } from "../../../assets/authentication/eyeClosed.svg";
+import PersonIcon from "../../../assets/authentication/personIcon.svg?react";
+import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";
+import PasswordIcon from "../../../assets/authentication/passwordIcon.svg?react";
+import EyeOpenIcon from "../../../assets/authentication/eyeOpen.svg?react";
+import EyeClosedIcon from "../../../assets/authentication/eyeClosed.svg?react";
 
 function Register(){
     const {t} = useTranslation();

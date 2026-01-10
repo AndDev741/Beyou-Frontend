@@ -3,16 +3,17 @@ import { useSelector } from "react-redux";
 import { renderWithProviders } from "../../test/test-utils";
 import Categories from "./categories";
 import { screen } from "@testing-library/react";
+import { vi, type Mock } from "vitest";
 
-jest.mock('react-redux', () => {
-    const actual = jest.requireActual('react-redux');
+vi.mock('react-redux', async () => {
+    const actual = await vi.importActual<typeof import('react-redux')>('react-redux');
     return {
         ...actual,
-        useSelector: jest.fn(),
+        useSelector: vi.fn(),
     };
 });
 
-const mockedUseSelector = useSelector as unknown as jest.Mock;
+const mockedUseSelector = useSelector as unknown as Mock;
 
 beforeEach(() => {
     mockedUseSelector.mockReset();

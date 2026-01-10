@@ -1,14 +1,12 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 import React from 'react';
-// Use manual mock to avoid parsing axios ESM bundle in Jest
-jest.mock('axios');
+import { vi } from 'vitest';
+
+// Use manual mock to avoid parsing axios ESM bundle in Vitest
+vi.mock('axios');
 
 // Lightweight i18n stub so components can call t() without a full instance
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
     i18n: {
@@ -16,17 +14,17 @@ jest.mock('react-i18next', () => ({
       language: 'en',
     },
   }),
-  Trans: ({ children }: { children: React.ReactNode }) => children,
+  Trans: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   initReactI18next: {
     type: '3rdParty',
-    init: () => {},
+    init: () => undefined,
   },
 }));
 
 // Route act calls to React's version to silence react-dom/test-utils deprecation warning
-jest.mock('react-dom/test-utils', () => {
-  const actual = jest.requireActual('react-dom/test-utils');
-  const react = jest.requireActual('react');
+vi.mock('react-dom/test-utils', async () => {
+  const actual = await vi.importActual<typeof import('react-dom/test-utils')>('react-dom/test-utils');
+  const react = await vi.importActual<typeof import('react')>('react');
   return { ...actual, act: react.act };
 });
 
