@@ -8,7 +8,7 @@ type prop = {setGeneratedCategory: React.Dispatch<React.SetStateAction<categoryG
 
 export default function GenerateCategoryByAi({setGeneratedCategory}: prop){
     const {t} = useTranslation();
-    const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +20,12 @@ export default function GenerateCategoryByAi({setGeneratedCategory}: prop){
             return;
         }
         setIsLoading(true);
+        if(!apiKey){
+            setError(t("gptError"));
+            setTried(true);
+            setIsLoading(false);
+            return;
+        }
         const body = {
           model: "gpt-4o-mini",
           messages: [

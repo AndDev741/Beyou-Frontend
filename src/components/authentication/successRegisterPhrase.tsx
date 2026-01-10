@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { ReactComponent as CheckIcon } from "../../assets/checkIcon.svg";
+import CheckIcon from "../../assets/checkIcon.svg?react";
 import { useEffect } from "react";
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
 import { RootState } from "../../redux/rootReducer";

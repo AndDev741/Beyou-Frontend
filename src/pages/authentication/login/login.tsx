@@ -16,10 +16,10 @@ import { useNavigate } from "react-router-dom";
 import useGoogleLogin from "../../../services/authentication/useGoogleLogin";
 import handleLogin from "../../../services/authentication/useLogin";
 //Assets
-import { ReactComponent as EmailIcon } from "../../../assets/authentication/emailIcon.svg";
-import { ReactComponent as PasswordIcon } from "../../../assets/authentication/passwordIcon.svg";
-import { ReactComponent as EyeOpenIcon } from "../../../assets/authentication/eyeOpen.svg";
-import { ReactComponent as EyeClosedIcon } from "../../../assets/authentication/eyeClosed.svg";
+import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";
+import PasswordIcon from "../../../assets/authentication/passwordIcon.svg?react";
+import EyeOpenIcon from "../../../assets/authentication/eyeOpen.svg?react";
+import EyeClosedIcon from "../../../assets/authentication/eyeClosed.svg?react";
 
 function Login(){
     const {t} = useTranslation();

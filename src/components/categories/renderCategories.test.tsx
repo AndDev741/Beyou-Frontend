@@ -3,11 +3,15 @@ import { act } from "react";
 import Categories from "../../pages/categories/categories";
 import getCategories from "../../services/categories/getCategories";
 import { renderWithProviders } from "../../test/test-utils";
+import { vi, type Mock } from "vitest";
 
-jest.mock('../../services/categories/getCategories.ts');
+vi.mock('../../services/categories/getCategories', () => ({
+    __esModule: true,
+    default: vi.fn(),
+}));
 
 test('Should show a custom message of 0 categories created', async () => {
-    (getCategories as jest.Mock).mockResolvedValue({ success: [] });
+    (getCategories as Mock).mockResolvedValue({ success: [] });
 
     await act(async () => {
         renderWithProviders(<Categories />);
@@ -23,7 +27,7 @@ test('Should render the received categories', async () => {
         { id: '2', name: 'Trabalho', xp: 20, nextLevelXp: 50, actualLevelXp: 20, iconId: 'icon2', level: 1 },
     ];
 
-    (getCategories as jest.Mock).mockResolvedValue({ success: fakeCategories });
+    (getCategories as Mock).mockResolvedValue({ success: fakeCategories });
 
     await act(async () => {
         renderWithProviders(<Categories />);

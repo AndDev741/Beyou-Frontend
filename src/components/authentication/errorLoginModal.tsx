@@ -1,4 +1,4 @@
-import { ReactComponent as ErrorIcon } from "../../assets/errorIcon.svg";
+import ErrorIcon from "../../assets/errorIcon.svg?react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
