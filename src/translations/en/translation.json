@@ -291,5 +291,16 @@
     "Past Goals": "Past Goals",
     "Remove Complete": "Remove Complete",
     "Mark Complete": "Mark Complete",
-    "Your life progress": "Your life progress"
+    "Your life progress": "Your life progress",
+    "ConstanceTitle": "Constance",
+    "ConstanceDescription": "Choose how your streak should grow. Count any finished task or only when a full routine is done.",
+    "ConstanceOptionTaskTitle": "Any completed task",
+    "ConstanceOptionTaskDescription": "Any individual task finished in a day increments your constance.",
+    "ConstanceOptionTaskDetail": "Good for flexible days or smaller task lists.",
+    "ConstanceOptionRoutineTitle": "Complete routine only",
+    "ConstanceOptionRoutineDescription": "Constance increases only after finishing all tasks in the scheduled routine.",
+    "ConstanceOptionRoutineDetail": "Good for keeping a high bar but such a challenge.",
+    "ConstanceSaveFeedback": "Saved locally. Backend wiring pending.",
+    "SettingsSaved": "Settings saved successfully",
+    "SettingsSaveError": "Error saving settings, please try again"
 }
