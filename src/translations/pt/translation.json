@@ -298,6 +298,8 @@
     "ConstanceOptionRoutineTitle": "Apenas rotina completa",
     "ConstanceOptionRoutineDescription": "A constância aumenta somente após finalizar todas as tarefas da rotina agendada.",
     "ConstanceOptionRoutineDetail": "Ideal para manter um padrão alto porém desafiador.",
-    "ConstanceSaveFeedback": "Salvo localmente. Integração com backend pendente."
+    "ConstanceSaveFeedback": "Salvo localmente. Integração com backend pendente.",
+    "SettingsSaved": "Configurações salvas com sucesso",
+    "SettingsSaveError": "Erro ao salvar configurações, por favor tente novamente"
 
 }

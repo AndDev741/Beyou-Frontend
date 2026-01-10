@@ -1,12 +1,13 @@
 import { useState } from "react";
 import SmallButton from "../SmallButton";
 import { useTranslation } from "react-i18next";
+import editUser from "../../services/user/editUser";
+import { EditUser } from "../../types/user/EditUser";
 
-type ConstanceMode = "single-task" | "routine-complete";
+type ConstanceMode = "ANY" | "COMPLETE";
 
 type ConstanceConfigurationProps = {
     initialMode?: ConstanceMode;
-    onSave?: (mode: ConstanceMode) => void;
 };
 
 const options: Array<{
@@ -16,13 +17,13 @@ const options: Array<{
     detail: string;
 }> = [
     {
-        id: "single-task",
+        id: "ANY",
         title: "ConstanceOptionTaskTitle",
         description: "ConstanceOptionTaskDescription",
         detail: "ConstanceOptionTaskDetail",
     },
     {
-        id: "routine-complete",
+        id: "COMPLETE",
         title: "ConstanceOptionRoutineTitle",
         description: "ConstanceOptionRoutineDescription",
         detail: "ConstanceOptionRoutineDetail",
@@ -30,28 +31,38 @@ const options: Array<{
 ];
 
 export default function ConstanceConfiguration({
-    initialMode = "single-task",
-    onSave,
+    initialMode = "ANY",
 }: ConstanceConfigurationProps) {
     const { t } = useTranslation();
     const [selectedMode, setSelectedMode] = useState<ConstanceMode>(initialMode);
     const [saving, setSaving] = useState(false);
-    const [feedback, setFeedback] = useState<string>("");
+    const [success, setSuccess] = useState("");
+    const [error, setError] = useState("");
 
     const handleSelect = (mode: ConstanceMode) => {
         setSelectedMode(mode);
-        setFeedback("");
+        setError("");
+        setSuccess("");
     };
 
-    const handleSave = () => {
+    const handleSave = async (config: "ANY" | "COMPLETE") => {
         setSaving(true);
-        setFeedback("");
-        onSave?.(selectedMode);
-        // No backend wired yet; optimistic UI feedback.
-        setTimeout(() => {
-            setSaving(false);
-            setFeedback(t("ConstanceSaveFeedback"));
-        }, 200);
+        setError("");
+        setSuccess("");
+
+        const editUserRequest: EditUser = {
+            constanceConfiguration: config
+        }
+
+        const userResponse = await editUser(editUserRequest);
+
+        if(userResponse) {
+            setSuccess(t("SettingsSaved"));
+        } else {
+            setError(t("SettingsSaveError"));
+        }
+        
+        setSaving(false);
     };
 
     return (
@@ -92,9 +103,10 @@ export default function ConstanceConfiguration({
                 })}
             </div>
 
-            <div className="flex items-center gap-3 w-full">
-                <SmallButton text={saving ? t("Saving...") : t("Save")} disabled={saving} onClick={handleSave} />
-                <span className="text-xs text-description">{feedback}</span>
+            <div className="flex flex-col items-center justify-center  w-full">
+                <SmallButton text={saving ? t("Saving...") : t("Save")} disabled={saving} onClick={() => handleSave(selectedMode)} />
+                <span className="text-xs text-success mt-1">{success}</span>
+                <span className="text-xs text-error">{error}</span>
             </div>
         </div>
     );

@@ -300,5 +300,7 @@
     "ConstanceOptionRoutineTitle": "Complete routine only",
     "ConstanceOptionRoutineDescription": "Constance increases only after finishing all tasks in the scheduled routine.",
     "ConstanceOptionRoutineDetail": "Good for keeping a high bar but such a challenge.",
-    "ConstanceSaveFeedback": "Saved locally. Backend wiring pending."
+    "ConstanceSaveFeedback": "Saved locally. Backend wiring pending.",
+    "SettingsSaved": "Settings saved successfully",
+    "SettingsSaveError": "Error saving settings, please try again"
 }

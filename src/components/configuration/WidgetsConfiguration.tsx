@@ -6,10 +6,10 @@ import { useState } from "react";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { t } from "i18next";
-import editWidgets from "../../services/user/editWidgets";
 import { EditUser } from "../../types/user/EditUser";
 import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
+import editUser from "../../services/user/editUser";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -95,7 +95,7 @@ export default function WidgetsConfiguration() {
             widgetsId: currentWidgets
         }
 
-        const response = await editWidgets(editWidget);
+        const response = await editUser(editWidget);
         if (response.error) {
             console.error(response.error);
             setErrorMessage(t('UnkownError'));
