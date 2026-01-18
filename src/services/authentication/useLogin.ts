@@ -1,7 +1,7 @@
 //functions
 import loginRequest from "./request/loginRequest";
 //redux
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constaceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter, themeInUseEnter, xpEnter, levelEnter, nextLevelXpEnter, actualLevelXpEnter } from "../../redux/user/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constanceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter, themeInUseEnter, xpEnter, levelEnter, nextLevelXpEnter, actualLevelXpEnter } from "../../redux/user/perfilSlice";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 //types
 import { TFunction } from "i18next";
@@ -56,7 +56,7 @@ export default async function handleLogin (
         dispatch(emailEnter(data.email));
         dispatch(phraseEnter(data.phrase));
         dispatch(phraseAuthorEnter(data.phrase_author));
-        dispatch(constaceEnter(data.constance));
+        dispatch(constanceEnter(data.constance));
         dispatch(photoEnter(data.photo));
         dispatch(isGoogleAccountEnter(data.isGoogleAccount));
         dispatch(widgetsIdInUseEnter(data.widgetsId));

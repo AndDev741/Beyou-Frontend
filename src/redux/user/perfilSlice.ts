@@ -63,7 +63,7 @@ const perfilSlice = createSlice({
             const phrase_author = action.payload;
             return {...state, phrase_author};
         },
-        constaceEnter(state, action){
+        constanceEnter(state, action){
             const constance = action.payload;
             return {...state, constance};
         },
@@ -123,7 +123,7 @@ export const {
     emailEnter, 
     phraseEnter, 
     phraseAuthorEnter, 
-    constaceEnter, 
+    constanceEnter, 
     photoEnter, 
     isGoogleAccountEnter,
     categoryWithMoreXpEnter,
