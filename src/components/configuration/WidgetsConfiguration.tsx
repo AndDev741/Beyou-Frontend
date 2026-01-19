@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import WidgetsFabric, { WidgetProps, widgetsIds } from "../widgets/utils/widgetsFabric";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { t } from "i18next";
@@ -25,8 +25,13 @@ export default function WidgetsConfiguration() {
 
     const dispatch = useDispatch();
     const constance = useSelector((state: RootState) => state.perfil.constance);
-    const categoryWithMoreXp = useSelector((state: RootState) => state.perfil.categoryWithMoreXp);
-    const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
+    const categories = useSelector((state: RootState) => state.categories.categories);
+    const categoryWithMoreXp = useMemo(() => 
+        categories.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || []), 
+    [categories]);
+    const categoryWithLessXp = useMemo(() => 
+        categories.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || []),
+    [categories]);
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
     const xp = useSelector((state: RootState) => state.perfil.xp);

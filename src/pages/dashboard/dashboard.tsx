@@ -4,7 +4,7 @@ import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
@@ -17,10 +17,10 @@ import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
 import getGoals from "../../services/goals/getGoals";
 import { enterGoals } from "../../redux/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
-import category from "../../types/category/categoryType";
 import getCategories from "../../services/categories/getCategories";
 import WidgetsFabric, { WidgetProps } from "../../components/widgets/utils/widgetsFabric";
-import { categoryWithLessXpEnter, categoryWithMoreXpEnter, checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
+import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
+import { enterCategories } from "../../redux/category/categoriesSlice";
 
 function Dashboard() {
     useAuthGuard();
@@ -29,8 +29,14 @@ function Dashboard() {
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
     const constance = useSelector((state: RootState) => state.perfil.constance);
-    const categoryWithMoreXp = useSelector((state: RootState) => state.perfil.categoryWithMoreXp);
-    const categoryWithLessXp = useSelector((state: RootState) => state.perfil.categoryWithLessXp);
+    const categories = useSelector((state: RootState) => state.categories.categories);
+    const categoryWithMoreXp = useMemo(() => 
+        categories.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || []), 
+    [categories]);
+    const categoryWithLessXp = useMemo(() => 
+        categories.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || []),
+    [categories]);
+
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
     const xp = useSelector((state: RootState) => state.perfil.xp);
@@ -56,18 +62,7 @@ function Dashboard() {
             dispatch(enterGoals(goals.success));
 
             const categories = await getCategories(t);
-            if (categories?.success?.length > 0) {
-                const categoriesLoop = categories.success as category[];
-                const categoryWithMoreXp = categoriesLoop.reduce((prev, current) => {
-                    return (prev.xp > current.xp) ? prev : current;
-                });
-                const categoryWithLessXp = categoriesLoop.reduce((prev, current) => {
-                    return (prev.xp < current.xp) ? prev : current;
-                });
-
-                dispatch(categoryWithMoreXpEnter(categoryWithMoreXp));
-                dispatch(categoryWithLessXpEnter(categoryWithLessXp));
-            }
+            dispatch(enterCategories(categories.success));
         }
         fetchRoutines();
     }, [dispatch, t])
@@ -110,7 +105,7 @@ function Dashboard() {
                         </header>
 
                         {/* Desktop */}
-                        <div className="hidden lg:block lg:flex justify-between">
+                        <div className="hidden lg:flex justify-between">
                             <Shortcuts />
 
                             <div className="hidden lg:flex flex-wrap justify-between items-center py-3 mt-7 w-[35vw] mr-3 gap-4">
