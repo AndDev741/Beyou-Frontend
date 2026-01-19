@@ -12,6 +12,7 @@ import editRoutineSlice from "./routine/editRoutineSlice";
 import todayRoutine from "./routine/todayRoutineSlice";
 import editGoal from "./goal/editGoalSlice";
 import goals from "./goal/goalsSlice";
+import categories from "./category/categoriesSlice";
 
 
 const rootReducer = combineReducers({
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
     editRoutine: editRoutineSlice,
     todayRoutine: todayRoutine,
     editGoal: editGoal,
-    goals: goals
+    goals: goals,
+    categories: categories
 
 });
 

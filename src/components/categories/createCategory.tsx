@@ -7,19 +7,19 @@ import getCategories from '../../services/categories/getCategories';
 import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsBox';
 import categoryGeneratedByAi from '../../types/category/categoryGeneratedByAiType';
-import * as React from 'react';
-import categoryType from '../../types/category/categoryType';
 import GenericInput from '../inputs/genericInput';
 import SelectorInput from '../inputs/SelectorInput';
 import { CgAddR } from "react-icons/cg";
+import { useDispatch } from 'react-redux';
 
 type props = {
     generatedCategory?: categoryGeneratedByAi,
-    setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>
+    dispatchFunction: any
 }
 
-function CreateCategory({generatedCategory, setCategories}: props){
+function CreateCategory({generatedCategory, dispatchFunction}: props){
     const {t} = useTranslation();
+    const dispatch = useDispatch();
 
     const [generatedCategoryName, setGeneratedCategoryName] = useState("");
     const [generatedDescription, setGeneratedDescription] = useState("");
@@ -60,7 +60,7 @@ function CreateCategory({generatedCategory, setCategories}: props){
         if(response.success){
             const newCategories = await getCategories(t);
             if(Array.isArray(newCategories.success)){
-                setCategories(newCategories.success);
+                dispatch(dispatchFunction(newCategories.success));
                 setName("");
                 setDescription("");
                 setSelectedIcon("");

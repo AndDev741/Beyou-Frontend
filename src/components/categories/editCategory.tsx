@@ -6,15 +6,14 @@ import DescriptionInput from '../inputs/descriptionInput';
 import IconsInput from '../inputs/iconsBox';
 import editCategory from '../../services/categories/editCategory';
 import getCategories from '../../services/categories/getCategories';
-import categoryType from '../../types/category/categoryType';
 import { RootState } from '../../redux/rootReducer';
 import GenericInput from '../inputs/genericInput';
 import { CgAddR } from 'react-icons/cg';
 import Button from '../Button';
 
-type prop = {setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>};
+type prop = {dispatchFunction: any};
 
-function EditCategory({setCategories}: prop){
+function EditCategory({dispatchFunction}: prop){
     const {t} = useTranslation();
     const dispatch = useDispatch();
 
@@ -62,7 +61,7 @@ function EditCategory({setCategories}: prop){
         if(response.success){
             const categories = await getCategories(t);
             if(Array.isArray(categories.success)){
-                setCategories(categories.success);
+                dispatch(dispatchFunction(categories.success));
                 setSuccessMessage(t('edited successfully'));
             }
         }

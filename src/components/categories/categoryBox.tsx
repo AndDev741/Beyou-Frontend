@@ -7,20 +7,19 @@ import getCategories from "../../services/categories/getCategories";
 import iconSearch from "../icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
-import categoryType from "../../types/category/categoryType";
 import { IconObject } from "../../types/icons/IconObject";
 import DeleteModal from "../DeleteModal";
+import { enterCategories } from "../../redux/category/categoriesSlice";
 
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 
-    setCategories: React.Dispatch<React.SetStateAction<categoryType[]>>,
     habits?: Map<string, string>,
     tasks?: Map<string, string>,
     goals?: Map<string, string>
 
 }
 
-function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, setCategories, habits, tasks, goals}: props){
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, habits, tasks, goals}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [Icon, setIcon]= useState<IconObject>();
@@ -137,11 +136,12 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                 onDelete={onDelete} 
                 setOnDelete={setOnDelete}
                 t={t} name={name}
-                setObjects={setCategories}
+                setObjects={null}
                 deleteObject={deleteCategory}
                 getObjects={getCategories}
                 deletePhrase={t('ConfirmDeleteOfCategoryPhrase')}
                 mode="category"
+                dispatchFunction={enterCategories}
                 />
             </>
             )}

@@ -19,9 +19,10 @@ type deleteProps = {
     getObjects: any,
     deletePhrase: string,
     mode: "category" | "habit" | "task" | "goal";
+    dispatchFunction?: any
 }
 
-function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, deleteObject, getObjects, deletePhrase, mode}: deleteProps){
+function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, deleteObject, getObjects, deletePhrase, mode, dispatchFunction}: deleteProps){
     const dispatch = useDispatch();
     const categoryIdInEdit = useSelector((state: RootState) => state.editCategory.id);
     const habitIdInEdit = useSelector((state: RootState) => state.editHabit.id);
@@ -61,7 +62,14 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
         if(response.success){
            const newObjects = await getObjects(t);
            if(Array.isArray(newObjects.success)){
-            setObjects(newObjects.success);
+
+            if(setObjects){
+                setObjects(newObjects.success);
+            }
+
+            if(dispatchFunction){
+                dispatch(dispatchFunction(newObjects.success))
+            }
            }
         }
     }
