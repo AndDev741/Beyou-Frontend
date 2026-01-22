@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import category from "../../types/category/categoryType";
 import { ThemeType } from "../../context/ThemeContext";
 import { themes } from "../../components/utils/listOfThemes";
 
@@ -11,8 +10,6 @@ type userInitialState = {
     constance: number;
     photo: string;
     isGoogleAccount: boolean;
-    categoryWithMoreXp: category | null;
-    categoryWithLessXp: category | null;
     checkedItemsInScheduledRoutine: number;
     totalItemsInScheduledRoutine: number;
     widgetsIdsInUse: string[];
@@ -21,6 +18,8 @@ type userInitialState = {
     level: number,
     nextLevelXp: number,
     actualLevelXp: number,
+    maxConstance: number,
+    alreadyIncreaseConstanceToday: boolean
 }
 
 const initialState: userInitialState = {
@@ -31,8 +30,6 @@ const initialState: userInitialState = {
     constance: 0,
     photo: "",
     isGoogleAccount: false,
-    categoryWithMoreXp: null,
-    categoryWithLessXp: null,
     checkedItemsInScheduledRoutine: 0,
     totalItemsInScheduledRoutine: 0,
     widgetsIdsInUse: [],
@@ -41,6 +38,8 @@ const initialState: userInitialState = {
     level: 0,
     nextLevelXp: 0,
     actualLevelXp: 0,
+    maxConstance: 0,
+    alreadyIncreaseConstanceToday: false
 }
 
 const perfilSlice = createSlice({
@@ -75,14 +74,6 @@ const perfilSlice = createSlice({
             const isGoogleAccount = action.payload;
             return {...state, isGoogleAccount}
         },
-        categoryWithMoreXpEnter(state, action){
-            const categoryWithMoreXp = action.payload;
-            return {...state, categoryWithMoreXp};
-        },
-        categoryWithLessXpEnter(state, action){
-            const categoryWithLessXp = action.payload;
-            return {...state, categoryWithLessXp};
-        },
         checkedItemsInScheduledRoutineEnter(state, action){
             const checkedItemsInScheduledRoutine = action.payload;
             return {...state, checkedItemsInScheduledRoutine};
@@ -115,6 +106,14 @@ const perfilSlice = createSlice({
             const actualLevelXp = action.payload;
             return {...state, actualLevelXp};
         },
+        maxConstanceEnter(state, action){
+            const maxConstance = action.payload;
+            return {...state, maxConstance};
+        },
+        alreadyIncreaseConstanceTodayEnter(state, action){
+            const alreadyIncreaseConstance = action.payload;
+            return {...state, alreadyIncreaseConstance};
+        },
     }
 });
 
@@ -126,8 +125,6 @@ export const {
     constanceEnter, 
     photoEnter, 
     isGoogleAccountEnter,
-    categoryWithMoreXpEnter,
-    categoryWithLessXpEnter,
     checkedItemsInScheduledRoutineEnter,
     totalItemsInScheduledRoutineEnter,
     widgetsIdInUseEnter,
@@ -135,7 +132,9 @@ export const {
     xpEnter,
     levelEnter,
     nextLevelXpEnter,
-    actualLevelXpEnter
+    actualLevelXpEnter,
+    maxConstanceEnter,
+    alreadyIncreaseConstanceTodayEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;
