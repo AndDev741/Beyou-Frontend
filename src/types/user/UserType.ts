@@ -12,4 +12,6 @@ export type UserType = {
     level: number,
     nextLevelXp: number,
     actualLevelXp: number,
+    constanceIncreaseToday: boolean,
+    maxConstance: number
 }

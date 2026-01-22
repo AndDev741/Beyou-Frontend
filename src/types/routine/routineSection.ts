@@ -6,16 +6,24 @@ export type RoutineSection = {
     endTime: string;
     taskGroup?: Array<{
         id?: string,
-        taskGroupChecks?: any[],
+        taskGroupChecks?: check[],
         taskId: string;
         startTime: string;
     }>;
     habitGroup?: Array<{
         id?: string,
-        habitGroupChecks?: any[],
+        habitGroupChecks?: check[],
         habitId: string;
         startTime: string;
     }>;
     order: number;
     favorite?: boolean;
 };
+
+export type check = {
+    id: string,
+    checkDate: string,
+    checkTime: string,
+    checked: boolean,
+    xpGenerated: number
+}
