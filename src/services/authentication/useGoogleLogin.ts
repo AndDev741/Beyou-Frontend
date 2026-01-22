@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import googleRequest from "./request/googleRequest";
 //Redux
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
-import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constanceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter, themeInUseEnter, xpEnter, levelEnter, nextLevelXpEnter, actualLevelXpEnter } from "../../redux/user/perfilSlice";
+import { nameEnter, emailEnter, phraseEnter, phraseAuthorEnter, constanceEnter, photoEnter, isGoogleAccountEnter, widgetsIdInUseEnter, themeInUseEnter, xpEnter, levelEnter, nextLevelXpEnter, actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, maxConstanceEnter } from "../../redux/user/perfilSlice";
 //Types
 import { UserType } from "../../types/user/UserType";
 import { TFunction } from "i18next";
@@ -45,6 +45,8 @@ function useGoogleLogin(
                     dispatch(levelEnter(data.level));
                     dispatch(nextLevelXpEnter(data.nextLevelXp));
                     dispatch(actualLevelXpEnter(data.actualLevelXp));
+                    dispatch(alreadyIncreaseConstanceTodayEnter(data.constanceIncreaseToday));
+                    dispatch(maxConstanceEnter(data.maxConstance));
                     navigate("/dashboard");
                 }else if(response.error){
                     setDefaultError(t('GoogleLoginError'))
