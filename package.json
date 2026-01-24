@@ -2,6 +2,7 @@
     "name": "beyou-frontend",
     "version": "0.1.0",
     "private": true,
+    "type": "module",
     "dependencies": {
         "@reduxjs/toolkit": "^2.2.7",
         "@testing-library/jest-dom": "^5.17.0",
@@ -27,7 +28,7 @@
         "yup": "^1.4.0"
     },
     "scripts": {
-        "dev": "vite",
+        "dev": "vite --host --port 3000",
         "start": "vite",
         "build": "vite build",
         "preview": "vite preview",
