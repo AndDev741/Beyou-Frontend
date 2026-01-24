@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
+import { RefreshUI } from "../types/refreshUi/refreshUi.type";
 import { useDispatch } from "react-redux";
-import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../../redux/user/perfilSlice";
-import { refreshCategorie } from "../../redux/category/categoriesSlice";
-import { refreshItemGroup } from "../../redux/routine/todayRoutineSlice";
+import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../redux/user/perfilSlice";
+import { refreshCategorie } from "../redux/category/categoriesSlice";
+import { refreshItemGroup } from "../redux/routine/todayRoutineSlice";
 
 export default function useUiRefresh(refreshUi: RefreshUI) {
     console.log("Refreshing Objects => ", refreshUi);

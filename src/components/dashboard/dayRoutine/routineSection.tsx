@@ -7,7 +7,7 @@ import { itemGroupToCheck } from "../../../types/routine/itemGroupToCheck";
 import checkRoutine from "../../../services/routine/checkItem";
 import { useState } from "react";
 import { RefreshUI } from "../../../types/refreshUi/refreshUi.type";
-import useUiRefresh from "../../utils/useUiRefresh";
+import useUiRefresh from "../../../hooks/useUiRefresh";
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
