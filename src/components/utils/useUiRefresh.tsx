@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
 import { useDispatch } from "react-redux";
-import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../../redux/user/perfilSlice";
+import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../../redux/user/perfilSlice";
 import { refreshCategorie } from "../../redux/category/categoriesSlice";
 import { refreshItemGroup } from "../../redux/routine/todayRoutineSlice";
 
@@ -14,6 +14,7 @@ export default function useUiRefresh(refreshUi: RefreshUI) {
         if(refreshUi?.refreshUser){
             const refreshUser = refreshUi.refreshUser;
             dispatch(xpEnter(refreshUser.xp));
+            dispatch(levelEnter(refreshUser.level));
             dispatch(constanceEnter(refreshUser.currentConstance));
             dispatch(maxConstanceEnter(refreshUser.maxConstance));
             dispatch(alreadyIncreaseConstanceTodayEnter(refreshUser.alreadyIncreaseConstanceToday));
