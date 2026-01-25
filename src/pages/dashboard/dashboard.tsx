@@ -21,22 +21,25 @@ import getCategories from "../../services/categories/getCategories";
 import WidgetsFabric, { WidgetProps } from "../../components/widgets/utils/widgetsFabric";
 import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
 import { enterCategories } from "../../redux/category/categoriesSlice";
+import useChangeLanguage from "../../hooks/useChangeLanguage";
 
 function Dashboard() {
     useAuthGuard();
     const dispatch = useDispatch();
     const { t } = useTranslation();
+
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
     const constance = useSelector((state: RootState) => state.perfil.constance);
     const categories = useSelector((state: RootState) => state.categories.categories);
-    const categoryWithMoreXp = useMemo(() => 
-        categories?.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || []), 
-    [categories]);
-    const categoryWithLessXp = useMemo(() => 
-        categories?.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || []),
-    [categories]);
-
+    const categoryWithMoreXp = useMemo(() => {
+        if (!categories || categories.length === 0) return null;
+        return categories.reduce((prev, current) => (prev.xp > current.xp ? prev : current));
+    }, [categories]);
+    const categoryWithLessXp = useMemo(() => {
+        if (!categories || categories.length === 0) return null;
+        return categories.reduce((prev, current) => (prev.xp < current.xp ? prev : current));
+    }, [categories]);
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
     const xp = useSelector((state: RootState) => state.perfil.xp);
@@ -44,9 +47,10 @@ function Dashboard() {
     const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
     const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
 
-    console.log("Today Routine: ", routine);
-
-
+    const languageInUse = useSelector((state: RootState) => state.perfil.languageInUse);
+    console.log("Language in use => ", languageInUse)
+    useChangeLanguage(languageInUse);
+    
     useEffect(() => {
         const fetchRoutines = async () => {
             const todayRoutine = await getTodayRoutine(t);

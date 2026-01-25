@@ -4,8 +4,11 @@ import ProfileConfiguration from "../../components/configuration/ProfileConfigur
 import ThemeSelector from "../../components/configuration/ThemeSelector";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import Header from "../../components/header";
+import useAuthGuard from "../../components/useAuthGuard";
 
 export default function Configuration() {
+    useAuthGuard();
+    
     return (
         <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">
             <Header pageName={"Configuration"} />

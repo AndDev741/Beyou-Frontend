@@ -5,7 +5,7 @@ import axios from '../axiosConfig';
 export default async function editUser(EditUser: EditUser): Promise<Record<string, string>> {
     
     try{
-        const response = axios.put("/user/edit", EditUser);
+        const response = axios.put("/user", EditUser);
 
         return (await response).data;
     }catch(e){

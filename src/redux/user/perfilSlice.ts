@@ -19,7 +19,8 @@ type userInitialState = {
     nextLevelXp: number,
     actualLevelXp: number,
     maxConstance: number,
-    alreadyIncreaseConstanceToday: boolean
+    alreadyIncreaseConstanceToday: boolean,
+    languageInUse: string,
 }
 
 const initialState: userInitialState = {
@@ -39,7 +40,8 @@ const initialState: userInitialState = {
     nextLevelXp: 0,
     actualLevelXp: 0,
     maxConstance: 0,
-    alreadyIncreaseConstanceToday: false
+    alreadyIncreaseConstanceToday: false,
+    languageInUse: "",
 }
 
 const perfilSlice = createSlice({
@@ -114,6 +116,10 @@ const perfilSlice = createSlice({
             const alreadyIncreaseConstance = action.payload;
             return {...state, alreadyIncreaseConstance};
         },
+        languageInUserEnter(state, action){
+            const languageInUse = action.payload;
+            return {...state, languageInUse};
+        },
     }
 });
 
@@ -134,7 +140,8 @@ export const {
     nextLevelXpEnter,
     actualLevelXpEnter,
     maxConstanceEnter,
-    alreadyIncreaseConstanceTodayEnter
+    alreadyIncreaseConstanceTodayEnter,
+    languageInUserEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

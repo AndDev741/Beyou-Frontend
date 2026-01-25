@@ -5,5 +5,6 @@ export type EditUser = {
     phrase_author?: string
     widgetsId?: string[]
     theme?: string,
-    constanceConfiguration?: "ANY" | "COMPLETE"
+    constanceConfiguration?: "ANY" | "COMPLETE",
+    language?: string
 }
