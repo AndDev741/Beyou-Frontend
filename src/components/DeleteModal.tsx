@@ -14,7 +14,7 @@ type deleteProps = {
     setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
     t: TFunction, 
     name: string,
-    setObjects: any,
+    setObjects?: any,
     deleteObject: any,
     getObjects: any,
     deletePhrase: string,
