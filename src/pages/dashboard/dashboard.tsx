@@ -31,10 +31,10 @@ function Dashboard() {
     const constance = useSelector((state: RootState) => state.perfil.constance);
     const categories = useSelector((state: RootState) => state.categories.categories);
     const categoryWithMoreXp = useMemo(() => 
-        categories.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || []), 
+        categories?.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || []), 
     [categories]);
     const categoryWithLessXp = useMemo(() => 
-        categories.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || []),
+        categories?.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || []),
     [categories]);
 
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
