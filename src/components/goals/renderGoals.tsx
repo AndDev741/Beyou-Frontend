@@ -18,7 +18,7 @@ function RenderGoals({ goals }: RenderGoalsProps) {
       dispatch(editModeEnter(false));
   }, []); 
   return (
-    <div className="flex flex-wrap md:items-start justify-center md:justify-between lg:justify-start text-secondary">
+    <div className="flex flex-wrap md:items-start justify-center md:justify-between md:w-full text-secondary">
       {goals.length > 0 ? (
         goals.map((g) => (
           <div key={g.id} className="lg:mx-1">

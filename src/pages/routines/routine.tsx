@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import Header from "../../components/header";
 import AddRoutineButton from "../../components/routines/addRoutineButton";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
 import getHabits from "../../services/habits/getHabits";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +16,12 @@ import { RootState } from "../../redux/rootReducer";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
 import { CgAddR } from "react-icons/cg";
 import { RoutineSummary } from "../../components/routines/RoutineSummary";
+import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
+import {
+    compareNumbers,
+    compareStrings,
+    sortItems
+} from "../../components/utils/sortHelpers";
 
 const Routine = () => {
     const { t } = useTranslation();
@@ -24,8 +30,38 @@ const Routine = () => {
     const [onCreateRoutine, setOnCreateRoutine] = useState(false);
     const [routineType, setRoutineType] = useState("");
     const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+    const [sortBy, setSortBy] = useState("default");
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
+
+    const sortOptions: SortOption[] = [
+        { value: "default", label: t("Default order") },
+        { value: "name-asc", label: t("Name (A-Z)") },
+        { value: "name-desc", label: t("Name (Z-A)") },
+        { value: "level-desc", label: t("Level (High to Low)") },
+        { value: "level-asc", label: t("Level (Low to High)") },
+        { value: "xp-desc", label: t("XP (High to Low)") },
+        { value: "xp-asc", label: t("XP (Low to High)") }
+    ];
+
+    const sortedRoutines = useMemo(() => {
+        switch (sortBy) {
+            case "name-asc":
+                return sortItems(routines, (a, b) => compareStrings(a.name, b.name));
+            case "name-desc":
+                return sortItems(routines, (a, b) => compareStrings(b.name, a.name));
+            case "level-desc":
+                return sortItems(routines, (a, b) => compareNumbers(b.level, a.level));
+            case "level-asc":
+                return sortItems(routines, (a, b) => compareNumbers(a.level, b.level));
+            case "xp-desc":
+                return sortItems(routines, (a, b) => compareNumbers(b.xp, a.xp));
+            case "xp-asc":
+                return sortItems(routines, (a, b) => compareNumbers(a.xp, b.xp));
+            default:
+                return routines;
+        }
+    }, [routines, sortBy]);
 
     useEffect(() => {
 
@@ -55,7 +91,16 @@ const Routine = () => {
 
                 <div className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between gap-6">
                     <div className="w-full lg:w-[50%]">
-                        <RenderRoutines selectedDate={selectedDate} />
+                        <SortFilterBar
+                            title={t("Routines list")}
+                            description={t("Sort results")}
+                            options={sortOptions}
+                            value={sortBy}
+                            onChange={setSortBy}
+                            quickValues={["name-asc", "level-desc", "xp-desc"]}
+                            className="mb-4"
+                        />
+                        <RenderRoutines selectedDate={selectedDate} routines={sortedRoutines} />
                     </div>
 
                     <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">

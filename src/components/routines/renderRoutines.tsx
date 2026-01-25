@@ -16,12 +16,14 @@ import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
 
 type RenderRoutinesProps = {
     selectedDate: string;
+    routines?: Routine[];
 };
 
-export default function RenderRoutines({ selectedDate }: RenderRoutinesProps) {
+export default function RenderRoutines({ selectedDate, routines: routinesOverride }: RenderRoutinesProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
-    const routines = useSelector((state: RootState) => state.routines.routines) || [];
+    const routinesFromStore = useSelector((state: RootState) => state.routines.routines) || [];
+    const routines = routinesOverride || routinesFromStore;
     const tasks = useSelector((state: RootState) => state.tasks.tasks) as task[] || [];
     const habits = useSelector((state: RootState) => state.habits.habits) as habit[] || [];
 

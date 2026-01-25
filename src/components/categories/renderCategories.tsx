@@ -11,7 +11,7 @@ function RenderCategories({categories}: props){
     const {t} = useTranslation();
 
     return(
-        <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-start text-secondary">
+        <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-between w-full text-secondary">
             {categories.length > 0 ? (
                 categories.map((category) => (
                 <div key={category.id} 
