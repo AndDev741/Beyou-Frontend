@@ -11,16 +11,12 @@ import getGoals from "../../services/goals/getGoals";
 import {
   editModeEnter,
 } from "../../redux/goal/editGoalSlice";
-import { goal as GoalType } from "../../types/goals/goalType";
 import SelectorInput from "../inputs/SelectorInput";
 import IconsBox from "../inputs/iconsBox";
 import category from "../../types/category/categoryType";
+import { enterGoals } from "../../redux/goal/goalsSlice";
 
-type Props = {
-  setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
-};
-
-function EditGoal({ setGoals }: Props) {
+function EditGoal() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
@@ -111,7 +107,7 @@ function EditGoal({ setGoals }: Props) {
     if (response.success) {
       const newGoals = await getGoals(t);
       if (Array.isArray(newGoals.success)) {
-        setGoals(newGoals.success);
+        dispatch(enterGoals(newGoals.success));
       }
       handleCancel();
     } else if (response.validation) {

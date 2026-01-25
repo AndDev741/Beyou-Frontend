@@ -7,10 +7,9 @@ import { editModeEnter } from "../../redux/goal/editGoalSlice";
 
 type RenderGoalsProps = {
   goals: goal[];
-  setGoals: React.Dispatch<React.SetStateAction<goal[]>>;
 };
 
-function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
+function RenderGoals({ goals }: RenderGoalsProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   
@@ -19,7 +18,7 @@ function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
       dispatch(editModeEnter(false));
   }, []); 
   return (
-    <div className="flex flex-wrap md:items-start justify-center md:justify-between md:justify-evenly lg:justify-start text-secondary">
+    <div className="flex flex-wrap md:items-start justify-center md:justify-between lg:justify-start text-secondary">
       {goals.length > 0 ? (
         goals.map((g) => (
           <div key={g.id} className="lg:mx-1">
@@ -39,7 +38,6 @@ function RenderGoals({ goals, setGoals }: RenderGoalsProps) {
               xpReward={g.xpReward}
               status={g.status}
               term={g.term}
-              setGoals={setGoals}
             />
           </div>
         ))

@@ -5,17 +5,15 @@ import DescriptionInput from "../inputs/descriptionInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import createGoal from "../../services/goals/createGoal";
 import getGoals from "../../services/goals/getGoals";
-import { goal as GoalType } from "../../types/goals/goalType";
 import GenericInput from "../inputs/genericInput";
 import IconsBox from "../inputs/iconsBox";
 import SelectorInput from "../inputs/SelectorInput";
+import { useDispatch } from "react-redux";
+import { enterGoals } from "../../redux/goal/goalsSlice";
 
-type Props = {
-  setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
-};
-
-function CreateGoal({ setGoals }: Props) {
+function CreateGoal() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -59,7 +57,7 @@ function CreateGoal({ setGoals }: Props) {
     if (response.success) {
       const newGoals = await getGoals(t);
       if (Array.isArray(newGoals.success)) {
-        setGoals(newGoals.success);
+        dispatch(enterGoals(newGoals.success));
         setTitle("");
         setDescription("");
         setTargetValue(0);

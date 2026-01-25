@@ -37,7 +37,7 @@ import markGoalAsComplete from "../../services/goals/markGoalAsComplete";
 import { enterGoals, updateGoal } from "../../redux/goal/goalsSlice";
 import increaseCurrentValue from "../../services/goals/increaseCurrentValue";
 import decreaseCurrentValue from "../../services/goals/decreaseCurrentValue";
-import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
+import useUiRefresh from "../../hooks/useUiRefresh";
 
 type GoalBoxProps = {
   id: string;
@@ -55,8 +55,6 @@ type GoalBoxProps = {
   xpReward: number;
   status: string;
   term: string;
-  setGoals: React.Dispatch<React.SetStateAction<GoalType[]>>;
-  dispatchAction?: Dispatch<UnknownAction>;
   readonly?: boolean;
 };
 
@@ -76,9 +74,7 @@ function GoalBox({
   xpReward,
   status,
   term,
-  setGoals,
   readonly = false,
-  dispatchAction
 }: GoalBoxProps) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -87,6 +83,7 @@ function GoalBox({
   const [statusIcon, setStatusIcon] = useState(notStartedIcon);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
+  const [refreshUi, setRefreshUi] = useState({});
 
   function handleEditMode() {
     dispatch(editModeEnter(true));
@@ -106,6 +103,8 @@ function GoalBox({
     dispatch(editStatusEnter(status));
     dispatch(editTermEnter(term));
   }
+
+  useUiRefresh(refreshUi);
 
   useEffect(() => {
     const response = iconSearch(iconId);
@@ -153,7 +152,11 @@ function GoalBox({
   }
 
   const completeTask = async (id: string) => {
-    await markGoalAsComplete(id, t);
+    const refreshUi = await markGoalAsComplete(id, t);
+    if(refreshUi?.success){
+      setRefreshUi(refreshUi.success);
+    }
+
     const goals = await getGoals(t);
     dispatch(enterGoals(goals.success));
   }
@@ -170,11 +173,7 @@ function GoalBox({
   }
 
   const mountGoalWithNewValues = (goal: GoalType) => {
-    if(dispatchAction){
-      dispatchAction(updateGoal(goal));
-    }else{
-      setGoals((prevGoals) => prevGoals.map((g) => (g.id === goal.id ? goal : g))); 
-    }
+    dispatch(updateGoal(goal));
   }
 
   console.log("CATEGORIES => ", categories)
@@ -290,7 +289,7 @@ function GoalBox({
           setOnDelete={setOnDelete}
           t={t}
           name={title}
-          setObjects={setGoals}
+          dispatchFunction={enterGoals}
           deleteObject={deleteGoal}
           getObjects={getGoals}
           deletePhrase={t("ConfirmDeleteOfGoalPhrase")}

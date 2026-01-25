@@ -1,26 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
-import { goal } from "../../types/goals/goalType";
 import RenderGoals from "../../components/goals/renderGoals";
 import getGoals from "../../services/goals/getGoals";
 import { t } from "i18next";
 import CreateGoal from "../../components/goals/createGoal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import EditGoal from "../../components/goals/editGoal";
+import { enterGoals } from "../../redux/goal/goalsSlice";
 
 function Goals() {
   useAuthGuard();
+  const dispatch = useDispatch();
 
   const isEditMode = useSelector((state: RootState) => state.editGoal.editMode);
-  const [goals, setGoals] = useState<goal[]>([]);
+  // const [goals, setGoals] = useState<goal[]>([]);
+  const goals = useSelector((state: RootState) => state.goals.goals);
 
   useEffect(() => {
     const fetchGoals = async () => {
       const response = await getGoals(t);
       if (Array.isArray(response.success)) {
-        setGoals(response.success);
+        dispatch(enterGoals(response.success));
       }
     };
     fetchGoals();
@@ -31,14 +33,14 @@ function Goals() {
       <Header pageName="Your Goals" />
       <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
         <div className="lg:w-[70%]">
-          <RenderGoals goals={goals} setGoals={setGoals} />
+          <RenderGoals goals={goals}/>
         </div>
         <div className="lg:mr-12 mt-4">
           <div className={`${isEditMode ? "hidden" : "block"}`}>
-            <CreateGoal setGoals={setGoals} />
+            <CreateGoal />
           </div>
           <div className={`${isEditMode ? "block" : "hidden"}`}>
-            <EditGoal setGoals={setGoals} />
+            <EditGoal />
           </div>
         </div>
       </div>
