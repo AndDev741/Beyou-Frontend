@@ -1,12 +1,13 @@
 import { TFunction } from "i18next";
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
+import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
 
-type apiResponse = Record<string, string>;
+type apiResponse = Record<string, RefreshUI | string>
 
 async function markGoalAsComplete(id: string, t: TFunction): Promise<apiResponse> {
   try {
-    const response = await axiosWithCredentials.put<string>(`/goal/complete`, id, {
+    const response = await axiosWithCredentials.put<RefreshUI>(`/goal/complete`, id, {
       headers: {
         "Content-Type": "application/json",
       },

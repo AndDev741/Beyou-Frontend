@@ -4,9 +4,7 @@ import { RootState } from "../../../redux/rootReducer";
 import { sortGoalsByTime } from "./sortGoalsByTime";
 import { useDragScroll } from "../../../hooks/useDragScroll";
 import { goal } from "../../../types/goals/goalType";
-import { useDispatch } from "react-redux";
 import GoalBox from "../../goals/goalBox";
-import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 
 export default function GoalsTab() {
@@ -14,7 +12,6 @@ export default function GoalsTab() {
     const goals = useSelector((state: RootState) => state.goals.goals);
     const sortedGoals = sortGoalsByTime(goals || []);
     const scrollContainer = useDragScroll();
-    const dispatch = useDispatch();
 
     return (
         <div className="lg:p-4 space-y-4">
@@ -30,11 +27,11 @@ export default function GoalsTab() {
                     onTouchStart={scrollContainer.onTouchStart}
                     onTouchMove={scrollContainer.onTouchMove}
                 >
-                    <GoalSection title={t("This Week")} goals={sortedGoals.thisWeek} dispatch={dispatch}/>
-                    <GoalSection title={t("This Month")} goals={sortedGoals.thisMonth} dispatch={dispatch}/>
-                    <GoalSection title={t("This Year")} goals={sortedGoals.thisYear} dispatch={dispatch}/>
-                    <GoalSection title={t("Future Goals")} goals={sortedGoals.beyond} dispatch={dispatch}/>
-                    <GoalSection title={t("Past Goals")} goals={sortedGoals.past} dispatch={dispatch} />
+                    <GoalSection title={t("This Week")} goals={sortedGoals.thisWeek}/>
+                    <GoalSection title={t("This Month")} goals={sortedGoals.thisMonth}/>
+                    <GoalSection title={t("This Year")} goals={sortedGoals.thisYear}/>
+                    <GoalSection title={t("Future Goals")} goals={sortedGoals.beyond}/>
+                    <GoalSection title={t("Past Goals")} goals={sortedGoals.past}/>
                 </div>
             </div>
         </div>
@@ -43,7 +40,7 @@ export default function GoalsTab() {
     );
 }
 
-function GoalSection({ title, goals, dispatch }: { title: string, goals: goal[], dispatch: Dispatch<UnknownAction> }) {
+function GoalSection({ title, goals }: { title: string, goals: goal[] }) {
     if (goals.length === 0) return null;
 
     return (
@@ -67,8 +64,6 @@ function GoalSection({ title, goals, dispatch }: { title: string, goals: goal[],
                     xpReward={goal.xpReward}
                     status={goal.status}
                     term={goal.term}
-                    setGoals={() => {}}
-                    dispatchAction={dispatch}
                     readonly={true}
                     />
                 ))}
