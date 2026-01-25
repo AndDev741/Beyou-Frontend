@@ -48,7 +48,7 @@ const SortFilterBar = ({
             <h2 className="text-lg font-semibold text-secondary">{title}</h2>
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-2">
           <label htmlFor={selectId} className="text-sm font-medium text-description">
             {t("Sort by")}
           </label>

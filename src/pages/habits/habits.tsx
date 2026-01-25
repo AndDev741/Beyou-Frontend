@@ -85,7 +85,7 @@ function Habits(){
         <div className="bg-background min-h-screen text-secondary flex flex-col">
             <Header pageName={"YourHabits"} />
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] lg:px-6 lg:py-4 gap-6">
-                <div className="w-full lg:w-[60%]">
+                <div className="w-full lg:w-[60%] mt-3">
                     <SortFilterBar
                         title={t("Habits board")}
                         description={t("Sort results")}
