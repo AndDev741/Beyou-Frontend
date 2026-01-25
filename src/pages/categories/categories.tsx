@@ -3,7 +3,7 @@ import RenderCategories from "../../components/categories/renderCategories";
 import EditCategory from "../../components/categories/editCategory";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/header";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
 import { editModeEnter } from "../../redux/category/editCategorySlice";
@@ -18,6 +18,7 @@ import {
   getTimestamp,
   sortItems
 } from "../../components/utils/sortHelpers";
+import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 // import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
 
 function Categories(){
@@ -29,7 +30,7 @@ function Categories(){
     const editMode = useSelector((state: RootState) => state.editCategory.editMode);
     // const [generatedCategory, setGeneratedCategory] = useState<categoryGeneratedByAi>({categoryName: "", description: ""});
     const categories = useSelector((state: RootState) => state.categories.categories) || [];
-    const [sortBy, setSortBy] = useState("default");
+    const sortBy = useSelector((state: RootState) => state.viewFilters.categories);
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -70,6 +71,10 @@ function Categories(){
         }
     }, [categories, sortBy]);
 
+    const handleSortChange = (value: string) => {
+        dispatch(setViewSort({ view: "categories", sortBy: value }));
+    };
+
     //When open the page
     useEffect(() => {
         dispatch(editModeEnter(false));
@@ -97,7 +102,7 @@ function Categories(){
                         description={t("Sort results")}
                         options={sortOptions}
                         value={sortBy}
-                        onChange={setSortBy}
+                        onChange={handleSortChange}
                         quickValues={["name-asc", "xp-desc", "level-desc"]}
                         className="mb-4"
                     />

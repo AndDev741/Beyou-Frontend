@@ -5,7 +5,7 @@ import { task } from "../../types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
 import getTasks from "../../services/tasks/getTasks";
 import CreateTask from "../../components/tasks/createTask";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import EditTask from "../../components/tasks/editTask";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
@@ -16,15 +16,17 @@ import {
   sortItems
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
+import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 
 
 function Tasks() {
     useAuthGuard();
 
     const { t } = useTranslation();
+    const dispatch = useDispatch();
     const isEditMode = useSelector((state: RootState) => state.editTask.editMode);
     const [tasks, setTasks] = useState<task[]>([]);
-    const [sortBy, setSortBy] = useState("default");
+    const sortBy = useSelector((state: RootState) => state.viewFilters.tasks);
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -65,6 +67,10 @@ function Tasks() {
         }
     }, [tasks, sortBy]);
 
+    const handleSortChange = (value: string) => {
+        dispatch(setViewSort({ view: "tasks", sortBy: value }));
+    };
+
     useEffect(() => {
         const returnTasks = async () => {
             const response = await getTasks(t);
@@ -85,7 +91,7 @@ function Tasks() {
                         description={t("Sort results")}
                         options={sortOptions}
                         value={sortBy}
-                        onChange={setSortBy}
+                        onChange={handleSortChange}
                         quickValues={["name-asc", "importance-desc", "created-desc"]}
                         className="mb-4"
                     />

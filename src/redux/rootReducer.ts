@@ -13,6 +13,7 @@ import todayRoutine from "./routine/todayRoutineSlice";
 import editGoal from "./goal/editGoalSlice";
 import goals from "./goal/goalsSlice";
 import categories from "./category/categoriesSlice";
+import viewFilters from "./viewFilters/viewFiltersSlice";
 
 
 const rootReducer = combineReducers({
@@ -29,7 +30,8 @@ const rootReducer = combineReducers({
     todayRoutine: todayRoutine,
     editGoal: editGoal,
     goals: goals,
-    categories: categories
+    categories: categories,
+    viewFilters: viewFilters
 
 });
 

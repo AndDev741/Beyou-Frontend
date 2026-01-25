@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import CreateHabit from "../../components/habits/createHabit";
 import EditHabit from "../../components/habits/editHabit";
 import RenderHabits from "../../components/habits/renderHabits";
@@ -15,14 +15,16 @@ import {
     sortItems
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
+import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 
 function Habits(){
     useAuthGuard();
 
     const { t } = useTranslation();
+    const dispatch = useDispatch();
     const isEditMode = useSelector((state: RootState) => state.editHabit.editMode);
     const [habits, setHabits] = useState<habit[]>([]);
-    const [sortBy, setSortBy] = useState("default");
+    const sortBy = useSelector((state: RootState) => state.viewFilters.habits);
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -75,6 +77,10 @@ function Habits(){
         }
     }, [habits, sortBy]);
 
+    const handleSortChange = (value: string) => {
+        dispatch(setViewSort({ view: "habits", sortBy: value }));
+    };
+
     return(
         <div className="bg-background min-h-screen text-secondary flex flex-col">
             <Header pageName={"YourHabits"} />
@@ -85,7 +91,7 @@ function Habits(){
                         description={t("Sort results")}
                         options={sortOptions}
                         value={sortBy}
-                        onChange={setSortBy}
+                        onChange={handleSortChange}
                         quickValues={["name-asc", "xp-desc", "level-desc"]}
                         className="mb-4"
                     />

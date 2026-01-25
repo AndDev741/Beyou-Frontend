@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import RenderGoals from "../../components/goals/renderGoals";
@@ -17,6 +17,7 @@ import {
   sortItems
 } from "../../components/utils/sortHelpers";
 import { goal } from "../../types/goals/goalType";
+import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 
 function Goals() {
   useAuthGuard();
@@ -25,7 +26,7 @@ function Goals() {
   const isEditMode = useSelector((state: RootState) => state.editGoal.editMode);
   // const [goals, setGoals] = useState<goal[]>([]);
   const goals = useSelector((state: RootState) => state.goals.goals) || [];
-  const [sortBy, setSortBy] = useState("default");
+  const sortBy = useSelector((state: RootState) => state.viewFilters.goals);
 
   const sortOptions: SortOption[] = [
     { value: "default", label: t("Default order") },
@@ -83,6 +84,10 @@ function Goals() {
     }
   }, [goals, sortBy]);
 
+  const handleSortChange = (value: string) => {
+    dispatch(setViewSort({ view: "goals", sortBy: value }));
+  };
+
   useEffect(() => {
     const fetchGoals = async () => {
       const response = await getGoals(t);
@@ -103,7 +108,7 @@ function Goals() {
             description={t("Sort results")}
             options={sortOptions}
             value={sortBy}
-            onChange={setSortBy}
+            onChange={handleSortChange}
             quickValues={["name-asc", "progress-desc", "xp-desc"]}
             className="mb-4"
           />

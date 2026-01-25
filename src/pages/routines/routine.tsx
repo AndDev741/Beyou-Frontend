@@ -22,6 +22,7 @@ import {
     compareStrings,
     sortItems
 } from "../../components/utils/sortHelpers";
+import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 
 const Routine = () => {
     const { t } = useTranslation();
@@ -30,9 +31,9 @@ const Routine = () => {
     const [onCreateRoutine, setOnCreateRoutine] = useState(false);
     const [routineType, setRoutineType] = useState("");
     const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
-    const [sortBy, setSortBy] = useState("default");
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
+    const sortBy = useSelector((state: RootState) => state.viewFilters.routines);
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -62,6 +63,10 @@ const Routine = () => {
                 return routines;
         }
     }, [routines, sortBy]);
+
+    const handleSortChange = (value: string) => {
+        dispatch(setViewSort({ view: "routines", sortBy: value }));
+    };
 
     useEffect(() => {
 
@@ -96,7 +101,7 @@ const Routine = () => {
                             description={t("Sort results")}
                             options={sortOptions}
                             value={sortBy}
-                            onChange={setSortBy}
+                            onChange={handleSortChange}
                             quickValues={["name-asc", "level-desc", "xp-desc"]}
                             className="mb-4"
                         />
