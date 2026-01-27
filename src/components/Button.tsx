@@ -3,9 +3,10 @@ type buttonProps = {
     size: "big" | "medium" | "small";
     mode: "cancel" | "create";
     onClick?: () => void;
+    type?: "submit" | "reset" | "button" | undefined
 }
 
-function Button({text, size, mode, onClick}: buttonProps){
+function Button({text, size, mode, onClick, type}: buttonProps){
     let style;
 
     switch(mode){
@@ -33,6 +34,7 @@ function Button({text, size, mode, onClick}: buttonProps){
     return(
         <button className={style}
         onClick={onClick}
+        type={type}
         >
             {text}
         </button>
