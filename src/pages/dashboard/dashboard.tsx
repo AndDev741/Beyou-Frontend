@@ -103,7 +103,7 @@ function Dashboard() {
         <>
             <div>
                 <div className="lg:flex lg:justify-between items-start">
-                    <div className="flex flex-col lg:w-[50%]">
+                    <div className="flex flex-col lg:w-full">
                         <header className="md:flex md:justify-center lg:justify-start ">
                             <Perfil />
                         </header>
@@ -112,7 +112,7 @@ function Dashboard() {
                         <div className="hidden lg:flex justify-between">
                             <Shortcuts />
 
-                            <div className="hidden lg:flex flex-wrap justify-between items-center py-3 mt-7 w-[35vw] mr-3 gap-4">
+                            <div className="hidden lg:flex flex-wrap justify-evenly items-center py-3 mt-7 w-full mr-3 gap-4">
                                 {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
                                     <WidgetsFabric
                                         key={id}
@@ -135,7 +135,7 @@ function Dashboard() {
                     </div>
 
                     {/* Mobile */}
-                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-2 py-3 mt-5 lg:hidden">
+                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-1 md:p-2 py-3 mt-5 lg:hidden">
                         {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
                             <WidgetsFabric
                                 key={id}
@@ -155,7 +155,7 @@ function Dashboard() {
                         )}
                     </div>
 
-                    <div className="lg:w-[50%]">
+                    <div className="lg:w-full">
                         <RoutineDay routine={routine ? routine : null} />
                     </div>
                     {/* Mobile */}
