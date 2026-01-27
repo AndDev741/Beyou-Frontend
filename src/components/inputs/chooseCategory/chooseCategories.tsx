@@ -8,12 +8,15 @@ type chooseCategoriesProps = {
     categoriesIdList: string[],
     setCategoriesIdList: React.Dispatch<React.SetStateAction<string[]>>,
     errorMessage: string,
-    chosenCategories: category[] | null
+    chosenCategories?: category[] | null,
+    chosenCategoriesId?: string[]
 }
 
-function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, chosenCategories}: chooseCategoriesProps){
+function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, chosenCategories, chosenCategoriesId}: chooseCategoriesProps){
     const {t} = useTranslation();
     const [categories, setCategories] = useState<category[]>([]);
+
+    console.log("CATEGORIES ID => ", categoriesIdList);
 
     useEffect(() => {
         async function returnCategories(){
@@ -45,6 +48,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                             name={category.name}
                             iconId={category.iconId}
                             chosenCategories={chosenCategories}
+                            chosenCategoriesId={chosenCategoriesId}
                             />
                         </div>
                     

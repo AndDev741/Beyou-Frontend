@@ -1,4 +1,4 @@
-import category from "../category/categoryType";
+import { CategoryMiniDTO } from "../category/CategoryMiniDTO";
 
 export type editGoal = {
   goalId: string;
@@ -9,7 +9,7 @@ export type editGoal = {
   unit: string;
   currentValue: number;
   complete: boolean;
-  categories: category[];
+  categories: Record<string, CategoryMiniDTO>;
   motivation: string;
   startDate: string;
   endDate: string;

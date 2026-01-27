@@ -13,7 +13,6 @@ import {
 } from "../../redux/goal/editGoalSlice";
 import SelectorInput from "../inputs/SelectorInput";
 import IconsBox from "../inputs/iconsBox";
-import category from "../../types/category/categoryType";
 import { enterGoals } from "../../redux/goal/goalsSlice";
 
 function EditGoal() {
@@ -30,7 +29,7 @@ function EditGoal() {
   const currentValueEdit = useSelector((state: RootState) => state.editGoal.currentValue);
   const completeEdit = useSelector((state: RootState) => state.editGoal.complete);
   const categories = useSelector((state: RootState) => state.editGoal.categories);
-  console.log(categories)
+  console.log("categories in edit => ", categories)
   const motivationEdit = useSelector((state: RootState) => state.editGoal.motivation);
   const startDateEdit = useSelector((state: RootState) => state.editGoal.startDate);
   const endDateEdit = useSelector((state: RootState) => state.editGoal.endDate);
@@ -42,7 +41,6 @@ function EditGoal() {
   const [targetValue, setTargetValue] = useState(0);
   const [unit, setUnit] = useState("");
   const [categoriesList, setcategoriesList] = useState<string[]>([]);
-  const [chosenCategories, setChosenCategories] = useState<category[]>([]);
   const [motivation, setMotivation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -60,13 +58,13 @@ function EditGoal() {
     setTargetValue(targetValueEdit);
     setActualProgress(currentValueEdit);
     setUnit(unitEdit);
-    setChosenCategories(categories);
     setMotivation(motivationEdit);
     setStartDate(startDateEdit);
     setEndDate(endDateEdit);
     setStatus(statusEdit);
     setTerm(termEdit);
     setSearch(iconId);
+    setcategoriesList(Object.keys(categories));
   }, [
     titleEdit,
     descriptionEdit,
@@ -243,12 +241,12 @@ function EditGoal() {
           categoriesIdList={categoriesList}
           setCategoriesIdList={setcategoriesList}
           errorMessage={""}
-          chosenCategories={chosenCategories}
+          chosenCategoriesId={categoriesList}
         />
 
         <p className="text-error text-center mt-2">{errorMessage}</p>
         <div className="flex items-center justify-evenly mt-4">
-          <Button text={t("Cancel")} mode='cancel' size='medium' onClick={handleCancel}/>
+          <Button text={t("Cancel")} mode='cancel' type="button" size='medium' onClick={handleCancel}/>
           <Button text={t("Edit")} mode='create' size='medium' />
         </div>
       </form>

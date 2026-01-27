@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import category from '../../types/category/categoryType';
+import { CategoryMiniDTO } from "../../types/category/CategoryMiniDTO";
 
 const initialState: {
   editMode: boolean;
@@ -11,7 +11,7 @@ const initialState: {
   unit: string;
   currentValue: number;
   complete: boolean;
-  categories: category[];
+  categories: Record<string, CategoryMiniDTO>;
   motivation: string;
   startDate: string;
   endDate: string;
@@ -28,7 +28,7 @@ const initialState: {
   unit: '',
   currentValue: 0,
   complete: false,
-  categories: [],
+  categories: {},
   motivation: '',
   startDate: '',
   endDate: '',

@@ -9,7 +9,7 @@ type categoryItemProps = {
     categoryId: string,
     categoriesIdList: string[],
     setCategoriesIdList: React.Dispatch<React.SetStateAction<string[]>>,
-    chosenCategories: category[] | null
+    chosenCategories?: category[] | null
     chosenCategoriesId?: string[]
 }
 
@@ -20,7 +20,7 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
         const result = iconSearch(iconId);
         setIcon(result);
     }, [iconId])
-
+    console.log(`NAME =? ${name} checked? ${alreadyChosen}`)
     const handleCheckboxChange= (event: { target: { id: string; checked: boolean; }; }) => {
         const {id, checked} = event.target;
 
