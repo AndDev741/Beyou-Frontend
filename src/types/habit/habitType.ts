@@ -7,7 +7,7 @@ export type habit = {
     motivationalPhrase:string,
     iconId: string,
     categories: category[],
-    routines: string[],
+    routines: Record<string, string>, //id, name
     importance:number,
     dificulty: number,
     xp: number,

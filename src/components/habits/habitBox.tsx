@@ -10,32 +10,15 @@ import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyE
 import { habit } from "../../types/habit/habitType";
 import { IconObject } from "../../types/icons/IconObject";
 import deleteHabit from "../../services/habits/deleteHabit";
-import category from "../../types/category/categoryType";
 import getHabits from "../../services/habits/getHabits";
 import useColors from "./utils/useColors";
 import DeleteModal from "../DeleteModal";
 
-type HabitBoxProps = {
-    id: string,
-    name: string,
-    description: string,
-    motivationalPhrase:string,
-    iconId: string,
-    categories: category[],
-    routines: string[],
-    importance:number,
-    dificulty: number,
-    xp: number,
-    level: number,
-    nextLevelXp: number,
-    actualBaseXp: number,
-    constance: number,
-    createdAt: Date,
-    updatedAt: Date,
+interface HabitBoxProps extends habit {
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>
 }
 
-function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualBaseXp, constance, categories, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
+function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualLevelXp, constance, categories, routines, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
     const dispatch = useDispatch();
     
     const {t} = useTranslation();
@@ -49,7 +32,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
 
     const [onDelete, setOnDelete] = useState(false);
 
-    const actualProgress = Math.round(((xp - actualBaseXp) / (nextLevelXp - actualBaseXp)) * 100);
+    const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
 
     useColors(dificulty, importance, setDificultyColor, setDificultyPhrase, setImportanceColor, setImportancePhrase, t)
     
@@ -106,11 +89,12 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                 </div>
             </div>
 
-            <div className={`${expanded ? "flex flex-col" : "hidden"}`}>
+            <div className={`${expanded && Object.values(routines)?.length > 0 ? "flex flex-col" : "hidden"}`}>
                 <h4 className="font-semibold text-lg">{t('UsingIn')}:</h4>
                 <ul className="ml-6 text-description">
-                    <li className="list-disc">Study Routine</li>
-                    <li className="list-disc">Morning Routine</li>
+                    {Object.values(routines).map((name) => (
+                         <li className="list-disc">{name}</li>
+                    ))}
                 </ul>
             </div>
 
