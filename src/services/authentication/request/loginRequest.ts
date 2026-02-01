@@ -18,6 +18,9 @@ async function loginRequest(email: string, password: string, t: TFunction): Prom
         await validationSchema.validate({email, password});
         try{
             const response = await axios.post<Record<string, UserType>>("/auth/login", loginData);
+            
+            const accessToken = response.headers["accesstoken"];
+            axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
             return response.data;
         }catch(e){
             console.error(e);
