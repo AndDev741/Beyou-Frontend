@@ -27,7 +27,17 @@ function App() {
             <Route path="/routines" element={<Routine />} />
             <Route path="/configuration" element={<Configuration />} />
           </Routes>
-          <ToastContainer />
+          <ToastContainer
+            position="bottom-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            className="beyou-toast-container"
+            toastClassName="beyou-toast"
+            progressClassName="beyou-toast-progress"
+          />
         </div>
       </BrowserRouter>
     </ThemeProvider>

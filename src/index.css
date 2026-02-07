@@ -2,3 +2,54 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.beyou-toast-container {
+  padding: 0 12px 12px;
+}
+
+.beyou-toast {
+  background: var(--background);
+  color: var(--secondary);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.beyou-toast.Toastify__toast-theme--colored {
+  background: var(--background);
+  color: var(--secondary);
+}
+
+.beyou-toast .Toastify__toast-body {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.beyou-toast.Toastify__toast--success {
+  border-color: var(--primary);
+}
+
+.beyou-toast.Toastify__toast--error {
+  border-color: var(--error);
+}
+
+.beyou-toast.Toastify__toast--info {
+  border-color: var(--primary);
+}
+
+.beyou-toast.Toastify__toast--warning {
+  border-color: var(--primary);
+}
+
+.beyou-toast-progress {
+  background: var(--primary);
+}
+
+.beyou-toast .Toastify__close-button {
+  color: var(--secondary);
+  opacity: 0.85;
+}
+
+.beyou-toast .Toastify__close-button:hover {
+  opacity: 1;
+}
