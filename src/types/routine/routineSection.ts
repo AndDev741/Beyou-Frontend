@@ -9,12 +9,14 @@ export type RoutineSection = {
         taskGroupChecks?: check[],
         taskId: string;
         startTime: string;
+        endTime?: string;
     }>;
     habitGroup?: Array<{
         id?: string,
         habitGroupChecks?: check[],
         habitId: string;
         startTime: string;
+        endTime?: string;
     }>;
     order: number;
     favorite?: boolean;

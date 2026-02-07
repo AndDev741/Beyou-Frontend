@@ -8,6 +8,7 @@ import checkRoutine from "../../../services/routine/checkItem";
 import { useState } from "react";
 import { RefreshUI } from "../../../types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
+import { formatTimeRange } from "../../routines/routineMetrics";
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
@@ -27,6 +28,7 @@ export default function RoutineSection({ section, routineId}: { section: section
             id: item.taskId,
             groupId: item.id,
             startTime: item?.startTime,
+            endTime: item?.endTime,
             check: item?.taskGroupChecks
         })) || [];
 
@@ -35,6 +37,7 @@ export default function RoutineSection({ section, routineId}: { section: section
             id: item.habitId,
             groupId: item.id,
             startTime: item?.startTime,
+            endTime: item?.endTime,
             check: item?.habitGroupChecks
         })) || [];
 
@@ -109,7 +112,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                         </span>
                         <span className="mx-2 text-secondary">-</span>
                         <span className="text-center text-primary text-lg">
-                            {item.startTime}
+                            {formatTimeRange(item.startTime, item.endTime)}
                         </span>
 
                     </div>
@@ -128,10 +131,10 @@ export default function RoutineSection({ section, routineId}: { section: section
             <div className="flex items-center gap-2">
                 {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
                 <span className="text-xl font-bold text-primary line-clamp-1">{section.name}
-                    <span className="ml-4 text-lg text-description">
-                        {section.startTime} - {section.endTime}
-                    </span>
+                <span className="ml-4 text-lg text-description">
+                        {formatTimeRange(section.startTime, section.endTime)}
                 </span>
+            </span>
 
             </div>
     

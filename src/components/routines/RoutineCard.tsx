@@ -262,6 +262,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     label: data.name || t("Task"),
                     iconId: data.iconId,
                     startTime: task.startTime,
+                    endTime: task.endTime,
                     completed,
                     xp,
                     type: "task" as const,
@@ -285,6 +286,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     label: data.name || t("Habit"),
                     iconId: data.iconId,
                     startTime: habit.startTime,
+                    endTime: habit.endTime,
                     completed,
                     xp,
                     type: "habit" as const,
@@ -367,7 +369,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                     <p className="font-medium truncate">{item.label}</p>
                                     <div className="flex flex-wrap items-center gap-3 text-xs text-description">
                                         <span className="flex items-center gap-1">
-                                            <FiClock /> {formatTime(item.startTime)}
+                                            <FiClock /> {formatTimeRange(item.startTime, item.endTime)}
                                         </span>
                                         <span className="rounded-full bg-ligthGray/40 px-2 py-0.5 font-semibold text-secondary/80">
                                             {item.type === "task" ? t("Task") : t("Habit")}

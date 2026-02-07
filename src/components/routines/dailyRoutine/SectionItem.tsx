@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
 import { CgAddR } from "react-icons/cg";
 import { AiFillStar } from "react-icons/ai";
+import { formatTimeRange } from "../routineMetrics";
 
 interface SectionItemProps {
     section: RoutineSection;
@@ -30,13 +31,15 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
         const tasks = section.taskGroup?.map(item => ({
             type: 'task' as const,
             id: item.taskId,
-            startTime: item?.startTime
+            startTime: item?.startTime,
+            endTime: item?.endTime
         })) || [];
 
         const habits = section.habitGroup?.map(item => ({
             type: 'habit' as const,
             id: item.habitId,
-            startTime: item?.startTime
+            startTime: item?.startTime,
+            endTime: item?.endTime
         })) || [];
 
         return [...tasks, ...habits].sort((a, b) =>
@@ -50,19 +53,26 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
         type: 'task' | 'habit';
         index: number;
         startTime: string;
+        endTime?: string;
     } | null>(null);
 
     // Função para iniciar a edição de um item
-    const handleStartEditItem = (itemType: 'task' | 'habit', itemIndex: number, currentStartTime: string) => {
+    const handleStartEditItem = (
+        itemType: 'task' | 'habit',
+        itemIndex: number,
+        currentStartTime: string,
+        currentEndTime?: string
+    ) => {
         setEditingItem({
             type: itemType,
             index: itemIndex,
-            startTime: currentStartTime
+            startTime: currentStartTime,
+            endTime: currentEndTime
         });
     };
 
     // Função para salvar a edição de um item
-    const handleSaveEditItem = (newTime: string) => {
+    const handleSaveEditItem = (newStartTime: string, newEndTime?: string) => {
         if (!setRoutineSection || !editingItem) return;
 
         setRoutineSection(prev =>
@@ -71,12 +81,12 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
 
                 if (editingItem.type === 'task') {
                     const newTaskGroup = sectionItem.taskGroup?.map((task, i) =>
-                        i === editingItem.index ? { ...task, startTime: newTime } : task
+                        i === editingItem.index ? { ...task, startTime: newStartTime, endTime: newEndTime } : task
                     ) || [];
                     return { ...sectionItem, taskGroup: newTaskGroup };
                 } else {
                     const newHabitGroup = sectionItem.habitGroup?.map((habit, i) =>
-                        i === editingItem.index ? { ...habit, startTime: newTime } : habit
+                        i === editingItem.index ? { ...habit, startTime: newStartTime, endTime: newEndTime } : habit
                     ) || [];
                     return { ...sectionItem, habitGroup: newHabitGroup };
                 }
@@ -160,8 +170,18 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                     )}
                                     className="border border-primary rounded p-1 bg-background text-secondary"
                                 />
+                                <input
+                                    type="time"
+                                    value={editingItem.endTime || ""}
+                                    min={editingItem.startTime || section.startTime}
+                                    max={section.endTime}
+                                    onChange={(e) => setEditingItem(prev =>
+                                        prev ? { ...prev, endTime: e.target.value } : null
+                                    )}
+                                    className="border border-primary rounded p-1 bg-background text-secondary"
+                                />
                                 <button
-                                    onClick={() => handleSaveEditItem(editingItem.startTime)}
+                                    onClick={() => handleSaveEditItem(editingItem.startTime, editingItem.endTime)}
                                     className="text-success hover:bg-success/10 p-1 rounded transition-colors duration-200"
                                 >
                                     Salvar
@@ -176,13 +196,13 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                         ) : (
                             <>
                                 <span className="text-center text-primary text-lg">
-                                    {item.startTime}
+                                    {formatTimeRange(item.startTime, item.endTime)}
                                 </span>
                                 <div className="flex items-center gap-2 ml-2">
                                     <button
                                         className="p-1 rounded hover:bg-primary/10 transition-colors duration-200"
                                         title={t("Edit")}
-                                        onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime)}
+                                        onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime)}
                                     >
                                         <FiEdit2 className="text-primary text-lg" />
                                     </button>
@@ -212,13 +232,9 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                 </div>
                 {/* I ALREADY SPEND TOO MUCH TIME TRYING TO UNDERSTAND WHY WHEN I OPEN THE TASK SELECTOR THE HEADER JUST GO TO THE RIGHT... THIS WILL FIX ****  */}
                 <div className={`${openTaskSelector ? "mr-3" : ""} flex items-center gap-2`}>
-                    <div className="flex items-center gap-1 text-description">
+                    <div className="flex items-center gap-1 text-description whitespace-nowrap">
                         <span>
-                            {section.startTime}
-                        </span>
-                        <span className="text-description"> - </span>
-                        <span>
-                            {section.endTime}
+                            {formatTimeRange(section.startTime, section.endTime)}
                         </span>
                     </div>
                     <button

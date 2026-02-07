@@ -17,6 +17,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const habits = useSelector((state: RootState) => state.habits.habits);
     const tasks = useSelector((state: RootState) => state.tasks.tasks);
     const [startTime, setStartTime] = useState<string>("");
+    const [endTime, setEndTime] = useState<string>("");
 
     const habitScroll = useDragScroll();
     const taskScroll = useDragScroll();
@@ -28,28 +29,56 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
 
             <div className="w-full flex flex-col items-start justify-evenly">
                 <div className="flex flex-col items-center justify-start w-full my-1 mx-2">
-                    <h2 className="font-medium text-secondary">{t("Put the start time of this item")}</h2>
+                    <h2 className="font-medium text-secondary">{t("Put the start and end time of this item")}</h2>
                     <p className="text-sm text-center text-description">{t('Need to fit between the section time')}</p>
-                    <input
-                        type="time"
-                        className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
-                        min={section.startTime}
-                        max={section.endTime}
-                        value={startTime}
-                        onChange={(e) => {
-                            const newTime = e.target.value;
-                            if (newTime < section.startTime) {
-                                setStartTime(section.startTime);
-                                return;
-                            } else if(newTime > section.endTime) {
-                                setStartTime(section.endTime);
-                            }
-                            
-                            else {
-                                setStartTime(newTime);
-                            }
-                        }}
-                    />
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                        <input
+                            type="time"
+                            className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
+                            min={section.startTime}
+                            max={section.endTime}
+                            value={startTime}
+                            onChange={(e) => {
+                                const newTime = e.target.value;
+                                if (newTime && section.startTime && newTime < section.startTime) {
+                                    setStartTime(section.startTime);
+                                    if (endTime && section.startTime > endTime) {
+                                        setEndTime(section.startTime);
+                                    }
+                                    return;
+                                } else if (newTime && section.endTime && newTime > section.endTime) {
+                                    setStartTime(section.endTime);
+                                    if (endTime && section.endTime < endTime) {
+                                        setEndTime(section.endTime);
+                                    }
+                                } else {
+                                    setStartTime(newTime);
+                                    if (endTime && newTime && endTime < newTime) {
+                                        setEndTime(newTime);
+                                    }
+                                }
+                            }}
+                        />
+                        <input
+                            type="time"
+                            className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
+                            min={startTime || section.startTime}
+                            max={section.endTime}
+                            value={endTime}
+                            onChange={(e) => {
+                                const newTime = e.target.value;
+                                if (newTime && startTime && newTime < startTime) {
+                                    setEndTime(startTime);
+                                    return;
+                                }
+                                if (newTime && section.endTime && newTime > section.endTime) {
+                                    setEndTime(section.endTime);
+                                    return;
+                                }
+                                setEndTime(newTime);
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <div className="w-full flex overflow-auto items-start gap-2 justify-start"
@@ -69,6 +98,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             index={index}
                             setOpenTaskSelector={setOpenTaskSelector!}
                             startTime={startTime}
+                            endTime={endTime}
                             section={section}
                         />
                     ))}
@@ -91,6 +121,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             index={index}
                             setOpenTaskSelector={setOpenTaskSelector!}
                             startTime={startTime}
+                            endTime={endTime}
                             section={section}
                         />
                     ))}

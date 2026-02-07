@@ -27,7 +27,7 @@ async function editRoutine(
             return response.data;
         }catch(e){
             console.error(e);
-            return {error: t('UnexpectedError')};
+            return {error: getApiErrorMessage(e, t)};
         }
     }catch(validationErrors){
         if(validationErrors instanceof Yup.ValidationError){
@@ -40,5 +40,22 @@ async function editRoutine(
 
 
 }
+
+const getApiErrorMessage = (error: unknown, t: TFunction): string => {
+    if (axios.isAxiosError(error)) {
+        const data = error.response?.data;
+        if (!data) return t('UnexpectedError');
+        if (typeof data === 'string') return data;
+        if (typeof data === 'object') {
+            const maybeError = (data as { error?: string }).error;
+            if (maybeError) return maybeError;
+            const maybeArgument = (data as { argumentError?: string }).argumentError;
+            if (maybeArgument) return maybeArgument;
+            const values = Object.values(data).filter((value) => typeof value === 'string') as string[];
+            if (values.length > 0) return values.join(', ');
+        }
+    }
+    return t('UnexpectedError');
+};
 
 export default editRoutine;

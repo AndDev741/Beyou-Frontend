@@ -10,10 +10,11 @@ interface HabitOrTaskGroupProps {
     index: number;
     setOpenTaskSelector: React.Dispatch<React.SetStateAction<boolean>>;
     startTime: string;
+    endTime?: string;
     section: RoutineSection;
 }
 
-const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSelector, startTime, section }: HabitOrTaskGroupProps) => {
+const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSelector, startTime, endTime, section }: HabitOrTaskGroupProps) => {
     const iconObj = iconSearch(habit?.iconId || task?.iconId || "");
     const Icon = iconObj?.IconComponent;
     const isSelected = section.habitGroup?.some((habitInGroup) => habitInGroup.habitId === habit?.id) || section.taskGroup?.some((taskInGroup) => taskInGroup.taskId === task?.id)
@@ -26,7 +27,7 @@ const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSe
                         ...section,
                         habitGroup: [
                             ...(section.habitGroup || []),
-                            { habitId: habitId, startTime: startTime }
+                            { habitId: habitId, startTime: startTime, endTime: endTime || undefined }
                         ]
                     }
                     : section
@@ -43,7 +44,7 @@ const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSe
                         ...section,
                         taskGroup: [
                             ...(section.taskGroup || []),
-                            { taskId: taskId, startTime: startTime }
+                            { taskId: taskId, startTime: startTime, endTime: endTime || undefined }
                         ]
                     }
                     : section

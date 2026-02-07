@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { RoutineSection } from "../../../types/routine/routineSection";
 import { v4 as uuidv4 } from "uuid";
 import iconSearch from "../../icons/iconsSearch";
+import { formatTimeRange } from "../routineMetrics";
 
 interface CreateRoutineSectionProps {
     setRoutineSection: React.Dispatch<React.SetStateAction<any>>;
@@ -187,7 +188,7 @@ const CreateRoutineSection = ({
                             <div className="flex items-center gap-2 w-full">
                                 {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
                                 <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
-                                <span>{section.startTime}</span>
+                                <span>{formatTimeRange(section.startTime, section.endTime)}</span>
                             </div>
 
                             <button className="hover:text-primary hover:scale-105"
