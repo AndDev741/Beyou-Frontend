@@ -176,6 +176,8 @@
     "Mon - Fri": "Mon - Fri",
     "Weekend": "Weekend",
     "All week": "All week",
+    "All": "All",
+    "Swipe to scroll": "Swipe to scroll",
     "RoutineIdRequired": "Select a routine.",
     "DaysRequired": "Select at least one day.",
     "DayInvalid": "Day invalid.",
