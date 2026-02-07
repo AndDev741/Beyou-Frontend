@@ -6,6 +6,7 @@ import { editModeEnter as editCategoryMode } from "../redux/category/editCategor
 import { editModeEnter as editHabitMode } from "../redux/habit/editHabitSlice";
 import { editIdEnter as editTaskMode } from "../redux/task/editTaskSlice";
 import { editModeEnter as editGoalMode } from "../redux/goal/editGoalSlice";
+import { toast } from "react-toastify";
 
 
 type deleteProps = {
@@ -71,6 +72,10 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
                 dispatch(dispatchFunction(newObjects.success))
             }
            }
+           toast.success(t('deleted successfully'));
+           setOnDelete(false);
+        } else if (response.error || response.validation) {
+            toast.error(response.error || response.validation);
         }
     }
     return(

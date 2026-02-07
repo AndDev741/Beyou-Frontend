@@ -13,6 +13,7 @@ import { task } from "../../types/tasks/taskType";
 import { habit } from "../../types/habit/habitType";
 import checkRoutine from "../../services/routine/checkItem";
 import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
+import { toast } from "react-toastify";
 
 type RenderRoutinesProps = {
     selectedDate: string;
@@ -50,10 +51,15 @@ export default function RenderRoutines({ selectedDate, routines: routinesOverrid
     };
 
     const handleDelete = async (id: string) => {
-        await deleteRoutine(id, t);
+        const response = await deleteRoutine(id, t);
+        if (response.error) {
+            toast.error(response.error);
+            return;
+        }
         const routinesResponse = await getRoutines(t);
         dispatch(enterRoutines(routinesResponse?.success));
         setConfirmDelete("");
+        toast.success(t("deleted successfully"));
     };
 
     const handleEdit = (routine: Routine) => {

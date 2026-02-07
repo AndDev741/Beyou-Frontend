@@ -110,6 +110,7 @@
     "UnexpectedError": "Um erro inesperado aconteceu",
     "edited successfully": "Editado com sucesso",
     "created successfully": "Criado com sucesso",
+    "deleted successfully": "Excluido com sucesso",
     "ConfirmDeleteOfHabitPhrase": "Confirmar exclusão deste hábito?",
 
     "User Not Found": "Usuário não encontrado, por favor faça login novamente",
