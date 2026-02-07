@@ -25,6 +25,12 @@ type refreshObject = {
 
 type refreshItemChecked = {
     groupItemId: string,
-    checked: boolean,
-    date: string
+    check: {
+        id: string,
+        checkDate: string,
+        checkTime: string,
+        checked: boolean,
+        skipped?: boolean,
+        xpGenerated: number
+    }
 }

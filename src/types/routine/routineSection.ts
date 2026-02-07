@@ -27,5 +27,6 @@ export type check = {
     checkDate: string,
     checkTime: string,
     checked: boolean,
+    skipped?: boolean,
     xpGenerated: number
 }

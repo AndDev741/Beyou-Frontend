@@ -29,13 +29,15 @@ const routinesSlice = createSlice({
                         findCheck.id = check.id,
                         findCheck.checkDate = check.checkDate,
                         findCheck.checkTime = check.checkTime,
-                        findCheck.checked = check.checked
+                        findCheck.checked = check.checked,
+                        findCheck.skipped = check.skipped
                     } else {
                         habitGroup.habitGroupChecks?.push({
                             id: check.id,
                             checkDate: check.checkDate,
                             checkTime: check.checkTime,
                             checked: check.checked,
+                            skipped: check.skipped,
                             xpGenerated: check.xpGenerated
                         })
                     }
@@ -50,13 +52,15 @@ const routinesSlice = createSlice({
                         findCheck.id = check.id,
                         findCheck.checkDate = check.checkDate,
                         findCheck.checkTime = check.checkTime,
-                        findCheck.checked = check.checked
+                        findCheck.checked = check.checked,
+                        findCheck.skipped = check.skipped
                     } else {
                         taskGroup.taskGroupChecks?.push({
                             id: check.id,
                             checkDate: check.checkDate,
                             checkTime: check.checkTime,
                             checked: check.checked,
+                            skipped: check.skipped,
                             xpGenerated: check.xpGenerated
                         })
                     }

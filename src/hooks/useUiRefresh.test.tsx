@@ -75,8 +75,14 @@ test("dispatches category refresh actions", async () => {
 test("dispatches item checked refresh action", async () => {
   const refreshItemChecked = {
     groupItemId: "g1",
-    checked: true,
-    date: "2024-01-01",
+    check: {
+      id: "c1",
+      checkDate: "2024-01-01",
+      checkTime: "08:00",
+      checked: true,
+      skipped: false,
+      xpGenerated: 0
+    }
   };
 
   render(<HookHarness refreshUi={{ refreshItemChecked }} />);
