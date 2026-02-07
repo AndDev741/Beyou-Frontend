@@ -9,6 +9,7 @@ import Tasks from "./pages/tasks/Tasks";
 import Routine from "./pages/routines/routine";
 import Configuration from "./pages/configuration/Configuration";
 import { ThemeProvider } from "./context/ThemeContext";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/routines" element={<Routine />} />
             <Route path="/configuration" element={<Configuration />} />
           </Routes>
+          <ToastContainer />
         </div>
       </BrowserRouter>
     </ThemeProvider>

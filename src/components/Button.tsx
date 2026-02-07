@@ -1,12 +1,13 @@
 type buttonProps = {
     text: string,
     size: "big" | "medium" | "small";
-    mode: "cancel" | "create";
+    mode: "cancel" | "create" | "default";
     onClick?: () => void;
-    type?: "submit" | "reset" | "button" | undefined
+    type?: "submit" | "reset" | "button" | undefined;
+    icon?: React.ReactNode;
 }
 
-function Button({text, size, mode, onClick, type}: buttonProps){
+function Button({text, size, mode, onClick, type, icon}: buttonProps){
     let style;
 
     switch(mode){
@@ -14,8 +15,11 @@ function Button({text, size, mode, onClick, type}: buttonProps){
             style = "rounded-[20px] text-lg lg:text-2xl font-semibold bg-secondary/10 text-secondary hover:bg-secondary/20 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border border-primary";
             break;
         case "create":
-            style = "bg-primary rounded-[20px] text-white text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-        break;
+            style = "bg-primary rounded-[20px] text-secondary text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+            break;
+        case "default":
+            style = "bg-primary rounded-md text-secondary text-lg lg:text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border border-description"
+            break;
     }
 
     switch(size){
@@ -32,12 +36,14 @@ function Button({text, size, mode, onClick, type}: buttonProps){
 
 
     return(
-        <button className={style}
-        onClick={onClick}
-        type={type}
-        >
-            {text}
-        </button>
+            <button
+            className={`flex items-center justify-center ${style}`}
+            onClick={onClick}
+            type={type}
+            >
+                {icon && <span className="mr-2 md:mr-6 cursor-pointer">{icon}</span>}
+                {text}
+            </button>
     )
 }
 

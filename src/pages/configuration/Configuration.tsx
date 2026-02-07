@@ -11,7 +11,7 @@ export default function Configuration() {
     
     return (
         <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">
-            <Header pageName={"Configuration"} />
+            <Header pageName={"Configuration"} showLogout={true} />
 
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] px-2 lg:px-6 gap-6">
                 <div className="flex flex-col items-center w-full lg:w-[50%]">
