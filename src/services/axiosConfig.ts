@@ -15,7 +15,7 @@ instance.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        if (originalRequest.url.includes("/auth/refresh") || "/auth/login" || "/auth/google") { //Refresh auth trow 401 too, so we need toi escape here
+        if (originalRequest.url.includes("/auth/refresh") || originalRequest.url.includes("/auth/login") || originalRequest.url.includes("/auth/google")) { //Refresh auth trow 401 too, so we need toi escape here
             return Promise.reject(error);
         }
 
