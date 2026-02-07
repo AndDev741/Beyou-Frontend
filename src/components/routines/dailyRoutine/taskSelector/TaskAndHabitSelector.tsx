@@ -18,6 +18,29 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const tasks = useSelector((state: RootState) => state.tasks.tasks);
     const [startTime, setStartTime] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
+    const toleranceMinutes = 5;
+
+    const isOvernight =
+        section.startTime &&
+        section.endTime &&
+        section.endTime < section.startTime;
+
+    const toMinutes = (time: string) => {
+        const [hours, minutes] = time.split(":").map(Number);
+        return hours * 60 + minutes;
+    };
+
+    const fromMinutes = (minutes: number) => {
+        const total = (minutes + 1440) % 1440;
+        const hours = Math.floor(total / 60);
+        const mins = total % 60;
+        return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+    };
+
+    const addMinutes = (time: string, delta: number) => fromMinutes(toMinutes(time) + delta);
+
+    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -toleranceMinutes) : undefined;
+    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, toleranceMinutes) : undefined;
 
     const habitScroll = useDragScroll();
     const taskScroll = useDragScroll();
@@ -35,46 +58,25 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         <input
                             type="time"
                             className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
-                            min={section.startTime}
-                            max={section.endTime}
+                            min={minStart}
+                            max={maxEnd}
                             value={startTime}
                             onChange={(e) => {
                                 const newTime = e.target.value;
-                                if (newTime && section.startTime && newTime < section.startTime) {
-                                    setStartTime(section.startTime);
-                                    if (endTime && section.startTime > endTime) {
-                                        setEndTime(section.startTime);
-                                    }
-                                    return;
-                                } else if (newTime && section.endTime && newTime > section.endTime) {
-                                    setStartTime(section.endTime);
-                                    if (endTime && section.endTime < endTime) {
-                                        setEndTime(section.endTime);
-                                    }
-                                } else {
-                                    setStartTime(newTime);
-                                    if (endTime && newTime && endTime < newTime) {
-                                        setEndTime(newTime);
-                                    }
+                                setStartTime(newTime);
+                                if (!isOvernight && endTime && newTime && endTime < newTime) {
+                                    setEndTime(newTime);
                                 }
                             }}
                         />
                         <input
                             type="time"
                             className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
-                            min={startTime || section.startTime}
-                            max={section.endTime}
+                            min={!isOvernight ? startTime || minStart : undefined}
+                            max={maxEnd}
                             value={endTime}
                             onChange={(e) => {
                                 const newTime = e.target.value;
-                                if (newTime && startTime && newTime < startTime) {
-                                    setEndTime(startTime);
-                                    return;
-                                }
-                                if (newTime && section.endTime && newTime > section.endTime) {
-                                    setEndTime(section.endTime);
-                                    return;
-                                }
                                 setEndTime(newTime);
                             }}
                         />

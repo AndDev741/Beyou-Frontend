@@ -103,7 +103,7 @@ const EditDailyRoutine = () => {
         <div className="w-full flex flex-col items-center justify-center text-secondary">
             <h2 className='text-2xl text-secondary'>{t("Editing daily routine")}</h2>
 
-            <div className="relative w-[95%] flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
+            <div className="relative md:w-[95%] flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
 
                 <input
                     type="text"

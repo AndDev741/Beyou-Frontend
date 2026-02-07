@@ -23,6 +23,28 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     const iconObj = iconSearch(section.iconId);
     const Icon = iconObj?.IconComponent;
     const [openTaskSelector, setOpenTaskSelector] = useState(false);
+    const toleranceMinutes = 5;
+    const isOvernight =
+        section.startTime &&
+        section.endTime &&
+        section.endTime < section.startTime;
+
+    const toMinutes = (time: string) => {
+        const [hours, minutes] = time.split(":").map(Number);
+        return hours * 60 + minutes;
+    };
+
+    const fromMinutes = (minutes: number) => {
+        const total = (minutes + 1440) % 1440;
+        const hours = Math.floor(total / 60);
+        const mins = total % 60;
+        return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
+    };
+
+    const addMinutes = (time: string, delta: number) => fromMinutes(toMinutes(time) + delta);
+
+    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -toleranceMinutes) : undefined;
+    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, toleranceMinutes) : undefined;
 
     const allHabits = useSelector((state: RootState) => state.habits.habits);
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -165,16 +187,27 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                 <input
                                     type="time"
                                     value={editingItem.startTime}
+                                    min={minStart}
+                                    max={maxEnd}
                                     onChange={(e) => setEditingItem(prev =>
-                                        prev ? { ...prev, startTime: e.target.value } : null
+                                        prev
+                                            ? {
+                                                ...prev,
+                                                startTime: e.target.value,
+                                                endTime:
+                                                    !isOvernight && prev.endTime && e.target.value && prev.endTime < e.target.value
+                                                        ? e.target.value
+                                                        : prev.endTime
+                                            }
+                                            : null
                                     )}
                                     className="border border-primary rounded p-1 bg-background text-secondary"
                                 />
                                 <input
                                     type="time"
                                     value={editingItem.endTime || ""}
-                                    min={editingItem.startTime || section.startTime}
-                                    max={section.endTime}
+                                    min={!isOvernight ? editingItem.startTime || minStart : undefined}
+                                    max={maxEnd}
                                     onChange={(e) => setEditingItem(prev =>
                                         prev ? { ...prev, endTime: e.target.value } : null
                                     )}

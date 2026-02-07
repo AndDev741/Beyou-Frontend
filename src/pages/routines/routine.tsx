@@ -23,8 +23,10 @@ import {
     sortItems
 } from "../../components/utils/sortHelpers";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import useAuthGuard from "../../components/useAuthGuard";
 
 const Routine = () => {
+    useAuthGuard();
     const { t } = useTranslation();
     const dispatch = useDispatch();
 
@@ -87,7 +89,7 @@ const Routine = () => {
     return (
         <div className="bg-background text-secondary min-h-screen pb-4">
             <Header pageName="Your Routines" />
-            <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-4">
+            <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
                 <RoutineSummary
                     routines={routines}
                     selectedDate={selectedDate}
