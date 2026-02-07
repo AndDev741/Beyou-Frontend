@@ -3,7 +3,23 @@ import React from 'react';
 import { vi } from 'vitest';
 
 // Use manual mock to avoid parsing axios ESM bundle in Vitest
-vi.mock('axios');
+vi.mock('axios', () => {
+  const instance: any = vi.fn();
+  instance.interceptors = { response: { use: vi.fn() } };
+  instance.defaults = { headers: { common: {} } };
+  instance.get = vi.fn();
+  instance.post = vi.fn();
+  instance.put = vi.fn();
+  instance.delete = vi.fn();
+
+  const axios = {
+    create: vi.fn(() => instance),
+    isAxiosError: vi.fn(() => false),
+    defaults: { headers: { common: {} } },
+  };
+
+  return { default: axios };
+});
 
 // Lightweight i18n stub so components can call t() without a full instance
 vi.mock('react-i18next', () => ({
