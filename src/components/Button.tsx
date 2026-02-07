@@ -18,7 +18,7 @@ function Button({text, size, mode, onClick, type, icon}: buttonProps){
             style = "bg-primary rounded-[20px] text-secondary text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
             break;
         case "default":
-            style = "bg-primary rounded-md text-secondary text-lg lg:text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border border-description"
+            style = "bg-background rounded-md text-secondary text-lg lg:text-2xl font-semibold hover:bg-primary/90 hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 border border-description"
             break;
     }
 
