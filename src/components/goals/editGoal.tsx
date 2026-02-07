@@ -14,6 +14,7 @@ import {
 import SelectorInput from "../inputs/SelectorInput";
 import IconsBox from "../inputs/iconsBox";
 import { enterGoals } from "../../redux/goal/goalsSlice";
+import { toast } from "react-toastify";
 
 function EditGoal() {
   const dispatch = useDispatch();
@@ -108,10 +109,13 @@ function EditGoal() {
         dispatch(enterGoals(newGoals.success));
       }
       handleCancel();
+      toast.success(t("edited successfully"));
     } else if (response.validation) {
       setErrorMessage(response.validation);
+      toast.error(response.validation);
     } else if (response.error) {
       setErrorMessage(response.error);
+      toast.error(response.error);
     }
   };
 

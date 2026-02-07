@@ -10,6 +10,7 @@ import { RootState } from '../../redux/rootReducer';
 import GenericInput from '../inputs/genericInput';
 import { CgAddR } from 'react-icons/cg';
 import Button from '../Button';
+import { toast } from 'react-toastify';
 
 type prop = {dispatchFunction: any};
 
@@ -64,14 +65,17 @@ function EditCategory({dispatchFunction}: prop){
                 dispatch(dispatchFunction(categories.success));
                 setSuccessMessage(t('edited successfully'));
             }
+            toast.success(t('edited successfully'));
         }
 
         if(response.error){
             setUnknownError(response.error);
+            toast.error(response.error);
         }
 
         if(response.validation){
             const validation = response.validation;
+            toast.error(validation);
             switch(validation){
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(validation);

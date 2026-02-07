@@ -109,6 +109,7 @@
 
     "UnexpectedError": "Um erro inesperado aconteceu",
     "edited successfully": "Editado com sucesso",
+    "created successfully": "Criado com sucesso",
     "ConfirmDeleteOfHabitPhrase": "Confirmar exclusão deste hábito?",
 
     "User Not Found": "Usuário não encontrado, por favor faça login novamente",
@@ -179,6 +180,7 @@
     "RoutineIdRequired": "Selecione uma rotina.",
     "DaysRequired": "Selecione pelo menos um dia.",
     "DayInvalid": "Dia inválido.",
+    "Item completed": "Item concluído",
     "Skip": "Pular",
     "Undo skip": "Desfazer pulo",
     "Skipped": "Pulada",

@@ -12,6 +12,7 @@ import getTasks from "../../services/tasks/getTasks";
 import arrowDown from "../../assets/arrowDown.svg";
 import arrowUp from "../../assets/arrowUp.svg"
 import { CgAddR } from "react-icons/cg";
+import { toast } from "react-toastify";
 
 function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -73,10 +74,17 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
             setSelectedIcon("");
             setCategoriesIdList([]);
             setOneTimeTask(false);
+            toast.success(t("created successfully"));
+        }
+
+        if (response?.error) {
+            setUnknownError(response.error);
+            toast.error(response.error);
         }
 
         if (response?.validation) {
             const formattedResponse = response.validation
+            toast.error(formattedResponse);
             switch (formattedResponse) {
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(formattedResponse);

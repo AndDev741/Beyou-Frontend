@@ -11,6 +11,7 @@ import createHabit from "../../services/habits/createHabit";
 import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
 import { CgAddR } from "react-icons/cg";
+import { toast } from "react-toastify";
 
 function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -70,10 +71,17 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
             setSelectedIcon("");
             setExperience(0);
             setCategoriesIdList([]);
+            toast.success(t("created successfully"));
+        }
+
+        if(response?.error){
+            setUnknownError(response.error);
+            toast.error(response.error);
         }
 
         if(response?.validation){
             const formattedResponse = response.validation
+            toast.error(formattedResponse);
             switch(formattedResponse){
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(formattedResponse);

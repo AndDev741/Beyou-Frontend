@@ -10,6 +10,7 @@ import { EditUser } from "../../types/user/EditUser";
 import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import editUser from "../../services/user/editUser";
+import { toast } from "react-toastify";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -104,9 +105,11 @@ export default function WidgetsConfiguration() {
         if (response.error) {
             console.error(response.error);
             setErrorMessage(t('UnkownError'));
+            toast.error(t('UnkownError'));
         } else {
             console.log("Widgets edited successfully");
             setSuccessMessage(t('SuccessEditWidgets'));
+            toast.success(t('SuccessEditWidgets'));
             dispatch(widgetsIdInUseEnter(currentWidgets));
         }
     };

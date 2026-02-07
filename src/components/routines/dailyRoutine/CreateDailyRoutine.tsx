@@ -13,6 +13,7 @@ import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
 import { RootState } from "../../../redux/rootReducer";
+import { toast } from "react-toastify";
 
 const CreateDailyRoutine = () => {
     const { t } = useTranslation();
@@ -72,14 +73,18 @@ const CreateDailyRoutine = () => {
         const response = await createRoutine(routine, t);
 
         console.log(response)
-        if (response?.error || response?.validation) {
-            setErrorMessage(response.error || response?.validation);
-        } else {
-            const routines = await getRoutines(t);
-            dispatch(enterRoutines(routines?.success));
-            setRoutineName("");
-            setRoutineSection([]);
+        const error = response?.error || response?.validation;
+        if (error) {
+            setErrorMessage(error);
+            toast.error(error);
+            return;
         }
+
+        const routines = await getRoutines(t);
+        dispatch(enterRoutines(routines?.success));
+        setRoutineName("");
+        setRoutineSection([]);
+        toast.success(t("created successfully"));
 
     }
 

@@ -14,6 +14,7 @@ import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
 import { CgAddR } from "react-icons/cg";
 import Button from "../Button";
+import { toast } from "react-toastify";
 
 function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -105,10 +106,17 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
             if(Array.isArray(newHabits.success)){
                 setHabits(newHabits.success);
             }
+            toast.success(t("edited successfully"));
+        }
+
+        if(response.error){
+            setUnknownError(response.error);
+            toast.error(response.error);
         }
 
         if(response.validation){
             const formattedResponse = response.validation
+            toast.error(formattedResponse);
             switch(formattedResponse){
                 case t('YupNameRequired'):
                     setNameError(formattedResponse);
@@ -246,7 +254,6 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
 }
 
 export default EditHabit;
-
 
 
 

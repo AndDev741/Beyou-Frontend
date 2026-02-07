@@ -8,6 +8,7 @@ import { enterRoutines } from "../../redux/routine/routinesSlice";
 import editSchedule from "../../services/schedule/editSchedule";
 import { FiX, FiCalendar, FiCheck, FiRotateCcw } from "react-icons/fi";
 import { RootState } from "../../redux/rootReducer";
+import { toast } from "react-toastify";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -74,14 +75,20 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         if (loading) return;
         setLoading(true);
         const scheduleId = routine.schedule?.id || "";
-        if (!scheduleId) {
-            await createSchedule(selectedDays, routine.id!, t);
-        } else {
-            await editSchedule(scheduleId, selectedDays, routine.id!, t);
+        const response = !scheduleId
+            ? await createSchedule(selectedDays, routine.id!, t)
+            : await editSchedule(scheduleId, selectedDays, routine.id!, t);
+
+        const error = response?.error || response?.validation;
+        if (error) {
+            toast.error(error);
+            setLoading(false);
+            return;
         }
         const routines = await getRoutines(t);
         dispatch(enterRoutines(routines.success));
         setLoading(false);
+        toast.success(t(!scheduleId ? "created successfully" : "edited successfully"));
         onClose();
     };
 

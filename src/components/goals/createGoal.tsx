@@ -10,6 +10,7 @@ import IconsBox from "../inputs/iconsBox";
 import SelectorInput from "../inputs/SelectorInput";
 import { useDispatch } from "react-redux";
 import { enterGoals } from "../../redux/goal/goalsSlice";
+import { toast } from "react-toastify";
 
 function CreateGoal() {
   const { t } = useTranslation();
@@ -69,10 +70,13 @@ function CreateGoal() {
         setStatus("SHORT_TERM");
         setTerm("SHORT_TERM");
       }
+      toast.success(t("created successfully"));
     } else if (response.error) {
       setErrorMessage(response.error);
+      toast.error(response.error);
     } else if (response.validation) {
       setErrorMessage(response.validation);
+      toast.error(response.validation);
     }
   };
 

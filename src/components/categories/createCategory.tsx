@@ -11,6 +11,7 @@ import GenericInput from '../inputs/genericInput';
 import SelectorInput from '../inputs/SelectorInput';
 import { CgAddR } from "react-icons/cg";
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 
 type props = {
     generatedCategory?: categoryGeneratedByAi,
@@ -65,15 +66,18 @@ function CreateCategory({generatedCategory, dispatchFunction}: props){
                 setDescription("");
                 setSelectedIcon("");
             }
+            toast.success(t('created successfully'));
         
         }
 
         if(response.error){
             setUnknownError(response.error);
+            toast.error(response.error);
         }
 
         if(response.validation){
             const validation = response.validation;
+            toast.error(validation);
             switch(validation){
                 case t('YupNameRequired') || t('YupMinimumName') || t('YupMaxName'):
                     setNameError(validation);

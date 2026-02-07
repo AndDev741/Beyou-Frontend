@@ -14,6 +14,7 @@ import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
 import Button from "../../Button";
+import { toast } from "react-toastify";
 
 
 const EditDailyRoutine = () => {
@@ -78,15 +79,19 @@ const EditDailyRoutine = () => {
         const response = await editRoutine(routine, t);
 
         console.log(response)
-        if (response?.error || response?.validation) {
-            setErrorMessage(response.error || response?.validation);
-        } else {
-            const routines = await getRoutines(t);
-            dispatch(enterRoutines(routines?.success));
-            setRoutineName("");
-            setRoutineSection([]);
-            dispatch(editModeEnter(false));
+        const error = response?.error || response?.validation;
+        if (error) {
+            setErrorMessage(error);
+            toast.error(error);
+            return;
         }
+
+        const routines = await getRoutines(t);
+        dispatch(enterRoutines(routines?.success));
+        setRoutineName("");
+        setRoutineSection([]);
+        dispatch(editModeEnter(false));
+        toast.success(t("edited successfully"));
 
     }
 

@@ -3,6 +3,7 @@ import SmallButton from "../SmallButton";
 import { useTranslation } from "react-i18next";
 import editUser from "../../services/user/editUser";
 import { EditUser } from "../../types/user/EditUser";
+import { toast } from "react-toastify";
 
 type ConstanceMode = "ANY" | "COMPLETE";
 
@@ -56,10 +57,12 @@ export default function ConstanceConfiguration({
 
         const userResponse = await editUser(editUserRequest);
 
-        if(userResponse) {
-            setSuccess(t("SettingsSaved"));
-        } else {
+        if (userResponse?.error) {
             setError(t("SettingsSaveError"));
+            toast.error(t("SettingsSaveError"));
+        } else {
+            setSuccess(t("SettingsSaved"));
+            toast.success(t("SettingsSaved"));
         }
         
         setSaving(false);

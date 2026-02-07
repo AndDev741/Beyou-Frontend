@@ -12,6 +12,7 @@ import { RefreshUI } from "../../../types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
 import { formatTimeRange } from "../../routines/routineMetrics";
 import { FiSlash } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
@@ -89,6 +90,8 @@ export default function RoutineSection({ section, routineId}: { section: section
             const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
             const checked: boolean = ItemCheck?.checked === true ? true : false;
             const skipped: boolean = ItemCheck?.skipped === true && !checked;
+            const motivationalPhrase = item.type === "habit" ? itemObj?.motivationalPhrase : "";
+            const toastPosition = window.matchMedia("(min-width: 712px)").matches ? "top-left" : "bottom-center";
 
             return (
                 <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between p-1 mt-1 ${skipped ? "opacity-60" : ""}`}>
@@ -116,6 +119,10 @@ export default function RoutineSection({ section, routineId}: { section: section
                                     )
                                 };
                                 handleCheck(groupToCheck);
+                                if (!checked) {
+                                    const message = motivationalPhrase ? motivationalPhrase : t("Item completed");
+                                    toast.success(message, { position: toastPosition });
+                                }
                             }}
                         />
                         <span className={`text-md ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>

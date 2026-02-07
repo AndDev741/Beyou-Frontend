@@ -8,6 +8,7 @@ import editUser from "../../services/user/editUser";
 import { useDispatch } from "react-redux";
 import { nameEnter, photoEnter, phraseAuthorEnter, phraseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
+import { toast } from "react-toastify";
 
 
 export default function ProfileConfiguration() {
@@ -55,9 +56,11 @@ export default function ProfileConfiguration() {
         if (response.error) {
             console.error(response.error);
             setErrorMessage(t('UnkownError'));
+            toast.error(t('UnkownError'));
         } else {
             console.log("User edited successfully");
             setSuccessPhrase(t('SuccessEditProfile'));
+            toast.success(t('SuccessEditProfile'));
 
             dispatch(nameEnter(editName));
             dispatch(phraseEnter(editPhrase));

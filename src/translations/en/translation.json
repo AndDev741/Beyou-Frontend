@@ -110,6 +110,7 @@
 
     "UnexpectedError": "An unexpected error ocurred",
     "edited successfully": "Edited Successfully",
+    "created successfully": "Created successfully",
     "ConfirmDeleteOfHabitPhrase": "Confirm deletion of this habit?",
 
     "User Not Found": "User Not Found, please make login again",
@@ -181,6 +182,7 @@
     "RoutineIdRequired": "Select a routine.",
     "DaysRequired": "Select at least one day.",
     "DayInvalid": "Day invalid.",
+    "Item completed": "Item completed",
     "Skip": "Skip",
     "Undo skip": "Undo skip",
     "Skipped": "Skipped",

@@ -14,6 +14,7 @@ import editTask from "../../services/tasks/editTask";
 import getTasks from "../../services/tasks/getTasks";
 import { CgAddR } from "react-icons/cg";
 import Button from "../Button";
+import { toast } from "react-toastify";
 
 function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -105,10 +106,17 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
             if (Array.isArray(newTasks.success)) {
                 setTasks(newTasks.success);
             }
+            toast.success(t("edited successfully"));
+        }
+
+        if (response.error) {
+            setUnknownError(response.error);
+            toast.error(response.error);
         }
 
         if (response.validation) {
             const formattedResponse = response.validation
+            toast.error(formattedResponse);
             switch (formattedResponse) {
                 case t('YupNameRequired'):
                     setNameError(formattedResponse);
