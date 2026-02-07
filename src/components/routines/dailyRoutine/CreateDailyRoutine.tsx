@@ -14,6 +14,7 @@ import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
 import { RootState } from "../../../redux/rootReducer";
 import { toast } from "react-toastify";
+import { getItemTimeErrorKeys, getSectionErrorKeys } from "./routineValidation";
 
 const CreateDailyRoutine = () => {
     const { t } = useTranslation();
@@ -59,6 +60,52 @@ const CreateDailyRoutine = () => {
         setErrorMessage("");
 
         console.log(routineSection.filter(section => section.id = ""))
+
+        if (!routineName.trim()) {
+            const message = t("YupNameRequired");
+            setErrorMessage(message);
+            toast.error(message);
+            return;
+        }
+
+        if (routineSection.length === 0) {
+            const message = t("At least, 1 section need to be created");
+            setErrorMessage(message);
+            toast.error(message);
+            return;
+        }
+
+        for (const section of routineSection) {
+            const sectionErrors = getSectionErrorKeys(section.name, section.startTime);
+            if (sectionErrors.length > 0) {
+                const message = t(sectionErrors[0]);
+                setErrorMessage(message);
+                toast.error(message);
+                return;
+            }
+
+            const taskGroups = section.taskGroup || [];
+            for (const taskGroup of taskGroups) {
+                const itemErrors = getItemTimeErrorKeys(section.startTime, section.endTime, taskGroup.startTime, taskGroup.endTime);
+                if (itemErrors.length > 0) {
+                    const message = t(itemErrors[0]);
+                    setErrorMessage(message);
+                    toast.error(message);
+                    return;
+                }
+            }
+
+            const habitGroups = section.habitGroup || [];
+            for (const habitGroup of habitGroups) {
+                const itemErrors = getItemTimeErrorKeys(section.startTime, section.endTime, habitGroup.startTime, habitGroup.endTime);
+                if (itemErrors.length > 0) {
+                    const message = t(itemErrors[0]);
+                    setErrorMessage(message);
+                    toast.error(message);
+                    return;
+                }
+            }
+        }
 
         const routine: Routine = {
             name: routineName,

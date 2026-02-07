@@ -9,6 +9,7 @@ import { RootState } from "../../../redux/rootReducer";
 import { CgAddR } from "react-icons/cg";
 import { AiFillStar } from "react-icons/ai";
 import { formatTimeRange } from "../routineMetrics";
+import { getItemTimeErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "./routineValidation";
 
 interface SectionItemProps {
     section: RoutineSection;
@@ -23,11 +24,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     const iconObj = iconSearch(section.iconId);
     const Icon = iconObj?.IconComponent;
     const [openTaskSelector, setOpenTaskSelector] = useState(false);
-    const toleranceMinutes = 5;
-    const isOvernight =
-        section.startTime &&
-        section.endTime &&
-        section.endTime < section.startTime;
+    const isOvernight = isOvernightRange(section.startTime, section.endTime);
 
     const toMinutes = (time: string) => {
         const [hours, minutes] = time.split(":").map(Number);
@@ -43,8 +40,8 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
 
     const addMinutes = (time: string, delta: number) => fromMinutes(toMinutes(time) + delta);
 
-    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -toleranceMinutes) : undefined;
-    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, toleranceMinutes) : undefined;
+    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -ITEM_TIME_TOLERANCE_MINUTES) : undefined;
+    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, ITEM_TIME_TOLERANCE_MINUTES) : undefined;
 
     const allHabits = useSelector((state: RootState) => state.habits.habits);
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -172,6 +169,11 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
 
             // Verifica se este item está sendo editado
             const isEditing = editingItem?.type === item.type && editingItem?.index === originalIndex;
+            const itemTimeErrors = isEditing
+                ? getItemTimeErrorKeys(section.startTime, section.endTime, editingItem?.startTime, editingItem?.endTime)
+                : [];
+            const itemTimeErrorMessage = itemTimeErrors.length > 0 ? itemTimeErrors.map((key) => t(key)).join(" ") : "";
+            const disableSave = itemTimeErrors.length > 0;
 
             return (
                 <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between my-1 bg-background transition-colors duration-200">
@@ -201,7 +203,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                             }
                                             : null
                                     )}
-                                    className="border border-primary rounded p-1 bg-background text-secondary"
+                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-primary"}`}
                                 />
                                 <input
                                     type="time"
@@ -211,11 +213,12 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                     onChange={(e) => setEditingItem(prev =>
                                         prev ? { ...prev, endTime: e.target.value } : null
                                     )}
-                                    className="border border-primary rounded p-1 bg-background text-secondary"
+                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-primary"}`}
                                 />
                                 <button
                                     onClick={() => handleSaveEditItem(editingItem.startTime, editingItem.endTime)}
-                                    className="text-success hover:bg-success/10 p-1 rounded transition-colors duration-200"
+                                    className={`text-success hover:bg-success/10 p-1 rounded transition-colors duration-200 ${disableSave ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    disabled={disableSave}
                                 >
                                     Salvar
                                 </button>
@@ -225,6 +228,9 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                 >
                                     Cancelar
                                 </button>
+                                {itemTimeErrorMessage && (
+                                    <span className="text-error text-xs ml-2">{itemTimeErrorMessage}</span>
+                                )}
                             </div>
                         ) : (
                             <>

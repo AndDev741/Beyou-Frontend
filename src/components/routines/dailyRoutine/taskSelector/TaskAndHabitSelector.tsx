@@ -5,6 +5,7 @@ import HabitOrTaskGroup from "./HabitOrTaskGroup";
 import { useDragScroll } from "../../../../hooks/useDragScroll";
 import { RoutineSection } from "../../../../types/routine/routineSection";
 import { useState } from "react";
+import { getItemTimeErrorKeys, getSectionErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "../routineValidation";
 interface TaskSelectorProps {
     setRoutineSection?: React.Dispatch<React.SetStateAction<RoutineSection[]>>;
     index: number;
@@ -18,12 +19,8 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const tasks = useSelector((state: RootState) => state.tasks.tasks);
     const [startTime, setStartTime] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
-    const toleranceMinutes = 5;
 
-    const isOvernight =
-        section.startTime &&
-        section.endTime &&
-        section.endTime < section.startTime;
+    const isOvernight = isOvernightRange(section.startTime, section.endTime);
 
     const toMinutes = (time: string) => {
         const [hours, minutes] = time.split(":").map(Number);
@@ -39,14 +36,20 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
 
     const addMinutes = (time: string, delta: number) => fromMinutes(toMinutes(time) + delta);
 
-    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -toleranceMinutes) : undefined;
-    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, toleranceMinutes) : undefined;
+    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -ITEM_TIME_TOLERANCE_MINUTES) : undefined;
+    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, ITEM_TIME_TOLERANCE_MINUTES) : undefined;
 
     const habitScroll = useDragScroll();
     const taskScroll = useDragScroll();
 
     console.log(habits)
     console.log(tasks)
+    const sectionErrors = getSectionErrorKeys(section.name, section.startTime);
+    const itemTimeErrors = getItemTimeErrorKeys(section.startTime, section.endTime, startTime, endTime);
+    const blockingErrors = [...sectionErrors, ...itemTimeErrors];
+    const errorMessage = blockingErrors.length > 0 ? t(blockingErrors[0]) : "";
+    const isAddBlocked = blockingErrors.length > 0;
+
     return (
         <div className="flex flex-col items-center justify-start w-full border-2 border-primary rounded-lg p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
 
@@ -57,7 +60,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     <div className="flex flex-wrap items-center justify-center gap-3">
                         <input
                             type="time"
-                            className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
+                            className={`border-2 rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-primary"}`}
                             min={minStart}
                             max={maxEnd}
                             value={startTime}
@@ -71,7 +74,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         />
                         <input
                             type="time"
-                            className="border-2 border-primary rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme"
+                            className={`border-2 rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-primary"}`}
                             min={!isOvernight ? startTime || minStart : undefined}
                             max={maxEnd}
                             value={endTime}
@@ -81,6 +84,9 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             }}
                         />
                     </div>
+                    {errorMessage && (
+                        <p className="text-error text-sm mt-1 text-center">{errorMessage}</p>
+                    )}
                 </div>
 
                 <div className="w-full flex overflow-auto items-start gap-2 justify-start"
@@ -102,6 +108,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             startTime={startTime}
                             endTime={endTime}
                             section={section}
+                            disabled={isAddBlocked}
                         />
                     ))}
                 </div>
@@ -125,6 +132,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             startTime={startTime}
                             endTime={endTime}
                             section={section}
+                            disabled={isAddBlocked}
                         />
                     ))}
                 </div>

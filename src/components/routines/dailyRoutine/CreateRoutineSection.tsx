@@ -5,6 +5,7 @@ import { RoutineSection } from "../../../types/routine/routineSection";
 import { v4 as uuidv4 } from "uuid";
 import iconSearch from "../../icons/iconsSearch";
 import { formatTimeRange } from "../routineMetrics";
+import { getSectionErrorKeys } from "./routineValidation";
 
 interface CreateRoutineSectionProps {
     setRoutineSection: React.Dispatch<React.SetStateAction<any>>;
@@ -29,6 +30,8 @@ const CreateRoutineSection = ({
     const [endTime, setEndTime] = useState("");
     const [search, setSearch] = useState("");
     const [selectedIcon, setSelectedIcon] = useState("");
+    const [nameError, setNameError] = useState("");
+    const [startTimeError, setStartTimeError] = useState("");
 
     const favoritedSections = routineSections.filter(section => section.favorite === true);
 
@@ -47,9 +50,15 @@ const CreateRoutineSection = ({
             setSelectedIcon("");
             setSearch("");
         }
+        setNameError("");
+        setStartTimeError("");
     }, [editSection]);
 
     const handleCreate = () => {
+        const errors = getSectionErrorKeys(name, startTime);
+        setNameError(errors.includes("RoutineSectionNameRequired") ? t("RoutineSectionNameRequired") : "");
+        setStartTimeError(errors.includes("RoutineSectionStartRequired") ? t("RoutineSectionStartRequired") : "");
+        if (errors.length > 0) return;
         const newSection: RoutineSection = {
             id: uuidv4(),
             name,
@@ -67,6 +76,10 @@ const CreateRoutineSection = ({
     };
 
     const handleUpdate = () => {
+        const errors = getSectionErrorKeys(name, startTime);
+        setNameError(errors.includes("RoutineSectionNameRequired") ? t("RoutineSectionNameRequired") : "");
+        setStartTimeError(errors.includes("RoutineSectionStartRequired") ? t("RoutineSectionStartRequired") : "");
+        if (errors.length > 0) return;
         console.log("editIndex", editIndex);
         if (onUpdateSection) {
             const updatedSection: RoutineSection = {
@@ -118,9 +131,13 @@ const CreateRoutineSection = ({
                             type="text"
                             placeholder={t("Cozy Morning")}
                             value={name}
-                            onChange={e => setName(e.target.value)}
+                            onChange={e => {
+                                setName(e.target.value);
+                                if (nameError) setNameError("");
+                            }}
                             className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
                         />
+                        {nameError && <p className="text-error text-xs mt-1">{nameError}</p>}
                     </label>
                     <label className="font-medium text-secondary">
                         {t("Start time")}
@@ -128,9 +145,13 @@ const CreateRoutineSection = ({
                             type="time"
                             placeholder={"06:00"}
                             value={startTime}
-                            onChange={e => setStartTime(e.target.value)}
+                            onChange={e => {
+                                setStartTime(e.target.value);
+                                if (startTimeError) setStartTimeError("");
+                            }}
                             className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
                         />
+                        {startTimeError && <p className="text-error text-xs mt-1">{startTimeError}</p>}
                     </label>
                     <label className="font-medium text-secondary">
                         {t("End time")}
