@@ -12,6 +12,8 @@ import SelectorInput from '../inputs/SelectorInput';
 import { CgAddR } from "react-icons/cg";
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import ErrorNotice from '../ErrorNotice';
+import { ApiErrorPayload, getFriendlyErrorMessage } from '../../services/apiError';
 
 type props = {
     generatedCategory?: categoryGeneratedByAi,
@@ -34,7 +36,7 @@ function CreateCategory({generatedCategory, dispatchFunction}: props){
     const [descriptionError, setDescriptionError] = useState("");
     const [experienceError, setExperienceError] = useState("");
     const [iconError, setIconError] = useState("");
-    const [unknownError, setUnknownError] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const [search, setSearch] = useState("");
     
@@ -54,7 +56,7 @@ function CreateCategory({generatedCategory, dispatchFunction}: props){
         setDescriptionError("");
         setExperienceError("");
         setIconError("");
-        setUnknownError("");
+        setApiError(null);
 
         const response = await createCategory(name, description, experience, selectedIcon, t);
 
@@ -71,8 +73,8 @@ function CreateCategory({generatedCategory, dispatchFunction}: props){
         }
 
         if(response.error){
-            setUnknownError(response.error);
-            toast.error(response.error);
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
 
         if(response.validation){
@@ -92,7 +94,7 @@ function CreateCategory({generatedCategory, dispatchFunction}: props){
                     setIconError(validation);
                     break;
                 default: 
-                    setUnknownError(validation);
+                    setApiError({ message: validation });
                     break;
             }
         }
@@ -157,7 +159,7 @@ function CreateCategory({generatedCategory, dispatchFunction}: props){
                     </div>
                 </div>
                 <div className='flex flex-col items-center justify-center mt-6'>
-                <p className='text-error text-lg'>{unknownError}</p>
+                <ErrorNotice error={apiError} className="text-center" />
                     <Button text={t('Create')} mode='create' size='big' />
                 </div>
             </form>

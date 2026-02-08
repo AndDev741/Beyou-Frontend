@@ -15,6 +15,8 @@ import { CgAddR } from "react-icons/cg";
 import { RootState } from "../../../redux/rootReducer";
 import { toast } from "react-toastify";
 import { getItemTimeErrorKeys, getSectionErrorKeys } from "./routineValidation";
+import ErrorNotice from "../../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../services/apiError";
 
 const CreateDailyRoutine = () => {
     const { t } = useTranslation();
@@ -28,6 +30,7 @@ const CreateDailyRoutine = () => {
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
     const [errorMessage, setErrorMessage] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -58,6 +61,7 @@ const CreateDailyRoutine = () => {
 
     const handleCreate = async () => {
         setErrorMessage("");
+        setApiError(null);
 
         console.log(routineSection.filter(section => section.id = ""))
 
@@ -122,8 +126,13 @@ const CreateDailyRoutine = () => {
         console.log(response)
         const error = response?.error || response?.validation;
         if (error) {
-            setErrorMessage(error);
-            toast.error(error);
+            if (typeof error === "string") {
+                setErrorMessage(error);
+                toast.error(error);
+            } else {
+                setApiError(error);
+                toast.error(getFriendlyErrorMessage(t, error));
+            }
             return;
         }
 
@@ -249,6 +258,7 @@ const CreateDailyRoutine = () => {
             >
                 <Button text={t('create')} mode='create' size='big'/>
                 <p className="text-center text-error mt-2">{errorMessage}</p>
+                <ErrorNotice error={apiError} className="text-center mt-2" />
             </div>
 
         </div>

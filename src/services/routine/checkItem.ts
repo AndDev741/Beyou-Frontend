@@ -3,8 +3,9 @@ import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import { itemGroupToCheck } from '../../types/routine/itemGroupToCheck';
 import { RefreshUI } from '../../types/refreshUi/refreshUi.type';
+import { ApiErrorPayload, parseApiError } from '../apiError';
 
-type apiResponse = Record<string, RefreshUI | string>
+type apiResponse = { success?: RefreshUI; error?: ApiErrorPayload }
 
 async function checkRoutine(groupDto: itemGroupToCheck, t: TFunction, date?: string): Promise<apiResponse>{
     try{
@@ -14,8 +15,9 @@ async function checkRoutine(groupDto: itemGroupToCheck, t: TFunction, date?: str
     }catch(e){
         if(axios.isAxiosError(e)){
             console.error(e);
+            return { error: parseApiError(e) };
         }
-        return {error: t('UnexpectedError')};
+        return {error: { message: t('UnexpectedError') }};
     }
 }
 

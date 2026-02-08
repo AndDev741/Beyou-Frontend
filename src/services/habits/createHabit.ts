@@ -1,8 +1,13 @@
 import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
+import { ApiErrorPayload, parseApiError } from '../apiError';
 
-type apiResponse = Promise<Record<string, string>>;
+type apiResponse = Promise<{
+    success?: unknown;
+    error?: ApiErrorPayload;
+    validation?: string;
+}>;
 
 async function createHabit(
     name: string, 
@@ -67,14 +72,14 @@ async function createHabit(
             return response.data;
         }catch(e){
             console.error(e);
-            return {error: t('UnexpectedError')};
+            return {error: parseApiError(e)};
         }
     }catch(validationErrors){
         if(validationErrors instanceof Yup.ValidationError){
             console.error(validationErrors.errors)
             return {validation: validationErrors.errors.join(', ')};
         }else{
-            return {error: t('UnexpectedError')};
+            return {error: { message: t('UnexpectedError') }};
         }
     }
 

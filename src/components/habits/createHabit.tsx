@@ -12,6 +12,8 @@ import { habit } from "../../types/habit/habitType";
 import getHabits from "../../services/habits/getHabits";
 import { CgAddR } from "react-icons/cg";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -33,7 +35,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
     const [iconError, setIconError] = useState("");
     const [experienceError, setExperienceError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
-    const [unknownError, setUnknownError] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
     
     const [search, setSearch] = useState("");
 
@@ -54,7 +56,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
         setIconError("");
         setExperienceError("");
         setCategoriesError("");
-        setUnknownError("");
+        setApiError(null);
 
         const response = await createHabit(name, description, motivationalPhrase, importance, difficulty, selectedIcon, experience, categoriesId, t);
 
@@ -75,8 +77,8 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
         }
 
         if(response?.error){
-            setUnknownError(response.error);
-            toast.error(response.error);
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
 
         if(response?.validation){
@@ -120,7 +122,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                     setCategoriesError(formattedResponse);
                     break;
                 default:
-                    setUnknownError(t("UnkownError"));
+                    setApiError({ message: t("UnkownError") });
                     break;
             }
         }
@@ -211,7 +213,7 @@ function CreateHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateActio
                     errorMessage={categoriesError}
                     chosenCategories={null}/>
                 </div>
-                <p className='text-error text-lg text-center'>{unknownError}</p>
+                <ErrorNotice error={apiError} className="text-center" />
                 <div className="mb-3">
                     <Button text={t("Create")} mode='create' size='big'/>
                 </div>

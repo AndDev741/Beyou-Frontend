@@ -9,6 +9,8 @@ import editSchedule from "../../services/schedule/editSchedule";
 import { FiX, FiCalendar, FiCheck, FiRotateCcw } from "react-icons/fi";
 import { RootState } from "../../redux/rootReducer";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -26,6 +28,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
     const [selectedDays, setSelectedDays] = useState<string[]>(routine?.schedule?.days || []);
     const [loading, setLoading] = useState(false);
     const [overrides, setOverrides] = useState<Set<string>>(new Set());
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const blockedByDay = useMemo(() => {
         const map: Record<string, string[]> = {};
@@ -74,6 +77,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
     const handleSchedule = async () => {
         if (loading) return;
         setLoading(true);
+        setApiError(null);
         const scheduleId = routine.schedule?.id || "";
         const response = !scheduleId
             ? await createSchedule(selectedDays, routine.id!, t)
@@ -81,7 +85,13 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
 
         const error = response?.error || response?.validation;
         if (error) {
-            toast.error(error);
+            if (typeof error === "string") {
+                toast.error(error);
+                setApiError({ message: error });
+            } else {
+                setApiError(error);
+                toast.error(getFriendlyErrorMessage(t, error));
+            }
             setLoading(false);
             return;
         }
@@ -227,6 +237,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                     >
                         {t("Cancel")}
                     </button>
+                    <ErrorNotice error={apiError} className="sm:flex-1" />
                     <button
                         type="button"
                         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-background transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"

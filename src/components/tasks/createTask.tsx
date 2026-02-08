@@ -13,6 +13,8 @@ import arrowDown from "../../assets/arrowDown.svg";
 import arrowUp from "../../assets/arrowUp.svg"
 import { CgAddR } from "react-icons/cg";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -31,7 +33,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
     const [difficultyError, setDifficultyError] = useState("");
     const [iconError, setIconError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
-    const [unknownError, setUnknownError] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const [search, setSearch] = useState("");
 
@@ -58,7 +60,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
         setDifficultyError("");
         setIconError("");
         setCategoriesError("");
-        setUnknownError("");
+        setApiError(null);
 
         const response = await createTask(name, description, selectedIcon, categoriesId, t, importance, difficulty, oneTimeTask);
 
@@ -78,8 +80,8 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
         }
 
         if (response?.error) {
-            setUnknownError(response.error);
-            toast.error(response.error);
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
 
         if (response?.validation) {
@@ -106,10 +108,10 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                     setIconError(formattedResponse);
                     break;
                 case t("Importance and Difficulty must be set together"):
-                    setUnknownError(formattedResponse);
+                    setApiError({ message: formattedResponse });
                     break;
                 default:
-                    setUnknownError(t("UnkownError"));
+                    setApiError({ message: t("UnkownError") });
                     break;
             }
         }
@@ -206,7 +208,7 @@ function CreateTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateActio
                         </label>
                     </div>
                 </div>
-                <p className='text-error text-lg text-center'>{unknownError}</p>
+                <ErrorNotice error={apiError} className="text-center" />
                 <div className="mb-3 mt-3">
                     <Button text={t("Create")} mode='create' size='big'/>
                 </div>

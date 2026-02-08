@@ -2,8 +2,13 @@ import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { TFunction } from 'i18next';
+import { ApiErrorPayload, parseApiError } from '../apiError';
 
-type apiResponse = Record<string, string>;
+type apiResponse = {
+    success?: unknown;
+    error?: ApiErrorPayload;
+    validation?: string;
+};
 
 async function createCategory (
     name: string, 
@@ -53,14 +58,7 @@ async function createCategory (
             return response.data;
         }catch(e){
             if(axios.isAxiosError(e)){
-                switch(e.response?.data.error){
-                    case "User Not Found":
-                        return {error: t('User Not Found')};
-                    case "Error trying create the category":
-                        return {error: t('Error trying create the category')};
-                    default:
-                        return {error: t('UnknownError')};
-                }
+                return { error: parseApiError(e) };
             }
 
         }
@@ -69,10 +67,10 @@ async function createCategory (
         if(validationErrors instanceof Yup.ValidationError){
             return {validation: validationErrors.errors.join(', ')};
         }
-        return {error: t('UnexpectedError')};
+        return {error: { message: t('UnexpectedError') }};
     }
 
-    return {error: t('UnexpectedError')};
+    return {error: { message: t('UnexpectedError') }};
 }
 
 

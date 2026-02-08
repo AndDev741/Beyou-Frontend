@@ -15,6 +15,8 @@ import getHabits from "../../services/habits/getHabits";
 import { CgAddR } from "react-icons/cg";
 import Button from "../Button";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<habit[]>>}){
     const {t} = useTranslation();
@@ -45,7 +47,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
     const [dificultyError, setDificultyError] = useState("");
     const [iconError, setIconError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
-    const [unknownError, setUnknownError] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const [search, setSearch] = useState("");
     useEffect(() => {
@@ -89,7 +91,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
         setDificultyError("");
         setIconError("");
         setCategoriesError("");
-        setUnknownError("");
+        setApiError(null);
 
         const scrollToTop = () => {
             window.scrollTo({
@@ -110,8 +112,8 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
         }
 
         if(response.error){
-            setUnknownError(response.error);
-            toast.error(response.error);
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
 
         if(response.validation){
@@ -152,7 +154,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                     setCategoriesError(formattedResponse);
                     break;
                 default:
-                    setUnknownError(t("UnkownError"));
+                    setApiError({ message: t("UnkownError") });
                     break;
             }
         }
@@ -239,7 +241,7 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
                     errorMessage={categoriesError}
                     chosenCategories={alreadyChosenCategories}/>
                 </div>
-                <p className='text-error text-lg text-center'>{unknownError}</p>
+                <ErrorNotice error={apiError} className="text-center" />
                 <div className='flex w-full items-center justify-evenly my-6'>
                     <div>
                         <Button text={t("Cancel")} mode='cancel' size='medium' onClick={handleCancel}/>
@@ -254,7 +256,6 @@ function EditHabit({setHabits}: {setHabits: React.Dispatch<React.SetStateAction<
 }
 
 export default EditHabit;
-
 
 
 

@@ -15,6 +15,8 @@ import getTasks from "../../services/tasks/getTasks";
 import { CgAddR } from "react-icons/cg";
 import Button from "../Button";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<task[]>> }) {
     const { t } = useTranslation();
@@ -43,7 +45,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
     const [difficultyError, setDifficultyError] = useState("");
     const [iconError, setIconError] = useState("");
     const [categoriesError, setCategoriesError] = useState("");
-    const [unknownError, setUnknownError] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const [search, setSearch] = useState("");
     const [oneTimeTask, setOneTimeTask] = useState(false);
@@ -89,7 +91,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
         setDifficultyError("");
         setIconError("");
         setCategoriesError("");
-        setUnknownError("");
+        setApiError(null);
 
         const scrollToTop = () => {
             window.scrollTo({
@@ -110,8 +112,8 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
         }
 
         if (response.error) {
-            setUnknownError(response.error);
-            toast.error(response.error);
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
 
         if (response.validation) {
@@ -138,10 +140,10 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                     setIconError(formattedResponse);
                     break;
                 case t("Importance and Difficulty must be set together"):
-                    setUnknownError(formattedResponse);
+                    setApiError({ message: formattedResponse });
                     break;
                 default:
-                    setUnknownError(t("UnkownError"));
+                    setApiError({ message: t("UnkownError") });
                     break;
             }
         }
@@ -233,7 +235,7 @@ function EditTask({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<
                         </label>
                     </div>
                 </div>
-                <p className='text-error text-lg text-center underline'>{unknownError}</p>
+                <ErrorNotice error={apiError} className="text-center underline" />
                 <div className='flex w-full items-center justify-evenly mt-6'>
                     <div>
                         <Button text={t("Cancel")} mode='cancel' size='medium' onClick={handleCancel}/>

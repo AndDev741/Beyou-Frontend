@@ -15,6 +15,8 @@ import SelectorInput from "../inputs/SelectorInput";
 import IconsBox from "../inputs/iconsBox";
 import { enterGoals } from "../../redux/goal/goalsSlice";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 function EditGoal() {
   const dispatch = useDispatch();
@@ -49,7 +51,7 @@ function EditGoal() {
   const [term, setTerm] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("");
   const [actualProgress, setActualProgress] = useState(0);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -85,7 +87,7 @@ function EditGoal() {
 
   const handleEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setApiError(null);
     const response = await editGoal(
       goalId,
       title,
@@ -111,11 +113,11 @@ function EditGoal() {
       handleCancel();
       toast.success(t("edited successfully"));
     } else if (response.validation) {
-      setErrorMessage(response.validation);
+      setApiError({ message: response.validation });
       toast.error(response.validation);
     } else if (response.error) {
-      setErrorMessage(response.error);
-      toast.error(response.error);
+      setApiError(response.error);
+      toast.error(getFriendlyErrorMessage(t, response.error));
     }
   };
 
@@ -248,7 +250,7 @@ function EditGoal() {
           chosenCategoriesId={categoriesList}
         />
 
-        <p className="text-error text-center mt-2">{errorMessage}</p>
+        <ErrorNotice error={apiError} className="text-center mt-2" />
         <div className="flex items-center justify-evenly mt-4">
           <Button text={t("Cancel")} mode='cancel' type="button" size='medium' onClick={handleCancel}/>
           <Button text={t("Edit")} mode='create' size='medium' />

@@ -1,12 +1,13 @@
 import { TFunction } from "i18next";
 import axiosWithCredential from "../axiosConfig";
+import { ApiErrorPayload, parseApiError } from "../apiError";
 
-export default async function deleteRoutine(routineId: string, t:TFunction): Promise<Record<string, string>>{
+export default async function deleteRoutine(routineId: string, t:TFunction): Promise<{ success?: unknown; error?: ApiErrorPayload; }>{
     try{
-        const response = await axiosWithCredential.delete<Record<string, string>>(`/routine/${routineId}`);
+        const response = await axiosWithCredential.delete(`/routine/${routineId}`);
         return response.data;
     }catch(e){
         console.error(e);
-        return {error: t('UnexpectedError')};
+        return {error: parseApiError(e)};
     }
 }

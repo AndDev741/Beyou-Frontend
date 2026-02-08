@@ -16,6 +16,8 @@ import { CgAddR } from "react-icons/cg";
 import Button from "../../Button";
 import { toast } from "react-toastify";
 import { getItemTimeErrorKeys, getSectionErrorKeys } from "./routineValidation";
+import ErrorNotice from "../../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../services/apiError";
 
 
 const EditDailyRoutine = () => {
@@ -39,6 +41,7 @@ const EditDailyRoutine = () => {
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
     const [errorMessage, setErrorMessage] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -69,6 +72,7 @@ const EditDailyRoutine = () => {
 
     const handleEdit = async () => {
         setErrorMessage("");
+        setApiError(null);
 
         if (!routineName.trim()) {
             const message = t("YupNameRequired");
@@ -128,8 +132,13 @@ const EditDailyRoutine = () => {
         console.log(response)
         const error = response?.error || response?.validation;
         if (error) {
-            setErrorMessage(error);
-            toast.error(error);
+            if (typeof error === "string") {
+                setErrorMessage(error);
+                toast.error(error);
+            } else {
+                setApiError(error);
+                toast.error(getFriendlyErrorMessage(t, error));
+            }
             return;
         }
 
@@ -256,6 +265,7 @@ const EditDailyRoutine = () => {
                     <Button text={t('Edit')} mode="create" size="medium" onClick={handleEdit} />
                 </div>
                 <p className="text-center text-error mt-2">{errorMessage}</p>
+                <ErrorNotice error={apiError} className="text-center mt-2" />
             </div>
 
         </div>

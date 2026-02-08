@@ -14,6 +14,7 @@ import { habit } from "../../types/habit/habitType";
 import checkRoutine from "../../services/routine/checkItem";
 import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
 import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "../../services/apiError";
 
 type RenderRoutinesProps = {
     selectedDate: string;
@@ -53,7 +54,7 @@ export default function RenderRoutines({ selectedDate, routines: routinesOverrid
     const handleDelete = async (id: string) => {
         const response = await deleteRoutine(id, t);
         if (response.error) {
-            toast.error(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
             return;
         }
         const routinesResponse = await getRoutines(t);
@@ -68,7 +69,11 @@ export default function RenderRoutines({ selectedDate, routines: routinesOverrid
     };
 
     const handleCheck = async (payload: itemGroupToCheck) => {
-        await checkRoutine(payload, t, selectedDate);
+        const response = await checkRoutine(payload, t, selectedDate);
+        if (response.error) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return;
+        }
         const routinesResponse = await getRoutines(t);
         dispatch(enterRoutines(routinesResponse?.success));
     };

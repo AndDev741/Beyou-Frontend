@@ -11,6 +11,8 @@ import SelectorInput from "../inputs/SelectorInput";
 import { useDispatch } from "react-redux";
 import { enterGoals } from "../../redux/goal/goalsSlice";
 import { toast } from "react-toastify";
+import ErrorNotice from "../ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
 
 function CreateGoal() {
   const { t } = useTranslation();
@@ -30,7 +32,7 @@ function CreateGoal() {
   const [status, setStatus] = useState("NOT_STARTED");
   const [term, setTerm] = useState("SHORT_TERM");
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
   const [search, setSearch] = useState("");
 
@@ -39,7 +41,7 @@ function CreateGoal() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage("");
+    setApiError(null);
     const response = await createGoal(
       title,
       selectedIcon,
@@ -72,10 +74,10 @@ function CreateGoal() {
       }
       toast.success(t("created successfully"));
     } else if (response.error) {
-      setErrorMessage(response.error);
-      toast.error(response.error);
+      setApiError(response.error);
+      toast.error(getFriendlyErrorMessage(t, response.error));
     } else if (response.validation) {
-      setErrorMessage(response.validation);
+      setApiError({ message: response.validation });
       toast.error(response.validation);
     }
   };
@@ -209,7 +211,7 @@ function CreateGoal() {
           chosenCategories={null}
         />
 
-        <p className="text-error text-center mt-2">{errorMessage}</p>
+        <ErrorNotice error={apiError} className="text-center mt-2" />
         <div className="flex justify-center mt-4">
           <Button text={t("Create")} mode='create' size='big' />
         </div>

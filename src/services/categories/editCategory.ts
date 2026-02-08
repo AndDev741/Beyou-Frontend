@@ -2,8 +2,13 @@ import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { TFunction } from 'i18next';
+import { ApiErrorPayload, parseApiError } from '../apiError';
 
-type apiResponse = Record<string, string>;
+type apiResponse = {
+    success?: unknown;
+    error?: ApiErrorPayload;
+    validation?: string;
+};
 
 async function editCategory(
     id: string, 
@@ -35,21 +40,16 @@ async function editCategory(
         }catch(e){
             if(axios.isAxiosError(e)){
                 console.error(e);
-                switch(e.response?.data.error){
-                    case "Category not found":
-                        return {error: t('Category not found')};
-                    default:
-                        return {error: t('UnexpectedError')};
-                }
+                return { error: parseApiError(e) };
             }
-            return {error: t('UnexpectedError')};
+            return {error: { message: t('UnexpectedError') }};
         }
 
     }catch(validationErrors){
         if(validationErrors instanceof Yup.ValidationError){
             return {validation: validationErrors.errors.join(", ")};
         }
-        return {error: t('UnexpectedError')};
+        return {error: { message: t('UnexpectedError') }};
     }
 }
 

@@ -11,6 +11,8 @@ import GenericInput from '../inputs/genericInput';
 import { CgAddR } from 'react-icons/cg';
 import Button from '../Button';
 import { toast } from 'react-toastify';
+import ErrorNotice from '../ErrorNotice';
+import { ApiErrorPayload, getFriendlyErrorMessage } from '../../services/apiError';
 
 type prop = {dispatchFunction: any};
 
@@ -39,7 +41,7 @@ function EditCategory({dispatchFunction}: prop){
     const [successMessage, setSuccessMessage] = useState("");
     const [descriptionError, setDescriptionError] = useState("");
     const [iconError, setIconError] = useState("");
-    const [unknownError, setUnknownError] = useState("");
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
@@ -54,7 +56,7 @@ function EditCategory({dispatchFunction}: prop){
         setNameError("");
         setDescriptionError("");
         setIconError("");
-        setUnknownError("");
+        setApiError(null);
         setSuccessMessage("");
 
         const response = await editCategory(categoryId , name, description, selectedIcon, t);
@@ -69,8 +71,8 @@ function EditCategory({dispatchFunction}: prop){
         }
 
         if(response.error){
-            setUnknownError(response.error);
-            toast.error(response.error);
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
 
         if(response.validation){
@@ -87,7 +89,7 @@ function EditCategory({dispatchFunction}: prop){
                     setIconError(validation);
                     break;
                 default: 
-                    setUnknownError(validation);
+                    setApiError({ message: validation });
                     break;
             }
         }
@@ -135,7 +137,7 @@ function EditCategory({dispatchFunction}: prop){
                         selectedIcon={selectedIcon} />
                     </div>
                 </div> 
-                <p className='text-error text-xl text-center underline'>{unknownError}</p>
+                <ErrorNotice error={apiError} className="text-center underline" />
                 <p className='text-success text-xl text-center underline mt-3'>{successMessage}</p>
                 <div className='flex items-center justify-evenly mt-3'>
                     <div>

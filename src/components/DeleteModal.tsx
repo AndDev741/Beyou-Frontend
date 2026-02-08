@@ -7,6 +7,9 @@ import { editModeEnter as editHabitMode } from "../redux/habit/editHabitSlice";
 import { editIdEnter as editTaskMode } from "../redux/task/editTaskSlice";
 import { editModeEnter as editGoalMode } from "../redux/goal/editGoalSlice";
 import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import ErrorNotice from "./ErrorNotice";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "../services/apiError";
 
 
 type deleteProps = {
@@ -29,10 +32,18 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
     const habitIdInEdit = useSelector((state: RootState) => state.editHabit.id);
     const taskIdInEdit = useSelector((state: RootState) => state.editTask.id);
     const goalIdInEdit = useSelector((state: RootState) => state.editGoal.goalId);
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
+
+    useEffect(() => {
+        if (onDelete) {
+            setApiError(null);
+        }
+    }, [onDelete]);
 
     if(!onDelete) return null;
     
     const handleDelete = async () => {
+        setApiError(null);
         const response = await deleteObject(objectId, t);
 
         switch(mode){
@@ -74,8 +85,9 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
            }
            toast.success(t('deleted successfully'));
            setOnDelete(false);
-        } else if (response.error || response.validation) {
-            toast.error(response.error || response.validation);
+        } else if (response.error) {
+            setApiError(response.error);
+            toast.error(getFriendlyErrorMessage(t, response.error));
         }
     }
     return(
@@ -87,11 +99,12 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
                 className="bg-error hover:bg-error/90 lg:mr-1 text-white font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
                     {t('Delete')}
                 </button>
-                <button onClick={() => setOnDelete(false)}
+                <button onClick={() => { setApiError(null); setOnDelete(false); }}
                 className="bg-secondary/10 hover:bg-secondary/20 mt-1 lg:mt-0 lg:ml-1 text-secondary font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
                     {t('Cancel')}
                 </button>
             </div>
+            <ErrorNotice error={apiError} className="mt-2 text-center" />
         </div>
     )
 }

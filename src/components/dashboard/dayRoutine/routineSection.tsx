@@ -13,6 +13,7 @@ import useUiRefresh from "../../../hooks/useUiRefresh";
 import { formatTimeRange } from "../../routines/routineMetrics";
 import { FiSlash } from "react-icons/fi";
 import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "../../../services/apiError";
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
@@ -54,6 +55,8 @@ export default function RoutineSection({ section, routineId}: { section: section
         const refreshUiReponse = await checkRoutine(groupToCheck, t);
         if(refreshUiReponse?.success){
             setRefreshUi(refreshUiReponse.success as RefreshUI);
+        } else if (refreshUiReponse?.error) {
+            toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }
      }
 
@@ -61,6 +64,8 @@ export default function RoutineSection({ section, routineId}: { section: section
         const refreshUiReponse = await skipRoutine(groupToSkip, t);
         if(refreshUiReponse?.success){
             setRefreshUi(refreshUiReponse.success as RefreshUI);
+        } else if (refreshUiReponse?.error) {
+            toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }
      }
 

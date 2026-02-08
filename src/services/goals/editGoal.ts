@@ -1,6 +1,7 @@
 import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
 import * as Yup from 'yup';
+import { ApiErrorPayload, parseApiError } from '../apiError';
 
 async function editGoal(
   goalId: string,
@@ -18,7 +19,7 @@ async function editGoal(
   status: string,
   term: string,
   t: TFunction
-): Promise<Record<string, string>> {
+): Promise<{ success?: unknown; error?: ApiErrorPayload; validation?: string }> {
   const validation = Yup.object().shape({
     title: Yup.string().required(t('YupNameRequired')).min(2, t('YupMinimumName')).max(256, t('YupMaxName')),
     iconId: Yup.string().required(t('YupIconRequired')),
@@ -42,13 +43,13 @@ async function editGoal(
       return response.data;
     } catch (e) {
       console.error(e);
-      return { error: t('UnexpectedError') };
+      return { error: parseApiError(e) };
     }
   } catch (validationErrors) {
     if (validationErrors instanceof Yup.ValidationError) {
       return { validation: validationErrors.errors.join(', ') };
     }
-    return { error: t('UnexpectedError') };
+    return { error: { message: t('UnexpectedError') } };
   }
 }
 
