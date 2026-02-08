@@ -90,6 +90,8 @@
     "Terrible": "Terrível",
     "YouDontHaveCategories": "Você não tem categorias ainda, crie uma",
     "YupGenericMaxLength": "O máximo de caracteres é de 256",
+    "ProfilePhotoUrlInvalid": "URL da foto é inválida",
+    "ProfilePhotoUrlMax": "URL da foto não pode exceder 2048 caracteres",
     "YupImportanceRequired": "Escolha uma importância",
     "YupDificultyRequired": "Escolha uma dificuldade",
     "YupRequiredCategories": "Escolha ao menos 1 categoria",

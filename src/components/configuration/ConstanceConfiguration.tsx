@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import editUser from "../../services/user/editUser";
 import { EditUser } from "../../types/user/EditUser";
 import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "../../services/apiError";
 
 type ConstanceMode = "ANY" | "COMPLETE";
 
@@ -58,8 +59,9 @@ export default function ConstanceConfiguration({
         const userResponse = await editUser(editUserRequest);
 
         if (userResponse?.error) {
-            setError(t("SettingsSaveError"));
-            toast.error(t("SettingsSaveError"));
+            const friendlyMessage = getFriendlyErrorMessage(t, userResponse.error);
+            setError(friendlyMessage);
+            toast.error(friendlyMessage);
         } else {
             setSuccess(t("SettingsSaved"));
             toast.success(t("SettingsSaved"));

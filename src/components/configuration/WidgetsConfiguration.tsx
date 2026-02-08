@@ -11,6 +11,7 @@ import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import editUser from "../../services/user/editUser";
 import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "../../services/apiError";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -28,10 +29,10 @@ export default function WidgetsConfiguration() {
     const constance = useSelector((state: RootState) => state.perfil.constance);
     const categories = useSelector((state: RootState) => state.categories.categories);
     const categoryWithMoreXp = useMemo(() => 
-        categories.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || []), 
+        categories ? categories.reduce((prev, current) => (prev.xp > current.xp ? prev : current) || [], categories[0]) : null,
     [categories]);
     const categoryWithLessXp = useMemo(() => 
-        categories.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || []),
+        categories ? categories.reduce((prev, current) => (prev.xp < current.xp ? prev : current) || [], categories[0]) : null,
     [categories]);
     const checkedItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.checkedItemsInScheduledRoutine);
     const totalItemsInScheduledRoutine = useSelector((state: RootState) => state.perfil.totalItemsInScheduledRoutine);
@@ -104,8 +105,9 @@ export default function WidgetsConfiguration() {
         const response = await editUser(editWidget);
         if (response.error) {
             console.error(response.error);
-            setErrorMessage(t('UnkownError'));
-            toast.error(t('UnkownError'));
+            const friendlyMessage = getFriendlyErrorMessage(t, response.error);
+            setErrorMessage(friendlyMessage);
+            toast.error(friendlyMessage);
         } else {
             console.log("Widgets edited successfully");
             setSuccessMessage(t('SuccessEditWidgets'));

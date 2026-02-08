@@ -49,19 +49,19 @@ const perfilSlice = createSlice({
     initialState,
     reducers: {
         nameEnter(state, action){
-            const username = action.payload;
+            const username = typeof action.payload === "string" ? action.payload : "";
             return {...state, username};
         },
         emailEnter(state, action){
-            const email = action.payload;
+            const email = typeof action.payload === "string" ? action.payload : "";
             return {...state, email};
         },
         phraseEnter(state, action){
-            const phrase = action.payload;
+            const phrase = typeof action.payload === "string" ? action.payload : "";
             return {...state, phrase};
         },
         phraseAuthorEnter(state, action){
-            const phrase_author = action.payload;
+            const phrase_author = typeof action.payload === "string" ? action.payload : "";
             return {...state, phrase_author};
         },
         constanceEnter(state, action){
@@ -69,7 +69,7 @@ const perfilSlice = createSlice({
             return {...state, constance};
         },
         photoEnter(state, action){
-            const photo = action.payload;
+            const photo = typeof action.payload === "string" ? action.payload : "";
             return {...state, photo};
         },
         isGoogleAccountEnter(state, action){
@@ -117,7 +117,7 @@ const perfilSlice = createSlice({
             return {...state, alreadyIncreaseConstance};
         },
         languageInUserEnter(state, action){
-            const languageInUse = action.payload;
+            const languageInUse = typeof action.payload === "string" ? action.payload : "";
             return {...state, languageInUse};
         },
     }

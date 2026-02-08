@@ -9,26 +9,84 @@ import { useDispatch } from "react-redux";
 import { nameEnter, photoEnter, phraseAuthorEnter, phraseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "../../services/apiError";
+
+type ProfileFieldErrors = {
+    name?: string;
+    photo?: string;
+    phrase?: string;
+    phrase_author?: string;
+};
+
+const isValidHttpUrl = (value: string) => {
+    try {
+        const url = new URL(value);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch (e) {
+        return false;
+    }
+};
+
+const validatePhotoUrl = (value: string, t: (key: string) => string) => {
+    const trimmed = value?.trim();
+    if (trimmed?.length === 0) return "";
+    if (trimmed?.length > 2048) return t("ProfilePhotoUrlMax");
+    if (!isValidHttpUrl(trimmed)) return t("ProfilePhotoUrlInvalid");
+    return "";
+};
+
+const validateProfileFields = (
+    values: { name: string; photo: string; phrase: string; phrase_author: string },
+    t: (key: string) => string
+): ProfileFieldErrors => {
+    const errors: ProfileFieldErrors = {};
+    const name = values.name.trim();
+    if (!name) {
+        errors.name = t("YupNameRequired");
+    } else if (name.length < 2) {
+        errors.name = t("YupMinimumName");
+    } else if (name.length > 256) {
+        errors.name = t("YupMaxName");
+    }
+
+    const phrase = values.phrase?.trim();
+    if (phrase?.length > 256) {
+        errors.phrase = t("YupGenericMaxLength");
+    }
+
+    const author = values.phrase_author?.trim();
+    if (author?.length > 256) {
+        errors.phrase_author = t("YupGenericMaxLength");
+    }
+
+    const photoError = validatePhotoUrl(values.photo, t);
+    if (photoError) {
+        errors.photo = photoError;
+    }
+
+    return errors;
+};
 
 
 export default function ProfileConfiguration() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
 
-    const name = useSelector((state: RootState) => state.perfil.username);
-    const email = useSelector((state: RootState) => state.perfil.email);
-    const photo = useSelector((state: RootState) => state.perfil.photo);
-    const phrase = useSelector((state: RootState) => state.perfil.phrase);
-    const phrase_author = useSelector((state: RootState) => state.perfil.phrase_author);
+    const name = useSelector((state: RootState) => state.perfil.username) ?? "";
+    const email = useSelector((state: RootState) => state.perfil.email) ?? "";
+    const photo = useSelector((state: RootState) => state.perfil.photo) ?? "";
+    const phrase = useSelector((state: RootState) => state.perfil.phrase) ?? "";
+    const phrase_author = useSelector((state: RootState) => state.perfil.phrase_author) ?? "";
 
-    const [editName, setEditName] = useState(name);
-    const [editPhoto, setEditPhoto] = useState(photo);
-    const [editPhrase, setEditPhrase] = useState(phrase);
-    const [editPhraseAuthor, setEditPhraseAuthor] = useState(phrase_author);
+    const [editName, setEditName] = useState(name ?? "");
+    const [editPhoto, setEditPhoto] = useState(photo ?? "");
+    const [editPhrase, setEditPhrase] = useState(phrase ?? "");
+    const [editPhraseAuthor, setEditPhraseAuthor] = useState(phrase_author ?? "");
 
     const [editPhotoModal, setEditPhotoModal] = useState(false);
     const [successPhrase, setSuccessPhrase] = useState("");
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [fieldErrors, setFieldErrors] = useState<ProfileFieldErrors>({});
 
     // const [editEmail, setEditEmail] = useState(email);
 
@@ -44,19 +102,46 @@ export default function ProfileConfiguration() {
         e.preventDefault();
         resetErrorAndSuccessMessage();
 
-        const editUserDTO: EditUser = {
+        const currentErrors = validateProfileFields({
             name: editName,
             photo: editPhoto,
             phrase: editPhrase,
-            phrase_author: editPhraseAuthor
+            phrase_author: editPhraseAuthor,
+        }, t);
+        setFieldErrors(currentErrors);
+        if (Object.keys(currentErrors).length > 0) {
+            return;
+        }
+
+        const sanitizedName = editName.trim();
+        const sanitizedPhoto = editPhoto.trim();
+        const sanitizedPhrase = editPhrase.trim();
+        const sanitizedPhraseAuthor = editPhraseAuthor.trim();
+
+        const editUserDTO: EditUser = {
+            name: sanitizedName,
+            photo: sanitizedPhoto,
+            phrase: sanitizedPhrase,
+            phrase_author: sanitizedPhraseAuthor
         }
 
         const response = await editUser(editUserDTO);
 
         if (response.error) {
             console.error(response.error);
-            setErrorMessage(t('UnkownError'));
-            toast.error(t('UnkownError'));
+            const details = response.error.details;
+            if (details) {
+                setFieldErrors((prev) => ({
+                    ...prev,
+                    name: details.name || prev.name,
+                    photo: details.photo || prev.photo,
+                    phrase: details.phrase || prev.phrase,
+                    phrase_author: details.phrase_author || prev.phrase_author,
+                }));
+            }
+            const friendlyMessage = getFriendlyErrorMessage(t, response.error);
+            setErrorMessage(friendlyMessage);
+            toast.error(friendlyMessage);
         } else {
             console.log("User edited successfully");
             setSuccessPhrase(t('SuccessEditProfile'));
@@ -70,10 +155,18 @@ export default function ProfileConfiguration() {
     }
 
     useEffect(() => {
+        setFieldErrors(validateProfileFields({
+            name: editName,
+            photo: editPhoto,
+            phrase: editPhrase,
+            phrase_author: editPhraseAuthor,
+        }, t));
         if(successPhrase.length > 0 || errorMessage.length > 0){
             resetErrorAndSuccessMessage();
         }
-    }, [editName, editPhoto, editPhrase, editPhraseAuthor])
+    }, [editName, editPhoto, editPhrase, editPhraseAuthor, t])
+
+    const hasErrors = Object.values(fieldErrors).some(Boolean);
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
@@ -89,6 +182,9 @@ export default function ProfileConfiguration() {
                     <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />
                     </label>
+                    {fieldErrors.photo && (
+                        <p className="text-xs text-error mt-1 text-center">{fieldErrors.photo}</p>
+                    )}
                 </div>
 
                 <div className="w-[80%] lg:w-[75%] flex flex-col items-end">
@@ -100,6 +196,9 @@ export default function ProfileConfiguration() {
 
                         className={inputStyle}
                     />
+                    {fieldErrors.name && (
+                        <p className="text-xs text-error self-start mb-2">{fieldErrors.name}</p>
+                    )}
 
                     <label className={labelStyle} htmlFor="email">{t('Email')}</label>
                     <input type="email" placeholder={t('EmailPlaceholder')}
@@ -117,6 +216,9 @@ export default function ProfileConfiguration() {
                         onChange={(e) => setEditPhrase(e.target.value)}
                         className={inputStyle}
                     />
+                    {fieldErrors.phrase && (
+                        <p className="text-xs text-error self-start mb-2">{fieldErrors.phrase}</p>
+                    )}
 
                     <label className={labelStyle} htmlFor="author">{t('Author')}</label>
                     <input type="text" placeholder={t('AuthorPlaceholder')}
@@ -125,16 +227,20 @@ export default function ProfileConfiguration() {
                         onChange={(e) => setEditPhraseAuthor(e.target.value)}
                         className={inputStyle}
                     />
+                    {fieldErrors.phrase_author && (
+                        <p className="text-xs text-error self-start mb-2">{fieldErrors.phrase_author}</p>
+                    )}
 
                 </div>
             </form>
             <div className="flex flex-col items-center justify-center w-full pt-2">
                 <SmallButton
                     text={t('Save')}
-                    disabled={false}
+                    disabled={hasErrors}
                     onClick={onSubmit}
                 />
                 <p className="text-success">{successPhrase}</p>
+                {errorMessage && <p className="text-error text-xs">{errorMessage}</p>}
             </div>
             {/* {editPhoto && <EditPhotoUrl />} */}
             <div className={`${editPhotoModal ? "block" : "hidden"}`}>
@@ -157,7 +263,8 @@ type EditPhotoUrlProps = {
 };
 
 function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: EditPhotoUrlProps) {
-    const [tempPhotoUrl, setTempPhotoUrl] = useState(currentPhotoUrl);
+    const [tempPhotoUrl, setTempPhotoUrl] = useState(currentPhotoUrl || "");
+    const photoError = validatePhotoUrl(tempPhotoUrl, t);
 
     const handleSave = () => {
         setEditPhoto(tempPhotoUrl);
@@ -166,7 +273,7 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
 
     const handleClose = () => {
         // Volta para o URL original ao fechar
-        setTempPhotoUrl(currentPhotoUrl);
+        setTempPhotoUrl(currentPhotoUrl || "");
         setEditPhotoModal(false);
     }
     return (
@@ -211,6 +318,9 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                         onChange={(e) => setTempPhotoUrl(e.target.value)}
                         className="border border-primary rounded-lg p-3 outline-none w-full bg-background text-secondary placeholder:text-placeholder focus:ring-2 focus:ring-primary/40 transition duration-150"
                     />
+                    {photoError && (
+                        <p className="text-xs text-error mt-1">{photoError}</p>
+                    )}
                 </div>
 
                 <div className="flex justify-end gap-3 pt-3 border-t">
@@ -222,7 +332,7 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                     </button>
                     <SmallButton
                         text={t('Save')}
-                        disabled={!tempPhotoUrl?.trim()}
+                        disabled={!tempPhotoUrl?.trim() || Boolean(photoError)}
                         onClick={handleSave}
                     />
                 </div>
