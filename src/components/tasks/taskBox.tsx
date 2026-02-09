@@ -69,7 +69,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     }
     
     return(
-        <div className={`relative flex flex-col justify-between w-[46vw] md:w-[350px] lg:w-[230px] ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-primary rounded-md p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary`}>
+        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-primary rounded-md p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
                     <p className="text-icon text-[34px]">

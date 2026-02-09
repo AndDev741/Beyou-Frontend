@@ -84,8 +84,8 @@ function Habits(){
     return(
         <div className="bg-background min-h-screen text-secondary flex flex-col">
             <Header pageName={"YourHabits"} />
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] lg:px-6 lg:py-4 gap-6">
-                <div className="w-full lg:w-[60%] mt-3">
+            <div className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
+                <div className="w-[100%]">
                     <SortFilterBar
                         title={t("Habits board")}
                         description={t("Sort results")}
@@ -97,7 +97,7 @@ function Habits(){
                     />
                     <RenderHabits habits={sortedHabits} setHabits={setHabits}/>
                 </div>
-                <div className="w-full lg:w-[40%] flex flex-col gap-4">
+                <div className="lg:flex lg:flex-col w-[100%]">
                     <div className={`${isEditMode ? "hidden" : "block"}`}>
                         <CreateHabit setHabits={setHabits}/>
                     </div>

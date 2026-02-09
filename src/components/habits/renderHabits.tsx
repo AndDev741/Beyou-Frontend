@@ -30,7 +30,7 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
     }, [])
 
     return(
-        <div className="flex flex-wrap items-start justify-between md:justify-between p-2 text-secondary">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 text-secondary">
             {habits.map(habit => (
                 <div key={habit.id}>
                     <HabitBox

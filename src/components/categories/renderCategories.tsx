@@ -11,7 +11,7 @@ function RenderCategories({categories}: props){
     const {t} = useTranslation();
 
     return(
-        <div className="p-2 md:p-3 flex flex-wrap justify-between md:justify-evenly lg:justify-between w-full text-secondary">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-secondary">
             {categories.length > 0 ? (
                 categories.map((category) => (
                 <div key={category.id} 

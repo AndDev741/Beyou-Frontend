@@ -49,7 +49,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
     }
 
     return(
-        <div className={`flex flex-col justify-between border border-primary rounded-md mb-5 w-[44vw] md:w-[300px] lg:w-[225px] transition-all duration-500 ease-in-out p-2 break-words bg-background text-secondary shadow-sm
+        <div className={`flex flex-col justify-between border border-primary rounded-md mb-5 transition-all duration-500 ease-in-out p-2 break-words bg-background text-secondary shadow-sm
         ${expanded ? "min-h-[300px]" : "h-[150px]"} 
         transform ${expanded ? "lg:scale-105 lg:mx-2 shadow-md" : "scale-100"}
         `}>

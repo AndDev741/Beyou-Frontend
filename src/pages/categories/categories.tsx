@@ -96,7 +96,7 @@ function Categories(){
         <div className="bg-background min-h-screen text-secondary">
             <Header pageName={"YourCategories"}/>
             <main className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
-                <div className="w-[100%] lg:w-[58%]">
+                <div className="w-[100%]">
                     <SortFilterBar
                         title={t("Categories view")}
                         description={t("Sort results")}
@@ -108,7 +108,7 @@ function Categories(){
                     />
                     <RenderCategories categories={sortedCategories} />
                 </div>
-                <div className="lg:flex lg:flex-col w-[100%] lg:w-[42%]">
+                <div className="lg:flex lg:flex-col w-[100%]">
                     {editMode ? <EditCategory dispatchFunction={enterCategories}/> : 
                     <CreateCategory dispatchFunction={enterCategories} />}
                 </div>
