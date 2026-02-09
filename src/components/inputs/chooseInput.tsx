@@ -14,6 +14,7 @@ type chooseInputProps = {
 function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: chooseInputProps){
     const labelCss = "text-2xl md:text-xl text-secondary";
     const radioRef = useRef<HTMLInputElement>(null);
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1 underline";
 
     const handleClick = (value: number) => {
         if (choosedLevel === value) {
@@ -28,7 +29,7 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
             <div className="flex flex-col items-center mt-3 md:w-full text-secondary">
                 <label htmlFor={levels[0]} 
                 className={labelCss}>{t(`${title}`)}</label>
-                <p className='text-error text-lg underline'>{error}</p>
+                {error ? <p className={errorCss} title={error}>{error}</p> : null}
                 <div className="flex flex-row items-center justify-evenly w-[80vw] md:w-[300px] lg:w-[250px] mt-2">
                     {levels.map((level, index) => (
                         <div key={level}

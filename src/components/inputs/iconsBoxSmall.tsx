@@ -31,6 +31,7 @@ function IconsBoxSmall({
 
     const borderCss = "border border-primary rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-background";
     const labelCss = "text-base md:text-lg text-secondary";
+    const errorCss = "text-error text-xs leading-snug break-words whitespace-normal max-w-full mt-1";
     return (
         <>
             <div className='flex items-center justify-start text-secondary'>
@@ -46,7 +47,7 @@ function IconsBoxSmall({
                     placeholder={t('IconPlaceholder')}
                 />
             </div>
-            <p className='text-error text-xs'>{iconError}</p>
+            {iconError ? <p className={errorCss} title={iconError}>{iconError}</p> : null}
             <div
                 className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-error" : ""} min-h-[180px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[100px]"} p-1`}
             >

@@ -52,6 +52,7 @@ function IconsBox({
     const borderCss =
         "border border-primary rounded-md w-[45vw] md:w-[320px] lg:w-[15rem] bg-background";
     const labelCss = "text-2xl md:text-xl text-secondary";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
 
     return (
         <div className="flex flex-col">
@@ -69,7 +70,7 @@ function IconsBox({
                     placeholder={t("IconPlaceholder")}
                 />
             </div>
-            <p className="text-error text-lg">{iconError}</p>
+            {iconError ? <p className={errorCss} title={iconError}>{iconError}</p> : null}
 
             <div
                 className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-error" : ""} p-2`}

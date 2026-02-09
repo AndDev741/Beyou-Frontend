@@ -28,6 +28,7 @@ test('shows validation errors and disables save for invalid name', async () => {
 
     const nameInput = screen.getByLabelText(/Name/i);
     fireEvent.change(nameInput, { target: { value: "a" } });
+    fireEvent.blur(nameInput);
 
     expect(await screen.findByText("YupMinimumName")).toBeInTheDocument();
 

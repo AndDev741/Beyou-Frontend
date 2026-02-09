@@ -15,6 +15,7 @@ type chooseCategoriesProps = {
 function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, chosenCategories, chosenCategoriesId}: chooseCategoriesProps){
     const {t} = useTranslation();
     const [categories, setCategories] = useState<category[]>([]);
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1 text-center";
 
     console.log("CATEGORIES ID => ", categoriesIdList);
 
@@ -33,7 +34,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
     return(
         <>
             <h3 className="text-2xl mt-2 text-center text-secondary">Categories</h3>
-            <p className='text-error text-lg text-center'>{errorMessage}</p>
+            {errorMessage ? <p className={errorCss} title={errorMessage}>{errorMessage}</p> : null}
             <div className="flex flex-wrap flex-col items-center w-[95vw] max-h-[200px] md:w-[100%] overflow-x-auto mt-2 text-secondary">
                 <div className="flex flex-wrap items-center justify-evenly px-1 mb-2">
                     {categories.length > 0 ? categories.map((category) => (

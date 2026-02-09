@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Routine } from "../../types/routine/routine";
 import { useTranslation } from "react-i18next";
 import createSchedule from "../../services/schedule/createSchedule";
@@ -6,11 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import getRoutines from "../../services/routine/getRoutines";
 import { enterRoutines } from "../../redux/routine/routinesSlice";
 import editSchedule from "../../services/schedule/editSchedule";
-import { FiX, FiCalendar, FiCheck, FiRotateCcw } from "react-icons/fi";
+import { FiX, FiCalendar, FiCheck } from "react-icons/fi";
 import { RootState } from "../../redux/rootReducer";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { scheduleSchema } from "../../validation/forms/scheduleSchemas";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -21,14 +24,37 @@ const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satur
 const WEEKDAY_GROUP = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const WEEKEND_GROUP = ["Saturday", "Sunday"];
 
+type ScheduleFormValues = {
+    days: string[];
+};
+
 export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
-    const allRoutines = useSelector((state: RootState) => state.routines.routines) as Routine[] || [];
-    const [selectedDays, setSelectedDays] = useState<string[]>(routine?.schedule?.days || []);
+    const allRoutines = (useSelector((state: RootState) => state.routines.routines) as Routine[]) || [];
     const [loading, setLoading] = useState(false);
     const [overrides, setOverrides] = useState<Set<string>>(new Set());
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
+
+    const {
+        handleSubmit,
+        setValue,
+        watch,
+        reset,
+        formState: { errors }
+    } = useForm<ScheduleFormValues>({
+        resolver: zodResolver(scheduleSchema),
+        mode: "onBlur",
+        defaultValues: {
+            days: routine?.schedule?.days || []
+        }
+    });
+
+    useEffect(() => {
+        reset({ days: routine?.schedule?.days || [] });
+    }, [routine, reset]);
+
+    const selectedDays = watch("days") || [];
 
     const blockedByDay = useMemo(() => {
         const map: Record<string, string[]> = {};
@@ -50,19 +76,25 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         if (blocked) {
             return;
         }
-        setSelectedDays((prev) =>
-            prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-        );
+        const next = selectedDays.includes(day)
+            ? selectedDays.filter((d) => d !== day)
+            : [...selectedDays, day];
+        setValue("days", next, { shouldValidate: true });
     };
 
     const toggleGroup = (days: string[]) => {
         const allPresent = days.every((d) => selectedDays.includes(d));
-        setSelectedDays((prev) => {
-            if (allPresent) return prev.filter((d) => !days.includes(d));
-            const filtered = prev.filter((d) => !days.includes(d));
-            const allowed = days.filter((d) => !blockedSet.has(d) || overrides.has(d));
-            return [...filtered, ...allowed];
-        });
+        if (allPresent) {
+            setValue(
+                "days",
+                selectedDays.filter((d) => !days.includes(d)),
+                { shouldValidate: true }
+            );
+            return;
+        }
+        const filtered = selectedDays.filter((d) => !days.includes(d));
+        const allowed = days.filter((d) => !blockedSet.has(d) || overrides.has(d));
+        setValue("days", [...filtered, ...allowed], { shouldValidate: true });
     };
 
     const handleOverrideDay = (day: string) => {
@@ -71,17 +103,19 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
             next.add(day);
             return next;
         });
-        setSelectedDays((prev) => (prev.includes(day) ? prev : [...prev, day]));
+        if (!selectedDays.includes(day)) {
+            setValue("days", [...selectedDays, day], { shouldValidate: true });
+        }
     };
 
-    const handleSchedule = async () => {
+    const handleSchedule = async (values: ScheduleFormValues) => {
         if (loading) return;
         setLoading(true);
         setApiError(null);
         const scheduleId = routine.schedule?.id || "";
         const response = !scheduleId
-            ? await createSchedule(selectedDays, routine.id!, t)
-            : await editSchedule(scheduleId, selectedDays, routine.id!, t);
+            ? await createSchedule(values.days, routine.id!, t)
+            : await editSchedule(scheduleId, values.days, routine.id!, t);
 
         const error = response?.error || response?.validation;
         if (error) {
@@ -102,7 +136,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         onClose();
     };
 
-    const resetSelection = () => setSelectedDays(routine?.schedule?.days || []);
+    const resetSelection = () => setValue("days", routine?.schedule?.days || [], { shouldValidate: true });
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
@@ -142,11 +176,12 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                         <button
                                             type="button"
                                             className={`flex w-full items-center justify-between rounded-lg border p-2 text-sm font-medium transition
-                                                ${active
-                                                    ? "border-primary bg-primary/10 text-primary shadow-sm"
-                                                    : isBlocked
-                                                        ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
-                                                        : "border-primary/20 bg-background text-secondary hover:border-primary/50"
+                                                ${
+                                                    active
+                                                        ? "border-primary bg-primary/10 text-primary shadow-sm"
+                                                        : isBlocked
+                                                            ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
+                                                            : "border-primary/20 bg-background text-secondary hover:border-primary/50"
                                                 }
                                         `}
                                             onClick={() => toggleDay(day)}
@@ -156,7 +191,6 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                             {active && <FiCheck className="h-4 w-4" />}
                                         </button>
 
-                                        {/* TOOLTIP */}
                                         {isBlocked && (
                                             <div
                                                 className="
@@ -174,27 +208,22 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                                         transition-opacity duration-150
                                                         "
                                             >
-                                                <p className="font-semibold text-error">
-                                                    {t('Already scheduled for')}
-                                                </p>
+                                                <p className="font-semibold text-error">{t("Already scheduled for")}</p>
 
-                                                <p className="mt-1 text-description">
-                                                    {names.join(', ')}
-                                                </p>
+                                                <p className="mt-1 text-description">{names.join(", ")}</p>
 
                                                 <button
                                                     type="button"
                                                     className="mt-2 w-full rounded-md bg-primary px-3 py-2 text-xs font-semibold text-background transition hover:bg-primary/90"
                                                     onClick={() => handleOverrideDay(day)}
                                                 >
-                                                    {t('Override day')}
+                                                    {t("Override day")}
                                                 </button>
                                             </div>
                                         )}
                                     </div>
                                 );
                             })}
-
                         </div>
                     </div>
 
@@ -218,34 +247,44 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                             />
                         </div>
 
-                        <button
-                            type="button"
-                            className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/10"
-                            onClick={resetSelection}
-                        >
-                            <FiRotateCcw className="h-4 w-4" />
-                            {t("Reset to current")}
-                        </button>
+                        <div className="rounded-xl border border-primary/20 bg-background/80 p-4">
+                            <p className="text-sm font-semibold text-secondary mb-2">{t("Summary")}</p>
+                            <div className="text-xs text-description">
+                                {selectedDays.length > 0
+                                    ? selectedDays.map((day) => t(day)).join(", ")
+                                    : t("No days selected")}
+                            </div>
+                            <button
+                                type="button"
+                                className="mt-3 flex items-center gap-2 text-xs text-description hover:text-primary"
+                                onClick={resetSelection}
+                            >
+                                {t("Reset")}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                {errors.days?.message && (
+                    <p className="text-error text-sm mt-2">{errors.days?.message}</p>
+                )}
+                <ErrorNotice error={apiError} className="text-center mt-2" />
+
+                <div className="mt-6 flex items-center justify-end gap-3">
                     <button
                         type="button"
-                        className="w-full sm:w-auto rounded-lg border border-primary/30 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-primary/10"
+                        className="rounded-lg border border-primary/30 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-primary/10"
                         onClick={onClose}
                     >
                         {t("Cancel")}
                     </button>
-                    <ErrorNotice error={apiError} className="sm:flex-1" />
                     <button
                         type="button"
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-background transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-                        onClick={handleSchedule}
+                        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-background transition hover:bg-primary/90 disabled:opacity-60"
+                        onClick={handleSubmit(handleSchedule)}
                         disabled={loading}
                     >
-                        <FiCheck className="h-4 w-4" />
-                        {loading ? t("Saving...") : t("Save schedule")}
+                        {t("Save")}
                     </button>
                 </div>
             </div>
@@ -253,21 +292,16 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
     );
 }
 
-type GroupButtonProps = {
-    label: string;
-    active: boolean;
-    onClick: () => void;
-};
-
-const GroupButton = ({ label, active, onClick }: GroupButtonProps) => (
-    <button
-        type="button"
-        className={`w-full rounded-lg border px-3 py-2 text-sm font-semibold transition ${active
-            ? "border-primary bg-primary/10 text-primary shadow-sm"
-            : "border-primary/20 text-secondary hover:border-primary/50"
-            }`}
-        onClick={onClick}
-    >
-        {label}
-    </button>
-);
+function GroupButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+    return (
+        <button
+            type="button"
+            className={`w-full rounded-lg border px-3 py-2 text-xs font-semibold transition
+                ${active ? "border-primary bg-primary/10 text-primary" : "border-primary/20 text-secondary hover:border-primary/50"}
+            `}
+            onClick={onClick}
+        >
+            {label}
+        </button>
+    );
+}

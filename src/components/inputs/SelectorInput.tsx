@@ -15,11 +15,12 @@ type selectorInputProps= {
 function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase}: selectorInputProps){ 
     const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl text-secondary";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
     return(
         <>
             <label htmlFor='value' 
             className={`${labelCss} mt-2`}>{title}</label>
-            <p className='text-error text-lg'>{errorPhrase}</p>
+            {errorPhrase ? <p className={errorCss} title={errorPhrase}>{errorPhrase}</p> : null}
             <select id='value'
             name='value'
             value={value}

@@ -15,33 +15,53 @@ import Droppable from "../../../components/utils/StrictModeDroppable";
 import { CgAddR } from "react-icons/cg";
 import Button from "../../Button";
 import { toast } from "react-toastify";
-import { getItemTimeErrorKeys, getSectionErrorKeys } from "./routineValidation";
 import ErrorNotice from "../../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../services/apiError";
-
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { routineFormSchema } from "../../../validation/forms/routineSchemas";
 
 const EditDailyRoutine = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const routines = useSelector((state: RootState) => state.routines.routines) || [];
     const routineToEdit = useSelector((state: RootState) => state.editRoutine.routine);
-    console.log("Routine to edit: (INSIDE EDIT)", routineToEdit);
 
-    const [routineName, setRoutineName] = useState<string>("");
     const [routineSection, setRoutineSection] = useState<RoutineSection[]>([]);
     const [showModal, setShowModal] = useState(false);
+    const [editIndex, setEditIndex] = useState<number | null>(null);
+    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
+
+    const {
+        control,
+        handleSubmit,
+        reset,
+        setValue,
+        setError,
+        clearErrors,
+        formState: { errors }
+    } = useForm<{ routineName: string; routineSections: RoutineSection[] }>({
+        resolver: zodResolver(routineFormSchema(t)),
+        mode: "onBlur",
+        defaultValues: {
+            routineName: "",
+            routineSections: []
+        }
+    });
 
     useEffect(() => {
         if (routineToEdit) {
-            setRoutineName(routineToEdit.name);
+            reset({
+                routineName: routineToEdit.name,
+                routineSections: routineToEdit.routineSections
+            });
             setRoutineSection(routineToEdit.routineSections);
         }
-    }, [routineToEdit]);
+    }, [routineToEdit, reset]);
 
-    const [editIndex, setEditIndex] = useState<number | null>(null);
-
-    const [errorMessage, setErrorMessage] = useState("");
-    const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
+    useEffect(() => {
+        setValue("routineSections", routineSection, { shouldValidate: true });
+    }, [routineSection, setValue]);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -51,7 +71,7 @@ const EditDailyRoutine = () => {
     };
 
     const handleDeleteSection = (index: number) => {
-        setRoutineSection(prev => prev.filter((_, i) => i !== index));
+        setRoutineSection((prev) => prev.filter((_, i) => i !== index));
     };
 
     const handleEditSection = (index: number) => {
@@ -60,9 +80,8 @@ const EditDailyRoutine = () => {
     };
 
     const handleUpdateSection = (updatedSection: RoutineSection) => {
-        console.log("updatedSection", updatedSection);
         if (editIndex !== null) {
-            setRoutineSection(prev =>
+            setRoutineSection((prev) =>
                 prev.map((section, idx) => (idx === editIndex ? updatedSection : section))
             );
             setEditIndex(null);
@@ -70,70 +89,27 @@ const EditDailyRoutine = () => {
         }
     };
 
-    const handleEdit = async () => {
-        setErrorMessage("");
+    const onSubmit = async (values: { routineName: string; routineSections: RoutineSection[] }) => {
+        clearErrors("root");
         setApiError(null);
-
-        if (!routineName.trim()) {
-            const message = t("YupNameRequired");
-            setErrorMessage(message);
-            toast.error(message);
+        if (!routineToEdit?.id) {
+            setError("root", { message: t("UnexpectedError") });
             return;
-        }
-
-        if (routineSection.length === 0) {
-            const message = t("At least, 1 section need to be created");
-            setErrorMessage(message);
-            toast.error(message);
-            return;
-        }
-
-        for (const section of routineSection) {
-            const sectionErrors = getSectionErrorKeys(section.name, section.startTime);
-            if (sectionErrors.length > 0) {
-                const message = t(sectionErrors[0]);
-                setErrorMessage(message);
-                toast.error(message);
-                return;
-            }
-
-            const taskGroups = section.taskGroup || [];
-            for (const taskGroup of taskGroups) {
-                const itemErrors = getItemTimeErrorKeys(section.startTime, section.endTime, taskGroup.startTime, taskGroup.endTime);
-                if (itemErrors.length > 0) {
-                    const message = t(itemErrors[0]);
-                    setErrorMessage(message);
-                    toast.error(message);
-                    return;
-                }
-            }
-
-            const habitGroups = section.habitGroup || [];
-            for (const habitGroup of habitGroups) {
-                const itemErrors = getItemTimeErrorKeys(section.startTime, section.endTime, habitGroup.startTime, habitGroup.endTime);
-                if (itemErrors.length > 0) {
-                    const message = t(itemErrors[0]);
-                    setErrorMessage(message);
-                    toast.error(message);
-                    return;
-                }
-            }
         }
 
         const routine: Routine = {
             id: routineToEdit.id,
-            name: routineName,
+            name: values.routineName,
             iconId: "",
-            routineSections: routineSection
-        }
+            routineSections: values.routineSections
+        };
 
         const response = await editRoutine(routine, t);
 
-        console.log(response)
         const error = response?.error || response?.validation;
         if (error) {
             if (typeof error === "string") {
-                setErrorMessage(error);
+                setError("root", { message: error });
                 toast.error(error);
             } else {
                 setApiError(error);
@@ -142,53 +118,62 @@ const EditDailyRoutine = () => {
             return;
         }
 
-        const routines = await getRoutines(t);
-        dispatch(enterRoutines(routines?.success));
-        setRoutineName("");
+        const routinesResponse = await getRoutines(t);
+        dispatch(enterRoutines(routinesResponse?.success));
         setRoutineSection([]);
         dispatch(editModeEnter(false));
         toast.success(t("edited successfully"));
-
-    }
+    };
 
     const handleOnDragEnd = (result: any) => {
-        console.log("result", result);
         if (!result.destination) return;
         const items = Array.from(routineSection);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
         setRoutineSection(items);
-    }
+    };
 
     return (
         <div className="w-full flex flex-col items-center justify-center text-secondary">
-            <h2 className='text-2xl text-secondary'>{t("Editing daily routine")}</h2>
+            <h2 className="text-2xl text-secondary">{t("Editing daily routine")}</h2>
 
             <div className="relative md:w-[95%] flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
-
-                <input
-                    type="text"
-                    value={routineName}
-                    onChange={e => setRoutineName(e.target.value)}
-                    className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
-                    placeholder={t("Routine name")}
+                <Controller
+                    control={control}
+                    name="routineName"
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            value={field.value}
+                            onChange={field.onChange}
+                            className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
+                            placeholder={t("Routine name")}
+                        />
+                    )}
                 />
+                {errors.routineName?.message && (
+                    <p className="text-error text-center mt-2">{errors.routineName?.message}</p>
+                )}
 
                 <button
                     className="absolute top-3 right-3 flex flex-col items-center"
-                    onClick={() => { setShowModal(true); setEditIndex(null); }}
+                    onClick={() => {
+                        setShowModal(true);
+                        setEditIndex(null);
+                    }}
+                    type="button"
                 >
-                    <CgAddR className='w-[30px] h-[30px] mr-1'/>    
-                    <span className='text-sm text-center font-medium mt-1 whitespace-pre-line text-secondary'>
+                    <CgAddR className="w-[30px] h-[30px] mr-1" />
+                    <span className="text-sm text-center font-medium mt-1 whitespace-pre-line text-secondary">
                         {t("add section")}
                     </span>
                 </button>
 
-
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="sections">
                         {(provided) => (
-                            <div className="w-full flex flex-col items-center justify-start mt-5 text-secondary"
+                            <div
+                                className="w-full flex flex-col items-center justify-start mt-5 text-secondary"
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >
@@ -200,10 +185,11 @@ const EditDailyRoutine = () => {
                                             index={index}
                                         >
                                             {(provided) => (
-                                                <div 
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                className="flex items-start w-full">
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    className="flex items-start w-full"
+                                                >
                                                     <div
                                                         {...provided.dragHandleProps}
                                                         className="cursor-grab mt-3 text-icon"
@@ -218,7 +204,6 @@ const EditDailyRoutine = () => {
                                                         index={index}
                                                     />
                                                 </div>
-
                                             )}
                                         </Draggable>
                                     ))
@@ -237,39 +222,57 @@ const EditDailyRoutine = () => {
                     className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
                     onClick={handleOverlayClick}
                 >
-                    <div className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200" onClick={e => e.stopPropagation()}>
+                    <div
+                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <CreateRoutineSection
-                            setRoutineSection={editIndex === null ? setRoutineSection : (updatedSections => {
-                                if (updatedSections.length > routineSection.length) {
-                                    setRoutineSection(updatedSections);
-                                } else if (editIndex !== null) {
-                                    handleUpdateSection(updatedSections[editIndex]);
-                                }
-                            })}
-                            onClose={() => { setShowModal(false); setEditIndex(null); }}
+                            setRoutineSection={
+                                editIndex === null
+                                    ? setRoutineSection
+                                    : (updatedSections) => {
+                                          if (updatedSections.length > routineSection.length) {
+                                              setRoutineSection(updatedSections);
+                                          } else if (editIndex !== null) {
+                                              handleUpdateSection(updatedSections[editIndex]);
+                                          }
+                                      }
+                            }
+                            onClose={() => {
+                                setShowModal(false);
+                                setEditIndex(null);
+                            }}
                             onUpdateSection={handleUpdateSection}
                             editIndex={editIndex}
                             editSection={editIndex !== null ? routineSection[editIndex] : undefined}
-                            routineSections={routines.flatMap(section => section.routineSections)}
+                            routineSections={routines.flatMap((section) => section.routineSections)}
                         />
                     </div>
                 </div>
             )}
-            <div className="my-2 mb-6 flex flex-col items-center"
-            >
+            <div className="my-2 mb-6 flex flex-col items-center">
                 <div className="w-full flex mt-2">
-                    <Button text={t('Cancel')} mode="cancel" size="medium" onClick={() => dispatch(editModeEnter(false))} />
+                    <Button
+                        text={t("Cancel")}
+                        mode="cancel"
+                        size="medium"
+                        onClick={() => dispatch(editModeEnter(false))}
+                    />
 
                     <div className="mx-3"></div>
 
-                    <Button text={t('Edit')} mode="create" size="medium" onClick={handleEdit} />
+                    <Button text={t("Edit")} mode="create" size="medium" onClick={handleSubmit(onSubmit)} />
                 </div>
-                <p className="text-center text-error mt-2">{errorMessage}</p>
+                {errors.routineSections?.message && (
+                    <p className="text-center text-error mt-2">{errors.routineSections?.message}</p>
+                )}
+                {errors.root?.message && (
+                    <p className="text-center text-error mt-2">{errors.root?.message}</p>
+                )}
                 <ErrorNotice error={apiError} className="text-center mt-2" />
             </div>
-
         </div>
-    )
-}
+    );
+};
 
 export default EditDailyRoutine;

@@ -12,12 +12,13 @@ type genericInputProps = {
 function GenericInput({t, dataError, name, setData, data, placeholder, type = "text"}: genericInputProps){
     const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
     const labelCss = "text-2xl md:text-xl mt-2 text-secondary";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
     return(
         <>
             <div className="flex flex-col">
                 <label htmlFor={name} 
                 className={labelCss}>{t(`${name}`)}</label>
-                <p className='text-error text-lg'>{dataError}</p>
+                {dataError ? <p className={errorCss} title={dataError}>{dataError}</p> : null}
                 <input
                 value={data}
                 type={type}

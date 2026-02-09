@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
 import { RoutineSection } from "../../../types/routine/routineSection";
 import { v4 as uuidv4 } from "uuid";
 import iconSearch from "../../icons/iconsSearch";
 import { formatTimeRange } from "../routineMetrics";
-import { getSectionErrorKeys } from "./routineValidation";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { routineSectionSchema } from "../../../validation/forms/routineSchemas";
 
 interface CreateRoutineSectionProps {
     setRoutineSection: React.Dispatch<React.SetStateAction<any>>;
@@ -16,6 +18,20 @@ interface CreateRoutineSectionProps {
     routineSections: RoutineSection[];
 }
 
+type RoutineSectionFormValues = {
+    name: string;
+    startTime: string;
+    endTime?: string;
+    iconId?: string;
+};
+
+const defaultValues: RoutineSectionFormValues = {
+    name: "",
+    startTime: "",
+    endTime: "",
+    iconId: ""
+};
+
 const CreateRoutineSection = ({
     setRoutineSection,
     editSection,
@@ -25,69 +41,58 @@ const CreateRoutineSection = ({
     routineSections
 }: CreateRoutineSectionProps) => {
     const { t } = useTranslation();
-    const [name, setName] = useState("");
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
     const [search, setSearch] = useState("");
-    const [selectedIcon, setSelectedIcon] = useState("");
-    const [nameError, setNameError] = useState("");
-    const [startTimeError, setStartTimeError] = useState("");
 
-    const favoritedSections = routineSections.filter(section => section.favorite === true);
+    const {
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors }
+    } = useForm<RoutineSectionFormValues>({
+        resolver: zodResolver(routineSectionSchema(t)),
+        mode: "onBlur",
+        defaultValues: defaultValues
+    });
+
+    const favoritedSections = routineSections.filter((section) => section.favorite === true);
 
     useEffect(() => {
-        console.log("editSection", editSection);
         if (editSection) {
-            setName(editSection.name || "");
-            setStartTime(editSection.startTime || "");
-            setEndTime(editSection.endTime || "");
-            setSelectedIcon(editSection.iconId || "");
+            reset({
+                name: editSection.name || "",
+                startTime: editSection.startTime || "",
+                endTime: editSection.endTime || "",
+                iconId: editSection.iconId || ""
+            });
             setSearch(editSection.iconId || "");
         } else {
-            setName("");
-            setStartTime("");
-            setEndTime("");
-            setSelectedIcon("");
+            reset(defaultValues);
             setSearch("");
         }
-        setNameError("");
-        setStartTimeError("");
-    }, [editSection]);
+    }, [editSection, reset]);
 
-    const handleCreate = () => {
-        const errors = getSectionErrorKeys(name, startTime);
-        setNameError(errors.includes("RoutineSectionNameRequired") ? t("RoutineSectionNameRequired") : "");
-        setStartTimeError(errors.includes("RoutineSectionStartRequired") ? t("RoutineSectionStartRequired") : "");
-        if (errors.length > 0) return;
+    const handleCreate = (values: RoutineSectionFormValues) => {
         const newSection: RoutineSection = {
             id: uuidv4(),
-            name,
-            startTime,
-            endTime,
-            iconId: selectedIcon,
+            name: values.name,
+            startTime: values.startTime,
+            endTime: values.endTime || "",
+            iconId: values.iconId || "",
             order: 0
         };
         setRoutineSection((prev: RoutineSection[]) => [...prev, newSection]);
-        setName("");
-        setStartTime("");
-        setEndTime("");
-        setSelectedIcon("");
+        reset(defaultValues);
         if (onClose) onClose();
     };
 
-    const handleUpdate = () => {
-        const errors = getSectionErrorKeys(name, startTime);
-        setNameError(errors.includes("RoutineSectionNameRequired") ? t("RoutineSectionNameRequired") : "");
-        setStartTimeError(errors.includes("RoutineSectionStartRequired") ? t("RoutineSectionStartRequired") : "");
-        if (errors.length > 0) return;
-        console.log("editIndex", editIndex);
+    const handleUpdate = (values: RoutineSectionFormValues) => {
         if (onUpdateSection) {
             const updatedSection: RoutineSection = {
                 id: editSection?.id || uuidv4(),
-                name,
-                startTime,
-                endTime,
-                iconId: selectedIcon,
+                name: values.name,
+                startTime: values.startTime,
+                endTime: values.endTime || "",
+                iconId: values.iconId || "",
                 taskGroup: editSection?.taskGroup || [],
                 habitGroup: editSection?.habitGroup || [],
                 order: editSection?.order || 0
@@ -101,22 +106,15 @@ const CreateRoutineSection = ({
         const sectionWithId = {
             ...section,
             id: uuidv4(),
-            taskGroup: section?.taskGroup?.map(group => {
-                return {...group, id: null}
-            }),
-            habitGroup: section?.habitGroup?.map(group => {
-                return {...group, id: null}
-            }),
+            taskGroup: section?.taskGroup?.map((group) => ({ ...group, id: null })),
+            habitGroup: section?.habitGroup?.map((group) => ({ ...group, id: null })),
             favorite: false
-        }
+        };
 
         setRoutineSection((prev: RoutineSection[]) => [...prev, sectionWithId]);
-        setName("");
-        setStartTime("");
-        setEndTime("");
-        setSelectedIcon("");
+        reset(defaultValues);
         if (onClose) onClose();
-    }
+    };
 
     return (
         <div>
@@ -127,57 +125,79 @@ const CreateRoutineSection = ({
                 <div className="flex-1 flex flex-col gap-4">
                     <label className="font-medium text-secondary">
                         {t("name")}
-                        <input
-                            type="text"
-                            placeholder={t("Cozy Morning")}
-                            value={name}
-                            onChange={e => {
-                                setName(e.target.value);
-                                if (nameError) setNameError("");
-                            }}
-                            className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
+                        <Controller
+                            control={control}
+                            name="name"
+                            render={({ field }) => (
+                                <input
+                                    type="text"
+                                    placeholder={t("Cozy Morning")}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
+                                />
+                            )}
                         />
-                        {nameError && <p className="text-error text-xs mt-1">{nameError}</p>}
+                        {errors.name?.message && (
+                            <p className="text-error text-xs mt-1">{errors.name?.message}</p>
+                        )}
                     </label>
                     <label className="font-medium text-secondary">
                         {t("Start time")}
-                        <input
-                            type="time"
-                            placeholder={"06:00"}
-                            value={startTime}
-                            onChange={e => {
-                                setStartTime(e.target.value);
-                                if (startTimeError) setStartTimeError("");
-                            }}
-                            className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                        <Controller
+                            control={control}
+                            name="startTime"
+                            render={({ field }) => (
+                                <input
+                                    type="time"
+                                    placeholder={"06:00"}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                                />
+                            )}
                         />
-                        {startTimeError && <p className="text-error text-xs mt-1">{startTimeError}</p>}
+                        {errors.startTime?.message && (
+                            <p className="text-error text-xs mt-1">{errors.startTime?.message}</p>
+                        )}
                     </label>
                     <label className="font-medium text-secondary">
                         {t("End time")}
-                        <input
-                            type="time"
-                            placeholder={"12:00"}
-                            value={endTime}
-                            onChange={e => setEndTime(e.target.value)}
-                            className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                        <Controller
+                            control={control}
+                            name="endTime"
+                            render={({ field }) => (
+                                <input
+                                    type="time"
+                                    placeholder={"12:00"}
+                                    value={field.value || ""}
+                                    onChange={field.onChange}
+                                    className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                                />
+                            )}
                         />
                     </label>
                 </div>
                 <div className="min-w-[223px] flex flex-col items-center">
-                    <IconsBoxSmall
-                        search={search}
-                        setSearch={setSearch}
-                        t={t}
-                        iconError={""}
-                        setSelectedIcon={setSelectedIcon}
-                        selectedIcon={selectedIcon}
+                    <Controller
+                        control={control}
+                        name="iconId"
+                        render={({ field }) => (
+                            <IconsBoxSmall
+                                search={search}
+                                setSearch={setSearch}
+                                t={t}
+                                iconError={""}
+                                setSelectedIcon={field.onChange}
+                                selectedIcon={field.value || ""}
+                            />
+                        )}
                     />
                     {editSection ? (
                         <button
                             type="button"
                             className="mt-6 px-6 py-2 bg-primary text-background dark:text-secondary rounded-md font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
-                            onClick={handleUpdate}
+                            onClick={handleSubmit(handleUpdate)}
                         >
                             {t("Edit")}
                         </button>
@@ -185,41 +205,50 @@ const CreateRoutineSection = ({
                         <button
                             type="button"
                             className="mt-6 px-6 py-2 bg-primary text-background dark:text-secondary rounded-md font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
-                            onClick={handleCreate}
+                            onClick={handleSubmit(handleCreate)}
                         >
                             {t("Create")}
                         </button>
                     )}
                 </div>
-
-
             </div>
 
-            <h1 className={`${editSection == null && favoritedSections?.length > 0 ? "" : "hidden"} text-center mt-2 text-secondary font-semibold text-lg`}>
+            <h1
+                className={`${
+                    editSection == null && favoritedSections?.length > 0 ? "" : "hidden"
+                } text-center mt-2 text-secondary font-semibold text-lg`}
+            >
                 {t("Your favorite sections")}
             </h1>
             <div className="flex flex-col items-start justify-start w-full">
+                {editSection == null &&
+                    favoritedSections.map((section) => {
+                        const iconObj = iconSearch(section.iconId);
+                        const Icon = iconObj?.IconComponent;
 
-                {editSection == null && favoritedSections.map((section) => {
-                    const iconObj = iconSearch(section.iconId);
-                    const Icon = iconObj?.IconComponent;
+                        return (
+                            <div key={section.id} className="w-full flex items-center justify-between py-2">
+                                <div className="flex items-center gap-2 w-full">
+                                    {Icon && (
+                                        <span className="text-[30px] text-icon">
+                                            <Icon />
+                                        </span>
+                                    )}
+                                    <span className="text-xl font-semibold text-primary line-clamp-1">
+                                        {section.name}
+                                    </span>
+                                    <span>{formatTimeRange(section.startTime, section.endTime)}</span>
+                                </div>
 
-                    return (
-                        <div className="w-full flex items-center justify-between py-2">
-                            <div className="flex items-center gap-2 w-full">
-                                {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
-                                <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
-                                <span>{formatTimeRange(section.startTime, section.endTime)}</span>
+                                <button
+                                    className="hover:text-primary hover:scale-105"
+                                    onClick={() => handleUseFavorite(section)}
+                                >
+                                    {t("Use")}
+                                </button>
                             </div>
-
-                            <button className="hover:text-primary hover:scale-105"
-                            onClick={() => handleUseFavorite(section)}
-                            >
-                                {t("Use")}
-                            </button>
-                        </div>
-                    )
-                })}
+                        );
+                    })}
             </div>
         </div>
     );

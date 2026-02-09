@@ -1,6 +1,5 @@
 import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
-import * as Yup from 'yup';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 
 type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validation?: string }>;
@@ -15,28 +14,6 @@ async function createTask(
   difficulty?: number,
   oneTimeTask: boolean = false,
 ): apiResponse {
-
-  const validation = Yup.object().shape({
-    name: Yup.string()
-      .required(t('YupNameRequired'))
-      .min(2, t('YupMinimumName'))
-      .max(256, t('YupMaxName')),
-    description: Yup.string().max(256, t('YupDescriptionMaxValue')),
-    iconId: Yup.string().required(t('YupIconRequired')),
-    importance: Yup.number().nullable(),
-    difficulty: Yup.number().nullable(),
-  }).test(
-    'importance-difficulty-required',
-    t('Importance and Difficulty must be set together'),
-    function (value) {
-      const { importance, difficulty } = value;
-      return (
-        (importance !== 0 && difficulty !== 0) ||
-        (importance === 0 && difficulty === 0)
-      );
-    }
-  );
-
   const taskData = {
     name: name,
     description: description,
@@ -45,29 +22,16 @@ async function createTask(
     difficulty: difficulty,
     categoriesId: categoriesId,
     oneTimeTask: oneTimeTask,
-  }
-
-  console.log(taskData);
+  };
 
   try {
-    await validation.validate({ name, description, iconId, importance, difficulty });
-    try {
-      const response = await axios.post("/task", taskData);
-      return response.data;
-    } catch (e) {
-      console.error(e);
-      return { error: parseApiError(e) };
-    }
-  } catch (validationErrors) {
-    if (validationErrors instanceof Yup.ValidationError) {
-      console.error(validationErrors.errors)
-      return { validation: validationErrors.errors.join(', ') };
-    } else {
-      return { error: { message: t('UnexpectedError') } };
-    }
+    const response = await axios.post("/task", taskData);
+    return response.data;
+  } catch (e) {
+    console.error(e);
+    const parsed = parseApiError(e);
+    return { error: parsed ?? { message: t('UnexpectedError') } };
   }
-
-
 }
 
 export default createTask;

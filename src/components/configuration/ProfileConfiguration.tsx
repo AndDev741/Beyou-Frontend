@@ -1,72 +1,25 @@
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { MdClose, MdCreate } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { EditUser } from "../../types/user/EditUser";
 import editUser from "../../services/user/editUser";
-import { useDispatch } from "react-redux";
 import { nameEnter, photoEnter, phraseAuthorEnter, phraseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "../../services/apiError";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { profileSchema, photoUrlSchema } from "../../validation/forms/profileSchemas";
 
-type ProfileFieldErrors = {
-    name?: string;
-    photo?: string;
-    phrase?: string;
-    phrase_author?: string;
+type ProfileFormValues = {
+    name: string;
+    photo: string;
+    phrase: string;
+    phrase_author: string;
 };
-
-const isValidHttpUrl = (value: string) => {
-    try {
-        const url = new URL(value);
-        return url.protocol === "http:" || url.protocol === "https:";
-    } catch (e) {
-        return false;
-    }
-};
-
-const validatePhotoUrl = (value: string, t: (key: string) => string) => {
-    const trimmed = value?.trim();
-    if (trimmed?.length === 0) return "";
-    if (trimmed?.length > 2048) return t("ProfilePhotoUrlMax");
-    if (!isValidHttpUrl(trimmed)) return t("ProfilePhotoUrlInvalid");
-    return "";
-};
-
-const validateProfileFields = (
-    values: { name: string; photo: string; phrase: string; phrase_author: string },
-    t: (key: string) => string
-): ProfileFieldErrors => {
-    const errors: ProfileFieldErrors = {};
-    const name = values.name.trim();
-    if (!name) {
-        errors.name = t("YupNameRequired");
-    } else if (name.length < 2) {
-        errors.name = t("YupMinimumName");
-    } else if (name.length > 256) {
-        errors.name = t("YupMaxName");
-    }
-
-    const phrase = values.phrase?.trim();
-    if (phrase?.length > 256) {
-        errors.phrase = t("YupGenericMaxLength");
-    }
-
-    const author = values.phrase_author?.trim();
-    if (author?.length > 256) {
-        errors.phrase_author = t("YupGenericMaxLength");
-    }
-
-    const photoError = validatePhotoUrl(values.photo, t);
-    if (photoError) {
-        errors.photo = photoError;
-    }
-
-    return errors;
-};
-
 
 export default function ProfileConfiguration() {
     const { t } = useTranslation();
@@ -78,52 +31,60 @@ export default function ProfileConfiguration() {
     const phrase = useSelector((state: RootState) => state.perfil.phrase) ?? "";
     const phrase_author = useSelector((state: RootState) => state.perfil.phrase_author) ?? "";
 
-    const [editName, setEditName] = useState(name ?? "");
-    const [editPhoto, setEditPhoto] = useState(photo ?? "");
-    const [editPhrase, setEditPhrase] = useState(phrase ?? "");
-    const [editPhraseAuthor, setEditPhraseAuthor] = useState(phrase_author ?? "");
-
     const [editPhotoModal, setEditPhotoModal] = useState(false);
     const [successPhrase, setSuccessPhrase] = useState("");
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const [fieldErrors, setFieldErrors] = useState<ProfileFieldErrors>({});
 
-    // const [editEmail, setEditEmail] = useState(email);
+    const {
+        control,
+        handleSubmit,
+        setError,
+        reset,
+        watch,
+        formState: { errors }
+    } = useForm<ProfileFormValues>({
+        resolver: zodResolver(profileSchema(t)),
+        mode: "onBlur",
+        defaultValues: {
+            name,
+            photo,
+            phrase,
+            phrase_author
+        }
+    });
+
+    useEffect(() => {
+        reset({
+            name,
+            photo,
+            phrase,
+            phrase_author
+        });
+    }, [name, photo, phrase, phrase_author, reset]);
 
     const labelStyle = "mb-1 font-medium text-lg self-start text-secondary";
-    const inputStyle = "border border-primary rounded-md pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
+    const inputStyle =
+        "border border-primary rounded-md pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
         setSuccessPhrase("");
-    }
+    };
 
-    const onSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (values: ProfileFormValues) => {
         resetErrorAndSuccessMessage();
 
-        const currentErrors = validateProfileFields({
-            name: editName,
-            photo: editPhoto,
-            phrase: editPhrase,
-            phrase_author: editPhraseAuthor,
-        }, t);
-        setFieldErrors(currentErrors);
-        if (Object.keys(currentErrors).length > 0) {
-            return;
-        }
-
-        const sanitizedName = editName.trim();
-        const sanitizedPhoto = editPhoto.trim();
-        const sanitizedPhrase = editPhrase.trim();
-        const sanitizedPhraseAuthor = editPhraseAuthor.trim();
+        const sanitizedName = values.name.trim();
+        const sanitizedPhoto = values.photo.trim();
+        const sanitizedPhrase = values.phrase.trim();
+        const sanitizedPhraseAuthor = values.phrase_author.trim();
 
         const editUserDTO: EditUser = {
             name: sanitizedName,
             photo: sanitizedPhoto,
             phrase: sanitizedPhrase,
             phrase_author: sanitizedPhraseAuthor
-        }
+        };
 
         const response = await editUser(editUserDTO);
 
@@ -131,162 +92,199 @@ export default function ProfileConfiguration() {
             console.error(response.error);
             const details = response.error.details;
             if (details) {
-                setFieldErrors((prev) => ({
-                    ...prev,
-                    name: details.name || prev.name,
-                    photo: details.photo || prev.photo,
-                    phrase: details.phrase || prev.phrase,
-                    phrase_author: details.phrase_author || prev.phrase_author,
-                }));
+                if (details.name) setError("name", { message: details.name });
+                if (details.photo) setError("photo", { message: details.photo });
+                if (details.phrase) setError("phrase", { message: details.phrase });
+                if (details.phrase_author) setError("phrase_author", { message: details.phrase_author });
             }
             const friendlyMessage = getFriendlyErrorMessage(t, response.error);
             setErrorMessage(friendlyMessage);
             toast.error(friendlyMessage);
         } else {
-            console.log("User edited successfully");
-            setSuccessPhrase(t('SuccessEditProfile'));
-            toast.success(t('SuccessEditProfile'));
+            setSuccessPhrase(t("SuccessEditProfile"));
+            toast.success(t("SuccessEditProfile"));
 
-            dispatch(nameEnter(editName));
-            dispatch(phraseEnter(editPhrase));
-            dispatch(phraseAuthorEnter(editPhraseAuthor));
-            dispatch(photoEnter(editPhoto));
+            dispatch(nameEnter(sanitizedName));
+            dispatch(phraseEnter(sanitizedPhrase));
+            dispatch(phraseAuthorEnter(sanitizedPhraseAuthor));
+            dispatch(photoEnter(sanitizedPhoto));
         }
-    }
+    };
 
-    useEffect(() => {
-        setFieldErrors(validateProfileFields({
-            name: editName,
-            photo: editPhoto,
-            phrase: editPhrase,
-            phrase_author: editPhraseAuthor,
-        }, t));
-        if(successPhrase.length > 0 || errorMessage.length > 0){
-            resetErrorAndSuccessMessage();
-        }
-    }, [editName, editPhoto, editPhrase, editPhraseAuthor, t])
-
-    const hasErrors = Object.values(fieldErrors).some(Boolean);
+    const hasErrors = Object.values(errors).some(Boolean);
+    const currentPhoto = watch("photo") || "";
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
-            <h1 className="text-2xl font-semibold mb-4">{t('Profile')}</h1>
-            <form className="w-full flex items-center">
-
-                <div className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
-                    onClick={() => setEditPhotoModal(true)}>
-                    <img src={editPhoto}
-                        alt={t('Profile')}
-                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-primary shadow-lg" />
+            <h1 className="text-2xl font-semibold mb-4">{t("Profile")}</h1>
+            <form className="w-full flex items-center" onSubmit={handleSubmit(onSubmit)}>
+                <div
+                    className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
+                    onClick={() => setEditPhotoModal(true)}
+                >
+                    <img
+                        src={currentPhoto}
+                        alt={t("Profile")}
+                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-primary shadow-lg"
+                    />
 
                     <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />
                     </label>
-                    {fieldErrors.photo && (
-                        <p className="text-xs text-error mt-1 text-center">{fieldErrors.photo}</p>
+                    {errors.photo?.message && (
+                        <p className="text-xs text-error mt-1 text-center">{errors.photo?.message}</p>
                     )}
                 </div>
 
                 <div className="w-[80%] lg:w-[75%] flex flex-col items-end">
-                    <label className={labelStyle} htmlFor="name">{t('Name')}</label>
-                    <input type="text" placeholder={t('NamePlaceholder')}
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        id="name"
-
-                        className={inputStyle}
+                    <label className={labelStyle} htmlFor="name">
+                        {t("Name")}
+                    </label>
+                    <Controller
+                        control={control}
+                        name="name"
+                        render={({ field }) => (
+                            <input
+                                type="text"
+                                placeholder={t("NamePlaceholder")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                id="name"
+                                className={inputStyle}
+                            />
+                        )}
                     />
-                    {fieldErrors.name && (
-                        <p className="text-xs text-error self-start mb-2">{fieldErrors.name}</p>
+                    {errors.name?.message && (
+                        <p className="text-xs text-error self-start mb-2">{errors.name?.message}</p>
                     )}
 
-                    <label className={labelStyle} htmlFor="email">{t('Email')}</label>
-                    <input type="email" placeholder={t('EmailPlaceholder')}
+                    <label className={labelStyle} htmlFor="email">
+                        {t("Email")}
+                    </label>
+                    <input
+                        type="email"
+                        placeholder={t("EmailPlaceholder")}
                         value={email}
                         disabled
-                        onChange={(e) => setEditPhoto(e.target.value)}
+                        onChange={() => {}}
                         id="email"
                         className={`${inputStyle} text-description cursor-not-allowed`}
                     />
 
-                    <label className={labelStyle} htmlFor="phrase">{t('Phrase')}</label>
-                    <textarea placeholder={t('PhrasePlaceholder')}
-                        id="phrase"
-                        value={editPhrase}
-                        onChange={(e) => setEditPhrase(e.target.value)}
-                        className={inputStyle}
+                    <label className={labelStyle} htmlFor="phrase">
+                        {t("Phrase")}
+                    </label>
+                    <Controller
+                        control={control}
+                        name="phrase"
+                        render={({ field }) => (
+                            <textarea
+                                placeholder={t("PhrasePlaceholder")}
+                                id="phrase"
+                                value={field.value}
+                                onChange={field.onChange}
+                                className={inputStyle}
+                            />
+                        )}
                     />
-                    {fieldErrors.phrase && (
-                        <p className="text-xs text-error self-start mb-2">{fieldErrors.phrase}</p>
+                    {errors.phrase?.message && (
+                        <p className="text-xs text-error self-start mb-2">{errors.phrase?.message}</p>
                     )}
 
-                    <label className={labelStyle} htmlFor="author">{t('Author')}</label>
-                    <input type="text" placeholder={t('AuthorPlaceholder')}
-                        id="author"
-                        value={editPhraseAuthor}
-                        onChange={(e) => setEditPhraseAuthor(e.target.value)}
-                        className={inputStyle}
+                    <label className={labelStyle} htmlFor="author">
+                        {t("Author")}
+                    </label>
+                    <Controller
+                        control={control}
+                        name="phrase_author"
+                        render={({ field }) => (
+                            <input
+                                type="text"
+                                placeholder={t("AuthorPlaceholder")}
+                                id="author"
+                                value={field.value}
+                                onChange={field.onChange}
+                                className={inputStyle}
+                            />
+                        )}
                     />
-                    {fieldErrors.phrase_author && (
-                        <p className="text-xs text-error self-start mb-2">{fieldErrors.phrase_author}</p>
+                    {errors.phrase_author?.message && (
+                        <p className="text-xs text-error self-start mb-2">{errors.phrase_author?.message}</p>
                     )}
-
                 </div>
             </form>
             <div className="flex flex-col items-center justify-center w-full pt-2">
-                <SmallButton
-                    text={t('Save')}
-                    disabled={hasErrors}
-                    onClick={onSubmit}
-                />
+                <SmallButton text={t("Save")} disabled={hasErrors} onClick={handleSubmit(onSubmit)} />
                 <p className="text-success">{successPhrase}</p>
                 {errorMessage && <p className="text-error text-xs">{errorMessage}</p>}
             </div>
-            {/* {editPhoto && <EditPhotoUrl />} */}
             <div className={`${editPhotoModal ? "block" : "hidden"}`}>
                 <EditPhotoUrl
                     setEditPhotoModal={setEditPhotoModal}
-                    currentPhotoUrl={editPhoto}
-                    setEditPhoto={setEditPhoto}
+                    currentPhotoUrl={currentPhoto}
+                    onSave={(value) => {
+                        resetErrorAndSuccessMessage();
+                        reset({
+                            name: watch("name"),
+                            photo: value,
+                            phrase: watch("phrase"),
+                            phrase_author: watch("phrase_author")
+                        });
+                    }}
                     t={t}
                 />
             </div>
         </div>
-    )
+    );
 }
 
 type EditPhotoUrlProps = {
     setEditPhotoModal: Dispatch<SetStateAction<boolean>>;
     currentPhotoUrl: string;
-    setEditPhoto: Dispatch<SetStateAction<string>>;
-    t: (key: string) => string;
+    onSave: (value: string) => void;
+    t: TFunction;
 };
 
-function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: EditPhotoUrlProps) {
-    const [tempPhotoUrl, setTempPhotoUrl] = useState(currentPhotoUrl || "");
-    const photoError = validatePhotoUrl(tempPhotoUrl, t);
+function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, onSave, t }: EditPhotoUrlProps) {
+    const {
+        register,
+        handleSubmit,
+        reset,
+        watch,
+        formState: { errors }
+    } = useForm<{ photo: string }>({
+        resolver: zodResolver(photoUrlSchema(t)),
+        mode: "onBlur",
+        defaultValues: {
+            photo: currentPhotoUrl || ""
+        }
+    });
 
-    const handleSave = () => {
-        setEditPhoto(tempPhotoUrl);
+    useEffect(() => {
+        reset({ photo: currentPhotoUrl || "" });
+    }, [currentPhotoUrl, reset]);
+
+    const photoValue = watch("photo") || "";
+
+    const onSubmit = (values: { photo: string }) => {
+        onSave(values.photo.trim());
         setEditPhotoModal(false);
     };
 
     const handleClose = () => {
-        // Volta para o URL original ao fechar
-        setTempPhotoUrl(currentPhotoUrl || "");
+        reset({ photo: currentPhotoUrl || "" });
         setEditPhotoModal(false);
-    }
+    };
+
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-
             <div className="bg-background text-secondary border border-primary/20 rounded-xl shadow-2xl w-full max-w-lg p-6 flex flex-col gap-4 transform transition-all duration-300 scale-100">
-
                 <div className="flex justify-between items-center border-b pb-3">
-                    <h2 className="text-xl font-bold">{t('ChangeProfilePhoto')}</h2>
+                    <h2 className="text-xl font-bold">{t("ChangeProfilePhoto")}</h2>
                     <button
                         onClick={handleClose}
                         className="text-description hover:text-error transition duration-150"
-                        aria-label={t('Close')}
+                        aria-label={t("Close")}
                     >
                         <MdClose size={24} />
                     </button>
@@ -294,32 +292,29 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
 
                 <div className="flex flex-col items-center gap-3">
                     <img
-                        src={tempPhotoUrl}
-                        alt={t('PhotoPreview')}
+                        src={photoValue}
+                        alt={t("PhotoPreview")}
                         onError={(e) => {
-                            e.currentTarget.src = 'https://placehold.co/128x128/ccc/333?text=URL+Inválida';
+                            e.currentTarget.src = "https://placehold.co/128x128/ccc/333?text=URL+Inv\u00e1lida";
                         }}
                         className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
                     />
-                    <p className="text-sm text-description text-center">
-                        {t('PhotoPreviewInfo')}
-                    </p>
+                    <p className="text-sm text-description text-center">{t("PhotoPreviewInfo")}</p>
                 </div>
 
                 <div className="flex flex-col gap-1">
                     <label htmlFor="photoUrl" className="font-medium text-secondary">
-                        {t('ImageURL')}
+                        {t("ImageURL")}
                     </label>
                     <input
                         id="photoUrl"
                         type="url"
-                        placeholder={t('EnterPhotoURL')}
-                        value={tempPhotoUrl}
-                        onChange={(e) => setTempPhotoUrl(e.target.value)}
+                        placeholder={t("EnterPhotoURL")}
+                        {...register("photo")}
                         className="border border-primary rounded-lg p-3 outline-none w-full bg-background text-secondary placeholder:text-placeholder focus:ring-2 focus:ring-primary/40 transition duration-150"
                     />
-                    {photoError && (
-                        <p className="text-xs text-error mt-1">{photoError}</p>
+                    {errors.photo?.message && (
+                        <p className="text-xs text-error mt-1">{errors.photo?.message}</p>
                     )}
                 </div>
 
@@ -328,16 +323,15 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, setEditPhoto, t }: E
                         onClick={handleClose}
                         className="px-4 py-2 text-secondary border border-primary/20 rounded-lg hover:bg-secondary/10 transition duration-150"
                     >
-                        {t('Cancel')}
+                        {t("Cancel")}
                     </button>
                     <SmallButton
-                        text={t('Save')}
-                        disabled={!tempPhotoUrl?.trim() || Boolean(photoError)}
-                        onClick={handleSave}
+                        text={t("Save")}
+                        disabled={!photoValue?.trim() || Boolean(errors.photo?.message)}
+                        onClick={handleSubmit(onSubmit)}
                     />
                 </div>
-
             </div>
         </div>
-    )
-} 
+    );
+}

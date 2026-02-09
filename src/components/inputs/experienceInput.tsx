@@ -10,11 +10,12 @@ type experienceInputProps= {
 function ExperienceInput({experience, setExperience, experienceError, t}: experienceInputProps){
     const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-2xl md:text-xl text-secondary";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
     return(
         <>
             <label htmlFor='experience' 
             className={`${labelCss} mt-2`}>{t('YourExperience')}</label>
-            <p className='text-error text-lg'>{experienceError}</p>
+            {experienceError ? <p className={errorCss} title={experienceError}>{experienceError}</p> : null}
             <select id='experience'
             name='experience'
             value={experience}
