@@ -18,7 +18,7 @@ function RenderGoals({ goals }: RenderGoalsProps) {
       dispatch(editModeEnter(false));
   }, []); 
   return (
-    <div className="flex flex-wrap md:items-start justify-center md:justify-between md:w-full text-secondary">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 text-secondary">
       {goals.length > 0 ? (
         goals.map((g) => (
           <div key={g.id} className="lg:mx-1">

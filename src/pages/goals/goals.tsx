@@ -101,8 +101,8 @@ function Goals() {
   return (
     <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
       <Header pageName="Your Goals" />
-      <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
-        <div className="lg:w-[70%]">
+      <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] mt-4 lg:px-6">
+        <div className="w-full px-2">
           <SortFilterBar
             title={t("Goals overview")}
             description={t("Sort results")}
@@ -114,7 +114,7 @@ function Goals() {
           />
           <RenderGoals goals={sortedGoals}/>
         </div>
-        <div className="lg:mr-12 mt-4">
+        <div className="w-full">
           <div className={`${isEditMode ? "hidden" : "block"}`}>
             <CreateGoal />
           </div>
