@@ -21,6 +21,7 @@ type userInitialState = {
     maxConstance: number,
     alreadyIncreaseConstanceToday: boolean,
     languageInUse: string,
+    isTutorialCompleted: boolean,
 }
 
 const initialState: userInitialState = {
@@ -42,6 +43,7 @@ const initialState: userInitialState = {
     maxConstance: 0,
     alreadyIncreaseConstanceToday: false,
     languageInUse: "",
+    isTutorialCompleted: false,
 }
 
 const perfilSlice = createSlice({
@@ -120,6 +122,10 @@ const perfilSlice = createSlice({
             const languageInUse = typeof action.payload === "string" ? action.payload : "";
             return {...state, languageInUse};
         },
+        tutorialCompletedEnter(state, action){
+            const isTutorialCompleted = Boolean(action.payload);
+            return {...state, isTutorialCompleted};
+        },
     }
 });
 
@@ -141,7 +147,8 @@ export const {
     actualLevelXpEnter,
     maxConstanceEnter,
     alreadyIncreaseConstanceTodayEnter,
-    languageInUserEnter
+    languageInUserEnter,
+    tutorialCompletedEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

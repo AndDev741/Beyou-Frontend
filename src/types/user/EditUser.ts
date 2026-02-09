@@ -6,5 +6,6 @@ export type EditUser = {
     widgetsId?: string[]
     theme?: string,
     constanceConfiguration?: "ANY" | "COMPLETE",
-    language?: string
+    language?: string,
+    isTutorialCompleted?: boolean
 }

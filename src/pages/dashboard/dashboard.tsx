@@ -4,7 +4,7 @@ import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
@@ -19,9 +19,13 @@ import { enterGoals } from "../../redux/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
 import getCategories from "../../services/categories/getCategories";
 import WidgetsFabric, { WidgetProps } from "../../components/widgets/utils/widgetsFabric";
-import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
+import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter, tutorialCompletedEnter } from "../../redux/user/perfilSlice";
 import { enterCategories } from "../../redux/category/categoriesSlice";
 import useChangeLanguage from "../../hooks/useChangeLanguage";
+import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
+import editUser from "../../services/user/editUser";
+import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "../../services/apiError";
 
 function Dashboard() {
     useAuthGuard();
@@ -46,6 +50,8 @@ function Dashboard() {
     const level = useSelector((state: RootState) => state.perfil.level);
     const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
     const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
+    const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     const languageInUse = useSelector((state: RootState) => state.perfil.languageInUse);
     console.log("Language in use => ", languageInUse)
@@ -99,8 +105,40 @@ function Dashboard() {
 
     }, [routine]);
 
+    useEffect(() => {
+        setShowTutorial(!isTutorialCompleted);
+    }, [isTutorialCompleted]);
+
+    useEffect(() => {
+        if (showTutorial) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [showTutorial]);
+
+    const markTutorialCompleted = async () => {
+        const response = await editUser({ isTutorialCompleted: true });
+        if (response.error) {
+            const message = getFriendlyErrorMessage(t, response.error);
+            toast.error(message);
+            return;
+        }
+        dispatch(tutorialCompletedEnter(true));
+        setShowTutorial(false);
+    };
+
     return (
         <>
+            {showTutorial && (
+                <OnboardingTutorial
+                    onComplete={markTutorialCompleted}
+                    onSkip={markTutorialCompleted}
+                />
+            )}
             <div>
                 <div className="lg:flex lg:justify-between items-start">
                     <div className="flex flex-col lg:w-full">

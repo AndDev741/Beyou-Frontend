@@ -2,6 +2,7 @@ import ConstanceConfiguration from "../../components/configuration/ConstanceConf
 import LanguageSelector from "../../components/configuration/LanguageSelector";
 import ProfileConfiguration from "../../components/configuration/ProfileConfiguration";
 import ThemeSelector from "../../components/configuration/ThemeSelector";
+import TutorialConfiguration from "../../components/configuration/TutorialConfiguration";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
@@ -35,6 +36,12 @@ export default function Configuration() {
 
                     <div className="w-full lg:pr-4">
                         <ConstanceConfiguration />
+                    </div>
+
+                    <div className="border-b w-full border-primary mt-2 "></div>
+
+                    <div className="w-full lg:pr-4">
+                        <TutorialConfiguration />
                     </div>
 
                     {/* Horizontal divider for mobile screens */}

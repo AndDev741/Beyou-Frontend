@@ -17,16 +17,19 @@ function Shortcuts() {
 
             <nav className="flex flex-wrap lg:flex-col justify-center md:justify-center items-start md:gap-3 lg:gap-0 lg:m-4">
                 <Link to={"/categories"}
+                    data-tutorial-id="shortcut-categories"
                     className={linkStyle}>
                     <CiFolderOn className="text-[25px] mr-2 text-icon" />
                     {t('Categories')}
                 </Link>
                 <Link to={"/habits"}
+                    data-tutorial-id="shortcut-habits"
                     className={linkStyle}>
                     <CiMountain1 className="text-[25px] mr-2 text-icon" />
                     {t('Habits')}
                 </Link>
                 <Link to={"/tasks"}
+                    data-tutorial-id="shortcut-tasks"
                     className={linkStyle}>
 
                     <CiSquareCheck className="text-[25px] mr-2 text-icon" />
@@ -34,16 +37,19 @@ function Shortcuts() {
                     {t('Tasks')}
                 </Link>
                 <Link to={"/routines"}
+                    data-tutorial-id="shortcut-routines"
                     className={linkStyle}>
                     <CiMemoPad className="text-[25px] mr-2 text-icon" />
                     {t('Routines')}
                 </Link>
                 <Link to={"/goals"}
+                    data-tutorial-id="shortcut-goals"
                     className={linkStyle}>
                     <CiMedal className="text-[25px] mr-2 text-icon" />
                     {t('Goals')}
                 </Link>
                 <Link to={"/configuration"}
+                    data-tutorial-id="shortcut-configuration"
                     className={linkStyle}>
                     <CiSettings className="text-[25px] mr-2 text-icon" />
 
