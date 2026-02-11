@@ -198,7 +198,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-1">
+            <div className="flex-1 overflow-y-auto md:overflow-hidden pr-1">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={step.id}
