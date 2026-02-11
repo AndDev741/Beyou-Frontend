@@ -135,6 +135,11 @@ function Categories(){
         setTutorialPhaseState(null);
     };
 
+    const advanceToHabitsFlow = () => {
+        setTutorialPhase("habits-dashboard");
+        setTutorialPhaseState("habits-dashboard");
+    };
+
     const categorySteps: SpotlightStep[] = [
         {
             id: "create-category",
@@ -163,7 +168,7 @@ function Categories(){
                     isActive={showCategorySpotlight}
                     currentStep={categoryStep}
                     onStepChange={setCategoryStep}
-                    onComplete={completeTutorial}
+                    onComplete={advanceToHabitsFlow}
                     onSkip={completeTutorial}
                 />
             )}

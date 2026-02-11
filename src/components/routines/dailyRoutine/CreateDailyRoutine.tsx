@@ -240,7 +240,7 @@ const CreateDailyRoutine = () => {
                 </div>
             )}
             <div className="my-2 mb-6 flex flex-col items-center">
-                <Button text={t("create")} mode="create" size="big" onClick={handleSubmit(onSubmit)} />
+                <Button text={t("create")} mode="create" size="big" onClick={handleSubmit(onSubmit)} type="submit" />
                 {errors.routineSections?.message && (
                     <p className="text-center text-error mt-2">{errors.routineSections?.message}</p>
                 )}

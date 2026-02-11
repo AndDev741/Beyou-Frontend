@@ -261,7 +261,7 @@ const EditDailyRoutine = () => {
 
                     <div className="mx-3"></div>
 
-                    <Button text={t("Edit")} mode="create" size="medium" onClick={handleSubmit(onSubmit)} />
+                    <Button text={t("Edit")} mode="create" size="medium" onClick={handleSubmit(onSubmit)} type="submit" />
                 </div>
                 {errors.routineSections?.message && (
                     <p className="text-center text-error mt-2">{errors.routineSections?.message}</p>

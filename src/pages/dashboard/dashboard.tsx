@@ -155,6 +155,12 @@ function Dashboard() {
         navigate("/categories");
     };
 
+    const completeHabitsDashboardSpotlight = () => {
+        setTutorialPhase("habits");
+        setTutorialPhaseState("habits");
+        navigate("/habits");
+    };
+
     const dashboardSteps: SpotlightStep[] = [
         {
             id: "profile",
@@ -182,6 +188,19 @@ function Dashboard() {
 
     const showIntroModal = tutorialPhase === "intro";
     const showDashboardSpotlight = tutorialPhase === "dashboard";
+    const showHabitsDashboardSpotlight =
+        tutorialPhase === "habits-dashboard" || tutorialPhase === "habits";
+
+    const habitsDashboardSteps: SpotlightStep[] = [
+        {
+            id: "habits-shortcut",
+            targetSelector: "[data-tutorial-id='shortcut-habits']",
+            titleKey: "TutorialSpotlightHabitsTitle",
+            descriptionKey: "TutorialSpotlightHabitsDescription",
+            position: "right",
+            action: "click"
+        }
+    ];
 
     return (
         <>
@@ -196,6 +215,14 @@ function Dashboard() {
                     steps={dashboardSteps}
                     isActive={showDashboardSpotlight}
                     onComplete={completeDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showHabitsDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={habitsDashboardSteps}
+                    isActive={showHabitsDashboardSpotlight}
+                    onComplete={completeHabitsDashboardSpotlight}
                     onSkip={completeTutorial}
                 />
             )}
