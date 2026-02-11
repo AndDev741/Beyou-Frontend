@@ -23,9 +23,12 @@ import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter,
 import { enterCategories } from "../../redux/category/categoriesSlice";
 import useChangeLanguage from "../../hooks/useChangeLanguage";
 import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
+import SpotlightTutorial, { SpotlightStep } from "../../components/tutorial/SpotlightTutorial";
+import { clearTutorialPhase, getTutorialPhase, setTutorialPhase, type TutorialPhase } from "../../components/tutorial/tutorialStorage";
 import editUser from "../../services/user/editUser";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "../../services/apiError";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
     useAuthGuard();
@@ -51,7 +54,8 @@ function Dashboard() {
     const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
     const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
     const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
-    const [showTutorial, setShowTutorial] = useState(false);
+    const [tutorialPhase, setTutorialPhaseState] = useState<TutorialPhase | null>(() => getTutorialPhase());
+    const navigate = useNavigate();
 
     const languageInUse = useSelector((state: RootState) => state.perfil.languageInUse);
     console.log("Language in use => ", languageInUse)
@@ -106,11 +110,19 @@ function Dashboard() {
     }, [routine]);
 
     useEffect(() => {
-        setShowTutorial(!isTutorialCompleted);
-    }, [isTutorialCompleted]);
+        if (isTutorialCompleted) {
+            clearTutorialPhase();
+            setTutorialPhaseState(null);
+            return;
+        }
+        if (!tutorialPhase) {
+            setTutorialPhase("intro");
+            setTutorialPhaseState("intro");
+        }
+    }, [isTutorialCompleted, tutorialPhase]);
 
     useEffect(() => {
-        if (showTutorial) {
+        if (tutorialPhase === "intro") {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "";
@@ -118,9 +130,9 @@ function Dashboard() {
         return () => {
             document.body.style.overflow = "";
         };
-    }, [showTutorial]);
+    }, [tutorialPhase]);
 
-    const markTutorialCompleted = async () => {
+    const completeTutorial = async () => {
         const response = await editUser({ isTutorialCompleted: true });
         if (response.error) {
             const message = getFriendlyErrorMessage(t, response.error);
@@ -128,15 +140,63 @@ function Dashboard() {
             return;
         }
         dispatch(tutorialCompletedEnter(true));
-        setShowTutorial(false);
+        clearTutorialPhase();
+        setTutorialPhaseState(null);
     };
+
+    const startDashboardSpotlight = () => {
+        setTutorialPhase("dashboard");
+        setTutorialPhaseState("dashboard");
+    };
+
+    const completeDashboardSpotlight = () => {
+        setTutorialPhase("categories");
+        setTutorialPhaseState("categories");
+        navigate("/categories");
+    };
+
+    const dashboardSteps: SpotlightStep[] = [
+        {
+            id: "profile",
+            targetSelector: "[data-tutorial-id='dashboard-profile']",
+            titleKey: "TutorialSpotlightProfileTitle",
+            descriptionKey: "TutorialSpotlightProfileDescription",
+            position: "bottom"
+        },
+        {
+            id: "shortcuts",
+            targetSelector: "[data-tutorial-id='dashboard-shortcuts']",
+            titleKey: "TutorialSpotlightShortcutsTitle",
+            descriptionKey: "TutorialSpotlightShortcutsDescription",
+            position: "right"
+        },
+        {
+            id: "categories-shortcut",
+            targetSelector: "[data-tutorial-id='shortcut-categories']",
+            titleKey: "TutorialSpotlightCategoriesTitle",
+            descriptionKey: "TutorialSpotlightCategoriesDescription",
+            position: "right",
+            action: "click"
+        }
+    ];
+
+    const showIntroModal = tutorialPhase === "intro";
+    const showDashboardSpotlight = tutorialPhase === "dashboard";
 
     return (
         <>
-            {showTutorial && (
+            {showIntroModal && (
                 <OnboardingTutorial
-                    onComplete={markTutorialCompleted}
-                    onSkip={markTutorialCompleted}
+                    onComplete={startDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={dashboardSteps}
+                    isActive={showDashboardSpotlight}
+                    onComplete={completeDashboardSpotlight}
+                    onSkip={completeTutorial}
                 />
             )}
             <div>

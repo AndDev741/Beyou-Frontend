@@ -27,7 +27,9 @@ function Perfil() {
     }, []);
 
     return (
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between 
+        <div
+        data-tutorial-id="dashboard-profile"
+        className="flex flex-col md:flex-row md:items-center md:justify-between 
         bg-primary md:bg-background md:border-solid md:border-primary md:border-[1px] 
         w-[100%] md:m-3 p-4 md:p-5 md:py-2 md:px-3 min-h-[160px] md:min-h-[180px] 
         rounded-b-[40px] md:rounded-md shadow-lg md:shadow-none">

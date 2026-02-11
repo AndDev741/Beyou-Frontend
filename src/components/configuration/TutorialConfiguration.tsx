@@ -7,6 +7,7 @@ import { getFriendlyErrorMessage } from "../../services/apiError";
 import { RootState } from "../../redux/rootReducer";
 import { tutorialCompletedEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
+import { clearTutorialPhase } from "../tutorial/tutorialStorage";
 
 export default function TutorialConfiguration() {
     const { t } = useTranslation();
@@ -28,6 +29,7 @@ export default function TutorialConfiguration() {
             toast.error(message);
         } else {
             dispatch(tutorialCompletedEnter(false));
+            clearTutorialPhase();
             setSuccess(t("TutorialRestarted"));
             toast.success(t("TutorialRestarted"));
         }

@@ -11,11 +11,17 @@ function RenderCategories({categories}: props){
     const {t} = useTranslation();
 
     return(
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-secondary">
+        <div
+            className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-secondary"
+            data-tutorial-id="categories-grid"
+        >
             {categories.length > 0 ? (
-                categories.map((category) => (
-                <div key={category.id} 
-                className="lg:mx-1">
+                categories.map((category, index) => (
+                <div
+                key={category.id}
+                className="lg:mx-1"
+                data-tutorial-id={index === 0 ? "category-card" : undefined}
+                >
                     <CategoryBox 
                     id={category.id}
                     iconId={category.iconId}
