@@ -51,7 +51,7 @@ function IconsBox({
 
     const borderCss =
         "border border-primary rounded-md w-[45vw] md:w-[320px] lg:w-[15rem] bg-background";
-    const labelCss = "text-2xl md:text-xl text-secondary";
+    const labelCss = "text-lg md:text-2xl md:text-xl text-secondary";
     const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
 
     return (

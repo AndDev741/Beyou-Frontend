@@ -112,7 +112,10 @@ export default function SpotlightTutorial({
 
             const isOutside =
                 rect.top < 0 || rect.left < 0 || rect.bottom > window.innerHeight || rect.right > window.innerWidth;
-            if (isOutside) {
+            const isMobile = window.innerWidth < 768;
+            const isCreateFormStep = step.id === "create-category" || step.id === "create-habit";
+            const isRoutineStep = step.id.startsWith("routine-");
+            if (isOutside && !(isMobile && (isCreateFormStep || isRoutineStep))) {
                 target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
             }
         };
@@ -150,6 +153,15 @@ export default function SpotlightTutorial({
             target.removeEventListener("click", handleClick);
         };
     }, [isActive, step?.id, step?.targetSelector, step?.action]);
+
+    useEffect(() => {
+        if (!isActive || !step) return;
+        if (typeof window === "undefined" || window.innerWidth >= 768) return;
+        if (!step.id.includes("shortcut")) return;
+        const target = document.querySelector(step.targetSelector) as HTMLElement | null;
+        if (!target) return;
+        target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }, [isActive, step?.id, step?.targetSelector]);
 
     const goNext = () => {
         if (step?.disableNext) return;
@@ -215,6 +227,11 @@ export default function SpotlightTutorial({
         };
     }, [targetRect, step.position, tooltipSize.height, tooltipSize.width]);
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    const isCreateFormStep = step.id === "create-category" || step.id === "create-habit";
+    const hideSideBlur = isMobile && isCreateFormStep;
+    const hideTooltip = isMobile && step.id === "routine-schedule-modal";
+
     return (
         <AnimatePresence>
             {isVisible && (
@@ -237,36 +254,39 @@ export default function SpotlightTutorial({
                                     }}
                                 />
                                 <div
-                                    className="absolute bg-black/60 backdrop-blur-sm"
+                                    className="absolute bg-black/60 md:backdrop-blur-sm"
                                     style={{
                                         top: targetRect.top,
                                         left: 0,
                                         width: Math.max(0, targetRect.left),
-                                        height: targetRect.height
+                                        height: targetRect.height,
+                                        opacity: hideSideBlur ? 0 : 1
                                     }}
                                 />
                                 <div
-                                    className="absolute bg-black/60 backdrop-blur-sm"
+                                    className="absolute bg-black/60 md:backdrop-blur-sm"
                                     style={{
                                         top: targetRect.top,
                                         left: targetRect.right,
                                         width: Math.max(0, window.innerWidth - targetRect.right),
-                                        height: targetRect.height
+                                        height: targetRect.height,
+                                        opacity: hideSideBlur ? 0 : 1
                                     }}
                                 />
                                 <div
-                                    className="absolute bg-black/60 backdrop-blur-sm"
+                                    className="absolute bg-black/60 md:backdrop-blur-sm"
                                     style={{
                                         top: targetRect.bottom,
                                         left: 0,
                                         width: "100%",
-                                        height: Math.max(0, window.innerHeight - targetRect.bottom)
+                                        height: Math.max(0, window.innerHeight - targetRect.bottom),
+                                        opacity: hideSideBlur ? 0 : 1
                                     }}
                                 />
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="absolute rounded-xl ring-2 ring-primary shadow-[0_0_25px_rgba(0,130,225,0.45)]"
+                                    className="absolute rounded-xl"
                                     style={{
                                         top: targetRect.top - 8,
                                         left: targetRect.left - 8,
@@ -278,7 +298,7 @@ export default function SpotlightTutorial({
                         )}
                     </motion.div>
 
-                    {tooltipPosition && (
+                    {tooltipPosition && !hideTooltip && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -291,7 +311,7 @@ export default function SpotlightTutorial({
                             }}
                         >
                             <div className="bg-background border border-primary/20 rounded-2xl shadow-2xl overflow-hidden text-secondary">
-                                <div className="bg-primary/10 px-5 py-3 border-b border-primary/20 flex items-center justify-between">
+                                <div className="bg-primary/10 px-5 py-1 md:py-3 border-b border-primary/20 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Sparkles className="w-4 h-4 text-primary" />
                                         <span className="text-sm font-semibold text-primary">
@@ -307,11 +327,11 @@ export default function SpotlightTutorial({
                                     </button>
                                 </div>
 
-                                <div className="p-5">
-                                    <h3 className="text-lg font-semibold text-secondary mb-2">
+                                <div className="p-3 md:p-5">
+                                    <h3 className="text-lg font-semibold text-secondary mb-1 md:mb-2">
                                         {t(step.titleKey)}
                                     </h3>
-                                    <p className="text-sm text-description leading-relaxed mb-4">
+                                    <p className="text-sm text-description leading-relaxed mb-2 md:mb-4">
                                         {t(step.descriptionKey)}
                                     </p>
 
@@ -328,7 +348,7 @@ export default function SpotlightTutorial({
                                             onClick={goNext}
                                             disabled={step.disableNext}
                                             className={cn(
-                                                "flex items-center gap-1 px-3 py-2 rounded-md text-sm font-semibold transition-all",
+                                                "flex items-center gap-1 px-3 md:py-2 rounded-md text-sm font-semibold transition-all",
                                                 step.disableNext
                                                     ? "bg-description/30 text-description cursor-not-allowed"
                                                     : "bg-primary text-background hover:bg-primary/90"
@@ -340,7 +360,7 @@ export default function SpotlightTutorial({
                                     </div>
                                 </div>
 
-                                <div className="px-5 pb-4 flex items-center justify-center gap-1.5">
+                                <div className="px-5 p-3 md:pb-4 flex items-center justify-center gap-1.5">
                                     {steps.map((_, index) => (
                                         <div
                                             key={index}

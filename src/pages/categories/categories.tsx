@@ -40,6 +40,9 @@ function Categories(){
     const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
     const [tutorialPhase, setTutorialPhaseState] = useState<TutorialPhase | null>(() => getTutorialPhase());
     const [categoryStep, setCategoryStep] = useState(0);
+    const [isMobile, setIsMobile] = useState(() =>
+        typeof window !== "undefined" ? window.innerWidth < 768 : false
+    );
     const hasCategories = categories.length > 0;
 
     const sortOptions: SortOption[] = [
@@ -123,6 +126,15 @@ function Categories(){
         }
     }, [tutorialPhase, hasCategories]);
 
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const completeTutorial = async () => {
         const response = await editUser({ isTutorialCompleted: true });
         if (response.error) {
@@ -146,7 +158,7 @@ function Categories(){
             targetSelector: "[data-tutorial-id='category-create-form']",
             titleKey: "TutorialSpotlightCreateCategoryTitle",
             descriptionKey: "TutorialSpotlightCreateCategoryDescription",
-            position: "left",
+            position: isMobile ? "top" : "left",
             disableNext: !hasCategories
         },
         {

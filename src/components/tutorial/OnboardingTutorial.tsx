@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   FolderOpen,
@@ -115,6 +115,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const step = steps[currentStep];
   const isFirst = currentStep === 0;
@@ -155,6 +156,12 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
       opacity: 0,
     }),
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.innerWidth >= 768) return;
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4">
@@ -198,7 +205,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto md:overflow-hidden pr-1">
+            <div className="flex-1 overflow-y-auto md:overflow-hidden pr-1" ref={scrollRef}>
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={step.id}

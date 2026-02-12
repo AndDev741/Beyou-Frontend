@@ -34,6 +34,9 @@ function Habits(){
     const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
     const [tutorialPhase, setTutorialPhaseState] = useState<TutorialPhase | null>(() => getTutorialPhase());
     const [habitStep, setHabitStep] = useState(0);
+    const [isMobile, setIsMobile] = useState(() =>
+        typeof window !== "undefined" ? window.innerWidth < 768 : false
+    );
     const hasHabits = habits.length > 0;
 
     const sortOptions: SortOption[] = [
@@ -113,6 +116,15 @@ function Habits(){
         setHabitStep(hasHabits ? 1 : 0);
     }, [tutorialPhase, hasHabits]);
 
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const completeTutorial = async () => {
         const response = await editUser({ isTutorialCompleted: true });
         if (response.error) {
@@ -136,7 +148,7 @@ function Habits(){
             targetSelector: "[data-tutorial-id='habit-create-form']",
             titleKey: "TutorialSpotlightCreateHabitTitle",
             descriptionKey: "TutorialSpotlightCreateHabitDescription",
-            position: "left",
+            position: isMobile ? "top" : "left",
             disableNext: !hasHabits
         },
         {

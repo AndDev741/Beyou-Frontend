@@ -142,7 +142,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
             <div
-                className="relative z-10 w-full max-w-xl rounded-2xl border border-primary/25 bg-background p-6 shadow-2xl"
+                className="relative z-10 w-full max-w-xl rounded-2xl border border-primary/25 bg-background p-2 md:p-6 shadow-2xl"
                 data-tutorial-id="routine-schedule-modal"
             >
                 <header className="flex items-center justify-between gap-3">
@@ -167,8 +167,8 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
 
                 <div className="mt-6 grid gap-4 md:grid-cols-[2fr,1fr]">
                     <div className="rounded-xl border border-primary/20 bg-background/80 p-4">
-                        <p className="text-sm font-semibold text-secondary mb-3">{t("Pick your days")}</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 gap-3">
+                        <p className="text-sm font-semibold text-secondary mb-3 text-center">{t("Pick your days")}</p>
+                        <div className="flex flex-wrap justify-center gap-3 md:grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 md:gap-3">
                             {ALL_DAYS.map((day) => {
                                 const isBlocked = blockedSet.has(day) && !overrides.has(day);
                                 const active = selectedDays.includes(day);
@@ -179,12 +179,11 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                         <button
                                             type="button"
                                             className={`flex w-full items-center justify-between rounded-lg border p-2 text-sm font-medium transition
-                                                ${
-                                                    active
-                                                        ? "border-primary bg-primary/10 text-primary shadow-sm"
-                                                        : isBlocked
-                                                            ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
-                                                            : "border-primary/20 bg-background text-secondary hover:border-primary/50"
+                                                ${active
+                                                    ? "border-primary bg-primary/10 text-primary shadow-sm"
+                                                    : isBlocked
+                                                        ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
+                                                        : "border-primary/20 bg-background text-secondary hover:border-primary/50"
                                                 }
                                         `}
                                             onClick={() => toggleDay(day)}
@@ -231,8 +230,8 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                     </div>
 
                     <div className="space-y-3">
-                        <div className="rounded-xl border border-primary/20 bg-background/80 p-4 space-y-3">
-                            <p className="text-sm font-semibold text-secondary">{t("Quick select")}</p>
+                        <div className="flex flex-col items-center rounded-xl border border-primary/20 bg-background/80 p-4 space-y-3">
+                            <p className="text-sm font-semibold text-secondary text-center">{t("Quick select")}</p>
                             <GroupButton
                                 label={t("Mon - Fri")}
                                 active={WEEKDAY_GROUP.every((d) => selectedDays.includes(d))}
@@ -248,15 +247,6 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                 active={ALL_DAYS.every((d) => selectedDays.includes(d))}
                                 onClick={() => toggleGroup(ALL_DAYS)}
                             />
-                        </div>
-
-                        <div className="rounded-xl border border-primary/20 bg-background/80 p-4">
-                            <p className="text-sm font-semibold text-secondary mb-2">{t("Summary")}</p>
-                            <div className="text-xs text-description">
-                                {selectedDays.length > 0
-                                    ? selectedDays.map((day) => t(day)).join(", ")
-                                    : t("No days selected")}
-                            </div>
                             <button
                                 type="button"
                                 className="mt-3 flex items-center gap-2 text-xs text-description hover:text-primary"
@@ -265,6 +255,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                 {t("Reset")}
                             </button>
                         </div>
+
                     </div>
                 </div>
 

@@ -35,7 +35,6 @@ const defaultValues: RoutineSectionFormValues = {
 const CreateRoutineSection = ({
     setRoutineSection,
     editSection,
-    editIndex,
     onUpdateSection,
     onClose,
     routineSections
@@ -121,7 +120,7 @@ const CreateRoutineSection = ({
             <h2 className="text-center mb-4">
                 {editSection ? t("Edit Routine Section") : t("Creating Routine Section")}
             </h2>
-            <div className="flex gap-4">
+            <div className="flex gap-3 md:gap-4">
                 <div className="flex-1 flex flex-col gap-4">
                     <label className="font-medium text-secondary">
                         {t("name")}
@@ -178,7 +177,7 @@ const CreateRoutineSection = ({
                         />
                     </label>
                 </div>
-                <div className="min-w-[223px] flex flex-col items-center">
+                <div className="md:min-w-[223px] flex flex-col items-center">
                     <Controller
                         control={control}
                         name="iconId"

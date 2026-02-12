@@ -49,6 +49,9 @@ const Routine = () => {
     const [hasDailySection, setHasDailySection] = useState(false);
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(() =>
+        typeof window !== "undefined" ? window.innerWidth < 768 : false
+    );
     const navigate = useNavigate();
 
     const hasRoutines = routines.length > 0;
@@ -108,6 +111,15 @@ const Routine = () => {
     }, []);
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
         if (isTutorialCompleted) {
             clearTutorialPhase();
             setTutorialPhaseState(null);
@@ -142,7 +154,7 @@ const Routine = () => {
             targetSelector: "[data-tutorial-id='routine-daily-form']",
             titleKey: "TutorialSpotlightRoutineDailyFormTitle",
             descriptionKey: "TutorialSpotlightRoutineDailyFormDescription",
-            position: "left",
+            position: isMobile ? "top" : "left",
             disableNext: !hasDailySection
         }
         : {
@@ -150,7 +162,7 @@ const Routine = () => {
             targetSelector: "[data-tutorial-id='routine-create-area']",
             titleKey: "TutorialSpotlightRoutineFormTitle",
             descriptionKey: "TutorialSpotlightRoutineFormDescription",
-            position: "left",
+            position: isMobile ? "top" : "left",
             disableNext: !hasRoutines
         };
 
@@ -161,7 +173,7 @@ const Routine = () => {
                 targetSelector: "[data-tutorial-id='routine-add-button']",
                 titleKey: "TutorialSpotlightCreateRoutineTitle",
                 descriptionKey: "TutorialSpotlightCreateRoutineDescription",
-                position: "right",
+                position: isMobile ? "top" : "right",
                 action: "click"
             },
             routineFormStep
@@ -173,7 +185,7 @@ const Routine = () => {
                 targetSelector: "[data-tutorial-id='routine-section-modal']",
                 titleKey: "TutorialSpotlightRoutineSectionModalTitle",
                 descriptionKey: "TutorialSpotlightRoutineSectionModalDescription",
-                position: "right",
+                position: isMobile ? "top" : "right",
                 disableNext: !hasDailySection
             });
         }
@@ -184,14 +196,14 @@ const Routine = () => {
                 targetSelector: "[data-tutorial-id='routine-section-item']",
                 titleKey: "TutorialSpotlightRoutineSectionTitle",
                 descriptionKey: "TutorialSpotlightRoutineSectionDescription",
-                position: "bottom"
+                position: isMobile ? "top" : "bottom"
             },
             {
                 id: "routine-schedule",
                 targetSelector: "[data-tutorial-id='routine-schedule-button']",
                 titleKey: "TutorialSpotlightRoutineScheduleTitle",
                 descriptionKey: "TutorialSpotlightRoutineScheduleDescription",
-                position: "bottom",
+                position: isMobile ? "top" : "bottom",
                 disableNext: !hasScheduleToday
             },
             {
@@ -199,28 +211,38 @@ const Routine = () => {
                 targetSelector: "[data-tutorial-id='routine-schedule-modal']",
                 titleKey: "TutorialSpotlightRoutineScheduleModalTitle",
                 descriptionKey: "TutorialSpotlightRoutineScheduleModalDescription",
-                position: "right",
+                position: isMobile ? "top" : "right",
                 disableNext: !hasScheduleToday
             }
         );
 
         return steps;
-    }, [routineFormStep, routineType, hasDailySection, hasScheduleToday]);
+    }, [routineFormStep, routineType, hasDailySection, hasScheduleToday, isMobile]);
 
     const getStepIndex = (id: string) => routineSteps.findIndex((step) => step.id === id);
 
     const showRoutineSpotlight = !isTutorialCompleted && tutorialPhase === "routines";
 
     useEffect(() => {
+        if (!showRoutineSpotlight) return;
+        if (!isMobile) return;
+        const currentStep = routineSteps[routineStep];
+        if (currentStep?.id === "routine-schedule") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    }, [showRoutineSpotlight, isMobile, routineStep, routineSteps]);
+
+    useEffect(() => {
         if (tutorialPhase !== "routines") return;
         if (isScheduleModalOpen) {
             const modalIndex = getStepIndex("routine-schedule-modal");
-            if (modalIndex >= 0) {
+            if (modalIndex >= 0 && routineStep < modalIndex) {
                 setRoutineStep(modalIndex);
             }
             return;
         }
-        if (hasScheduleToday) {
+        const scheduleModalIndex = getStepIndex("routine-schedule-modal");
+        if (hasScheduleToday && scheduleModalIndex >= 0 && routineStep >= scheduleModalIndex) {
             setTutorialPhase("routines-summary");
             setTutorialPhaseState("routines-summary");
             navigate("/dashboard");
@@ -228,35 +250,37 @@ const Routine = () => {
         }
         if (hasRoutines) {
             const scheduleIndex = getStepIndex("routine-schedule");
-            if (scheduleIndex >= 0) {
+            if (scheduleIndex >= 0 && routineStep < scheduleIndex) {
                 setRoutineStep(scheduleIndex);
             }
             return;
         }
         if (routineType === "daily" && hasDailySection) {
             const sectionIndex = getStepIndex("routine-section");
-            if (sectionIndex >= 0) {
+            if (sectionIndex >= 0 && routineStep < sectionIndex) {
                 setRoutineStep(sectionIndex);
             }
             return;
         }
         if (routineType === "daily" && isSectionModalOpen) {
             const modalIndex = getStepIndex("routine-section-modal");
-            if (modalIndex >= 0) {
+            if (modalIndex >= 0 && routineStep < modalIndex) {
                 setRoutineStep(modalIndex);
             }
             return;
         }
         if (onCreateRoutine) {
             const formIndex = getStepIndex("routine-form");
-            if (formIndex >= 0) {
+            if (formIndex >= 0 && routineStep < formIndex) {
                 setRoutineStep(formIndex);
             }
             return;
         }
         const startIndex = getStepIndex("create-routine");
-        setRoutineStep(startIndex >= 0 ? startIndex : 0);
-    }, [tutorialPhase, onCreateRoutine, hasRoutines, hasScheduleToday, routineType, hasDailySection, isSectionModalOpen, isScheduleModalOpen, navigate, routineSteps]);
+        if (routineStep < (startIndex >= 0 ? startIndex : 0)) {
+            setRoutineStep(startIndex >= 0 ? startIndex : 0);
+        }
+    }, [tutorialPhase, onCreateRoutine, hasRoutines, hasScheduleToday, routineType, hasDailySection, isSectionModalOpen, isScheduleModalOpen, navigate, routineSteps, routineStep]);
 
     return (
         <div className="bg-background text-secondary min-h-screen pb-4">

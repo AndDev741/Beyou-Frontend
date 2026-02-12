@@ -237,7 +237,7 @@ const CreateDailyRoutine = ({
                     onClick={handleOverlayClick}
                 >
                     <div
-                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200"
+                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[99%] relative transition-colors duration-200"
                         data-tutorial-id="routine-section-modal"
                         onClick={(e) => e.stopPropagation()}
                     >
