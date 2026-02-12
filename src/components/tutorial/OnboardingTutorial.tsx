@@ -157,7 +157,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 md:p-4">
       <div className="relative w-full max-w-4xl">
         <button
           type="button"
@@ -168,7 +168,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
           <X className="w-4 h-4" />
         </button>
 
-        <div className="bg-background text-secondary rounded-3xl border border-primary/20 shadow-lg overflow-hidden max-h-[92vh] md:max-h-[85vh] flex flex-col">
+        <div className="bg-background text-secondary rounded-3xl border border-primary/20 shadow-lg overflow-hidden max-h-[92vh] md:max-h-[85vh] md:min-h-[650px] flex flex-col">
           <div className="h-1 bg-description/20">
             <motion.div
               className="h-full bg-primary"
@@ -179,7 +179,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
           </div>
 
           <div className="p-5 md:p-10 flex flex-col gap-6 overflow-hidden">
-            <div className="flex items-center justify-center gap-2 mb-8">
+            <div className="flex items-center justify-center gap-2 md:mb-8">
               {steps.map((s, index) => (
                 <button
                   key={s.id}
@@ -211,28 +211,32 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
                 >
                   <div className="grid md:grid-cols-2 gap-8 md:gap-10">
                     <div className="space-y-6">
-                      <div
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                        style={{ background: step.gradient }}
-                      >
-                        <step.icon className="w-8 h-8 text-white" />
+                      <div className="flex md:flex-col items-start gap-6">
+                        <div
+                          className="p-2 md:w-16 md:h-16 flex items-center justify-center rounded-full"
+                          style={{ background: step.gradient }}
+                        >
+                          <step.icon className="w-8 h-8 text-white" />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold text-primary mb-2">
+                            {t("TutorialStepOf", {
+                              current: currentStep + 1,
+                              total: steps.length,
+                            })}
+                          </p>
+                          <h2 className="text-2xl md:text-3xl font-semibold text-secondary">
+                            {t(step.titleKey)}
+                          </h2>
+                          
+                        </div>
                       </div>
 
-                      <div>
-                        <p className="text-sm font-semibold text-primary mb-2">
-                          {t("TutorialStepOf", {
-                            current: currentStep + 1,
-                            total: steps.length,
-                          })}
-                        </p>
-                        <h2 className="text-3xl font-semibold text-secondary mb-4">
-                          {t(step.titleKey)}
-                        </h2>
-                        <p className="text-description text-lg leading-relaxed">
-                          {t(step.descriptionKey)}
-                        </p>
-                      </div>
-
+                      <p className="text-description text-lg leading-relaxed">
+                        {t(step.descriptionKey)}
+                      </p>
+                      
                       <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
                         <div className="flex items-start gap-3">
                           <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />

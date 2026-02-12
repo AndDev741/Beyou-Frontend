@@ -16,6 +16,7 @@ const AddRoutineButton = ({setOnCreateRoutine, setRoutineType}: addRoutineButton
 
     return (
         <button
+        data-tutorial-id="routine-add-button"
         onClick={handleClick}
             type="button"
             className="

@@ -19,9 +19,14 @@ import { getFriendlyErrorMessage } from "../../services/apiError";
 type RenderRoutinesProps = {
     selectedDate: string;
     routines?: Routine[];
+    onScheduleModalChange?: (isOpen: boolean) => void;
 };
 
-export default function RenderRoutines({ selectedDate, routines: routinesOverride }: RenderRoutinesProps) {
+export default function RenderRoutines({
+    selectedDate,
+    routines: routinesOverride,
+    onScheduleModalChange
+}: RenderRoutinesProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const routinesFromStore = useSelector((state: RootState) => state.routines.routines) || [];
@@ -49,6 +54,12 @@ export default function RenderRoutines({ selectedDate, routines: routinesOverrid
     const handleSchedule = (routine: Routine) => {
         setSelectedRoutine(routine);
         setShowModal(true);
+        onScheduleModalChange?.(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        onScheduleModalChange?.(false);
     };
 
     const handleDelete = async (id: string) => {
@@ -111,7 +122,7 @@ export default function RenderRoutines({ selectedDate, routines: routinesOverrid
             )}
 
             {showModal && selectedRoutine && (
-                <ScheduleModal routine={selectedRoutine} onClose={() => setShowModal(false)} />
+                <ScheduleModal routine={selectedRoutine} onClose={handleCloseModal} />
             )}
         </div>
     );

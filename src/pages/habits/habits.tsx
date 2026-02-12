@@ -125,6 +125,11 @@ function Habits(){
         setTutorialPhaseState(null);
     };
 
+    const advanceToRoutinesFlow = () => {
+        setTutorialPhase("routines-dashboard");
+        setTutorialPhaseState("routines-dashboard");
+    };
+
     const habitSteps: SpotlightStep[] = [
         {
             id: "create-habit",
@@ -153,7 +158,7 @@ function Habits(){
                     isActive={showHabitSpotlight}
                     currentStep={habitStep}
                     onStepChange={setHabitStep}
-                    onComplete={completeTutorial}
+                    onComplete={advanceToRoutinesFlow}
                     onSkip={completeTutorial}
                 />
             )}

@@ -4,6 +4,11 @@ export type TutorialPhase =
     | "categories"
     | "habits-dashboard"
     | "habits"
+    | "routines-dashboard"
+    | "routines"
+    | "routines-summary"
+    | "config-dashboard"
+    | "config"
     | "done";
 
 const STORAGE_KEY = "beyou.tutorial.phase";
@@ -18,6 +23,11 @@ export const getTutorialPhase = (): TutorialPhase | null => {
         raw === "categories" ||
         raw === "habits-dashboard" ||
         raw === "habits" ||
+        raw === "routines-dashboard" ||
+        raw === "routines" ||
+        raw === "routines-summary" ||
+        raw === "config-dashboard" ||
+        raw === "config" ||
         raw === "done"
     ) {
         return raw;

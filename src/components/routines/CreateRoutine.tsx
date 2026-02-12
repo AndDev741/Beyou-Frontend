@@ -6,14 +6,24 @@ import CreateDailyRoutine from './dailyRoutine/CreateDailyRoutine';
 type createRoutineProps = {
     setRoutineType: (value: string) => void;
     routineType: string;
+    onDailySectionChange?: (hasSection: boolean) => void;
+    onSectionModalChange?: (isOpen: boolean) => void;
 };
 
-const CreateRoutine = ({ setRoutineType, routineType }: createRoutineProps) => {
+const CreateRoutine = ({
+    setRoutineType,
+    routineType,
+    onDailySectionChange,
+    onSectionModalChange
+}: createRoutineProps) => {
 
     const { t } = useTranslation();
 
     return (
-        <div className='w-full flex flex-col items-center justify-center text-secondary'>
+        <div
+            className='w-full flex flex-col items-center justify-center text-secondary'
+            data-tutorial-id="routine-create-area"
+        >
             {!routineType && (
                 <div className='w-full flex flex-col items-center justify-center'>
                     <h2 className='text-2xl text-secondary'>{t('Do you want a')}</h2>
@@ -37,7 +47,10 @@ const CreateRoutine = ({ setRoutineType, routineType }: createRoutineProps) => {
 
             {routineType === "daily" && (
                 <div className="mt-2 w-full">
-                    <CreateDailyRoutine />
+                    <CreateDailyRoutine
+                        onSectionChange={onDailySectionChange}
+                        onSectionModalChange={onSectionModalChange}
+                    />
                 </div>
             )}
         </div>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import refreshTokenRequest from './authentication/request/refreshTokenRequest';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8099',
+    baseURL: 'http://192.168.1.78:8099',
     withCredentials: true
 });
 

@@ -19,6 +19,7 @@ export interface SpotlightStep {
     position?: SpotlightPosition;
     action?: "click" | "observe";
     disableNext?: boolean;
+    forceNextLabel?: boolean;
 }
 
 interface SpotlightTutorialProps {
@@ -70,6 +71,7 @@ export default function SpotlightTutorial({
     const setStep = onStepChange ?? setInternalStep;
     const step = steps[stepIndex];
     const isLast = stepIndex === steps.length - 1;
+    const showFinishLabel = isLast && !step?.forceNextLabel;
 
     useEffect(() => {
         if (!isActive) {
@@ -332,7 +334,7 @@ export default function SpotlightTutorial({
                                                     : "bg-primary text-background hover:bg-primary/90"
                                             )}
                                         >
-                                            {isLast ? t("TutorialFinish") : t("TutorialNext")}
+                                            {showFinishLabel ? t("TutorialFinish") : t("TutorialNext")}
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
                                     </div>

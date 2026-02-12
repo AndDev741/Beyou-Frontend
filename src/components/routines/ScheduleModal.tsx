@@ -141,7 +141,10 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-xl rounded-2xl border border-primary/25 bg-background p-6 shadow-2xl">
+            <div
+                className="relative z-10 w-full max-w-xl rounded-2xl border border-primary/25 bg-background p-6 shadow-2xl"
+                data-tutorial-id="routine-schedule-modal"
+            >
                 <header className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                         <div className="rounded-full bg-primary/10 p-2 text-primary">

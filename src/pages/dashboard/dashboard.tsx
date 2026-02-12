@@ -161,6 +161,23 @@ function Dashboard() {
         navigate("/habits");
     };
 
+    const completeRoutinesDashboardSpotlight = () => {
+        setTutorialPhase("routines");
+        setTutorialPhaseState("routines");
+        navigate("/routines");
+    };
+
+    const completeRoutineSummarySpotlight = () => {
+        setTutorialPhase("config-dashboard");
+        setTutorialPhaseState("config-dashboard");
+    };
+
+    const completeConfigDashboardSpotlight = () => {
+        setTutorialPhase("config");
+        setTutorialPhaseState("config");
+        navigate("/configuration");
+    };
+
     const dashboardSteps: SpotlightStep[] = [
         {
             id: "profile",
@@ -190,6 +207,10 @@ function Dashboard() {
     const showDashboardSpotlight = tutorialPhase === "dashboard";
     const showHabitsDashboardSpotlight =
         tutorialPhase === "habits-dashboard" || tutorialPhase === "habits";
+    const showRoutinesDashboardSpotlight =
+        tutorialPhase === "routines-dashboard" || tutorialPhase === "routines";
+    const showRoutineSummarySpotlight = tutorialPhase === "routines-summary";
+    const showConfigDashboardSpotlight = tutorialPhase === "config-dashboard";
 
     const habitsDashboardSteps: SpotlightStep[] = [
         {
@@ -197,6 +218,39 @@ function Dashboard() {
             targetSelector: "[data-tutorial-id='shortcut-habits']",
             titleKey: "TutorialSpotlightHabitsTitle",
             descriptionKey: "TutorialSpotlightHabitsDescription",
+            position: "right",
+            action: "click"
+        }
+    ];
+
+    const routinesDashboardSteps: SpotlightStep[] = [
+        {
+            id: "routines-shortcut",
+            targetSelector: "[data-tutorial-id='shortcut-routines']",
+            titleKey: "TutorialSpotlightRoutinesTitle",
+            descriptionKey: "TutorialSpotlightRoutinesDescription",
+            position: "right",
+            action: "click"
+        }
+    ];
+
+    const routineSummarySteps: SpotlightStep[] = [
+        {
+            id: "routine-today",
+            targetSelector: "[data-tutorial-id='dashboard-routine-today']",
+            titleKey: "TutorialSpotlightRoutineTodayTitle",
+            descriptionKey: "TutorialSpotlightRoutineTodayDescription",
+            position: "bottom",
+            forceNextLabel: true
+        }
+    ];
+
+    const configDashboardSteps: SpotlightStep[] = [
+        {
+            id: "config-shortcut",
+            targetSelector: "[data-tutorial-id='shortcut-configuration']",
+            titleKey: "TutorialSpotlightConfigurationTitle",
+            descriptionKey: "TutorialSpotlightConfigurationDescription",
             position: "right",
             action: "click"
         }
@@ -223,6 +277,30 @@ function Dashboard() {
                     steps={habitsDashboardSteps}
                     isActive={showHabitsDashboardSpotlight}
                     onComplete={completeHabitsDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showRoutinesDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={routinesDashboardSteps}
+                    isActive={showRoutinesDashboardSpotlight}
+                    onComplete={completeRoutinesDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showRoutineSummarySpotlight && (
+                <SpotlightTutorial
+                    steps={routineSummarySteps}
+                    isActive={showRoutineSummarySpotlight}
+                    onComplete={completeRoutineSummarySpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showConfigDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={configDashboardSteps}
+                    isActive={showConfigDashboardSpotlight}
+                    onComplete={completeConfigDashboardSpotlight}
                     onSkip={completeTutorial}
                 />
             )}
