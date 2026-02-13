@@ -6,48 +6,11 @@ import TutorialConfiguration from "../../components/configuration/TutorialConfig
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
-import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
-import editUser from "../../services/user/editUser";
-import { getFriendlyErrorMessage } from "../../services/apiError";
-import { RootState } from "../../redux/rootReducer";
-import { tutorialCompletedEnter } from "../../redux/user/perfilSlice";
-import { clearTutorialPhase, getTutorialPhase } from "../../components/tutorial/tutorialStorage";
+import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
 
 export default function Configuration() {
     useAuthGuard();
-    const { t } = useTranslation();
-    const dispatch = useDispatch();
-    const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
-    const finishingTutorial = useRef(false);
-
-    useEffect(() => {
-        if (finishingTutorial.current) return;
-        if (isTutorialCompleted) {
-            clearTutorialPhase();
-            return;
-        }
-
-        const phase = getTutorialPhase();
-        if (phase !== "config") return;
-        finishingTutorial.current = true;
-
-        const finishTutorial = async () => {
-            const response = await editUser({ isTutorialCompleted: true });
-            if (response.error) {
-                const message = getFriendlyErrorMessage(t, response.error);
-                toast.error(message);
-                finishingTutorial.current = false;
-                return;
-            }
-            dispatch(tutorialCompletedEnter(true));
-            clearTutorialPhase();
-        };
-
-        finishTutorial();
-    }, [dispatch, isTutorialCompleted, t]);
+    useConfigTutorial();
     
     return (
         <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">

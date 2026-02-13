@@ -11,9 +11,6 @@ vi.mock("../../services/goals/getGoals", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
-    default: vi.fn().mockResolvedValue({ success: [] })
-}));
 
 test("shows required errors for create goal", async () => {
     renderWithProviders(<GoalForm mode="create" />);

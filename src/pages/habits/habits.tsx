@@ -5,7 +5,7 @@ import RenderHabits from "../../components/habits/renderHabits";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { habit } from "../../types/habit/habitType";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
@@ -16,12 +16,8 @@ import {
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
-import SpotlightTutorial, { SpotlightStep } from "../../components/tutorial/SpotlightTutorial";
-import { clearTutorialPhase, getTutorialPhase, setTutorialPhase, type TutorialPhase } from "../../components/tutorial/tutorialStorage";
-import editUser from "../../services/user/editUser";
-import { tutorialCompletedEnter } from "../../redux/user/perfilSlice";
-import { toast } from "react-toastify";
-import { getFriendlyErrorMessage } from "../../services/apiError";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useHabitsTutorial } from "../../components/tutorial/hooks/useHabitsTutorial";
 
 function Habits(){
     useAuthGuard();
@@ -31,12 +27,6 @@ function Habits(){
     const isEditMode = useSelector((state: RootState) => state.editHabit.editMode);
     const [habits, setHabits] = useState<habit[]>([]);
     const sortBy = useSelector((state: RootState) => state.viewFilters.habits);
-    const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
-    const [tutorialPhase, setTutorialPhaseState] = useState<TutorialPhase | null>(() => getTutorialPhase());
-    const [habitStep, setHabitStep] = useState(0);
-    const [isMobile, setIsMobile] = useState(() =>
-        typeof window !== "undefined" ? window.innerWidth < 768 : false
-    );
     const hasHabits = habits.length > 0;
 
     const sortOptions: SortOption[] = [
@@ -94,73 +84,14 @@ function Habits(){
         dispatch(setViewSort({ view: "habits", sortBy: value }));
     };
 
-    useEffect(() => {
-        if (isTutorialCompleted) {
-            clearTutorialPhase();
-            setTutorialPhaseState(null);
-            return;
-        }
-        if (!tutorialPhase) {
-            setTutorialPhase("intro");
-            setTutorialPhaseState("intro");
-            return;
-        }
-        if (tutorialPhase === "habits-dashboard") {
-            setTutorialPhase("habits");
-            setTutorialPhaseState("habits");
-        }
-    }, [isTutorialCompleted, tutorialPhase]);
-
-    useEffect(() => {
-        if (tutorialPhase !== "habits") return;
-        setHabitStep(hasHabits ? 1 : 0);
-    }, [tutorialPhase, hasHabits]);
-
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const completeTutorial = async () => {
-        const response = await editUser({ isTutorialCompleted: true });
-        if (response.error) {
-            const message = getFriendlyErrorMessage(t, response.error);
-            toast.error(message);
-            return;
-        }
-        dispatch(tutorialCompletedEnter(true));
-        clearTutorialPhase();
-        setTutorialPhaseState(null);
-    };
-
-    const advanceToRoutinesFlow = () => {
-        setTutorialPhase("routines-dashboard");
-        setTutorialPhaseState("routines-dashboard");
-    };
-
-    const habitSteps: SpotlightStep[] = [
-        {
-            id: "create-habit",
-            targetSelector: "[data-tutorial-id='habit-create-form']",
-            titleKey: "TutorialSpotlightCreateHabitTitle",
-            descriptionKey: "TutorialSpotlightCreateHabitDescription",
-            position: isMobile ? "top" : "left",
-            disableNext: !hasHabits
-        },
-        {
-            id: "habit-list",
-            targetSelector: "[data-tutorial-id='habit-card']",
-            titleKey: "TutorialSpotlightHabitListTitle",
-            descriptionKey: "TutorialSpotlightHabitListDescription",
-            position: "bottom"
-        }
-    ];
-
-    const showHabitSpotlight = !isTutorialCompleted && tutorialPhase === "habits";
+    const {
+        habitSteps,
+        habitStep,
+        setHabitStep,
+        showHabitSpotlight,
+        onComplete,
+        onSkip
+    } = useHabitsTutorial({ hasHabits });
 
     return(
         <div className="bg-background min-h-screen text-secondary flex flex-col">
@@ -170,8 +101,8 @@ function Habits(){
                     isActive={showHabitSpotlight}
                     currentStep={habitStep}
                     onStepChange={setHabitStep}
-                    onComplete={advanceToRoutinesFlow}
-                    onSkip={completeTutorial}
+                    onComplete={onComplete}
+                    onSkip={onSkip}
                 />
             )}
             <Header pageName={"YourHabits"} />

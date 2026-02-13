@@ -24,13 +24,8 @@ import {
 } from "../../components/utils/sortHelpers";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
-import SpotlightTutorial, { SpotlightStep } from "../../components/tutorial/SpotlightTutorial";
-import { clearTutorialPhase, getTutorialPhase, setTutorialPhase, type TutorialPhase } from "../../components/tutorial/tutorialStorage";
-import editUser from "../../services/user/editUser";
-import { tutorialCompletedEnter } from "../../redux/user/perfilSlice";
-import { toast } from "react-toastify";
-import { getFriendlyErrorMessage } from "../../services/apiError";
-import { useNavigate } from "react-router-dom";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
 
 const Routine = () => {
     useAuthGuard();
@@ -43,16 +38,9 @@ const Routine = () => {
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.routines);
-    const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
-    const [tutorialPhase, setTutorialPhaseState] = useState<TutorialPhase | null>(() => getTutorialPhase());
-    const [routineStep, setRoutineStep] = useState(0);
     const [hasDailySection, setHasDailySection] = useState(false);
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-    const [isMobile, setIsMobile] = useState(() =>
-        typeof window !== "undefined" ? window.innerWidth < 768 : false
-    );
-    const navigate = useNavigate();
 
     const hasRoutines = routines.length > 0;
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -110,177 +98,22 @@ const Routine = () => {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    useEffect(() => {
-        if (isTutorialCompleted) {
-            clearTutorialPhase();
-            setTutorialPhaseState(null);
-            return;
-        }
-        if (!tutorialPhase) {
-            setTutorialPhase("intro");
-            setTutorialPhaseState("intro");
-            return;
-        }
-        if (tutorialPhase === "routines-dashboard") {
-            setTutorialPhase("routines");
-            setTutorialPhaseState("routines");
-        }
-    }, [isTutorialCompleted, tutorialPhase]);
-
-    const completeTutorial = async () => {
-        const response = await editUser({ isTutorialCompleted: true });
-        if (response.error) {
-            const message = getFriendlyErrorMessage(t, response.error);
-            toast.error(message);
-            return;
-        }
-        dispatch(tutorialCompletedEnter(true));
-        clearTutorialPhase();
-        setTutorialPhaseState(null);
-    };
-
-    const routineFormStep: SpotlightStep = routineType === "daily"
-        ? {
-            id: "routine-form",
-            targetSelector: "[data-tutorial-id='routine-daily-form']",
-            titleKey: "TutorialSpotlightRoutineDailyFormTitle",
-            descriptionKey: "TutorialSpotlightRoutineDailyFormDescription",
-            position: isMobile ? "top" : "left",
-            disableNext: !hasDailySection
-        }
-        : {
-            id: "routine-form",
-            targetSelector: "[data-tutorial-id='routine-create-area']",
-            titleKey: "TutorialSpotlightRoutineFormTitle",
-            descriptionKey: "TutorialSpotlightRoutineFormDescription",
-            position: isMobile ? "top" : "left",
-            disableNext: !hasRoutines
-        };
-
-    const routineSteps: SpotlightStep[] = useMemo(() => {
-        const steps: SpotlightStep[] = [
-            {
-                id: "create-routine",
-                targetSelector: "[data-tutorial-id='routine-add-button']",
-                titleKey: "TutorialSpotlightCreateRoutineTitle",
-                descriptionKey: "TutorialSpotlightCreateRoutineDescription",
-                position: isMobile ? "top" : "right",
-                action: "click"
-            },
-            routineFormStep
-        ];
-
-        if (routineType === "daily") {
-            steps.push({
-                id: "routine-section-modal",
-                targetSelector: "[data-tutorial-id='routine-section-modal']",
-                titleKey: "TutorialSpotlightRoutineSectionModalTitle",
-                descriptionKey: "TutorialSpotlightRoutineSectionModalDescription",
-                position: isMobile ? "top" : "right",
-                disableNext: !hasDailySection
-            });
-        }
-
-        steps.push(
-            {
-                id: "routine-section",
-                targetSelector: "[data-tutorial-id='routine-section-item']",
-                titleKey: "TutorialSpotlightRoutineSectionTitle",
-                descriptionKey: "TutorialSpotlightRoutineSectionDescription",
-                position: isMobile ? "top" : "bottom"
-            },
-            {
-                id: "routine-schedule",
-                targetSelector: "[data-tutorial-id='routine-schedule-button']",
-                titleKey: "TutorialSpotlightRoutineScheduleTitle",
-                descriptionKey: "TutorialSpotlightRoutineScheduleDescription",
-                position: isMobile ? "top" : "bottom",
-                disableNext: !hasScheduleToday
-            },
-            {
-                id: "routine-schedule-modal",
-                targetSelector: "[data-tutorial-id='routine-schedule-modal']",
-                titleKey: "TutorialSpotlightRoutineScheduleModalTitle",
-                descriptionKey: "TutorialSpotlightRoutineScheduleModalDescription",
-                position: isMobile ? "top" : "right",
-                disableNext: !hasScheduleToday
-            }
-        );
-
-        return steps;
-    }, [routineFormStep, routineType, hasDailySection, hasScheduleToday, isMobile]);
-
-    const getStepIndex = (id: string) => routineSteps.findIndex((step) => step.id === id);
-
-    const showRoutineSpotlight = !isTutorialCompleted && tutorialPhase === "routines";
-
-    useEffect(() => {
-        if (!showRoutineSpotlight) return;
-        if (!isMobile) return;
-        const currentStep = routineSteps[routineStep];
-        if (currentStep?.id === "routine-schedule") {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-    }, [showRoutineSpotlight, isMobile, routineStep, routineSteps]);
-
-    useEffect(() => {
-        if (tutorialPhase !== "routines") return;
-        if (isScheduleModalOpen) {
-            const modalIndex = getStepIndex("routine-schedule-modal");
-            if (modalIndex >= 0 && routineStep < modalIndex) {
-                setRoutineStep(modalIndex);
-            }
-            return;
-        }
-        const scheduleModalIndex = getStepIndex("routine-schedule-modal");
-        if (hasScheduleToday && scheduleModalIndex >= 0 && routineStep >= scheduleModalIndex) {
-            setTutorialPhase("routines-summary");
-            setTutorialPhaseState("routines-summary");
-            navigate("/dashboard");
-            return;
-        }
-        if (hasRoutines) {
-            const scheduleIndex = getStepIndex("routine-schedule");
-            if (scheduleIndex >= 0 && routineStep < scheduleIndex) {
-                setRoutineStep(scheduleIndex);
-            }
-            return;
-        }
-        if (routineType === "daily" && hasDailySection) {
-            const sectionIndex = getStepIndex("routine-section");
-            if (sectionIndex >= 0 && routineStep < sectionIndex) {
-                setRoutineStep(sectionIndex);
-            }
-            return;
-        }
-        if (routineType === "daily" && isSectionModalOpen) {
-            const modalIndex = getStepIndex("routine-section-modal");
-            if (modalIndex >= 0 && routineStep < modalIndex) {
-                setRoutineStep(modalIndex);
-            }
-            return;
-        }
-        if (onCreateRoutine) {
-            const formIndex = getStepIndex("routine-form");
-            if (formIndex >= 0 && routineStep < formIndex) {
-                setRoutineStep(formIndex);
-            }
-            return;
-        }
-        const startIndex = getStepIndex("create-routine");
-        if (routineStep < (startIndex >= 0 ? startIndex : 0)) {
-            setRoutineStep(startIndex >= 0 ? startIndex : 0);
-        }
-    }, [tutorialPhase, onCreateRoutine, hasRoutines, hasScheduleToday, routineType, hasDailySection, isSectionModalOpen, isScheduleModalOpen, navigate, routineSteps, routineStep]);
+    const {
+        routineSteps,
+        routineStep,
+        setRoutineStep,
+        showRoutineSpotlight,
+        onComplete,
+        onSkip
+    } = useRoutinesTutorial({
+        onCreateRoutine,
+        routineType,
+        hasDailySection,
+        isSectionModalOpen,
+        isScheduleModalOpen,
+        hasRoutines,
+        hasScheduleToday
+    });
 
     return (
         <div className="bg-background text-secondary min-h-screen pb-4">
@@ -290,8 +123,8 @@ const Routine = () => {
                     isActive={showRoutineSpotlight}
                     currentStep={routineStep}
                     onStepChange={setRoutineStep}
-                    onComplete={completeTutorial}
-                    onSkip={completeTutorial}
+                    onComplete={onComplete}
+                    onSkip={onSkip}
                 />
             )}
             <Header pageName="Your Routines" />

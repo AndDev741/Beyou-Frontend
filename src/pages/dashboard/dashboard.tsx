@@ -4,7 +4,7 @@ import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
@@ -19,16 +19,12 @@ import { enterGoals } from "../../redux/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
 import getCategories from "../../services/categories/getCategories";
 import WidgetsFabric, { WidgetProps } from "../../components/widgets/utils/widgetsFabric";
-import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter, tutorialCompletedEnter } from "../../redux/user/perfilSlice";
+import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
 import { enterCategories } from "../../redux/category/categoriesSlice";
 import useChangeLanguage from "../../hooks/useChangeLanguage";
 import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
-import SpotlightTutorial, { SpotlightStep } from "../../components/tutorial/SpotlightTutorial";
-import { clearTutorialPhase, getTutorialPhase, setTutorialPhase, type TutorialPhase } from "../../components/tutorial/tutorialStorage";
-import editUser from "../../services/user/editUser";
-import { toast } from "react-toastify";
-import { getFriendlyErrorMessage } from "../../services/apiError";
-import { useNavigate } from "react-router-dom";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
 
 function Dashboard() {
     useAuthGuard();
@@ -53,9 +49,6 @@ function Dashboard() {
     const level = useSelector((state: RootState) => state.perfil.level);
     const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
     const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
-    const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
-    const [tutorialPhase, setTutorialPhaseState] = useState<TutorialPhase | null>(() => getTutorialPhase());
-    const navigate = useNavigate();
 
     const languageInUse = useSelector((state: RootState) => state.perfil.languageInUse);
     console.log("Language in use => ", languageInUse)
@@ -109,152 +102,26 @@ function Dashboard() {
 
     }, [routine]);
 
-    useEffect(() => {
-        if (isTutorialCompleted) {
-            clearTutorialPhase();
-            setTutorialPhaseState(null);
-            return;
-        }
-        if (!tutorialPhase) {
-            setTutorialPhase("intro");
-            setTutorialPhaseState("intro");
-        }
-    }, [isTutorialCompleted, tutorialPhase]);
-
-    useEffect(() => {
-        if (tutorialPhase === "intro") {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-        return () => {
-            document.body.style.overflow = "";
-        };
-    }, [tutorialPhase]);
-
-    const completeTutorial = async () => {
-        const response = await editUser({ isTutorialCompleted: true });
-        if (response.error) {
-            const message = getFriendlyErrorMessage(t, response.error);
-            toast.error(message);
-            return;
-        }
-        dispatch(tutorialCompletedEnter(true));
-        clearTutorialPhase();
-        setTutorialPhaseState(null);
-    };
-
-    const startDashboardSpotlight = () => {
-        setTutorialPhase("dashboard");
-        setTutorialPhaseState("dashboard");
-    };
-
-    const completeDashboardSpotlight = () => {
-        setTutorialPhase("categories");
-        setTutorialPhaseState("categories");
-        navigate("/categories");
-    };
-
-    const completeHabitsDashboardSpotlight = () => {
-        setTutorialPhase("habits");
-        setTutorialPhaseState("habits");
-        navigate("/habits");
-    };
-
-    const completeRoutinesDashboardSpotlight = () => {
-        setTutorialPhase("routines");
-        setTutorialPhaseState("routines");
-        navigate("/routines");
-    };
-
-    const completeRoutineSummarySpotlight = () => {
-        setTutorialPhase("config-dashboard");
-        setTutorialPhaseState("config-dashboard");
-    };
-
-    const completeConfigDashboardSpotlight = () => {
-        setTutorialPhase("config");
-        setTutorialPhaseState("config");
-        navigate("/configuration");
-    };
-
-    const dashboardSteps: SpotlightStep[] = [
-        {
-            id: "profile",
-            targetSelector: "[data-tutorial-id='dashboard-profile']",
-            titleKey: "TutorialSpotlightProfileTitle",
-            descriptionKey: "TutorialSpotlightProfileDescription",
-            position: "bottom"
-        },
-        {
-            id: "shortcuts",
-            targetSelector: "[data-tutorial-id='dashboard-shortcuts']",
-            titleKey: "TutorialSpotlightShortcutsTitle",
-            descriptionKey: "TutorialSpotlightShortcutsDescription",
-            position: "right"
-        },
-        {
-            id: "categories-shortcut",
-            targetSelector: "[data-tutorial-id='shortcut-categories']",
-            titleKey: "TutorialSpotlightCategoriesTitle",
-            descriptionKey: "TutorialSpotlightCategoriesDescription",
-            position: "right",
-            action: "click"
-        }
-    ];
-
-    const showIntroModal = tutorialPhase === "intro";
-    const showDashboardSpotlight = tutorialPhase === "dashboard";
-    const showHabitsDashboardSpotlight =
-        tutorialPhase === "habits-dashboard" || tutorialPhase === "habits";
-    const showRoutinesDashboardSpotlight =
-        tutorialPhase === "routines-dashboard" || tutorialPhase === "routines";
-    const showRoutineSummarySpotlight = tutorialPhase === "routines-summary";
-    const showConfigDashboardSpotlight = tutorialPhase === "config-dashboard";
-
-    const habitsDashboardSteps: SpotlightStep[] = [
-        {
-            id: "habits-shortcut",
-            targetSelector: "[data-tutorial-id='shortcut-habits']",
-            titleKey: "TutorialSpotlightHabitsTitle",
-            descriptionKey: "TutorialSpotlightHabitsDescription",
-            position: "right",
-            action: "click"
-        }
-    ];
-
-    const routinesDashboardSteps: SpotlightStep[] = [
-        {
-            id: "routines-shortcut",
-            targetSelector: "[data-tutorial-id='shortcut-routines']",
-            titleKey: "TutorialSpotlightRoutinesTitle",
-            descriptionKey: "TutorialSpotlightRoutinesDescription",
-            position: "right",
-            action: "click"
-        }
-    ];
-
-    const routineSummarySteps: SpotlightStep[] = [
-        {
-            id: "routine-today",
-            targetSelector: "[data-tutorial-id='dashboard-routine-today']",
-            titleKey: "TutorialSpotlightRoutineTodayTitle",
-            descriptionKey: "TutorialSpotlightRoutineTodayDescription",
-            position: "bottom",
-            forceNextLabel: true
-        }
-    ];
-
-    const configDashboardSteps: SpotlightStep[] = [
-        {
-            id: "config-shortcut",
-            targetSelector: "[data-tutorial-id='shortcut-configuration']",
-            titleKey: "TutorialSpotlightConfigurationTitle",
-            descriptionKey: "TutorialSpotlightConfigurationDescription",
-            position: "right",
-            action: "click"
-        }
-    ];
+    const {
+        showIntroModal,
+        showDashboardSpotlight,
+        showHabitsDashboardSpotlight,
+        showRoutinesDashboardSpotlight,
+        showRoutineSummarySpotlight,
+        showConfigDashboardSpotlight,
+        dashboardSteps,
+        habitsDashboardSteps,
+        routinesDashboardSteps,
+        routineSummarySteps,
+        configDashboardSteps,
+        startDashboardSpotlight,
+        completeDashboardSpotlight,
+        completeHabitsDashboardSpotlight,
+        completeRoutinesDashboardSpotlight,
+        completeRoutineSummarySpotlight,
+        completeConfigDashboardSpotlight,
+        completeTutorial
+    } = useDashboardTutorial();
 
     return (
         <>
