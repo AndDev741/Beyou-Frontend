@@ -16,6 +16,8 @@ import {
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useHabitsTutorial } from "../../components/tutorial/hooks/useHabitsTutorial";
 
 function Habits(){
     useAuthGuard();
@@ -25,6 +27,7 @@ function Habits(){
     const isEditMode = useSelector((state: RootState) => state.editHabit.editMode);
     const [habits, setHabits] = useState<habit[]>([]);
     const sortBy = useSelector((state: RootState) => state.viewFilters.habits);
+    const hasHabits = habits.length > 0;
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -81,8 +84,27 @@ function Habits(){
         dispatch(setViewSort({ view: "habits", sortBy: value }));
     };
 
+    const {
+        habitSteps,
+        habitStep,
+        setHabitStep,
+        showHabitSpotlight,
+        onComplete,
+        onSkip
+    } = useHabitsTutorial({ hasHabits });
+
     return(
         <div className="bg-background min-h-screen text-secondary flex flex-col">
+            {showHabitSpotlight && (
+                <SpotlightTutorial
+                    steps={habitSteps}
+                    isActive={showHabitSpotlight}
+                    currentStep={habitStep}
+                    onStepChange={setHabitStep}
+                    onComplete={onComplete}
+                    onSkip={onSkip}
+                />
+            )}
             <Header pageName={"YourHabits"} />
             <div className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
                 <div className="w-[100%]">

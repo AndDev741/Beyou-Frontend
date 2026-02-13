@@ -14,5 +14,6 @@ export type UserType = {
     actualLevelXp: number,
     constanceIncreaseToday: boolean,
     maxConstance: number,
-    languageInUse: string
+    languageInUse: string,
+    isTutorialCompleted: boolean
 }

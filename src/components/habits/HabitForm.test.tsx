@@ -11,9 +11,6 @@ vi.mock("../../services/habits/getHabits", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
-    default: vi.fn().mockResolvedValue({ success: [] })
-}));
 
 test("shows required errors for create habit", async () => {
     renderWithProviders(<HabitForm mode="create" setHabits={vi.fn()} />);

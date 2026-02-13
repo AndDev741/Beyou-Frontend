@@ -7,10 +7,10 @@ vi.mock('axios', () => {
   const instance: any = vi.fn();
   instance.interceptors = { response: { use: vi.fn() } };
   instance.defaults = { headers: { common: {} } };
-  instance.get = vi.fn();
-  instance.post = vi.fn();
-  instance.put = vi.fn();
-  instance.delete = vi.fn();
+  instance.get = vi.fn(() => Promise.resolve({ data: [] }));
+  instance.post = vi.fn(() => Promise.resolve({ data: {} }));
+  instance.put = vi.fn(() => Promise.resolve({ data: {} }));
+  instance.delete = vi.fn(() => Promise.resolve({ data: {} }));
 
   const axios = {
     create: vi.fn(() => instance),
@@ -61,4 +61,9 @@ if (!window.matchMedia) {
     writable: true,
     value: matchMediaMock,
   });
+}
+
+if (!window.requestAnimationFrame) {
+  window.requestAnimationFrame = (callback: FrameRequestCallback) => window.setTimeout(callback, 0);
+  window.cancelAnimationFrame = (id: number) => window.clearTimeout(id);
 }

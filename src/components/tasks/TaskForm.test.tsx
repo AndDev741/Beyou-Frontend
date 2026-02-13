@@ -11,9 +11,6 @@ vi.mock("../../services/tasks/getTasks", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
-    default: vi.fn().mockResolvedValue({ success: [] })
-}));
 
 test("shows required errors for create task", async () => {
     renderWithProviders(<TaskForm mode="create" setTasks={vi.fn()} />);

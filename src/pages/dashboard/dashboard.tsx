@@ -22,6 +22,9 @@ import WidgetsFabric, { WidgetProps } from "../../components/widgets/utils/widge
 import { checkedItemsInScheduledRoutineEnter, totalItemsInScheduledRoutineEnter } from "../../redux/user/perfilSlice";
 import { enterCategories } from "../../redux/category/categoriesSlice";
 import useChangeLanguage from "../../hooks/useChangeLanguage";
+import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
 
 function Dashboard() {
     useAuthGuard();
@@ -99,8 +102,75 @@ function Dashboard() {
 
     }, [routine]);
 
+    const {
+        showIntroModal,
+        showDashboardSpotlight,
+        showHabitsDashboardSpotlight,
+        showRoutinesDashboardSpotlight,
+        showRoutineSummarySpotlight,
+        showConfigDashboardSpotlight,
+        dashboardSteps,
+        habitsDashboardSteps,
+        routinesDashboardSteps,
+        routineSummarySteps,
+        configDashboardSteps,
+        startDashboardSpotlight,
+        completeDashboardSpotlight,
+        completeHabitsDashboardSpotlight,
+        completeRoutinesDashboardSpotlight,
+        completeRoutineSummarySpotlight,
+        completeConfigDashboardSpotlight,
+        completeTutorial
+    } = useDashboardTutorial();
+
     return (
         <>
+            {showIntroModal && (
+                <OnboardingTutorial
+                    onComplete={startDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={dashboardSteps}
+                    isActive={showDashboardSpotlight}
+                    onComplete={completeDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showHabitsDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={habitsDashboardSteps}
+                    isActive={showHabitsDashboardSpotlight}
+                    onComplete={completeHabitsDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showRoutinesDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={routinesDashboardSteps}
+                    isActive={showRoutinesDashboardSpotlight}
+                    onComplete={completeRoutinesDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showRoutineSummarySpotlight && (
+                <SpotlightTutorial
+                    steps={routineSummarySteps}
+                    isActive={showRoutineSummarySpotlight}
+                    onComplete={completeRoutineSummarySpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
+            {showConfigDashboardSpotlight && (
+                <SpotlightTutorial
+                    steps={configDashboardSteps}
+                    isActive={showConfigDashboardSpotlight}
+                    onComplete={completeConfigDashboardSpotlight}
+                    onSkip={completeTutorial}
+                />
+            )}
             <div>
                 <div className="lg:flex lg:justify-between items-start">
                     <div className="flex flex-col lg:w-full">

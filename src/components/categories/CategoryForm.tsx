@@ -144,7 +144,10 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory }: CategoryFor
     };
 
     return (
-        <div className="bg-background">
+        <div
+            className="bg-background"
+            data-tutorial-id={mode === "create" ? "category-create-form" : undefined}
+        >
             <div className="flex items-center justify-center text-3xl font-semibold">
                 <CgAddR className="w-[40px] h-[40px] mr-1" />
                 <h2>{t(mode === "edit" ? "EditCategory" : "CreateCategory")}</h2>
@@ -214,9 +217,9 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory }: CategoryFor
                                         setValue={field.onChange}
                                         errorPhrase={errors.experience?.message ?? ""}
                                         valuesToSelect={[
-                                            { value: 0, title: "Begginer" },
-                                            { value: 1, title: "Intermediary" },
-                                            { value: 2, title: "Advanced" }
+                                            { value: 0, title: t("Begginer") },
+                                            { value: 1, title: t("Intermediary") },
+                                            { value: 2, title: t("Advanced") }
                                         ]}
                                         title={t("YourExperience")}
                                         t={t}

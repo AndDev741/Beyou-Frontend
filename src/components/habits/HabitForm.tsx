@@ -191,7 +191,10 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
     };
 
     return (
-        <div className="bg-background">
+        <div
+            className="bg-background"
+            data-tutorial-id={mode === "create" ? "habit-create-form" : undefined}
+        >
             <div className="flex text-3xl items-center justify-center mt-3 mb-3">
                 <CgAddR className="w-[40px] h-[40px] mr-1" />
                 <h1>{t(mode === "edit" ? "EditHabit" : "CreateHabit")}</h1>

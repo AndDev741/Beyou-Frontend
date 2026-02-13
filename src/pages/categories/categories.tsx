@@ -19,6 +19,8 @@ import {
   sortItems
 } from "../../components/utils/sortHelpers";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useCategoriesTutorial } from "../../components/tutorial/hooks/useCategoriesTutorial";
 // import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
 
 function Categories(){
@@ -31,6 +33,7 @@ function Categories(){
     // const [generatedCategory, setGeneratedCategory] = useState<categoryGeneratedByAi>({categoryName: "", description: ""});
     const categories = useSelector((state: RootState) => state.categories.categories) || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.categories);
+    const hasCategories = categories.length > 0;
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -91,9 +94,28 @@ function Categories(){
         }
         returnCategories();
     }, [t]);
+
+    const {
+        categorySteps,
+        categoryStep,
+        setCategoryStep,
+        showCategorySpotlight,
+        onComplete,
+        onSkip
+    } = useCategoriesTutorial({ hasCategories });
     
     return(
         <div className="bg-background min-h-screen text-secondary">
+            {showCategorySpotlight && (
+                <SpotlightTutorial
+                    steps={categorySteps}
+                    isActive={showCategorySpotlight}
+                    currentStep={categoryStep}
+                    onStepChange={setCategoryStep}
+                    onComplete={onComplete}
+                    onSkip={onSkip}
+                />
+            )}
             <Header pageName={"YourCategories"}/>
             <main className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
                 <div className="w-[100%]">

@@ -20,7 +20,13 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { routineFormSchema } from "../../../validation/forms/routineSchemas";
 
-const CreateDailyRoutine = () => {
+const CreateDailyRoutine = ({
+    onSectionChange,
+    onSectionModalChange
+}: {
+    onSectionChange?: (hasSection: boolean) => void;
+    onSectionModalChange?: (isOpen: boolean) => void;
+}) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [routineSection, setRoutineSection] = useState<RoutineSection[]>([]);
@@ -50,6 +56,20 @@ const CreateDailyRoutine = () => {
     useEffect(() => {
         setValue("routineSections", routineSection, { shouldValidate: true });
     }, [routineSection, setValue]);
+
+    useEffect(() => {
+        onSectionChange?.(routineSection.length > 0);
+        return () => {
+            onSectionChange?.(false);
+        };
+    }, [routineSection, onSectionChange]);
+
+    useEffect(() => {
+        onSectionModalChange?.(showModal);
+        return () => {
+            onSectionModalChange?.(false);
+        };
+    }, [showModal, onSectionModalChange]);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -121,7 +141,10 @@ const CreateDailyRoutine = () => {
     };
 
     return (
-        <div className="w-full flex flex-col items-center justify-center text-secondary">
+        <div
+            className="w-full flex flex-col items-center justify-center text-secondary"
+            data-tutorial-id="routine-daily-form"
+        >
             <h2 className="text-2xl text-secondary">{t("Creating daily routine")}</h2>
 
             <div className="relative md:w-[95%] flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
@@ -144,6 +167,7 @@ const CreateDailyRoutine = () => {
 
                 <button
                     className="absolute top-3 right-3 flex flex-col items-center"
+                    data-tutorial-id="routine-add-section"
                     onClick={() => {
                         setShowModal(true);
                         setEditIndex(null);
@@ -176,6 +200,7 @@ const CreateDailyRoutine = () => {
                                                     ref={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     className="flex items-start w-full"
+                                                    data-tutorial-id={index === 0 ? "routine-section-item" : undefined}
                                                 >
                                                     <div
                                                         {...provided.dragHandleProps}
@@ -212,7 +237,8 @@ const CreateDailyRoutine = () => {
                     onClick={handleOverlayClick}
                 >
                     <div
-                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200"
+                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[99%] relative transition-colors duration-200"
+                        data-tutorial-id="routine-section-modal"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <CreateRoutineSection
@@ -240,7 +266,7 @@ const CreateDailyRoutine = () => {
                 </div>
             )}
             <div className="my-2 mb-6 flex flex-col items-center">
-                <Button text={t("create")} mode="create" size="big" onClick={handleSubmit(onSubmit)} />
+                <Button text={t("create")} mode="create" size="big" onClick={handleSubmit(onSubmit)} type="submit" />
                 {errors.routineSections?.message && (
                     <p className="text-center text-error mt-2">{errors.routineSections?.message}</p>
                 )}

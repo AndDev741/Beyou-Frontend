@@ -24,6 +24,8 @@ import {
 } from "../../components/utils/sortHelpers";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
 
 const Routine = () => {
     useAuthGuard();
@@ -36,6 +38,16 @@ const Routine = () => {
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.routines);
+    const [hasDailySection, setHasDailySection] = useState(false);
+    const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+
+    const hasRoutines = routines.length > 0;
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const todayName = dayNames[new Date().getDay()];
+    const hasScheduleToday = routines.some((routine) =>
+        routine.schedule?.days?.includes(todayName)
+    );
 
     const sortOptions: SortOption[] = [
         { value: "default", label: t("Default order") },
@@ -86,8 +98,35 @@ const Routine = () => {
         fetchData();
     }, []);
 
+    const {
+        routineSteps,
+        routineStep,
+        setRoutineStep,
+        showRoutineSpotlight,
+        onComplete,
+        onSkip
+    } = useRoutinesTutorial({
+        onCreateRoutine,
+        routineType,
+        hasDailySection,
+        isSectionModalOpen,
+        isScheduleModalOpen,
+        hasRoutines,
+        hasScheduleToday
+    });
+
     return (
         <div className="bg-background text-secondary min-h-screen pb-4">
+            {showRoutineSpotlight && (
+                <SpotlightTutorial
+                    steps={routineSteps}
+                    isActive={showRoutineSpotlight}
+                    currentStep={routineStep}
+                    onStepChange={setRoutineStep}
+                    onComplete={onComplete}
+                    onSkip={onSkip}
+                />
+            )}
             <Header pageName="Your Routines" />
             <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
                 <RoutineSummary
@@ -107,7 +146,11 @@ const Routine = () => {
                             quickValues={["name-asc", "level-desc", "xp-desc"]}
                             className="mb-4"
                         />
-                        <RenderRoutines selectedDate={selectedDate} routines={sortedRoutines} />
+                        <RenderRoutines
+                            selectedDate={selectedDate}
+                            routines={sortedRoutines}
+                            onScheduleModalChange={setIsScheduleModalOpen}
+                        />
                     </div>
 
                     <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">
@@ -127,7 +170,10 @@ const Routine = () => {
 
                                 {onCreateRoutine && (
                                     <div className="mt-4 w-full">
-                                        <CreateRoutine setRoutineType={setRoutineType}
+                                        <CreateRoutine
+                                            setRoutineType={setRoutineType}
+                                            onDailySectionChange={setHasDailySection}
+                                            onSectionModalChange={setIsSectionModalOpen}
                                             routineType={routineType} />
                                     </div>
                                 )}

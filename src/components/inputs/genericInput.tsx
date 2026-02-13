@@ -11,7 +11,7 @@ type genericInputProps = {
 }
 function GenericInput({t, dataError, name, setData, data, placeholder, type = "text"}: genericInputProps){
     const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
-    const labelCss = "text-2xl md:text-xl mt-2 text-secondary";
+    const labelCss = "text-lg md:text-2xl md:text-xl mt-2 text-secondary";
     const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
     return(
         <>

@@ -17,7 +17,8 @@ import {
     actualLevelXpEnter,
     alreadyIncreaseConstanceTodayEnter,
     maxConstanceEnter,
-    languageInUserEnter
+    languageInUserEnter,
+    tutorialCompletedEnter
 } from "../../redux/user/perfilSlice";
 import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 // types
@@ -58,6 +59,7 @@ export default async function handleLogin(
         dispatch(alreadyIncreaseConstanceTodayEnter(data.constanceIncreaseToday));
         dispatch(maxConstanceEnter(data.maxConstance));
         dispatch(languageInUserEnter(data.languageInUse));
+        dispatch(tutorialCompletedEnter(Boolean(data?.isTutorialCompleted)));
         navigate("/dashboard");
         return null;
     }
