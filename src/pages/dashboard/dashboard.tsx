@@ -72,7 +72,7 @@ function Dashboard() {
             dispatch(enterCategories(categories.success));
         }
         fetchRoutines();
-    }, [dispatch, t])
+    }, [dispatch])
 
     useEffect(() => {
         if (!routine) return;

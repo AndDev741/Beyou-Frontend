@@ -6,6 +6,25 @@ const instance = axios.create({
     withCredentials: true
 });
 
+let refreshPromise: Promise<string> | null = null;
+
+const getRefreshedAccessToken = async () => {
+    if (!refreshPromise) {
+        refreshPromise = refreshTokenRequest()
+            .then(response => {
+                const accessToken = response.headers["accesstoken"];
+                if (!accessToken) {
+                    throw new Error("No access token in refresh response");
+                }
+                return accessToken;
+            })
+            .finally(() => {
+                refreshPromise = null;
+            });
+    }
+    return refreshPromise;
+};
+
 instance.interceptors.response.use(
     response => response,
     async error => {
@@ -22,11 +41,13 @@ instance.interceptors.response.use(
         if(error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const response = await refreshTokenRequest();
-                const accessToken = response.headers["accesstoken"];
+                const accessToken = await getRefreshedAccessToken();
 
                 console.log("NEW TOKEN => ", accessToken);
                 instance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+                if (!originalRequest.headers) {
+                    originalRequest.headers = {};
+                }
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
                 return instance(originalRequest);
