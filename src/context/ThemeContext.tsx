@@ -24,6 +24,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     console.log("theme => ", theme);
 
     useEffect(() => {
+        setTheme(userTheme ? userTheme : prefersDark ? defaultDark : defaultLight);
+    }, [userTheme, prefersDark]);
+
+    useEffect(() => {
         const root = document.documentElement;
 
         root.style.setProperty("--background", theme.background);
