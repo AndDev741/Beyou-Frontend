@@ -284,6 +284,7 @@
     "PhotoPreviewInfo": "Photo preview",
     "ImageURL": "Image URL",
     "EnterPhotoURL": "Enter photo URL",
+    "PhotoUrlHelper": "We don't support image uploads yet. Paste an image link instead (Find some here: pinterest.com).",
     "Widgets": "Widgets",
     "Drag and drop to add": "Drag and drop to add",
     "Current": "Current",

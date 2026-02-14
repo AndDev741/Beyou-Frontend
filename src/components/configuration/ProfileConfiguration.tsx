@@ -313,6 +313,9 @@ function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, onSave, t }: EditPho
                         {...register("photo")}
                         className="border border-primary rounded-lg p-3 outline-none w-full bg-background text-secondary placeholder:text-placeholder focus:ring-2 focus:ring-primary/40 transition duration-150"
                     />
+                    <p className="text-xs text-description">
+                        {t("PhotoUrlHelper")}
+                    </p>
                     {errors.photo?.message && (
                         <p className="text-xs text-error mt-1">{errors.photo?.message}</p>
                     )}
