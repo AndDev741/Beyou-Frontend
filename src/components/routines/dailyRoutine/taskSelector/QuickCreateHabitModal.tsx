@@ -255,7 +255,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
 
                 <div className="flex w-full items-center justify-evenly mt-2">
                     <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={closeAndReset} />
-                    <Button text={t("Create")} mode="create" size="medium" />
+                    <Button text={t("Create")} mode="create" size="medium" type="submit" />
                 </div>
             </form>
         </Modal>
