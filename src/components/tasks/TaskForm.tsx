@@ -221,7 +221,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                                     setDescription={field.onChange}
                                     descriptionError={errors.description?.message ?? ""}
                                     placeholder="Important to keep things organized"
-                                    minH={mode === "edit" ? 100 : 0}
+                                    minH={mode === "edit" ? 134 : 99}
                                 />
                             )}
                         />

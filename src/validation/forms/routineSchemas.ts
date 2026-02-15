@@ -13,7 +13,8 @@ export const routineSectionSchema = (t: TFunction) =>
         iconId: z.string().optional(),
         taskGroup: z.array(z.any()).optional(),
         habitGroup: z.array(z.any()).optional(),
-        order: z.number().optional()
+        order: z.number().optional(),
+        favorite: z.boolean().optional()
     });
 
 export const routineFormSchema = (t: TFunction) =>

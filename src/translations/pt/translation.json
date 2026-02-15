@@ -55,7 +55,11 @@
     "Intermediary": "Mediano",
     "Advanced": "Avançado",
     "Icon": "Ícone",
-    "IconPlaceholder": "Book (Escreva em inglês)",
+    "IconPlaceholder": "Busque um ícone ou emoji",
+    "IconCategoryAll": "Todos",
+    "IconCategoryRecents": "Recentes",
+    "IconCategoryMore": "Mais categorias",
+    "IconNoResults": "Nenhum ícone encontrado para esta busca.",
     "Create": "Criar",
 
     "YupDescriptionMaxValue": "Descrição não pode exceder o máximo de 256 caracteres",

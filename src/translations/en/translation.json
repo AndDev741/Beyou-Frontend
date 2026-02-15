@@ -55,7 +55,11 @@
     "Intermediary": "Intermediary",
     "Advanced": "Advanced",
     "Icon": "Icon",
-    "IconPlaceholder": "Book",
+    "IconPlaceholder": "Search icon or emoji",
+    "IconCategoryAll": "All",
+    "IconCategoryRecents": "Recents",
+    "IconCategoryMore": "More categories",
+    "IconNoResults": "No icons found for this search.",
     "Create": "Create",
 
     "YupDescriptionMaxValue": "Description can't excede a max of 256 characters",
