@@ -51,10 +51,10 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const isAddBlocked = blockingErrors.length > 0;
 
     return (
-        <div className="flex flex-col items-center justify-start w-full border-2 border-primary rounded-lg p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
+        <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-primary rounded-lg p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
 
-            <div className="w-full flex flex-col items-start justify-evenly">
-                <div className="flex flex-col items-center justify-start w-full my-1 mx-2">
+                <div className="w-full max-w-full min-w-0 flex flex-col items-start justify-evenly">
+                <div className="flex flex-col items-center justify-start w-full my-1 px-2">
                     <h2 className="font-medium text-secondary">{t("Put the start and end time of this item")}</h2>
                     <p className="text-sm text-center text-description">{t('Need to fit between the section time')}</p>
                     <div className="flex flex-wrap items-center justify-center gap-3">
@@ -89,7 +89,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     )}
                 </div>
 
-                <div className="w-full flex overflow-auto items-start gap-2 justify-start"
+                <div className="w-full max-w-full min-w-0 flex flex-nowrap overflow-x-auto items-start gap-2 justify-start"
                     ref={habitScroll.ref}
                     onMouseDown={habitScroll.onMouseDown}
                     onMouseLeave={habitScroll.onMouseLeave}
@@ -113,7 +113,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     ))}
                 </div>
 
-                <div className="w-full flex overflow-auto items-start gap-2 justify-start"
+                <div className="w-full max-w-full min-w-0 flex flex-nowrap overflow-x-auto items-start gap-2 justify-start"
                     ref={taskScroll.ref}
                     onMouseDown={taskScroll.onMouseDown}
                     onMouseLeave={taskScroll.onMouseLeave}

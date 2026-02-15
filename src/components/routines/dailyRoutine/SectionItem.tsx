@@ -176,16 +176,16 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             const disableSave = itemTimeErrors.length > 0;
 
             return (
-                <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between my-1 bg-background transition-colors duration-200">
-                    <div className="flex items-center">
+                <div key={`${item.type}-${item.id}`} className="w-full flex items-center my-1 bg-background transition-colors duration-200 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 w-full min-w-0">
                         <input type="checkbox" className="accent-primary w-6 h-6 rounded-lg border border-primary/30 bg-background transition-colors duration-200" />
-                        <span className="text-sm md:text-md text-secondary ml-2">
+                        <span className="text-sm md:text-md text-secondary ml-2 min-w-0">
                             {itemObj.name}
                         </span>
                         <span className="mx-1 md:mx-2 text-description">-</span>
 
                         {isEditing ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2 min-w-0">
                                 <input
                                     type="time"
                                     value={editingItem.startTime}
@@ -229,7 +229,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                     Cancelar
                                 </button>
                                 {itemTimeErrorMessage && (
-                                    <span className="text-error text-xs ml-2">{itemTimeErrorMessage}</span>
+                                    <span className="text-error text-xs break-words w-full mt-1">{itemTimeErrorMessage}</span>
                                 )}
                             </div>
                         ) : (
@@ -262,7 +262,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     };
 
     return (
-        <div className="flex flex-col items-start justify-start w-full">
+        <div className="flex flex-col items-start justify-start w-full max-w-full min-w-0 flex-1">
             {/* Section  Header */}
             <div className="w-full flex items-center justify-between py-2">
                 <div className="flex items-center gap-2 w-full">
@@ -308,7 +308,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             </div>
 
             {/* Task or Habit Added and to add */}
-            <div className="w-full flex items-start justify-starthover:cursor-pointer"
+            <div className="w-full flex items-start justify-starthover:cursor-pointer min-w-0"
                 onClick={() => setOpenTaskSelector(!openTaskSelector)}
             >
                 <button
@@ -323,7 +323,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             </div>
 
             {openTaskSelector && (
-                <div className="w-[100%] md:w-full flex flex-col items-center justify-center">
+                <div className="w-full max-w-full min-w-0 flex flex-col items-center justify-center self-stretch">
                     <TaskAndHabitSelector
                         setRoutineSection={setRoutineSection}
                         index={index}
