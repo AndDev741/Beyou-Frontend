@@ -231,18 +231,18 @@ const CreateRoutineSection = ({
                             <div key={section.id} className="w-full flex items-center justify-between py-2">
                                 <div className="flex items-center gap-2 w-full">
                                     {Icon && (
-                                        <span className="text-[30px] text-icon">
+                                        <span className="text-[25px] md:text-[30px] text-icon">
                                             <Icon />
                                         </span>
                                     )}
-                                    <span className="text-xl font-semibold text-primary line-clamp-1">
+                                    <span className="text-md md:text-xl font-semibold text-primary line-clamp-1">
                                         {section.name}
                                     </span>
-                                    <span>{formatTimeRange(section.startTime, section.endTime)}</span>
+                                    <span className="text-xs md:text-md">{formatTimeRange(section.startTime, section.endTime)}</span>
                                 </div>
 
                                 <button
-                                    className="hover:text-primary hover:scale-105"
+                                    className="text-xs md:text-md hover:text-primary hover:scale-105 border border-primary rounded-md px-2 py-1 transition-all duration-200"
                                     onClick={() => handleUseFavorite(section)}
                                 >
                                     {t("Use")}

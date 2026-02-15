@@ -223,7 +223,7 @@ const EditDailyRoutine = () => {
                     onClick={handleOverlayClick}
                 >
                     <div
-                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200"
+                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-5 md:p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <CreateRoutineSection
