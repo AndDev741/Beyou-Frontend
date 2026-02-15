@@ -179,8 +179,8 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory }: CategoryFor
                                     placeholder="DescriptionPlaceholder"
                                     setDescription={field.onChange}
                                     descriptionError={errors.description?.message ?? ""}
-                                    minH={mode === "edit" ? 178 : 195}
-                                    minHSmallScreen={mode === "edit" ? 110 : 195}
+                                    minH={mode === "edit" ? 178 : 231}
+                                    minHSmallScreen={mode === "edit" ? 145 : 231}
                                     t={t}
                                 />
                             )}
@@ -201,7 +201,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory }: CategoryFor
                                     iconError={errors.iconId?.message ?? ""}
                                     setSelectedIcon={field.onChange}
                                     selectedIcon={field.value}
-                                    minLgH={mode === "edit" ? 273 : 200}
+                                    minLgH={mode === "edit" ? 233 : 200}
                                     minHSmallScreen={mode === "edit" ? 200 : undefined}
                                 />
                             )}

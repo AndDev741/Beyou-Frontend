@@ -227,8 +227,8 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
                                     setDescription={field.onChange}
                                     descriptionError={errors.description?.message ?? ""}
                                     placeholder="HabitDescriptionPlaceholder"
-                                    minH={mode === "edit" ? 75 : 178}
-                                    minHSmallScreen={mode === "edit" ? undefined : 110}
+                                    minH={mode === "edit" ? 110 : 213}
+                                    minHSmallScreen={mode === "edit" ? 123 : 146}
                                 />
                             )}
                         />

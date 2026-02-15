@@ -130,15 +130,15 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 }
                             }}
                         />
-                        <span className={`text-md ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
+                        <span className={`text-sm md:text-lg ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
                             {itemObj.name}
                         </span>
-                        <span className="mx-2 text-secondary">-</span>
-                        <span className="text-center text-primary text-lg">
+                        <span className="mx-1 md:mx-2 text-secondary">-</span>
+                        <span className="text-center text-primary text-xs md:text-lg">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>
                         {skipped && (
-                            <span className="ml-3 text-xs font-semibold uppercase tracking-wide text-description">
+                            <span className="ml-2 md:ml-3 text-xs font-semibold uppercase tracking-wide text-description">
                                 {t("Skipped")}
                             </span>
                         )}
@@ -173,11 +173,6 @@ export default function RoutineSection({ section, routineId}: { section: section
                             {skipped ? t("Undo skip") : t("Skip")}
                         </button>
                     )}
-                    {/* <Notify 
-                        text={notifyText}
-                        open={openNotify}
-                        onClose={() => setOpenNotify(false)}
-                    /> */}
                 </div>
             );
         });
@@ -187,8 +182,8 @@ export default function RoutineSection({ section, routineId}: { section: section
         <div className="flex flex-col items-start justify-center w-full h-full">
             <div className="flex items-center gap-2">
                 {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
-                <span className="text-xl font-bold text-primary line-clamp-1">{section.name}
-                <span className="ml-4 text-lg text-description">
+                <span className="text-lg md:text-xl font-bold text-primary line-clamp-1">{section.name}
+                <span className="ml-2 md:ml-4 text-md md:text-lg text-description">
                         {formatTimeRange(section.startTime, section.endTime)}
                 </span>
             </span>

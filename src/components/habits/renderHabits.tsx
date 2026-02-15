@@ -31,7 +31,7 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
 
     return(
         <div
-            className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4 text-secondary"
+            className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3 text-secondary"
             data-tutorial-id="habits-grid"
         >
             {habits.map((habit, index) => (

@@ -61,15 +61,15 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
     }
 
     return(
-        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[300px]" : "min-h-[150px]"} border border-primary rounded-md p-3 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary shadow-sm`}>
+        <div className={`w-full relative flex flex-col justify-between ${expanded ? "min-h-[300px]" : "min-h-[176px]"} border border-primary rounded-md p-3 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary shadow-sm`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
-                    <p className="text-icon text-[34px]">
+                    <p className="text-icon text-[30px] md:text-[34px]">
                         {Icon !== undefined ? <Icon.IconComponent/> : null}
                     </p>
-                    <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
+                    <h2 className={`text-lg md:text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
                 </div>
-                <img className="w-[30px] cursor-pointer"
+                <img className="w-[25px] md:w-[30px] cursor-pointer"
                 alt={t('ExpandBoxImgAlt')}
                 src={expandendIcon}
                 onClick={handleExpanded}/>

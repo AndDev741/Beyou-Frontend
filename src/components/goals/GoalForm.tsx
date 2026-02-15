@@ -230,8 +230,8 @@ function GoalForm({ mode }: GoalFormProps) {
                                     setDescription={field.onChange}
                                     placeholder="GoalDescriptionPlaceholder"
                                     descriptionError={errors.description?.message ?? ""}
-                                    minH={178}
-                                    minHSmallScreen={102}
+                                    minH={213}
+                                    minHSmallScreen={140}
                                     t={t}
                                 />
                             )}
