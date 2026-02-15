@@ -77,7 +77,8 @@ const CreateRoutineSection = ({
             startTime: values.startTime,
             endTime: values.endTime || "",
             iconId: values.iconId || "",
-            order: 0
+            order: 0,
+            favorite: false
         };
         setRoutineSection((prev: RoutineSection[]) => [...prev, newSection]);
         reset(defaultValues);
@@ -94,7 +95,8 @@ const CreateRoutineSection = ({
                 iconId: values.iconId || "",
                 taskGroup: editSection?.taskGroup || [],
                 habitGroup: editSection?.habitGroup || [],
-                order: editSection?.order || 0
+                order: editSection?.order || 0,
+                favorite: editSection?.favorite ?? false
             };
             onUpdateSection(updatedSection);
         }
