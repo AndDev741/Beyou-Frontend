@@ -222,7 +222,7 @@ const CreateDailyRoutine = ({
                                         </Draggable>
                                     ))
                                 ) : (
-                                    <p className="text-description">{t("No sections added")}</p>
+                                    <p className="text-description text-center">{t("No sections added")}</p>
                                 )}
                                 {provided.placeholder}
                             </div>

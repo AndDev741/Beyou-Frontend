@@ -26,6 +26,8 @@ type CategoryFormProps = {
     mode: CategoryFormMode;
     dispatchFunction: any;
     generatedCategory?: categoryGeneratedByAi;
+    onCreated?: (values: { name: string; description: string; iconId: string }) => void;
+    onClose?: () => void;
 };
 
 type CategoryFormValues = {
@@ -42,7 +44,7 @@ const defaultValues: CategoryFormValues = {
     iconId: ""
 };
 
-function CategoryForm({ mode, dispatchFunction, generatedCategory }: CategoryFormProps) {
+function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, onClose }: CategoryFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
@@ -124,6 +126,12 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory }: CategoryFor
             if (mode === "edit") {
                 toast.success(t("edited successfully"));
             } else {
+                onCreated?.({
+                    name: values.name,
+                    description: values.description,
+                    iconId: values.iconId
+                });
+                onClose?.();
                 reset(defaultValues);
                 setSearch("");
                 toast.success(t("created successfully"));

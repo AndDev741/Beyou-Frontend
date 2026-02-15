@@ -45,6 +45,7 @@
     "YourCategories": "Your Categories",
     "ReturnPageAlt": "Arrow pointing to back",
     "CreateCategory": "Create Category",
+    "AddCategory": "Add Category",
     "CreateCategoryImgAlt": "Square with plus signal",
     "Name": "Name",
     "CategoryNamePlaceholder": "Study",
@@ -77,6 +78,8 @@
     "Habits": "Habits",
     "YourHabits": "Your Habits",
     "CreateHabit": "Create Habit",
+    "NewHabit": "New Habit",
+    "QuickCreateHabitTitle": "Quick Create Habit",
     "HabitImgAlt": "Book icon",
     "HabitNamePlaceholder": "Read",
     "MotivationPhrase": "Motivational Phrase",
@@ -167,6 +170,8 @@
 
     "Start creating amazing tasks to organize your day!": "Start creating amazing tasks to organize your day!",
     "Create Task": "Create Task",
+    "NewTask": "New Task",
+    "QuickCreateTaskTitle": "Quick Create Task",
     "Clean the house": "Clean the house",
     "Important to keep things organized": "Important to keep things organized",
     "Importance and Difficulty must be set together": "Importance and Difficulty must be set together.",
@@ -478,6 +483,7 @@
     "Tasks workspace": "Tasks workspace",
     "Routines list": "Routines list",
     "No being used in any routine": "No being used in any routine",
+    "SelectTimeToAdd": "Select a time to add this item to the routine.",
     "ErrorLogout": "Error trying to logout, please try again",
     "Not available yet": "Not available yet"
 }

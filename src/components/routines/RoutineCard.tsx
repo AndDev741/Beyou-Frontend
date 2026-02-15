@@ -5,7 +5,6 @@ import { Routine } from "../../types/routine/routine";
 import { RoutineSection } from "../../types/routine/routineSection";
 import iconSearch from "../icons/iconsSearch";
 import {
-    formatTime,
     formatTimeRange,
     getSectionStats,
     getRoutineStats,
@@ -79,11 +78,11 @@ export const RoutineCard = ({
     return (
         <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-background shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-primary" />
-            <div className="p-4 space-y-4">
-                <header className="flex items-start justify-between gap-4">
+            <div className="p-3 md:p-4 space-y-4">
+                <header className="flex items-start justify-between gap-3 md:gap-4">
                     <div className="space-y-2 w-full">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 md:gap-2">
                                 <button
                                     type="button"
                                     className="p-1 rounded-md border border-primary/20 text-secondary hover:border-primary/40 transition-transform duration-150 hover:-translate-y-0.5"

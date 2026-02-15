@@ -6,6 +6,9 @@ import { useDragScroll } from "../../../../hooks/useDragScroll";
 import { RoutineSection } from "../../../../types/routine/routineSection";
 import { useState } from "react";
 import { getItemTimeErrorKeys, getSectionErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "../routineValidation";
+import { toast } from "react-toastify";
+import QuickCreateHabitModal from "./QuickCreateHabitModal";
+import QuickCreateTaskModal from "./QuickCreateTaskModal";
 interface TaskSelectorProps {
     setRoutineSection?: React.Dispatch<React.SetStateAction<RoutineSection[]>>;
     index: number;
@@ -19,6 +22,8 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const tasks = useSelector((state: RootState) => state.tasks.tasks);
     const [startTime, setStartTime] = useState<string>("");
     const [endTime, setEndTime] = useState<string>("");
+    const [showQuickHabit, setShowQuickHabit] = useState(false);
+    const [showQuickTask, setShowQuickTask] = useState(false);
 
     const isOvernight = isOvernightRange(section.startTime, section.endTime);
 
@@ -42,13 +47,65 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const habitScroll = useDragScroll();
     const taskScroll = useDragScroll();
 
-    console.log(habits)
-    console.log(tasks)
     const sectionErrors = getSectionErrorKeys(section.name, section.startTime);
     const itemTimeErrors = getItemTimeErrorKeys(section.startTime, section.endTime, startTime, endTime);
     const blockingErrors = [...sectionErrors, ...itemTimeErrors];
     const errorMessage = blockingErrors.length > 0 ? t(blockingErrors[0]) : "";
     const isAddBlocked = blockingErrors.length > 0;
+
+    const addHabitToSection = (habitId: string) => {
+        if (!setRoutineSection) return;
+        setRoutineSection((prev) =>
+            prev.map((sectionItem, idx) =>
+                idx === index
+                    ? {
+                          ...sectionItem,
+                          habitGroup: [
+                              ...(sectionItem.habitGroup || []),
+                              { habitId, startTime, endTime: endTime || undefined }
+                          ]
+                      }
+                    : sectionItem
+            )
+        );
+        setOpenTaskSelector?.(false);
+    };
+
+    const addTaskToSection = (taskId: string) => {
+        if (!setRoutineSection) return;
+        setRoutineSection((prev) =>
+            prev.map((sectionItem, idx) =>
+                idx === index
+                    ? {
+                          ...sectionItem,
+                          taskGroup: [
+                              ...(sectionItem.taskGroup || []),
+                              { taskId, startTime, endTime: endTime || undefined }
+                          ]
+                      }
+                    : sectionItem
+            )
+        );
+        setOpenTaskSelector?.(false);
+    };
+
+    const handleQuickHabitCreated = (habitId?: string) => {
+        if (!habitId) return;
+        if (isAddBlocked) {
+            toast.info(t("SelectTimeToAdd"));
+            return;
+        }
+        addHabitToSection(habitId);
+    };
+
+    const handleQuickTaskCreated = (taskId?: string) => {
+        if (!taskId) return;
+        if (isAddBlocked) {
+            toast.info(t("SelectTimeToAdd"));
+            return;
+        }
+        addTaskToSection(taskId);
+    };
 
     return (
         <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-primary rounded-lg p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
@@ -89,6 +146,17 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     )}
                 </div>
 
+                <div className="flex items-center justify-between w-full px-2 mt-1">
+                    <h3 className="text-lg font-semibold text-secondary">{t("Habits")}</h3>
+                    <button
+                        type="button"
+                        onClick={() => setShowQuickHabit(true)}
+                        className="text-primary font-semibold text-sm px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
+                    >
+                        + {t("NewHabit")}
+                    </button>
+                </div>
+
                 <div className="w-full max-w-full min-w-0 flex flex-nowrap overflow-x-auto items-start gap-2 justify-start"
                     ref={habitScroll.ref}
                     onMouseDown={habitScroll.onMouseDown}
@@ -111,6 +179,17 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             disabled={isAddBlocked}
                         />
                     ))}
+                </div>
+
+                <div className="flex items-center justify-between w-full px-2 mt-3">
+                    <h3 className="text-lg font-semibold text-secondary">{t("Tasks")}</h3>
+                    <button
+                        type="button"
+                        onClick={() => setShowQuickTask(true)}
+                        className="text-primary font-semibold text-sm px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
+                    >
+                        + {t("NewTask")}
+                    </button>
                 </div>
 
                 <div className="w-full max-w-full min-w-0 flex flex-nowrap overflow-x-auto items-start gap-2 justify-start"
@@ -142,6 +221,16 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                 )}
 
             </div>
+            <QuickCreateHabitModal
+                isOpen={showQuickHabit}
+                onClose={() => setShowQuickHabit(false)}
+                onCreated={handleQuickHabitCreated}
+            />
+            <QuickCreateTaskModal
+                isOpen={showQuickTask}
+                onClose={() => setShowQuickTask(false)}
+                onCreated={handleQuickTaskCreated}
+            />
         </div>
     );
 };
