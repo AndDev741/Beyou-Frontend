@@ -179,10 +179,10 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                 <div key={`${item.type}-${item.id}`} className="w-full flex items-center justify-between my-1 bg-background transition-colors duration-200">
                     <div className="flex items-center">
                         <input type="checkbox" className="accent-primary w-6 h-6 rounded-lg border border-primary/30 bg-background transition-colors duration-200" />
-                        <span className="text-md text-secondary ml-2">
+                        <span className="text-sm md:text-md text-secondary ml-2">
                             {itemObj.name}
                         </span>
-                        <span className="mx-2 text-description">-</span>
+                        <span className="mx-1 md:mx-2 text-description">-</span>
 
                         {isEditing ? (
                             <div className="flex items-center gap-2">
@@ -234,7 +234,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                             </div>
                         ) : (
                             <>
-                                <span className="text-center text-primary text-lg">
+                                <span className="text-center text-primary text-sm md:text-lg">
                                     {formatTimeRange(item.startTime, item.endTime)}
                                 </span>
                                 <div className="flex items-center gap-2 ml-2">
@@ -267,12 +267,12 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             <div className="w-full flex items-center justify-between py-2">
                 <div className="flex items-center gap-2 w-full">
                     {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
-                    <span className="text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
+                    <span className="text-md md:text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
                 </div>
                 {/* I ALREADY SPEND TOO MUCH TIME TRYING TO UNDERSTAND WHY WHEN I OPEN THE TASK SELECTOR THE HEADER JUST GO TO THE RIGHT... THIS WILL FIX ****  */}
                 <div className={`${openTaskSelector ? "mr-3" : ""} flex items-center gap-2`}>
                     <div className="flex items-center gap-1 text-description whitespace-nowrap">
-                        <span>
+                        <span className="text-sm md:text-lg">
                             {formatTimeRange(section.startTime, section.endTime)}
                         </span>
                     </div>
