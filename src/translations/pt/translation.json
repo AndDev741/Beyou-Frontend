@@ -129,11 +129,13 @@
     "HABIT_CREATE_FAILED": "Erro ao criar hábito.",
     "HABIT_EDIT_FAILED": "Erro ao editar hábito.",
     "HABIT_DELETE_FAILED": "Erro ao excluir hábito.",
+    "HABIT_IN_ROUTINE": "Este hábito está sendo usado em uma rotina. Remova-o da rotina primeiro.",
     "TASK_NOT_FOUND": "Tarefa não encontrada.",
     "TASK_NOT_OWNED": "Esta tarefa não pertence à sua conta.",
     "TASK_CREATE_FAILED": "Erro ao criar tarefa.",
     "TASK_EDIT_FAILED": "Erro ao editar tarefa.",
     "TASK_DELETE_FAILED": "Erro ao excluir tarefa.",
+    "TASK_IN_ROUTINE": "Esta tarefa está sendo usada em uma rotina. Remova-a da rotina primeiro.",
     "GOAL_NOT_FOUND": "Meta não encontrada.",
     "GOAL_NOT_OWNED": "Esta meta não pertence à sua conta.",
     "GOAL_CREATE_FAILED": "Erro ao criar meta.",
@@ -474,5 +476,6 @@
     "Tasks workspace": "Espaço de tarefas",
     "Routines list": "Lista de rotinas",
     "No being used in any routine": "Sem uso em rotinas",
-    "ErrorLogout": "Erro ao tentar sair, por favor tente novamente"
+    "ErrorLogout": "Erro ao tentar sair, por favor tente novamente",
+    "Not available yet": "Ainda não disponível"
 }

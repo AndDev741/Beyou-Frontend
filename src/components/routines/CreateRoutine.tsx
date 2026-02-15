@@ -28,7 +28,7 @@ const CreateRoutine = ({
                 <div className='w-full flex flex-col items-center justify-center'>
                     <h2 className='text-2xl text-secondary'>{t('Do you want a')}</h2>
 
-                    <div className='w-full flex items-center justify-evenly mt-5'>
+                    <div className='w-full flex items-center justify-evenly mt-5 gap-2'>
                         <div className='flex flex-col items-center justify-center'>
                             <h3 className='text-lg mb-2 text-secondary'>{t('Daily Routine')}</h3>
                             <div>
@@ -37,6 +37,7 @@ const CreateRoutine = ({
                         </div>
                         <div className='flex flex-col items-center justify-center'>
                             <h3 className='text-lg mb-2 text-secondary'>{t('Todo Routine')}</h3>
+                            <p className='text-sm text-placeholder'>{t('Not available yet')}</p>
                             <div>
                                 <TodoRoutineExample />
                             </div>

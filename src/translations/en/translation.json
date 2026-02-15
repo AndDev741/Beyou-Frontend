@@ -130,11 +130,13 @@
     "HABIT_CREATE_FAILED": "Error creating habit.",
     "HABIT_EDIT_FAILED": "Error editing habit.",
     "HABIT_DELETE_FAILED": "Error deleting habit.",
+    "HABIT_IN_ROUTINE": "This habit is used in a routine. Remove it from the routine first.",
     "TASK_NOT_FOUND": "Task not found.",
     "TASK_NOT_OWNED": "This task doesn't belong to your account.",
     "TASK_CREATE_FAILED": "Error creating task.",
     "TASK_EDIT_FAILED": "Error editing task.",
     "TASK_DELETE_FAILED": "Error deleting task.",
+    "TASK_IN_ROUTINE": "This task is used in a routine. Remove it from the routine first.",
     "GOAL_NOT_FOUND": "Goal not found.",
     "GOAL_NOT_OWNED": "This goal doesn't belong to your account.",
     "GOAL_CREATE_FAILED": "Error creating goal.",
@@ -476,5 +478,6 @@
     "Tasks workspace": "Tasks workspace",
     "Routines list": "Routines list",
     "No being used in any routine": "No being used in any routine",
-    "ErrorLogout": "Error trying to logout, please try again"
+    "ErrorLogout": "Error trying to logout, please try again",
+    "Not available yet": "Not available yet"
 }
