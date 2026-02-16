@@ -81,11 +81,12 @@ function ForgotPassword() {
                                     icon2={null}
                                     icon3={null}
                                     placeholder={t("EmailPlaceholder")}
-                                    inputType={"text"}
+                                    inputType={"email"}
                                     seePasswordIconAlt={""}
                                     data={field.value}
                                     setData={field.onChange}
                                     errorMessage={errors.email?.message ?? ""}
+                                    autoComplete="email"
                                 />
                             )}
                         />

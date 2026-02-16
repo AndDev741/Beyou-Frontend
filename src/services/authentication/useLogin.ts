@@ -20,7 +20,6 @@ import {
     languageInUserEnter,
     tutorialCompletedEnter
 } from "../../redux/user/perfilSlice";
-import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
 // types
 import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
@@ -38,7 +37,6 @@ export default async function handleLogin(
     const response = await loginRequest(email, password);
     if (response.error) {
         const message = t("WrongPassOrEmailError");
-        dispatch(defaultErrorEnter(message));
         return message;
     }
     if (response.success) {

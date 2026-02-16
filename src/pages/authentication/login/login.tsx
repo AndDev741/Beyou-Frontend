@@ -3,21 +3,22 @@ import Header from "../../../components/authentication/header";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
 import TranslationButton from "../../../components/translationButton";
-import SuccessRegisterPhrase from "../../../components/authentication/successRegisterPhrase";
-import ErrorLoginModal from "../../../components/authentication/errorLoginModal";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import Logo from "../../../components/authentication/logo";
 // Functions
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "react-toastify";
 // Services
 import useGoogleLogin from "../../../services/authentication/useGoogleLogin";
 import handleLogin from "../../../services/authentication/useLogin";
 import { loginSchema } from "../../../validation/forms/authSchemas";
+import { successRegisterEnter } from "../../../redux/authentication/registerSlice";
+import { RootState } from "../../../redux/rootReducer";
 // Assets
 import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";
 import PasswordIcon from "../../../assets/authentication/passwordIcon.svg?react";
@@ -30,16 +31,14 @@ type LoginFormValues = {
 };
 
 function Login() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const [, setDefaultError] = useState("");
+    const successRegister = useSelector((state: RootState) => state.register.successRegister);
 
     const {
         control,
         handleSubmit,
-        setError,
         clearErrors,
         formState: { errors }
     } = useForm<LoginFormValues>({
@@ -52,13 +51,19 @@ function Login() {
     });
 
     // Google Login logic handler
-    useGoogleLogin(navigate, dispatch, t, setDefaultError);
+    useGoogleLogin(navigate, dispatch, t);
+
+    useEffect(() => {
+        if (!successRegister) return;
+        toast.success(t("SuccessRegisterPhrase"));
+        dispatch(successRegisterEnter(false));
+    }, [successRegister, dispatch, i18n.language]);
 
     const onSubmit = async (values: LoginFormValues) => {
         clearErrors("root");
         const errorMessage = await handleLogin(values.email, values.password, t, dispatch, navigate);
         if (errorMessage) {
-            setError("root", { message: errorMessage });
+            toast.error(errorMessage);
         }
     };
 
@@ -129,18 +134,12 @@ function Login() {
                         <Button text={t("Enter")} mode="create" size="big" />
                     </form>
 
-                    {errors.root?.message && (
-                        <p className="text-error text-center underline text-xl mb-2">{errors.root?.message}</p>
-                    )}
-
                     <GoogleIcon />
 
                     <div className="block lg:hidden my-8">
                         <TranslationButton />
                     </div>
 
-                    <SuccessRegisterPhrase />
-                    <ErrorLoginModal />
                 </main>
             </div>
         </div>
