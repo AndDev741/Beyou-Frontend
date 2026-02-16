@@ -39,3 +39,31 @@ export const registerSchema = (t: TFunction) =>
             max: 256
         })
     });
+
+export const forgotPasswordSchema = (t: TFunction) =>
+    z.object({
+        email: z
+            .string()
+            .trim()
+            .min(1, t("YupNecessaryEmail"))
+            .email(t("YupInvalidEmail"))
+            .max(256, t("YupMaxLength"))
+    });
+
+export const resetPasswordSchema = (t: TFunction) =>
+    z.object({
+        password: requiredStringWithMinMax(t, {
+            requiredKey: "YupNecessaryPassword",
+            minKey: "YupMinimumPassword",
+            maxKey: "YupMaxLength",
+            min: 6,
+            max: 256
+        }),
+        confirmPassword: requiredStringWithMinMax(t, {
+            requiredKey: "YupNecessaryPassword",
+            minKey: "YupMinimumPassword",
+            maxKey: "YupMaxLength",
+            min: 6,
+            max: 256
+        })
+    });

@@ -11,7 +11,7 @@ import Logo from "../../../components/authentication/logo";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // Services
@@ -119,9 +119,12 @@ function Login() {
                             )}
                         />
 
-                        <p className="mt-4 lg:mt-3 mb-6 lg:mb-4 text-xl text-primary underline font-medium cursor-pointer">
+                        <Link
+                            to="/forgot-password"
+                            className="mt-4 lg:mt-3 mb-6 lg:mb-4 text-xl text-primary underline font-medium cursor-pointer"
+                        >
                             {t("ForgotPassword")}
-                        </p>
+                        </Link>
 
                         <Button text={t("Enter")} mode="create" size="big" />
                     </form>
