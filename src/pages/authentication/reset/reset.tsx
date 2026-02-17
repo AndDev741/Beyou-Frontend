@@ -133,7 +133,7 @@ function ResetPassword() {
                         </div>
                     )}
 
-                    {!showForm && (
+                    {showForm && (
                         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
                             <Controller
                                 key={"password"}
