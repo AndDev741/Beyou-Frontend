@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import type { FunctionComponent, SVGProps } from "react";
 
 type IconComponent = FunctionComponent<
@@ -29,6 +29,7 @@ function Input({
     errorMessage,
 }: InputProps) {
     const isPasswordField = useMemo(() => inputType === "password", [inputType]);
+    const inputId = useId();
     const [currentType, setCurrentType] = useState(inputType);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -42,11 +43,14 @@ function Input({
 
     return (
         <>
-            <label
+            <div
                 className={`flex items-center border-2 border-solid rounded-md w-[90vw] lg:w-[100%] h-[64px] bg-background transition-colors duration-200 ${
                     errorMessage ? "border-error" : "border-primary"
                 }`}
             >
+                <label htmlFor={inputId} className="sr-only">
+                    {placeholder}
+                </label>
                 <IconStart
                     className="w-[35px] m-2 text-icon"
                     aria-hidden="true"
@@ -54,6 +58,7 @@ function Input({
                 />
 
                 <input
+                    id={inputId}
                     type={currentType}
                     placeholder={placeholder}
                     value={data}
@@ -69,15 +74,15 @@ function Input({
                         className="mx-4 flex items-center justify-center"
                     >
                         {isPasswordVisible && IconToggleVisible ? (
-                            <IconToggleVisible className="w-[35px] text-icon" aria-hidden="true" focusable="false" />
+                            <IconToggleVisible className="w-[35px] h-[35px] text-icon" aria-hidden="true" focusable="false" />
                         ) : (
                             IconToggleHidden && (
-                                <IconToggleHidden className="w-[35px] text-icon" aria-hidden="true" focusable="false" />
+                                <IconToggleHidden className="w-[35px] h-[35px] text-icon" aria-hidden="true" focusable="false" />
                             )
                         )}
                     </button>
                 )}
-            </label>
+            </div>
             <p className={`${errorMessage ? "block text-error underline text-xl text-center" : "hidden"}`}>
                 {errorMessage}
             </p>
