@@ -17,7 +17,7 @@ export default function Configuration() {
             <Header pageName={"Configuration"} showLogout={true} />
 
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] px-2 lg:px-6 gap-6">
-                <div className="flex flex-col items-center w-full lg:w-[50%]">
+                <div className="flex flex-col items-center w-full lg:w-[50%] lg:border-r lg:border-primary">
                     <div className="w-full lg:pr-4">
                         <ProfileConfiguration />
                     </div>
@@ -50,7 +50,7 @@ export default function Configuration() {
                     <div className="border-b w-full border-primary mt-2 lg:hidden"></div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%] lg:border-l lg:border-primary lg:pl-4">
+                <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%] h-full lg:pl-4">
                     <div className="w-full">
                         <WidgetsConfiguration />
                     </div>

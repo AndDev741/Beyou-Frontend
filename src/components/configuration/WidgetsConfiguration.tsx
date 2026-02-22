@@ -117,9 +117,9 @@ export default function WidgetsConfiguration() {
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-semibold mb-1">{t("Widgets")}</h2>
-            <p className="text-description text-sm mb-4">{t("Drag and drop to add")}</p>
+        <div className="w-full h-full flex flex-col justify-start items-start lg:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold mb-1 px-4 pt-4 lg:p-0">{t("Widgets")}</h2>
+            <p className="text-description text-sm mb-4 pl-4">{t("Drag and drop to add")}</p>
 
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <DroppableList
@@ -183,7 +183,7 @@ function DroppableList({
 }: any) {
     return (
         <div className="mb-6 w-full">
-            <h3 className="p-1 text-lg font-medium text-secondary">{title}</h3>
+            <h3 className="px-3 lg:p-1 text-lg font-medium text-secondary">{title}</h3>
             <Droppable
                 droppableId={droppableId}
                 direction={widgets?.length > 2 ? "vertical" : "horizontal"}
