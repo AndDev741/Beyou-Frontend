@@ -79,7 +79,11 @@ function Register() {
                     <h1 className="text-center text-[40px] font-bold whitespace-pre-line">
                         {t("Welcome")} {t("To")}
                         <span className="text-primary"> {t("BeYou")} </span>
+                        
                     </h1>
+                    <div className="hidden lg:block my-2">
+                            <TranslationButton />
+                        </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-2  mb-6 lg:mb-3">
                         <Controller

@@ -135,11 +135,6 @@ function Login() {
                     </form>
 
                     <GoogleIcon />
-
-                    <div className="block lg:hidden my-8">
-                        <TranslationButton />
-                    </div>
-
                 </main>
             </div>
         </div>
