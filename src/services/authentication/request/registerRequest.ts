@@ -8,7 +8,8 @@ const registerRequest = async (name: string, email: string, password: string): P
     };
 
     try {
-        const response = await axios.post("http://192.168.1.78:8099/auth/register", registerData);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8099';
+        const response = await axios.post(`${apiUrl}/auth/register`, registerData);
         return response.data;
     } catch (e) {
         console.error(e);
