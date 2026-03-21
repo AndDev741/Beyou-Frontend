@@ -38,6 +38,7 @@ export const routineFormSchema = (t: TFunction) =>
                 if (sectionErrors.length > 0) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
+                        path: ["routineSections"],
                         message: t(sectionErrors[0])
                     });
                     return;
@@ -53,6 +54,7 @@ export const routineFormSchema = (t: TFunction) =>
                     if (itemErrors.length > 0) {
                         ctx.addIssue({
                             code: z.ZodIssueCode.custom,
+                            path: ["routineSections"],
                             message: t(itemErrors[0])
                         });
                         return;
@@ -69,6 +71,7 @@ export const routineFormSchema = (t: TFunction) =>
                     if (itemErrors.length > 0) {
                         ctx.addIssue({
                             code: z.ZodIssueCode.custom,
+                            path: ["routineSections"],
                             message: t(itemErrors[0])
                         });
                         return;
