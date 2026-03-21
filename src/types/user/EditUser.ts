@@ -7,5 +7,7 @@ export type EditUser = {
     theme?: string,
     constanceConfiguration?: "ANY" | "COMPLETE",
     language?: string,
-    isTutorialCompleted?: boolean
+    isTutorialCompleted?: boolean,
+    timezone?: string,
+    xpDecayStrategy?: "GRADUAL" | "FLAT" | "TIME_WINDOW"
 }

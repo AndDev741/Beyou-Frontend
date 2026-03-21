@@ -15,5 +15,7 @@ export type UserType = {
     constanceIncreaseToday: boolean,
     maxConstance: number,
     languageInUse: string,
-    isTutorialCompleted: boolean
+    isTutorialCompleted: boolean,
+    timezone: string,
+    xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW"
 }

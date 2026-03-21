@@ -499,5 +499,27 @@
     "No being used in any routine": "Sem uso em rotinas",
     "SelectTimeToAdd": "Selecione um horário para adicionar este item à rotina.",
     "ErrorLogout": "Erro ao tentar sair, por favor tente novamente",
-    "Not available yet": "Ainda não disponível"
+    "Not available yet": "Ainda não disponível",
+
+    "Routine History": "Histórico de Rotina",
+    "No history available": "Parece que neste dia você não tinha criado nenhuma rotina... Triste",
+    "Historical view": "Visualização histórica",
+    "Timezone": "Fuso horário",
+    "XP Decay Strategy": "Estratégia de Decaimento de XP",
+    "Gradual": "Gradual",
+    "Flat": "Fixo",
+    "Time Window": "Janela de Tempo",
+    "Gradual description": "XP diminui quanto mais você demora: 80% → 60% → 40% → 20%",
+    "Flat description": "Sempre ganha 50% de XP para checks atrasados",
+    "Time Window description": "XP completo em até 2 dias, nada depois",
+
+    "RoutineSettingsTitle": "Configurações de Rotina",
+    "RoutineSettingsDescription": "Configure seu fuso horário e como o XP decai quando você completa itens atrasados.",
+    "TimezoneLabel": "Seu Fuso Horário",
+    "TimezoneSearchPlaceholder": "Buscar fuso horário...",
+    "XpDecayLabel": "Estratégia de Decaimento de XP",
+    "XpDecayDescription": "Escolha como o XP é calculado quando você marca itens após o horário agendado.",
+    "TimezoneSuggestion": "O fuso horário do seu navegador é {{timezone}}. Gostaria de usá-lo?",
+    "UseDetectedTimezone": "Usar {{timezone}}",
+    "RoutineSettingsSaved": "Configurações de rotina salvas com sucesso"
 }

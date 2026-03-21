@@ -22,6 +22,8 @@ type userInitialState = {
     alreadyIncreaseConstanceToday: boolean,
     languageInUse: string,
     isTutorialCompleted: boolean,
+    timezone: string,
+    xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW",
 }
 
 const initialState: userInitialState = {
@@ -44,6 +46,8 @@ const initialState: userInitialState = {
     alreadyIncreaseConstanceToday: false,
     languageInUse: "",
     isTutorialCompleted: false,
+    timezone: "UTC",
+    xpDecayStrategy: "GRADUAL",
 }
 
 const perfilSlice = createSlice({
@@ -126,16 +130,25 @@ const perfilSlice = createSlice({
             const isTutorialCompleted = Boolean(action.payload);
             return {...state, isTutorialCompleted};
         },
+        timezoneEnter(state, action){
+            const timezone = typeof action.payload === "string" ? action.payload : "UTC";
+            return {...state, timezone};
+        },
+        xpDecayStrategyEnter(state, action){
+            const valid = ["GRADUAL", "FLAT", "TIME_WINDOW"] as const;
+            const xpDecayStrategy = valid.includes(action.payload) ? action.payload : "GRADUAL";
+            return {...state, xpDecayStrategy};
+        },
     }
 });
 
 export const {
-    nameEnter, 
-    emailEnter, 
-    phraseEnter, 
-    phraseAuthorEnter, 
-    constanceEnter, 
-    photoEnter, 
+    nameEnter,
+    emailEnter,
+    phraseEnter,
+    phraseAuthorEnter,
+    constanceEnter,
+    photoEnter,
     isGoogleAccountEnter,
     checkedItemsInScheduledRoutineEnter,
     totalItemsInScheduledRoutineEnter,
@@ -148,7 +161,9 @@ export const {
     maxConstanceEnter,
     alreadyIncreaseConstanceTodayEnter,
     languageInUserEnter,
-    tutorialCompletedEnter
+    tutorialCompletedEnter,
+    timezoneEnter,
+    xpDecayStrategyEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

@@ -14,6 +14,7 @@ import editGoal from "./goal/editGoalSlice";
 import goals from "./goal/goalsSlice";
 import categories from "./category/categoriesSlice";
 import viewFilters from "./viewFilters/viewFiltersSlice";
+import snapshot from "./routine/snapshotSlice";
 
 
 const rootReducer = combineReducers({
@@ -31,7 +32,8 @@ const rootReducer = combineReducers({
     editGoal: editGoal,
     goals: goals,
     categories: categories,
-    viewFilters: viewFilters
+    viewFilters: viewFilters,
+    snapshot: snapshot
 
 });
 

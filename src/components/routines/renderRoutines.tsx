@@ -15,6 +15,8 @@ import checkRoutine from "../../services/routine/checkItem";
 import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "../../services/apiError";
+import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
+import { SnapshotEmptyState } from "./SnapshotEmptyState";
 
 type RenderRoutinesProps = {
     selectedDate: string;
@@ -34,11 +36,16 @@ export default function RenderRoutines({
     const tasks = useSelector((state: RootState) => state.tasks.tasks) as task[] || [];
     const habits = useSelector((state: RootState) => state.habits.habits) as habit[] || [];
 
+    const snapshotState = useSelector((state: RootState) => state.snapshot);
+    const snapshots = snapshotState.snapshots;
+    const snapshotList = Object.values(snapshots);
+
+    const today = new Date().toISOString().split("T")[0];
+    const isSnapshotMode = selectedDate < today && snapshotState.selectedDate === selectedDate;
+
     const [confirmDelete, setConfirmDelete] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
-
-    console.log("HABITS => ", habits);
 
     const taskLookup = tasks?.reduce<Record<string, { name?: string; iconId?: string }>>((map, taskItem) => {
         map[taskItem.id] = { name: taskItem.name, iconId: taskItem.iconId };
@@ -47,7 +54,6 @@ export default function RenderRoutines({
 
     const habitLookup = habits?.reduce<Record<string, { name?: string; iconId?: string }>>((map, habitItem) => {
         map[habitItem.id] = { name: habitItem.name, iconId: habitItem.iconId };
-        console.log("MAP => ", map)
         return map;
     }, {}) || {};
 
@@ -92,6 +98,34 @@ export default function RenderRoutines({
     useEffect(() => {
         dispatch(editModeEnter(false));
     }, [])
+
+    if (isSnapshotMode) {
+        if (snapshotList.length > 0) {
+            return (
+                <div className="w-full text-secondary space-y-4">
+                    <div className="flex flex-col gap-4">
+                        {snapshotList.map((snapshot) => {
+                            const matchingRoutine = routines.find((r) => r.name === snapshot.routineName);
+                            const routineId = matchingRoutine?.id || "";
+                            return (
+                                <SnapshotRoutineCard
+                                    key={snapshot.id}
+                                    snapshot={snapshot}
+                                    routineId={routineId}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="w-full text-secondary space-y-4">
+                <SnapshotEmptyState />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full text-secondary space-y-4">
