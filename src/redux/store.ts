@@ -6,6 +6,7 @@ import rootReducer, { RootState } from "./rootReducer";
 const persistConfig = {
     key: 'root',
     storage: storage,
+    blacklist: ['snapshot'],
 }
 
 const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);

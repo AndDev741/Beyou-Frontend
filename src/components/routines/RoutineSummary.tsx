@@ -13,8 +13,8 @@ type RoutineSummaryProps = {
 
 export const RoutineSummary = ({ routines, selectedDate, onDateChange }: RoutineSummaryProps) => {
     const { t } = useTranslation();
-    const snapshotState = useSelector((state: RootState) => state.snapshot);
-    const snapshots = snapshotState.snapshots;
+    const snapshotState = useSelector((state: RootState) => state.snapshot) || { snapshots: {}, selectedDate: '', loading: false, snapshotDates: [] };
+    const snapshots = snapshotState.snapshots || {};
     const snapshotList = Object.values(snapshots);
 
     const today = new Date().toISOString().split("T")[0];

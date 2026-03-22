@@ -45,7 +45,7 @@ const Routine = () => {
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.routines);
-    const snapshotLoading = useSelector((state: RootState) => state.snapshot.loading);
+    const snapshotLoading = useSelector((state: RootState) => state.snapshot?.loading ?? false);
     const [hasDailySection, setHasDailySection] = useState(false);
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);

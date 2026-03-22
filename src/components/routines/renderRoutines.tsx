@@ -36,8 +36,8 @@ export default function RenderRoutines({
     const tasks = useSelector((state: RootState) => state.tasks.tasks) as task[] || [];
     const habits = useSelector((state: RootState) => state.habits.habits) as habit[] || [];
 
-    const snapshotState = useSelector((state: RootState) => state.snapshot);
-    const snapshots = snapshotState.snapshots;
+    const snapshotState = useSelector((state: RootState) => state.snapshot) || { snapshots: {}, selectedDate: '', loading: false, snapshotDates: [] };
+    const snapshots = snapshotState.snapshots || {};
     const snapshotList = Object.values(snapshots);
 
     const today = new Date().toISOString().split("T")[0];
