@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import Header from "../../components/header";
 import AddRoutineButton from "../../components/routines/addRoutineButton";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
 import getHabits from "../../services/habits/getHabits";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +26,13 @@ import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
+import { getSnapshot } from "../../services/routine/snapshot";
+import {
+    clearSnapshot,
+    enterSnapshots,
+    setSelectedDate,
+    setSnapshotLoading,
+} from "../../redux/routine/snapshotSlice";
 
 const Routine = () => {
     useAuthGuard();
@@ -34,13 +41,17 @@ const Routine = () => {
 
     const [onCreateRoutine, setOnCreateRoutine] = useState(false);
     const [routineType, setRoutineType] = useState("");
-    const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
+    const [selectedDateLocal, setSelectedDateLocal] = useState(() => new Date().toISOString().split("T")[0]);
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.routines);
+    const snapshotLoading = useSelector((state: RootState) => state.snapshot?.loading ?? false);
     const [hasDailySection, setHasDailySection] = useState(false);
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+
+    const today = new Date().toISOString().split("T")[0];
+    const isSnapshotMode = selectedDateLocal < today;
 
     const hasRoutines = routines.length > 0;
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -82,10 +93,44 @@ const Routine = () => {
         dispatch(setViewSort({ view: "routines", sortBy: value }));
     };
 
+    const handleDateChange = useCallback(async (newDate: string) => {
+        setSelectedDateLocal(newDate);
+
+        const currentToday = new Date().toISOString().split("T")[0];
+
+        if (newDate >= currentToday) {
+            dispatch(clearSnapshot());
+            return;
+        }
+
+        dispatch(setSelectedDate(newDate));
+        dispatch(setSnapshotLoading(true));
+
+        try {
+            const routinesWithIds = routines.filter((r) => r.id);
+            const snapshotResults = await Promise.all(
+                routinesWithIds.map((routine) =>
+                    getSnapshot(routine.id!, newDate, t)
+                )
+            );
+
+            const validSnapshots = snapshotResults
+                .filter((result) => result.success)
+                .map((result) => result.success!);
+
+            dispatch(enterSnapshots(validSnapshots));
+        } catch (error) {
+            console.error("Failed to fetch snapshots:", error);
+            dispatch(clearSnapshot());
+            dispatch(setSelectedDate(newDate));
+        } finally {
+            dispatch(setSnapshotLoading(false));
+        }
+    }, [routines, t, dispatch]);
+
     useEffect(() => {
 
         const fetchData = async () => {
-            console.log("Fetching habits and tasks...");
             const habits = await getHabits(t);
             const tasks = await getTasks(t);
             const routines = await getRoutines(t);
@@ -97,6 +142,12 @@ const Routine = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        return () => {
+            dispatch(clearSnapshot());
+        };
+    }, [dispatch]);
 
     const {
         routineSteps,
@@ -131,59 +182,69 @@ const Routine = () => {
             <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
                 <RoutineSummary
                     routines={routines}
-                    selectedDate={selectedDate}
-                    onDateChange={setSelectedDate}
+                    selectedDate={selectedDateLocal}
+                    onDateChange={handleDateChange}
                 />
 
                 <div className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between gap-6">
                     <div className="w-full lg:w-[50%]">
-                        <SortFilterBar
-                            title={t("Routines list")}
-                            description={t("Sort results")}
-                            options={sortOptions}
-                            value={sortBy}
-                            onChange={handleSortChange}
-                            quickValues={["name-asc", "level-desc", "xp-desc"]}
-                            className="mb-4"
-                        />
-                        <RenderRoutines
-                            selectedDate={selectedDate}
-                            routines={sortedRoutines}
-                            onScheduleModalChange={setIsScheduleModalOpen}
-                        />
-                    </div>
-
-                    <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">
-                        {editMode === false ? (
-                            <>
-                                <AddRoutineButton
-                                    setOnCreateRoutine={setOnCreateRoutine}
-                                    setRoutineType={setRoutineType}
-                                />
-
-                                {onCreateRoutine && (
-                                    <div className='flex items-center mt-6'>
-                                        <CgAddR className='w-[30px] h-[30px] mr-1' />
-                                        <h1 className='text-3xl font-semibold text-secondary'>{t("Create routine")}</h1>
-                                    </div>
-                                )}
-
-                                {onCreateRoutine && (
-                                    <div className="mt-4 w-full">
-                                        <CreateRoutine
-                                            setRoutineType={setRoutineType}
-                                            onDailySectionChange={setHasDailySection}
-                                            onSectionModalChange={setIsSectionModalOpen}
-                                            routineType={routineType} />
-                                    </div>
-                                )}
-                            </>
+                        {!isSnapshotMode && (
+                            <SortFilterBar
+                                title={t("Routines list")}
+                                description={t("Sort results")}
+                                options={sortOptions}
+                                value={sortBy}
+                                onChange={handleSortChange}
+                                quickValues={["name-asc", "level-desc", "xp-desc"]}
+                                className="mb-4"
+                            />
+                        )}
+                        {snapshotLoading ? (
+                            <div className="flex items-center justify-center py-16">
+                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                            </div>
                         ) : (
-                            <>
-                                <EditDailyRoutine />
-                            </>
+                            <RenderRoutines
+                                selectedDate={selectedDateLocal}
+                                routines={sortedRoutines}
+                                onScheduleModalChange={setIsScheduleModalOpen}
+                            />
                         )}
                     </div>
+
+                    {!isSnapshotMode && (
+                        <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">
+                            {editMode === false ? (
+                                <>
+                                    <AddRoutineButton
+                                        setOnCreateRoutine={setOnCreateRoutine}
+                                        setRoutineType={setRoutineType}
+                                    />
+
+                                    {onCreateRoutine && (
+                                        <div className='flex items-center mt-6'>
+                                            <CgAddR className='w-[30px] h-[30px] mr-1' />
+                                            <h1 className='text-3xl font-semibold text-secondary'>{t("Create routine")}</h1>
+                                        </div>
+                                    )}
+
+                                    {onCreateRoutine && (
+                                        <div className="mt-4 w-full">
+                                            <CreateRoutine
+                                                setRoutineType={setRoutineType}
+                                                onDailySectionChange={setHasDailySection}
+                                                onSectionModalChange={setIsSectionModalOpen}
+                                                routineType={routineType} />
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <EditDailyRoutine />
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

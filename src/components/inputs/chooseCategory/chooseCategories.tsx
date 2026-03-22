@@ -62,12 +62,12 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
 
     return(
         <>
-            <div className="relative flex flex-col items-center justify-center w-full mt-2 md:flex-row">
+            <div className="relative flex items-center justify-center w-full mt-2">
                 <h3 className="text-2xl text-center text-secondary">{t("Categories")}</h3>
                 <button
                     type="button"
                     onClick={() => setShowCreateModal(true)}
-                    className="mt-1 flex items-center gap-1 text-primary font-semibold px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200 md:mt-0 md:absolute md:right-1"
+                    className="absolute right-1 flex items-center gap-1 text-primary font-semibold px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
                     aria-label={t("AddCategory")}
                 >
                     <CgAddR className="text-lg" />

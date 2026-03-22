@@ -18,7 +18,9 @@ import {
     alreadyIncreaseConstanceTodayEnter,
     maxConstanceEnter,
     languageInUserEnter,
-    tutorialCompletedEnter
+    tutorialCompletedEnter,
+    timezoneEnter,
+    xpDecayStrategyEnter
 } from "../../redux/user/perfilSlice";
 // types
 import { TFunction } from "i18next";
@@ -58,6 +60,8 @@ export default async function handleLogin(
         dispatch(maxConstanceEnter(data.maxConstance));
         dispatch(languageInUserEnter(data.languageInUse));
         dispatch(tutorialCompletedEnter(Boolean(data?.isTutorialCompleted)));
+        dispatch(timezoneEnter(data.timezone));
+        dispatch(xpDecayStrategyEnter(data.xpDecayStrategy));
         navigate("/dashboard");
         return null;
     }

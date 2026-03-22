@@ -501,5 +501,27 @@
     "No being used in any routine": "No being used in any routine",
     "SelectTimeToAdd": "Select a time to add this item to the routine.",
     "ErrorLogout": "Error trying to logout, please try again",
-    "Not available yet": "Not available yet"
+    "Not available yet": "Not available yet",
+
+    "Routine History": "Routine History",
+    "No history available": "Looks like on this day you hadn't created any routine yet... Sad",
+    "Historical view": "Historical view",
+    "Timezone": "Timezone",
+    "XP Decay Strategy": "XP Decay Strategy",
+    "Gradual": "Gradual",
+    "Flat": "Flat",
+    "Time Window": "Time Window",
+    "Gradual description": "XP decreases the longer you wait: 80% → 60% → 40% → 20%",
+    "Flat description": "Always earn 50% XP for late checks",
+    "Time Window description": "Full XP within 2 days, nothing after",
+
+    "RoutineSettingsTitle": "Routine Settings",
+    "RoutineSettingsDescription": "Configure your timezone and how XP decays when you complete items late.",
+    "TimezoneLabel": "Your Timezone",
+    "TimezoneSearchPlaceholder": "Search timezone...",
+    "XpDecayLabel": "XP Decay Strategy",
+    "XpDecayDescription": "Choose how XP is calculated when you check items after their scheduled time.",
+    "TimezoneSuggestion": "Your browser's timezone is {{timezone}}. Would you like to use it?",
+    "UseDetectedTimezone": "Use {{timezone}}",
+    "RoutineSettingsSaved": "Routine settings saved successfully"
 }

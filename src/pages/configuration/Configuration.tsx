@@ -1,6 +1,7 @@
 import ConstanceConfiguration from "../../components/configuration/ConstanceConfiguration";
 import LanguageSelector from "../../components/configuration/LanguageSelector";
 import ProfileConfiguration from "../../components/configuration/ProfileConfiguration";
+import RoutineSettings from "../../components/configuration/RoutineSettings";
 import ThemeSelector from "../../components/configuration/ThemeSelector";
 import TutorialConfiguration from "../../components/configuration/TutorialConfiguration";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
@@ -38,6 +39,12 @@ export default function Configuration() {
 
                     <div className="w-full lg:pr-4">
                         <ConstanceConfiguration />
+                    </div>
+
+                    <div className="border-b w-full border-primary mt-2 "></div>
+
+                    <div className="w-full lg:pr-4">
+                        <RoutineSettings />
                     </div>
 
                     <div className="border-b w-full border-primary mt-2 "></div>

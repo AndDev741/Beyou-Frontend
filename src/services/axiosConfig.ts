@@ -43,7 +43,6 @@ instance.interceptors.response.use(
             try {
                 const accessToken = await getRefreshedAccessToken();
 
-                console.log("NEW TOKEN => ", accessToken);
                 instance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
                 if (!originalRequest.headers) {
                     originalRequest.headers = {};
