@@ -331,7 +331,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
 
             {items.length > 0 && (
                 <div className="mt-3 space-y-2">
-                    {items.map((item) => {
+                    {items.map((item, idx) => {
                         const ItemIcon = item.iconId ? iconSearch(item.iconId)?.IconComponent : null;
                         const handleToggle = () => {
                             if (!routineId) return;
@@ -356,7 +356,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                         };
                         return (
                             <div
-                                key={item.id}
+                                key={`${item.type}-${item.id}-${idx}`}
                                 className={`flex items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors ${item.completed
                                     ? "border-success/30 bg-success/10 text-secondary"
                                     : "border-primary/10 bg-background text-secondary"

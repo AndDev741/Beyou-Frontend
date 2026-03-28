@@ -47,19 +47,21 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
 
     const getMergedItems = () => {
-        const tasks = section.taskGroup?.map(item => ({
+        const tasks = (section.taskGroup ?? []).map((item, idx) => ({
             type: 'task' as const,
             id: item.taskId,
             startTime: item?.startTime,
-            endTime: item?.endTime
-        })) || [];
+            endTime: item?.endTime,
+            originalIndex: idx,
+        }));
 
-        const habits = section.habitGroup?.map(item => ({
+        const habits = (section.habitGroup ?? []).map((item, idx) => ({
             type: 'habit' as const,
             id: item.habitId,
             startTime: item?.startTime,
-            endTime: item?.endTime
-        })) || [];
+            endTime: item?.endTime,
+            originalIndex: idx,
+        }));
 
         return [...tasks, ...habits].sort((a, b) =>
             a?.startTime ? a.startTime.localeCompare(b.startTime) : 0 - (b?.startTime ? b.startTime.localeCompare(a.startTime) : 0)
@@ -154,16 +156,11 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
     const renderItems = () => {
 
         return mergedItems.map((item) => {
-            let itemObj;
-            let originalIndex: number;
+            const { originalIndex } = item;
 
-            if (item.type === 'task') {
-                originalIndex = section.taskGroup?.findIndex(t => t.taskId === item.id) ?? -1;
-                itemObj = allTasks.find(task => task.id === item.id);
-            } else {
-                originalIndex = section.habitGroup?.findIndex(h => h.habitId === item.id) ?? -1;
-                itemObj = allHabits.find(habit => habit.id === item.id);
-            }
+            const itemObj = item.type === 'task'
+                ? allTasks.find(task => task.id === item.id)
+                : allHabits.find(habit => habit.id === item.id);
 
             if (!itemObj) return null;
 
@@ -176,7 +173,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             const disableSave = itemTimeErrors.length > 0;
 
             return (
-                <div key={`${item.type}-${item.id}`} className="w-full flex items-center my-1 bg-background transition-colors duration-200 min-w-0">
+                <div key={`${item.type}-${item.id}-${originalIndex}`} className="w-full flex items-center my-1 bg-background transition-colors duration-200 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 w-full min-w-0">
                         <input type="checkbox" className="accent-primary w-6 h-6 rounded-lg border border-primary/30 bg-background transition-colors duration-200" />
                         <span className="text-sm md:text-md text-secondary ml-2 min-w-0">

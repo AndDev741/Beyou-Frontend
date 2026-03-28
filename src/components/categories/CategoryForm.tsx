@@ -160,7 +160,10 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
                 <CgAddR className="w-[40px] h-[40px] mr-1" />
                 <h2>{t(mode === "edit" ? "EditCategory" : "CreateCategory")}</h2>
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col mt-8">
+            <form
+                onSubmit={(e) => { e.stopPropagation(); handleSubmit(onSubmit)(e); }}
+                className="flex flex-col mt-8"
+            >
                 <div className="flex md:items-start md:flex-row justify-center">
                     <div className="flex flex-col md:items-start md:justify-start">
                         <Controller
