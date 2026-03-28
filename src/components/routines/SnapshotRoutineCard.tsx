@@ -9,7 +9,7 @@ import {
 } from "../../types/routine/snapshot";
 import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
 import { checkSnapshotItem, getSnapshot, skipSnapshotItem } from "../../services/routine/snapshot";
-import { enterSnapshot, updateSnapshotCheck } from "../../redux/routine/snapshotSlice";
+import { enterSnapshot } from "../../redux/routine/snapshotSlice";
 import useUiRefresh from "../../hooks/useUiRefresh";
 import iconSearch from "../icons/iconsSearch";
 import { formatTimeRange, getTimeOfDay } from "./routineMetrics";
@@ -68,14 +68,6 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
         }
         if (response?.success) {
             setRefreshUi(response.success as RefreshUI);
-            dispatch(updateSnapshotCheck({
-                snapshotId: snapshot.id,
-                snapshotCheckId: check.id,
-                checked: !check.checked,
-                skipped: false,
-                checkTime: check.checked ? null : new Date().toTimeString().slice(0, 5),
-                xpGenerated: check.xpGenerated,
-            }));
             await refetchSnapshot();
         }
     };
@@ -88,14 +80,6 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
         }
         if (response?.success) {
             setRefreshUi(response.success as RefreshUI);
-            dispatch(updateSnapshotCheck({
-                snapshotId: snapshot.id,
-                snapshotCheckId: check.id,
-                checked: check.checked,
-                skipped: !check.skipped,
-                checkTime: check.checkTime,
-                xpGenerated: check.xpGenerated,
-            }));
             await refetchSnapshot();
         }
     };

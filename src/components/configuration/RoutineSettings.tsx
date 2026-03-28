@@ -215,7 +215,7 @@ export default function RoutineSettings() {
                             >
                                 {filteredTimezones.length === 0 ? (
                                     <li className="px-3 py-2 text-sm text-description italic">
-                                        No timezones found
+                                        {t("No timezones found")}
                                     </li>
                                 ) : (
                                     filteredTimezones.map((tz) => (
