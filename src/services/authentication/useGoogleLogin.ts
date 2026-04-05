@@ -22,7 +22,16 @@ function useGoogleLogin(
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const authCode = params.get('code');
+        const stateParam = params.get('state');
         if(authCode && !codeUsed){
+            const savedState = sessionStorage.getItem('oauth_state');
+            sessionStorage.removeItem('oauth_state');
+
+            if (!stateParam || stateParam !== savedState) {
+                console.error('OAuth state mismatch — possible CSRF attack');
+                return;
+            }
+
             setCodeUsed(true);
 
             googleRequest(authCode).then((response) => {
