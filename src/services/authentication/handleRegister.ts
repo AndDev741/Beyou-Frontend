@@ -20,7 +20,7 @@ export default async function handleRegister(
     if (response.success) {
         dispatch(successRegisterEnter(true));
         dispatch(defaultErrorEnter(""));
-        navigate("/");
+        navigate("/?verify=true");
         return null;
     }
     if (response.error) {

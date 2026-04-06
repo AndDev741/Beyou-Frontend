@@ -83,9 +83,13 @@ function Input({
                     </button>
                 )}
             </div>
-            <p className={`${errorMessage ? "block text-error underline text-xl text-center" : "hidden"}`}>
-                {errorMessage}
-            </p>
+            {errorMessage && (
+                <div className="w-[90vw] lg:w-full max-w-[400px] mt-1">
+                    <p className="text-error text-sm leading-snug whitespace-pre-line">
+                        {errorMessage}
+                    </p>
+                </div>
+            )}
         </>
     );
 }

@@ -7,9 +7,9 @@ import GoogleIcon from "../../../components/authentication/googleIcon";
 import Logo from "../../../components/authentication/logo";
 // Functions
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
@@ -36,6 +36,10 @@ function Login() {
     const dispatch = useDispatch();
     const successRegister = useSelector((state: RootState) => state.register.successRegister);
 
+    const [searchParams] = useSearchParams();
+    const [emailNotVerified, setEmailNotVerified] = useState(false);
+    const needsVerification = searchParams.get("verify") === "true";
+
     const {
         control,
         handleSubmit,
@@ -61,9 +65,14 @@ function Login() {
 
     const onSubmit = async (values: LoginFormValues) => {
         clearErrors("root");
+        setEmailNotVerified(false);
         const errorMessage = await handleLogin(values.email, values.password, t, dispatch, navigate);
         if (errorMessage) {
-            toast.error(errorMessage);
+            if (errorMessage === t("EmailNotVerifiedError")) {
+                setEmailNotVerified(true);
+            } else {
+                toast.error(errorMessage);
+            }
         }
     };
 
@@ -84,6 +93,28 @@ function Login() {
                     <div className="hidden lg:block my-2">
                         <TranslationButton />
                     </div>
+
+                    {needsVerification && (
+                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-xl border-2 border-primary bg-primary/10 max-w-[90vw] lg:max-w-[380px]">
+                            <p className="text-lg font-semibold text-primary mb-1">
+                                {t("EmailVerificationSentTitle")}
+                            </p>
+                            <p className="text-base text-secondary/80">
+                                {t("EmailVerificationSentMessage")}
+                            </p>
+                        </div>
+                    )}
+
+                    {emailNotVerified && (
+                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-xl border-2 border-error bg-error/10 max-w-[90vw] lg:max-w-[380px]">
+                            <p className="text-lg font-semibold text-error mb-1">
+                                {t("EmailNotVerifiedTitle")}
+                            </p>
+                            <p className="text-base text-secondary/80">
+                                {t("EmailNotVerifiedMessage")}
+                            </p>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
                         <Controller
