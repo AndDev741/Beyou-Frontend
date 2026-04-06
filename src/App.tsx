@@ -3,6 +3,7 @@ import Login from "./pages/authentication/login/login";
 import Register from "./pages/authentication/register/register";
 import ForgotPassword from "./pages/authentication/forgot/forgot";
 import ResetPassword from "./pages/authentication/reset/reset";
+import VerifyEmail from "./pages/authentication/verify/verify";
 import Dashboard from "./pages/dashboard/dashboard";
 import Categories from "./pages/categories/categories";
 import Habits from "./pages/habits/habits";
@@ -23,6 +24,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/auth/verify" element={<VerifyEmail />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/habits" element={<Habits />} />
