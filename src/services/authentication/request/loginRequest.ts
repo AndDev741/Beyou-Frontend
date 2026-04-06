@@ -13,8 +13,13 @@ async function loginRequest(email: string, password: string): Promise<Record<str
         const accessToken = response.headers["accesstoken"];
         axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
         return response.data;
-    } catch (e) {
-        console.error(e);
+    } catch (e: unknown) {
+        if (e && typeof e === 'object' && 'response' in e) {
+            const axiosError = e as { response?: { status?: number; data?: Record<string, string> } };
+            if (axiosError.response?.status === 403 && axiosError.response?.data?.error === "EMAIL_NOT_VERIFIED") {
+                return { error: "EMAIL_NOT_VERIFIED" };
+            }
+        }
         return { error: " " };
     }
 }

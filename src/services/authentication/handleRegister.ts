@@ -20,10 +20,17 @@ export default async function handleRegister(
     if (response.success) {
         dispatch(successRegisterEnter(true));
         dispatch(defaultErrorEnter(""));
-        navigate("/");
+        navigate("/?verify=true");
         return null;
     }
     if (response.error) {
+        const errorKey = response.error as string;
+        if (errorKey === "INVALID_REQUEST") {
+            return t("InvalidRegistrationError");
+        }
+        if (errorKey === "UNKNOWN") {
+            return t("UnkownError");
+        }
         return t("EmailInUseError");
     }
     return t("UnkownError");

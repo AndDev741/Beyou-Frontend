@@ -38,8 +38,10 @@ export default async function handleLogin(
 ): Promise<string | null> {
     const response = await loginRequest(email, password);
     if (response.error) {
-        const message = t("WrongPassOrEmailError");
-        return message;
+        if (response.error === "EMAIL_NOT_VERIFIED") {
+            return t("EmailNotVerifiedError");
+        }
+        return t("WrongPassOrEmailError");
     }
     if (response.success) {
         const data = response.success as UserType;
