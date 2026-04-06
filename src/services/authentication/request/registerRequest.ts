@@ -11,9 +11,15 @@ const registerRequest = async (name: string, email: string, password: string): P
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8099';
         const response = await axios.post(`${apiUrl}/auth/register`, registerData);
         return response.data;
-    } catch (e) {
-        console.error(e);
-        return { error: " " };
+    } catch (e: unknown) {
+        if (e && typeof e === 'object' && 'response' in e) {
+            const axiosError = e as { response?: { status?: number; data?: Record<string, string> } };
+            const errorKey = axiosError.response?.data?.errorKey || axiosError.response?.data?.error;
+            if (errorKey) {
+                return { error: errorKey };
+            }
+        }
+        return { error: "UNKNOWN" };
     }
 };
 

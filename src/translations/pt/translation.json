@@ -53,6 +53,7 @@
     "CheckIconAlt": "Ícone de verificado",
     "ErrorIconAlt": "Ícone de erro em X",
     "EmailInUseError": "O email já está sendo utilizado",
+    "InvalidRegistrationError": "Dados de registro inválidos. Verifique seus dados e tente novamente.",
     "YupMaxLength": "O máximo de caracteres é de 256",
     "WrongPassOrEmailError": "Email ou senha incorretos",
     "GoogleLoginError": "Erro ao tentar fazer login pelo google, tente novamente",
