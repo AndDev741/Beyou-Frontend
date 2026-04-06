@@ -1,7 +1,7 @@
 import { TFunction } from "i18next";
 import axios from "../axiosConfig";
 import { ApiErrorPayload, parseApiError } from "../apiError";
-import { experienceToXpLevel } from "../../components/utils/experienceToXpLevel";
+import { experienceToEnum } from "../../components/utils/experienceToXpLevel";
 
 type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validation?: string }>;
 
@@ -12,14 +12,11 @@ const createCategory = async (
     icon: string,
     t: TFunction
 ): apiResponse => {
-    const { level, xp } = experienceToXpLevel(experience);
-
     const categoryData = {
         name: name,
         description: description,
         icon: icon,
-        level: level,
-        xp: xp
+        experience: experienceToEnum(experience)
     };
 
     try {
