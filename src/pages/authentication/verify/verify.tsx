@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
@@ -10,8 +10,12 @@ function VerifyEmail() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
     const [state, setState] = useState<VerifyState>("loading");
+    const calledRef = useRef(false);
 
     useEffect(() => {
+        if (calledRef.current) return;
+        calledRef.current = true;
+
         const token = searchParams.get("token");
         if (!token) {
             setState("error");
