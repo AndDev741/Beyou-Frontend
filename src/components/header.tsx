@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Button from "./Button";
 import { CgLogOut } from "react-icons/cg";
 import logoutRequest from "../services/authentication/request/logoutRequest";
+import { persistor } from "../redux/store";
 import { toast } from "react-toastify";
 
 function Header({pageName, showLogout}: {pageName: string, showLogout?: boolean}) {
@@ -12,6 +13,7 @@ function Header({pageName, showLogout}: {pageName: string, showLogout?: boolean}
     const onLogout = async () => {
         const successLogout = await logoutRequest();
         if (successLogout) {
+            await persistor.purge();
             window.location.href = "/";
         } else {
             toast.error(t('ErrorLogout'), {
