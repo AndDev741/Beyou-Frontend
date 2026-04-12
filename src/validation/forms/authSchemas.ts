@@ -75,4 +75,7 @@ export const resetPasswordSchema = (t: TFunction) =>
     z.object({
         password: passwordStrengthField(t),
         confirmPassword: passwordStrengthField(t)
+    }).refine((data) => data.password === data.confirmPassword, {
+        message: t("PasswordMismatch"),
+        path: ["confirmPassword"]
     });
