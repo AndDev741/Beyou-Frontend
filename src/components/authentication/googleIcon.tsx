@@ -1,9 +1,11 @@
 import googleIcon from '../../assets/authentication/googleIcon.svg';
 
 const appUrl = import.meta.env.VITE_APP_URL || 'http://localhost:3000';
-const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '1036463666928-d3i3phfhglrl00l489tm3fccarm6p6nq.apps.googleusercontent.com';
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function GoogleIcon(){
+    if (!clientId) return null;
+
     const handleGoogleLogin = () => {
         const state = crypto.randomUUID();
         sessionStorage.setItem('oauth_state', state);
