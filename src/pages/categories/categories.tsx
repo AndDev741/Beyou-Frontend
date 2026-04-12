@@ -88,7 +88,7 @@ function Categories(){
             const response = await getCategories(t);
             if(Array.isArray(response.success)){
                 dispatch(enterCategories(response.success));
-            }else if(response.error = t('Get categories return a error')){
+            } else if (response.error) {
                 dispatch(defaultErrorEnter(response.error));
             }
         }
