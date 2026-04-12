@@ -168,7 +168,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
       <div className="relative w-full max-w-4xl">
         <button
           type="button"
-          className="absolute -top-6 right-3 flex items-center gap-1 text-description hover:text-secondary transition-colors"
+          className="absolute -top-6 right-3 flex items-center gap-1 text-secondary hover:text-secondary transition-colors"
           onClick={onSkip}
         >
           <span className="text-sm font-semibold">{t("TutorialSkip")}</span>
