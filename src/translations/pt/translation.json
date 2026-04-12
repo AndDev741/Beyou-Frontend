@@ -126,6 +126,8 @@
     "ProfilePhotoUrlMax": "URL da foto não pode exceder 2048 caracteres",
     "YupImportanceRequired": "Escolha uma importância",
     "YupDificultyRequired": "Escolha uma dificuldade",
+    "YupMaxImportance": "Importância deve ser no máximo 5",
+    "YupMaxDifficulty": "Dificuldade deve ser no máximo 5",
     "YupRequiredCategories": "Escolha ao menos 1 categoria",
     "ExpandBoxImgAlt": "ícone para aumentar e diminuir caixa",
     "constanceFireIconAlt": "ícone de fogo para constância",

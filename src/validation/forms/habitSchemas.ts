@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { TFunction } from "i18next";
-import { requiredStringWithMinMax, stringMax, requiredNumberMin, requiredNumber } from "../common";
+import { requiredStringWithMinMax, stringMax, requiredNumberMinMax, requiredNumber } from "../common";
 
 const baseHabitSchema = (t: TFunction) =>
     z.object({
@@ -13,8 +13,8 @@ const baseHabitSchema = (t: TFunction) =>
         }),
         description: stringMax(t, 256, "YupDescriptionMaxValue"),
         motivationalPhrase: stringMax(t, 256, "YupGenericMaxLength"),
-        importance: requiredNumberMin(t, "YupImportanceRequired", 1),
-        difficulty: requiredNumberMin(t, "YupDificultyRequired", 1),
+        importance: requiredNumberMinMax(t, "YupImportanceRequired", "YupMaxImportance", 1, 5),
+        difficulty: requiredNumberMinMax(t, "YupDificultyRequired", "YupMaxDifficulty", 1, 5),
         iconId: z.string().min(1, t("YupIconRequired")),
         categoriesId: z.array(z.string()).min(1, t("YupRequiredCategories"))
     });
