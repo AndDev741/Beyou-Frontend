@@ -544,5 +544,8 @@
     "XpDecayDescription": "Escolha como o XP é calculado quando você marca itens após o horário agendado.",
     "TimezoneSuggestion": "O fuso horário do seu navegador é {{timezone}}. Gostaria de usá-lo?",
     "UseDetectedTimezone": "Usar {{timezone}}",
-    "RoutineSettingsSaved": "Configurações de rotina salvas com sucesso"
+    "RoutineSettingsSaved": "Configurações de rotina salvas com sucesso",
+    "ErrorBoundaryTitle": "Algo deu errado",
+    "ErrorBoundaryMessage": "Ocorreu um erro inesperado. Por favor, recarregue a página.",
+    "ErrorBoundaryReload": "Recarregar"
 }

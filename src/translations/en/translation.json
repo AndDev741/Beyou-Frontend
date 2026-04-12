@@ -546,5 +546,8 @@
     "XpDecayDescription": "Choose how XP is calculated when you check items after their scheduled time.",
     "TimezoneSuggestion": "Your browser's timezone is {{timezone}}. Would you like to use it?",
     "UseDetectedTimezone": "Use {{timezone}}",
-    "RoutineSettingsSaved": "Routine settings saved successfully"
+    "RoutineSettingsSaved": "Routine settings saved successfully",
+    "ErrorBoundaryTitle": "Something went wrong",
+    "ErrorBoundaryMessage": "An unexpected error occurred. Please reload the page.",
+    "ErrorBoundaryReload": "Reload"
 }
