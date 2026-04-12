@@ -194,7 +194,7 @@ function GoalBox({
           <p className="text-description text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
         </div>
         <div className="flex items-center space-x-2">
-          <ProgressRing progress={currentValue / targetValue * 100} size="md" className="flex-shrink-0" />
+          <ProgressRing progress={targetValue > 0 ? (currentValue / targetValue * 100) : 0} size="md" className="flex-shrink-0" />
         </div>
       </div>
 
