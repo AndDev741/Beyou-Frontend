@@ -91,6 +91,11 @@ function ResetPassword() {
         const response = await resetPasswordRequest(token, values.password);
         if (response.error) {
             const message = getFriendlyErrorMessage(t, response.error);
+            if (response.error.errorKey === "PASSWORD_RESET_TOKEN_EXPIRED" || response.error.errorKey === "PASSWORD_RESET_TOKEN_INVALID") {
+                setIsTokenValid(false);
+                setTokenError(message);
+                return;
+            }
             setError("root", { message: message });
             return;
         }
