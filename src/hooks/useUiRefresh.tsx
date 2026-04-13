@@ -4,9 +4,10 @@ import { useDispatch } from "react-redux";
 import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../redux/user/perfilSlice";
 import { refreshCategorie } from "../redux/category/categoriesSlice";
 import { refreshItemGroup } from "../redux/routine/todayRoutineSlice";
+import { logger } from "../utils/logger";
 
 export default function useUiRefresh(refreshUi: RefreshUI) {
-    console.log("Refreshing Objects => ", refreshUi);
+    logger.log("Refreshing Objects => ", refreshUi);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -29,7 +30,7 @@ export default function useUiRefresh(refreshUi: RefreshUI) {
         }
 
         if(refreshUi?.refreshItemChecked){
-            console.log("REFRESH ITEM CHECKED => ", refreshUi?.refreshItemChecked)
+            logger.log("REFRESH ITEM CHECKED => ", refreshUi?.refreshItemChecked)
             dispatch(refreshItemGroup(refreshUi?.refreshItemChecked));
         }
 

@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import {defaultDark, defaultLight} from "../components/utils/listOfThemes";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
+import { logger } from "../utils/logger";
 
 export type ThemeType = typeof defaultLight;
 type ThemeContextType = {
@@ -17,11 +18,11 @@ const ThemeContext = createContext<ThemeContextType>({
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const userTheme = useSelector((state: RootState) => state.perfil.themeInUse);
-    console.log("USER THEME => ", userTheme);
+    logger.log("USER THEME => ", userTheme);
     const [theme, setTheme] = useState(
         userTheme ? userTheme : prefersDark ? defaultDark : defaultLight
     );
-    console.log("theme => ", theme);
+    logger.log("theme => ", theme);
 
     useEffect(() => {
         setTheme(userTheme ? userTheme : prefersDark ? defaultDark : defaultLight);
