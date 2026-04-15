@@ -76,7 +76,9 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
     );
     const oneTimeTaskToEdit = useSelector((state: RootState) => state.editTask.oneTimeTask);
 
-    const alreadyChosenCategories: category[] = categoriesToEdit || [];
+    const alreadyChosenCategories: category[] = Array.isArray(categoriesToEdit)
+        ? categoriesToEdit
+        : Object.entries(categoriesToEdit || {}).map(([id, cat]) => ({ id, name: (cat as any).name, iconId: (cat as any).iconId } as category));
 
     const editDefaults = useMemo<TaskFormValues>(
         () => ({
@@ -85,7 +87,9 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
             iconId: iconIdToEdit || "",
             importance: importanceToEdit ?? 0,
             difficulty: difficultyToEdit ?? 0,
-            categoriesId: (categoriesToEdit || []).map((category) => category.id),
+            categoriesId: Array.isArray(categoriesToEdit)
+                ? categoriesToEdit.map((category) => category.id)
+                : Object.keys(categoriesToEdit || {}),
             oneTimeTask: oneTimeTaskToEdit ?? false
         }),
         [

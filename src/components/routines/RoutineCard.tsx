@@ -12,7 +12,7 @@ import {
 } from "./routineMetrics";
 import { AiFillStar } from "react-icons/ai";
 import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
-import { logger } from "../../utils/logger";
+
 
 type ItemLookup = Record<string, { name?: string; iconId?: string }>;
 
@@ -249,7 +249,6 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
         const tasks =
             section.taskGroup?.map((task) => {
                 const data = taskLookup[task.taskId] || {};
-                logger.log("TASK DATA FOUND => ", data)
                 const completed = task.taskGroupChecks?.some(
                     (check) => check?.checkDate === selectedDate && Boolean(check?.checked)
                 );
@@ -273,7 +272,6 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
         const habits =
             section.habitGroup?.map((habit) => {
                 const data = habitLookup[habit.habitId] || {};
-                logger.log("HABIT DATA FOUND => ", data)
                 const completed = habit.habitGroupChecks?.some(
                     (check) => check?.checkDate === selectedDate && Boolean(check?.checked)
                 );
@@ -293,7 +291,6 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     type: "habit" as const,
                 };
             }) || [];
-        logger.log("SECTION => ", section, "HABITS => ", habits)
 
         return [...tasks, ...habits].sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
     }, [section, selectedDate, taskLookup, habitLookup, t]);

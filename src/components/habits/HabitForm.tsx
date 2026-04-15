@@ -79,7 +79,9 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
         shallowEqual
     );
 
-    const alreadyChosenCategories: category[] = categoriesToEdit || [];
+    const alreadyChosenCategories: category[] = Array.isArray(categoriesToEdit)
+        ? categoriesToEdit
+        : Object.entries(categoriesToEdit || {}).map(([id, cat]) => ({ id, name: (cat as any).name, iconId: (cat as any).iconId } as category));
 
     const editDefaults = useMemo<HabitFormValues>(
         () => ({
@@ -89,7 +91,9 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
             importance: importanceToEdit ?? 0,
             difficulty: difficultyToEdit ?? 0,
             iconId: iconIdToEdit || "",
-            categoriesId: (categoriesToEdit || []).map((category) => category.id)
+            categoriesId: Array.isArray(categoriesToEdit)
+                ? categoriesToEdit.map((category) => category.id)
+                : Object.keys(categoriesToEdit || {})
         }),
         [
             nameToEdit,

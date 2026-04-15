@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import ErrorNotice from "./ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../services/apiError";
-import { logger } from "../utils/logger";
+
 
 
 type deleteProps = {
@@ -69,7 +69,7 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
                 }
                 break
             default:
-                logger.log("No mode found");
+                break;
         }
 
         if(response.success){

@@ -30,7 +30,7 @@ function RenderTasks({tasks, setTasks}: renderTasksProps){
                             description={task.description!}
                             categories={task.categories}
                             importance={task.importance}
-                            dificulty={task.dificulty}
+                            dificulty={task.difficulty}
                             createdAt={task.createdAt}
                             oneTimeTask={task.oneTimeTask}
                             updatedAt={task.updatedAt}

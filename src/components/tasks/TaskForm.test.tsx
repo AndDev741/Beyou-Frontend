@@ -56,7 +56,9 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
         target: { value: "My Task" }
     });
 
-    // Task form allows importance/difficulty to both be 0 (unset), so skip them.
+    // Set importance and difficulty (min 1 required, matching backend @Min(1) @Max(5))
+    fireEvent.click(screen.getByLabelText("Low"));
+    fireEvent.click(screen.getByLabelText("Easy"));
 
     // Click an icon from the icon grid (rendered as <p> elements with cursor-pointer class)
     await waitFor(() => {
