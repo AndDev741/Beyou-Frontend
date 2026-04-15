@@ -39,6 +39,7 @@ import increaseCurrentValue from "../../services/goals/increaseCurrentValue";
 import decreaseCurrentValue from "../../services/goals/decreaseCurrentValue";
 import useUiRefresh from "../../hooks/useUiRefresh";
 
+
 type GoalBoxProps = {
   id: string;
   title: string;
@@ -168,15 +169,12 @@ function GoalBox({
 
   const decreaseTask = async (id: string) => {
     const goal = await decreaseCurrentValue(id, t);
-    console.log(goal);
     mountGoalWithNewValues(goal);
   }
 
   const mountGoalWithNewValues = (goal: GoalType) => {
     dispatch(updateGoal(goal));
   }
-
-  console.log("CATEGORIES => ", categories)
 
   return (
     <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "min-w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>

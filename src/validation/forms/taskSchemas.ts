@@ -14,8 +14,8 @@ export const taskFormSchema = (t: TFunction) =>
             }),
             description: stringMax(t, 256, "YupDescriptionMaxValue"),
             iconId: z.string().min(1, t("YupIconRequired")),
-            importance: z.number(),
-            difficulty: z.number(),
+            importance: z.number().min(1).max(5, t("YupMaxImportance")),
+            difficulty: z.number().min(1).max(5, t("YupMaxDifficulty")),
             categoriesId: z.array(z.string()),
             oneTimeTask: z.boolean().default(false)
         })

@@ -27,8 +27,8 @@ test("shows password mismatch error", async () => {
     const passwordInput = screen.getByPlaceholderText("PasswordPlaceholder");
     const confirmInput = screen.getByPlaceholderText("ConfirmPasswordPlaceholder");
 
-    fireEvent.change(passwordInput, { target: { value: "123456" } });
-    fireEvent.change(confirmInput, { target: { value: "123457" } });
+    fireEvent.change(passwordInput, { target: { value: "StrongPass123!" } });
+    fireEvent.change(confirmInput, { target: { value: "StrongPass124!" } });
 
     fireEvent.blur(confirmInput);
     const form = passwordInput.closest("form");
@@ -75,8 +75,8 @@ test("shows token error after reset when token expired", async () => {
     const passwordInput = screen.getByPlaceholderText("PasswordPlaceholder");
     const confirmInput = screen.getByPlaceholderText("ConfirmPasswordPlaceholder");
 
-    fireEvent.change(passwordInput, { target: { value: "123456" } });
-    fireEvent.change(confirmInput, { target: { value: "123456" } });
+    fireEvent.change(passwordInput, { target: { value: "StrongPass123!" } });
+    fireEvent.change(confirmInput, { target: { value: "StrongPass123!" } });
 
     fireEvent.blur(confirmInput);
     const form = passwordInput.closest("form");

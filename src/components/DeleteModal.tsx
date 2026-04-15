@@ -12,6 +12,7 @@ import ErrorNotice from "./ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../services/apiError";
 
 
+
 type deleteProps = {
     objectId: string, 
     onDelete: boolean, 
@@ -68,7 +69,7 @@ function DeleteModal({objectId, onDelete, setOnDelete, t, name, setObjects, dele
                 }
                 break
             default:
-                console.log("No mode found");
+                break;
         }
 
         if(response.success){

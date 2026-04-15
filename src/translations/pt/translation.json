@@ -126,6 +126,8 @@
     "ProfilePhotoUrlMax": "URL da foto não pode exceder 2048 caracteres",
     "YupImportanceRequired": "Escolha uma importância",
     "YupDificultyRequired": "Escolha uma dificuldade",
+    "YupMaxImportance": "Importância deve ser no máximo 5",
+    "YupMaxDifficulty": "Dificuldade deve ser no máximo 5",
     "YupRequiredCategories": "Escolha ao menos 1 categoria",
     "ExpandBoxImgAlt": "ícone para aumentar e diminuir caixa",
     "constanceFireIconAlt": "ícone de fogo para constância",
@@ -145,6 +147,13 @@
     "Show details": "Mostrar detalhes",
     "Hide details": "Ocultar detalhes",
     "INVALID_REQUEST": "Requisição inválida. Revise os campos.",
+    "JWT_NOT_FOUND": "Sua sessão expirou. Faça login novamente.",
+    "JWT_INVALID": "Sua sessão é inválida. Faça login novamente.",
+    "AUTH_HEADER_INVALID": "Falha na autenticação. Faça login novamente.",
+    "REFRESH_TOKEN_NOT_FOUND": "Sua sessão expirou. Faça login novamente.",
+    "REFRESH_TOKEN_EXPIRED": "Sua sessão expirou. Faça login novamente.",
+    "REFRESH_TOKEN_INVALID": "Sua sessão é inválida. Faça login novamente.",
+    "GOOGLE_OAUTH_FAILED": "Falha no login com Google. Tente novamente.",
     "USER_NOT_FOUND": "Usuário não encontrado. Faça login novamente.",
     "PASSWORD_RESET_TOKEN_INVALID": "Este link de redefinição é inválido.",
     "PASSWORD_RESET_TOKEN_EXPIRED": "Este link de redefinição expirou.",
@@ -544,5 +553,8 @@
     "XpDecayDescription": "Escolha como o XP é calculado quando você marca itens após o horário agendado.",
     "TimezoneSuggestion": "O fuso horário do seu navegador é {{timezone}}. Gostaria de usá-lo?",
     "UseDetectedTimezone": "Usar {{timezone}}",
-    "RoutineSettingsSaved": "Configurações de rotina salvas com sucesso"
+    "RoutineSettingsSaved": "Configurações de rotina salvas com sucesso",
+    "ErrorBoundaryTitle": "Algo deu errado",
+    "ErrorBoundaryMessage": "Ocorreu um erro inesperado. Por favor, recarregue a página.",
+    "ErrorBoundaryReload": "Recarregar"
 }

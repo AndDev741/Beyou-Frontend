@@ -12,6 +12,7 @@ import SmallButton from "../SmallButton";
 import editUser from "../../services/user/editUser";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "../../services/apiError";
+import { logger } from "../../utils/logger";
 
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -109,7 +110,7 @@ export default function WidgetsConfiguration() {
             setErrorMessage(friendlyMessage);
             toast.error(friendlyMessage);
         } else {
-            console.log("Widgets edited successfully");
+            logger.log("Widgets edited successfully");
             setSuccessMessage(t('SuccessEditWidgets'));
             toast.success(t('SuccessEditWidgets'));
             dispatch(widgetsIdInUseEnter(currentWidgets));

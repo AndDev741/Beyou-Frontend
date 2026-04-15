@@ -25,6 +25,7 @@ import useChangeLanguage from "../../hooks/useChangeLanguage";
 import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
+import { logger } from "../../utils/logger";
 
 function Dashboard() {
     useAuthGuard();
@@ -51,7 +52,7 @@ function Dashboard() {
     const actualLevelXp = useSelector((state: RootState) => state.perfil.actualLevelXp);
 
     const languageInUse = useSelector((state: RootState) => state.perfil.languageInUse);
-    console.log("Language in use => ", languageInUse)
+    logger.log("Language in use => ", languageInUse)
     useChangeLanguage(languageInUse);
     
     useEffect(() => {

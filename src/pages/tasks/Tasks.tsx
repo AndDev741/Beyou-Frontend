@@ -51,9 +51,9 @@ function Tasks() {
             case "importance-asc":
                 return sortItems(tasks, (a, b) => compareNumbers(a.importance, b.importance));
             case "difficulty-desc":
-                return sortItems(tasks, (a, b) => compareNumbers(b.dificulty, a.dificulty));
+                return sortItems(tasks, (a, b) => compareNumbers(b.difficulty, a.difficulty));
             case "difficulty-asc":
-                return sortItems(tasks, (a, b) => compareNumbers(a.dificulty, b.dificulty));
+                return sortItems(tasks, (a, b) => compareNumbers(a.difficulty, b.difficulty));
             case "created-desc":
                 return sortItems(tasks, (a, b) =>
                     compareNumbers(getTimestamp(b.createdAt), getTimestamp(a.createdAt))

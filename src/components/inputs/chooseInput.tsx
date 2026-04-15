@@ -14,7 +14,7 @@ type chooseInputProps = {
 function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: chooseInputProps){
     const labelCss = "text-2xl md:text-xl text-secondary";
     const radioRef = useRef<HTMLInputElement>(null);
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1 underline";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-[45vw] md:max-w-[320px] lg:max-w-[15rem] mt-1 underline";
 
     const handleClick = (value: number) => {
         if (choosedLevel === value) {

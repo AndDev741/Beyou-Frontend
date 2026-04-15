@@ -10,7 +10,7 @@ type experienceInputProps= {
 function ExperienceInput({experience, setExperience, experienceError, t}: experienceInputProps){
     const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
     const labelCss = "text-lg md:text-2xl md:text-xl text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
     return(
         <>
             <label htmlFor='experience' 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import iconSearch from "../../icons/iconsSearch";
 import { IconObject } from "../../../types/icons/IconObject";
 import category from "../../../types/category/categoryType";
+import { logger } from "../../../utils/logger";
 
 type categoryItemProps = {
     name: string,
@@ -20,7 +21,7 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
         const result = iconSearch(iconId);
         setIcon(result);
     }, [iconId])
-    console.log(`NAME =? ${name} checked? ${alreadyChosen}`)
+    logger.log(`NAME =? ${name} checked? ${alreadyChosen}`)
     const handleCheckboxChange= (event: { target: { id: string; checked: boolean; }; }) => {
         const {id, checked} = event.target;
 

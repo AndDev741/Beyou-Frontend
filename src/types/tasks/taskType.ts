@@ -6,7 +6,7 @@ export type task = {
     description?: string,
     iconId: string,
     importance?: number,
-    dificulty?: number,
+    difficulty?: number,
     categories?: Record<string, CategoryMiniDTO>;
     oneTimeTask: boolean,
     markedToDelete: Date,

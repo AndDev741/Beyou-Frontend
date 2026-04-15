@@ -126,6 +126,8 @@
     "ProfilePhotoUrlMax": "Photo URL can't exceed 2048 characters",
     "YupImportanceRequired": "Choose an importance",
     "YupDificultyRequired": "Choose an difficulty",
+    "YupMaxImportance": "Importance must be at most 5",
+    "YupMaxDifficulty": "Difficulty must be at most 5",
     "YupRequiredCategories": "Choose at least 1 category",
     "ExpandBoxImgAlt": "Increase and descrease box icon",
     "constanceFireIconAlt": "Fire icon for constance",
@@ -146,6 +148,13 @@
     "Show details": "Show details",
     "Hide details": "Hide details",
     "INVALID_REQUEST": "Invalid request. Please review the fields.",
+    "JWT_NOT_FOUND": "Your session has expired. Please log in again.",
+    "JWT_INVALID": "Your session is invalid. Please log in again.",
+    "AUTH_HEADER_INVALID": "Authentication failed. Please log in again.",
+    "REFRESH_TOKEN_NOT_FOUND": "Your session has expired. Please log in again.",
+    "REFRESH_TOKEN_EXPIRED": "Your session has expired. Please log in again.",
+    "REFRESH_TOKEN_INVALID": "Your session is invalid. Please log in again.",
+    "GOOGLE_OAUTH_FAILED": "Google login failed. Please try again.",
     "USER_NOT_FOUND": "User not found. Please login again.",
     "PASSWORD_RESET_TOKEN_INVALID": "This reset link is invalid.",
     "PASSWORD_RESET_TOKEN_EXPIRED": "This reset link has expired.",
@@ -546,5 +555,8 @@
     "XpDecayDescription": "Choose how XP is calculated when you check items after their scheduled time.",
     "TimezoneSuggestion": "Your browser's timezone is {{timezone}}. Would you like to use it?",
     "UseDetectedTimezone": "Use {{timezone}}",
-    "RoutineSettingsSaved": "Routine settings saved successfully"
+    "RoutineSettingsSaved": "Routine settings saved successfully",
+    "ErrorBoundaryTitle": "Something went wrong",
+    "ErrorBoundaryMessage": "An unexpected error occurred. Please reload the page.",
+    "ErrorBoundaryReload": "Reload"
 }

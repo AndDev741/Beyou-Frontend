@@ -151,7 +151,7 @@ function IconsBoxSmall({
 
     const borderCss = "border border-primary rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-background";
     const labelCss = "text-base md:text-lg text-secondary";
-    const errorCss = "text-error text-xs leading-snug break-words whitespace-normal max-w-full mt-1";
+    const errorCss = "text-error text-xs leading-snug break-words whitespace-normal w-[45vw] md:w-[160px] lg:w-[12rem] mt-1";
     return (
         <>
             <div className='flex items-center justify-start text-secondary'>

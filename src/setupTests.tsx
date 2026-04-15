@@ -22,20 +22,23 @@ vi.mock('axios', () => {
 });
 
 // Lightweight i18n stub so components can call t() without a full instance
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: {
-      changeLanguage: () => Promise.resolve(),
-      language: 'en',
+vi.mock('react-i18next', () => {
+  const t = (key: string) => key;
+  const i18nStub = {
+    changeLanguage: () => Promise.resolve(),
+    language: 'en',
+  };
+  return {
+    useTranslation: () => ({ t, i18n: i18nStub }),
+    withTranslation: () => (Component: any) => (props: any) => <Component {...props} t={t} i18n={i18nStub} tReady={true} />,
+    Trans: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    I18nextProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    initReactI18next: {
+      type: '3rdParty',
+      init: () => undefined,
     },
-  }),
-  Trans: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  initReactI18next: {
-    type: '3rdParty',
-    init: () => undefined,
-  },
-}));
+  };
+});
 
 // Route act calls to React's version to silence react-dom/test-utils deprecation warning
 vi.mock('react-dom/test-utils', async () => {

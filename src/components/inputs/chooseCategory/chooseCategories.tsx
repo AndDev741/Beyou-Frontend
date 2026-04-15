@@ -22,7 +22,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [pendingSelection, setPendingSelection] = useState<{ name: string; iconId: string } | null>(null);
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-full mt-1 text-center";
+    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-[90vw] md:max-w-[660px] lg:max-w-[32rem] mt-1 text-center";
 
     useEffect(() => {
         async function returnCategories(){

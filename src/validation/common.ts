@@ -67,6 +67,24 @@ export const requiredNumberMin = (t: TFunction, requiredKey: string, min: number
             .min(min, t(requiredKey))
     );
 
+export const requiredNumberMinMax = (
+    t: TFunction,
+    requiredKey: string,
+    maxKey: string,
+    min: number,
+    max: number
+) =>
+    z.preprocess(
+        toNumber,
+        z
+            .number({
+                required_error: t(requiredKey),
+                invalid_type_error: t(requiredKey)
+            })
+            .min(min, t(requiredKey))
+            .max(max, t(maxKey))
+    );
+
 export const stringDateRequired = (t: TFunction, requiredKey: string) =>
     z.string().min(1, t(requiredKey));
 
