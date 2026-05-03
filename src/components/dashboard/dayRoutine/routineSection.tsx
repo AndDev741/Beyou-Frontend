@@ -54,7 +54,7 @@ export default function RoutineSection({ section, routineId}: { section: section
      const handleCheck = async (groupToCheck: itemGroupToCheck) => {
         const refreshUiReponse = await checkRoutine(groupToCheck, t);
         if(refreshUiReponse?.success){
-            setRefreshUi(refreshUiReponse.success as RefreshUI);
+            setRefreshUi(refreshUiReponse.success);
         } else if (refreshUiReponse?.error) {
             toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }
@@ -63,7 +63,7 @@ export default function RoutineSection({ section, routineId}: { section: section
      const handleSkip = async (groupToSkip: itemGroupToSkip) => {
         const refreshUiReponse = await skipRoutine(groupToSkip, t);
         if(refreshUiReponse?.success){
-            setRefreshUi(refreshUiReponse.success as RefreshUI);
+            setRefreshUi(refreshUiReponse.success);
         } else if (refreshUiReponse?.error) {
             toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { goal as GoalType } from "../../types/goals/goalType";
+import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
 import DeleteModal from "../DeleteModal";
 import getGoals from "../../services/goals/getGoals";
 import deleteGoal from "../../services/goals/deleteGoal";
@@ -84,7 +85,7 @@ function GoalBox({
   const [statusIcon, setStatusIcon] = useState(notStartedIcon);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
-  const [refreshUi, setRefreshUi] = useState({});
+  const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
 
   function handleEditMode() {
     dispatch(editModeEnter(true));

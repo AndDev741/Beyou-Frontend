@@ -3,7 +3,7 @@ import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
 
-type apiResponse = Record<string, RefreshUI | string>
+type apiResponse = { success?: RefreshUI; error?: string };
 
 async function markGoalAsComplete(id: string, t: TFunction): Promise<apiResponse> {
   try {

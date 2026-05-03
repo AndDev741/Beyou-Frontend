@@ -67,7 +67,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
             return;
         }
         if (response?.success) {
-            setRefreshUi(response.success as RefreshUI);
+            setRefreshUi(response.success);
             await refetchSnapshot();
         }
     };
@@ -79,7 +79,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
             return;
         }
         if (response?.success) {
-            setRefreshUi(response.success as RefreshUI);
+            setRefreshUi(response.success);
             await refetchSnapshot();
         }
     };
