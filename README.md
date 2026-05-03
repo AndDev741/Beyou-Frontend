@@ -24,7 +24,8 @@ npm run test     # run all tests
 npm run build    # production build
 ```
 
-Configure backend URL in `.env` via `VITE_API_URL` (defaults to `http://localhost:8099`).
+Configure backend URL in `.env` via `VITE_API_URL` (defaults to `http://localhost:8099/api/v1`).
+All API endpoints are versioned under `/api/v1`.
 
 ## License
 

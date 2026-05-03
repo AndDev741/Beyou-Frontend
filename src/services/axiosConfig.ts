@@ -1,8 +1,10 @@
 import axios from 'axios';
 import refreshTokenRequest from './authentication/request/refreshTokenRequest';
 
+// Backend serves all endpoints under /api/v1 (see Beyou-backend-spring application.yaml).
+// VITE_API_URL should already include the /api/v1 suffix in deployed environments.
 const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8099',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8099/api/v1',
     withCredentials: true
 });
 
