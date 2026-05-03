@@ -27,7 +27,7 @@ describe("useSilentRefresh", () => {
 
   it("transitions to 'authenticated' and stores token on success", async () => {
     (refreshTokenRequest as any).mockResolvedValueOnce({
-      headers: { accesstoken: "new-token-123" },
+      headers: { "x-access-token": "new-token-123" },
     });
 
     const { result } = renderHook(() => useSilentRefresh());
@@ -48,7 +48,7 @@ describe("useSilentRefresh", () => {
     await waitFor(() => expect(result.current).toBe("unauthenticated"));
   });
 
-  it("transitions to 'unauthenticated' when response has no accesstoken header", async () => {
+  it("transitions to 'unauthenticated' when response has no x-access-token header", async () => {
     (refreshTokenRequest as any).mockResolvedValueOnce({ headers: {} });
 
     const { result } = renderHook(() => useSilentRefresh());

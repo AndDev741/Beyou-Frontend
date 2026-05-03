@@ -14,7 +14,7 @@ const getRefreshedAccessToken = async () => {
     if (!refreshPromise) {
         refreshPromise = refreshTokenRequest()
             .then(response => {
-                const accessToken = response.headers["accesstoken"];
+                const accessToken = response.headers["x-access-token"];
                 if (!accessToken) {
                     throw new Error("No access token in refresh response");
                 }

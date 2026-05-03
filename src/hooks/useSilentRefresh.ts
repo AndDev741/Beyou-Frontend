@@ -25,7 +25,7 @@ export function useSilentRefresh(): AuthBootState {
     refreshTokenRequest()
       .then((response) => {
         if (cancelled) return;
-        const accessToken = response.headers["accesstoken"];
+        const accessToken = response.headers["x-access-token"];
         if (accessToken) {
           axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
           setState("authenticated");

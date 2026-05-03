@@ -10,7 +10,7 @@ async function loginRequest(email: string, password: string): Promise<Record<str
     try {
         const response = await axios.post<Record<string, UserType>>("/auth/login", loginData);
 
-        const accessToken = response.headers["accesstoken"];
+        const accessToken = response.headers["x-access-token"];
         axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
         return response.data;
     } catch (e: unknown) {
