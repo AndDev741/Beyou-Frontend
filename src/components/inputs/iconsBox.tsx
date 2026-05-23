@@ -263,17 +263,20 @@ function IconsBox({
                     </div>
                 ) : (
                     iconsToDisplay.map((entry) => (
-                        <p
+                        <button
+                            type="button"
                             onClick={() => handleSelect(entry.id)}
                             key={entry.id}
+                            aria-label={entry.label}
+                            aria-pressed={entry.id === selectedCanonical}
                             className={`${
                                 entry.id === selectedCanonical
                                     ? "scale-110 text-primary border-2 border-primary rounded-md"
                                     : "text-description"
-                            } text-3xl m-1 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
+                            } text-3xl m-1 bg-transparent border-0 p-0 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
                         >
                             <entry.IconComponent />
-                        </p>
+                        </button>
                     ))
                 )}
             </div>
