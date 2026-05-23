@@ -100,6 +100,7 @@ function Register() {
                                     data={field.value}
                                     setData={field.onChange}
                                     errorMessage={errors.name?.message ?? ""}
+                                    testId="register-name-input"
                                 />
                             )}
                         />
@@ -120,6 +121,7 @@ function Register() {
                                     data={field.value}
                                     setData={field.onChange}
                                     errorMessage={errors.email?.message ?? ""}
+                                    testId="register-email-input"
                                 />
                             )}
                         />
@@ -140,12 +142,13 @@ function Register() {
                                     data={field.value}
                                     setData={field.onChange}
                                     errorMessage={errors.password?.message ?? ""}
+                                    testId="register-password-input"
                                 />
                             )}
                         />
 
                         <div className="mt-8 lg:mt-4">
-                            <Button text={t("ToRegister")} mode="create" size="big" />
+                            <Button text={t("ToRegister")} mode="create" size="big" type="submit" testId="register-submit" />
                         </div>
                         {errors.root?.message && (
                             <p className="block text-error underline text-xl text-center">{errors.root?.message}</p>

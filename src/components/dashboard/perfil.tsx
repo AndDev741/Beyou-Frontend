@@ -45,7 +45,7 @@ function Perfil() {
                             className="w-[80px] h-[80px] md:w-[80px] md:h-[80px] bg-white/20 rounded-full object-cover border-2 border-background md:border-primary" 
                         />
                         <div className="flex flex-col ml-4 text-background md:text-secondary">
-                            <h2 className="text-lg md:text-2xl font-bold leading-tight">{t('GoodMorning')}, {name}</h2>
+                            <h2 className="text-lg md:text-2xl font-bold leading-tight" data-testid="dashboard-greeting">{t('GoodMorning')}, {name}</h2>
                             <h3 className="text-sm md:text-lg font-medium opacity-90 md:text-primary">{t('BeYourBestVersion')}</h3>
                         </div>
                     </div>

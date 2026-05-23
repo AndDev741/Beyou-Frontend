@@ -5,9 +5,10 @@ type buttonProps = {
     onClick?: () => void;
     type?: "submit" | "reset" | "button" | undefined;
     icon?: React.ReactNode;
+    testId?: string;
 }
 
-function Button({text, size, mode, onClick, type, icon}: buttonProps){
+function Button({text, size, mode, onClick, type, icon, testId}: buttonProps){
     let style;
 
     switch(mode){
@@ -40,6 +41,7 @@ function Button({text, size, mode, onClick, type, icon}: buttonProps){
             className={`flex items-center justify-center ${style}`}
             onClick={onClick}
             type={type}
+            data-testid={testId}
             >
                 {icon && <span className="mr-2 md:mr-6 cursor-pointer">{icon}</span>}
                 {text}

@@ -131,6 +131,7 @@ function Login() {
                                     data={field.value}
                                     setData={field.onChange}
                                     errorMessage={errors.email?.message ?? ""}
+                                    testId="login-email-input"
                                 />
                             )}
                         />
@@ -151,6 +152,7 @@ function Login() {
                                     data={field.value}
                                     setData={field.onChange}
                                     errorMessage={errors.password?.message ?? ""}
+                                    testId="login-password-input"
                                 />
                             )}
                         />
@@ -162,7 +164,7 @@ function Login() {
                             {t("ForgotPassword")}
                         </Link>
 
-                        <Button text={t("Enter")} mode="create" size="big" />
+                        <Button text={t("Enter")} mode="create" size="big" type="submit" testId="login-submit" />
                     </form>
 
                     <GoogleIcon />
