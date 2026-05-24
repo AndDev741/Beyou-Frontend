@@ -60,10 +60,20 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                     </p>
                     <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
                 </div>
-                <img onClick={() => setExpanded(!expanded)}
-                alt=""
-                className="w-[25px] pb-3 cursor-pointer hover:scale-105"
-                src={expanded ? decreaseIcon : increaseIcon}/>
+                <button
+                    type="button"
+                    onClick={() => setExpanded(!expanded)}
+                    aria-label={expanded ? t('Collapse') : t('Expand')}
+                    aria-expanded={expanded}
+                    className="bg-transparent border-0 p-0 cursor-pointer hover:scale-105 transition-transform duration-150"
+                >
+                    <img
+                        alt=""
+                        aria-hidden="true"
+                        className="w-[25px] pb-3"
+                        src={expanded ? decreaseIcon : increaseIcon}
+                    />
+                </button>
             </div>
 
             <p className={`text-[15px] leading-tight text-description ${expanded ? "line-clamp-none my-2" : "line-clamp-2"}`}>{description}</p>

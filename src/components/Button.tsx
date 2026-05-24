@@ -31,7 +31,7 @@ function Button({text, size, mode, onClick, type, icon, testId}: buttonProps){
             style = style + " w-[120px] md:w-[200px] h-[45px]";
             break;
         case "small":
-            style = style + " w-[60px] md:2-[150px] h-[45px]";
+            style = style + " w-[60px] md:w-[150px] h-[45px]";
             break;
     }
 

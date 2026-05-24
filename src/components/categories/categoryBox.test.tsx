@@ -32,7 +32,7 @@ test('Render collapsed view', () => {
 
 test('Expand the card when clicked', () => {
     render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('img'));
+    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
     expect(screen.getByText(/Edit/i)).toBeInTheDocument();
     expect(screen.getByText(/Delete/i)).toBeInTheDocument();
 });
@@ -40,19 +40,19 @@ test('Expand the card when clicked', () => {
 test('renders using-in lists', () => {
     const habits = new Map([['h1', 'Habit One']]);
     render(<CategoryBox {...defaultProps} habits={habits} />);
-    fireEvent.click(screen.getByRole('img'));
+    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
     expect(screen.getByText('Habit One')).toBeInTheDocument();
 });
 
 test('shows fallback when no references', () => {
     render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('img'));
+    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
     expect(screen.getByText(/Add this category/i)).toBeInTheDocument();
 });
 
 test('dispatches edit actions and scrolls', () => {
     render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('img'));
+    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
     fireEvent.click(screen.getByText(/Edit/i));
     //expect(dispatch).toHaveBeenCalled();
     expect((window as any).scrollTo).toHaveBeenCalled();
@@ -60,7 +60,7 @@ test('dispatches edit actions and scrolls', () => {
 
 test('sets delete modal on', () => {
     render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('img'));
+    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
     fireEvent.click(screen.getByText(/Delete/i));
     expect(DeleteModal).toHaveBeenCalledWith(expect.objectContaining({ onDelete: true }), expect.anything());
 });

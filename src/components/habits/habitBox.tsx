@@ -69,10 +69,20 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                     </p>
                     <h2 className={`text-lg md:text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
                 </div>
-                <img className="w-[25px] md:w-[30px] cursor-pointer"
-                alt={t('ExpandBoxImgAlt')}
-                src={expandendIcon}
-                onClick={handleExpanded}/>
+                <button
+                    type="button"
+                    onClick={handleExpanded}
+                    aria-label={expanded ? t('Collapse') : t('Expand')}
+                    aria-expanded={expanded}
+                    className="bg-transparent border-0 p-0 cursor-pointer hover:scale-105 transition-transform duration-150"
+                >
+                    <img
+                        className="w-[25px] md:w-[30px]"
+                        alt=""
+                        aria-hidden="true"
+                        src={expandendIcon}
+                    />
+                </button>
             </div>
 
             <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight text-description`}>
