@@ -77,13 +77,13 @@ test("keeps icon list stable when selecting an icon", async () => {
     const initialCalls = searchIconsSpy.mock.calls.length;
 
     const iconAElement = screen.getByTestId("icon-a");
-    const iconAWrapper = iconAElement.closest("p") ?? iconAElement;
+    const iconAWrapper = iconAElement.closest("button") ?? iconAElement;
     fireEvent.click(iconAWrapper);
 
     expect(searchIconsSpy.mock.calls.length).toBe(initialCalls);
 
     await waitFor(() => {
-        const iconWrapper = screen.getByTestId("icon-a").closest("p") ?? screen.getByTestId("icon-a");
+        const iconWrapper = screen.getByTestId("icon-a").closest("button") ?? screen.getByTestId("icon-a");
         expect(iconWrapper).toHaveClass("text-primary");
     });
 });
