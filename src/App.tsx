@@ -14,6 +14,7 @@ import Configuration from "./pages/configuration/Configuration";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ToastContainer } from "react-toastify";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { useSilentRefresh } from "./hooks/useSilentRefresh";
 
 function AppContent() {
@@ -37,13 +38,15 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth/verify" element={<VerifyEmail />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/habits" element={<Habits />} />
-        <Route path="/goals" element={<Goals />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/routines" element={<Routine />} />
-        <Route path="/configuration" element={<Configuration />} />
+        <Route element={<ProtectedRoute authState={authState} />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/habits" element={<Habits />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/routines" element={<Routine />} />
+          <Route path="/configuration" element={<Configuration />} />
+        </Route>
       </Routes>
       <ToastContainer
         position="bottom-center"

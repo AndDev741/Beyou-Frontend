@@ -1,63 +1,34 @@
 import IAImg from "../../assets/IAIcon.svg";
-import axios from "axios";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import categoryGeneratedByAi from "../../../types/category/categoryGeneratedByAiType";
 
 type prop = {setGeneratedCategory: React.Dispatch<React.SetStateAction<categoryGeneratedByAi>>}
 
+// TODO: re-enable via backend proxy POST /api/v1/ai/generate-category.
+// Direct OpenAI calls from the browser are unsafe: any API key shipped in a
+// VITE_ env var is baked into the bundle and trivially readable by users.
+// When re-enabling, route the request through the Spring backend, which
+// authenticates with OpenAI server-side and returns the parsed category.
 export default function GenerateCategoryByAi({setGeneratedCategory}: prop){
     const {t} = useTranslation();
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
     const [error, setError] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading] = useState(false);
     const [tried, setTried] = useState(false);
-    
-    const fetchSuggestion = async () => {
-        if(tried === true){
+
+    // Suppress unused-prop warning until the backend proxy is wired up.
+    void setGeneratedCategory;
+
+    const fetchSuggestion = () => {
+        if(tried){
             setError(t("AlreadyGeneratedError"));
             return;
         }
-        setIsLoading(true);
-        if(!apiKey){
-            setError(t("gptError"));
-            setTried(true);
-            setIsLoading(false);
-            return;
-        }
-        const body = {
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              "role": "system",
-              "content": t("gptSystemPrompt")
-            },
-            {
-              "role": "user",
-              "content": t("gptClientPrompt")
-            }
-          ]
-        }
-  
-        try{
-            const response = await axios.post("https://api.openai.com/v1/chat/completions", body, {
-                headers: {
-                  "Authorization": `Bearer ${apiKey}`,
-                  "Content-Type": "application/json"
-              }});
-              
-            const data = await response.data;
-            setGeneratedCategory({categoryName: "", description: ""});
-            setGeneratedCategory(JSON.parse(data.choices[0].message.content));
-        }catch(e){
-            console.error(e);
-            setError(t("gptError"))
-        }finally{
-            setTried(true);
-            setIsLoading(false);
-        }
-      };
+        // Feature intentionally disabled — needs backend proxy before re-enabling.
+        setError(t("gptError"));
+        setTried(true);
+    };
 
       return(
         <div className="flex flex-col items-center text-secondary bg-background">
