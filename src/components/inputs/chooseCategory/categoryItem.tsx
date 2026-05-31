@@ -27,7 +27,13 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
 
         if(checked) {
             setAlreadyChosen(true);
-            setCategoriesIdList([...categoriesIdList, id]);
+            // Guard against double-add: `alreadyChosen` (local UI state) can
+            // desync from the actual list (e.g. a category auto-selected after
+            // inline creation), which previously let the same id be appended
+            // twice and produced a duplicate categoriesId in the payload.
+            setCategoriesIdList(
+                categoriesIdList.includes(id) ? categoriesIdList : [...categoriesIdList, id]
+            );
         }else{
             setAlreadyChosen(false);
             setCategoriesIdList(categoriesIdList.filter((itemId) => itemId !== id));
