@@ -37,9 +37,16 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
     useUiRefresh(refreshUi);
 
     const sectionsWithChecks = useMemo(() => {
+        // Bucket checks by their originating group, not by section name. Section
+        // names are not unique, so filtering by name leaks a check into every
+        // same-named section and duplicates habits. `originalGroupId` is the
+        // HabitGroup/TaskGroup PK — unique per placement — so it scopes each
+        // check to exactly the section it belongs to.
         return snapshot.structure.sections.map((section) => ({
             ...section,
-            checks: snapshot.checks.filter((c) => c.sectionName === section.name),
+            checks: snapshot.checks.filter((c) =>
+                section.items.some((item) => item.groupId === c.originalGroupId)
+            ),
         }));
     }, [snapshot]);
 
