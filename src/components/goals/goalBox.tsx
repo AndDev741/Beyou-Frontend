@@ -178,7 +178,7 @@ function GoalBox({
   }
 
   return (
-    <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "min-w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
+    <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <div className="flex items-start">
