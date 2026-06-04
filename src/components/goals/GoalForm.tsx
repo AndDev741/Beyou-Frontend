@@ -114,7 +114,7 @@ function GoalForm({ mode }: GoalFormProps) {
         reset,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<GoalFormValues>({
         resolver: zodResolver(goalFormSchema(t)),
         mode: "onBlur",
@@ -407,11 +407,11 @@ function GoalForm({ mode }: GoalFormProps) {
                 {mode === "edit" ? (
                     <div className="flex items-center justify-evenly mt-4">
                         <Button text={t("Cancel")} mode="cancel" type="button" size="medium" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" />
+                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
                     </div>
                 ) : (
                     <div className="flex justify-center mt-4">
-                        <Button text={t("Create")} mode="create" size="big" />
+                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
                     </div>
                 )}
             </form>

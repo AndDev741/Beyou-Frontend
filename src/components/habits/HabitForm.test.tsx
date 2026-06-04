@@ -41,6 +41,47 @@ test("shows required errors for create habit", async () => {
 });
 
 
+test("does not double-submit while a create request is in flight", async () => {
+    // Keep the create request pending until we resolve it manually, so we can
+    // observe the in-flight state.
+    let resolveCreate: (value: unknown) => void = () => {};
+    mockCreateHabit.mockImplementationOnce(
+        () => new Promise((resolve) => { resolveCreate = resolve; })
+    );
+
+    renderWithProviders(<HabitForm mode="create" setHabits={vi.fn()} />);
+
+    // Fill a valid form (same recipe as the INVALID_REQUEST test below).
+    fireEvent.change(screen.getByPlaceholderText("CategoryNamePlaceholder"), {
+        target: { value: "My Habit" }
+    });
+    fireEvent.click(screen.getByLabelText("Low"));
+    fireEvent.click(screen.getByLabelText("Easy"));
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "0" } });
+    const categoryEl = await screen.findByText("Health");
+    fireEvent.click(categoryEl);
+    await waitFor(() => {
+        expect(document.querySelectorAll("button.cursor-pointer").length).toBeGreaterThan(0);
+    });
+    fireEvent.click(document.querySelectorAll("button.cursor-pointer")[0]);
+
+    const submit = screen.getByRole("button", { name: "Create" });
+
+    // First click starts the request…
+    fireEvent.click(submit);
+    await waitFor(() => expect(mockCreateHabit).toHaveBeenCalledTimes(1));
+
+    // …and the button must be disabled while it is in flight, so a second
+    // click cannot fire a duplicate create (the Bug-5 double-submit vector).
+    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+    expect(mockCreateHabit).toHaveBeenCalledTimes(1);
+
+    // Once the request settles the button is usable again.
+    resolveCreate({});
+    await waitFor(() => expect(submit).not.toBeDisabled());
+});
+
 test("shows API validation error when backend returns INVALID_REQUEST", async () => {
     mockCreateHabit.mockResolvedValueOnce({
         error: {

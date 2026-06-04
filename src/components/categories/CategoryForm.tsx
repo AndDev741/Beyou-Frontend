@@ -71,7 +71,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
         getValues,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<CategoryFormValues>({
         resolver: zodResolver(mode === "edit" ? categoryEditSchema(t) : categoryCreateSchema(t)),
         mode: "onBlur",
@@ -249,11 +249,11 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
                 {mode === "edit" ? (
                     <div className="flex items-center justify-evenly mt-3">
                         <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" />
+                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center mt-6">
-                        <Button text={t("Create")} mode="create" size="big" />
+                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
                     </div>
                 )}
             </form>

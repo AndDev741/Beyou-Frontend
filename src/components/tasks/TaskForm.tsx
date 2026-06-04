@@ -110,7 +110,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
         reset,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<TaskFormValues>({
         resolver: zodResolver(taskFormSchema(t)),
         mode: "onBlur",
@@ -321,11 +321,11 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                 {mode === "edit" ? (
                     <div className="flex w-full items-center justify-evenly mt-6">
                         <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" />
+                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
                     </div>
                 ) : (
                     <div className="mb-3 mt-3">
-                        <Button text={t("Create")} mode="create" size="big" />
+                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
                     </div>
                 )}
             </form>

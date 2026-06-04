@@ -4,7 +4,7 @@ import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
@@ -31,6 +31,7 @@ function Dashboard() {
     useAuthGuard();
     const dispatch = useDispatch();
     const { t } = useTranslation();
+    const [isDashboardLoading, setIsDashboardLoading] = useState(true);
 
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
@@ -56,24 +57,22 @@ function Dashboard() {
     useChangeLanguage(languageInUse);
     
     useEffect(() => {
-        const fetchRoutines = async () => {
-            const todayRoutine = await getTodayRoutine(t);
-            dispatch(enterTodayRoutine(todayRoutine.success));
-
-            const habits = await getHabits(t);
-            dispatch(enterHabits(habits.success));
-
-            const tasks = await getTasks(t);
-            dispatch(enterTasks(tasks.success));
-
-            const goals = await getGoals(t);
-            dispatch(enterGoals(goals.success));
-
-            const categories = await getCategories(t);
-            dispatch(enterCategories(categories.success));
-        }
-        fetchRoutines();
-    }, [dispatch])
+        let cancelled = false;
+        const fetchDashboardData = async () => {
+            await Promise.all([
+                getTodayRoutine(t).then((r) => dispatch(enterTodayRoutine(r.success))),
+                getHabits(t).then((r) => dispatch(enterHabits(r.success))),
+                getTasks(t).then((r) => dispatch(enterTasks(r.success))),
+                getGoals(t).then((r) => dispatch(enterGoals(r.success))),
+                getCategories(t).then((r) => dispatch(enterCategories(r.success))),
+            ]);
+            if (!cancelled) setIsDashboardLoading(false);
+        };
+        fetchDashboardData();
+        return () => {
+            cancelled = true;
+        };
+    }, [dispatch, t])
 
     useEffect(() => {
         if (!routine) return;
@@ -172,6 +171,14 @@ function Dashboard() {
                     onSkip={completeTutorial}
                 />
             )}
+            {isDashboardLoading ? (
+                <div
+                    className="flex min-h-[70vh] items-center justify-center"
+                    data-testid="dashboard-loading"
+                >
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                </div>
+            ) : (
             <div>
                 <div className="lg:flex lg:justify-between items-start">
                     <div className="flex flex-col lg:w-full">
@@ -239,6 +246,7 @@ function Dashboard() {
                     <GoalsTab />
                 </div>
             </div>
+            )}
         </>
     )
 }
