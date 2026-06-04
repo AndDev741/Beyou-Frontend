@@ -13,8 +13,9 @@ type Tip = {
 const MS_PER_DAY = 86_400_000;
 
 function getDayOfYear(date: Date): number {
-    const startOfYear = new Date(date.getFullYear(), 0, 0);
-    return Math.floor((date.getTime() - startOfYear.getTime()) / MS_PER_DAY);
+    const utc = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    const startOfYear = Date.UTC(date.getFullYear(), 0, 1);
+    return Math.floor((utc - startOfYear) / MS_PER_DAY);
 }
 
 export default function FastTips() {

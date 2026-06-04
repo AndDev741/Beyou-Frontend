@@ -6,6 +6,10 @@ import category from "../../types/category/categoryType";
 
 Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip);
 
+/** Themes may define 8-digit hex (#rrggbbaa) — strip the alpha so we can append our own. */
+export const toHex6 = (raw: string): string =>
+    raw.replace(/^(#[0-9a-fA-F]{6})[0-9a-fA-F]{2}$/, "$1");
+
 export type categoryBalanceProps = {
     categories: category[] | null;
 };
@@ -27,8 +31,8 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
         }
 
         const styles = getComputedStyle(document.documentElement);
-        const primary = styles.getPropertyValue("--primary").trim() || "#0082E1";
-        const secondary = styles.getPropertyValue("--secondary").trim() || "#000000";
+        const primary = toHex6(styles.getPropertyValue("--primary").trim() || "#0082E1");
+        const secondary = toHex6(styles.getPropertyValue("--secondary").trim() || "#000000");
 
         chartInstanceRef.current = new Chart(chartRef.current, {
             type: "radar",

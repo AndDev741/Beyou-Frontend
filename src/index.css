@@ -63,6 +63,9 @@
   opacity: 1;
 }
 
+/* Collapses CSS transitions/animations only. framer-motion animates via JS
+   transforms — new motion components use useReducedMotion(); the older
+   tutorial components (OnboardingTutorial/SpotlightTutorial) do not yet. */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

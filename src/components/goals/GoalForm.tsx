@@ -65,6 +65,8 @@ function GoalForm({ mode }: GoalFormProps) {
     const isEditMode = mode === "edit";
     const [showAdvanced, setShowAdvanced] = useState<boolean>(isEditMode);
 
+    const ADVANCED_FIELDS = ["description", "targetValue", "motivation", "startDate", "status", "unit", "currentValue", "term"] as const;
+
     const goalId = useSelector((state: RootState) => state.editGoal.goalId);
     const titleEdit = useSelector((state: RootState) => state.editGoal.title);
     const iconId = useSelector((state: RootState) => state.editGoal.iconId);
@@ -125,7 +127,7 @@ function GoalForm({ mode }: GoalFormProps) {
         reset,
         setError,
         clearErrors,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting, submitCount }
     } = useForm<GoalFormValues>({
         resolver: zodResolver(goalFormSchema(t)),
         mode: "onBlur",
@@ -138,6 +140,14 @@ function GoalForm({ mode }: GoalFormProps) {
             setSearch(iconId || "");
         }
     }, [editDefaults, iconId, isEditMode, reset]);
+
+    // Auto-expand advanced panel when a hidden field has a validation error
+    useEffect(() => {
+        if (!showAdvanced && ADVANCED_FIELDS.some(field => errors[field])) {
+            setShowAdvanced(true);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [submitCount]);
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
