@@ -76,7 +76,7 @@ test("creates task and returns new id", async () => {
     if (form) {
         fireEvent.submit(form);
     } else {
-        fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+        fireEvent.click(screen.getByRole("button", { name: "Create" }));
     }
 
     await waitFor(() => {

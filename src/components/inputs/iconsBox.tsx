@@ -267,7 +267,11 @@ function IconsBox({
                             type="button"
                             onClick={() => handleSelect(entry.id)}
                             key={entry.id}
-                            aria-label={entry.label}
+                            // Prefix the accessible name so an icon label can never
+                            // collide with an action button elsewhere in the form.
+                            // react-icons ships e.g. MdCreate ("Create"), which
+                            // otherwise reads identically to a "Create" submit.
+                            aria-label={`${t("Icon")}: ${entry.label}`}
                             aria-pressed={entry.id === selectedCanonical}
                             className={`${
                                 entry.id === selectedCanonical

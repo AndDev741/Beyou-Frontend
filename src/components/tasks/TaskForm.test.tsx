@@ -33,7 +33,7 @@ beforeEach(() => {
 test("shows required errors for create task", async () => {
     renderWithProviders(<TaskForm mode="create" setTasks={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
@@ -68,7 +68,7 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
     fireEvent.click(document.querySelectorAll("button.cursor-pointer")[0]);
 
     // Submit the form
-    fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
     // createTask should be called since name + icon are filled
     await waitFor(

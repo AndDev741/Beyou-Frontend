@@ -22,6 +22,18 @@ const iconsFixture = vi.hoisted(() => {
             legacyIds: [],
             keywords: [],
             IconComponent: () => <span data-testid="icon-b">B</span>
+        },
+        {
+            // Regression bed: react-icons really ships an icon labeled "Create"
+            // (MdCreate, the Material Design pencil). Its tile must never share
+            // an accessible name with a form's "Create" submit button.
+            id: "icon-create",
+            label: "Create",
+            type: "icon" as const,
+            categories: ["icons"],
+            legacyIds: [],
+            keywords: [],
+            IconComponent: () => <span data-testid="icon-create">C</span>
         }
     ];
 
@@ -86,4 +98,34 @@ test("keeps icon list stable when selecting an icon", async () => {
         const iconWrapper = screen.getByTestId("icon-a").closest("button") ?? screen.getByTestId("icon-a");
         expect(iconWrapper).toHaveClass("text-primary");
     });
+});
+
+test("icon tiles never share an accessible name with a plain action button", async () => {
+    // Undo the searchIcons spy left installed by the previous test so the real
+    // (registry-mock backed) implementation runs here.
+    vi.restoreAllMocks();
+    const { default: IconsBox } = await import("./iconsBox");
+    const iconRecents = await import("../icons/iconRecents");
+    vi.mocked(iconRecents.getRecentIconIds).mockReturnValue([]);
+    const t = ((key: string) => key) as unknown as TFunction;
+
+    render(
+        <IconsBox
+            search=""
+            setSearch={vi.fn()}
+            iconError=""
+            t={t}
+            selectedIcon=""
+            setSelectedIcon={vi.fn()}
+            minLgH={200}
+        />
+    );
+
+    // The "Create"-labeled icon renders, but its accessible name is prefixed
+    // ("Icon: Create"), so a full-name query for "Create" finds nothing. This
+    // is what keeps form tests' submit queries — and screen readers —
+    // unambiguous. (String name = exact match in testing-library.)
+    expect(screen.getByTestId("icon-create")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Create" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Icon: Create" })).toBeInTheDocument();
 });

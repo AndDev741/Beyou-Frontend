@@ -75,7 +75,7 @@ test("submits selected icon for category creation", async () => {
     const iconAWrapper = iconAElement.closest("p") ?? iconAElement;
     fireEvent.click(iconAWrapper);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
     await waitFor(() => {
         expect(vi.mocked(createCategory)).toHaveBeenCalled();

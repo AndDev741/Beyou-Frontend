@@ -15,7 +15,7 @@ vi.mock("../../services/goals/getGoals", () => ({
 test("shows required errors for create goal", async () => {
     renderWithProviders(<GoalForm mode="create" />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
