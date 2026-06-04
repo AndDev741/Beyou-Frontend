@@ -213,7 +213,7 @@ function Dashboard() {
                                         description={t('NoWidgetsDescription')}
                                         actionLabel={t('AddWidgets')}
                                         actionTo="/configuration"
-                                        testId="no-widgets-empty-state"
+                                        testId="no-widgets-empty-state-desktop"
                                     />
                                 )}
                             </div>
@@ -243,7 +243,7 @@ function Dashboard() {
                                 description={t('NoWidgetsDescription')}
                                 actionLabel={t('AddWidgets')}
                                 actionTo="/configuration"
-                                testId="no-widgets-empty-state"
+                                testId="no-widgets-empty-state-mobile"
                             />
                         )}
                     </div>

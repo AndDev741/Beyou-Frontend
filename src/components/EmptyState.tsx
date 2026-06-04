@@ -13,7 +13,7 @@ export default function EmptyState({ emoji, title, description, actionLabel, act
     return (
         <div
             data-testid={testId}
-            className="flex w-full flex-col items-center justify-center rounded-xl border border-primary/20 bg-background p-8 text-center shadow-sm"
+            className="col-span-full flex w-full flex-col items-center justify-center rounded-xl border border-primary/20 bg-background p-8 text-center shadow-sm"
         >
             <p className="mb-3 text-5xl" aria-hidden="true">{emoji}</p>
             <p className="text-lg font-semibold text-secondary">{title}</p>

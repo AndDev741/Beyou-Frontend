@@ -16,9 +16,12 @@ const countClasses = (value: string): number => {
 
 export default function PasswordHints({ password }: PasswordHintsProps) {
     const { t } = useTranslation();
+    // The zod schema trims before validating — mirror it so the hints never
+    // show green for a password the schema would reject.
+    const normalizedPassword = password.trim();
     const hints = [
-        { key: "PasswordHintLength", ok: password.length >= MIN_LENGTH },
-        { key: "PasswordHintClasses", ok: countClasses(password) >= MIN_CLASSES }
+        { key: "PasswordHintLength", ok: normalizedPassword.length >= MIN_LENGTH },
+        { key: "PasswordHintClasses", ok: countClasses(normalizedPassword) >= MIN_CLASSES }
     ];
 
     return (
