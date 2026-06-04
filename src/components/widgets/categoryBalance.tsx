@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import BaseDiv from "./baseDiv";
-import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip } from "chart.js";
+import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, RadarController } from "chart.js";
 import category from "../../types/category/categoryType";
 
-Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip);
+Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip);
 
 /** Themes may define 8-digit hex (#rrggbbaa) — strip the alpha so we can append our own. */
 export const toHex6 = (raw: string): string =>
