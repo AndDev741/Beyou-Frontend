@@ -550,5 +550,10 @@
     "Reset": "Reset",
     "YupStatusRequired": "The status is required",
     "YupTermRequired": "The term is required",
-    "YupUnitRequired": "The unit is required"
+    "YupUnitRequired": "The unit is required",
+    "LevelUpTitle": "Level up!",
+    "LevelUpMessage": "You reached level {{level}}! Keep building your best self.",
+    "StreakMilestoneTitle": "{{days}}-day streak!",
+    "StreakMilestoneMessage": "You've kept your routine going for {{days}} days in a row. That's how habits are built!",
+    "Days": "Days"
 }

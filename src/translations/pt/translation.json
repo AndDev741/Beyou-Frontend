@@ -550,5 +550,10 @@
     "Reset": "Redefinir",
     "YupStatusRequired": "O status é necessário",
     "YupTermRequired": "O prazo é necessário",
-    "YupUnitRequired": "A unidade é necessária"
+    "YupUnitRequired": "A unidade é necessária",
+    "LevelUpTitle": "Subiu de nível!",
+    "LevelUpMessage": "Você alcançou o nível {{level}}! Continue construindo sua melhor versão.",
+    "StreakMilestoneTitle": "Sequência de {{days}} dias!",
+    "StreakMilestoneMessage": "Você manteve sua rotina por {{days}} dias seguidos. É assim que hábitos são construídos!",
+    "Days": "Dias"
 }
