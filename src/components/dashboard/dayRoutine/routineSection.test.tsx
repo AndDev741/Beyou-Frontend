@@ -117,4 +117,32 @@ describe("RoutineSection skip UI", () => {
         expect(screen.queryByText("Skip")).toBeNull();
         expect(screen.queryByText("Undo skip")).toBeNull();
     });
+
+    test("skip button is always visible (no hover-only opacity)", () => {
+        const section = {
+            id: "s1",
+            name: "Morning",
+            iconId: "",
+            startTime: "07:00",
+            endTime: "10:00",
+            taskGroup: [
+                {
+                    id: "tg1",
+                    taskId: "t1",
+                    startTime: "08:00",
+                    endTime: "09:00",
+                    taskGroupChecks: []
+                }
+            ],
+            habitGroup: [],
+            order: 0
+        };
+
+        const store = buildStore();
+        renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
+
+        const skipButton = screen.getByRole("button", { name: /Skip/i });
+        expect(skipButton.className).not.toContain("opacity-0");
+        expect(skipButton.className).not.toContain("group-hover");
+    });
 });
