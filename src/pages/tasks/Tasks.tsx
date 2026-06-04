@@ -79,7 +79,7 @@ function Tasks() {
             }
         }
         returnTasks();
-    }, [])
+    }, [t])
 
     return (
         <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">

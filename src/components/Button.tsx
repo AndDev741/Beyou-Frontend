@@ -6,9 +6,10 @@ type buttonProps = {
     type?: "submit" | "reset" | "button" | undefined;
     icon?: React.ReactNode;
     testId?: string;
+    disabled?: boolean;
 }
 
-function Button({text, size, mode, onClick, type, icon, testId}: buttonProps){
+function Button({text, size, mode, onClick, type, icon, testId, disabled}: buttonProps){
     let style;
 
     switch(mode){
@@ -38,10 +39,11 @@ function Button({text, size, mode, onClick, type, icon, testId}: buttonProps){
 
     return(
             <button
-            className={`flex items-center justify-center ${style}`}
+            className={`flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none ${style}`}
             onClick={onClick}
             type={type}
             data-testid={testId}
+            disabled={disabled}
             >
                 {icon && <span className="mr-2 md:mr-6 cursor-pointer">{icon}</span>}
                 {text}
