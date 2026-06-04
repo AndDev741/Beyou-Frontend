@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Routine } from "../../../types/routine/routine";
 import RoutineSection from "./routineSection";
+import RoutineCompleteSummary from "./RoutineCompleteSummary";
 
 export default function RoutineDay({ routine }: { routine: Routine | null }) {
     const { t } = useTranslation();
@@ -19,6 +20,7 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                     {routine.routineSections?.map((section, index) => (
                         <RoutineSection key={index} section={section} routineId={routine.id!} />
                     ))}
+                    <RoutineCompleteSummary />
                 </div>
             </div>
         );

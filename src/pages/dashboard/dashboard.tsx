@@ -26,6 +26,7 @@ import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
 import { logger } from "../../utils/logger";
+import EmptyState from "../../components/EmptyState";
 
 function Dashboard() {
     useAuthGuard();
@@ -207,14 +208,25 @@ function Dashboard() {
                                         draggable
                                     />
                                 )) : (
-                                    <p className="text-description">{t('NoWidgets')}</p>
+                                    <EmptyState
+                                        emoji="🧩"
+                                        title={t('NoWidgetsTitle')}
+                                        description={t('NoWidgetsDescription')}
+                                        actionLabel={t('AddWidgets')}
+                                        actionTo="/configuration"
+                                        testId="no-widgets-empty-state-desktop"
+                                    />
                                 )}
                             </div>
                         </div>
                     </div>
 
+                    <div className="lg:w-full">
+                        <RoutineDay routine={routine ? routine : null} />
+                    </div>
+
                     {/* Mobile */}
-                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-1 md:p-2 py-3 mt-5 lg:hidden">
+                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-1 md:p-2 py-3 mt-5 lg:hidden" data-testid="mobile-widget-board">
                         {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
                             <WidgetsFabric
                                 key={id}
@@ -231,12 +243,15 @@ function Dashboard() {
                                 draggable
                             />
                         )) : (
-                            <p className="text-description">{t('NoWidgets')}</p>
+                            <EmptyState
+                                emoji="🧩"
+                                title={t('NoWidgetsTitle')}
+                                description={t('NoWidgetsDescription')}
+                                actionLabel={t('AddWidgets')}
+                                actionTo="/configuration"
+                                testId="no-widgets-empty-state-mobile"
+                            />
                         )}
-                    </div>
-
-                    <div className="lg:w-full">
-                        <RoutineDay routine={routine ? routine : null} />
                     </div>
                     {/* Mobile */}
                     <div className="block lg:hidden">

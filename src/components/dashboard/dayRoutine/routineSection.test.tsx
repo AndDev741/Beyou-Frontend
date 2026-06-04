@@ -1,9 +1,10 @@
-import { screen } from "@testing-library/react";
+import { act, screen, fireEvent } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
-import { vi } from "vitest";
+import { vi, type Mock } from "vitest";
 import rootReducer from "../../../redux/rootReducer";
 import { renderWithProviders } from "../../../test/test-utils";
 import RoutineSection from "./routineSection";
+import checkRoutine from "../../../services/routine/checkItem";
 
 vi.mock("../../../services/routine/checkItem", () => ({
     default: vi.fn()
@@ -116,5 +117,75 @@ describe("RoutineSection skip UI", () => {
 
         expect(screen.queryByText("Skip")).toBeNull();
         expect(screen.queryByText("Undo skip")).toBeNull();
+    });
+
+    test("skip button is always visible (no hover-only opacity)", () => {
+        const section = {
+            id: "s1",
+            name: "Morning",
+            iconId: "",
+            startTime: "07:00",
+            endTime: "10:00",
+            taskGroup: [
+                {
+                    id: "tg1",
+                    taskId: "t1",
+                    startTime: "08:00",
+                    endTime: "09:00",
+                    taskGroupChecks: []
+                }
+            ],
+            habitGroup: [],
+            order: 0
+        };
+
+        const store = buildStore();
+        renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
+
+        const skipButton = screen.getByRole("button", { name: /Skip/i });
+        expect(skipButton.className).not.toContain("opacity-0");
+        expect(skipButton.className).not.toContain("group-hover");
+
+        expect(screen.getByRole("checkbox", { name: /Task 1/i })).toBeInTheDocument();
+    });
+
+    test("shows floating +XP after checking an item, then removes it", async () => {
+        const today = new Date().toJSON().slice(0, 10);
+        (checkRoutine as Mock).mockResolvedValue({
+            success: {
+                refreshItemChecked: {
+                    groupItemId: "tg1",
+                    check: { id: "c1", checkDate: today, checkTime: "10:00", checked: true, xpGenerated: 25 }
+                }
+            }
+        });
+
+        const section = {
+            id: "s1",
+            name: "Morning",
+            iconId: "",
+            startTime: "07:00",
+            endTime: "10:00",
+            taskGroup: [
+                {
+                    id: "tg1",
+                    taskId: "t1",
+                    startTime: "08:00",
+                    endTime: "09:00",
+                    taskGroupChecks: []
+                }
+            ],
+            habitGroup: [],
+            order: 0
+        };
+
+        const store = buildStore();
+        renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
+
+        fireEvent.click(screen.getByRole("checkbox"));
+        await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+        expect(screen.getByTestId("xp-float")).toHaveTextContent("+25 XP");
+        await act(async () => { await vi.advanceTimersByTimeAsync(1300); });
+        expect(screen.queryByTestId("xp-float")).not.toBeInTheDocument();
     });
 });

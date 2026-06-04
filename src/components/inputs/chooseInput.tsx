@@ -33,7 +33,7 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
                 <div className="flex flex-row items-center justify-evenly w-[80vw] md:w-[300px] lg:w-[250px] mt-2">
                     {levels.map((level, index) => (
                         <div key={level}
-                        className="flex flex-col items-center cursor-pointer w-[60px]">
+                        className="flex flex-col items-center justify-center cursor-pointer w-[60px] min-h-[48px]">
                             <input
                             type="radio"
                             ref={radioRef}
@@ -44,10 +44,10 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
                             id={level}
                             value={index + 1}
                             onClick={() => handleClick(index + 1)}
-                            className="border-0 w-full h-[25px] md:h-[35px] outline-none accent-primary bg-background" />
+                            className="border-0 w-full h-10 md:h-[35px] outline-none accent-primary bg-background cursor-pointer" />
                             <label htmlFor={level}
-                            
-                            className={`${choosedLevel === (index + 1) ? "text-primary" : "text-secondary"}`}>{level}</label>
+
+                            className={`cursor-pointer py-1 ${choosedLevel === (index + 1) ? "text-primary" : "text-secondary"}`}>{level}</label>
                         </div>
                     ))}
                     
