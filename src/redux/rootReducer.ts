@@ -15,6 +15,7 @@ import goals from "./goal/goalsSlice";
 import categories from "./category/categoriesSlice";
 import viewFilters from "./viewFilters/viewFiltersSlice";
 import snapshot from "./routine/snapshotSlice";
+import celebration from "./celebration/celebrationSlice";
 
 
 const rootReducer = combineReducers({
@@ -33,7 +34,8 @@ const rootReducer = combineReducers({
     goals: goals,
     categories: categories,
     viewFilters: viewFilters,
-    snapshot: snapshot
+    snapshot: snapshot,
+    celebration: celebration,
 
 });
 

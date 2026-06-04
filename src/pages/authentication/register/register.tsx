@@ -5,6 +5,7 @@ import Button from "../../../components/Button";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import TranslationButton from "../../../components/translationButton";
 import Logo from "../../../components/authentication/logo";
+import MobileBrand from "../../../components/authentication/MobileBrand";
 import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
 import { useTranslation } from "react-i18next";
@@ -77,6 +78,7 @@ function Register() {
             </div>
 
             <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
+                <MobileBrand />
                 <Header />
 
                 <main className="flex flex-col items-center mt-6 lg:mt-2 text-secondary">

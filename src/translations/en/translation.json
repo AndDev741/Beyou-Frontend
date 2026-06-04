@@ -557,5 +557,12 @@
     "0HabitsTitle": "No habits yet",
     "0HabitsDescription": "Habits are the small actions that level you up. Create your first one!",
     "PasswordHintLength": "At least 12 characters",
-    "PasswordHintClasses": "Mix at least 2 types: lowercase, UPPERCASE, numbers, symbols"
+    "PasswordHintClasses": "Mix at least 2 types: lowercase, UPPERCASE, numbers, symbols",
+    "LevelUpTitle": "Level up!",
+    "LevelUpMessage": "You reached level {{level}}! Keep building your best self.",
+    "StreakMilestoneTitle": "{{days}}-day streak!",
+    "StreakMilestoneMessage": "You've kept your routine going for {{days}} days in a row. That's how habits are built!",
+    "RoutineCompleteTitle": "Routine complete! 🎉",
+    "RoutineCompleteMessage": "You earned {{xp}} XP today. Your streak is now {{days}} days — see you tomorrow!",
+    "RoutineCompleteMessageNoXp": "All done for today. Your streak is now {{days}} days — see you tomorrow!"
 }

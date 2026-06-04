@@ -557,5 +557,12 @@
     "0HabitsTitle": "Nenhum hábito ainda",
     "0HabitsDescription": "Hábitos são as pequenas ações que fazem você subir de nível. Crie o primeiro!",
     "PasswordHintLength": "Pelo menos 12 caracteres",
-    "PasswordHintClasses": "Misture pelo menos 2 tipos: minúsculas, MAIÚSCULAS, números, símbolos"
+    "PasswordHintClasses": "Misture pelo menos 2 tipos: minúsculas, MAIÚSCULAS, números, símbolos",
+    "LevelUpTitle": "Subiu de nível!",
+    "LevelUpMessage": "Você alcançou o nível {{level}}! Continue construindo sua melhor versão.",
+    "StreakMilestoneTitle": "Sequência de {{days}} dias!",
+    "StreakMilestoneMessage": "Você manteve sua rotina por {{days}} dias seguidos. É assim que hábitos são construídos!",
+    "RoutineCompleteTitle": "Rotina completa! 🎉",
+    "RoutineCompleteMessage": "Você ganhou {{xp}} XP hoje. Sua constância agora é de {{days}} dias — até amanhã!",
+    "RoutineCompleteMessageNoXp": "Tudo feito por hoje. Sua constância agora é de {{days}} dias — até amanhã!"
 }

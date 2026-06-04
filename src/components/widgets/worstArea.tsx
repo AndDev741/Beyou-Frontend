@@ -46,9 +46,9 @@ export default function WorstArea({categoriePassed}: worstAreaProps){
                 <h3 className={`text-lg text-primary md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{categoryToUse.name}</h3>
             </div>
             <div className="flex w-full">
-                <div className="border border-error bg-error h-[15px] rounded-l-xl"
+                <div className="border border-error bg-error h-[15px] rounded-l-xl transition-all duration-700 ease-out"
                 style={{width: `${actualProgress}%`}}></div>
-                <div className="border border-error bg-error/10 h-[15px] rounded-r-xl"
+                <div className="border border-error bg-error/10 h-[15px] rounded-r-xl transition-all duration-700 ease-out"
                 style={{width: `${100 - actualProgress}%`}}></div>
             </div>
             <h3 className="text-secondary">LV {categoryToUse.level}</h3>

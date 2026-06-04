@@ -8,6 +8,7 @@ import {
     DoughnutController
 } from "chart.js"
 import { useEffect, useRef } from "react"
+import { ProgressRing } from "../progressRing"
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
 
@@ -36,8 +37,8 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
                 datasets: [{
                     label: 'Daily Progress',
                     data: [checked, total - checked],
-                    backgroundColor: ['#0082E1', '#0000'],
-                    borderColor: ['#0082E1', '#0082E1'],
+                    backgroundColor: ['var(--primary)', 'transparent'],
+                    borderColor: ['var(--primary)', 'var(--primary)'],
                     borderWidth: 1,
                 }],
             },
@@ -64,6 +65,9 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
                 {t('Daily progress phrase')}
             </p>
             <p className="text-primary text-lg font-semibold">{t('Tasks')}</p>
+            <div className="md:hidden py-2" data-testid="daily-progress-ring">
+                <ProgressRing progress={total > 0 ? (checked / total) * 100 : 0} size="lg" />
+            </div>
             <div className="hidden md:block">
                 <canvas ref={chartRef} className="w-full h-[200px]"></canvas>
             </div>

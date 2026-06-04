@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useSilentRefresh } from "./hooks/useSilentRefresh";
+import CelebrationOverlay from "./components/celebration/CelebrationOverlay";
 
 // Route-level code splitting: each page is its own chunk, so the boot bundle
 // stays small. The auth pages don't touch the icon registry, which keeps the
@@ -61,6 +62,7 @@ function AppContent() {
           </Route>
         </Routes>
       </Suspense>
+      <CelebrationOverlay />
       <ToastContainer
         position="bottom-center"
         autoClose={5000}
