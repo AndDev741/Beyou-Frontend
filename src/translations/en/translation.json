@@ -558,5 +558,19 @@
     "ConfigSectionPreferences": "Preferences",
     "ConfigSectionPreferencesDesc": "Language, streak rules, routines and tutorial",
     "ConfigSectionDashboard": "Dashboard",
-    "ConfigSectionDashboardDesc": "Choose and order your widgets"
+    "ConfigSectionDashboardDesc": "Choose and order your widgets",
+    "FastTipStartSmall": "Start small: a 2-minute habit beats a perfect plan",
+    "FastTipStartSmallShort": "Start with 2 minutes",
+    "FastTipStack": "Stack habits: attach a new habit to one you already do",
+    "FastTipStackShort": "Stack your habits",
+    "FastTipNeverTwice": "Missing one day is fine — never miss twice in a row",
+    "FastTipNeverTwiceShort": "Never miss twice",
+    "FastTipObvious": "Make it obvious: leave visual cues where you'll see them",
+    "FastTipObviousShort": "Make it obvious",
+    "FastTipChain": "Track your streak — don't break the chain",
+    "FastTipChainShort": "Don't break the chain",
+    "FastTipReward": "Reward yourself right after completing a habit",
+    "FastTipRewardShort": "Reward yourself",
+    "FastTipIdentity": "Focus on identity: 'I am a reader', not 'I want to read'",
+    "FastTipIdentityShort": "Be the identity"
 }

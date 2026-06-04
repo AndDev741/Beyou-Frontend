@@ -558,5 +558,19 @@
     "ConfigSectionPreferences": "Preferências",
     "ConfigSectionPreferencesDesc": "Idioma, regras de constância, rotinas e tutorial",
     "ConfigSectionDashboard": "Dashboard",
-    "ConfigSectionDashboardDesc": "Escolha e ordene seus widgets"
+    "ConfigSectionDashboardDesc": "Escolha e ordene seus widgets",
+    "FastTipStartSmall": "Comece pequeno: um hábito de 2 minutos vale mais que um plano perfeito",
+    "FastTipStartSmallShort": "Comece com 2 minutos",
+    "FastTipStack": "Empilhe hábitos: conecte um novo hábito a um que você já faz",
+    "FastTipStackShort": "Empilhe seus hábitos",
+    "FastTipNeverTwice": "Falhar um dia é normal — nunca falhe dois seguidos",
+    "FastTipNeverTwiceShort": "Nunca falhe duas vezes",
+    "FastTipObvious": "Deixe óbvio: coloque lembretes visuais onde você vai vê-los",
+    "FastTipObviousShort": "Deixe óbvio",
+    "FastTipChain": "Acompanhe sua constância — não quebre a corrente",
+    "FastTipChainShort": "Não quebre a corrente",
+    "FastTipReward": "Recompense-se logo após completar um hábito",
+    "FastTipRewardShort": "Recompense-se",
+    "FastTipIdentity": "Foque na identidade: 'eu sou leitor', não 'eu quero ler'",
+    "FastTipIdentityShort": "Seja a identidade"
 }
