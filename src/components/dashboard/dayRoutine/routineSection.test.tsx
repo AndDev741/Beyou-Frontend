@@ -144,5 +144,7 @@ describe("RoutineSection skip UI", () => {
         const skipButton = screen.getByRole("button", { name: /Skip/i });
         expect(skipButton.className).not.toContain("opacity-0");
         expect(skipButton.className).not.toContain("group-hover");
+
+        expect(screen.getByRole("checkbox", { name: /Task 1/i })).toBeInTheDocument();
     });
 });

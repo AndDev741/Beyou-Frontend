@@ -37,8 +37,8 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
                 datasets: [{
                     label: 'Daily Progress',
                     data: [checked, total - checked],
-                    backgroundColor: ['#0082E1', '#0000'],
-                    borderColor: ['#0082E1', '#0082E1'],
+                    backgroundColor: ['var(--primary)', 'transparent'],
+                    borderColor: ['var(--primary)', 'var(--primary)'],
                     borderWidth: 1,
                 }],
             },

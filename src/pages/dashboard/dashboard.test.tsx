@@ -4,10 +4,21 @@ import { vi } from "vitest";
 import rootReducer, { RootState } from "../../redux/rootReducer";
 import { renderWithProviders } from "../../test/test-utils";
 import Dashboard from "./dashboard";
+import getTodayRoutine from "../../services/routine/getTodayRoutine";
+import getHabits from "../../services/habits/getHabits";
+import getTasks from "../../services/tasks/getTasks";
+import getGoals from "../../services/goals/getGoals";
+import getCategories from "../../services/categories/getCategories";
 
 vi.mock("../../components/useAuthGuard", () => ({
     default: () => null
 }));
+
+vi.mock("../../services/routine/getTodayRoutine", () => ({ default: vi.fn() }));
+vi.mock("../../services/habits/getHabits", () => ({ default: vi.fn() }));
+vi.mock("../../services/tasks/getTasks", () => ({ default: vi.fn() }));
+vi.mock("../../services/goals/getGoals", () => ({ default: vi.fn() }));
+vi.mock("../../services/categories/getCategories", () => ({ default: vi.fn() }));
 
 vi.mock("../../components/tutorial/hooks/useDashboardTutorial", () => ({
     useDashboardTutorial: () => ({
@@ -51,6 +62,14 @@ const buildStore = (overrides: Partial<RootState> = {}) => {
     };
     return configureStore({ reducer: rootReducer, preloadedState });
 };
+
+beforeEach(() => {
+    vi.mocked(getTodayRoutine).mockResolvedValue({ success: null });
+    vi.mocked(getHabits).mockResolvedValue({ success: [] });
+    vi.mocked(getTasks).mockResolvedValue({ success: [] });
+    vi.mocked(getGoals).mockResolvedValue({ success: [] });
+    vi.mocked(getCategories).mockResolvedValue({ success: [] });
+});
 
 test("mobile widget board renders after today's routine", async () => {
     renderWithProviders(<Dashboard />, { storeOverride: buildStore() });

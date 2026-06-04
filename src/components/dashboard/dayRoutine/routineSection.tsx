@@ -104,6 +104,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                         <label className="flex items-center justify-center min-w-[44px] min-h-[44px] -my-2 -ml-2 cursor-pointer">
                         <input
                             type="checkbox"
+                            aria-label={itemObj.name}
                             className="accent-primary border-primary w-6 h-6 rounded-xl cursor-pointer"
                             checked={checked}
                             onChange={() => {
