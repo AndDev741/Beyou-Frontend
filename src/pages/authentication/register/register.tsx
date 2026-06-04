@@ -5,6 +5,7 @@ import Button from "../../../components/Button";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import TranslationButton from "../../../components/translationButton";
 import Logo from "../../../components/authentication/logo";
+import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
@@ -37,6 +38,7 @@ function Register() {
         handleSubmit,
         setError,
         clearErrors,
+        watch,
         formState: { errors }
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema(t)),
@@ -47,6 +49,8 @@ function Register() {
             password: ""
         }
     });
+
+    const passwordValue = watch("password") ?? "";
 
     const onSubmit = async (values: RegisterFormValues) => {
         clearErrors("root");
@@ -146,6 +150,7 @@ function Register() {
                                 />
                             )}
                         />
+                        <PasswordHints password={passwordValue} />
 
                         <div className="mt-8 lg:mt-4">
                             <Button text={t("ToRegister")} mode="create" size="big" type="submit" testId="register-submit" />
