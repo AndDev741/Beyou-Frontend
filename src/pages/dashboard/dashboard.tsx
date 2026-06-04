@@ -212,8 +212,12 @@ function Dashboard() {
                         </div>
                     </div>
 
+                    <div className="lg:w-full">
+                        <RoutineDay routine={routine ? routine : null} />
+                    </div>
+
                     {/* Mobile */}
-                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-1 md:p-2 py-3 mt-5 lg:hidden">
+                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-1 md:p-2 py-3 mt-5 lg:hidden" data-testid="mobile-widget-board">
                         {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
                             <WidgetsFabric
                                 key={id}
@@ -231,10 +235,6 @@ function Dashboard() {
                         )) : (
                             <p className="text-description">{t('NoWidgets')}</p>
                         )}
-                    </div>
-
-                    <div className="lg:w-full">
-                        <RoutineDay routine={routine ? routine : null} />
                     </div>
                     {/* Mobile */}
                     <div className="block lg:hidden">
