@@ -5,6 +5,7 @@ import Button from "../../../components/Button";
 import TranslationButton from "../../../components/translationButton";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import Logo from "../../../components/authentication/logo";
+import MobileBrand from "../../../components/authentication/MobileBrand";
 // Functions
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -83,6 +84,7 @@ function Login() {
             </div>
 
             <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
+                <MobileBrand />
                 <Header />
                 <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">
                     <h1 className="text-center text-[40px] font-bold">
