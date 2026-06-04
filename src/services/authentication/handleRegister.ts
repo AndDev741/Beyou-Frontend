@@ -29,9 +29,9 @@ export default async function handleRegister(
             return t("InvalidRegistrationError");
         }
         if (errorKey === "UNKNOWN") {
-            return t("UnkownError");
+            return t("UnknownError");
         }
         return t("EmailInUseError");
     }
-    return t("UnkownError");
+    return t("UnknownError");
 }

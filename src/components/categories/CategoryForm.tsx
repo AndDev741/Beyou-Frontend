@@ -228,8 +228,8 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
                                         setValue={field.onChange}
                                         errorPhrase={errors.experience?.message ?? ""}
                                         valuesToSelect={[
-                                            { value: 0, title: t("Begginer") },
-                                            { value: 1, title: t("Intermediary") },
+                                            { value: 0, title: t("Beginner") },
+                                            { value: 1, title: t("Intermediate") },
                                             { value: 2, title: t("Advanced") }
                                         ]}
                                         title={t("YourExperience")}

@@ -14,7 +14,7 @@ const baseHabitSchema = (t: TFunction) =>
         description: stringMax(t, 256, "YupDescriptionMaxValue"),
         motivationalPhrase: stringMax(t, 256, "YupGenericMaxLength"),
         importance: requiredNumberMinMax(t, "YupImportanceRequired", "YupMaxImportance", 1, 5),
-        difficulty: requiredNumberMinMax(t, "YupDificultyRequired", "YupMaxDifficulty", 1, 5),
+        difficulty: requiredNumberMinMax(t, "YupDifficultyRequired", "YupMaxDifficulty", 1, 5),
         iconId: z.string().min(1, t("YupIconRequired")),
         categoriesId: z.array(z.string()).min(1, t("YupRequiredCategories"))
     });

@@ -21,8 +21,8 @@ function ExperienceInput({experience, setExperience, experienceError, t}: experi
             value={experience}
             onChange={(e) => setExperience(Number(e.target.value))}
             className={`${borderCss} ${experienceError ? "border-error" : ""} h-[50px] text-xl pl-1 outline-none bg-background text-secondary transition-colors duration-200`}>
-                <option value={0}>{t("Begginer")}</option>
-                <option value={1}>{t('Intermediary')}</option>
+                <option value={0}>{t("Beginner")}</option>
+                <option value={1}>{t('Intermediate')}</option>
                 <option value={2}>{t('Advanced')}</option>
             </select>
         </>
