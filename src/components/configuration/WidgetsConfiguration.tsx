@@ -187,16 +187,19 @@ function DroppableList({
             <h3 className="px-3 lg:p-1 text-lg font-medium text-secondary">{title}</h3>
             <Droppable
                 droppableId={droppableId}
-                direction={widgets?.length > 2 ? "vertical" : "horizontal"}
+                direction="horizontal"
                 key={`${droppableId}-${widgets?.length}`}
             >
                 {(provided, snapshot) => (
                     <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`flex flex-wrap items-center justify-center md:justify-between gap-3 p-1 md:p-4 rounded-xl border-2 border-dashed transition-all md:min-h-[150px]
-                        ${snapshot.isDraggingOver ? "border-primary bg-primary/10 min-h-[200px]" : "border-primary/20 bg-background"}
-                        ${snapshot.draggingFromThisWith ? "max-h-[630px]" : ""}`}
+                        // Mirror the Dashboard widget container (flex-wrap +
+                        // justify-evenly + gap-4) so the configured layout is a
+                        // faithful preview. The dashed border is the only extra:
+                        // it marks the drop zone while editing.
+                        className={`flex flex-wrap items-center justify-evenly gap-4 p-1 md:p-4 rounded-xl border-2 border-dashed transition-all md:min-h-[150px]
+                        ${snapshot.isDraggingOver ? "border-primary bg-primary/10 min-h-[200px]" : "border-primary/20 bg-background"}`}
                     >
                         {widgets?.length === 0 && (
                             <p className="text-sm text-description italic ">
@@ -209,37 +212,35 @@ function DroppableList({
                         {widgets?.map((id: string, index: number) => (
                             <Draggable key={id} draggableId={id} index={index}>
                                 {(provided, snapshot) => (
+                                    // The widget box itself is the drag handle, so
+                                    // it renders at its intrinsic size — identical
+                                    // to the Dashboard (no handle column shifting
+                                    // the layout). bigSize widgets (dailyProgress,
+                                    // fastTips) take the full row exactly like the
+                                    // Dashboard, where BaseDiv's md:w-[100%] applies
+                                    // directly to the flex child; here the wrapper
+                                    // must carry that full width itself.
                                     <div
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
-                                        className={`
+                                        {...provided.dragHandleProps}
+                                        className={`cursor-grab select-none transition-transform duration-150
                                         ${id === "dailyProgress" || id === "fastTips" ? "md:w-full" : ""}
-                                        flex items-start gap-2 transition-transform duration-150
                                         ${snapshot.isDragging ? "scale-105 shadow-xl opacity-90" : "scale-100"}`}
                                     >
-                                        <div
-                                            {...provided.dragHandleProps}
-                                            className="cursor-grab select-none mt-3 mr-1 text-icon"
-                                        >
-                                            ⠿
-                                        </div>
-
-                                        <div className={`${id === "dailyProgress" || id === "fastTips" || id === "levelProgress" ? "md:w-full" : ""}`}>
-                                            <WidgetsFabric
-                                                key={id}
-                                                widgetId={id as keyof WidgetProps}
-                                                categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
-                                                constance={constance}
-                                                checked={checked}
-                                                total={total}
-                                                xp={xp}
-                                                level={level}
-                                                nextLevelXp={nextLevelXp}
-                                                actualLevelXp={actualLevelXp}
-                                                draggable
-                                            />
-                                        </div>
-
+                                        <WidgetsFabric
+                                            key={id}
+                                            widgetId={id as keyof WidgetProps}
+                                            categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                            constance={constance}
+                                            checked={checked}
+                                            total={total}
+                                            xp={xp}
+                                            level={level}
+                                            nextLevelXp={nextLevelXp}
+                                            actualLevelXp={actualLevelXp}
+                                            draggable
+                                        />
                                     </div>
                                 )}
                             </Draggable>
