@@ -10,6 +10,9 @@ module.exports = {
     screens: {
       xs: "200px",
       sm: "350px",
+      // INTENTIONAL deviations from Tailwind defaults (md:768 / lg:1024).
+      // The dashboard layout was tuned around these values — do not "fix" them
+      // without retesting 640-1200px on real devices. See CLAUDE.md.
       md: "712px",
       lg: "1100px",
       lg2: "1200px"
