@@ -550,5 +550,13 @@
     "Reset": "Reset",
     "YupStatusRequired": "The status is required",
     "YupTermRequired": "The term is required",
-    "YupUnitRequired": "The unit is required"
+    "YupUnitRequired": "The unit is required",
+    "ConfigSectionProfile": "Profile",
+    "ConfigSectionProfileDesc": "Your photo, name and motivational phrase",
+    "ConfigSectionAppearance": "Appearance",
+    "ConfigSectionAppearanceDesc": "Pick the theme that feels like you",
+    "ConfigSectionPreferences": "Preferences",
+    "ConfigSectionPreferencesDesc": "Language, streak rules, routines and tutorial",
+    "ConfigSectionDashboard": "Dashboard",
+    "ConfigSectionDashboardDesc": "Choose and order your widgets"
 }

@@ -550,5 +550,13 @@
     "Reset": "Redefinir",
     "YupStatusRequired": "O status é necessário",
     "YupTermRequired": "O prazo é necessário",
-    "YupUnitRequired": "A unidade é necessária"
+    "YupUnitRequired": "A unidade é necessária",
+    "ConfigSectionProfile": "Perfil",
+    "ConfigSectionProfileDesc": "Sua foto, nome e frase motivacional",
+    "ConfigSectionAppearance": "Aparência",
+    "ConfigSectionAppearanceDesc": "Escolha o tema com a sua cara",
+    "ConfigSectionPreferences": "Preferências",
+    "ConfigSectionPreferencesDesc": "Idioma, regras de constância, rotinas e tutorial",
+    "ConfigSectionDashboard": "Dashboard",
+    "ConfigSectionDashboardDesc": "Escolha e ordene seus widgets"
 }
