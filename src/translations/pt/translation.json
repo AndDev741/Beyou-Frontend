@@ -555,5 +555,8 @@
     "LevelUpMessage": "Você alcançou o nível {{level}}! Continue construindo sua melhor versão.",
     "StreakMilestoneTitle": "Sequência de {{days}} dias!",
     "StreakMilestoneMessage": "Você manteve sua rotina por {{days}} dias seguidos. É assim que hábitos são construídos!",
-    "Days": "Dias"
+    "Days": "Dias",
+    "RoutineCompleteTitle": "Rotina completa! 🎉",
+    "RoutineCompleteMessage": "Você ganhou {{xp}} XP hoje. Sua constância agora é de {{days}} dias — até amanhã!",
+    "RoutineCompleteMessageNoXp": "Tudo feito por hoje. Sua constância agora é de {{days}} dias — até amanhã!"
 }
