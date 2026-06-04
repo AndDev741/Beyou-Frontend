@@ -1,19 +1,36 @@
 import { useEffect } from "react";
 import { RefreshUI } from "../types/refreshUi/refreshUi.type";
-import { useDispatch } from "react-redux";
+import { useDispatch, useStore } from "react-redux";
 import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../redux/user/perfilSlice";
 import { refreshCategorie } from "../redux/category/categoriesSlice";
 import { refreshItemGroup } from "../redux/routine/todayRoutineSlice";
 import { logger } from "../utils/logger";
+import { celebrationPushed } from "../redux/celebration/celebrationSlice";
+import { RootState } from "../redux/rootReducer";
+
+export const STREAK_MILESTONES = [7, 14, 21, 30, 60, 90, 100];
 
 export default function useUiRefresh(refreshUi: RefreshUI) {
     logger.log("Refreshing Objects => ", refreshUi);
     const dispatch = useDispatch();
+    const store = useStore();
 
     useEffect(() => {
 
         if(refreshUi?.refreshUser){
             const refreshUser = refreshUi.refreshUser;
+            const previous = (store.getState() as RootState).perfil;
+
+            if (refreshUser.level > previous.level) {
+                dispatch(celebrationPushed({ kind: "levelUp", level: refreshUser.level }));
+            }
+
+            const milestone = STREAK_MILESTONES.find(
+                m => previous.constance < m && refreshUser.currentConstance >= m
+            );
+            if (milestone) {
+                dispatch(celebrationPushed({ kind: "streakMilestone", days: milestone }));
+            }
             dispatch(xpEnter(refreshUser.xp));
             dispatch(levelEnter(refreshUser.level));
             dispatch(constanceEnter(refreshUser.currentConstance));
