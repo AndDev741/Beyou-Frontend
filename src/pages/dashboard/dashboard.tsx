@@ -173,7 +173,7 @@ function Dashboard() {
             )}
             {isDashboardLoading ? (
                 <div
-                    className="flex min-h-[70vh] items-center justify-center"
+                    className="flex min-h-screen items-center justify-center"
                     data-testid="dashboard-loading"
                 >
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
