@@ -7,7 +7,7 @@ import { itemGroupToCheck } from "../../../types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "../../../types/routine/itemGroupToSkip";
 import checkRoutine from "../../../services/routine/checkItem";
 import skipRoutine from "../../../services/routine/skipItem";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshUI } from "../../../types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
 import { formatTimeRange } from "../../routines/routineMetrics";
@@ -25,6 +25,12 @@ export default function RoutineSection({ section, routineId}: { section: section
 
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
     const [xpFloats, setXpFloats] = useState<Record<string, number>>({});
+    const xpFloatTimers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+    useEffect(() => {
+        const timers = xpFloatTimers.current;
+        return () => { timers.forEach(clearTimeout); };
+    }, []);
 
     const allHabits = useSelector((state: RootState) => state.habits.habits);
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -64,12 +70,14 @@ export default function RoutineSection({ section, routineId}: { section: section
             if (itemChecked && xpGenerated && itemChecked.check.checked) {
                 const groupItemId = itemChecked.groupItemId;
                 setXpFloats(prev => ({ ...prev, [groupItemId]: xpGenerated }));
-                setTimeout(() => {
+                const timerId = setTimeout(() => {
+                    xpFloatTimers.current.delete(timerId);
                     setXpFloats(prev => {
                         const { [groupItemId]: _removed, ...rest } = prev;
                         return rest;
                     });
                 }, XP_FLOAT_DURATION_MS);
+                xpFloatTimers.current.add(timerId);
             }
         } else if (refreshUiReponse?.error) {
             toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));

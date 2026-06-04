@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { RootState } from "../../../redux/rootReducer";
+import { RoutineSection, check } from "../../../types/routine/routineSection";
 
 export default function RoutineCompleteSummary() {
     const { t } = useTranslation();
@@ -14,13 +15,13 @@ export default function RoutineCompleteSummary() {
     const today = new Date().toJSON().slice(0, 10);
     const xpToday = useMemo(() => {
         if (!routine) return 0;
-        return routine.routineSections.reduce((sum: number, section: any) => {
+        return routine.routineSections.reduce((sum: number, section: RoutineSection) => {
             const groups = [...(section.habitGroup ?? []), ...(section.taskGroup ?? [])];
-            return sum + groups.reduce((groupSum: number, group: any) => {
-                const checks = group.habitGroupChecks ?? group.taskGroupChecks ?? [];
+            return sum + groups.reduce((groupSum: number, group: { habitGroupChecks?: check[]; taskGroupChecks?: check[] }) => {
+                const checks: check[] = group.habitGroupChecks ?? group.taskGroupChecks ?? [];
                 return groupSum + checks
-                    .filter((c: any) => c?.checkDate === today && c?.checked)
-                    .reduce((checkSum: number, c: any) => checkSum + (c?.xpGenerated ?? 0), 0);
+                    .filter((c: check) => c?.checkDate === today && c?.checked)
+                    .reduce((checkSum: number, c: check) => checkSum + (c?.xpGenerated ?? 0), 0);
             }, 0);
         }, 0);
     }, [routine, today]);

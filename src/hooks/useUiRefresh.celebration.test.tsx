@@ -52,3 +52,11 @@ test("queues nothing when level and constance do not cross thresholds", () => {
     });
     expect(store.getState().celebration.queue).toEqual([]);
 });
+
+test("queues no celebration when skipCelebrations is true even if level increases", () => {
+    const store = buildStore(1, 3);
+    renderHook(() => useUiRefresh(refreshWithUser(2, 3), { skipCelebrations: true }), {
+        wrapper: ({ children }) => <Provider store={store}>{children}</Provider>
+    });
+    expect(store.getState().celebration.queue).toEqual([]);
+});

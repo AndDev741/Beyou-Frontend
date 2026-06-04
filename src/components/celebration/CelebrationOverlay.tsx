@@ -19,6 +19,15 @@ export default function CelebrationOverlay() {
         return () => clearTimeout(timer);
     }, [celebration, dispatch]);
 
+    useEffect(() => {
+        if (!celebration) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") dispatch(celebrationShifted());
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [celebration, dispatch]);
+
     if (!celebration) return null;
 
     const isLevelUp = celebration.kind === "levelUp";

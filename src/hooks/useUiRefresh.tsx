@@ -10,7 +10,9 @@ import { RootState } from "../redux/rootReducer";
 
 export const STREAK_MILESTONES = [7, 14, 21, 30, 60, 90, 100];
 
-export default function useUiRefresh(refreshUi: RefreshUI) {
+type UiRefreshOptions = { skipCelebrations?: boolean };
+
+export default function useUiRefresh(refreshUi: RefreshUI, options: UiRefreshOptions = {}) {
     logger.log("Refreshing Objects => ", refreshUi);
     const dispatch = useDispatch();
     const store = useStore();
@@ -21,14 +23,14 @@ export default function useUiRefresh(refreshUi: RefreshUI) {
             const refreshUser = refreshUi.refreshUser;
             const previous = (store.getState() as RootState).perfil;
 
-            if (refreshUser.level > previous.level) {
+            if (!options.skipCelebrations && refreshUser.level > previous.level) {
                 dispatch(celebrationPushed({ kind: "levelUp", level: refreshUser.level }));
             }
 
             const milestone = STREAK_MILESTONES.find(
                 m => previous.constance < m && refreshUser.currentConstance >= m
             );
-            if (milestone) {
+            if (!options.skipCelebrations && milestone) {
                 dispatch(celebrationPushed({ kind: "streakMilestone", days: milestone }));
             }
             dispatch(xpEnter(refreshUser.xp));

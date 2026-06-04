@@ -1,4 +1,4 @@
-import { act, screen } from "@testing-library/react";
+import { act, fireEvent, screen } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { vi } from "vitest";
 import rootReducer from "../../redux/rootReducer";
@@ -28,5 +28,13 @@ test("renders streak milestone celebration", () => {
 test("renders nothing when the queue is empty", () => {
     const store = buildStore([]);
     renderWithProviders(<CelebrationOverlay />, { storeOverride: store });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});
+
+test("Escape key dismisses the celebration overlay", () => {
+    const store = buildStore([{ kind: "levelUp", level: 3 }]);
+    renderWithProviders(<CelebrationOverlay />, { storeOverride: store });
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
