@@ -51,7 +51,7 @@ function Perfil() {
                     </div>
 
                     {/* Constance Badge: Visible on Mobile only inside this row */}
-                    <div className="md:hidden flex flex-col items-center bg-background/20 p-2 rounded-xl text-background min-w-[70px]">
+                    <div title={t('StreakExplanation')} className="md:hidden flex flex-col items-center bg-background/20 p-2 rounded-xl text-background min-w-[70px]">
                         <span className="text-xs uppercase font-bold">{t('Constance')}</span>
                         <span className="text-xl font-black">{constance}</span>
                     </div>
@@ -71,7 +71,7 @@ function Perfil() {
 
             {/* Desktop Only Side Info */}
             <div className="hidden md:flex flex-col items-center ml-4">
-                <div className="w-[120px] h-[85px] border-solid border-[1px] border-primary rounded-md text-center font-semibold text-secondary flex flex-col justify-center">
+                <div title={t('StreakExplanation')} className="w-[120px] h-[85px] border-solid border-[1px] border-primary rounded-md text-center font-semibold text-secondary flex flex-col justify-center">
                     <p className="text-xs uppercase">{t('Constance')}</p>
                     <p className="text-2xl font-bold">{constance}</p>
                     <p className="text-primary text-xs">{t('Days')}</p>
