@@ -550,5 +550,12 @@
     "Reset": "Reset",
     "YupStatusRequired": "The status is required",
     "YupTermRequired": "The term is required",
-    "YupUnitRequired": "The unit is required"
+    "YupUnitRequired": "The unit is required",
+    "NoWidgetsTitle": "Your dashboard is waiting",
+    "NoWidgetsDescription": "Widgets show your XP, daily progress, streak and more — pick your favorites.",
+    "AddWidgets": "Add widgets",
+    "0HabitsTitle": "No habits yet",
+    "0HabitsDescription": "Habits are the small actions that level you up. Create your first one!",
+    "PasswordHintLength": "At least 12 characters",
+    "PasswordHintClasses": "Mix at least 2 types: lowercase, UPPERCASE, numbers, symbols"
 }

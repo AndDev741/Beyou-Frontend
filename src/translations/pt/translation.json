@@ -550,5 +550,12 @@
     "Reset": "Redefinir",
     "YupStatusRequired": "O status é necessário",
     "YupTermRequired": "O prazo é necessário",
-    "YupUnitRequired": "A unidade é necessária"
+    "YupUnitRequired": "A unidade é necessária",
+    "NoWidgetsTitle": "Seu dashboard está esperando",
+    "NoWidgetsDescription": "Widgets mostram seu XP, progresso diário, constância e mais — escolha seus favoritos.",
+    "AddWidgets": "Adicionar widgets",
+    "0HabitsTitle": "Nenhum hábito ainda",
+    "0HabitsDescription": "Hábitos são as pequenas ações que fazem você subir de nível. Crie o primeiro!",
+    "PasswordHintLength": "Pelo menos 12 caracteres",
+    "PasswordHintClasses": "Misture pelo menos 2 tipos: minúsculas, MAIÚSCULAS, números, símbolos"
 }

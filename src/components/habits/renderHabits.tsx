@@ -3,8 +3,10 @@ import { useEffect } from "react";
 import HabitBox from "./habitBox";
 import { habit } from "../../types/habit/habitType";
 import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { editModeEnter } from "../../redux/habit/editHabitSlice";
+import EmptyState from "../EmptyState";
 
 type renderHabitsProps = {
     habits: habit[],
@@ -13,6 +15,7 @@ type renderHabitsProps = {
 
 function RenderHabits({habits, setHabits}: renderHabitsProps){
     const dispatch = useDispatch();
+    const { t: tRhf } = useTranslation();
 
     //When open the page
     useEffect(() => {
@@ -34,29 +37,37 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
             className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3 text-secondary"
             data-tutorial-id="habits-grid"
         >
-            {habits.map((habit, index) => (
-                <div key={habit.id} data-tutorial-id={index === 0 ? "habit-card" : undefined}>
-                    <HabitBox
-                    id={habit.id}
-                    name={habit.name}
-                    iconId={habit.iconId}
-                    description={habit.description}
-                    level={habit.level}
-                    xp={habit.xp}
-                    nextLevelXp={habit.nextLevelXp}
-                    actualLevelXp={habit.actualLevelXp}
-                    constance={habit.constance}
-                    categories={habit.categories}
-                    motivationalPhrase={habit.motivationalPhrase}
-                    importance={habit.importance}
-                    dificulty={habit.dificulty}
-                    routines={habit.routines}
-                    createdAt={habit.createdAt}
-                    updatedAt={habit.updatedAt}
-                    setHabits={setHabits}
-                    />
-                </div>
-            ))}
+            {habits.length > 0 ? (
+                habits.map((habit, index) => (
+                    <div key={habit.id} data-tutorial-id={index === 0 ? "habit-card" : undefined}>
+                        <HabitBox
+                        id={habit.id}
+                        name={habit.name}
+                        iconId={habit.iconId}
+                        description={habit.description}
+                        level={habit.level}
+                        xp={habit.xp}
+                        nextLevelXp={habit.nextLevelXp}
+                        actualLevelXp={habit.actualLevelXp}
+                        constance={habit.constance}
+                        categories={habit.categories}
+                        motivationalPhrase={habit.motivationalPhrase}
+                        importance={habit.importance}
+                        dificulty={habit.dificulty}
+                        routines={habit.routines}
+                        createdAt={habit.createdAt}
+                        updatedAt={habit.updatedAt}
+                        setHabits={setHabits}
+                        />
+                    </div>
+                ))
+            ) : (
+                <EmptyState
+                    emoji="🌱"
+                    title={tRhf('0HabitsTitle')}
+                    description={tRhf('0HabitsDescription')}
+                />
+            )}
         </div>
     )
 }

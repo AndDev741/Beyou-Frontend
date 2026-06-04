@@ -1,5 +1,6 @@
 //Components
 import CategoryBox from "./categoryBox";
+import EmptyState from "../EmptyState";
 //Functions
 import { useTranslation } from "react-i18next";
 //Types
@@ -38,7 +39,7 @@ function RenderCategories({categories}: props){
                 </div>
                 ))    
             ) : (
-                <h2 className="text-primary font-semibold text-[30px] md:text-[40px] text-center lg:text-start lg:mt-12">{t('0CategoriesMessage')}</h2>
+                <EmptyState emoji="🗂️" title={t('0CategoriesMessage')} />
             )}
         </div>
     )

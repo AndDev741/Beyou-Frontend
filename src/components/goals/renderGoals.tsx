@@ -4,6 +4,7 @@ import GoalBox from "./goalBox";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { editModeEnter } from "../../redux/goal/editGoalSlice";
+import EmptyState from "../EmptyState";
 
 type RenderGoalsProps = {
   goals: goal[];
@@ -42,9 +43,7 @@ function RenderGoals({ goals }: RenderGoalsProps) {
           </div>
         ))
       ) : (
-        <h2 className="text-primary font-semibold text-[30px] text-center lg:text-start lg:mt-12">
-          {t("Start creating amazing goals to track your progress!")}
-        </h2>
+        <EmptyState emoji="🎯" title={t("Start creating amazing goals to track your progress!")} />
       )}
     </div>
   );
