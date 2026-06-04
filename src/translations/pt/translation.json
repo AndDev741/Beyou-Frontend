@@ -575,5 +575,7 @@
     "FastTipIdentityShort": "Seja a identidade",
     "ShowAdvancedOptions": "Opções avançadas",
     "HideAdvancedOptions": "Ocultar opções avançadas",
-    "DefaultGoalUnit": "vezes"
+    "DefaultGoalUnit": "vezes",
+    "LifeBalance": "Equilíbrio de Vida",
+    "LifeBalanceFallback": "Adicione pelo menos 3 categorias para ver sua vida inteira de relance"
 }

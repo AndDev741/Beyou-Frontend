@@ -575,5 +575,7 @@
     "FastTipIdentityShort": "Be the identity",
     "ShowAdvancedOptions": "Advanced options",
     "HideAdvancedOptions": "Hide advanced options",
-    "DefaultGoalUnit": "times"
+    "DefaultGoalUnit": "times",
+    "LifeBalance": "Life Balance",
+    "LifeBalanceFallback": "Add at least 3 categories to see your whole life at a glance"
 }
