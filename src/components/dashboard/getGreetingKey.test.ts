@@ -16,6 +16,7 @@ describe("getGreetingKey", () => {
     });
     it("returns GoodNight from 21:00 to 4:59", () => {
         expect(getGreetingKey(21)).toBe("GoodNight");
+        expect(getGreetingKey(23)).toBe("GoodNight");
         expect(getGreetingKey(0)).toBe("GoodNight");
         expect(getGreetingKey(4)).toBe("GoodNight");
     });
