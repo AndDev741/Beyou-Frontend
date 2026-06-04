@@ -14,6 +14,9 @@ import { formatTimeRange } from "../../routines/routineMetrics";
 import { FiSlash } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "../../../services/apiError";
+import XpFloat from "./XpFloat";
+
+const XP_FLOAT_DURATION_MS = 1200;
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
@@ -21,6 +24,7 @@ export default function RoutineSection({ section, routineId}: { section: section
     const Icon = iconObj?.IconComponent;
 
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
+    const [xpFloats, setXpFloats] = useState<Record<string, number>>({});
 
     const allHabits = useSelector((state: RootState) => state.habits.habits);
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -55,6 +59,18 @@ export default function RoutineSection({ section, routineId}: { section: section
         const refreshUiReponse = await checkRoutine(groupToCheck, t);
         if(refreshUiReponse?.success){
             setRefreshUi(refreshUiReponse.success);
+            const itemChecked = refreshUiReponse.success.refreshItemChecked;
+            const xpGenerated = itemChecked?.check?.xpGenerated;
+            if (itemChecked && xpGenerated && itemChecked.check.checked) {
+                const groupItemId = itemChecked.groupItemId;
+                setXpFloats(prev => ({ ...prev, [groupItemId]: xpGenerated }));
+                setTimeout(() => {
+                    setXpFloats(prev => {
+                        const { [groupItemId]: _removed, ...rest } = prev;
+                        return rest;
+                    });
+                }, XP_FLOAT_DURATION_MS);
+            }
         } else if (refreshUiReponse?.error) {
             toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }
@@ -100,7 +116,10 @@ export default function RoutineSection({ section, routineId}: { section: section
 
             return (
                 <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between p-1 mt-1 ${skipped ? "opacity-60" : ""}`}>
-                    <div className="flex items-center">
+                    <div className="relative flex items-center">
+                        {xpFloats[itemObj.item.groupId] !== undefined && (
+                            <XpFloat xp={xpFloats[itemObj.item.groupId]} />
+                        )}
                         <input
                             type="checkbox"
                             className="accent-[#0082E1] border-primary w-6 h-6 rounded-xl cursor-pointer"
