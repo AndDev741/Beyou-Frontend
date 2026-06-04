@@ -33,7 +33,7 @@ beforeEach(() => {
 test("shows required errors for create habit", async () => {
     renderWithProviders(<HabitForm mode="create" setHabits={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
@@ -80,7 +80,7 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
     fireEvent.click(document.querySelectorAll("button.cursor-pointer")[0]);
 
     // Submit the form
-    fireEvent.click(screen.getByRole("button", { name: /Create/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
     // createHabit should be called since all fields are filled
     await waitFor(
