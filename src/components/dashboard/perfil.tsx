@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { RootState } from "../../redux/rootReducer";
+import { getGreetingKey, GreetingKey } from "./getGreetingKey";
 
 function Perfil() {
     const { t } = useTranslation();
     const [hour, setHour] = useState("");
+    const [greetingKey, setGreetingKey] = useState<GreetingKey>(() => getGreetingKey(new Date().getHours()));
     const name = useSelector((state: RootState) => state.perfil.username);
     const photo = useSelector((state: RootState) => state.perfil.photo);
     const phrase = useSelector((state: RootState) => state.perfil.phrase);
@@ -18,6 +20,7 @@ function Perfil() {
         const minute = date.getMinutes();
         const fixedMinute = minute < 10 ? `0${minute}` : minute;
         setHour(`${hour}:${fixedMinute}`);
+        setGreetingKey(getGreetingKey(hour));
     }
 
     useEffect(() => {
@@ -45,7 +48,7 @@ function Perfil() {
                             className="w-[80px] h-[80px] md:w-[80px] md:h-[80px] bg-white/20 rounded-full object-cover border-2 border-background md:border-primary" 
                         />
                         <div className="flex flex-col ml-4 text-background md:text-secondary">
-                            <h2 className="text-lg md:text-2xl font-bold leading-tight" data-testid="dashboard-greeting">{t('GoodMorning')}, {name}</h2>
+                            <h2 className="text-lg md:text-2xl font-bold leading-tight" data-testid="dashboard-greeting">{t(greetingKey)}, {name}</h2>
                             <h3 className="text-sm md:text-lg font-medium opacity-90 md:text-primary">{t('BeYourBestVersion')}</h3>
                         </div>
                     </div>
