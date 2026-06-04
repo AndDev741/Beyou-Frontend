@@ -201,7 +201,7 @@ function DroppableList({
                         {widgets?.length === 0 && (
                             <p className="text-sm text-description italic ">
                                 {droppableId === "currentWidgets"
-                                    ? t("No current widgets")
+                                    ? t("No widgets added yet")
                                     : t('No widgets available')}
                             </p>
                         )}

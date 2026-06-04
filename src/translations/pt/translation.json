@@ -20,7 +20,6 @@
     "EmailIconAlt": "Ícone de carta",
     "PasswordIconAlt": "Ícone de cadeado",
     "YourFavoriteHT": "Seu rastreador de hábitos favorito",
-
     "To": "ao",
     "BeYou": "\nBe you",
     "NamePlaceholder": "Seu belo nome",
@@ -62,11 +61,9 @@
     "Constance": "Constância",
     "Days": "Dias",
     "PerfilPhotoAlt": "Sua foto de perfil",
-
     "Shortcuts": "Atalhos",
     "Categories": "Categorias",
     "CategoriesImgAlt": "Ícone de pastas",
-
     "YourCategories": "Suas categorias",
     "ReturnPageAlt": "Flecha apontando para trás",
     "CreateCategory": "Criar categoria",
@@ -87,19 +84,15 @@
     "IconCategoryMore": "Mais categorias",
     "IconNoResults": "Nenhum ícone encontrado para esta busca.",
     "Create": "Criar",
-
     "YupDescriptionMaxValue": "Descrição não pode exceder o máximo de 256 caracteres",
     "YupRequiredExperience": "Experiência é necessária",
     "YupIconRequired": "Ícone é necessário",
-
     "0CategoriesMessage": "Comece a criar categorias incríveis e acompanhar seu progresso!",
-
     "EditCategory": "Editar Categoria",
     "Edit": "Editar",
     "Cancel": "Cancelar",
     "Delete": "Deletar",
     "ConfirmDeleteOfCategoryPhrase": "Confirmar exclusão desta categoria?",
-
     "Habits": "Hábitos",
     "YourHabits": "Seus Hábitos",
     "CreateHabit": "Criar hábito",
@@ -131,18 +124,15 @@
     "YupRequiredCategories": "Escolha ao menos 1 categoria",
     "ExpandBoxImgAlt": "ícone para aumentar e diminuir caixa",
     "constanceFireIconAlt": "ícone de fogo para constância",
-
     "Level": "Nível",
     "UsingIn": "Usando em",
     "EditHabit": "Editar Hábito",
-
     "gptSystemPrompt": "Você é um assistente que sugere categorias de vida de forma variada. Gere uma CATEGORIA ALEATÓRIA relacionada a aspectos importantes da vida (como saúde, finanças, estudos, trabalho, lazer, relacionamentos, desenvolvimento pessoal, etc.)Retorne a resposta em JSON, com aspas duplas nas chaves e valores. Certifique-se de que cada resposta seja única e bem elaborada. Exemplo de resposta correta: { \"categoryName\": \"Finanças\", \"description\": \"A gestão do dinheiro, investimentos e planejamento financeiro para garantir segurança e crescimento econômico pessoal.\"},",
     "gptClientPrompt": "Gere uma categoria de vida aleatória no formato JSON conforme solicitado.",
     "Generate a random category": "Gerar uma categoria aleatória",
     "gptError": "Um erro ocorreu ao gerar a categoria, por favor tente novamente mais tarde",
     "Generating": "Gerando",
     "AlreadyGeneratedError": "Você já gerou uma categoria, tente novamente mais tarde",
-
     "UnexpectedError": "Um erro inesperado aconteceu",
     "Show details": "Mostrar detalhes",
     "Hide details": "Ocultar detalhes",
@@ -199,7 +189,6 @@
     "created successfully": "Criado com sucesso",
     "deleted successfully": "Excluido com sucesso",
     "ConfirmDeleteOfHabitPhrase": "Confirmar exclusão deste hábito?",
-
     "User Not Found": "Usuário não encontrado, por favor faça login novamente",
     "Error trying create the category": "Erro ao tentar criar categoria, verifique tudo e tente novamente",
     "Category not found": "Categoria não encontrada, talvez já tenha sido deletada?",
@@ -216,7 +205,6 @@
     "Edit Task": "Editar tarefa",
     "ConfirmDeleteOfTaskPhrase": "Confirmar deleção dessa tarefa?",
     "One-time Task": "Tarefa única",
-
     "Your Routines": "Suas Rotinas",
     "Create routine": "Criar Rotina",
     "Routines icon alt": "Icone de rotina",
@@ -246,7 +234,7 @@
     "Cancel Habit or task": "Cancelar adição de hábito ou tarefa",
     "Put the start time of this item": "Coloque o horário de início do item",
     "Put the start and end time of this item": "Coloque o horário de início e término do item",
-    "Need to fit between the section time" : "Precisa ser entre o horário de início e término da seção",
+    "Need to fit between the section time": "Precisa ser entre o horário de início e término da seção",
     "RoutineSectionNameRequired": "O nome da seção é obrigatório",
     "RoutineSectionStartRequired": "O horário de início da seção é obrigatório",
     "ItemEndAfterStart": "O horário de término deve ser após o início",
@@ -258,7 +246,7 @@
     "Confirm Deletion": "Confirmar Deleção",
     "Yes": "Sim",
     "No": "Não",
-    "Editing daily routine" : "Editando rotina diária",
+    "Editing daily routine": "Editando rotina diária",
     "Routine Name": "Nome da Rotina",
     "Monday": "Segunda",
     "Tuesday": "Terça",
@@ -337,7 +325,7 @@
     "Drag and drop to add": "Arraste e solte para adicionar",
     "Current": "Atuais",
     "Availables": "Disponíveis",
-    "No widgets added yet" :"Nenhum widget adicionado ainda",
+    "No widgets added yet": "Nenhum widget adicionado ainda",
     "No widgets available": "Nenhum widget disponível",
     "NoWidgets": "Nenhum widget, adicione alguns nas configurações",
     "SuccessEditWidgets": "Widgets editados com sucesso",
@@ -439,7 +427,6 @@
     "Use": "Usar",
     "Using in": "Usando em",
     "Add this category in a habit, task or goal!": "Adicione essa categoria em algum habito, tarefa ou rotina",
-
     "Routines overview": "Visão geral das rotinas",
     "Stay on track with your daily sections and checks": "Mantenha-se no ritmo das suas seções e checagens diárias",
     "Selected day": "Dia selecionado",
@@ -524,7 +511,6 @@
     "SelectTimeToAdd": "Selecione um horário para adicionar este item à rotina.",
     "ErrorLogout": "Erro ao tentar sair, por favor tente novamente",
     "Not available yet": "Ainda não disponível",
-
     "Calendar": "Calendário",
     "No history available for this date": "Parece que neste dia você não tinha criado nenhuma rotina... Triste",
     "Snapshots are created when you interact with your routines. Try selecting a date when you had scheduled routines.": "Os snapshots são criados quando você interage com suas rotinas. Tente selecionar uma data em que você tinha rotinas agendadas.",
@@ -544,7 +530,6 @@
     "Gradual description": "XP diminui quanto mais você demora: 80% → 60% → 40% → 20%",
     "Flat description": "Sempre ganha 50% de XP para checks atrasados",
     "Time Window description": "XP completo em até 2 dias, nada depois",
-
     "RoutineSettingsTitle": "Configurações de Rotina",
     "RoutineSettingsDescription": "Configure seu fuso horário e como o XP decai quando você completa itens atrasados.",
     "TimezoneLabel": "Seu Fuso Horário",
@@ -556,5 +541,14 @@
     "RoutineSettingsSaved": "Configurações de rotina salvas com sucesso",
     "ErrorBoundaryTitle": "Algo deu errado",
     "ErrorBoundaryMessage": "Ocorreu um erro inesperado. Por favor, recarregue a página.",
-    "ErrorBoundaryReload": "Recarregar"
+    "ErrorBoundaryReload": "Recarregar",
+    "Config": "Config",
+    "Email": "E-mail",
+    "InProgressImgAlt": "Ícone de status da meta",
+    "Logout": "Sair",
+    "PhotoPreview": "Pré-visualização da foto de perfil",
+    "Reset": "Redefinir",
+    "YupStatusRequired": "O status é necessário",
+    "YupTermRequired": "O prazo é necessário",
+    "YupUnitRequired": "A unidade é necessária"
 }

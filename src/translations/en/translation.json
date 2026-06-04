@@ -20,7 +20,6 @@
     "EmailIconAlt": "Letter icon",
     "PasswordIconAlt": "Padlock icon",
     "YourFavoriteHT": "Your favorite habit tracker",
-
     "To": "to",
     "BeYou": "\nBe you",
     "NamePlaceholder": "Your pretty name",
@@ -62,11 +61,9 @@
     "Constance": "Constance",
     "Days": "Days",
     "PerfilPhotoAlt": "Your profile photo",
-
     "Shortcuts": "Shortcuts",
     "Categories": "Categories",
     "CategoriesImgAlt": "Folder icon",
-
     "YourCategories": "Your Categories",
     "ReturnPageAlt": "Arrow pointing to back",
     "CreateCategory": "Create Category",
@@ -87,19 +84,15 @@
     "IconCategoryMore": "More categories",
     "IconNoResults": "No icons found for this search.",
     "Create": "Create",
-
     "YupDescriptionMaxValue": "Description can't excede a max of 256 characters",
     "YupRequiredExperience": "Experience is required",
     "YupIconRequired": "Icon is required",
-
     "0CategoriesMessage": "Start creating amazing life categories and track your progress!",
-
     "EditCategory": "Edit Category",
     "Edit": "Edit",
     "Cancel": "Cancel",
     "Delete": "Delete",
     "ConfirmDeleteOfCategoryPhrase": "Confirm deletion of this category?",
-
     "Habits": "Habits",
     "YourHabits": "Your Habits",
     "CreateHabit": "Create Habit",
@@ -131,19 +124,15 @@
     "YupRequiredCategories": "Choose at least 1 category",
     "ExpandBoxImgAlt": "Increase and descrease box icon",
     "constanceFireIconAlt": "Fire icon for constance",
-
     "Level": "Level",
     "UsingIn": "Using in",
     "EditHabit": "Edit Habit",
-
     "gptSystemPrompt": "You are an assistant that suggests life categories in a varied way. Generate a RANDOM CATEGORY related to important aspects of life (such as health, finances, studies, work, leisure, relationships, personal development, etc.). Return the response in JSON format, with double quotes on keys and values. Ensure that each response is unique and well-crafted. Correct response example: { \"categoryName\": \"Finances\", \"description\": \"The management of money, investments, and financial planning to ensure personal economic security and growth.\" }",
     "gptClientPrompt": "Generate a random life category in JSON format as requested.",
-
     "Generate a random category": "Generate a random category",
     "gptError": "An error ocurred trying to auto generate the categories, please try again later",
     "Generating": "Generating",
     "AlreadyGeneratedError": "You already generate a category, please try again later",
-
     "UnexpectedError": "An unexpected error ocurred",
     "Show details": "Show details",
     "Hide details": "Hide details",
@@ -200,13 +189,11 @@
     "created successfully": "Created successfully",
     "deleted successfully": "Deleted successfully",
     "ConfirmDeleteOfHabitPhrase": "Confirm deletion of this habit?",
-
     "User Not Found": "User Not Found, please make login again",
     "Error trying create the category": "Error trying create the category, please check everything and try again",
     "Category not found": "Category not Found, maybe it's already deleted?",
     "Error trying to delete the category": "Error trying delete the category, try again later",
     "This category is used in some habit, please delete it first": "This category is used in some habit, please delete it first",
-
     "Start creating amazing tasks to organize your day!": "Start creating amazing tasks to organize your day!",
     "Create Task": "Create Task",
     "NewTask": "New Task",
@@ -218,7 +205,6 @@
     "Edit Task": "Edit Task",
     "ConfirmDeleteOfTaskPhrase": "Confirm deletion of this task?",
     "One-time Task": "One-time Task",
-
     "Your Routines": "Your Routines",
     "Create routine": "Create routine",
     "Routines icon alt": "Routines icon",
@@ -248,7 +234,7 @@
     "Cancel Habit or task": "Cancel Habit or task",
     "Put the start time of this item": "Put the start time of this item",
     "Put the start and end time of this item": "Put the start and end time of this item",
-    "Need to fit between the section time" : "Need to fit between the section time",
+    "Need to fit between the section time": "Need to fit between the section time",
     "RoutineSectionNameRequired": "Section name is required",
     "RoutineSectionStartRequired": "Section start time is required",
     "ItemEndAfterStart": "End time must be after start time",
@@ -260,7 +246,7 @@
     "Confirm Deletion": "Confirm Deletion",
     "Yes": "Yes",
     "No": "No",
-    "Editing daily routine" : "Editing daily routine",
+    "Editing daily routine": "Editing daily routine",
     "Routine Name": "Routine Name",
     "Monday": "Monday",
     "Tuesday": "Tuesday",
@@ -339,7 +325,7 @@
     "Drag and drop to add": "Drag and drop to add",
     "Current": "Current",
     "Availables": "Availables",
-    "No widgets added yet" :"No widgets added yet",
+    "No widgets added yet": "No widgets added yet",
     "No widgets available": "No widgets available",
     "NoWidgets": "No widgets, add some in the configurations page",
     "SuccessEditWidgets": "Widgets edited successfully",
@@ -441,7 +427,6 @@
     "Use": "Use",
     "Using in": "Using in",
     "Add this category in a habit, task or goal!": "Add this category in a habit, task or goal!",
-
     "Routines overview": "Routines overview",
     "Stay on track with your daily sections and checks": "Stay on track with your daily sections and checks",
     "Selected day": "Selected day",
@@ -526,7 +511,6 @@
     "SelectTimeToAdd": "Select a time to add this item to the routine.",
     "ErrorLogout": "Error trying to logout, please try again",
     "Not available yet": "Not available yet",
-
     "Calendar": "Calendar",
     "No history available for this date": "Looks like on this day you hadn't created any routine yet... Sad",
     "Snapshots are created when you interact with your routines. Try selecting a date when you had scheduled routines.": "Snapshots are created when you interact with your routines. Try selecting a date when you had scheduled routines.",
@@ -546,7 +530,6 @@
     "Gradual description": "XP decreases the longer you wait: 80% → 60% → 40% → 20%",
     "Flat description": "Always earn 50% XP for late checks",
     "Time Window description": "Full XP within 2 days, nothing after",
-
     "RoutineSettingsTitle": "Routine Settings",
     "RoutineSettingsDescription": "Configure your timezone and how XP decays when you complete items late.",
     "TimezoneLabel": "Your Timezone",
@@ -558,5 +541,14 @@
     "RoutineSettingsSaved": "Routine settings saved successfully",
     "ErrorBoundaryTitle": "Something went wrong",
     "ErrorBoundaryMessage": "An unexpected error occurred. Please reload the page.",
-    "ErrorBoundaryReload": "Reload"
+    "ErrorBoundaryReload": "Reload",
+    "Config": "Config",
+    "Email": "Email",
+    "InProgressImgAlt": "Goal status icon",
+    "Logout": "Logout",
+    "PhotoPreview": "Profile photo preview",
+    "Reset": "Reset",
+    "YupStatusRequired": "The status is required",
+    "YupTermRequired": "The term is required",
+    "YupUnitRequired": "The unit is required"
 }
