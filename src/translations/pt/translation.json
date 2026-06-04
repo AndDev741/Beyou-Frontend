@@ -572,5 +572,8 @@
     "FastTipReward": "Recompense-se logo após completar um hábito",
     "FastTipRewardShort": "Recompense-se",
     "FastTipIdentity": "Foque na identidade: 'eu sou leitor', não 'eu quero ler'",
-    "FastTipIdentityShort": "Seja a identidade"
+    "FastTipIdentityShort": "Seja a identidade",
+    "ShowAdvancedOptions": "Opções avançadas",
+    "HideAdvancedOptions": "Ocultar opções avançadas",
+    "DefaultGoalUnit": "vezes"
 }

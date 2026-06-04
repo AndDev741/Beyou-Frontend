@@ -20,3 +20,10 @@ test("shows required errors for create goal", async () => {
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
 });
+
+test("create mode hides advanced fields until toggled", () => {
+    renderWithProviders(<GoalForm mode="create" />);
+    expect(screen.queryByTestId("goal-advanced-options")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("goal-advanced-toggle"));
+    expect(screen.getByTestId("goal-advanced-options")).toBeInTheDocument();
+});

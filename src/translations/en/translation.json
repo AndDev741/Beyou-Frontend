@@ -572,5 +572,8 @@
     "FastTipReward": "Reward yourself right after completing a habit",
     "FastTipRewardShort": "Reward yourself",
     "FastTipIdentity": "Focus on identity: 'I am a reader', not 'I want to read'",
-    "FastTipIdentityShort": "Be the identity"
+    "FastTipIdentityShort": "Be the identity",
+    "ShowAdvancedOptions": "Advanced options",
+    "HideAdvancedOptions": "Hide advanced options",
+    "DefaultGoalUnit": "times"
 }
