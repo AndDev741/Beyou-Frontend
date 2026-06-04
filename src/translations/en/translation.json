@@ -555,7 +555,6 @@
     "LevelUpMessage": "You reached level {{level}}! Keep building your best self.",
     "StreakMilestoneTitle": "{{days}}-day streak!",
     "StreakMilestoneMessage": "You've kept your routine going for {{days}} days in a row. That's how habits are built!",
-    "Days": "Days",
     "RoutineCompleteTitle": "Routine complete! 🎉",
     "RoutineCompleteMessage": "You earned {{xp}} XP today. Your streak is now {{days}} days — see you tomorrow!",
     "RoutineCompleteMessageNoXp": "All done for today. Your streak is now {{days}} days — see you tomorrow!"
