@@ -167,12 +167,9 @@ export default function RoutineSection({ section, routineId}: { section: section
                         <span className="text-center text-primary text-xs md:text-lg">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>
-                        {skipped && (
-                            <span className="ml-2 md:ml-3 text-xs font-semibold uppercase tracking-wide text-description">
-                                {t("Skipped")}
-                            </span>
-                        )}
-
+                        {/* The skipped state is already conveyed by the dimmed row,
+                            the line-through name and the "Undo skip" button — no
+                            extra "Skipped" label needed (saves mobile space). */}
                     </div>
                     {!checked && (
                         <button
