@@ -80,7 +80,9 @@ describe("RoutineSection skip UI", () => {
         renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
 
         expect(screen.getByText("Undo skip")).toBeInTheDocument();
-        expect(screen.getByText("Skipped")).toBeInTheDocument();
+        // The redundant "Skipped" label was removed — the undo button plus the
+        // dimmed/struck-through row carry the state.
+        expect(screen.queryByText("Skipped")).toBeNull();
     });
 
     test("does not show skip action when item is checked", () => {
