@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import BaseDiv from "./baseDiv";
 import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, RadarController } from "chart.js";
 import category from "../../types/category/categoryType";
+import { resolveThemeColor, toHex6 } from "./utils/chartColors";
 
 Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip);
 
-/** Themes may define 8-digit hex (#rrggbbaa) — strip the alpha so we can append our own. */
-export const toHex6 = (raw: string): string =>
-    raw.replace(/^(#[0-9a-fA-F]{6})[0-9a-fA-F]{2}$/, "$1");
+// Re-exported for existing tests; implementation lives in utils/chartColors.
+export { toHex6 };
 
 export type categoryBalanceProps = {
     categories: category[] | null;
@@ -30,9 +30,8 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
             chartInstanceRef.current.destroy();
         }
 
-        const styles = getComputedStyle(document.documentElement);
-        const primary = toHex6(styles.getPropertyValue("--primary").trim() || "#0082E1");
-        const secondary = toHex6(styles.getPropertyValue("--secondary").trim() || "#000000");
+        const primary = resolveThemeColor("--primary", "#0082E1");
+        const secondary = resolveThemeColor("--secondary", "#000000");
 
         chartInstanceRef.current = new Chart(chartRef.current, {
             type: "radar",
