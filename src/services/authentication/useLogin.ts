@@ -27,5 +27,5 @@ export default async function handleLogin(
         navigate("/dashboard");
         return null;
     }
-    return t("UnkownError");
+    return t("UnknownError");
 }
