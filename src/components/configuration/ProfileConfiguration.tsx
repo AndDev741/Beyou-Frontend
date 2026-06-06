@@ -116,7 +116,6 @@ export default function ProfileConfiguration() {
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
-            <h1 className="text-2xl font-semibold mb-4">{t("Profile")}</h1>
             <form className="w-full flex items-center" onSubmit={handleSubmit(onSubmit)}>
                 <div
                     className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"

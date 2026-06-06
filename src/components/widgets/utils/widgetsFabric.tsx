@@ -1,14 +1,16 @@
 import BetterArea, { betterAreaProps } from "../betterArea";
+import CategoryBalance, { categoryBalanceProps } from "../categoryBalance";
 import Constance, { constanceProps } from "../constance";
 import DailyProgress, { dailyProgressProps } from "../dailyProgress";
 import FastTips from "../fastTips";
 import WorstArea, { worstAreaProps } from "../worstArea";
 import LevelProgress, { levelProgressProps } from "../levelProgress";
 
-export const widgetsIds = ["worstArea", "constance", "betterArea", "dailyProgress", "fastTips", "levelProgress"];
+export const widgetsIds = ["worstArea", "constance", "betterArea", "dailyProgress", "fastTips", "levelProgress", "categoryBalance"];
 
 export type WidgetProps = {
     betterArea: betterAreaProps;
+    categoryBalance: categoryBalanceProps;
     constance: constanceProps;
     dailyProgress: dailyProgressProps;
     fastTips: {};
@@ -18,6 +20,7 @@ export type WidgetProps = {
 
 const widgetMap = {
     betterArea: BetterArea,
+    categoryBalance: CategoryBalance,
     constance: Constance,
     dailyProgress: DailyProgress,
     fastTips: FastTips,

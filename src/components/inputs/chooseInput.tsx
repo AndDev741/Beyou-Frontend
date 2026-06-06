@@ -26,7 +26,7 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
     
     return(
         <>
-            <div className="flex flex-col items-center mt-3 md:w-full text-secondary">
+            <div className="flex flex-col items-center mt-3 text-secondary">
                 <label htmlFor={levels[0]} 
                 className={labelCss}>{t(`${title}`)}</label>
                 {error ? <p className={errorCss} title={error}>{error}</p> : null}

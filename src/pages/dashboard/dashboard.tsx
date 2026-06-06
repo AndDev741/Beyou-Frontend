@@ -197,6 +197,7 @@ function Dashboard() {
                                         key={id}
                                         widgetId={id as keyof WidgetProps}
                                         categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                        categories={categories}
                                         constance={constance}
                                         checked={checkedItemsInScheduledRoutine}
                                         total={totalItemsInScheduledRoutine}
@@ -231,6 +232,7 @@ function Dashboard() {
                                 key={id}
                                 widgetId={id as keyof WidgetProps}
                                 categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                categories={categories}
                                 constance={constance}
                                 checked={checkedItemsInScheduledRoutine}
                                 total={totalItemsInScheduledRoutine}
