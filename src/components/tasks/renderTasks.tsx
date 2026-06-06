@@ -4,6 +4,7 @@ import TaskBox from "./taskBox";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { editModeEnter } from "../../redux/task/editTaskSlice";
+import EmptyState from "../EmptyState";
 
 type renderTasksProps = {
     tasks: task[],
@@ -40,9 +41,7 @@ function RenderTasks({tasks, setTasks}: renderTasksProps){
                     </div>
                 ))
             ) : (
-                <h2 className="text-primary font-semibold text-[30px] text-center lg:text-start lg:mt-12">
-                    {t('Start creating amazing tasks to organize your day!')}
-                </h2>
+                <EmptyState emoji="✅" title={t('Start creating amazing tasks to organize your day!')} />
             )}
         </div>
     )

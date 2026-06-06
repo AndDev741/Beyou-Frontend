@@ -26,6 +26,7 @@ import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
 import { logger } from "../../utils/logger";
+import EmptyState from "../../components/EmptyState";
 
 function Dashboard() {
     useAuthGuard();
@@ -206,7 +207,14 @@ function Dashboard() {
                                         draggable
                                     />
                                 )) : (
-                                    <p className="text-description">{t('NoWidgets')}</p>
+                                    <EmptyState
+                                        emoji="🧩"
+                                        title={t('NoWidgetsTitle')}
+                                        description={t('NoWidgetsDescription')}
+                                        actionLabel={t('AddWidgets')}
+                                        actionTo="/configuration"
+                                        testId="no-widgets-empty-state-desktop"
+                                    />
                                 )}
                             </div>
                         </div>
@@ -233,7 +241,14 @@ function Dashboard() {
                                 draggable
                             />
                         )) : (
-                            <p className="text-description">{t('NoWidgets')}</p>
+                            <EmptyState
+                                emoji="🧩"
+                                title={t('NoWidgetsTitle')}
+                                description={t('NoWidgetsDescription')}
+                                actionLabel={t('AddWidgets')}
+                                actionTo="/configuration"
+                                testId="no-widgets-empty-state-mobile"
+                            />
                         )}
                     </div>
                     {/* Mobile */}
