@@ -1,5 +1,5 @@
 import { render, waitFor } from "@testing-library/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useStore } from "react-redux";
 import { vi, type Mock } from "vitest";
 import useUiRefresh from "./useUiRefresh";
 import { RefreshUI } from "../types/refreshUi/refreshUi.type";
@@ -18,9 +18,17 @@ import { refreshItemGroup } from "../redux/routine/todayRoutineSlice";
 vi.mock("react-redux", async () => ({
   ...(await vi.importActual<typeof import("react-redux")>("react-redux")),
   useDispatch: vi.fn(),
+  useStore: vi.fn(),
 }));
 
 const dispatch = vi.fn();
+const mockStore = {
+  getState: () => ({ perfil: { level: 0, constance: 0 } }),
+  dispatch: vi.fn(),
+  subscribe: vi.fn(),
+  replaceReducer: vi.fn(),
+  [Symbol.observable]: vi.fn(),
+};
 
 function HookHarness({ refreshUi }: { refreshUi: RefreshUI }) {
   useUiRefresh(refreshUi);
@@ -30,6 +38,7 @@ function HookHarness({ refreshUi }: { refreshUi: RefreshUI }) {
 beforeEach(() => {
   vi.clearAllMocks();
   (useDispatch as unknown as Mock).mockReturnValue(dispatch);
+  (useStore as unknown as Mock).mockReturnValue(mockStore);
 });
 
 test("dispatches user refresh actions", async () => {

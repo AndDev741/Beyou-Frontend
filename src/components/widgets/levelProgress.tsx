@@ -22,7 +22,7 @@ export default function LevelProgress({ level, xp, nextLevelXp, actualLevelXp }:
 
             <div className="w-full mt-1 bg-primary/10 border border-primary/30 rounded-full h-4 overflow-hidden shadow-inner">
                 <div
-                    className="border border-primary bg-primary h-[15px] rounded-l-xl"
+                    className="border border-primary bg-primary h-[15px] rounded-l-xl transition-all duration-700 ease-out"
                     style={{ width: `${progress}%` }}
                 />
             </div>

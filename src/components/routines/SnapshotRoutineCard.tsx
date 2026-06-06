@@ -34,7 +34,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
     const [expanded, setExpanded] = useState(false);
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
 
-    useUiRefresh(refreshUi);
+    useUiRefresh(refreshUi, { skipCelebrations: true });
 
     const sectionsWithChecks = useMemo(() => {
         // Bucket checks by their originating group, not by section name. Section
