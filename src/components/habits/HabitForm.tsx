@@ -289,7 +289,7 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
                         )}
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row items-center justify-center w-full md:w-[80%]">
+                <div className="flex flex-col md:flex-row items-center justify-center md:gap-10 w-full md:w-[80%]">
                     <Controller
                         control={control}
                         name="importance"
