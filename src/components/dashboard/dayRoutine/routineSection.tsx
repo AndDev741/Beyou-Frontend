@@ -101,9 +101,11 @@ export default function RoutineSection({ section, routineId}: { section: section
             return (
                 <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between p-1 mt-1 ${skipped ? "opacity-60" : ""}`}>
                     <div className="flex items-center">
+                        <label className="flex items-center justify-center min-w-[44px] min-h-[44px] -my-2 -ml-2 cursor-pointer">
                         <input
                             type="checkbox"
-                            className="accent-[#0082E1] border-primary w-6 h-6 rounded-xl cursor-pointer"
+                            aria-label={itemObj.name}
+                            className="accent-primary border-primary w-6 h-6 rounded-xl cursor-pointer"
                             checked={checked}
                             onChange={() => {
                                 const groupToCheck: itemGroupToCheck = {
@@ -130,6 +132,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 }
                             }}
                         />
+                        </label>
                         <span className={`text-sm md:text-lg ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
                             {itemObj.name}
                         </span>
@@ -137,16 +140,13 @@ export default function RoutineSection({ section, routineId}: { section: section
                         <span className="text-center text-primary text-xs md:text-lg">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>
-                        {skipped && (
-                            <span className="ml-2 md:ml-3 text-xs font-semibold uppercase tracking-wide text-description">
-                                {t("Skipped")}
-                            </span>
-                        )}
-
+                        {/* The skipped state is already conveyed by the dimmed row,
+                            the line-through name and the "Undo skip" button — no
+                            extra "Skipped" label needed (saves mobile space). */}
                     </div>
                     {!checked && (
                         <button
-                            className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs font-semibold text-description hover:text-primary transition-colors duration-200"
+                            className="flex items-center gap-1 rounded-md border border-description/30 px-2 py-1.5 text-xs font-semibold text-description hover:text-primary hover:border-primary/40 active:scale-95 transition-all duration-200"
                             onClick={() => {
                                 const groupToSkip: itemGroupToSkip = {
                                     routineId: routineId,
