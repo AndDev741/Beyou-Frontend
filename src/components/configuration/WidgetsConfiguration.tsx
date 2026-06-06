@@ -119,9 +119,7 @@ export default function WidgetsConfiguration() {
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start lg:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-semibold mb-1 px-4 pt-4 lg:p-0">{t("Widgets")}</h2>
-            <p className="text-description text-sm mb-4 pl-4">{t("Drag and drop to add")}</p>
-
+            {/* Section title + description come from the ConfigSection wrapper */}
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <DroppableList
                     title={t("Current")}

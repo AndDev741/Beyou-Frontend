@@ -22,7 +22,6 @@ export default function ThemeSelector(){
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
-            <h1 className="text-2xl font-semibold mb-4">{t('Theme')}</h1>
             <div className="flex items-center justify-evenly w-full flex-wrap">
                 {themes.map(theme => (
                     <div className="flex flex-col items-center"
