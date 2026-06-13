@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npx vitest run
+        run: npm --workspace @beyou/web run test
 
       - name: Build
         run: npm run build
