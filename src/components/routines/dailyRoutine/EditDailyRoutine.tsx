@@ -20,6 +20,7 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../services/apiE
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { routineFormSchema } from "../../../validation/forms/routineSchemas";
+import CreateRoutineWithAi from "../ai/CreateRoutineWithAi";
 
 const EditDailyRoutine = () => {
     const { t } = useTranslation();
@@ -31,12 +32,15 @@ const EditDailyRoutine = () => {
     const [showModal, setShowModal] = useState(false);
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
+    const [showAiWizard, setShowAiWizard] = useState(false);
+    const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set());
 
     const {
         control,
         handleSubmit,
         reset,
         setValue,
+        getValues,
         setError,
         clearErrors,
         formState: { errors }
@@ -87,6 +91,12 @@ const EditDailyRoutine = () => {
             setEditIndex(null);
             setShowModal(false);
         }
+    };
+
+    const handleAiApply = (name: string, sections: RoutineSection[], aiNewItemIds: string[]) => {
+        if (name) setValue("routineName", name, { shouldValidate: true });
+        setRoutineSection(sections);
+        setNewItemIds(new Set(aiNewItemIds));
     };
 
     const onSubmit = async (values: { routineName: string; routineSections: RoutineSection[] }) => {
@@ -156,6 +166,18 @@ const EditDailyRoutine = () => {
                 )}
 
                 <button
+                    className="absolute top-3 left-3 flex flex-col items-center hover:scale-105 transition-transform duration-200"
+                    data-testid="edit-with-ai"
+                    onClick={() => setShowAiWizard(true)}
+                    type="button"
+                >
+                    <span className="text-[26px]" aria-hidden="true">✨</span>
+                    <span className="text-sm text-center font-medium mt-1 whitespace-pre-line text-secondary">
+                        {t("AdjustWithAi")}
+                    </span>
+                </button>
+
+                <button
                     className="absolute top-3 right-3 flex flex-col items-center"
                     onClick={() => {
                         setShowModal(true);
@@ -202,6 +224,7 @@ const EditDailyRoutine = () => {
                                                         onDelete={() => handleDeleteSection(index)}
                                                         setRoutineSection={setRoutineSection}
                                                         index={index}
+                                                        newItemIds={newItemIds}
                                                     />
                                                 </div>
                                             )}
@@ -250,6 +273,15 @@ const EditDailyRoutine = () => {
                     </div>
                 </div>
             )}
+            {showAiWizard && (
+                <CreateRoutineWithAi
+                    currentName={getValues("routineName")}
+                    currentSections={routineSection}
+                    onApply={handleAiApply}
+                    onClose={() => setShowAiWizard(false)}
+                />
+            )}
+
             <div className="my-2 mb-6 flex flex-col items-center">
                 <div className="w-full flex mt-2">
                     <Button
