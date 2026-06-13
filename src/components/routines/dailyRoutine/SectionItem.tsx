@@ -17,9 +17,11 @@ interface SectionItemProps {
     onDelete: () => void;
     setRoutineSection?: React.Dispatch<React.SetStateAction<RoutineSection[]>>;
     index: number;
+    /** Habit/task ids the AI just created — shown with a "New" badge. */
+    newItemIds?: Set<string>;
 }
 
-const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: SectionItemProps) => {
+const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, newItemIds }: SectionItemProps) => {
     const { t } = useTranslation();
     const iconObj = iconSearch(section.iconId);
     const Icon = iconObj?.IconComponent;
@@ -179,6 +181,11 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                         <span className="text-sm md:text-md text-secondary ml-2 min-w-0">
                             {itemObj.name}
                         </span>
+                        {newItemIds?.has(item.id) && (
+                            <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
+                                {t("NewItem")}
+                            </span>
+                        )}
                         <span className="mx-1 md:mx-2 text-description">-</span>
 
                         {isEditing ? (

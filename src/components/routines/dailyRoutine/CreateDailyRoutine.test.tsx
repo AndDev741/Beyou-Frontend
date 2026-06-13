@@ -14,7 +14,8 @@ vi.mock("../../../services/routine/getRoutines", () => ({
 test("shows validation errors for missing name and sections", async () => {
     renderWithProviders(<CreateDailyRoutine />);
 
-    fireEvent.click(screen.getByRole("button", { name: /create/i }));
+    // exact match: the form also has the "CreateWithAi" button now
+    fireEvent.click(screen.getByRole("button", { name: /^create$/i }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("At least, 1 section need to be created")).toBeInTheDocument();
