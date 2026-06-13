@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { task } from "../../types/tasks/taskType";
+import { task } from "@beyou/types/tasks/taskType";
 
 const initialState: {
     tasks: task[];

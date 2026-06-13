@@ -1,5 +1,5 @@
 import iconSearch from "../../icons/iconsSearch";
-import { RoutineSection } from "../../../types/routine/routineSection";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";

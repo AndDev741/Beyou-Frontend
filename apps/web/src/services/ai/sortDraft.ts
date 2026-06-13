@@ -1,4 +1,4 @@
-import { RoutineDraft } from "../../types/ai/routineDraft";
+import { RoutineDraft } from "@beyou/types/ai/routineDraft";
 
 const byStartTime = (a?: string | null, b?: string | null) =>
     (a ?? "99:99").localeCompare(b ?? "99:99");

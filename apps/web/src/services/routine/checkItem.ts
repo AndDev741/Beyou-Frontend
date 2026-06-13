@@ -1,8 +1,8 @@
 import { TFunction } from 'i18next';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
-import { itemGroupToCheck } from '../../types/routine/itemGroupToCheck';
-import { RefreshUI } from '../../types/refreshUi/refreshUi.type';
+import { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
+import { RefreshUI } from '@beyou/types/refreshUi/refreshUi.type';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 
 type apiResponse = { success?: RefreshUI; error?: ApiErrorPayload }

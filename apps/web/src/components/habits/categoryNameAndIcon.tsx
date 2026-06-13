@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import iconSearch from "../icons/iconsSearch";
-import { IconObject } from "../../types/icons/IconObject";
+import { IconObject } from "@beyou/types/icons/IconObject";
 
 type categoryNameAndIconProps = {
     iconId: string,

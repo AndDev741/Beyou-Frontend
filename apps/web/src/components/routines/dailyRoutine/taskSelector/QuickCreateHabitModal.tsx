@@ -18,7 +18,7 @@ import getHabits from "../../../../services/habits/getHabits";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../../services/apiError";
 import { enterHabits } from "../../../../redux/habit/habitsSlice";
 import { habitCreateSchema } from "../../../../validation/forms/habitSchemas";
-import type { habit } from "../../../../types/habit/habitType";
+import type { habit } from "@beyou/types/habit/habitType";
 
 type QuickCreateHabitModalProps = {
     isOpen: boolean;

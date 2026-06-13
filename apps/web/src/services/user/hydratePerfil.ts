@@ -1,5 +1,5 @@
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
-import { UserType } from "../../types/user/UserType";
+import { UserType } from "@beyou/types/user/UserType";
 import { themes } from "../../components/utils/listOfThemes";
 import {
     nameEnter,

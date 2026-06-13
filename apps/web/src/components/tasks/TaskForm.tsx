@@ -27,8 +27,8 @@ import {
     editNameEnter,
     editOneTimeTaskEnter
 } from "../../redux/task/editTaskSlice";
-import type { task } from "../../types/tasks/taskType";
-import type category from "../../types/category/categoryType";
+import type { task } from "@beyou/types/tasks/taskType";
+import type category from "@beyou/types/category/categoryType";
 import { taskFormSchema } from "../../validation/forms/taskSchemas";
 
 export type TaskFormMode = "create" | "edit";

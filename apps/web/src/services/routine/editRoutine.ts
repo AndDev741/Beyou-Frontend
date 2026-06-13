@@ -1,6 +1,6 @@
 import { TFunction } from 'i18next';
 import axios from '../axiosConfig';
-import { Routine } from '../../types/routine/routine';
+import { Routine } from '@beyou/types/routine/routine';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 import { buildRoutinePayload } from './routinePayload';
 

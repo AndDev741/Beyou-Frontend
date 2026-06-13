@@ -1,5 +1,5 @@
 import i18next from "i18next";
-import { IconObject } from "../../types/icons/IconObject";
+import { IconObject } from "@beyou/types/icons/IconObject";
 import { searchIcons, normalizeIconId } from "./iconSearchIndex";
 
 function iconRender(search: string, selectedIcon: string, icons: IconObject[] = []) {

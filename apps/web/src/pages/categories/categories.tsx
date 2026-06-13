@@ -21,7 +21,7 @@ import {
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useCategoriesTutorial } from "../../components/tutorial/hooks/useCategoriesTutorial";
-// import categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
+// import categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 
 function Categories(){
     useAuthGuard();

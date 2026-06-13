@@ -1,5 +1,5 @@
-import { EditUser } from "../../types/user/EditUser";
-import { UserType } from "../../types/user/UserType";
+import { EditUser } from "@beyou/types/user/EditUser";
+import { UserType } from "@beyou/types/user/UserType";
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import { ApiErrorPayload, parseApiError } from "../apiError";

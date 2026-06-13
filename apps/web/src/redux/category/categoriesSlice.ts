@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import category from '../../types/category/categoryType';
+import category from '@beyou/types/category/categoryType';
 
 const initialState: { categories: category[] } = {
   categories: [],

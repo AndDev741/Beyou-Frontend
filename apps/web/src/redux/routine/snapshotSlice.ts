@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Snapshot } from "../../types/routine/snapshot";
+import { Snapshot } from "@beyou/types/routine/snapshot";
 
 type SnapshotState = {
     snapshots: Record<string, Snapshot>;

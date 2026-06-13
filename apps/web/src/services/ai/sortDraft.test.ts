@@ -1,5 +1,5 @@
 import { sortDraft } from "./sortDraft";
-import { RoutineDraft } from "../../types/ai/routineDraft";
+import { RoutineDraft } from "@beyou/types/ai/routineDraft";
 
 test("sorts sections and items chronologically by startTime", () => {
     const draft: RoutineDraft = {

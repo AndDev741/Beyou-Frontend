@@ -1,5 +1,5 @@
 import { TFunction } from 'i18next';
-import { task } from '../../types/tasks/taskType';
+import { task } from '@beyou/types/tasks/taskType';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 

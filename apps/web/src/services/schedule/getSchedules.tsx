@@ -1,5 +1,5 @@
 import { TFunction } from 'i18next';
-import { schedule } from '../../types/schedule/schedule';
+import { schedule } from '@beyou/types/schedule/schedule';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 

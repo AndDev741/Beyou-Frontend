@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { goal as GoalType } from "../../types/goals/goalType";
-import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
+import { goal as GoalType } from "@beyou/types/goals/goalType";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import DeleteModal from "../DeleteModal";
 import getGoals from "../../services/goals/getGoals";
 import deleteGoal from "../../services/goals/deleteGoal";
@@ -28,7 +28,7 @@ import {
   editTermEnter,
   editIconIdEnter,
 } from "../../redux/goal/editGoalSlice";
-import { IconObject } from "../../types/icons/IconObject";
+import { IconObject } from "@beyou/types/icons/IconObject";
 import iconSearch from "../icons/iconsSearch";
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
 import { ProgressRing } from "../progressRing";

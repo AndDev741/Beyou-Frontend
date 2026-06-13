@@ -1,7 +1,7 @@
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 import { TFunction } from 'i18next';
-import categoryType from "../../types/category/categoryType";
+import categoryType from "@beyou/types/category/categoryType";
 
 
 type apiResponse = Record<string, Array<categoryType> | string>;

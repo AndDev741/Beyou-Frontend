@@ -15,7 +15,7 @@ import { enterHabits } from "../../../redux/habit/habitsSlice";
 import { enterTasks } from "../../../redux/task/tasksSlice";
 import { enterCategories } from "../../../redux/category/categoriesSlice";
 import { getFriendlyErrorMessage } from "../../../services/apiError";
-import { RoutineSection } from "../../../types/routine/routineSection";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 
 type Step = "describe" | "loading";
 

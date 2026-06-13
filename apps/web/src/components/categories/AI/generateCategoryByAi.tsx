@@ -1,7 +1,7 @@
 import IAImg from "../../assets/IAIcon.svg";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import categoryGeneratedByAi from "../../../types/category/categoryGeneratedByAiType";
+import categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 
 type prop = {setGeneratedCategory: React.Dispatch<React.SetStateAction<categoryGeneratedByAi>>}
 

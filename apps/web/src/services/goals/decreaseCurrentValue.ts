@@ -1,7 +1,7 @@
 import { TFunction } from "i18next";
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
-import { goal } from "../../types/goals/goalType";
+import { goal } from "@beyou/types/goals/goalType";
 
 
 async function decreaseCurrentValue(id: string, t: TFunction): Promise<goal> {

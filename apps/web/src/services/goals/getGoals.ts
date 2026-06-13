@@ -1,5 +1,5 @@
 import { TFunction } from 'i18next';
-import { goal } from '../../types/goals/goalType';
+import { goal } from '@beyou/types/goals/goalType';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 

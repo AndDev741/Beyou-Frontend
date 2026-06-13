@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { CategoryMiniDTO } from "../../types/category/CategoryMiniDTO";
+import { CategoryMiniDTO } from "@beyou/types/category/CategoryMiniDTO";
 
 const initialState: {
   editMode: boolean;

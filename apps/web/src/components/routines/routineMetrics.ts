@@ -1,5 +1,5 @@
-import { Routine } from "../../types/routine/routine";
-import { RoutineSection } from "../../types/routine/routineSection";
+import { Routine } from "@beyou/types/routine/routine";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 
 export type SectionStats = {
     totalItems: number;

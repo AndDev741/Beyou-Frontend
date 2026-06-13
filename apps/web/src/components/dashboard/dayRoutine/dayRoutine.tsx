@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Routine } from "../../../types/routine/routine";
+import { Routine } from "@beyou/types/routine/routine";
 import RoutineSection from "./routineSection";
 import RoutineCompleteSummary from "./RoutineCompleteSummary";
 

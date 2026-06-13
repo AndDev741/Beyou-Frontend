@@ -1,6 +1,6 @@
 import { sectionsToDraft, materializeToSections } from "./draftMapping";
-import { RoutineSection } from "../../types/routine/routineSection";
-import { MaterializeResponse } from "../../types/ai/materialize";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
+import { MaterializeResponse } from "@beyou/types/ai/materialize";
 
 test("sectionsToDraft turns form sections into existing-id references", () => {
     const sections: RoutineSection[] = [{

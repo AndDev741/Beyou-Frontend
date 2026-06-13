@@ -1,8 +1,8 @@
 import { TFunction } from "i18next";
 import axios from "../axiosConfig";
 import { ApiErrorPayload, parseApiError } from "../apiError";
-import { RoutineDraft } from "../../types/ai/routineDraft";
-import { MaterializeResponse } from "../../types/ai/materialize";
+import { RoutineDraft } from "@beyou/types/ai/routineDraft";
+import { MaterializeResponse } from "@beyou/types/ai/materialize";
 
 type apiResponse = Promise<{ success?: MaterializeResponse; error?: ApiErrorPayload }>;
 

@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
   plugins: [svgr(), react()],
+  resolve: {
+    alias: {
+      '@beyou/types': fileURLToPath(new URL('../../packages/types/src', import.meta.url)),
+    },
+  },
   // With route-level lazy loading, heavy deps are only discovered when their
   // page chunk is first imported. In dev that triggers a mid-session
   // re-optimization + full reload ("new dependencies optimized"), which is

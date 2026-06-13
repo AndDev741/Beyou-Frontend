@@ -6,8 +6,8 @@ import {
     Snapshot,
     SnapshotCheck,
     SnapshotStructureSection,
-} from "../../types/routine/snapshot";
-import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
+} from "@beyou/types/routine/snapshot";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import { checkSnapshotItem, getSnapshot, skipSnapshotItem } from "../../services/routine/snapshot";
 import { enterSnapshot } from "../../redux/routine/snapshotSlice";
 import useUiRefresh from "../../hooks/useUiRefresh";

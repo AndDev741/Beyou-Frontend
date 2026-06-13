@@ -2,9 +2,9 @@ import { renderWithProviders } from "../../../test/test-utils";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import CreateRoutineWithAi from "./CreateRoutineWithAi";
-import { RoutineDraft } from "../../../types/ai/routineDraft";
-import { MaterializeResponse } from "../../../types/ai/materialize";
-import { RoutineSection } from "../../../types/routine/routineSection";
+import { RoutineDraft } from "@beyou/types/ai/routineDraft";
+import { MaterializeResponse } from "@beyou/types/ai/materialize";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 
 // vite.config.ts sets mockReset: true — factory implementations are wiped
 // before each test, so behaviors are configured per-test below.

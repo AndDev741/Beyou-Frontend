@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { goal } from "../../types/goals/goalType";
+import { goal } from "@beyou/types/goals/goalType";
 import GoalBox from "./goalBox";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";

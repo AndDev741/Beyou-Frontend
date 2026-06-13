@@ -4,7 +4,7 @@ import { hydratePerfil } from "../user/hydratePerfil";
 // types
 import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
-import { UserType } from "../../types/user/UserType";
+import { UserType } from "@beyou/types/user/UserType";
 import { NavigateFunction } from "react-router-dom";
 
 export default async function handleLogin(

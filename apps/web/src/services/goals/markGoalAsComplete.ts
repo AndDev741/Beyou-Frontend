@@ -1,7 +1,7 @@
 import { TFunction } from "i18next";
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
-import { RefreshUI } from "../../types/refreshUi/refreshUi.type";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 
 type apiResponse = { success?: RefreshUI; error?: string };
 

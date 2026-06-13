@@ -8,7 +8,7 @@ import snapshotReducer, {
     setSnapshotLoading,
     updateSnapshotCheck,
 } from '../snapshotSlice';
-import { Snapshot, SnapshotCheck } from '../../../types/routine/snapshot';
+import { Snapshot, SnapshotCheck } from '@beyou/types/routine/snapshot';
 
 // ---------------------------------------------------------------------------
 // Helpers

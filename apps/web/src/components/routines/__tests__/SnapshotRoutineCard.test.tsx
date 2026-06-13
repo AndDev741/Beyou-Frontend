@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderWithProviders } from '../../../test/test-utils';
 import { SnapshotRoutineCard } from '../SnapshotRoutineCard';
-import { Snapshot, SnapshotCheck, SnapshotStructureSection } from '../../../types/routine/snapshot';
+import { Snapshot, SnapshotCheck, SnapshotStructureSection } from '@beyou/types/routine/snapshot';
 
 // Mock modules that the component depends on
 vi.mock('../../../services/routine/snapshot', () => ({

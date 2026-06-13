@@ -1,5 +1,5 @@
 import axios from '../../axiosConfig';
-import { UserType } from '../../../types/user/UserType';
+import { UserType } from '@beyou/types/user/UserType';
 
 async function loginRequest(email: string, password: string): Promise<Record<string, UserType | string>> {
     const loginData = {

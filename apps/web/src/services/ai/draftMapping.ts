@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import { RoutineSection } from "../../types/routine/routineSection";
-import { RoutineDraft } from "../../types/ai/routineDraft";
-import { MaterializeResponse } from "../../types/ai/materialize";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
+import { RoutineDraft } from "@beyou/types/ai/routineDraft";
+import { MaterializeResponse } from "@beyou/types/ai/materialize";
 
 /**
  * Current form sections → RoutineDraft, used as previousDraft so the AI

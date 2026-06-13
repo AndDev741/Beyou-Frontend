@@ -6,7 +6,7 @@ import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "../../redux/rootReducer";
 import { useMemo, useState } from "react";
-import { habit } from "../../types/habit/habitType";
+import { habit } from "@beyou/types/habit/habitType";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
     compareNumbers,

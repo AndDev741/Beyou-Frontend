@@ -4,7 +4,7 @@ import EmptyState from "../EmptyState";
 //Functions
 import { useTranslation } from "react-i18next";
 //Types
-import categoryType from "../../types/category/categoryType";
+import categoryType from "@beyou/types/category/categoryType";
 
 type props = {categories: Array<categoryType>}
 

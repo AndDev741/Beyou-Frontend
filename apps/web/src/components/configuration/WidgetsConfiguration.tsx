@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { t } from "i18next";
-import { EditUser } from "../../types/user/EditUser";
+import { EditUser } from "@beyou/types/user/EditUser";
 import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import editUser from "../../services/user/editUser";

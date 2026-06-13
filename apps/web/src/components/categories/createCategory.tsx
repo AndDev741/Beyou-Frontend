@@ -1,5 +1,5 @@
 import CategoryForm from "./CategoryForm";
-import type categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
+import type categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 
 type Props = {
     generatedCategory?: categoryGeneratedByAi;

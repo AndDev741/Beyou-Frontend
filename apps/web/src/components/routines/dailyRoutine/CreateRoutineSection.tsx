@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
-import { RoutineSection } from "../../../types/routine/routineSection";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { v4 as uuidv4 } from "uuid";
 import iconSearch from "../../icons/iconsSearch";
 import { formatTimeRange } from "../routineMetrics";

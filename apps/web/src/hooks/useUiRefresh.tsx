@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { RefreshUI } from "../types/refreshUi/refreshUi.type";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import { useDispatch, useStore } from "react-redux";
 import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../redux/user/perfilSlice";
 import { refreshCategorie } from "../redux/category/categoriesSlice";

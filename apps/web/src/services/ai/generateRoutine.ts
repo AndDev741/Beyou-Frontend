@@ -1,7 +1,7 @@
 import { TFunction } from "i18next";
 import axios from "../axiosConfig";
 import { ApiErrorPayload, parseApiError } from "../apiError";
-import { GenerateRoutinePayload, RoutineDraft } from "../../types/ai/routineDraft";
+import { GenerateRoutinePayload, RoutineDraft } from "@beyou/types/ai/routineDraft";
 
 type apiResponse = Promise<{ success?: { draft: RoutineDraft }; error?: ApiErrorPayload }>;
 

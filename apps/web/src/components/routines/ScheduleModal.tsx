@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Routine } from "../../types/routine/routine";
+import { Routine } from "@beyou/types/routine/routine";
 import { useTranslation } from "react-i18next";
 import createSchedule from "../../services/schedule/createSchedule";
 import { useDispatch, useSelector } from "react-redux";

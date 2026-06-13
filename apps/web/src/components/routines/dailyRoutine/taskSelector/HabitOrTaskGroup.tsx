@@ -1,6 +1,6 @@
-import { habit } from "../../../../types/habit/habitType";
-import { RoutineSection } from "../../../../types/routine/routineSection";
-import { task } from "../../../../types/tasks/taskType";
+import { habit } from "@beyou/types/habit/habitType";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
+import { task } from "@beyou/types/tasks/taskType";
 import iconSearch from "../../../icons/iconsSearch";
 
 interface HabitOrTaskGroupProps {

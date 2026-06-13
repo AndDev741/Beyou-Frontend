@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
-import { RoutineSection as section } from "../../../types/routine/routineSection";
+import { RoutineSection as section } from "@beyou/types/routine/routineSection";
 import iconSearch from "../../icons/iconsSearch";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
-import { itemGroupToCheck } from "../../../types/routine/itemGroupToCheck";
-import { itemGroupToSkip } from "../../../types/routine/itemGroupToSkip";
+import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
+import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import checkRoutine from "../../../services/routine/checkItem";
 import skipRoutine from "../../../services/routine/skipItem";
 import { useEffect, useRef, useState } from "react";
-import { RefreshUI } from "../../../types/refreshUi/refreshUi.type";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
 import { formatTimeRange } from "../../routines/routineMetrics";
 import { FiSlash } from "react-icons/fi";

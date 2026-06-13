@@ -4,7 +4,7 @@ import { MdClose, MdCreate } from "react-icons/md";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { EditUser } from "../../types/user/EditUser";
+import { EditUser } from "@beyou/types/user/EditUser";
 import editUser from "../../services/user/editUser";
 import { nameEnter, photoEnter, phraseAuthorEnter, phraseEnter } from "../../redux/user/perfilSlice";
 import SmallButton from "../SmallButton";

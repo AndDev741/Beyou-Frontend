@@ -3,7 +3,7 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "../redux/rootReducer";
 import useUiRefresh from "./useUiRefresh";
-import { RefreshUI } from "../types/refreshUi/refreshUi.type";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 
 const baseState = rootReducer(undefined as any, { type: '@@INIT' } as any);
 

@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/rootReducer";
 import HabitOrTaskGroup from "./HabitOrTaskGroup";
 import { useDragScroll } from "../../../../hooks/useDragScroll";
-import { RoutineSection } from "../../../../types/routine/routineSection";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { useState } from "react";
 import { getItemTimeErrorKeys, getSectionErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "../routineValidation";
 import { toast } from "react-toastify";

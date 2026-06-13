@@ -7,7 +7,7 @@ import getCategories from "../../services/categories/getCategories";
 import iconSearch from "../icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
-import { IconObject } from "../../types/icons/IconObject";
+import { IconObject } from "@beyou/types/icons/IconObject";
 import DeleteModal from "../DeleteModal";
 import { enterCategories } from "../../redux/category/categoriesSlice";
 

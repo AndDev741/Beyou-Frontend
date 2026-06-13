@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import getCategories from "../../../services/categories/getCategories";
 import { useTranslation } from "react-i18next";
 import CategoryItem from "./categoryItem";
-import category from "../../../types/category/categoryType";
+import category from "@beyou/types/category/categoryType";
 import { enterCategories } from "../../../redux/category/categoriesSlice";
 import Modal from "../../modals/Modal";
 import CategoryForm from "../../categories/CategoryForm";

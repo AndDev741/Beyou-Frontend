@@ -1,4 +1,4 @@
-import { UserType } from "../../types/user/UserType";
+import { UserType } from "@beyou/types/user/UserType";
 import axiosWithCredentials from "../axiosConfig";
 import axios from "axios";
 

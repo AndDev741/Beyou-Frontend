@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateRoutineSection from "./CreateRoutineSection";
-import { RoutineSection } from "../../../types/routine/routineSection";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 import SectionItem from "./SectionItem";
-import { Routine } from "../../../types/routine/routine";
+import { Routine } from "@beyou/types/routine/routine";
 import { useDispatch, useSelector } from "react-redux";
 import { enterRoutines } from "../../../redux/routine/routinesSlice";
 import getRoutines from "../../../services/routine/getRoutines";

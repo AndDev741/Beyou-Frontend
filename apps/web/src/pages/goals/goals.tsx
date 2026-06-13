@@ -16,7 +16,7 @@ import {
   getTimestamp,
   sortItems
 } from "../../components/utils/sortHelpers";
-import { goal } from "../../types/goals/goalType";
+import { goal } from "@beyou/types/goals/goalType";
 import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
 
 function Goals() {

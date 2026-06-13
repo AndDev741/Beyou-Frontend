@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { RootState } from "../../../redux/rootReducer";
-import { RoutineSection, check } from "../../../types/routine/routineSection";
+import { RoutineSection, check } from "@beyou/types/routine/routineSection";
 
 export default function RoutineCompleteSummary() {
     const { t } = useTranslation();

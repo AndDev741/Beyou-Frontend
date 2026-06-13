@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
 import { sortGoalsByTime } from "./sortGoalsByTime";
 import { useDragScroll } from "../../../hooks/useDragScroll";
-import { goal } from "../../../types/goals/goalType";
+import { goal } from "@beyou/types/goals/goalType";
 import GoalBox from "../../goals/goalBox";
 import { FiArrowRight } from "react-icons/fi";
 

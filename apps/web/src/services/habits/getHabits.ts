@@ -1,5 +1,5 @@
 import { TFunction } from 'i18next';
-import { habit } from '../../types/habit/habitType';
+import { habit } from '@beyou/types/habit/habitType';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
 

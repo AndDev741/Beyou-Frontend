@@ -2,7 +2,7 @@ import { render, waitFor } from "@testing-library/react";
 import { useDispatch, useStore } from "react-redux";
 import { vi, type Mock } from "vitest";
 import useUiRefresh from "./useUiRefresh";
-import { RefreshUI } from "../types/refreshUi/refreshUi.type";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import {
   actualLevelXpEnter,
   alreadyIncreaseConstanceTodayEnter,

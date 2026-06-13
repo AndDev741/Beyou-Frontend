@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { habit } from "../../types/habit/habitType";
+import { habit } from "@beyou/types/habit/habitType";
 
 const initialState: {
     habits: habit[];

@@ -5,7 +5,7 @@ import googleRequest from "./request/googleRequest";
 import { successRegisterEnter } from "../../redux/authentication/registerSlice";
 import { hydratePerfil } from "../user/hydratePerfil";
 //Types
-import { UserType } from "../../types/user/UserType";
+import { UserType } from "@beyou/types/user/UserType";
 import { TFunction } from "i18next";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";

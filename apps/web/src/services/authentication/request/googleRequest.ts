@@ -1,4 +1,4 @@
-import { UserType } from '../../../types/user/UserType';
+import { UserType } from '@beyou/types/user/UserType';
 import axios from '../../axiosConfig';
 
 async function googleRequest(code: string): Promise<Record<string, UserType | string>>{

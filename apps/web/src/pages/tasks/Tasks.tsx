@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
-import { task } from "../../types/tasks/taskType";
+import { task } from "@beyou/types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
 import getTasks from "../../services/tasks/getTasks";
 import CreateTask from "../../components/tasks/createTask";

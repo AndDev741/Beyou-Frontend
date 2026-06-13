@@ -1,5 +1,5 @@
 import { isBefore, isAfter, isWithinInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
-import { goal } from '../../../types/goals/goalType';
+import { goal } from '@beyou/types/goals/goalType';
 
 export type SortedGoals = {
   past: goal[];

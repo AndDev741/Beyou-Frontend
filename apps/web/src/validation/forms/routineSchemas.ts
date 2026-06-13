@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { TFunction } from "i18next";
 import { requiredStringWithMinMax } from "../common";
 import { getItemTimeErrorKeys, getSectionErrorKeys } from "../../components/routines/dailyRoutine/routineValidation";
-import type { RoutineSection } from "../../types/routine/routineSection";
+import type { RoutineSection } from "@beyou/types/routine/routineSection";
 
 export const routineSectionSchema = (t: TFunction) =>
     z.object({

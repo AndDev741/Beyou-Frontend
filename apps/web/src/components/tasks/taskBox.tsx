@@ -1,8 +1,8 @@
 import { useDispatch } from "react-redux";
-import { task } from "../../types/tasks/taskType"
+import { task } from "@beyou/types/tasks/taskType"
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { IconObject } from "../../types/icons/IconObject";
+import { IconObject } from "@beyou/types/icons/IconObject";
 import useColors from "../habits/utils/useColors";
 import increaseIcon from '../../assets/categories/increaseIcon.svg'
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
@@ -13,7 +13,7 @@ import getTasks from "../../services/tasks/getTasks";
 import deleteTask from "../../services/tasks/deleteTask";
 import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editIdEnter, editImportanceEnter, editModeEnter, editNameEnter, editOneTimeTaskEnter } from "../../redux/task/editTaskSlice";
 import { MdWarningAmber } from "react-icons/md";
-import { CategoryMiniDTO } from "../../types/category/CategoryMiniDTO";
+import { CategoryMiniDTO } from "@beyou/types/category/CategoryMiniDTO";
 
 type taskBoxProps = {
     id: string,

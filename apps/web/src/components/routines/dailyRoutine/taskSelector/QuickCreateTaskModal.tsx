@@ -17,7 +17,7 @@ import getTasks from "../../../../services/tasks/getTasks";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../../services/apiError";
 import { enterTasks } from "../../../../redux/task/tasksSlice";
 import { taskFormSchema } from "../../../../validation/forms/taskSchemas";
-import type { task } from "../../../../types/tasks/taskType";
+import type { task } from "@beyou/types/tasks/taskType";
 
 type QuickCreateTaskModalProps = {
     isOpen: boolean;

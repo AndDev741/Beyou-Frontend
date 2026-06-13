@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { task } from "../../types/tasks/taskType";
+import { task } from "@beyou/types/tasks/taskType";
 import TaskBox from "./taskBox";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";

@@ -1,7 +1,7 @@
 import getHabits from "../../services/habits/getHabits";
 import { useEffect } from "react";
 import HabitBox from "./habitBox";
-import { habit } from "../../types/habit/habitType";
+import { habit } from "@beyou/types/habit/habitType";
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";

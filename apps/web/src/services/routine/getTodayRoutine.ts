@@ -1,7 +1,7 @@
 import { TFunction } from 'i18next';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
-import { Routine } from '../../types/routine/routine';
+import { Routine } from '@beyou/types/routine/routine';
 
 type apiResponse = Record<string, Routine | string>
 

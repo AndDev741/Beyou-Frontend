@@ -1,4 +1,4 @@
-import { IconObject } from "../../types/icons/IconObject";
+import { IconObject } from "@beyou/types/icons/IconObject";
 import { getIconObjectById } from "./iconRegistry";
 
 function iconSearch(name: string): IconObject | undefined {

@@ -1,8 +1,8 @@
 import { ReactNode, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle, FiLayers } from "react-icons/fi";
-import { Routine } from "../../types/routine/routine";
-import { RoutineSection } from "../../types/routine/routineSection";
+import { Routine } from "@beyou/types/routine/routine";
+import { RoutineSection } from "@beyou/types/routine/routineSection";
 import iconSearch from "../icons/iconsSearch";
 import {
     formatTimeRange,
@@ -11,7 +11,7 @@ import {
     getTimeOfDay,
 } from "./routineMetrics";
 import { AiFillStar } from "react-icons/ai";
-import { itemGroupToCheck } from "../../types/routine/itemGroupToCheck";
+import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 
 
 type ItemLookup = Record<string, { name?: string; iconId?: string }>;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import iconSearch from "../../icons/iconsSearch";
-import { IconObject } from "../../../types/icons/IconObject";
-import category from "../../../types/category/categoryType";
+import { IconObject } from "@beyou/types/icons/IconObject";
+import category from "@beyou/types/category/categoryType";
 import { logger } from "../../../utils/logger";
 
 type categoryItemProps = {

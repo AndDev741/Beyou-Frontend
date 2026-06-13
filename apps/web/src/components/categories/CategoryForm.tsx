@@ -17,7 +17,7 @@ import editCategory from "../../services/categories/editCategory";
 import getCategories from "../../services/categories/getCategories";
 import { RootState } from "../../redux/rootReducer";
 import { editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter } from "../../redux/category/editCategorySlice";
-import type categoryGeneratedByAi from "../../types/category/categoryGeneratedByAiType";
+import type categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 import { categoryCreateSchema, categoryEditSchema } from "../../validation/forms/categorySchemas";
 
 export type CategoryFormMode = "create" | "edit";

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { goal } from '../../types/goals/goalType';
+import { goal } from '@beyou/types/goals/goalType';
 
 const initialState: { goals: goal[] } = {
   goals: [],

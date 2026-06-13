@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import BaseDiv from "./baseDiv";
 import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, RadarController } from "chart.js";
-import category from "../../types/category/categoryType";
+import category from "@beyou/types/category/categoryType";
 import { resolveThemeColor, toHex6 } from "./utils/chartColors";
 
 Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip);

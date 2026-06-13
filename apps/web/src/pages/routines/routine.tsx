@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { enterHabits } from "../../redux/habit/habitsSlice";
 import getTasks from "../../services/tasks/getTasks";
 import { enterTasks } from "../../redux/task/tasksSlice";
-import { Routine as routineType } from "../../types/routine/routine";
+import { Routine as routineType } from "@beyou/types/routine/routine";
 import getRoutines from "../../services/routine/getRoutines";
 import { enterRoutines } from "../../redux/routine/routinesSlice";
 import RenderRoutines from "../../components/routines/renderRoutines";

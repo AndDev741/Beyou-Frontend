@@ -28,8 +28,8 @@ import {
     editMotivationalPhraseEnter,
     editNameEnter
 } from "../../redux/habit/editHabitSlice";
-import type { habit } from "../../types/habit/habitType";
-import type category from "../../types/category/categoryType";
+import type { habit } from "@beyou/types/habit/habitType";
+import type category from "@beyou/types/category/categoryType";
 import { habitCreateSchema, habitEditSchema } from "../../validation/forms/habitSchemas";
 
 export type HabitFormMode = "create" | "edit";

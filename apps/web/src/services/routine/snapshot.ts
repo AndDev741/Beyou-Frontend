@@ -1,8 +1,8 @@
 import { TFunction } from 'i18next';
 import axiosWithCredentials from '../axiosConfig';
 import axios from 'axios';
-import { Snapshot, SnapshotMonthResponse } from '../../types/routine/snapshot';
-import { RefreshUI } from '../../types/refreshUi/refreshUi.type';
+import { Snapshot, SnapshotMonthResponse } from '@beyou/types/routine/snapshot';
+import { RefreshUI } from '@beyou/types/refreshUi/refreshUi.type';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 
 type snapshotResponse = { success?: Snapshot; error?: string }

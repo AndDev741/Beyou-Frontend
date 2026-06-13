@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { renderWithProviders } from "../../test/test-utils";
 import { RoutineCard } from "./RoutineCard";
-import { Routine } from "../../types/routine/routine";
+import { Routine } from "@beyou/types/routine/routine";
 import { vi } from "vitest";
 
 const buildRoutine = (): Routine => ({

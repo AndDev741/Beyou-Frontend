@@ -1,4 +1,4 @@
-import { Routine } from "../../types/routine/routine";
+import { Routine } from "@beyou/types/routine/routine";
 
 type BuildOptions = {
     includeSectionIds: boolean;

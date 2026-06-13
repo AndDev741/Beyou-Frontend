@@ -1,7 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { renderWithProviders } from "../../test/test-utils";
 import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
-import { Snapshot, SnapshotCheck, SnapshotStructureSection } from "../../types/routine/snapshot";
+import { Snapshot, SnapshotCheck, SnapshotStructureSection } from "@beyou/types/routine/snapshot";
 
 /**
  * Bug 3 — habits duplicated in the routine SNAPSHOT view only.
