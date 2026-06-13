@@ -6,6 +6,7 @@
     "dependencies": {
         "@beyou/types": "*",
         "@beyou/i18n": "*",
+        "@beyou/theme": "*",
         "@hookform/resolvers": "^3.9.0",
         "@reduxjs/toolkit": "^2.11.2",
         "@testing-library/jest-dom": "^6.9.1",

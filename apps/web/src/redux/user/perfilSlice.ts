@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { ThemeType } from "../../context/ThemeContext";
-import { themes } from "../../components/utils/listOfThemes";
+import { themes } from "@beyou/theme";
 
 type userInitialState = {
     username: string;

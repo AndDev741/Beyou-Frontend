@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
-import {defaultDark, defaultLight} from "../components/utils/listOfThemes";
+import {defaultDark, defaultLight} from "@beyou/theme";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import { logger } from "../utils/logger";
