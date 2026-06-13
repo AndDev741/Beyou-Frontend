@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
-import en from "./en/translation.json";
-import pt from "./pt/translation.json";
+import { resources } from '@beyou/i18n';
+
+const en = resources.en.translation;
+const pt = resources.pt.translation;
 
 /**
  * Guard: every literal i18n key used in the codebase must exist in BOTH
