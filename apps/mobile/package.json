@@ -5,6 +5,7 @@
   "dependencies": {
     "@beyou/i18n": "*",
     "@beyou/theme": "*",
+    "@expo/vector-icons": "^15.0.2",
     "@reduxjs/toolkit": "^2.12.0",
     "expo": "~56.0.11",
     "expo-localization": "~56.0.6",
@@ -18,6 +19,7 @@
     "react-native-css-interop": "^0.2.5",
     "react-native-reanimated": "4.3.1",
     "react-native-safe-area-context": "~5.7.0",
+    "react-native-toast-message": "^2.3.3",
     "react-redux": "^9.3.0"
   },
   "devDependencies": {
