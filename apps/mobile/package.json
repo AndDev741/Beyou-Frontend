@@ -36,7 +36,12 @@
     "preset": "jest-expo",
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@beyou/.*|react-clone-referenced-element|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|uuid|@reduxjs/toolkit|react-redux|immer|i18next|react-i18next|@testing-library/.*|@hookform/.*))"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^react$": "<rootDir>/node_modules/react",
+      "^react-test-renderer$": "<rootDir>/node_modules/react-test-renderer",
+      "^react-test-renderer/(.*)": "<rootDir>/node_modules/react-test-renderer/$1"
+    }
   },
   "private": true
 }

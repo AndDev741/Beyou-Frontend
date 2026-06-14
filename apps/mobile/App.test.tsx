@@ -1,27 +1,35 @@
 /**
- * Wiring smoke test: App renders LoginScreen when bootstrap finds no stored token.
+ * Integration smoke test: App renders LoginScreen when bootstrap finds no stored token.
  *
- * Jest-expo runs in a jsdom-like env. This workspace carries dual React:
- *   apps/mobile → React 19.x
- *   root / apps/web → React 18.x
+ * Jest resolves a SINGLE React copy (mobile React 19) via moduleNameMapper in
+ * package.json ("^react$" → "<rootDir>/node_modules/react"). This means
+ * react-redux and react-i18next hooks share the same React dispatcher as the
+ * renderer — no "Invalid hook call / multiple React copies" error.
  *
- * react-redux and react-i18next are hoisted to the root (React 18), so any hook
- * they call sees a different React dispatcher than what the mobile renderer uses.
- * This triggers the "Invalid hook call — multiple React copies" error.
+ * What this test does NOT mock (real wiring exercised):
+ *   - react-redux (real Provider + store + useSelector/useDispatch)
+ *   - react-i18next (real i18n initialized from './src/i18n')
  *
- * The fix: mock both libraries at the hooks layer.  We then test that the
- * auth-status gate in Root() correctly shows LoginScreen (testID assertions)
- * when status is 'unauthenticated'.
+ * What it DOES mock (infrastructure unavailable in the jest env):
+ *   - expo-secure-store: getItemAsync → null  (no token → bootstrap → unauthenticated)
+ *   - expo-localization: getLocales → [{languageCode:'en'}]
+ *   - global.fetch: silent stub (no real network)
+ *   - ./src/lib/nativeHttpClient: module-level singleton wired at import time in App.tsx
  */
 
-// Stub expo-secure-store: getItemAsync returns null → bootstrap finds no token
+// 1. expo-secure-store: no token stored → bootstrap resolves unauthenticated
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn().mockResolvedValue(null),
   setItemAsync: jest.fn().mockResolvedValue(undefined),
   deleteItemAsync: jest.fn().mockResolvedValue(undefined),
 }));
 
-// Stub fetch — no real network I/O
+// 2. expo-localization: unavailable in jest env
+jest.mock('expo-localization', () => ({
+  getLocales: () => [{ languageCode: 'en' }],
+}));
+
+// 3. global.fetch: silence network I/O
 global.fetch = jest.fn().mockResolvedValue({
   ok: false,
   status: 401,
@@ -29,38 +37,9 @@ global.fetch = jest.fn().mockResolvedValue({
   json: jest.fn().mockResolvedValue({}),
 }) as unknown as typeof fetch;
 
-// Stub expo-localization (unavailable in jest env)
-jest.mock('expo-localization', () => ({
-  getLocales: () => [{ languageCode: 'en' }],
-}));
-
-// Stub react-redux to avoid dual-React invalid-hook-call.
-// Provider is transparent; hooks return stable predictable values.
-jest.mock('react-redux', () => {
-  const React = require('react');
-  return {
-    Provider: ({ children }: { children: React.ReactNode }) => children,
-    useSelector: (selector: (s: unknown) => unknown) =>
-      selector({
-        auth: { status: 'unauthenticated', profile: null, error: null, needsVerification: false },
-      }),
-    useDispatch: () => () => undefined,
-  };
-});
-
-// Stub react-i18next to avoid dual-React hook call through root React.
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, params?: Record<string, unknown>) => {
-      if (params) return `${key}:${JSON.stringify(params)}`;
-      return key;
-    },
-    i18n: { language: 'en' },
-  }),
-  initReactI18next: { type: '3rdParty', init: jest.fn() },
-}));
-
-// Stub nativeHttpClient so module-level App.tsx wiring does not throw
+// 4. nativeHttpClient: module-level side effects in App.tsx call setRefreshHandler /
+//    setOnUnauthenticated at import time; stub the singleton so @beyou/api does not
+//    need a real HTTP client wired during the test.
 jest.mock('./src/lib/nativeHttpClient', () => ({
   nativeHttpClient: {},
   setAccessToken: jest.fn(),
@@ -68,13 +47,15 @@ jest.mock('./src/lib/nativeHttpClient', () => ({
   setOnUnauthenticated: jest.fn(),
 }));
 
-import { render, screen } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import App from './App';
 
-test('LoginScreen renders when auth status is unauthenticated', async () => {
-  // render() is async in @testing-library/react-native v14
-  await render(<App />);
-  // screen.findByTestId retries until the element appears or times out
-  await screen.findByTestId('login-email-input');
-  await screen.findByTestId('login-submit-button');
+test('LoginScreen renders when bootstrap finds no stored token', async () => {
+  // TTRN v14: render() is async — must be awaited to get the query helpers.
+  // The real bootstrap() thunk dispatches setStatus('loading') then
+  // setStatus('unauthenticated') after secureStore.getRefreshToken() resolves null.
+  // The real Provider + store + i18n wire are all exercised here.
+  const { findByTestId } = await render(<App />);
+  await findByTestId('login-email-input');
+  await findByTestId('login-submit-button');
 });
