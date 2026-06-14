@@ -38,3 +38,9 @@ yarn-error.log*
 
 # Test results (Playwright / Vitest)
 test-results/
+
+# Expo / React Native (apps/mobile)
+apps/mobile/.expo/
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/.metro-health-check*
