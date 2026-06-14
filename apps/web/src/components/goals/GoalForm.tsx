@@ -15,9 +15,9 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiErro
 import createGoal from "../../services/goals/createGoal";
 import editGoal from "../../services/goals/editGoal";
 import getGoals from "../../services/goals/getGoals";
-import { enterGoals } from "../../redux/goal/goalsSlice";
-import { editModeEnter } from "../../redux/goal/editGoalSlice";
-import { RootState } from "../../redux/rootReducer";
+import { enterGoals } from "@beyou/state/goal/goalsSlice";
+import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
+import { RootState } from "@beyou/state/rootReducer";
 import { goalFormSchema } from "../../validation/forms/goalSchemas";
 
 export type GoalFormMode = "create" | "edit";

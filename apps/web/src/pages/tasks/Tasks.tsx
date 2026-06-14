@@ -6,7 +6,7 @@ import RenderTasks from "../../components/tasks/renderTasks";
 import getTasks from "../../services/tasks/getTasks";
 import CreateTask from "../../components/tasks/createTask";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import EditTask from "../../components/tasks/editTask";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
@@ -16,7 +16,7 @@ import {
   sortItems
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
-import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 
 
 function Tasks() {

@@ -16,7 +16,7 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiErro
 import createTask from "../../services/tasks/createTask";
 import editTask from "../../services/tasks/editTask";
 import getTasks from "../../services/tasks/getTasks";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import {
     editCaegoriesIdEnter,
     editDescriptionEnter,
@@ -26,7 +26,7 @@ import {
     editModeEnter,
     editNameEnter,
     editOneTimeTaskEnter
-} from "../../redux/task/editTaskSlice";
+} from "@beyou/state/task/editTaskSlice";
 import type { task } from "@beyou/types/tasks/taskType";
 import type category from "@beyou/types/category/categoryType";
 import { taskFormSchema } from "../../validation/forms/taskSchemas";

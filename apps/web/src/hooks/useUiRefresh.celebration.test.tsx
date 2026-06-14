@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "../redux/rootReducer";
+import rootReducer from "@beyou/state/rootReducer";
 import useUiRefresh from "./useUiRefresh";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import editUser from "../services/user/editUser";
 import { useDispatch } from "react-redux";
-import { languageInUserEnter } from "../redux/user/perfilSlice";
+import { languageInUserEnter } from "@beyou/state/user/perfilSlice";
 import { logger } from "../utils/logger";
 
 export default function useChangeLanguage(lng: string, updateUser?: boolean) {

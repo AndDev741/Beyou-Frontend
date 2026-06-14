@@ -15,7 +15,7 @@ import ErrorNotice from "../../../ErrorNotice";
 import createTask from "../../../../services/tasks/createTask";
 import getTasks from "../../../../services/tasks/getTasks";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../../services/apiError";
-import { enterTasks } from "../../../../redux/task/tasksSlice";
+import { enterTasks } from "@beyou/state/task/tasksSlice";
 import { taskFormSchema } from "../../../../validation/forms/taskSchemas";
 import type { task } from "@beyou/types/tasks/taskType";
 

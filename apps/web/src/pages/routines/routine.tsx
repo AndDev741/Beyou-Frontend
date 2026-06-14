@@ -5,14 +5,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
 import getHabits from "../../services/habits/getHabits";
 import { useDispatch, useSelector } from "react-redux";
-import { enterHabits } from "../../redux/habit/habitsSlice";
+import { enterHabits } from "@beyou/state/habit/habitsSlice";
 import getTasks from "../../services/tasks/getTasks";
-import { enterTasks } from "../../redux/task/tasksSlice";
+import { enterTasks } from "@beyou/state/task/tasksSlice";
 import { Routine as routineType } from "@beyou/types/routine/routine";
 import getRoutines from "../../services/routine/getRoutines";
-import { enterRoutines } from "../../redux/routine/routinesSlice";
+import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import RenderRoutines from "../../components/routines/renderRoutines";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
 import { CgAddR } from "react-icons/cg";
 import { RoutineSummary } from "../../components/routines/RoutineSummary";
@@ -22,7 +22,7 @@ import {
     compareStrings,
     sortItems
 } from "../../components/utils/sortHelpers";
-import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
@@ -32,7 +32,7 @@ import {
     enterSnapshots,
     setSelectedDate,
     setSnapshotLoading,
-} from "../../redux/routine/snapshotSlice";
+} from "@beyou/state/routine/snapshotSlice";
 
 const Routine = () => {
     useAuthGuard();

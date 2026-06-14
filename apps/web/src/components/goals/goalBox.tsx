@@ -27,7 +27,7 @@ import {
   editStatusEnter,
   editTermEnter,
   editIconIdEnter,
-} from "../../redux/goal/editGoalSlice";
+} from "@beyou/state/goal/editGoalSlice";
 import { IconObject } from "@beyou/types/icons/IconObject";
 import iconSearch from "../icons/iconsSearch";
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
@@ -35,7 +35,7 @@ import { ProgressRing } from "../progressRing";
 import { MdOutlineAlbum } from "react-icons/md";
 import { Button } from "../ActionButton";
 import markGoalAsComplete from "../../services/goals/markGoalAsComplete";
-import { enterGoals, updateGoal } from "../../redux/goal/goalsSlice";
+import { enterGoals, updateGoal } from "@beyou/state/goal/goalsSlice";
 import increaseCurrentValue from "../../services/goals/increaseCurrentValue";
 import decreaseCurrentValue from "../../services/goals/decreaseCurrentValue";
 import useUiRefresh from "../../hooks/useUiRefresh";

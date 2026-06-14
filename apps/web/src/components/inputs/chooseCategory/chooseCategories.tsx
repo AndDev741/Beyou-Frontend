@@ -3,7 +3,7 @@ import getCategories from "../../../services/categories/getCategories";
 import { useTranslation } from "react-i18next";
 import CategoryItem from "./categoryItem";
 import category from "@beyou/types/category/categoryType";
-import { enterCategories } from "../../../redux/category/categoriesSlice";
+import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import Modal from "../../modals/Modal";
 import CategoryForm from "../../categories/CategoryForm";
 import { CgAddR } from "react-icons/cg";

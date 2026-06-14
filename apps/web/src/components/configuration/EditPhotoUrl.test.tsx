@@ -2,7 +2,7 @@ import { renderWithProviders } from "../../test/test-utils";
 import ProfileConfiguration from "./ProfileConfiguration";
 import { screen, fireEvent } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "../../redux/rootReducer";
+import rootReducer from "@beyou/state/rootReducer";
 
 const baseState = rootReducer(undefined as any, { type: "@@INIT" } as any);
 

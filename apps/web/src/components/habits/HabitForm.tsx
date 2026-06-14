@@ -17,7 +17,7 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiErro
 import createHabit from "../../services/habits/createHabit";
 import editHabit from "../../services/habits/editHabit";
 import getHabits from "../../services/habits/getHabits";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import {
     editCaegoriesIdEnter,
     editDescriptionEnter,
@@ -27,7 +27,7 @@ import {
     editModeEnter,
     editMotivationalPhraseEnter,
     editNameEnter
-} from "../../redux/habit/editHabitSlice";
+} from "@beyou/state/habit/editHabitSlice";
 import type { habit } from "@beyou/types/habit/habitType";
 import type category from "@beyou/types/category/categoryType";
 import { habitCreateSchema, habitEditSchema } from "../../validation/forms/habitSchemas";

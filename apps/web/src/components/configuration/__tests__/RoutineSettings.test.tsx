@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { configureStore } from '@reduxjs/toolkit';
 import { renderWithProviders } from '../../../test/test-utils';
-import rootReducer from '../../../redux/rootReducer';
+import rootReducer from '@beyou/state/rootReducer';
 import RoutineSettings from '../RoutineSettings';
 
 // Mock editUser service to prevent real HTTP calls

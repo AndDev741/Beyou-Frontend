@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import deleteRoutine from "../../services/routine/deleteRoutine";
 import getRoutines from "../../services/routine/getRoutines";
-import { enterRoutines } from "../../redux/routine/routinesSlice";
+import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { Routine } from "@beyou/types/routine/routine";
-import { editModeEnter, routineEnter } from "../../redux/routine/editRoutineSlice";
+import { editModeEnter, routineEnter } from "@beyou/state/routine/editRoutineSlice";
 import ScheduleModal from "./ScheduleModal";
 import { RoutineCard } from "./RoutineCard";
 import { task } from "@beyou/types/tasks/taskType";

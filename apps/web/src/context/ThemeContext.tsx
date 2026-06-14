@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import {defaultDark, defaultLight} from "@beyou/theme";
 import type { Theme } from "@beyou/theme";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { logger } from "../utils/logger";
 
 export type ThemeType = Theme;

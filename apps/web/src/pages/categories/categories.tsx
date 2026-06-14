@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import Header from "../../components/header";
 import { useEffect, useMemo } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
-import { RootState } from "../../redux/rootReducer";
-import { editModeEnter } from "../../redux/category/editCategorySlice";
+import { RootState } from "@beyou/state/rootReducer";
+import { editModeEnter } from "@beyou/state/category/editCategorySlice";
 import getCategories from "../../services/categories/getCategories";
-import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
+import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
 import { useTranslation } from "react-i18next";
-import { enterCategories } from "../../redux/category/categoriesSlice";
+import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
   compareNumbers,
@@ -18,7 +18,7 @@ import {
   getTimestamp,
   sortItems
 } from "../../components/utils/sortHelpers";
-import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useCategoriesTutorial } from "../../components/tutorial/hooks/useCategoriesTutorial";
 // import categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";

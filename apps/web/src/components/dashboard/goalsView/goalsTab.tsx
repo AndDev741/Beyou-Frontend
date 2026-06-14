@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { sortGoalsByTime } from "./sortGoalsByTime";
 import { useDragScroll } from "../../../hooks/useDragScroll";
 import { goal } from "@beyou/types/goals/goalType";

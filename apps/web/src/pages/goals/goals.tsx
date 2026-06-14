@@ -6,9 +6,9 @@ import getGoals from "../../services/goals/getGoals";
 import { t } from "i18next";
 import CreateGoal from "../../components/goals/createGoal";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import EditGoal from "../../components/goals/editGoal";
-import { enterGoals } from "../../redux/goal/goalsSlice";
+import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
   compareNumbers,
@@ -17,7 +17,7 @@ import {
   sortItems
 } from "../../components/utils/sortHelpers";
 import { goal } from "@beyou/types/goals/goalType";
-import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 
 function Goals() {
   useAuthGuard();

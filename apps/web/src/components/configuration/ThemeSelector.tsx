@@ -3,7 +3,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { themes } from "@beyou/theme";
 import editUser from "../../services/user/editUser";
 import { useDispatch } from "react-redux";
-import { themeInUseEnter } from "../../redux/user/perfilSlice";
+import { themeInUseEnter } from "@beyou/state/user/perfilSlice";
 
 export default function ThemeSelector(){
     const {t} = useTranslation();

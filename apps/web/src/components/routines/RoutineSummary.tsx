@@ -2,7 +2,7 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Routine } from "@beyou/types/routine/routine";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { getRoutineStats } from "./routineMetrics";
 import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 

@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import editUser from "../../services/user/editUser";
 import { getFriendlyErrorMessage } from "../../services/apiError";
-import { RootState } from "../../redux/rootReducer";
-import { tutorialCompletedEnter } from "../../redux/user/perfilSlice";
+import { RootState } from "@beyou/state/rootReducer";
+import { tutorialCompletedEnter } from "@beyou/state/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import { clearTutorialPhase } from "../tutorial/tutorialStorage";
 

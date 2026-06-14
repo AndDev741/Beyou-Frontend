@@ -21,7 +21,7 @@ import {
     tutorialCompletedEnter,
     timezoneEnter,
     xpDecayStrategyEnter
-} from "../../redux/user/perfilSlice";
+} from "@beyou/state/user/perfilSlice";
 
 /**
  * Populate the `perfil` redux slice from a user profile payload.

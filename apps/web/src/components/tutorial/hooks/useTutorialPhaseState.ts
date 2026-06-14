@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { clearTutorialPhase, getTutorialPhase, setTutorialPhase, type TutorialPhase } from "../tutorialStorage";
-import type { RootState } from "../../../redux/rootReducer";
+import type { RootState } from "@beyou/state/rootReducer";
 
 export const useTutorialPhaseState = (defaultPhase: TutorialPhase | null = "intro") => {
     const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);

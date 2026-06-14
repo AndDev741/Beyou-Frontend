@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next";
 import WidgetsFabric, { WidgetProps, widgetsIds } from "../widgets/utils/widgetsFabric";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { useMemo, useState } from "react";
 import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { t } from "i18next";
 import { EditUser } from "@beyou/types/user/EditUser";
-import { widgetsIdInUseEnter } from "../../redux/user/perfilSlice";
+import { widgetsIdInUseEnter } from "@beyou/state/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import editUser from "../../services/user/editUser";
 import { toast } from "react-toastify";

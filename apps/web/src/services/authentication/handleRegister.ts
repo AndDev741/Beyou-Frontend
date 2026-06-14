@@ -1,12 +1,12 @@
 // functions
 import registerRequest from "./request/registerRequest";
 // services
-import { successRegisterEnter } from "../../redux/authentication/registerSlice";
+import { successRegisterEnter } from "@beyou/state/authentication/registerSlice";
 // types
 import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { NavigateFunction } from "react-router-dom";
-import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
+import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
 
 export default async function handleRegister(
     name: string,

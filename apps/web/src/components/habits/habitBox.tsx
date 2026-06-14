@@ -6,7 +6,7 @@ import fireIcon from '../../assets/habit/fire.svg'
 import { useTranslation } from "react-i18next";
 import CategoryNameAndIcon from "./categoryNameAndIcon";
 import { useDispatch } from "react-redux";
-import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "../../redux/habit/editHabitSlice";
+import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "@beyou/state/habit/editHabitSlice";
 import { habit } from "@beyou/types/habit/habitType";
 import { IconObject } from "@beyou/types/icons/IconObject";
 import deleteHabit from "../../services/habits/deleteHabit";

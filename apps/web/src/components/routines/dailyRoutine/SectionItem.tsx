@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import TaskAndHabitSelector from "./taskSelector/TaskAndHabitSelector";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { CgAddR } from "react-icons/cg";
 import { AiFillStar } from "react-icons/ai";
 import { formatTimeRange } from "../routineMetrics";

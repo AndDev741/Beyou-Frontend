@@ -1,12 +1,12 @@
 import { TFunction } from "i18next";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { useDispatch } from "react-redux";
 import { UnknownAction } from "@reduxjs/toolkit";
-import { editModeEnter as editCategoryMode } from "../redux/category/editCategorySlice";
-import { editModeEnter as editHabitMode } from "../redux/habit/editHabitSlice";
-import { editIdEnter as editTaskMode } from "../redux/task/editTaskSlice";
-import { editModeEnter as editGoalMode } from "../redux/goal/editGoalSlice";
+import { editModeEnter as editCategoryMode } from "@beyou/state/category/editCategorySlice";
+import { editModeEnter as editHabitMode } from "@beyou/state/habit/editHabitSlice";
+import { editIdEnter as editTaskMode } from "@beyou/state/task/editTaskSlice";
+import { editModeEnter as editGoalMode } from "@beyou/state/goal/editGoalSlice";
 import { toast } from "react-toastify";
 import { useEffect, useId, useState } from "react";
 import ErrorNotice from "./ErrorNotice";

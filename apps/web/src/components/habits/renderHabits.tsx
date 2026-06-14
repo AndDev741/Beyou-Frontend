@@ -5,7 +5,7 @@ import { habit } from "@beyou/types/habit/habitType";
 import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
-import { editModeEnter } from "../../redux/habit/editHabitSlice";
+import { editModeEnter } from "@beyou/state/habit/editHabitSlice";
 import EmptyState from "../EmptyState";
 
 type renderHabitsProps = {

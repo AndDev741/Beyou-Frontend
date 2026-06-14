@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import googleRequest from "./request/googleRequest";
 //Redux
-import { successRegisterEnter } from "../../redux/authentication/registerSlice";
+import { successRegisterEnter } from "@beyou/state/authentication/registerSlice";
 import { hydratePerfil } from "../user/hydratePerfil";
 //Types
 import { UserType } from "@beyou/types/user/UserType";

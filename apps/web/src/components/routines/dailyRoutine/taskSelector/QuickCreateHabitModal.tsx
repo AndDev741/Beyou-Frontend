@@ -16,7 +16,7 @@ import ErrorNotice from "../../../ErrorNotice";
 import createHabit from "../../../../services/habits/createHabit";
 import getHabits from "../../../../services/habits/getHabits";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "../../../../services/apiError";
-import { enterHabits } from "../../../../redux/habit/habitsSlice";
+import { enterHabits } from "@beyou/state/habit/habitsSlice";
 import { habitCreateSchema } from "../../../../validation/forms/habitSchemas";
 import type { habit } from "@beyou/types/habit/habitType";
 

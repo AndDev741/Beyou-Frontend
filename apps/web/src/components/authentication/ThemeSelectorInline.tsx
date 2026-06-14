@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
 import editUser from "../../services/user/editUser";
-import { themeInUseEnter } from "../../redux/user/perfilSlice";
+import { themeInUseEnter } from "@beyou/state/user/perfilSlice";
 import { themes } from "@beyou/theme";
 
 export default function ThemeSelectorInline() {

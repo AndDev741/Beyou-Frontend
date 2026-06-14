@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import HabitOrTaskGroup from "./HabitOrTaskGroup";
 import { useDragScroll } from "../../../../hooks/useDragScroll";
 import { RoutineSection } from "@beyou/types/routine/routineSection";

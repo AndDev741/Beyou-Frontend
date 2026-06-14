@@ -3,7 +3,7 @@ import { task } from "@beyou/types/tasks/taskType";
 import TaskBox from "./taskBox";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { editModeEnter } from "../../redux/task/editTaskSlice";
+import { editModeEnter } from "@beyou/state/task/editTaskSlice";
 import EmptyState from "../EmptyState";
 
 type renderTasksProps = {

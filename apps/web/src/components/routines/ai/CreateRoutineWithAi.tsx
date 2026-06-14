@@ -11,9 +11,9 @@ import { sectionsToDraft, materializeToSections } from "../../../services/ai/dra
 import getHabits from "../../../services/habits/getHabits";
 import getTasks from "../../../services/tasks/getTasks";
 import getCategories from "../../../services/categories/getCategories";
-import { enterHabits } from "../../../redux/habit/habitsSlice";
-import { enterTasks } from "../../../redux/task/tasksSlice";
-import { enterCategories } from "../../../redux/category/categoriesSlice";
+import { enterHabits } from "@beyou/state/habit/habitsSlice";
+import { enterTasks } from "@beyou/state/task/tasksSlice";
+import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import { getFriendlyErrorMessage } from "../../../services/apiError";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 

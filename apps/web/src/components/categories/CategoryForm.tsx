@@ -15,8 +15,8 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiErro
 import createCategory from "../../services/categories/createCategory";
 import editCategory from "../../services/categories/editCategory";
 import getCategories from "../../services/categories/getCategories";
-import { RootState } from "../../redux/rootReducer";
-import { editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter } from "../../redux/category/editCategorySlice";
+import { RootState } from "@beyou/state/rootReducer";
+import { editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter } from "@beyou/state/category/editCategorySlice";
 import type categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 import { categoryCreateSchema, categoryEditSchema } from "../../validation/forms/categorySchemas";
 

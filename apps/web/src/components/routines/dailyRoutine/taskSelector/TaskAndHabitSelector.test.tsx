@@ -2,7 +2,7 @@ import { renderWithProviders } from "../../../../test/test-utils";
 import { screen, fireEvent } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { vi } from "vitest";
-import rootReducer from "../../../../redux/rootReducer";
+import rootReducer from "@beyou/state/rootReducer";
 import TaskAndHabitSelector from "./TaskAndHabitSelector";
 
 vi.mock("./QuickCreateHabitModal", () => ({

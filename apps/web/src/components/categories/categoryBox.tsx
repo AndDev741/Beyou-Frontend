@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
-import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '../../redux/category/editCategorySlice'
+import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '@beyou/state/category/editCategorySlice'
 import deleteCategory from "../../services/categories/deleteCategory";
 import getCategories from "../../services/categories/getCategories";
 import iconSearch from "../icons/iconsSearch"
@@ -9,7 +9,7 @@ import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
 import { IconObject } from "@beyou/types/icons/IconObject";
 import DeleteModal from "../DeleteModal";
-import { enterCategories } from "../../redux/category/categoriesSlice";
+import { enterCategories } from "@beyou/state/category/categoriesSlice";
 
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
     nextLevelXp: number, actualLevelXp: number, 

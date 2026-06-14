@@ -9,7 +9,7 @@ import {
 } from "@beyou/types/routine/snapshot";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import { checkSnapshotItem, getSnapshot, skipSnapshotItem } from "../../services/routine/snapshot";
-import { enterSnapshot } from "../../redux/routine/snapshotSlice";
+import { enterSnapshot } from "@beyou/state/routine/snapshotSlice";
 import useUiRefresh from "../../hooks/useUiRefresh";
 import iconSearch from "../icons/iconsSearch";
 import { formatTimeRange, getTimeOfDay } from "./routineMetrics";

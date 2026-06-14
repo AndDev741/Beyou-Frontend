@@ -11,9 +11,9 @@ import {
   maxConstanceEnter,
   nextLevelXpEnter,
   xpEnter,
-} from "../redux/user/perfilSlice";
-import { refreshCategorie } from "../redux/category/categoriesSlice";
-import { refreshItemGroup } from "../redux/routine/todayRoutineSlice";
+} from "@beyou/state/user/perfilSlice";
+import { refreshCategorie } from "@beyou/state/category/categoriesSlice";
+import { refreshItemGroup } from "@beyou/state/routine/todayRoutineSlice";
 
 vi.mock("react-redux", async () => ({
   ...(await vi.importActual<typeof import("react-redux")>("react-redux")),

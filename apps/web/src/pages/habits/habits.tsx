@@ -4,7 +4,7 @@ import EditHabit from "../../components/habits/editHabit";
 import RenderHabits from "../../components/habits/renderHabits";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
-import { RootState } from "../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { useMemo, useState } from "react";
 import { habit } from "@beyou/types/habit/habitType";
 import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
@@ -15,7 +15,7 @@ import {
     sortItems
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
-import { setViewSort } from "../../redux/viewFilters/viewFiltersSlice";
+import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useHabitsTutorial } from "../../components/tutorial/hooks/useHabitsTutorial";
 

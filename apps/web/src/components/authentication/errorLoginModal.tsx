@@ -1,8 +1,8 @@
 import ErrorIcon from "../../assets/errorIcon.svg?react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { defaultErrorEnter } from "../../redux/errorHandler/errorHandlerSlice";
-import { RootState } from "../../redux/rootReducer";
+import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
+import { RootState } from "@beyou/state/rootReducer";
 
 function ErrorLoginModal(){
     const dispatch = useDispatch();

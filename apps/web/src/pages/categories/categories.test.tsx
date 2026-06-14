@@ -2,7 +2,7 @@ import { screen, act, waitFor } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test/test-utils";
-import rootReducer, { RootState } from "../../redux/rootReducer";
+import rootReducer, { RootState } from "@beyou/state/rootReducer";
 import getCategories from "../../services/categories/getCategories";
 
 vi.mock("../../services/verifyAuthentication", () => ({

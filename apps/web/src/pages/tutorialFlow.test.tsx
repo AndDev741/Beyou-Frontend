@@ -1,7 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import rootReducer, { RootState } from "../redux/rootReducer";
+import rootReducer, { RootState } from "@beyou/state/rootReducer";
 import { renderWithProviders } from "../test/test-utils";
 import Dashboard from "./dashboard/dashboard";
 import Categories from "./categories/categories";

@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { RootState } from "../../redux/rootReducer";
-import { celebrationShifted } from "../../redux/celebration/celebrationSlice";
+import { RootState } from "@beyou/state/rootReducer";
+import { celebrationShifted } from "@beyou/state/celebration/celebrationSlice";
 
 const AUTO_DISMISS_MS = 4000;
 

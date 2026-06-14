@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import { useDispatch, useStore } from "react-redux";
-import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "../redux/user/perfilSlice";
-import { refreshCategorie } from "../redux/category/categoriesSlice";
-import { refreshItemGroup } from "../redux/routine/todayRoutineSlice";
+import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "@beyou/state/user/perfilSlice";
+import { refreshCategorie } from "@beyou/state/category/categoriesSlice";
+import { refreshItemGroup } from "@beyou/state/routine/todayRoutineSlice";
 import { logger } from "../utils/logger";
-import { celebrationPushed } from "../redux/celebration/celebrationSlice";
-import { RootState } from "../redux/rootReducer";
+import { celebrationPushed } from "@beyou/state/celebration/celebrationSlice";
+import { RootState } from "@beyou/state/rootReducer";
 
 export const STREAK_MILESTONES = [7, 14, 21, 30, 60, 90, 100];
 

@@ -3,7 +3,7 @@ import { goal } from "@beyou/types/goals/goalType";
 import GoalBox from "./goalBox";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { editModeEnter } from "../../redux/goal/editGoalSlice";
+import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import EmptyState from "../EmptyState";
 
 type RenderGoalsProps = {

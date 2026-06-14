@@ -1,0 +1,93 @@
+// rootReducer + RootState
+export { default as rootReducer } from './rootReducer';
+export type { RootState } from './rootReducer';
+
+// authentication
+export { successRegisterEnter } from './authentication/registerSlice';
+
+// user / perfil
+export {
+  nameEnter as perfilNameEnter,
+  emailEnter,
+  phraseEnter,
+  phraseAuthorEnter,
+  constanceEnter,
+  photoEnter,
+  isGoogleAccountEnter,
+  checkedItemsInScheduledRoutineEnter,
+  totalItemsInScheduledRoutineEnter,
+  widgetsIdInUseEnter,
+  themeInUseEnter,
+  xpEnter,
+  levelEnter,
+  nextLevelXpEnter,
+  actualLevelXpEnter,
+  maxConstanceEnter,
+  alreadyIncreaseConstanceTodayEnter,
+  languageInUserEnter,
+  tutorialCompletedEnter,
+  timezoneEnter,
+  xpDecayStrategyEnter,
+} from './user/perfilSlice';
+
+// category
+export { enterCategories, updateCategorie, refreshCategorie } from './category/categoriesSlice';
+// editCategorySlice: editModeEnter and nameEnter collide — import via deep path @beyou/state/category/editCategorySlice
+export { idEnter, descriptionEnter, iconEnter } from './category/editCategorySlice';
+
+// celebration
+export type { Celebration } from './celebration/celebrationSlice';
+export { celebrationPushed, celebrationShifted } from './celebration/celebrationSlice';
+
+// errorHandler
+export { defaultErrorEnter } from './errorHandler/errorHandlerSlice';
+
+// goals
+export { enterGoals, updateGoal } from './goal/goalsSlice';
+// editGoalSlice: editModeEnter, editDescriptionEnter, editIconIdEnter collide — import via deep path @beyou/state/goal/editGoalSlice
+export {
+  editGoalIdEnter,
+  editTitleEnter,
+  editTargetValueEnter,
+  editUnitEnter,
+  editCurrentValueEnter,
+  editCompleteEnter,
+  editCategoryEnter,
+  editMotivationEnter,
+  editStartDateEnter,
+  editEndDateEnter,
+  editXpRewardEnter,
+  editStatusEnter,
+  editTermEnter,
+} from './goal/editGoalSlice';
+
+// habits
+export { enterHabits } from './habit/habitsSlice';
+// editHabitSlice: editModeEnter, editIdEnter, editNameEnter, editDescriptionEnter, editIconIdEnter,
+//   editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter collide — import via deep path @beyou/state/habit/editHabitSlice
+export { editMotivationalPhraseEnter } from './habit/editHabitSlice';
+
+// routines
+export { enterRoutines } from './routine/routinesSlice';
+export { enterTodayRoutine, refreshItemGroup } from './routine/todayRoutineSlice';
+export {
+  enterSnapshot,
+  enterSnapshots,
+  clearSnapshot,
+  enterSnapshotDates,
+  setSelectedDate,
+  setSnapshotLoading,
+  updateSnapshotCheck,
+} from './routine/snapshotSlice';
+// editRoutineSlice: editModeEnter collides — import via deep path @beyou/state/routine/editRoutineSlice
+export { routineEnter } from './routine/editRoutineSlice';
+
+// tasks
+export { enterTasks } from './task/tasksSlice';
+// editTaskSlice: editModeEnter, editIdEnter, editNameEnter, editDescriptionEnter, editIconIdEnter,
+//   editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter collide — import via deep path @beyou/state/task/editTaskSlice
+export { editOneTimeTaskEnter } from './task/editTaskSlice';
+
+// viewFilters
+export type { ViewSortKey } from './viewFilters/viewFiltersSlice';
+export { setViewSort } from './viewFilters/viewFiltersSlice';

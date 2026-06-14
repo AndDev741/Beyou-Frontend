@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { RoutineSection as section } from "@beyou/types/routine/routineSection";
 import iconSearch from "../../icons/iconsSearch";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../redux/rootReducer";
+import { RootState } from "@beyou/state/rootReducer";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import checkRoutine from "../../../services/routine/checkItem";
