@@ -12,6 +12,7 @@ export default defineConfig({
       '@beyou/theme': fileURLToPath(new URL('../../packages/theme/src', import.meta.url)),
       '@beyou/state': fileURLToPath(new URL('../../packages/state/src', import.meta.url)),
       '@beyou/api': fileURLToPath(new URL('../../packages/api/src', import.meta.url)),
+      '@beyou/contracts': fileURLToPath(new URL('../../packages/contracts/src', import.meta.url)),
     },
   },
   // With route-level lazy loading, heavy deps are only discovered when their
