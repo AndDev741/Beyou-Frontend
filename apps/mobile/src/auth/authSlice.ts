@@ -108,6 +108,10 @@ const authSlice = createSlice({
       s.needsVerification = a.payload === 'EMAIL_NOT_VERIFIED';
       s.error = a.payload as string;
     });
+    b.addCase(register.pending, (s) => {
+      s.error = null;
+      s.needsVerification = false;
+    });
     b.addCase(bootstrap.fulfilled, (s, a) => {
       s.status = 'authenticated';
       s.profile = a.payload as Profile;

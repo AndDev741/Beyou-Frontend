@@ -5,13 +5,13 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  StyleSheet,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { defaultLight } from '@beyou/theme';
 import { register } from '../auth/authSlice';
 import type { RootState, AppDispatch } from '../store';
+import authStyles, { ON_PRIMARY } from './authStyles';
 
 interface RegisterScreenProps {
   onGoToLogin: () => void;
@@ -43,34 +43,36 @@ export default function RegisterScreen({ onGoToLogin }: RegisterScreenProps) {
 
   if (registered) {
     return (
-      <View style={styles.container}>
-        <Text style={[styles.title, { color: defaultLight.primary }]}>
+      <View style={authStyles.container}>
+        <Text style={[authStyles.title, { color: defaultLight.primary }]}>
           {t('EmailVerificationSentTitle')}
         </Text>
-        <Text style={[styles.subtitle, { color: defaultLight.description }]}>
+        <Text style={[authStyles.subtitle, { color: defaultLight.description }]}>
           {t('SuccessRegisterPhrase')}
         </Text>
         <Pressable
-          style={[styles.button, { backgroundColor: defaultLight.primary }]}
+          style={[authStyles.button, { backgroundColor: defaultLight.primary }]}
           onPress={onGoToLogin}
           accessibilityRole="button"
+          testID="register-success-to-login"
         >
-          <Text style={styles.buttonText}>{t('Login')}</Text>
+          <Text style={authStyles.buttonText}>{t('Login')}</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, { color: defaultLight.primary }]}>
+    <View style={authStyles.container}>
+      <Text style={[authStyles.title, { color: defaultLight.primary }]}>
         {t('Register')}
       </Text>
 
       <TextInput
-        style={[styles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
+        style={[authStyles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
         placeholder={t('NamePlaceholder')}
         placeholderTextColor={defaultLight.placeholder}
+        accessibilityLabel={t('NamePlaceholder')}
         value={name}
         onChangeText={setName}
         autoCapitalize="words"
@@ -79,9 +81,10 @@ export default function RegisterScreen({ onGoToLogin }: RegisterScreenProps) {
       />
 
       <TextInput
-        style={[styles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
+        style={[authStyles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
         placeholder={t('EmailPlaceholder')}
         placeholderTextColor={defaultLight.placeholder}
+        accessibilityLabel={t('EmailPlaceholder')}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -91,9 +94,10 @@ export default function RegisterScreen({ onGoToLogin }: RegisterScreenProps) {
       />
 
       <TextInput
-        style={[styles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
+        style={[authStyles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
         placeholder={t('PasswordPlaceholder')}
         placeholderTextColor={defaultLight.placeholder}
+        accessibilityLabel={t('PasswordPlaceholder')}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -102,83 +106,30 @@ export default function RegisterScreen({ onGoToLogin }: RegisterScreenProps) {
       />
 
       {authError != null && authError !== 'INVALID_CREDENTIALS' && authError !== 'EMAIL_NOT_VERIFIED' && (
-        <Text style={[styles.error, { color: defaultLight.error }]}>
+        <Text style={[authStyles.error, { color: defaultLight.error }]}>
           {t('UnknownError')}
         </Text>
       )}
 
       <Pressable
-        style={[styles.button, { backgroundColor: defaultLight.primary }, submitting && styles.buttonDisabled]}
+        style={[authStyles.button, { backgroundColor: defaultLight.primary }, submitting && authStyles.buttonDisabled]}
         onPress={handleSubmit}
         disabled={submitting}
         accessibilityRole="button"
         testID="register-submit-button"
       >
         {submitting ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={ON_PRIMARY} />
         ) : (
-          <Text style={styles.buttonText}>{t('ToRegister')}</Text>
+          <Text style={authStyles.buttonText}>{t('ToRegister')}</Text>
         )}
       </Pressable>
 
       <Pressable onPress={onGoToLogin} accessibilityRole="button" testID="go-to-login-link">
-        <Text style={[styles.link, { color: defaultLight.primary }]}>
+        <Text style={[authStyles.link, { color: defaultLight.primary }]}>
           {t('AlreadyHaveAccount')}
         </Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: defaultLight.background,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  button: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  error: {
-    fontSize: 14,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  link: {
-    fontSize: 14,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-});

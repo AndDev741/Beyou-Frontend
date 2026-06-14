@@ -5,7 +5,6 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
-  StyleSheet,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +12,7 @@ import { defaultLight } from '@beyou/theme';
 import { login } from '../auth/authSlice';
 import type { RootState, AppDispatch } from '../store';
 import RegisterScreen from './RegisterScreen';
+import authStyles, { ON_PRIMARY } from './authStyles';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -40,15 +40,16 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.title, { color: defaultLight.primary }]}>
+    <View style={authStyles.container}>
+      <Text style={[authStyles.title, { color: defaultLight.primary }]}>
         {t('Login')}
       </Text>
 
       <TextInput
-        style={[styles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
+        style={[authStyles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
         placeholder={t('EmailPlaceholder')}
         placeholderTextColor={defaultLight.placeholder}
+        accessibilityLabel={t('EmailPlaceholder')}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -58,9 +59,10 @@ export default function LoginScreen() {
       />
 
       <TextInput
-        style={[styles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
+        style={[authStyles.input, { borderColor: defaultLight.placeholder, color: defaultLight.secondary }]}
         placeholder={t('PasswordPlaceholder')}
         placeholderTextColor={defaultLight.placeholder}
+        accessibilityLabel={t('PasswordPlaceholder')}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -69,28 +71,28 @@ export default function LoginScreen() {
       />
 
       {error === 'INVALID_CREDENTIALS' && (
-        <Text style={[styles.error, { color: defaultLight.error }]} testID="login-invalid-credentials-error">
+        <Text style={[authStyles.error, { color: defaultLight.error }]} testID="login-invalid-credentials-error">
           {t('WrongPassOrEmailError')}
         </Text>
       )}
 
       {needsVerification && (
-        <Text style={[styles.error, { color: defaultLight.error }]} testID="login-verify-email-message">
+        <Text style={[authStyles.error, { color: defaultLight.error }]} testID="login-verify-email-message">
           {t('EmailNotVerifiedMessage')}
         </Text>
       )}
 
       <Pressable
-        style={[styles.button, { backgroundColor: defaultLight.primary }, submitting && styles.buttonDisabled]}
+        style={[authStyles.button, { backgroundColor: defaultLight.primary }, submitting && authStyles.buttonDisabled]}
         onPress={handleSubmit}
         disabled={submitting}
         accessibilityRole="button"
         testID="login-submit-button"
       >
         {submitting ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={ON_PRIMARY} />
         ) : (
-          <Text style={styles.buttonText}>{t('Enter')}</Text>
+          <Text style={authStyles.buttonText}>{t('Enter')}</Text>
         )}
       </Pressable>
 
@@ -99,58 +101,10 @@ export default function LoginScreen() {
         accessibilityRole="button"
         testID="go-to-register-link"
       >
-        <Text style={[styles.link, { color: defaultLight.primary }]}>
+        <Text style={[authStyles.link, { color: defaultLight.primary }]}>
           {t('NoAccount')}
         </Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: defaultLight.background,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  button: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  error: {
-    fontSize: 14,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  link: {
-    fontSize: 14,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-});

@@ -1,9 +1,10 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { defaultLight } from '@beyou/theme';
 import { logout } from '../auth/authSlice';
 import type { RootState, AppDispatch } from '../store';
+import authStyles, { ON_PRIMARY } from './authStyles';
 
 export default function AuthedPlaceholderScreen() {
   const { t } = useTranslation();
@@ -11,53 +12,21 @@ export default function AuthedPlaceholderScreen() {
   const profile = useSelector((s: RootState) => s.auth.profile);
 
   return (
-    <View style={styles.container}>
-      <Text style={[styles.greeting, { color: defaultLight.primary }]}>
+    <View style={[authStyles.container, { alignItems: 'center' }]}>
+      <Text style={[authStyles.title, { color: defaultLight.primary }]}>
         {t('HelloUser', { name: profile?.name ?? '' })}
       </Text>
-      <Text style={[styles.subtitle, { color: defaultLight.description }]}>
+      <Text style={[authStyles.subtitle, { color: defaultLight.description, marginBottom: 48 }]}>
         {t('BeYourBestVersion')}
       </Text>
       <Pressable
-        style={[styles.button, { backgroundColor: defaultLight.error }]}
+        style={[authStyles.button, { backgroundColor: defaultLight.error, paddingHorizontal: 32 }]}
         onPress={() => dispatch(logout())}
         accessibilityRole="button"
         testID="logout-button"
       >
-        <Text style={styles.buttonText}>{t('Logout')}</Text>
+        <Text style={[authStyles.buttonText, { color: ON_PRIMARY }]}>{t('Logout')}</Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: defaultLight.background,
-  },
-  greeting: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 48,
-    textAlign: 'center',
-  },
-  button: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});

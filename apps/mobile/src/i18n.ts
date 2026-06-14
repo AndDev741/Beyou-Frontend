@@ -10,6 +10,6 @@ i18next.use(initReactI18next).init({
   lng,
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
-});
+}).catch((e) => console.error('i18n init failed', e));
 
 export default i18next;
