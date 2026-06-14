@@ -14,7 +14,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import validateResetTokenRequest from "../../../services/authentication/request/validateResetTokenRequest";
 import resetPasswordRequest from "../../../services/authentication/request/resetPasswordRequest";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
-import { resetPasswordSchema } from "../../../validation/forms/authSchemas";
+import { resetPasswordSchema } from "@beyou/validation/forms/authSchemas";
 // Assets
 import PasswordIcon from "../../../assets/authentication/passwordIcon.svg?react";
 import EyeOpenIcon from "../../../assets/authentication/eyeOpen.svg?react";

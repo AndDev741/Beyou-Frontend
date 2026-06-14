@@ -18,7 +18,7 @@ import ErrorNotice from "../../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { routineFormSchema } from "../../../validation/forms/routineSchemas";
+import { routineFormSchema } from "@beyou/validation/forms/routineSchemas";
 import CreateRoutineWithAi from "../ai/CreateRoutineWithAi";
 
 const CreateDailyRoutine = ({

@@ -15,7 +15,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // Services
 import handleRegister from "../../../services/authentication/handleRegister";
-import { registerSchema } from "../../../validation/forms/authSchemas";
+import { registerSchema } from "@beyou/validation/forms/authSchemas";
 // Assets
 import PersonIcon from "../../../assets/authentication/personIcon.svg?react";
 import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";

@@ -5,7 +5,7 @@ import HabitOrTaskGroup from "./HabitOrTaskGroup";
 import { useDragScroll } from "../../../../hooks/useDragScroll";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { useState } from "react";
-import { getItemTimeErrorKeys, getSectionErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "../routineValidation";
+import { getItemTimeErrorKeys, getSectionErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "@beyou/validation/routineValidation";
 import { toast } from "react-toastify";
 import QuickCreateHabitModal from "./QuickCreateHabitModal";
 import QuickCreateTaskModal from "./QuickCreateTaskModal";

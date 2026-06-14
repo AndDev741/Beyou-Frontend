@@ -29,7 +29,7 @@ import {
 } from "@beyou/state/task/editTaskSlice";
 import type { task } from "@beyou/types/tasks/taskType";
 import type category from "@beyou/types/category/categoryType";
-import { taskFormSchema } from "../../validation/forms/taskSchemas";
+import { taskFormSchema } from "@beyou/validation/forms/taskSchemas";
 
 export type TaskFormMode = "create" | "edit";
 

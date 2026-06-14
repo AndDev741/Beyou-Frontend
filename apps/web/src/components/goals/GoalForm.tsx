@@ -18,7 +18,7 @@ import getGoals from "@beyou/api/goals/getGoals";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import { RootState } from "@beyou/state/rootReducer";
-import { goalFormSchema } from "../../validation/forms/goalSchemas";
+import { goalFormSchema } from "@beyou/validation/forms/goalSchemas";
 
 export type GoalFormMode = "create" | "edit";
 

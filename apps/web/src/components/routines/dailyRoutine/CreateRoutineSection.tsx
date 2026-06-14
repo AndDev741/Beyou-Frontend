@@ -7,7 +7,7 @@ import iconSearch from "../../icons/iconsSearch";
 import { formatTimeRange } from "../routineMetrics";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { routineSectionSchema } from "../../../validation/forms/routineSchemas";
+import { routineSectionSchema } from "@beyou/validation/forms/routineSchemas";
 
 interface CreateRoutineSectionProps {
     setRoutineSection: React.Dispatch<React.SetStateAction<any>>;

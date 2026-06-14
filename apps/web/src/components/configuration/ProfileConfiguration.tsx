@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { profileSchema, photoUrlSchema } from "../../validation/forms/profileSchemas";
+import { profileSchema, photoUrlSchema } from "@beyou/validation/forms/profileSchemas";
 
 type ProfileFormValues = {
     name: string;
