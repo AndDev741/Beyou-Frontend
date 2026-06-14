@@ -3,6 +3,7 @@ import authReducer, { login, bootstrap } from './authSlice';
 import * as authApi from './authApi';
 import * as secureStore from './secureStore';
 import { setAccessToken } from '../lib/nativeHttpClient';
+import type { AppDispatch } from '../store';
 
 jest.mock('./authApi');
 jest.mock('./secureStore');
@@ -24,7 +25,8 @@ describe('authSlice', () => {
       profile: { email: 'a@b.com' },
     });
     const s = store();
-    await s.dispatch(login({ email: 'a@b.com', password: 'pw' }) as any);
+    const dispatch = s.dispatch as AppDispatch;
+    await dispatch(login({ email: 'a@b.com', password: 'pw' }));
     expect(secureStore.setRefreshToken).toHaveBeenCalledWith('id.tok');
     expect(setAccessToken).toHaveBeenCalledWith('jwt');
     expect(s.getState().auth.status).toBe('authenticated');
@@ -37,7 +39,8 @@ describe('authSlice', () => {
       new ApiError(403, { error: 'EMAIL_NOT_VERIFIED' }),
     );
     const s = store();
-    await s.dispatch(login({ email: 'a@b.com', password: 'pw' }) as any);
+    const dispatch = s.dispatch as AppDispatch;
+    await dispatch(login({ email: 'a@b.com', password: 'pw' }));
     expect(s.getState().auth.status).toBe('unauthenticated');
     expect(s.getState().auth.needsVerification).toBe(true);
   });
@@ -45,7 +48,8 @@ describe('authSlice', () => {
   it('bootstrap with no stored token → unauthenticated', async () => {
     (secureStore.getRefreshToken as jest.Mock).mockResolvedValueOnce(null);
     const s = store();
-    await s.dispatch(bootstrap() as any);
+    const dispatch = s.dispatch as AppDispatch;
+    await dispatch(bootstrap());
     expect(s.getState().auth.status).toBe('unauthenticated');
   });
 });

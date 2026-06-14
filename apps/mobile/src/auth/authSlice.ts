@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ApiError } from '@beyou/api';
+import { ApiError, parseApiError, getLogger } from '@beyou/api';
 import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
@@ -32,7 +32,8 @@ export const login = createAsyncThunk(
       await secureStore.setRefreshToken(refreshToken);
       return profile;
     } catch (e) {
-      if (e instanceof ApiError && (e.data as any)?.error === 'EMAIL_NOT_VERIFIED') {
+      const parsed = parseApiError(e);
+      if (e instanceof ApiError && parsed.message === 'EMAIL_NOT_VERIFIED') {
         return rejectWithValue('EMAIL_NOT_VERIFIED');
       }
       return rejectWithValue('INVALID_CREDENTIALS');
@@ -46,15 +47,16 @@ export const register = createAsyncThunk(
     try {
       await registerRequest(d.name, d.email, d.password);
       return true;
-    } catch {
+    } catch (e) {
+      getLogger().error('auth register failed', e);
       return rejectWithValue('REGISTER_FAILED');
     }
   },
 );
 
-export const bootstrap = createAsyncThunk(
+export const bootstrap = createAsyncThunk<Profile, void>(
   'auth/bootstrap',
-  async (_: void, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     const stored = await secureStore.getRefreshToken();
     if (!stored) return rejectWithValue('NO_TOKEN');
     try {
@@ -64,8 +66,10 @@ export const bootstrap = createAsyncThunk(
       // getProfile() takes no arguments and returns { data?: UserType } | { error?: string }
       const res = await getProfile();
       if (res.error || !res.data) return rejectWithValue('PROFILE_FAILED');
-      return res.data as Profile;
-    } catch {
+      // TODO: reconcile @beyou/types UserType with @beyou/contracts UserResponseDTO (tracked: thread contract types into @beyou/api)
+      return res.data as unknown as Profile;
+    } catch (e) {
+      getLogger().error('auth bootstrap failed', e);
       await secureStore.clearRefreshToken();
       return rejectWithValue('REFRESH_FAILED');
     }
@@ -97,6 +101,7 @@ const authSlice = createSlice({
     b.addCase(login.fulfilled, (s, a) => {
       s.status = 'authenticated';
       s.profile = a.payload as Profile;
+      s.error = null;
     });
     b.addCase(login.rejected, (s, a) => {
       s.status = 'unauthenticated';
@@ -106,13 +111,16 @@ const authSlice = createSlice({
     b.addCase(bootstrap.fulfilled, (s, a) => {
       s.status = 'authenticated';
       s.profile = a.payload as Profile;
+      s.error = null;
     });
     b.addCase(bootstrap.rejected, (s) => {
       s.status = 'unauthenticated';
+      s.error = null;
     });
     b.addCase(logout.fulfilled, (s) => {
       s.status = 'unauthenticated';
       s.profile = null;
+      s.error = null;
     });
   },
 });
