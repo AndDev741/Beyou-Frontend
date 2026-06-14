@@ -617,5 +617,8 @@
     "FastTipVideoShort": "Learn about habits",
     "FastTipVideoUrlLabel": "Click here to watch the video",
     "LifeBalance": "Life Balance",
-    "LifeBalanceFallback": "Add at least 3 categories to see your whole life at a glance"
+    "LifeBalanceFallback": "Add at least 3 categories to see your whole life at a glance",
+    "AlreadyHaveAccount": "Already have an account? Log in",
+    "NoAccount": "Don't have an account? Register",
+    "HelloUser": "Hello, {{name}}!"
 }

@@ -3,12 +3,17 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@beyou/i18n": "*",
     "@beyou/theme": "*",
     "@reduxjs/toolkit": "^2.12.0",
+    "@testing-library/react-native": "^14.0.0",
     "expo": "~56.0.11",
+    "expo-localization": "~56.0.6",
     "expo-secure-store": "~56.0.4",
     "expo-status-bar": "~56.0.4",
+    "i18next": "^23.16.8",
     "react": "19.2.3",
+    "react-i18next": "^15.7.4",
     "react-native": "0.85.3",
     "react-redux": "^9.3.0"
   },
@@ -30,7 +35,7 @@
   "jest": {
     "preset": "jest-expo",
     "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@beyou/.*|react-clone-referenced-element|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|uuid|@reduxjs/toolkit|react-redux|immer))"
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@beyou/.*|react-clone-referenced-element|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|uuid|@reduxjs/toolkit|react-redux|immer|i18next|react-i18next|@testing-library/.*|@hookform/.*))"
     ]
   },
   "private": true
