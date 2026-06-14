@@ -4,11 +4,13 @@
   "main": "index.ts",
   "dependencies": {
     "@beyou/theme": "*",
+    "@reduxjs/toolkit": "^2.12.0",
     "expo": "~56.0.11",
     "expo-secure-store": "~56.0.4",
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
-    "react-native": "0.85.3"
+    "react-native": "0.85.3",
+    "react-redux": "^9.3.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
@@ -28,7 +30,7 @@
   "jest": {
     "preset": "jest-expo",
     "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@beyou/.*|react-clone-referenced-element|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|uuid))"
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@beyou/.*|react-clone-referenced-element|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|uuid|@reduxjs/toolkit|react-redux|immer))"
     ]
   },
   "private": true
