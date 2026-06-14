@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
-    "@beyou/types": "*"
+    "@beyou/types": "*",
+    "@beyou/theme": "*"
   },
   "devDependencies": {
     "vitest": "^1.6.0"

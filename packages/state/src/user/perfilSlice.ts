@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ThemeType } from "../../context/ThemeContext";
+import type { Theme } from "@beyou/theme";
 import { themes } from "@beyou/theme";
 
 type userInitialState = {
@@ -13,7 +13,7 @@ type userInitialState = {
     checkedItemsInScheduledRoutine: number;
     totalItemsInScheduledRoutine: number;
     widgetsIdsInUse: string[];
-    themeInUse: ThemeType;
+    themeInUse: Theme;
     xp: number,
     level: number,
     nextLevelXp: number,
