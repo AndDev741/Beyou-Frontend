@@ -12,6 +12,10 @@ export default defineConfig({
       '@beyou/theme': fileURLToPath(new URL('../../packages/theme/src', import.meta.url)),
       '@beyou/state': fileURLToPath(new URL('../../packages/state/src', import.meta.url)),
       '@beyou/api': fileURLToPath(new URL('../../packages/api/src', import.meta.url)),
+      // Scaffolding: @beyou/contracts is wired here ahead of use. Phase 1 will
+      // thread the generated backend types into @beyou/api repositories (to drop
+      // the response-data casts). Until then the web app has no @beyou/contracts
+      // import; spec/schema drift is enforced by `@beyou/contracts run check` in CI.
       '@beyou/contracts': fileURLToPath(new URL('../../packages/contracts/src', import.meta.url)),
     },
   },
