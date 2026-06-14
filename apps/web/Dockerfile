@@ -1,8 +1,17 @@
 FROM node:20-alpine AS base
 WORKDIR /app
-# Copy root workspace manifests + web workspace manifest so npm ci resolves the full workspace graph
+# Copy the root lockfile + EVERY workspace manifest so `npm ci` can resolve and
+# link the full monorepo graph (npm workspaces needs each workspace's package.json
+# present, or the @beyou/* symlinks + shared-package deps won't be installed).
 COPY package.json package-lock.json ./
-COPY apps/web/package.json apps/web/package.json
+COPY apps/web/package.json apps/web/
+COPY apps/mobile/package.json apps/mobile/
+COPY packages/types/package.json packages/types/
+COPY packages/i18n/package.json packages/i18n/
+COPY packages/theme/package.json packages/theme/
+COPY packages/state/package.json packages/state/
+COPY packages/api/package.json packages/api/
+COPY packages/contracts/package.json packages/contracts/
 RUN npm ci
 
 FROM base AS dev
