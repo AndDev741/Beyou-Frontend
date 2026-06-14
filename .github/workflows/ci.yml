@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Typecheck (shared packages + mobile)
-        run: npx turbo run typecheck --filter=!@beyou/web
+        run: npx turbo run typecheck --filter='!@beyou/web'
 
       - name: Typecheck web (non-blocking — pre-existing errors, see cleanup task)
         run: npm --workspace @beyou/web run typecheck
