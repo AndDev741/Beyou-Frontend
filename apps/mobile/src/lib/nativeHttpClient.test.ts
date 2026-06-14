@@ -39,7 +39,7 @@ describe('nativeHttpClient (base)', () => {
 });
 
 describe('nativeHttpClient (refresh)', () => {
-  beforeEach(() => { setAccessToken('old'); __setBaseUrl('http://test.local/api/v1'); global.fetch = jest.fn(); });
+  beforeEach(() => { setAccessToken('old'); __setBaseUrl('http://test.local/api/v1'); setRefreshHandler(null); setOnUnauthenticated(null); global.fetch = jest.fn(); });
 
   it('on 401 refreshes once and retries the original request', async () => {
     (global.fetch as jest.Mock)
