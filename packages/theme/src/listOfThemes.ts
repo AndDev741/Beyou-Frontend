@@ -1,3 +1,5 @@
+import type { Theme } from './theme';
+
 export const defaultLight = {
     mode: "beYou", //Need to match i18n
     background: "#ffffff",
@@ -8,7 +10,7 @@ export const defaultLight = {
     placeholder: "#9ca3afff",
     success: "#16a34a",
     error: "#dc2626"
-}
+} satisfies Theme;
 
 export const defaultDark = {
     mode: "beYouDark", //Need to match i18n
@@ -20,7 +22,7 @@ export const defaultDark = {
     placeholder: "#71717aff",
     success: "#22c55e",
     error: "#dc2626"
-}
+} satisfies Theme;
 
 export const sunsetTheme = {
     mode: "Sunset",
@@ -32,7 +34,7 @@ export const sunsetTheme = {
     placeholder: "#FED7AA",
     success: "#22C55E",
     error: "#DC2626"
-}
+} satisfies Theme;
 
 export const amethystTheme = {
     mode: "Amethyst",
@@ -44,7 +46,7 @@ export const amethystTheme = {
     placeholder: "#DDD6FE",
     success: "#22C55E",
     error: "#DC2626"
-}
+} satisfies Theme;
 
 export const midnigthTheme = {
     mode: "Midnight",
@@ -56,7 +58,7 @@ export const midnigthTheme = {
     placeholder: "#64748B",
     success: "#22C55E",
     error: "#DC2626"
-}
+} satisfies Theme;
 
 export const cyberpunkTheme = {
     mode: "Cyberpunk",
@@ -68,7 +70,7 @@ export const cyberpunkTheme = {
     placeholder: "#6B21A8",
     success: "#10B981",
     error: "#EF4444"
-}
+} satisfies Theme;
 
 export const mochaTheme = {
   mode: "Mocha",
@@ -80,7 +82,7 @@ export const mochaTheme = {
   placeholder: "#FED7AA",
   success: "#16A34A",
   error: "#DC2626"
-}
+} satisfies Theme;
 
 export const polarTheme = {
   mode: "Polar",
@@ -92,7 +94,7 @@ export const polarTheme = {
   placeholder: "#64748B",
   success: "#22C55E",
   error: "#DC2626"
-}
+} satisfies Theme;
 
 export const lateNight = {
   mode: "Late Latte",
@@ -104,9 +106,9 @@ export const lateNight = {
   placeholder: "#7C6A5C",
   success: "#22C55E",
   error: "#DC2626"
-}
+} satisfies Theme;
 
-export const themes = [
+export const themes: Theme[] = [
     defaultLight,
     defaultDark,
     sunsetTheme,
@@ -116,4 +118,4 @@ export const themes = [
     mochaTheme,
     polarTheme,
     lateNight
-]
+];

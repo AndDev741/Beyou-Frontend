@@ -1,10 +1,11 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
 import {defaultDark, defaultLight} from "@beyou/theme";
+import type { Theme } from "@beyou/theme";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import { logger } from "../utils/logger";
 
-export type ThemeType = typeof defaultLight;
+export type ThemeType = Theme;
 type ThemeContextType = {
     theme: ThemeType;
     setTheme: React.Dispatch<React.SetStateAction<ThemeType>>;
