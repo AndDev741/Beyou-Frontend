@@ -3,6 +3,7 @@ import { getHttpClient } from "../httpClient";
 import { ApiErrorPayload, parseApiError } from "../apiError";
 import { RoutineDraft } from "@beyou/types/ai/routineDraft";
 import { MaterializeResponse } from "@beyou/types/ai/materialize";
+import { getLogger } from "../logger";
 
 type apiResponse = Promise<{ success?: MaterializeResponse; error?: ApiErrorPayload }>;
 
@@ -19,7 +20,7 @@ async function materializeRoutine(draft: RoutineDraft, t: TFunction): apiRespons
             "/ai/routine/materialize", draft, { timeout: AI_TIMEOUT_MS });
         return { success: response.data };
     } catch (e) {
-        console.error(e);
+        getLogger().error(e);
         const parsed = parseApiError(e);
         const hasInfo = parsed.errorKey || parsed.message || parsed.details;
         return { error: hasInfo ? parsed : { message: t("UnexpectedError") } };

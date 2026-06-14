@@ -1,6 +1,7 @@
 import { TFunction } from 'i18next';
 import { habit } from '@beyou/types/habit/habitType';
 import { getHttpClient, ApiError } from '../httpClient';
+import { getLogger } from '../logger';
 
 type apiResponse = Record<string, habit[] | string>
 
@@ -10,7 +11,7 @@ async function getHabits(t: TFunction): Promise<apiResponse>{
         return {success: response.data};
     }catch(e){
         if(e instanceof ApiError){
-            console.error(e);
+            getLogger().error(e);
         }
         return {error: t('UnexpectedError')};
     }

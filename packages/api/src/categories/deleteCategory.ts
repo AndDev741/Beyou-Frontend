@@ -1,6 +1,7 @@
 import { TFunction } from 'i18next';
 import { getHttpClient, ApiError } from '../httpClient';
 import { ApiErrorPayload, parseApiError } from '../apiError';
+import { getLogger } from '../logger';
 
 type apiResponse = {
     success?: unknown;
@@ -13,7 +14,7 @@ async function deleteCategory(categoryId: string, t:TFunction): Promise<apiRespo
         return response.data;
     }catch(e){
         if(e instanceof ApiError){
-            console.error(e);
+            getLogger().error(e);
             return { error: parseApiError(e) };
         }
         return {error: { message: t('UnexpectedError') }};

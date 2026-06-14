@@ -3,6 +3,7 @@ import { getHttpClient } from '../httpClient';
 import { Routine } from '@beyou/types/routine/routine';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 import { buildRoutinePayload } from './routinePayload';
+import { getLogger } from '../logger';
 
 type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validation?: string }>;
 
@@ -14,7 +15,7 @@ async function editRoutine(routine: Routine, t: TFunction): apiResponse {
         );
         return response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
     } catch (e) {
-        console.error(e);
+        getLogger().error(e);
         const parsed = parseApiError(e);
         return { error: parsed ?? { message: t('UnexpectedError') } };
     }

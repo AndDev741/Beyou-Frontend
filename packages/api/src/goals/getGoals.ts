@@ -1,6 +1,7 @@
 import { TFunction } from 'i18next';
 import { goal } from '@beyou/types/goals/goalType';
 import { getHttpClient, ApiError } from '../httpClient';
+import { getLogger } from '../logger';
 
 type apiResponse = Record<string, goal[] | string>;
 
@@ -10,7 +11,7 @@ async function getGoals(t: TFunction): Promise<apiResponse> {
     return { success: response.data };
   } catch (e) {
     if (e instanceof ApiError) {
-      console.error(e);
+      getLogger().error(e);
     }
     return { error: t('UnexpectedError') };
   }

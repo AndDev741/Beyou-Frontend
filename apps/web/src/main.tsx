@@ -7,10 +7,12 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './redux/store';
 import './translations/i18n';
-import { setHttpClient } from '@beyou/api';
+import { setHttpClient, setLogger } from '@beyou/api';
 import { axiosHttpClient } from './lib/axiosHttpClient';
+import { logger } from './utils/logger';
 
 setHttpClient(axiosHttpClient);
+setLogger(logger);
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

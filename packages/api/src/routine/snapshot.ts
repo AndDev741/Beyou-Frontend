@@ -3,6 +3,7 @@ import { getHttpClient, ApiError } from '../httpClient';
 import { Snapshot, SnapshotMonthResponse } from '@beyou/types/routine/snapshot';
 import { RefreshUI } from '@beyou/types/refreshUi/refreshUi.type';
 import { ApiErrorPayload, parseApiError } from '../apiError';
+import { getLogger } from '../logger';
 
 type snapshotResponse = { success?: Snapshot; error?: string }
 type snapshotDatesResponse = { success?: SnapshotMonthResponse; error?: string }
@@ -16,7 +17,7 @@ export async function getSnapshot(routineId: string, date: string, t: TFunction)
         return { success: response.data };
     } catch (e) {
         if (e instanceof ApiError) {
-            console.error(e);
+            getLogger().error(e);
         }
         return { error: t('UnexpectedError') };
     }
@@ -30,7 +31,7 @@ export async function getSnapshotDatesForMonth(routineId: string, month: string,
         return { success: response.data };
     } catch (e) {
         if (e instanceof ApiError) {
-            console.error(e);
+            getLogger().error(e);
         }
         return { error: t('UnexpectedError') };
     }
@@ -45,7 +46,7 @@ export async function checkSnapshotItem(snapshotId: string, snapshotCheckId: str
         return { success: response.data };
     } catch (e) {
         if (e instanceof ApiError) {
-            console.error(e);
+            getLogger().error(e);
             return { error: parseApiError(e) };
         }
         return { error: { message: t('UnexpectedError') } };
@@ -61,7 +62,7 @@ export async function skipSnapshotItem(snapshotId: string, snapshotCheckId: stri
         return { success: response.data };
     } catch (e) {
         if (e instanceof ApiError) {
-            console.error(e);
+            getLogger().error(e);
             return { error: parseApiError(e) };
         }
         return { error: { message: t('UnexpectedError') } };

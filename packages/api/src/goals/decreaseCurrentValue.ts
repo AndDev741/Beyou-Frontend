@@ -1,6 +1,7 @@
 import { TFunction } from "i18next";
 import { getHttpClient, ApiError } from '../httpClient';
 import { goal } from "@beyou/types/goals/goalType";
+import { getLogger } from "../logger";
 
 
 async function decreaseCurrentValue(id: string, t: TFunction): Promise<goal> {
@@ -13,7 +14,7 @@ async function decreaseCurrentValue(id: string, t: TFunction): Promise<goal> {
     return response.data;
   } catch (e) {
     if (e instanceof ApiError) {
-      console.error(e);
+      getLogger().error(e);
     }
     throw new Error(t('UnexpectedError') + e);
   }

@@ -1,6 +1,7 @@
 import { TFunction } from 'i18next';
 import { schedule } from '@beyou/types/schedule/schedule';
 import { getHttpClient, ApiError } from '../httpClient';
+import { getLogger } from '../logger';
 
 type apiResponse = Record<string, schedule[] | string>
 
@@ -10,7 +11,7 @@ async function getSchedules(t: TFunction): Promise<apiResponse>{
         return {success: response.data};
     }catch(e){
         if(e instanceof ApiError){
-            console.error(e);
+            getLogger().error(e);
         }
         return {error: t('UnexpectedError')};
     }

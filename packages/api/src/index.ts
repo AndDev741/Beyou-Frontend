@@ -1,6 +1,9 @@
 // HttpClient infrastructure
 export * from './httpClient';
 
+// Logger
+export * from './logger';
+
 // Error handling
 export * from './apiError';
 
