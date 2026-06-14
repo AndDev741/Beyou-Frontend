@@ -1,5 +1,5 @@
 import { ApiError } from '@beyou/api';
-import { nativeHttpClient, setAccessToken, __setBaseUrl } from './nativeHttpClient';
+import { nativeHttpClient, setAccessToken, __setBaseUrl, setOnUnauthenticated, setRefreshHandler } from './nativeHttpClient';
 
 describe('nativeHttpClient (base)', () => {
   beforeEach(() => {
@@ -35,5 +35,41 @@ describe('nativeHttpClient (base)', () => {
       ok: false, status: 500, headers: new Headers(), json: async () => ({ message: 'boom' }),
     });
     await expect(nativeHttpClient.get('/habit')).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe('nativeHttpClient (refresh)', () => {
+  beforeEach(() => { setAccessToken('old'); __setBaseUrl('http://test.local/api/v1'); global.fetch = jest.fn(); });
+
+  it('on 401 refreshes once and retries the original request', async () => {
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: false, status: 401, headers: new Headers(), json: async () => ({}) }) // original
+      .mockResolvedValueOnce({ ok: true, status: 200, headers: new Headers(), json: async () => ({ ok: true }) }); // retry
+    setRefreshHandler(async () => { setAccessToken('new'); return true; });
+
+    const res = await nativeHttpClient.get('/habit');
+    expect(res.data).toEqual({ ok: true });
+    const retryInit = (global.fetch as jest.Mock).mock.calls[1][1];
+    expect(retryInit.headers['Authorization']).toBe('Bearer new');
+  });
+
+  it('concurrent 401s share a single refresh', async () => {
+    let refreshCount = 0;
+    setRefreshHandler(async () => { refreshCount++; setAccessToken('new'); return true; });
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: false, status: 401, headers: new Headers(), json: async () => ({}) })
+      .mockResolvedValueOnce({ ok: false, status: 401, headers: new Headers(), json: async () => ({}) })
+      .mockResolvedValue({ ok: true, status: 200, headers: new Headers(), json: async () => ({}) });
+    await Promise.all([nativeHttpClient.get('/a'), nativeHttpClient.get('/b')]);
+    expect(refreshCount).toBe(1);
+  });
+
+  it('on refresh failure calls onUnauthenticated and rejects', async () => {
+    const onUnauth = jest.fn();
+    setOnUnauthenticated(onUnauth);
+    setRefreshHandler(async () => false);
+    (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false, status: 401, headers: new Headers(), json: async () => ({}) });
+    await expect(nativeHttpClient.get('/habit')).rejects.toBeInstanceOf(ApiError);
+    expect(onUnauth).toHaveBeenCalled();
   });
 });

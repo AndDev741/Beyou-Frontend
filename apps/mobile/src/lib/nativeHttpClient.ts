@@ -9,6 +9,22 @@ let accessToken: string | null = null;
 export function setAccessToken(token: string | null): void { accessToken = token; }
 export function __setBaseUrl(url: string): void { baseUrl = url; } // test seam
 
+type RefreshHandler = () => Promise<boolean>; // resolves true if a new access token is now set
+let refreshHandler: RefreshHandler | null = null;
+let onUnauthenticatedCb: (() => void) | null = null;
+let refreshPromise: Promise<boolean> | null = null;
+
+export function setRefreshHandler(h: RefreshHandler | null): void { refreshHandler = h; }
+export function setOnUnauthenticated(cb: (() => void) | null): void { onUnauthenticatedCb = cb; }
+
+function refreshOnce(): Promise<boolean> {
+  if (!refreshHandler) return Promise.resolve(false);
+  if (!refreshPromise) {
+    refreshPromise = refreshHandler().finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
+}
+
 function buildUrl(path: string, params?: RequestConfig['params']): string {
   if (!params) return `${baseUrl}${path}`;
   const qs = new URLSearchParams(
@@ -26,7 +42,7 @@ function buildHeaders(extra?: Record<string, string>): Record<string, string> {
 // TODO: RequestConfig.timeout is not yet honored — implement via AbortController in
 // a future task. No Phase 1 path uses it and adding it now would complicate the
 // upcoming refresh/retry logic.
-async function request<T>(method: string, path: string, body?: unknown, config?: RequestConfig): Promise<HttpResponse<T>> {
+async function request<T>(method: string, path: string, body?: unknown, config?: RequestConfig, isRetry = false): Promise<HttpResponse<T>> {
   const res = await fetch(buildUrl(path, config?.params), {
     method,
     headers: buildHeaders(config?.headers),
@@ -44,6 +60,13 @@ async function request<T>(method: string, path: string, body?: unknown, config?:
       if (res.ok) throw new Error(`Failed to parse JSON response (status ${res.status}): ${String(e)}`);
       // non-2xx: leave data undefined; the ApiError below carries the status.
     }
+  }
+
+  if (res.status === 401 && !isRetry && !path.includes('/auth/')) {
+    const refreshed = await refreshOnce();
+    if (refreshed) return request<T>(method, path, body, config, true);
+    onUnauthenticatedCb?.();
+    throw new ApiError(401, data, 'Unauthorized');
   }
   if (!res.ok) {
     throw new ApiError(res.status, data, `HTTP ${res.status}`);
