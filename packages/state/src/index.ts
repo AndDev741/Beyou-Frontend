@@ -6,6 +6,9 @@ export type { RootState } from './rootReducer';
 export { successRegisterEnter } from './authentication/registerSlice';
 
 // user / perfil
+// `nameEnter` collides with category's `nameEnter`, so it is aliased here as
+// `perfilNameEnter`. Existing consumers import the unaliased `nameEnter` via the
+// deep path @beyou/state/user/perfilSlice; the alias keeps the barrel namespace clean.
 export {
   nameEnter as perfilNameEnter,
   emailEnter,

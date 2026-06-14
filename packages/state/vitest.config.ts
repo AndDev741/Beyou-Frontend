@@ -7,6 +7,9 @@ export default defineConfig({
     // All three moved test files are pure reducer/logic tests — no DOM APIs
     // are referenced, so 'node' is correct and faster than 'jsdom'.
     environment: 'node',
+    // Match the web app's vitest convention so future mock-based slice tests
+    // get a clean mock state between cases.
+    mockReset: true,
   },
   resolve: {
     alias: {
