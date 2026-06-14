@@ -3,11 +3,11 @@ import CreateDailyRoutine from "./CreateDailyRoutine";
 import { screen, fireEvent } from "@testing-library/react";
 import { vi } from "vitest";
 
-vi.mock("../../../services/routine/createRoutine", () => ({
+vi.mock("@beyou/api/routine/createRoutine", () => ({
     default: vi.fn().mockResolvedValue({})
 }));
 
-vi.mock("../../../services/routine/getRoutines", () => ({
+vi.mock("@beyou/api/routine/getRoutines", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 

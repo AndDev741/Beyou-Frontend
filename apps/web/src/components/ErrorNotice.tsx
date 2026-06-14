@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { ApiErrorPayload, getFriendlyErrorMessage } from "../services/apiError";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 
 type ErrorNoticeProps = {
     error?: ApiErrorPayload | null;

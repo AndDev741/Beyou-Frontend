@@ -9,9 +9,9 @@ import { t } from "i18next";
 import { EditUser } from "@beyou/types/user/EditUser";
 import { widgetsIdInUseEnter } from "@beyou/state/user/perfilSlice";
 import SmallButton from "../SmallButton";
-import editUser from "../../services/user/editUser";
+import editUser from "@beyou/api/user/editUser";
 import { toast } from "react-toastify";
-import { getFriendlyErrorMessage } from "../../services/apiError";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { logger } from "../../utils/logger";
 
 export default function WidgetsConfiguration() {

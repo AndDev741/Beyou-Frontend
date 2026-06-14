@@ -1,4 +1,4 @@
-import getHabits from "../../services/habits/getHabits";
+import getHabits from "@beyou/api/habits/getHabits";
 import { useEffect } from "react";
 import HabitBox from "./habitBox";
 import { habit } from "@beyou/types/habit/habitType";

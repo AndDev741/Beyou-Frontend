@@ -5,11 +5,11 @@ import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "@beyou/state/rootReducer";
 import { vi } from "vitest";
 
-vi.mock("../../../services/routine/editRoutine", () => ({
+vi.mock("@beyou/api/routine/editRoutine", () => ({
     default: vi.fn().mockResolvedValue({})
 }));
 
-vi.mock("../../../services/routine/getRoutines", () => ({
+vi.mock("@beyou/api/routine/getRoutines", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 

@@ -4,21 +4,21 @@ import { vi } from "vitest";
 import rootReducer, { RootState } from "@beyou/state/rootReducer";
 import { renderWithProviders } from "../../test/test-utils";
 import Dashboard from "./dashboard";
-import getTodayRoutine from "../../services/routine/getTodayRoutine";
-import getHabits from "../../services/habits/getHabits";
-import getTasks from "../../services/tasks/getTasks";
-import getGoals from "../../services/goals/getGoals";
-import getCategories from "../../services/categories/getCategories";
+import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
+import getHabits from "@beyou/api/habits/getHabits";
+import getTasks from "@beyou/api/tasks/getTasks";
+import getGoals from "@beyou/api/goals/getGoals";
+import getCategories from "@beyou/api/categories/getCategories";
 
 vi.mock("../../components/useAuthGuard", () => ({
     default: () => null
 }));
 
-vi.mock("../../services/routine/getTodayRoutine", () => ({ default: vi.fn() }));
-vi.mock("../../services/habits/getHabits", () => ({ default: vi.fn() }));
-vi.mock("../../services/tasks/getTasks", () => ({ default: vi.fn() }));
-vi.mock("../../services/goals/getGoals", () => ({ default: vi.fn() }));
-vi.mock("../../services/categories/getCategories", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/routine/getTodayRoutine", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/habits/getHabits", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/tasks/getTasks", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/goals/getGoals", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/categories/getCategories", () => ({ default: vi.fn() }));
 
 vi.mock("../../components/tutorial/hooks/useDashboardTutorial", () => ({
     useDashboardTutorial: () => ({

@@ -1,11 +1,11 @@
 import { screen } from "@testing-library/react";
 import { act } from "react";
 import Categories from "../../pages/categories/categories";
-import getCategories from "../../services/categories/getCategories";
+import getCategories from "@beyou/api/categories/getCategories";
 import { renderWithProviders } from "../../test/test-utils";
 import { vi, type Mock } from "vitest";
 
-vi.mock('../../services/categories/getCategories', () => ({
+vi.mock('@beyou/api/categories/getCategories', () => ({
     __esModule: true,
     default: vi.fn(),
 }));

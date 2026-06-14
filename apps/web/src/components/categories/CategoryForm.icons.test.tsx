@@ -45,11 +45,11 @@ vi.mock("../icons/iconRegistry", () => ({
     getEntryById: (id: string) => iconsFixture.entryMap[id]
 }));
 
-vi.mock("../../services/categories/createCategory", () => ({
+vi.mock("@beyou/api/categories/createCategory", () => ({
     default: vi.fn().mockResolvedValue({ success: true })
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
+vi.mock("@beyou/api/categories/getCategories", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 
@@ -57,7 +57,7 @@ test("submits selected icon for category creation", async () => {
     const iconSearchIndex = await import("../icons/iconSearchIndex");
     vi.spyOn(iconSearchIndex, "searchIcons");
     const { default: CategoryForm } = await import("./CategoryForm");
-    const createCategoryModule = await import("../../services/categories/createCategory");
+    const createCategoryModule = await import("@beyou/api/categories/createCategory");
     const createCategory = createCategoryModule.default;
 
     renderWithProviders(

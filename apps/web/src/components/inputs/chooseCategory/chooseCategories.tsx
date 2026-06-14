@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import getCategories from "../../../services/categories/getCategories";
+import getCategories from "@beyou/api/categories/getCategories";
 import { useTranslation } from "react-i18next";
 import CategoryItem from "./categoryItem";
 import category from "@beyou/types/category/categoryType";

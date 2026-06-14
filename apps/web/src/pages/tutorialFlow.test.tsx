@@ -46,7 +46,7 @@ vi.mock("../components/tutorial/flow/completeTutorial", () => ({
     completeTutorial: vi.fn().mockResolvedValue(true)
 }));
 
-vi.mock("../services/user/editUser", () => ({
+vi.mock("@beyou/api/user/editUser", () => ({
     default: vi.fn().mockResolvedValue({ data: {} })
 }));
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import axios from "../services/axiosConfig";
 import refreshTokenRequest from "../services/authentication/request/refreshTokenRequest";
-import getProfile from "../services/user/getProfile";
+import getProfile from "@beyou/api/user/getProfile";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
 export type AuthBootState = "checking" | "authenticated" | "unauthenticated";

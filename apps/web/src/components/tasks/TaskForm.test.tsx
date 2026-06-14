@@ -9,15 +9,15 @@ const mockGetCategories = vi.fn().mockResolvedValue({
     success: [{ id: "cat-1", name: "Health", iconId: "heart", color: "#FF0000" }]
 });
 
-vi.mock("../../services/tasks/createTask", () => ({
+vi.mock("@beyou/api/tasks/createTask", () => ({
     default: (...args: unknown[]) => mockCreateTask(...args)
 }));
 
-vi.mock("../../services/tasks/getTasks", () => ({
+vi.mock("@beyou/api/tasks/getTasks", () => ({
     default: (...args: unknown[]) => mockGetTasks(...args)
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
+vi.mock("@beyou/api/categories/getCategories", () => ({
     default: (...args: unknown[]) => mockGetCategories(...args)
 }));
 

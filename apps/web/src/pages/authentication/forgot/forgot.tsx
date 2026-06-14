@@ -11,7 +11,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // Services
 import forgotPasswordRequest from "../../../services/authentication/request/forgotPasswordRequest";
-import { getFriendlyErrorMessage } from "../../../services/apiError";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { forgotPasswordSchema } from "../../../validation/forms/authSchemas";
 // Assets
 import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";

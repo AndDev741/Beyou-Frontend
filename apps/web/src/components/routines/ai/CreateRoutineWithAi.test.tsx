@@ -8,17 +8,17 @@ import { RoutineSection } from "@beyou/types/routine/routineSection";
 
 // vite.config.ts sets mockReset: true — factory implementations are wiped
 // before each test, so behaviors are configured per-test below.
-vi.mock("../../../services/ai/generateRoutine", () => ({ default: vi.fn() }));
-vi.mock("../../../services/ai/materializeRoutine", () => ({ default: vi.fn() }));
-vi.mock("../../../services/habits/getHabits", () => ({ default: vi.fn() }));
-vi.mock("../../../services/tasks/getTasks", () => ({ default: vi.fn() }));
-vi.mock("../../../services/categories/getCategories", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/ai/generateRoutine", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/ai/materializeRoutine", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/habits/getHabits", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/tasks/getTasks", () => ({ default: vi.fn() }));
+vi.mock("@beyou/api/categories/getCategories", () => ({ default: vi.fn() }));
 
-import generateRoutine from "../../../services/ai/generateRoutine";
-import materializeRoutine from "../../../services/ai/materializeRoutine";
-import getHabits from "../../../services/habits/getHabits";
-import getTasks from "../../../services/tasks/getTasks";
-import getCategories from "../../../services/categories/getCategories";
+import generateRoutine from "@beyou/api/ai/generateRoutine";
+import materializeRoutine from "@beyou/api/ai/materializeRoutine";
+import getHabits from "@beyou/api/habits/getHabits";
+import getTasks from "@beyou/api/tasks/getTasks";
+import getCategories from "@beyou/api/categories/getCategories";
 
 const generatedDraft: RoutineDraft = {
     name: "AI Morning Routine",

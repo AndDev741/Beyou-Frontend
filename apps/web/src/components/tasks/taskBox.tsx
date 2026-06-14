@@ -9,8 +9,8 @@ import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
 import iconSearch from "../icons/iconsSearch";
 import DeleteModal from "../DeleteModal";
-import getTasks from "../../services/tasks/getTasks";
-import deleteTask from "../../services/tasks/deleteTask";
+import getTasks from "@beyou/api/tasks/getTasks";
+import deleteTask from "@beyou/api/tasks/deleteTask";
 import { editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editIdEnter, editImportanceEnter, editModeEnter, editNameEnter, editOneTimeTaskEnter } from "@beyou/state/task/editTaskSlice";
 import { MdWarningAmber } from "react-icons/md";
 import { CategoryMiniDTO } from "@beyou/types/category/CategoryMiniDTO";

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import editUser from "../services/user/editUser";
+import editUser from "@beyou/api/user/editUser";
 import { useDispatch } from "react-redux";
 import { languageInUserEnter } from "@beyou/state/user/perfilSlice";
 import { logger } from "../utils/logger";

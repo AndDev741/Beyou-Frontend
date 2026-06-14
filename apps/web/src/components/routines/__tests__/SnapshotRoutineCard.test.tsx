@@ -5,7 +5,7 @@ import { SnapshotRoutineCard } from '../SnapshotRoutineCard';
 import { Snapshot, SnapshotCheck, SnapshotStructureSection } from '@beyou/types/routine/snapshot';
 
 // Mock modules that the component depends on
-vi.mock('../../../services/routine/snapshot', () => ({
+vi.mock('@beyou/api/routine/snapshot', () => ({
     getSnapshot: vi.fn(() => Promise.resolve({ success: undefined })),
     checkSnapshotItem: vi.fn(() => Promise.resolve({ success: {} })),
     skipSnapshotItem: vi.fn(() => Promise.resolve({ success: {} })),
@@ -23,7 +23,7 @@ vi.mock('react-toastify', () => ({
     toast: { error: vi.fn(), success: vi.fn() },
 }));
 
-vi.mock('../../../services/apiError', () => ({
+vi.mock('@beyou/api/apiError', () => ({
     getFriendlyErrorMessage: (t: any, error: any) => error?.message ?? 'Error',
 }));
 

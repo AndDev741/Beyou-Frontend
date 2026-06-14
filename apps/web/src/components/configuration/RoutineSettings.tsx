@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "@beyou/state/rootReducer";
 import { timezoneEnter, xpDecayStrategyEnter } from "@beyou/state/user/perfilSlice";
-import editUser from "../../services/user/editUser";
-import { getFriendlyErrorMessage } from "../../services/apiError";
+import editUser from "@beyou/api/user/editUser";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import SmallButton from "../SmallButton";
 
 type XpDecayStrategy = "GRADUAL" | "FLAT" | "TIME_WINDOW";

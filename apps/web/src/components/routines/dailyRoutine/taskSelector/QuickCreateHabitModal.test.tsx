@@ -2,14 +2,14 @@ import { renderWithProviders } from "../../../../test/test-utils";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import QuickCreateHabitModal from "./QuickCreateHabitModal";
-import createHabit from "../../../../services/habits/createHabit";
-import getHabits from "../../../../services/habits/getHabits";
+import createHabit from "@beyou/api/habits/createHabit";
+import getHabits from "@beyou/api/habits/getHabits";
 
-vi.mock("../../../../services/habits/createHabit", () => ({
+vi.mock("@beyou/api/habits/createHabit", () => ({
     default: vi.fn().mockResolvedValue({ success: true })
 }));
 
-vi.mock("../../../../services/habits/getHabits", () => ({
+vi.mock("@beyou/api/habits/getHabits", () => ({
     default: vi.fn().mockResolvedValue({
         success: [{ id: "h1", name: "Read", iconId: "icon" }]
     })

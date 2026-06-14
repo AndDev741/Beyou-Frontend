@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import { toast } from "react-toastify";
-import editUser from "../../../services/user/editUser";
-import { getFriendlyErrorMessage } from "../../../services/apiError";
+import editUser from "@beyou/api/user/editUser";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { tutorialCompletedEnter } from "@beyou/state/user/perfilSlice";
 import { clearTutorialPhase } from "../tutorialStorage";
 import type { AppDispatch } from "../../../redux/store";

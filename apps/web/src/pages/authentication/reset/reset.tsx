@@ -13,7 +13,7 @@ import { Link, useSearchParams } from "react-router-dom";
 // Services
 import validateResetTokenRequest from "../../../services/authentication/request/validateResetTokenRequest";
 import resetPasswordRequest from "../../../services/authentication/request/resetPasswordRequest";
-import { getFriendlyErrorMessage } from "../../../services/apiError";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { resetPasswordSchema } from "../../../validation/forms/authSchemas";
 // Assets
 import PasswordIcon from "../../../assets/authentication/passwordIcon.svg?react";

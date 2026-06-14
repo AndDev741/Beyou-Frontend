@@ -9,8 +9,8 @@ import { useDispatch } from "react-redux";
 import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "@beyou/state/habit/editHabitSlice";
 import { habit } from "@beyou/types/habit/habitType";
 import { IconObject } from "@beyou/types/icons/IconObject";
-import deleteHabit from "../../services/habits/deleteHabit";
-import getHabits from "../../services/habits/getHabits";
+import deleteHabit from "@beyou/api/habits/deleteHabit";
+import getHabits from "@beyou/api/habits/getHabits";
 import useColors from "./utils/useColors";
 import DeleteModal from "../DeleteModal";
 

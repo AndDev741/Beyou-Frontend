@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import { useEffect, useId, useState } from "react";
 import ErrorNotice from "./ErrorNotice";
 import Modal from "./modals/Modal";
-import { ApiErrorPayload, getFriendlyErrorMessage } from "../services/apiError";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 
 /** Shape every delete service (deleteCategory/Habit/Task/Goal) returns. */
 type DeleteResponse = { success?: unknown; error?: ApiErrorPayload };

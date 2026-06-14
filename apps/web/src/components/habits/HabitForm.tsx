@@ -13,10 +13,10 @@ import Button from "../Button";
 import { CgAddR } from "react-icons/cg";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
-import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
-import createHabit from "../../services/habits/createHabit";
-import editHabit from "../../services/habits/editHabit";
-import getHabits from "../../services/habits/getHabits";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
+import createHabit from "@beyou/api/habits/createHabit";
+import editHabit from "@beyou/api/habits/editHabit";
+import getHabits from "@beyou/api/habits/getHabits";
 import { RootState } from "@beyou/state/rootReducer";
 import {
     editCaegoriesIdEnter,

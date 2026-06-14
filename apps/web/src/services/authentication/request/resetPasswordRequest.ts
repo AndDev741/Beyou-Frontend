@@ -1,5 +1,5 @@
 import axios from "../../axiosConfig";
-import { ApiErrorPayload, parseApiError } from "../../apiError";
+import { ApiErrorPayload, parseApiError } from '../authError';
 
 export type ResetPasswordResponse = {
     success?: boolean;

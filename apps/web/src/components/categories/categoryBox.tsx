@@ -2,8 +2,8 @@ import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '@beyou/state/category/editCategorySlice'
-import deleteCategory from "../../services/categories/deleteCategory";
-import getCategories from "../../services/categories/getCategories";
+import deleteCategory from "@beyou/api/categories/deleteCategory";
+import getCategories from "@beyou/api/categories/getCategories";
 import iconSearch from "../icons/iconsSearch"
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';

@@ -5,15 +5,15 @@ import { useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
-import checkRoutine from "../../../services/routine/checkItem";
-import skipRoutine from "../../../services/routine/skipItem";
+import checkRoutine from "@beyou/api/routine/checkItem";
+import skipRoutine from "@beyou/api/routine/skipItem";
 import { useEffect, useRef, useState } from "react";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
 import { formatTimeRange } from "../../routines/routineMetrics";
 import { FiSlash } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { getFriendlyErrorMessage } from "../../../services/apiError";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import XpFloat from "./XpFloat";
 
 const XP_FLOAT_DURATION_MS = 1200;

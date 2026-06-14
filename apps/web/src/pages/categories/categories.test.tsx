@@ -3,13 +3,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import { vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test/test-utils";
 import rootReducer, { RootState } from "@beyou/state/rootReducer";
-import getCategories from "../../services/categories/getCategories";
+import getCategories from "@beyou/api/categories/getCategories";
 
 vi.mock("../../services/verifyAuthentication", () => ({
     default: vi.fn(() => Promise.resolve("success"))
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
+vi.mock("@beyou/api/categories/getCategories", () => ({
     default: vi.fn()
 }));
 

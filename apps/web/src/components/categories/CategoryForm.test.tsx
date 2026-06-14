@@ -3,11 +3,11 @@ import CategoryForm from "./CategoryForm";
 import { screen, fireEvent } from "@testing-library/react";
 import { vi } from "vitest";
 
-vi.mock("../../services/categories/createCategory", () => ({
+vi.mock("@beyou/api/categories/createCategory", () => ({
     default: vi.fn().mockResolvedValue({})
 }));
 
-vi.mock("../../services/categories/getCategories", () => ({
+vi.mock("@beyou/api/categories/getCategories", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 

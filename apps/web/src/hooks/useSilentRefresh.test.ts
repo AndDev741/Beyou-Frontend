@@ -14,12 +14,12 @@ vi.mock("../services/authentication/request/refreshTokenRequest", () => ({
 
 // The hook re-fetches the profile after restoring the token. Stub it so these
 // tests stay focused on the boot state machine, not the profile round-trip.
-vi.mock("../services/user/getProfile", () => ({
+vi.mock("@beyou/api/user/getProfile", () => ({
   default: vi.fn(() => Promise.resolve({ data: undefined })),
 }));
 
 import refreshTokenRequest from "../services/authentication/request/refreshTokenRequest";
-import getProfile from "../services/user/getProfile";
+import getProfile from "@beyou/api/user/getProfile";
 import axios from "../services/axiosConfig";
 import { useSilentRefresh } from "./useSilentRefresh";
 

@@ -4,13 +4,13 @@ import { vi, type Mock } from "vitest";
 import rootReducer from "@beyou/state/rootReducer";
 import { renderWithProviders } from "../../../test/test-utils";
 import RoutineSection from "./routineSection";
-import checkRoutine from "../../../services/routine/checkItem";
+import checkRoutine from "@beyou/api/routine/checkItem";
 
-vi.mock("../../../services/routine/checkItem", () => ({
+vi.mock("@beyou/api/routine/checkItem", () => ({
     default: vi.fn()
 }));
 
-vi.mock("../../../services/routine/skipItem", () => ({
+vi.mock("@beyou/api/routine/skipItem", () => ({
     default: vi.fn()
 }));
 

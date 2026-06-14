@@ -2,9 +2,9 @@ import { renderWithProviders } from "../../../test/test-utils";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import ChooseCategories from "./chooseCategories";
-import getCategories from "../../../services/categories/getCategories";
+import getCategories from "@beyou/api/categories/getCategories";
 
-vi.mock("../../../services/categories/getCategories", () => ({
+vi.mock("@beyou/api/categories/getCategories", () => ({
     default: vi.fn()
 }));
 

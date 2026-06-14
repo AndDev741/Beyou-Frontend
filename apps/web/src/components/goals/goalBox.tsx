@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import { goal as GoalType } from "@beyou/types/goals/goalType";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import DeleteModal from "../DeleteModal";
-import getGoals from "../../services/goals/getGoals";
-import deleteGoal from "../../services/goals/deleteGoal";
+import getGoals from "@beyou/api/goals/getGoals";
+import deleteGoal from "@beyou/api/goals/deleteGoal";
 import inProgressIcon from '../../assets/inProgress.svg';
 import notStartedIcon from '../../assets/Not Started Icon.svg';
 import completedIcon from '../../assets/Completed Icon.svg';
@@ -34,10 +34,10 @@ import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
 import { ProgressRing } from "../progressRing";
 import { MdOutlineAlbum } from "react-icons/md";
 import { Button } from "../ActionButton";
-import markGoalAsComplete from "../../services/goals/markGoalAsComplete";
+import markGoalAsComplete from "@beyou/api/goals/markGoalAsComplete";
 import { enterGoals, updateGoal } from "@beyou/state/goal/goalsSlice";
-import increaseCurrentValue from "../../services/goals/increaseCurrentValue";
-import decreaseCurrentValue from "../../services/goals/decreaseCurrentValue";
+import increaseCurrentValue from "@beyou/api/goals/increaseCurrentValue";
+import decreaseCurrentValue from "@beyou/api/goals/decreaseCurrentValue";
 import useUiRefresh from "../../hooks/useUiRefresh";
 
 

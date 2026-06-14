@@ -2,14 +2,14 @@ import { renderWithProviders } from "../../../../test/test-utils";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import QuickCreateTaskModal from "./QuickCreateTaskModal";
-import createTask from "../../../../services/tasks/createTask";
-import getTasks from "../../../../services/tasks/getTasks";
+import createTask from "@beyou/api/tasks/createTask";
+import getTasks from "@beyou/api/tasks/getTasks";
 
-vi.mock("../../../../services/tasks/createTask", () => ({
+vi.mock("@beyou/api/tasks/createTask", () => ({
     default: vi.fn().mockResolvedValue({ success: true })
 }));
 
-vi.mock("../../../../services/tasks/getTasks", () => ({
+vi.mock("@beyou/api/tasks/getTasks", () => ({
     default: vi.fn().mockResolvedValue({
         success: [{ id: "t1", name: "Clean the house", iconId: "icon" }]
     })

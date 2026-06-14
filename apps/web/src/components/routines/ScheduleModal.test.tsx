@@ -3,17 +3,17 @@ import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "@beyou/state/rootReducer";
 import { vi } from "vitest";
-import createSchedule from "../../services/schedule/createSchedule";
+import createSchedule from "@beyou/api/schedule/createSchedule";
 
-vi.mock("../../services/schedule/createSchedule", () => ({
+vi.mock("@beyou/api/schedule/createSchedule", () => ({
     default: vi.fn().mockResolvedValue({ success: true })
 }));
 
-vi.mock("../../services/schedule/editSchedule", () => ({
+vi.mock("@beyou/api/schedule/editSchedule", () => ({
     default: vi.fn().mockResolvedValue({ success: true })
 }));
 
-vi.mock("../../services/routine/getRoutines", () => ({
+vi.mock("@beyou/api/routine/getRoutines", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 

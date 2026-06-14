@@ -3,7 +3,7 @@ import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import { task } from "@beyou/types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
-import getTasks from "../../services/tasks/getTasks";
+import getTasks from "@beyou/api/tasks/getTasks";
 import CreateTask from "../../components/tasks/createTask";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";

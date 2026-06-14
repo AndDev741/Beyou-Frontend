@@ -1,0 +1,18 @@
+{
+  "name": "@beyou/api",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@beyou/types": "*",
+    "i18next": "^23.15.1"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}

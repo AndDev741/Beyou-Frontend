@@ -3,11 +3,11 @@ import GoalForm from "./GoalForm";
 import { screen, fireEvent } from "@testing-library/react";
 import { vi } from "vitest";
 
-vi.mock("../../services/goals/createGoal", () => ({
+vi.mock("@beyou/api/goals/createGoal", () => ({
     default: vi.fn().mockResolvedValue({})
 }));
 
-vi.mock("../../services/goals/getGoals", () => ({
+vi.mock("@beyou/api/goals/getGoals", () => ({
     default: vi.fn().mockResolvedValue({ success: [] })
 }));
 

@@ -6,7 +6,7 @@ import rootReducer from '@beyou/state/rootReducer';
 import RoutineSettings from '../RoutineSettings';
 
 // Mock editUser service to prevent real HTTP calls
-vi.mock('../../../services/user/editUser', () => ({
+vi.mock('@beyou/api/user/editUser', () => ({
     default: vi.fn(() => Promise.resolve({ data: {} })),
 }));
 
@@ -14,7 +14,7 @@ vi.mock('react-toastify', () => ({
     toast: { error: vi.fn(), success: vi.fn() },
 }));
 
-vi.mock('../../../services/apiError', () => ({
+vi.mock('@beyou/api/apiError', () => ({
     getFriendlyErrorMessage: (t: any, error: any) => error?.message ?? 'Error',
 }));
 

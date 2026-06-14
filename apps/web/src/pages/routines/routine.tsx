@@ -3,13 +3,13 @@ import Header from "../../components/header";
 import AddRoutineButton from "../../components/routines/addRoutineButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
-import getHabits from "../../services/habits/getHabits";
+import getHabits from "@beyou/api/habits/getHabits";
 import { useDispatch, useSelector } from "react-redux";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
-import getTasks from "../../services/tasks/getTasks";
+import getTasks from "@beyou/api/tasks/getTasks";
 import { enterTasks } from "@beyou/state/task/tasksSlice";
 import { Routine as routineType } from "@beyou/types/routine/routine";
-import getRoutines from "../../services/routine/getRoutines";
+import getRoutines from "@beyou/api/routine/getRoutines";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import RenderRoutines from "../../components/routines/renderRoutines";
 import { RootState } from "@beyou/state/rootReducer";
@@ -26,7 +26,7 @@ import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
-import { getSnapshot } from "../../services/routine/snapshot";
+import { getSnapshot } from "@beyou/api/routine/snapshot";
 import {
     clearSnapshot,
     enterSnapshots,

@@ -8,8 +8,8 @@ import { vi, type Mock } from "vitest";
 vi.mock('react-redux', async () => ({ ...await vi.importActual<typeof import('react-redux')>('react-redux'), useDispatch: vi.fn() }));
 vi.mock('../icons/iconsSearch');
 vi.mock('../DeleteModal', () => ({ __esModule: true, default: vi.fn(() => null) }));
-vi.mock('../../services/categories/deleteCategory', () => ({ __esModule: true, default: vi.fn() }));
-vi.mock('../../services/categories/getCategories', () => ({ __esModule: true, default: vi.fn() }));
+vi.mock('@beyou/api/categories/deleteCategory', () => ({ __esModule: true, default: vi.fn() }));
+vi.mock('@beyou/api/categories/getCategories', () => ({ __esModule: true, default: vi.fn() }));
 
 const dispatch = vi.fn();
 (iconSearch as Mock).mockReturnValue({ IconComponent: () => <span data-testid="icon">I</span> });

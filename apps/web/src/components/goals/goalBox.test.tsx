@@ -4,23 +4,23 @@ import { screen } from "@testing-library/react";
 import { vi } from "vitest";
 
 // Mock services used by GoalBox
-vi.mock("../../services/goals/getGoals", () => ({
+vi.mock("@beyou/api/goals/getGoals", () => ({
   default: vi.fn().mockResolvedValue({ success: [] }),
 }));
 
-vi.mock("../../services/goals/deleteGoal", () => ({
+vi.mock("@beyou/api/goals/deleteGoal", () => ({
   default: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("../../services/goals/markGoalAsComplete", () => ({
+vi.mock("@beyou/api/goals/markGoalAsComplete", () => ({
   default: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("../../services/goals/increaseCurrentValue", () => ({
+vi.mock("@beyou/api/goals/increaseCurrentValue", () => ({
   default: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("../../services/goals/decreaseCurrentValue", () => ({
+vi.mock("@beyou/api/goals/decreaseCurrentValue", () => ({
   default: vi.fn().mockResolvedValue({}),
 }));
 

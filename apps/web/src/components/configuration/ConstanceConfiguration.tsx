@@ -1,10 +1,10 @@
 import { useState } from "react";
 import SmallButton from "../SmallButton";
 import { useTranslation } from "react-i18next";
-import editUser from "../../services/user/editUser";
+import editUser from "@beyou/api/user/editUser";
 import { EditUser } from "@beyou/types/user/EditUser";
 import { toast } from "react-toastify";
-import { getFriendlyErrorMessage } from "../../services/apiError";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 
 type ConstanceMode = "ANY" | "COMPLETE";
 

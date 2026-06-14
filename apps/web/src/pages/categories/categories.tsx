@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import { editModeEnter } from "@beyou/state/category/editCategorySlice";
-import getCategories from "../../services/categories/getCategories";
+import getCategories from "@beyou/api/categories/getCategories";
 import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
 import { useTranslation } from "react-i18next";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";

@@ -12,10 +12,10 @@ import Button from "../Button";
 import { CgAddR } from "react-icons/cg";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
-import { ApiErrorPayload, getFriendlyErrorMessage } from "../../services/apiError";
-import createTask from "../../services/tasks/createTask";
-import editTask from "../../services/tasks/editTask";
-import getTasks from "../../services/tasks/getTasks";
+import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
+import createTask from "@beyou/api/tasks/createTask";
+import editTask from "@beyou/api/tasks/editTask";
+import getTasks from "@beyou/api/tasks/getTasks";
 import { RootState } from "@beyou/state/rootReducer";
 import {
     editCaegoriesIdEnter,

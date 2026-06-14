@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import RenderGoals from "../../components/goals/renderGoals";
-import getGoals from "../../services/goals/getGoals";
+import getGoals from "@beyou/api/goals/getGoals";
 import { t } from "i18next";
 import CreateGoal from "../../components/goals/createGoal";
 import { useDispatch, useSelector } from "react-redux";
