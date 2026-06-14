@@ -4,12 +4,13 @@
  * The authentication request files call axios directly (not through the
  * injected HttpClient), so they receive raw AxiosErrors — not ApiError
  * instances. This module provides `parseApiError` for that layer, keeping
- * the same logic as the original services/apiError.ts but using
+ * the same logic as the original apiError.ts but using
  * `axios.isAxiosError` instead of `e instanceof ApiError`.
  *
  * Re-exports ApiErrorPayload from @beyou/api for type consistency.
  */
 import axios from 'axios';
+import type { ApiErrorPayload } from '@beyou/api/apiError';
 export type { ApiErrorPayload } from '@beyou/api/apiError';
 export { getErrorDetailsText, getFriendlyErrorMessage } from '@beyou/api/apiError';
 
@@ -26,8 +27,6 @@ const extractDetails = (data: Record<string, unknown>): Record<string, string> |
     }
     return undefined;
 };
-
-import type { ApiErrorPayload } from '@beyou/api/apiError';
 
 export const parseApiError = (error: unknown): ApiErrorPayload => {
     if (axios.isAxiosError(error)) {

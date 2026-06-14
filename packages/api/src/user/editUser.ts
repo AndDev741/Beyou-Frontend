@@ -17,6 +17,6 @@ export default async function editUser(payload: EditUser): Promise<EditUserRespo
         if(e instanceof ApiError){
             return { error: parseApiError(e) };
         }
-        return { error: { message: "Unexpected error" } };
+        return { error: { errorKey: 'UnexpectedError' } };
     }
 }

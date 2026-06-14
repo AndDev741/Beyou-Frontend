@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getHttpClient, setHttpClient, ApiError } from './httpClient';
+import { getHttpClient, setHttpClient, resetHttpClient, ApiError } from './httpClient';
 import type { HttpClient, HttpResponse } from './httpClient';
 
 // ---------------------------------------------------------------------------
@@ -23,9 +23,7 @@ const t = ((key: string) => key) as (key: string) => string;
 
 describe('getHttpClient', () => {
   beforeEach(() => {
-    // Reset the module-level client before each test by setting undefined
-    // via a cast — we test the unset code path explicitly here.
-    (setHttpClient as unknown as (c: undefined) => void)(undefined);
+    resetHttpClient();
   });
 
   it('throws when no client has been configured', () => {
