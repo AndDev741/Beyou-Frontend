@@ -1,3 +1,4 @@
+import './global.css';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Provider, useDispatch, useSelector } from 'react-redux';
