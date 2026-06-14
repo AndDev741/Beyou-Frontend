@@ -22,9 +22,15 @@ and `react-native` to their required versions so npm never hoists them out of
 }
 ```
 
-Metro's `nodeModulesPaths` in `metro.config.js` (`disableHierarchicalLookup: true`) then
-ensures the bundler always resolves React from `apps/mobile/node_modules`, not from the
-workspace root.
+In `metro.config.js`, `nodeModulesPaths` lists `apps/mobile/node_modules` first, and
+`resolver.extraNodeModules` explicitly pins `react` + `react-native` to the mobile copy —
+so the bundler always resolves React 19 from `apps/mobile/node_modules`, not the root.
+
+> **Do NOT set `disableHierarchicalLookup: true`.** It was tried and broke the bundle:
+> Expo installs some transitive deps nested (e.g. `expo` → `expo-asset` under
+> `apps/mobile/node_modules/expo/node_modules/`), and disabling hierarchical lookup makes
+> Metro unable to resolve them. Hierarchical lookup must stay ENABLED; the `extraNodeModules`
+> pin above is what guarantees the single React, not the lookup flag.
 
 Running `npm dedupe` would collapse the two React installs into one and break the mobile
 bundler at runtime. Do not run it. If you must tidy the lock file, run
