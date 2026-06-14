@@ -1,6 +1,7 @@
 import { TFunction } from "i18next";
 import { getHttpClient, ApiError } from '../httpClient';
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
+import { getLogger } from "../logger";
 
 type apiResponse = { success?: RefreshUI; error?: string };
 
@@ -14,7 +15,7 @@ async function markGoalAsComplete(id: string, t: TFunction): Promise<apiResponse
     return { success: response.data };
   } catch (e) {
     if (e instanceof ApiError) {
-      console.error(e);
+      getLogger().error(e);
     }
     return { error: t('UnexpectedError') };
   }

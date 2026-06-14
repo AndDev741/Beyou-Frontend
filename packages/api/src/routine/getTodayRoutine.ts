@@ -1,6 +1,7 @@
 import { TFunction } from 'i18next';
 import { getHttpClient, ApiError } from '../httpClient';
 import { Routine } from '@beyou/types/routine/routine';
+import { getLogger } from '../logger';
 
 type apiResponse = Record<string, Routine | string>
 
@@ -10,7 +11,7 @@ async function getTodayRoutine(t: TFunction): Promise<apiResponse>{
         return {success: response.data};
     }catch(e){
         if(e instanceof ApiError){
-            console.error(e);
+            getLogger().error(e);
         }
         return {error: t('UnexpectedError')};
     }

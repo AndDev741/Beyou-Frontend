@@ -18,7 +18,7 @@ const setupTarget = (id: string) => {
         x: 0,
         y: 0,
         toJSON: () => ({})
-    })) as unknown as DOMRect;
+    })) as unknown as () => DOMRect;
     (el as HTMLElement).scrollIntoView = vi.fn();
     document.body.appendChild(el);
     return el;

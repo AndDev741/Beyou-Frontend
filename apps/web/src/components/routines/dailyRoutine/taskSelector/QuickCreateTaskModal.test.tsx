@@ -52,7 +52,7 @@ test("creates task and returns new id", async () => {
                 description: "",
                 iconId: "icon",
                 importance: 1,
-                dificulty: 1,
+                difficulty: 1,
                 categories: {},
                 oneTimeTask: false,
                 markedToDelete: new Date(0),

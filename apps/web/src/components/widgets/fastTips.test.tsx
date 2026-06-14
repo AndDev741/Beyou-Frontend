@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { vi, afterEach } from "vitest";
 import FastTips from "./fastTips";
 
-afterEach(() => vi.useRealTimers());
+afterEach(() => { vi.useRealTimers(); });
 
 test("rotates the tip by day of year", () => {
     vi.useFakeTimers();

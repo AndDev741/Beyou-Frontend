@@ -119,8 +119,8 @@ const perfilSlice = createSlice({
             return {...state, maxConstance};
         },
         alreadyIncreaseConstanceTodayEnter(state, action){
-            const alreadyIncreaseConstance = action.payload;
-            return {...state, alreadyIncreaseConstance};
+            const alreadyIncreaseConstanceToday = action.payload;
+            return {...state, alreadyIncreaseConstanceToday};
         },
         languageInUserEnter(state, action){
             const languageInUse = typeof action.payload === "string" ? action.payload : "";

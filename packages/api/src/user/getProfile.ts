@@ -1,5 +1,6 @@
 import { UserType } from "@beyou/types/user/UserType";
 import { getHttpClient, ApiError } from "../httpClient";
+import { getLogger } from "../logger";
 
 type GetProfileResponse = {
     data?: UserType;
@@ -19,7 +20,7 @@ export default async function getProfile(): Promise<GetProfileResponse> {
         return { data: response.data };
     } catch (e) {
         if (e instanceof ApiError) {
-            console.error(e);
+            getLogger().error(e);
         }
         return { error: "Failed to load profile" };
     }

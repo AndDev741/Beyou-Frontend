@@ -3,6 +3,7 @@ import { getHttpClient, ApiError } from '../httpClient';
 import { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import { RefreshUI } from '@beyou/types/refreshUi/refreshUi.type';
 import { ApiErrorPayload, parseApiError } from '../apiError';
+import { getLogger } from '../logger';
 
 type apiResponse = { success?: RefreshUI; error?: ApiErrorPayload }
 
@@ -13,7 +14,7 @@ async function skipRoutine(groupDto: itemGroupToSkip, t: TFunction, date?: strin
         return {success: response.data};
     }catch(e){
         if(e instanceof ApiError){
-            console.error(e);
+            getLogger().error(e);
             return { error: parseApiError(e) };
         }
         return {error: { message: t('UnexpectedError') }};
