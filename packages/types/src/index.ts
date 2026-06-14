@@ -3,8 +3,8 @@ export * from './ai/materialize';
 export * from './ai/routineDraft';
 
 // Category types
-export { default as category } from './category/categoryType';
-export { default as categoryGeneratedByAi } from './category/categoryGeneratedByAiType';
+export type { default as category } from './category/categoryType';
+export type { default as categoryGeneratedByAi } from './category/categoryGeneratedByAiType';
 export * from './category/CategoryMiniDTO';
 
 // Goals types

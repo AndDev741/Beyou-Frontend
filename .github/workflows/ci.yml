@@ -30,11 +30,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm --workspace @beyou/web run test
+      - name: Typecheck (shared packages + mobile)
+        run: npx turbo run typecheck --filter=!@beyou/web
+
+      - name: Typecheck web (non-blocking — pre-existing errors, see cleanup task)
+        run: npm --workspace @beyou/web run typecheck
+        continue-on-error: true
 
       - name: Build
         run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Contract drift check
+        run: npm --workspace @beyou/contracts run check
 
       - name: Audit dependencies (warn only)
         # Doesn't fail the build — npm audit is noisy. Visible in logs.
