@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+node_modules/
 /.pnp
 .pnp.js
 
@@ -11,6 +12,8 @@
 # production
 /build
 /dist
+dist/
+apps/web/dist/
 
 # misc
 .DS_Store
@@ -23,3 +26,21 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Turborepo cache
+.turbo/
+
+# Vite dependency pre-bundle cache
+.vite/
+
+# Stitch design tool artifacts
+.stitch/
+
+# Test results (Playwright / Vitest)
+test-results/
+
+# Expo / React Native (apps/mobile)
+apps/mobile/.expo/
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/.metro-health-check*

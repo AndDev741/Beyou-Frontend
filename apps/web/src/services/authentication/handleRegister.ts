@@ -1,0 +1,37 @@
+// functions
+import registerRequest from "./request/registerRequest";
+// services
+import { successRegisterEnter } from "@beyou/state/authentication/registerSlice";
+// types
+import { TFunction } from "i18next";
+import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
+import { NavigateFunction } from "react-router-dom";
+import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
+
+export default async function handleRegister(
+    name: string,
+    email: string,
+    password: string,
+    t: TFunction,
+    dispatch: Dispatch<UnknownAction>,
+    navigate: NavigateFunction
+): Promise<string | null> {
+    const response = await registerRequest(name, email, password);
+    if (response.success) {
+        dispatch(successRegisterEnter(true));
+        dispatch(defaultErrorEnter(""));
+        navigate("/?verify=true");
+        return null;
+    }
+    if (response.error) {
+        const errorKey = response.error as string;
+        if (errorKey === "INVALID_REQUEST") {
+            return t("InvalidRegistrationError");
+        }
+        if (errorKey === "UNKNOWN") {
+            return t("UnknownError");
+        }
+        return t("EmailInUseError");
+    }
+    return t("UnknownError");
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    // Shared packages (packages/*) are consumed source-first via Vite/Metro
+    // aliases — they have no `build` script and emit no `dist/`. The `dist/**`
+    // output applies only to apps/web's Vite build (the one package that builds).
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "test": { "dependsOn": ["^build"] },
+    "typecheck": { "dependsOn": ["^build"] },
+    "lint": {}
+  }
+}

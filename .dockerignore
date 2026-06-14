@@ -1,7 +1,11 @@
 node_modules
+**/node_modules
 dist
+**/dist
+.turbo
+.vite
 .git
-.idea
-*.log
 .env
-coverage
+**/.env
+test-results
+.stitch

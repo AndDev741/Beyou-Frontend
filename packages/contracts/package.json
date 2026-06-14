@@ -1,0 +1,16 @@
+{
+  "name": "@beyou/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "generate": "openapi-typescript openapi.json -o src/schema.d.ts",
+    "check": "openapi-typescript openapi.json -o /tmp/beyou-contracts-check.d.ts && diff src/schema.d.ts /tmp/beyou-contracts-check.d.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.4.0",
+    "typescript": "^5.0.0"
+  }
+}

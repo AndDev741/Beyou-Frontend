@@ -1,0 +1,4346 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8099/api/v1",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/user": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "getProfile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "editUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEditDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "operationId": "getTasks",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "task-controller"
+        ],
+        "operationId": "editTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditTaskRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "task-controller"
+        ],
+        "operationId": "createTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule": {
+      "get": {
+        "tags": [
+          "schedule-controller"
+        ],
+        "operationId": "getAllSchedules",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "schedule-controller"
+        ],
+        "operationId": "updateSchedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScheduleDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Schedule"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "schedule-controller"
+        ],
+        "operationId": "createSchedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduleDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Schedule"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/{id}": {
+      "get": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "getDiaryRoutineById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiaryRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "updateDiaryRoutine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiaryRoutineRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiaryRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "deleteDiaryRoutine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/habit": {
+      "get": {
+        "tags": [
+          "habit-controller"
+        ],
+        "operationId": "getHabits",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HabitResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "habit-controller"
+        ],
+        "operationId": "editHabit",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditHabitDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "habit-controller"
+        ],
+        "operationId": "createHabit",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHabitDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goal": {
+      "get": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "getGoals",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GoalResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "editGoal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditGoalRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "createGoal",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGoalRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goal/increase": {
+      "put": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "increaseCurrentValue",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goal/decrease": {
+      "put": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "decreaseCurrentValue",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoalResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goal/complete": {
+      "put": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "setAsComplete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshUiDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category": {
+      "get": {
+        "tags": [
+          "category-controller"
+        ],
+        "operationId": "getCategories",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "category-controller"
+        ],
+        "operationId": "editCategory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryEditRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "category-controller"
+        ],
+        "operationId": "createCategory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine": {
+      "get": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "getAllDiaryRoutines",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DiaryRoutineResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "createDiaryRoutine",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiaryRoutineRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiaryRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/snapshot/skip": {
+      "post": {
+        "tags": [
+          "snapshot-controller"
+        ],
+        "operationId": "skipSnapshotItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SnapshotCheckRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshUiDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/snapshot/check": {
+      "post": {
+        "tags": [
+          "snapshot-controller"
+        ],
+        "operationId": "checkSnapshotItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SnapshotCheckRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshUiDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/skip": {
+      "post": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "skipItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkipGroupRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshUiDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/check": {
+      "post": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "checkItem",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckGroupRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshUiDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/admin/import/projects": {
+      "post": {
+        "tags": [
+          "docs-import-controller"
+        ],
+        "operationId": "importProjects",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectDocsImportRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/admin/import/blog": {
+      "post": {
+        "tags": [
+          "docs-import-controller"
+        ],
+        "operationId": "importBlog",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlogDocsImportRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/admin/import/architecture": {
+      "post": {
+        "tags": [
+          "docs-import-controller"
+        ],
+        "operationId": "importArchitecture",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchitectureDocsImportRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/admin/import/api": {
+      "post": {
+        "tags": [
+          "docs-import-controller"
+        ],
+        "operationId": "importApi",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiDocsImportRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "resetPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "doRegister",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegisterDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "refreshAccess",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "doLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "forgotPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/routine/materialize": {
+      "post": {
+        "tags": [
+          "ai-routine-controller"
+        ],
+        "operationId": "materialize",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoutineDraftDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterializeRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/routine/generate": {
+      "post": {
+        "tags": [
+          "ai-routine-controller"
+        ],
+        "operationId": "generate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRoutineRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/routine/confirm": {
+      "post": {
+        "tags": [
+          "ai-routine-controller"
+        ],
+        "operationId": "confirm",
+        "parameters": [
+          {
+            "name": "routineId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoutineDraftDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiaryRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/export": {
+      "get": {
+        "tags": [
+          "user-export-controller"
+        ],
+        "operationId": "exportUserData",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/{routineId}/snapshots": {
+      "get": {
+        "tags": [
+          "snapshot-controller"
+        ],
+        "operationId": "getSnapshotDatesForMonth",
+        "parameters": [
+          {
+            "name": "routineId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotMonthResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/{routineId}/snapshot": {
+      "get": {
+        "tags": [
+          "snapshot-controller"
+        ],
+        "operationId": "getSnapshot",
+        "parameters": [
+          {
+            "name": "routineId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/routine/today": {
+      "get": {
+        "tags": [
+          "routine-controller"
+        ],
+        "operationId": "getTodayRoutineScheduled",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiaryRoutineResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/search": {
+      "get": {
+        "tags": [
+          "search-docs-controller"
+        ],
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SearchResultDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/projects/topics": {
+      "get": {
+        "tags": [
+          "project-docs-controller"
+        ],
+        "operationId": "getTopics",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectTopicListItemDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/projects/topics/{key}": {
+      "get": {
+        "tags": [
+          "project-docs-controller"
+        ],
+        "operationId": "getTopic",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectTopicDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/blog/topics": {
+      "get": {
+        "tags": [
+          "blog-docs-controller"
+        ],
+        "operationId": "getTopics_1",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BlogTopicListItemDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/blog/topics/{key}": {
+      "get": {
+        "tags": [
+          "blog-docs-controller"
+        ],
+        "operationId": "getTopic_1",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlogTopicDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/architecture/topics": {
+      "get": {
+        "tags": [
+          "architecture-docs-controller"
+        ],
+        "operationId": "getTopics_2",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArchitectureTopicListItemDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/architecture/topics/{key}": {
+      "get": {
+        "tags": [
+          "architecture-docs-controller"
+        ],
+        "operationId": "getTopic_2",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureTopicDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/api/controllers": {
+      "get": {
+        "tags": [
+          "api-docs-controller"
+        ],
+        "operationId": "getControllers",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiControllerListItemDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/docs/api/controllers/{key}": {
+      "get": {
+        "tags": [
+          "api-docs-controller"
+        ],
+        "operationId": "getController",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiControllerDetailDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify": {
+      "get": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "verifyAuthentication",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "get": {
+        "tags": [
+          "auth-verification-controller"
+        ],
+        "operationId": "verifyEmail",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password/validate": {
+      "get": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "validateResetPasswordToken",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "googleAuth",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/{taskId}": {
+      "delete": {
+        "tags": [
+          "task-controller"
+        ],
+        "operationId": "deleteTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/schedule/{scheduleId}": {
+      "delete": {
+        "tags": [
+          "schedule-controller"
+        ],
+        "operationId": "deleteSchedule",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/habit/{habitId}": {
+      "delete": {
+        "tags": [
+          "habit-controller"
+        ],
+        "operationId": "deleteHabit",
+        "parameters": [
+          {
+            "name": "habitId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/goal/{goalId}": {
+      "delete": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "deleteGoal",
+        "parameters": [
+          {
+            "name": "goalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/category/{categoryId}": {
+      "delete": {
+        "tags": [
+          "category-controller"
+        ],
+        "operationId": "deleteCategory",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UserEditDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0,
+            "pattern": ".*\\S.*\\S.*"
+          },
+          "photo": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 0,
+            "pattern": "(?i)^(?:$|https?://.+)"
+          },
+          "phrase": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "phrase_author": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "widgetsId": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "theme": {
+            "type": "string"
+          },
+          "constanceConfiguration": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "COMPLETE"
+            ]
+          },
+          "language": {
+            "type": "string"
+          },
+          "isTutorialCompleted": {
+            "type": "boolean"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "xpDecayStrategy": {
+            "type": "string",
+            "enum": [
+              "GRADUAL",
+              "FLAT",
+              "TIME_WINDOW"
+            ]
+          }
+        }
+      },
+      "UserResponseDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phrase": {
+            "type": "string"
+          },
+          "phrase_author": {
+            "type": "string"
+          },
+          "constance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photo": {
+            "type": "string"
+          },
+          "isGoogleAccount": {
+            "type": "boolean"
+          },
+          "widgetsId": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "themeInUse": {
+            "type": "string"
+          },
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "constanceConfiguration": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "COMPLETE"
+            ]
+          },
+          "constanceIncreaseToday": {
+            "type": "boolean"
+          },
+          "maxConstance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isTutorialCompleted": {
+            "type": "boolean"
+          },
+          "languageInUse": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "xpDecayStrategy": {
+            "type": "string",
+            "enum": [
+              "GRADUAL",
+              "FLAT",
+              "TIME_WINDOW"
+            ]
+          }
+        }
+      },
+      "EditTaskRequestDTO": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "difficulty": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "categoriesId": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "oneTimeTask": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "difficulty",
+          "importance"
+        ]
+      },
+      "UpdateScheduleDTO": {
+        "type": "object",
+        "properties": {
+          "scheduleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Schedule": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "DiaryRoutineRequestDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "routineSections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineSectionRequestDTO"
+            }
+          }
+        }
+      },
+      "HabitGroupCheck": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "checkTime": {
+            "type": "string"
+          },
+          "checked": {
+            "type": "boolean"
+          },
+          "skipped": {
+            "type": "boolean"
+          },
+          "xpGenerated": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "HabitGroupDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "habitGroupCheck": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitGroupCheck"
+            }
+          }
+        }
+      },
+      "RoutineSectionRequestDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "taskGroup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskGroupDTO"
+            }
+          },
+          "habitGroup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitGroupDTO"
+            }
+          },
+          "favorite": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TaskGroupCheck": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "checkTime": {
+            "type": "string"
+          },
+          "checked": {
+            "type": "boolean"
+          },
+          "skipped": {
+            "type": "boolean"
+          },
+          "xpGenerated": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "TaskGroupDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "taskGroupCheck": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskGroupCheck"
+            }
+          }
+        }
+      },
+      "DiaryRoutineResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "routineSections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineSectionResponseDTO"
+            }
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/ScheduleResponseDTO"
+          },
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "HabitGroupResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "habitGroupChecks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitGroupCheck"
+            }
+          }
+        }
+      },
+      "RoutineSectionResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "taskGroup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskGroupResponseDTO"
+            }
+          },
+          "habitGroup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitGroupResponseDTO"
+            }
+          },
+          "favorite": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ScheduleResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "TaskGroupResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "taskGroupChecks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskGroupCheck"
+            }
+          }
+        }
+      },
+      "EditHabitDTO": {
+        "type": "object",
+        "properties": {
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "motivationalPhrase": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "dificulty": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "categoriesId": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "dificulty",
+          "importance"
+        ]
+      },
+      "EditGoalRequestDTO": {
+        "type": "object",
+        "properties": {
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "targetValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currentValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "categoriesId": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "motivation": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ]
+          },
+          "term": {
+            "type": "string",
+            "enum": [
+              "SHORT_TERM",
+              "MEDIUM_TERM",
+              "LONG_TERM"
+            ]
+          }
+        },
+        "required": [
+          "categoriesId",
+          "complete",
+          "currentValue",
+          "endDate",
+          "goalId",
+          "name",
+          "startDate",
+          "status",
+          "targetValue",
+          "term",
+          "unit"
+        ]
+      },
+      "CategoryMiniDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          }
+        }
+      },
+      "GoalResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "targetValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "currentValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "categories": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CategoryMiniDTO"
+            }
+          },
+          "motivation": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "xpReward": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ]
+          },
+          "term": {
+            "type": "string",
+            "enum": [
+              "SHORT_TERM",
+              "MEDIUM_TERM",
+              "LONG_TERM"
+            ]
+          },
+          "completeDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "BaseCheck": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "checkTime": {
+            "type": "string"
+          },
+          "checked": {
+            "type": "boolean"
+          },
+          "skipped": {
+            "type": "boolean"
+          },
+          "xpGenerated": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RefreshItemCheckedDTO": {
+        "type": "object",
+        "properties": {
+          "groupItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "check": {
+            "$ref": "#/components/schemas/BaseCheck"
+          }
+        }
+      },
+      "RefreshObjectDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "RefreshUiDTO": {
+        "type": "object",
+        "properties": {
+          "refreshUser": {
+            "$ref": "#/components/schemas/RefreshUserDTO"
+          },
+          "refreshCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefreshObjectDTO"
+            }
+          },
+          "refreshHabit": {
+            "$ref": "#/components/schemas/RefreshObjectDTO"
+          },
+          "refreshItemChecked": {
+            "$ref": "#/components/schemas/RefreshItemCheckedDTO"
+          }
+        }
+      },
+      "RefreshUserDTO": {
+        "type": "object",
+        "properties": {
+          "currentConstance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "alreadyIncreaseConstanceToday": {
+            "type": "boolean"
+          },
+          "maxConstance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CategoryEditRequestDTO": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "categoryId",
+          "icon",
+          "name"
+        ]
+      },
+      "CreateTaskRequestDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "iconId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "difficulty": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "categoriesId": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "oneTimeTask": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "difficulty",
+          "iconId",
+          "importance",
+          "name"
+        ]
+      },
+      "CreateScheduleDTO": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "days",
+          "routineId"
+        ]
+      },
+      "SnapshotCheckRequestDTO": {
+        "type": "object",
+        "properties": {
+          "snapshotId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshotCheckId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "snapshotCheckId",
+          "snapshotId"
+        ]
+      },
+      "HabitGroupRequestDTO": {
+        "type": "object",
+        "properties": {
+          "habitGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          }
+        }
+      },
+      "SkipGroupRequestDTO": {
+        "type": "object",
+        "properties": {
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskGroupDTO": {
+            "$ref": "#/components/schemas/TaskGroupRequestDTO"
+          },
+          "habitGroupDTO": {
+            "$ref": "#/components/schemas/HabitGroupRequestDTO"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "skip": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TaskGroupRequestDTO": {
+        "type": "object",
+        "properties": {
+          "taskGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          }
+        }
+      },
+      "CheckGroupRequestDTO": {
+        "type": "object",
+        "properties": {
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskGroupDTO": {
+            "$ref": "#/components/schemas/TaskGroupRequestDTO"
+          },
+          "habitGroupDTO": {
+            "$ref": "#/components/schemas/HabitGroupRequestDTO"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "CreateHabitDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "motivationalPhrase": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "iconId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "dificulty": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 5,
+            "minimum": 1
+          },
+          "categoriesId": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "experience": {
+            "type": "string",
+            "enum": [
+              "BEGINNER",
+              "INTERMEDIARY",
+              "ADVANCED"
+            ]
+          }
+        },
+        "required": [
+          "dificulty",
+          "experience",
+          "iconId",
+          "importance",
+          "name"
+        ]
+      },
+      "CreateGoalRequestDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "description": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "targetValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currentValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "categoriesId": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "motivation": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED"
+            ]
+          },
+          "term": {
+            "type": "string",
+            "enum": [
+              "SHORT_TERM",
+              "MEDIUM_TERM",
+              "LONG_TERM"
+            ]
+          }
+        },
+        "required": [
+          "categoriesId",
+          "currentValue",
+          "endDate",
+          "name",
+          "startDate",
+          "status",
+          "targetValue",
+          "term",
+          "unit"
+        ]
+      },
+      "ProjectDocsImportRequestDTO": {
+        "type": "object",
+        "properties": {
+          "repoOwner": {
+            "type": "string"
+          },
+          "repoName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "BlogDocsImportRequestDTO": {
+        "type": "object",
+        "properties": {
+          "repoOwner": {
+            "type": "string"
+          },
+          "repoName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "ArchitectureDocsImportRequestDTO": {
+        "type": "object",
+        "properties": {
+          "repoOwner": {
+            "type": "string"
+          },
+          "repoName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiDocsImportRequestDTO": {
+        "type": "object",
+        "properties": {
+          "repoOwner": {
+            "type": "string"
+          },
+          "repoName": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "CategoryRequestDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "experience": {
+            "type": "string",
+            "enum": [
+              "BEGINNER",
+              "INTERMEDIARY",
+              "ADVANCED"
+            ]
+          }
+        },
+        "required": [
+          "experience",
+          "icon",
+          "name"
+        ]
+      },
+      "ResetPasswordRequestDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "password",
+          "token"
+        ]
+      },
+      "UserRegisterDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "password"
+        ]
+      },
+      "UserLoginDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ForgotPasswordRequestDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 256,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "DraftHabitItemDTO": {
+        "type": "object",
+        "properties": {
+          "existingHabitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "newHabit": {
+            "$ref": "#/components/schemas/DraftNewHabitDTO"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "DraftNewCategoryDTO": {
+        "type": "object",
+        "properties": {
+          "tempKey": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "icon": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "name",
+          "tempKey"
+        ]
+      },
+      "DraftNewHabitDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "motivationalPhrase": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dificulty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoryRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "DraftNewTaskDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "difficulty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categoryRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "oneTimeTask": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "DraftSectionDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "habits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftHabitItemDTO"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftTaskItemDTO"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "startTime"
+        ]
+      },
+      "DraftTaskItemDTO": {
+        "type": "object",
+        "properties": {
+          "existingTaskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "newTask": {
+            "$ref": "#/components/schemas/DraftNewTaskDTO"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "RoutineDraftDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "newCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftNewCategoryDTO"
+            }
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftSectionDTO"
+            },
+            "minItems": 1
+          },
+          "scheduleDays": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "name",
+          "sections"
+        ]
+      },
+      "HabitGroupRefDTO": {
+        "type": "object",
+        "properties": {
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "MaterializeRoutineResponseDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "scheduleDays": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionDTO"
+            }
+          },
+          "newCategoryIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "newHabitIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "newTaskIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "SectionDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "habitGroup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HabitGroupRefDTO"
+            }
+          },
+          "taskGroup": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskGroupRefDTO"
+            }
+          }
+        }
+      },
+      "TaskGroupRefDTO": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          }
+        }
+      },
+      "GenerateRoutineRequestDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 10
+          },
+          "previousDraft": {
+            "$ref": "#/components/schemas/RoutineDraftDTO"
+          },
+          "feedback": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "language": {
+            "type": "string",
+            "pattern": "en|pt"
+          }
+        },
+        "required": [
+          "description"
+        ]
+      },
+      "GenerateRoutineResponseDTO": {
+        "type": "object",
+        "properties": {
+          "draft": {
+            "$ref": "#/components/schemas/RoutineDraftDTO"
+          }
+        }
+      },
+      "TaskResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "difficulty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categories": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CategoryMiniDTO"
+            }
+          },
+          "oneTimeTask": {
+            "type": "boolean"
+          },
+          "markedToDelete": {
+            "type": "string",
+            "format": "date"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "SnapshotMonthResponseDTO": {
+        "type": "object",
+        "properties": {
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        }
+      },
+      "SnapshotCheckResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "itemType": {
+            "type": "string",
+            "enum": [
+              "HABIT",
+              "TASK"
+            ]
+          },
+          "itemName": {
+            "type": "string"
+          },
+          "itemIconId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "originalGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "difficulty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "checked": {
+            "type": "boolean"
+          },
+          "skipped": {
+            "type": "boolean"
+          },
+          "checkTime": {
+            "type": "string"
+          },
+          "xpGenerated": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SnapshotResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshotDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "routineName": {
+            "type": "string"
+          },
+          "routineIconId": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "structure": {
+            "type": "string"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SnapshotCheckResponseDTO"
+            }
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 2
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "xpProgress": {
+            "$ref": "#/components/schemas/XpProgress"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "HabitResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "motivationalPhrase": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "importance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dificulty": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          },
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "constance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date"
+          },
+          "routines": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "XpProgress": {
+        "type": "object",
+        "properties": {
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SearchHighlightDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "summary": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SearchResultDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "highlight": {
+            "$ref": "#/components/schemas/SearchHighlightDTO"
+          }
+        }
+      },
+      "ProjectTopicListItemDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "orderIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          }
+        }
+      },
+      "ProjectTopicDetailDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "docMarkdown": {
+            "type": "string"
+          },
+          "diagramMermaid": {
+            "type": "string"
+          },
+          "designTopicKey": {
+            "type": "string"
+          },
+          "architectureTopicKey": {
+            "type": "string"
+          },
+          "repositoryUrl": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BlogTopicListItemDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "coverColor": {
+            "type": "string"
+          },
+          "coverEmoji": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BlogTopicDetailDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "docMarkdown": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "coverColor": {
+            "type": "string"
+          },
+          "coverEmoji": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ArchitectureTopicListItemDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "orderIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "projectKey": {
+            "type": "string"
+          }
+        }
+      },
+      "ArchitectureTopicDetailDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "diagramMermaid": {
+            "type": "string"
+          },
+          "docMarkdown": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "projectKey": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiControllerListItemDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "orderIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ApiControllerDetailDTO": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "apiCatalog": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CategoryResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "habits": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "tasks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "goals": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "xp": {
+            "type": "number",
+            "format": "double"
+          },
+          "nextLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "actualLevelXp": {
+            "type": "number",
+            "format": "double"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

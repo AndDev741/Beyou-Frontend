@@ -1,0 +1,226 @@
+import { useTranslation } from "react-i18next";
+import { RoutineSection as section } from "@beyou/types/routine/routineSection";
+import iconSearch from "../../icons/iconsSearch";
+import { useSelector } from "react-redux";
+import { RootState } from "@beyou/state/rootReducer";
+import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
+import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
+import checkRoutine from "@beyou/api/routine/checkItem";
+import skipRoutine from "@beyou/api/routine/skipItem";
+import { useEffect, useRef, useState } from "react";
+import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
+import useUiRefresh from "../../../hooks/useUiRefresh";
+import { formatTimeRange } from "../../routines/routineMetrics";
+import { FiSlash } from "react-icons/fi";
+import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
+import XpFloat from "./XpFloat";
+
+const XP_FLOAT_DURATION_MS = 1200;
+
+export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
+    const { t } = useTranslation();
+    const iconObj = iconSearch(section.iconId);
+    const Icon = iconObj?.IconComponent;
+
+    const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
+    const [xpFloats, setXpFloats] = useState<Record<string, number>>({});
+    const xpFloatTimers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+    useEffect(() => {
+        const timers = xpFloatTimers.current;
+        return () => { timers.forEach(clearTimeout); };
+    }, []);
+
+    const allHabits = useSelector((state: RootState) => state.habits.habits);
+    const allTasks = useSelector((state: RootState) => state.tasks.tasks);
+
+    useUiRefresh(refreshUi);
+
+    const getMergedItems = () => {
+        const tasks = section.taskGroup?.map(item => ({
+            type: 'task' as const,
+            id: item.taskId,
+            groupId: item.id,
+            startTime: item?.startTime,
+            endTime: item?.endTime,
+            check: item?.taskGroupChecks
+        })) || [];
+
+        const habits = section.habitGroup?.map(item => ({
+            type: 'habit' as const,
+            id: item.habitId,
+            groupId: item.id,
+            startTime: item?.startTime,
+            endTime: item?.endTime,
+            check: item?.habitGroupChecks
+        })) || [];
+
+        return [...tasks, ...habits].sort((a, b) =>
+            a?.startTime ? a.startTime.localeCompare(b.startTime) : 0 - (b?.startTime ? b.startTime.localeCompare(a.startTime) : 0)
+        );
+    };
+
+     const handleCheck = async (groupToCheck: itemGroupToCheck) => {
+        const refreshUiReponse = await checkRoutine(groupToCheck, t);
+        if(refreshUiReponse?.success){
+            setRefreshUi(refreshUiReponse.success);
+            const itemChecked = refreshUiReponse.success.refreshItemChecked;
+            const xpGenerated = itemChecked?.check?.xpGenerated;
+            if (itemChecked && xpGenerated && itemChecked.check.checked) {
+                const groupItemId = itemChecked.groupItemId;
+                setXpFloats(prev => ({ ...prev, [groupItemId]: xpGenerated }));
+                const timerId = setTimeout(() => {
+                    xpFloatTimers.current.delete(timerId);
+                    setXpFloats(prev => {
+                        const { [groupItemId]: _removed, ...rest } = prev;
+                        return rest;
+                    });
+                }, XP_FLOAT_DURATION_MS);
+                xpFloatTimers.current.add(timerId);
+            }
+        } else if (refreshUiReponse?.error) {
+            toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
+        }
+     }
+
+     const handleSkip = async (groupToSkip: itemGroupToSkip) => {
+        const refreshUiReponse = await skipRoutine(groupToSkip, t);
+        if(refreshUiReponse?.success){
+            setRefreshUi(refreshUiReponse.success);
+        } else if (refreshUiReponse?.error) {
+            toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
+        }
+     }
+
+    const mergedItems = getMergedItems();
+
+    const renderItems = () => {
+        return mergedItems.map((item, index) => {
+            let itemObj: any;
+
+            if (item.type === 'task') {
+                itemObj = allTasks?.find(task => task.id === item.id);
+                itemObj = {
+                    ...itemObj,
+                    item
+                }
+            } else {
+                itemObj = allHabits?.find(habit => habit.id === item.id);
+                itemObj = {
+                    ...itemObj,
+                    item
+                }
+            }
+
+            if (!itemObj) return null;
+
+            let currentDate = new Date().toJSON().slice(0, 10);
+            const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
+            const checked: boolean = ItemCheck?.checked === true ? true : false;
+            const skipped: boolean = ItemCheck?.skipped === true && !checked;
+            const motivationalPhrase = item.type === "habit" ? itemObj?.motivationalPhrase : "";
+            const toastPosition = window.matchMedia("(min-width: 712px)").matches ? "top-left" : "bottom-center";
+
+            return (
+                <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between p-1 mt-1 ${skipped ? "opacity-60" : ""}`}>
+                    <div className="relative flex items-center">
+                        {xpFloats[itemObj.item.groupId] !== undefined && (
+                            <XpFloat xp={xpFloats[itemObj.item.groupId]} />
+                        )}
+                        <label className="flex items-center justify-center min-w-[44px] min-h-[44px] -my-2 -ml-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            aria-label={itemObj.name}
+                            className="accent-primary border-primary w-6 h-6 rounded-xl cursor-pointer"
+                            checked={checked}
+                            onChange={() => {
+                                const groupToCheck: itemGroupToCheck = {
+                                    routineId: routineId,
+                                    ...(item.type === 'task'
+                                        ? {
+                                            taskGroupDTO: {
+                                                taskGroupId: itemObj.item.groupId,
+                                                startTime: item.startTime
+                                            }
+                                        }
+                                        : {
+                                            habitGroupDTO: {
+                                                habitGroupId: itemObj.item.groupId,
+                                                startTime: item.startTime
+                                            }
+                                        }
+                                    )
+                                };
+                                handleCheck(groupToCheck);
+                                if (!checked) {
+                                    const message = motivationalPhrase ? motivationalPhrase : t("Item completed");
+                                    toast.success(message, { position: toastPosition });
+                                }
+                            }}
+                        />
+                        </label>
+                        <span className={`text-sm md:text-lg ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
+                            {itemObj.name}
+                        </span>
+                        <span className="mx-1 md:mx-2 text-secondary">-</span>
+                        <span className="text-center text-primary text-xs md:text-lg">
+                            {formatTimeRange(item.startTime, item.endTime)}
+                        </span>
+                        {/* The skipped state is already conveyed by the dimmed row,
+                            the line-through name and the "Undo skip" button — no
+                            extra "Skipped" label needed (saves mobile space). */}
+                    </div>
+                    {!checked && (
+                        <button
+                            className="flex items-center gap-1 rounded-md border border-description/30 px-2 py-1.5 text-xs font-semibold text-description hover:text-primary hover:border-primary/40 active:scale-95 transition-all duration-200"
+                            onClick={() => {
+                                const groupToSkip: itemGroupToSkip = {
+                                    routineId: routineId,
+                                    skip: !skipped,
+                                    ...(item.type === 'task'
+                                        ? {
+                                            taskGroupDTO: {
+                                                taskGroupId: itemObj.item.groupId,
+                                                startTime: item.startTime
+                                            }
+                                        }
+                                        : {
+                                            habitGroupDTO: {
+                                                habitGroupId: itemObj.item.groupId,
+                                                startTime: item.startTime
+                                            }
+                                        }
+                                    )
+                                };
+                                handleSkip(groupToSkip);
+                            }}
+                        >
+                            <FiSlash />
+                            {skipped ? t("Undo skip") : t("Skip")}
+                        </button>
+                    )}
+                </div>
+            );
+        });
+    };
+
+    return (
+        <div className="flex flex-col items-start justify-center w-full h-full">
+            <div className="flex items-center gap-2">
+                {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
+                <span className="text-lg md:text-xl font-bold text-primary line-clamp-1">{section.name}
+                <span className="ml-2 md:ml-4 text-md md:text-lg text-description">
+                        {formatTimeRange(section.startTime, section.endTime)}
+                </span>
+            </span>
+
+            </div>
+    
+            <div className="w-full flex flex-col items-start justify-start mb-4 mt-2">
+                {renderItems()}
+            </div>
+
+        </div>
+    )
+}
