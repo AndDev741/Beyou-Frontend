@@ -12,6 +12,7 @@ import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticat
 import { refreshRequest } from '../src/auth/authApi';
 import * as secureStore from '../src/auth/secureStore';
 import { bootstrap, logout } from '../src/auth/authSlice';
+import { nextAuthRoute } from '../src/auth/authRedirect';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 
 setHttpClient(nativeHttpClient);
@@ -44,10 +45,8 @@ function Gate() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (status === 'loading') return;
-    const inAuth = segments[0] === '(auth)';
-    if (status === 'authenticated' && inAuth) router.replace('/(app)');
-    else if (status === 'unauthenticated' && !inAuth) router.replace('/(auth)/login');
+    const target = nextAuthRoute(status, segments);
+    if (target) router.replace(target);
   }, [status, segments, router]);
 
   if (status === 'loading') {
