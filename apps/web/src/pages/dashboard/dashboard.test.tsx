@@ -64,7 +64,7 @@ const buildStore = (overrides: Partial<RootState> = {}) => {
 };
 
 beforeEach(() => {
-    vi.mocked(getTodayRoutine).mockResolvedValue({ success: null });
+    vi.mocked(getTodayRoutine).mockResolvedValue({ success: '' });
     vi.mocked(getHabits).mockResolvedValue({ success: [] });
     vi.mocked(getTasks).mockResolvedValue({ success: [] });
     vi.mocked(getGoals).mockResolvedValue({ success: [] });

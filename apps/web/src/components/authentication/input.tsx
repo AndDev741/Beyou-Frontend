@@ -16,6 +16,7 @@ type InputProps = {
     setData: React.Dispatch<React.SetStateAction<string>>;
     errorMessage: string;
     testId?: string;
+    autoComplete?: string;
 };
 
 function Input({
@@ -29,6 +30,7 @@ function Input({
     setData,
     errorMessage,
     testId,
+    autoComplete,
 }: InputProps) {
     const isPasswordField = useMemo(() => inputType === "password", [inputType]);
     const inputId = useId();
@@ -66,6 +68,7 @@ function Input({
                     value={data}
                     onChange={(e) => setData(e.target.value)}
                     data-testid={testId}
+                    autoComplete={autoComplete}
                     className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none bg-background text-secondary placeholder:text-placeholder"
                 />
 

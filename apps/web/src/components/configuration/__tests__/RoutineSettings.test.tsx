@@ -15,7 +15,7 @@ vi.mock('react-toastify', () => ({
 }));
 
 vi.mock('@beyou/api/apiError', () => ({
-    getFriendlyErrorMessage: (t: any, error: any) => error?.message ?? 'Error',
+    getFriendlyErrorMessage: (_t: unknown, error: unknown) => (error as Error)?.message ?? 'Error',
 }));
 
 // ---------------------------------------------------------------------------

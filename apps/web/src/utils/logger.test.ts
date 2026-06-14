@@ -38,7 +38,7 @@ describe('logger — dev-gated logging', () => {
 
     describe('when DEV = false', () => {
         it('logger.log does NOT call console.log', async () => {
-            vi.stubEnv('DEV', false as unknown as string);
+            vi.stubEnv('DEV', false);
 
             const { logger } = await import('./logger');
             const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -48,7 +48,7 @@ describe('logger — dev-gated logging', () => {
         });
 
         it('logger.warn does NOT call console.warn', async () => {
-            vi.stubEnv('DEV', false as unknown as string);
+            vi.stubEnv('DEV', false);
 
             const { logger } = await import('./logger');
             const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -58,7 +58,7 @@ describe('logger — dev-gated logging', () => {
         });
 
         it('logger.error still calls console.error', async () => {
-            vi.stubEnv('DEV', false as unknown as string);
+            vi.stubEnv('DEV', false);
 
             const { logger } = await import('./logger');
             const spy = vi.spyOn(console, 'error').mockImplementation(() => {});

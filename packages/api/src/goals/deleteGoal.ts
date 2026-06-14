@@ -5,7 +5,7 @@ import { getLogger } from '../logger';
 
 export default async function deleteGoal(
   goalId: string,
-  t: TFunction
+  _t: TFunction
 ): Promise<{ success?: unknown; error?: ApiErrorPayload; }> {
   try {
     const response = await getHttpClient().delete(`/goal/${goalId}`);

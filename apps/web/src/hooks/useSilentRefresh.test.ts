@@ -25,7 +25,7 @@ import { useSilentRefresh } from "./useSilentRefresh";
 
 // useSilentRefresh now reads the redux dispatch, so it must render under a Provider.
 const wrapper = ({ children }: { children: React.ReactNode }) =>
-  React.createElement(Provider, { store }, children);
+  React.createElement(Provider, { store, children });
 
 describe("useSilentRefresh", () => {
   beforeEach(() => {
