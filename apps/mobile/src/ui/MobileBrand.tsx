@@ -8,6 +8,7 @@ export default function MobileBrand() {
       <Image
         source={require('../assets/auth/Logo.png')}
         style={{ width: 90, height: 90, resizeMode: 'contain' }}
+        accessibilityRole="image"
         accessibilityLabel={t('LogoAlt')}
       />
       <Text className="text-3xl font-bold text-primary mt-1">{t('BeYou')}</Text>

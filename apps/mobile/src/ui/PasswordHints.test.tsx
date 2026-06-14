@@ -1,9 +1,11 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import PasswordHints from './PasswordHints';
+import { BeyouThemeProvider } from '../theme/ThemeProvider';
 import '../i18n';
 
-const wrap = async (ui: React.ReactElement) => render(ui);
+const wrap = async (ui: React.ReactElement) =>
+  render(<BeyouThemeProvider>{ui}</BeyouThemeProvider>);
 
 describe('PasswordHints', () => {
   it('shows both hints as pending for a short password with one class', async () => {
