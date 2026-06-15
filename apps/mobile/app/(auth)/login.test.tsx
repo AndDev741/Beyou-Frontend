@@ -76,12 +76,16 @@ jest.mock('react-native-safe-area-context', () => {
 });
 
 import { Provider } from 'react-redux';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { store } from '../../src/store';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { makeStore } from '../../src/store';
 import { BeyouThemeProvider } from '../../src/theme/ThemeProvider';
 import { notify } from '../../src/notify';
 import '../../src/i18n';
 import LoginRoute from './login';
+
+// Fresh store per test — Redux state is not reset between Jest cases, so a
+// shared singleton would let one test's auth.error/status bleed into the next.
+let store: ReturnType<typeof makeStore>;
 
 const renderScreen = async () =>
   render(
@@ -94,6 +98,7 @@ const renderScreen = async () =>
 
 beforeEach(() => {
   jest.clearAllMocks();
+  store = makeStore();
 });
 
 describe('LoginRoute (branded)', () => {
@@ -118,16 +123,39 @@ describe('LoginRoute (branded)', () => {
   });
 
   it('calls notify.error when login fails with bad credentials', async () => {
+    // loginSchema only requires a non-empty password (strength is server-side),
+    // so any non-empty string passes zod and reaches the mocked loginRequest.
     mockLoginRequest.mockRejectedValueOnce(new ApiError(401, 'Unauthorized', 'INVALID_CREDENTIALS'));
     const screen = await renderScreen();
 
-    fireEvent.changeText(screen.getByTestId('login-email-input'), 'user@test.com');
-    fireEvent.changeText(screen.getByTestId('login-password-input'), 'somepassword');
-    fireEvent.press(screen.getByTestId('login-submit-button'));
-
-    await waitFor(() => {
-      expect(notify.error).toHaveBeenCalled();
+    // Wrap the interaction in async act so the awaited login thunk AND its trailing
+    // re-renders settle inside this act scope — otherwise the tail leaks into the
+    // next test and corrupts its render ("overlapping act() calls").
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('login-email-input'), 'user@test.com');
+      fireEvent.changeText(screen.getByTestId('login-password-input'), 'somepassword');
+      fireEvent.press(screen.getByTestId('login-submit-button'));
     });
+
+    expect(notify.error).toHaveBeenCalled();
     expect(mockLoginRequest).toHaveBeenCalledWith('user@test.com', 'somepassword');
+  });
+
+  it('shows the inline verify card (not a toast) when login fails with EMAIL_NOT_VERIFIED', async () => {
+    // The login thunk maps the rejection via parseApiError(e).message, which reads
+    // ApiError.data (the response body) — so the key must live in `data`, not the
+    // Error message arg. A { message } body is how the backend signals this.
+    mockLoginRequest.mockRejectedValueOnce(new ApiError(403, { message: 'EMAIL_NOT_VERIFIED' }));
+    const screen = await renderScreen();
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('login-email-input'), 'user@test.com');
+      fireEvent.changeText(screen.getByTestId('login-password-input'), 'somepassword');
+      fireEvent.press(screen.getByTestId('login-submit-button'));
+    });
+
+    expect(screen.getByTestId('login-email-not-verified')).toBeTruthy();
+    // The unverified-email path uses the inline card, NOT the error toast.
+    expect(notify.error).not.toHaveBeenCalled();
   });
 });

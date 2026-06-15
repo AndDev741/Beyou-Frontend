@@ -46,6 +46,9 @@
   },
   "jest": {
     "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|expo-router|@beyou/.*|react-clone-referenced-element|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|uuid|@reduxjs/toolkit|react-redux|immer|i18next|react-i18next|@testing-library/.*|@hookform/.*|nativewind|tailwindcss|react-native-reanimated|react-native-safe-area-context|react-native-screens))"
     ],
