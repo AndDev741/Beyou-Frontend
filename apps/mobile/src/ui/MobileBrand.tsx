@@ -11,7 +11,10 @@ export default function MobileBrand() {
         accessibilityRole="image"
         accessibilityLabel={t('LogoAlt')}
       />
-      <Text className="text-3xl font-bold text-primary mt-1">{t('BeYou')}</Text>
+      {/* `BeYou` i18n value carries a leading "\n" the web heading renders via
+          `whitespace-pre-line`; HTML collapses it in the web wordmark, so we trim
+          here to match — RN <Text> would otherwise show a blank line above it. */}
+      <Text className="text-3xl font-bold text-primary mt-1">{t('BeYou').trim()}</Text>
       <Text className="text-sm text-description mt-1">{t('YourFavoriteHT')}</Text>
     </View>
   );
