@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import MobileBrand from '../../src/ui/MobileBrand';
+import AuthTabs from '../../src/ui/AuthTabs';
 import PasswordHints from '../../src/ui/PasswordHints';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
@@ -68,6 +69,8 @@ export default function RegisterRoute() {
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 32 }}
       >
         <MobileBrand />
+
+        <AuthTabs active="register" />
 
         {registered ? (
           <>

@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import MobileBrand from '../../src/ui/MobileBrand';
+import AuthTabs from '../../src/ui/AuthTabs';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { login } from '../../src/auth/authSlice';
@@ -65,7 +66,9 @@ export default function LoginRoute() {
       >
         <MobileBrand />
 
-        <Text className="text-3xl font-bold text-secondary text-center mt-4 mb-8">
+        <AuthTabs active="login" />
+
+        <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-8">
           {t('Welcome')}
           <Text className="text-primary"> {t('Back!')} </Text>
         </Text>
