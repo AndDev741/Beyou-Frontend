@@ -40,3 +40,33 @@ bundler at runtime. Do not run it. If you must tidy the lock file, run
 cat apps/mobile/node_modules/react/package.json | grep '"version"'   # must be 19.x
 cat node_modules/react/package.json | grep '"version"'               # must be 18.x
 ```
+
+## NativeWind v4 — metro config WRAPS, it does not replace
+
+`metro.config.js` ends with `module.exports = withNativeWind(config, { input: './global.css' })`.
+The monorepo `config` (watchFolders, `nodeModulesPaths`, `extraNodeModules` React pin) is built
+first and PASSED INTO `withNativeWind`. Keep that order — if you regenerate metro config, re-apply
+the wrap around the existing monorepo config, don't overwrite it. `babel.config.js` uses
+`['babel-preset-expo', { jsxImportSource: 'nativewind' }]` + the `nativewind/babel` preset. Theme
+colors are CSS variables set at runtime by `src/theme/ThemeProvider.tsx` (`vars()` from nativewind);
+never hardcode hex — use the Tailwind tokens (`bg-background`, `text-primary`, …) wired in
+`tailwind.config.js`.
+
+## Expo Router — test files must NOT live under `app/`
+
+Expo Router builds its route table via `require.context('./app')`, which has no `.test.tsx`
+exclusion. A test colocated in `app/` is (a) treated as a route and (b) pulled into the production
+bundle — `npx expo export` then fails resolving test-only deps. **Put route tests in `__tests__/`**
+(see `__tests__/_layout.test.tsx`, `login.test.tsx`, `register.test.tsx`). Always run
+`npx expo export --platform android` as part of verification — `npm test` passing does NOT catch a
+broken production bundle.
+
+## Jest — act environment + async-thunk tests
+
+`jest.setup.js` sets `globalThis.IS_REACT_ACT_ENVIRONMENT = true` (wired via `setupFilesAfterEnv`).
+For any test that dispatches an async redux thunk on a user event, wrap the interaction in
+`await act(async () => { fireEvent...; })` so the thunk's trailing re-render settles inside that act
+scope — otherwise it leaks into the next test and corrupts its render ("overlapping act() calls").
+Use a fresh store per test (`makeStore()` from `src/store.ts`); Redux state is not reset between
+Jest cases. `@expo/vector-icons` is mocked globally in `__mocks__/@expo/vector-icons.js` (the real
+package pulls `expo-asset`, an Expo-nested transitive dep jest can't resolve).

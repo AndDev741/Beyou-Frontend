@@ -2,6 +2,12 @@
 
 Expo SDK 56 · React Native 0.85.3 · Android package `com.beyou.mobile`
 
+Navigation: **Expo Router** (file-based, entry `expo-router/entry` in `package.json`;
+routes live under `app/` — `app/_layout.tsx` is the root layout, `(auth)/` and `(app)/`
+are the route groups). Styling: **NativeWind v4** (Tailwind classes in RN, themed at
+runtime via CSS variables — see `src/theme/ThemeProvider.tsx`). The run commands below
+are unchanged by either — `npx expo start` still does everything.
+
 ---
 
 ## 0. Backend must be reachable
@@ -122,5 +128,10 @@ Run this once with the backend up and a device/emulator connected via `npx expo 
 
 6. **Logout** — Tap the logout control. The app returns to the Login screen. Logging in again with the same credentials works normally.
 
-> This is a **manual gate**. The automated unit and integration tests live in `App.test.tsx`
-> and the `src/` tree and are run with `npm test` inside `apps/mobile`.
+> This is a **manual gate**. The automated unit and integration tests live in the
+> `__tests__/` directory (root-layout, login, register) and alongside the `src/` tree,
+> and are run with `npm test` inside `apps/mobile`.
+>
+> **Test files must NOT live under `app/`** — Expo Router builds its route table with
+> `require.context('./app')`, which would pull `*.test.tsx` into the production bundle and
+> break `npx expo export`. Keep route tests in `__tests__/`.

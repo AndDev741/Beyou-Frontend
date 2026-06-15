@@ -19,7 +19,7 @@ import { ApiError } from '@beyou/api';
 // Network boundary: the screen -> login thunk -> loginRequest. Mock it so the
 // thunk's try/catch resolves or rejects deterministically without real fetch.
 const mockLoginRequest = jest.fn();
-jest.mock('../../src/auth/authApi', () => ({
+jest.mock('../src/auth/authApi', () => ({
   loginRequest: (...args: unknown[]) => mockLoginRequest(...args),
   registerRequest: jest.fn(),
   refreshRequest: jest.fn(),
@@ -27,7 +27,7 @@ jest.mock('../../src/auth/authApi', () => ({
 }));
 
 // Toast boundary: assert error surfacing without loading react-native-toast-message.
-jest.mock('../../src/notify', () => ({
+jest.mock('../src/notify', () => ({
   notify: { error: jest.fn(), success: jest.fn(), info: jest.fn() },
 }));
 
@@ -54,7 +54,7 @@ jest.mock('expo-localization', () => ({
 }));
 
 // nativeHttpClient: authSlice imports setAccessToken at module load.
-jest.mock('../../src/lib/nativeHttpClient', () => ({
+jest.mock('../src/lib/nativeHttpClient', () => ({
   nativeHttpClient: {},
   setAccessToken: jest.fn(),
   setRefreshHandler: jest.fn(),
@@ -77,11 +77,11 @@ jest.mock('react-native-safe-area-context', () => {
 
 import { Provider } from 'react-redux';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import { makeStore } from '../../src/store';
-import { BeyouThemeProvider } from '../../src/theme/ThemeProvider';
-import { notify } from '../../src/notify';
-import '../../src/i18n';
-import LoginRoute from './login';
+import { makeStore } from '../src/store';
+import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
+import { notify } from '../src/notify';
+import '../src/i18n';
+import LoginRoute from '../app/(auth)/login';
 
 // Fresh store per test — Redux state is not reset between Jest cases, so a
 // shared singleton would let one test's auth.error/status bleed into the next.

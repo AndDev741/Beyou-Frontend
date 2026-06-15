@@ -19,7 +19,7 @@
 // Network boundary: the screen -> register thunk -> registerRequest. Mock it so
 // the thunk's try/catch resolves or rejects deterministically without real fetch.
 const mockRegisterRequest = jest.fn();
-jest.mock('../../src/auth/authApi', () => ({
+jest.mock('../src/auth/authApi', () => ({
   loginRequest: jest.fn(),
   registerRequest: (...args: unknown[]) => mockRegisterRequest(...args),
   refreshRequest: jest.fn(),
@@ -27,7 +27,7 @@ jest.mock('../../src/auth/authApi', () => ({
 }));
 
 // Toast boundary: assert error surfacing without loading react-native-toast-message.
-jest.mock('../../src/notify', () => ({
+jest.mock('../src/notify', () => ({
   notify: { error: jest.fn(), success: jest.fn(), info: jest.fn() },
 }));
 
@@ -54,7 +54,7 @@ jest.mock('expo-localization', () => ({
 }));
 
 // nativeHttpClient: authSlice imports setAccessToken at module load.
-jest.mock('../../src/lib/nativeHttpClient', () => ({
+jest.mock('../src/lib/nativeHttpClient', () => ({
   nativeHttpClient: {},
   setAccessToken: jest.fn(),
   setRefreshHandler: jest.fn(),
@@ -77,11 +77,11 @@ jest.mock('react-native-safe-area-context', () => {
 
 import { Provider } from 'react-redux';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import { makeStore } from '../../src/store';
-import { BeyouThemeProvider } from '../../src/theme/ThemeProvider';
-import { notify } from '../../src/notify';
-import '../../src/i18n';
-import RegisterRoute from './register';
+import { makeStore } from '../src/store';
+import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
+import { notify } from '../src/notify';
+import '../src/i18n';
+import RegisterRoute from '../app/(auth)/register';
 
 // A password that satisfies the strong schema: 12+ chars, 2+ character classes.
 const VALID_PASSWORD = 'Abcdefghijkl1';
