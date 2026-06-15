@@ -12,6 +12,8 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import MobileBrand from '../../src/ui/MobileBrand';
+import ThemeSelector from '../../src/ui/ThemeSelector';
+import LanguageToggle from '../../src/ui/LanguageToggle';
 import AuthTabs from '../../src/ui/AuthTabs';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
@@ -62,9 +64,12 @@ export default function LoginRoute() {
       <ScrollView
         testID="login-screen"
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 32 }}
+        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 24 }}
       >
         <MobileBrand />
+
+        <ThemeSelector />
+        <LanguageToggle />
 
         <AuthTabs active="login" />
 
