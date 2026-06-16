@@ -12,7 +12,6 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import MobileBrand from '../../src/ui/MobileBrand';
-import ThemeSelector from '../../src/ui/ThemeSelector';
 import LanguageToggle from '../../src/ui/LanguageToggle';
 import AuthTabs from '../../src/ui/AuthTabs';
 import PasswordHints from '../../src/ui/PasswordHints';
@@ -70,17 +69,12 @@ export default function RegisterRoute() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 24 }}
       >
-        <MobileBrand />
-
-        <ThemeSelector />
-        <LanguageToggle />
-
         <AuthTabs active="register" />
 
         {registered ? (
           <>
             <View
-              className="border-2 border-primary rounded-xl bg-primary/10 p-5 mb-6"
+              className="border-2 border-primary rounded-xl bg-primary/10 p-5 mb-6 mt-4"
               testID="register-success"
             >
               <Text className="text-primary font-semibold mb-1">{t('EmailVerificationSentTitle')}</Text>
@@ -193,6 +187,8 @@ export default function RegisterRoute() {
             </View>
           </>
         )}
+        <LanguageToggle />
+        <MobileBrand />
       </ScrollView>
     </SafeAreaView>
   );

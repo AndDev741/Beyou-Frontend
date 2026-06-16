@@ -12,7 +12,6 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import MobileBrand from '../../src/ui/MobileBrand';
-import ThemeSelector from '../../src/ui/ThemeSelector';
 import LanguageToggle from '../../src/ui/LanguageToggle';
 import AuthTabs from '../../src/ui/AuthTabs';
 import { notify } from '../../src/notify';
@@ -66,11 +65,6 @@ export default function LoginRoute() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 24 }}
       >
-        <MobileBrand />
-
-        <ThemeSelector />
-        <LanguageToggle />
-
         <AuthTabs active="login" />
 
         <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-8">
@@ -161,6 +155,8 @@ export default function LoginRoute() {
             />
           </View>
         </View>
+        <LanguageToggle />
+        <MobileBrand />
       </ScrollView>
     </SafeAreaView>
   );

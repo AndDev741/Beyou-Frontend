@@ -12,7 +12,7 @@ export default function ThemeSelector() {
 
   return (
     <View className="w-full items-center mt-3" testID="theme-selector">
-      <View className="flex-row flex-wrap justify-center gap-3 px-4">
+      <View className="flex-row flex-wrap justify-center gap-3">
         {themes.map((item) => {
           const isActive = theme.mode === item.mode;
           return (
