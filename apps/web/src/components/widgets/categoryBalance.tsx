@@ -69,7 +69,7 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
     return (
         <BaseDiv title={t("LifeBalance")} bigSize={true}>
             {hasEnough ? (
-                <canvas ref={chartRef} className="w-full max-h-[220px]" data-testid="category-balance-chart" />
+                <canvas ref={chartRef} className="w-[90%] max-h-[220px]" data-testid="category-balance-chart" />
             ) : (
                 <p className="text-center text-sm text-description" data-testid="category-balance-fallback">
                     {t("LifeBalanceFallback")}
