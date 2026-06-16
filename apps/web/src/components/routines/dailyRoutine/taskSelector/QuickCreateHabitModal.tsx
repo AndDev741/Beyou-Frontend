@@ -17,7 +17,7 @@ import createHabit from "@beyou/api/habits/createHabit";
 import getHabits from "@beyou/api/habits/getHabits";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
-import { habitCreateSchema } from "../../../../validation/forms/habitSchemas";
+import { habitCreateSchema } from "@beyou/validation/forms/habitSchemas";
 import type { habit } from "@beyou/types/habit/habitType";
 
 type QuickCreateHabitModalProps = {

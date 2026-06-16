@@ -9,7 +9,7 @@ import { RootState } from "@beyou/state/rootReducer";
 import { CgAddR } from "react-icons/cg";
 import { AiFillStar } from "react-icons/ai";
 import { formatTimeRange } from "../routineMetrics";
-import { getItemTimeErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "./routineValidation";
+import { getItemTimeErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "@beyou/validation/routineValidation";
 
 interface SectionItemProps {
     section: RoutineSection;

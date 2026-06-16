@@ -19,7 +19,9 @@
       "@beyou/state/*": ["packages/state/src/*"],
       "@beyou/api": ["packages/api/src/index.ts"],
       "@beyou/api/*": ["packages/api/src/*"],
-      "@beyou/contracts": ["packages/contracts/src/index.ts"]
+      "@beyou/contracts": ["packages/contracts/src/index.ts"],
+      "@beyou/validation": ["packages/validation/src/index.ts"],
+      "@beyou/validation/*": ["packages/validation/src/*"]
     }
   }
 }

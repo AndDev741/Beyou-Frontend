@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Button from "../../Button";
-import { aiDescriptionSchema } from "../../../validation/forms/aiRoutineSchemas";
+import { aiDescriptionSchema } from "@beyou/validation/forms/aiRoutineSchemas";
 
 type DescribeStepProps = {
     description: string;

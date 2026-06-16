@@ -30,7 +30,7 @@ import {
 } from "@beyou/state/habit/editHabitSlice";
 import type { habit } from "@beyou/types/habit/habitType";
 import type category from "@beyou/types/category/categoryType";
-import { habitCreateSchema, habitEditSchema } from "../../validation/forms/habitSchemas";
+import { habitCreateSchema, habitEditSchema } from "@beyou/validation/forms/habitSchemas";
 
 export type HabitFormMode = "create" | "edit";
 

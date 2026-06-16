@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 // Services
 import useGoogleLogin from "../../../services/authentication/useGoogleLogin";
 import handleLogin from "../../../services/authentication/useLogin";
-import { loginSchema } from "../../../validation/forms/authSchemas";
+import { loginSchema } from "@beyou/validation/forms/authSchemas";
 import { successRegisterEnter } from "@beyou/state/authentication/registerSlice";
 import { RootState } from "@beyou/state/rootReducer";
 // Assets

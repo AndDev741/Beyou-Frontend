@@ -16,7 +16,7 @@ import createTask from "@beyou/api/tasks/createTask";
 import getTasks from "@beyou/api/tasks/getTasks";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { enterTasks } from "@beyou/state/task/tasksSlice";
-import { taskFormSchema } from "../../../../validation/forms/taskSchemas";
+import { taskFormSchema } from "@beyou/validation/forms/taskSchemas";
 import type { task } from "@beyou/types/tasks/taskType";
 
 type QuickCreateTaskModalProps = {

@@ -13,7 +13,7 @@ import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { scheduleSchema } from "../../validation/forms/scheduleSchemas";
+import { scheduleSchema } from "@beyou/validation/forms/scheduleSchemas";
 
 interface ScheduleModalProps {
     routine: Routine;

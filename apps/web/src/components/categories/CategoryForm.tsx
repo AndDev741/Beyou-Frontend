@@ -18,7 +18,7 @@ import getCategories from "@beyou/api/categories/getCategories";
 import { RootState } from "@beyou/state/rootReducer";
 import { editModeEnter, idEnter, nameEnter, descriptionEnter, iconEnter } from "@beyou/state/category/editCategorySlice";
 import type categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
-import { categoryCreateSchema, categoryEditSchema } from "../../validation/forms/categorySchemas";
+import { categoryCreateSchema, categoryEditSchema } from "@beyou/validation/forms/categorySchemas";
 
 export type CategoryFormMode = "create" | "edit";
 
