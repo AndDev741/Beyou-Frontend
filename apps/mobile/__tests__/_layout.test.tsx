@@ -105,17 +105,36 @@ jest.mock('expo-router', () => ({
   useSegments: () => ['(auth)'],
 }));
 
+// 7. react-native-toast-message: RootLayout mounts <Toast/>, whose Animated
+//    loop/timers never settle under jest + React 19's async act() — render()
+//    then hangs to the 5s test timeout (flaky locally, consistently fails in
+//    CI with "active timers / worker failed to exit gracefully"). Toast is not
+//    under test here; stub it to a no-op component. (No JSX in the factory — see
+//    the expo-router note above re: babel-plugin-jest-hoist.)
+jest.mock('react-native-toast-message', () => {
+  const ToastStub = () => null;
+  ToastStub.show = jest.fn();
+  ToastStub.hide = jest.fn();
+  return { __esModule: true, default: ToastStub };
+});
+
 import { render } from '@testing-library/react-native';
 import RootLayout from '../app/_layout';
 
+// Heavy integration smoke: full RootLayout + real Provider/store/i18n + the real
+// bootstrap() thunk + the RHF login form. bootstrap() dispatches setStatus('loading')
+// then setStatus('unauthenticated') after secureStore.getRefreshToken() -> null;
+// once status leaves 'loading' the Gate renders the (mocked) <Stack/> = real
+// LoginRoute, so its testIDs are assertable.
+//
+// TTRN v14: render() is async (React 19 act() is async) — await it; findByTestId
+// then waits for the post-bootstrap re-render. The explicit timeout covers slow CI
+// runners: the first babel transform + render of this large module graph runs in
+// ~2s locally but well over jest's 5s default on the GitHub runner. (Toast is
+// stubbed above so its Animated timers don't keep the test from settling.)
 test('renders the login route when bootstrap finds no stored token', async () => {
-  // TTRN v14: render() is async (React 19 act() is async) — await it.
-  // The real bootstrap() thunk dispatches setStatus('loading') then
-  // setStatus('unauthenticated') after secureStore.getRefreshToken() -> null.
-  // Once status leaves 'loading', the Gate renders the (mocked) <Stack/>, which
-  // renders the real LoginRoute. The real Provider + store + i18n are exercised.
   const { findByTestId } = await render(<RootLayout />);
   await findByTestId('login-screen');
   await findByTestId('login-email-input');
   await findByTestId('login-submit-button');
-});
+}, 30000);
