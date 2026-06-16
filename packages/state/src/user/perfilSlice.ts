@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { Theme } from "@beyou/theme";
-import { themes } from "@beyou/theme";
 
 type userInitialState = {
     username: string;
@@ -13,7 +12,9 @@ type userInitialState = {
     checkedItemsInScheduledRoutine: number;
     totalItemsInScheduledRoutine: number;
     widgetsIdsInUse: string[];
-    themeInUse: Theme;
+    // null = no saved preference yet (login / brand-new account). ThemeContext
+    // falls back to OS color-scheme detection when this is null.
+    themeInUse: Theme | null;
     xp: number,
     level: number,
     nextLevelXp: number,
@@ -37,7 +38,7 @@ const initialState: userInitialState = {
     checkedItemsInScheduledRoutine: 0,
     totalItemsInScheduledRoutine: 0,
     widgetsIdsInUse: [],
-    themeInUse: themes[0],
+    themeInUse: null,
     xp: 0,
     level: 0,
     nextLevelXp: 0,
