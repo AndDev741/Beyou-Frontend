@@ -24,7 +24,9 @@ const wrapper = ({ children }: { children: React.ReactNode }) =>
   React.createElement(Provider, { store, children });
 
 describe("useChangeLanguage", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("applies a real language to i18next", () => {
     renderHook(() => useChangeLanguage("pt"), { wrapper });
