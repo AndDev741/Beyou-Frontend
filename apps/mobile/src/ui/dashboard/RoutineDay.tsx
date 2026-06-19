@@ -1,12 +1,19 @@
+import { useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
+import { calculateDailyProgress } from '@beyou/state/dashboard/helpers';
+import {
+  checkedItemsInScheduledRoutineEnter,
+  totalItemsInScheduledRoutineEnter,
+} from '@beyou/state/user/perfilSlice';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import RoutineItem, { type MergedItem } from './RoutineItem';
-import type { RootState } from '../../store';
+import RoutineCompleteSummary from './RoutineCompleteSummary';
+import type { RootState, AppDispatch } from '../../store';
 
 const fmt = (s?: string) => (s ? s.slice(0, 5) : '');
 
@@ -54,9 +61,20 @@ function EmptyRoutine() {
 }
 
 export default function RoutineDay() {
+  const dispatch = useDispatch<AppDispatch>();
   const routine = useSelector((s: RootState) => s.todayRoutine.routine);
   const allHabits = useSelector((s: RootState) => s.habits.habits);
   const allTasks = useSelector((s: RootState) => s.tasks.tasks);
+
+  // Sync today's checked/total into the perfil slice (drives the complete
+  // summary). Re-runs whenever the routine changes — incl. after a check, since
+  // refreshItemGroup produces a new routine reference.
+  useEffect(() => {
+    const date = new Date().toJSON().slice(0, 10);
+    const { checked, total } = calculateDailyProgress(routine, date);
+    dispatch(checkedItemsInScheduledRoutineEnter(checked));
+    dispatch(totalItemsInScheduledRoutineEnter(total));
+  }, [routine, dispatch]);
 
   if (!routine) return <EmptyRoutine />;
 
@@ -97,6 +115,8 @@ export default function RoutineDay() {
           </View>
         );
       })}
+
+      <RoutineCompleteSummary />
     </View>
   );
 }

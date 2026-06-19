@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,9 @@ import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useRoutineCheckin } from '../../dashboard/useRoutineCheckin';
+import XpFloat from './XpFloat';
+
+const XP_FLOAT_DURATION_MS = 1200;
 
 export interface MergedItem {
   type: 'habit' | 'task';
@@ -39,6 +42,10 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
   const { theme } = useBeyouTheme();
   const { check, skip } = useRoutineCheckin();
   const [pending, setPending] = useState(false);
+  const [xpFloat, setXpFloat] = useState<number | null>(null);
+  const floatTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (floatTimer.current) clearTimeout(floatTimer.current); }, []);
 
   const todayCheck = item.check?.find((c) => c?.checkDate === today);
   const checked = todayCheck?.checked === true;
@@ -48,7 +55,14 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
     if (pending) return;
     setPending(true);
     const dto: itemGroupToCheck = { routineId, ...groupDTO(item) };
-    await check(dto, { wasChecked: checked, motivationalPhrase });
+    const result = await check(dto, { wasChecked: checked, motivationalPhrase });
+    const itemChecked = result?.refreshItemChecked;
+    const gen = itemChecked?.check?.xpGenerated;
+    if (itemChecked && gen && itemChecked.check.checked) {
+      setXpFloat(gen);
+      if (floatTimer.current) clearTimeout(floatTimer.current);
+      floatTimer.current = setTimeout(() => setXpFloat(null), XP_FLOAT_DURATION_MS);
+    }
     setPending(false);
   };
 
@@ -73,6 +87,7 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
         testID={`routine-check-${item.groupId}`}
         className="flex-1 flex-row items-center"
       >
+        {xpFloat !== null && <XpFloat xp={xpFloat} />}
         <Ionicons name={checked ? 'checkbox' : 'square-outline'} size={24} color={theme.primary} />
         <Text className={`ml-2 text-base ${skipped ? 'text-description line-through' : 'text-secondary'}`}>{name}</Text>
         {timeRange ? <Text className="text-primary ml-2 text-xs">{timeRange}</Text> : null}
