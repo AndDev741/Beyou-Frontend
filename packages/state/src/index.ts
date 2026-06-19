@@ -10,6 +10,7 @@ export { successRegisterEnter } from './authentication/registerSlice';
 // `perfilNameEnter`. Existing consumers import the unaliased `nameEnter` via the
 // deep path @beyou/state/user/perfilSlice; the alias keeps the barrel namespace clean.
 export {
+  hydratePerfil,
   nameEnter as perfilNameEnter,
   emailEnter,
   phraseEnter,

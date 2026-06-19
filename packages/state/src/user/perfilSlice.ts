@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Theme } from "@beyou/theme";
+import type { UserType } from "@beyou/types/user/UserType";
 
 type userInitialState = {
     username: string;
@@ -55,6 +56,35 @@ const perfilSlice = createSlice({
     name: 'perfil',
     initialState,
     reducers: {
+        // Bulk-hydrate the slice from a UserType (GET /user). Additive; each field
+        // is applied only when present so partial payloads are safe. `themeInUse`
+        // is intentionally NOT mapped here — it is a Theme object in this slice but
+        // a string code in UserType, and theming is owned elsewhere per platform.
+        hydratePerfil(state, action: PayloadAction<Partial<UserType>>){
+            const u = action.payload ?? {};
+            return {
+                ...state,
+                username: u.name ?? state.username,
+                email: u.email ?? state.email,
+                phrase: u.phrase ?? state.phrase,
+                phrase_author: u.phrase_author ?? state.phrase_author,
+                constance: u.constance ?? state.constance,
+                photo: u.photo ?? state.photo,
+                isGoogleAccount: u.isGoogleAccount ?? state.isGoogleAccount,
+                widgetsIdsInUse: u.widgetsId ?? state.widgetsIdsInUse,
+                xp: u.xp ?? state.xp,
+                level: u.level ?? state.level,
+                nextLevelXp: u.nextLevelXp ?? state.nextLevelXp,
+                actualLevelXp: u.actualLevelXp ?? state.actualLevelXp,
+                maxConstance: u.maxConstance ?? state.maxConstance,
+                alreadyIncreaseConstanceToday:
+                    u.constanceIncreaseToday ?? state.alreadyIncreaseConstanceToday,
+                languageInUse: u.languageInUse ?? state.languageInUse,
+                isTutorialCompleted: u.isTutorialCompleted ?? state.isTutorialCompleted,
+                timezone: u.timezone ?? state.timezone,
+                xpDecayStrategy: u.xpDecayStrategy ?? state.xpDecayStrategy,
+            };
+        },
         nameEnter(state, action){
             const username = typeof action.payload === "string" ? action.payload : "";
             return {...state, username};
@@ -144,6 +174,7 @@ const perfilSlice = createSlice({
 });
 
 export const {
+    hydratePerfil,
     nameEnter,
     emailEnter,
     phraseEnter,
