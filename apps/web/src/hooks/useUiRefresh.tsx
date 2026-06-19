@@ -1,14 +1,12 @@
 import { useEffect } from "react";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import { useDispatch, useStore } from "react-redux";
-import { actualLevelXpEnter, alreadyIncreaseConstanceTodayEnter, constanceEnter, levelEnter, maxConstanceEnter, nextLevelXpEnter, xpEnter } from "@beyou/state/user/perfilSlice";
-import { refreshCategorie } from "@beyou/state/category/categoriesSlice";
-import { refreshItemGroup } from "@beyou/state/routine/todayRoutineSlice";
 import { logger } from "../utils/logger";
-import { celebrationPushed } from "@beyou/state/celebration/celebrationSlice";
 import { RootState } from "@beyou/state/rootReducer";
+import { applyRefreshUi } from "@beyou/state/user/refreshUiThunk";
 
-export const STREAK_MILESTONES = [7, 14, 21, 30, 60, 90, 100];
+// Re-exported for back-compat with any consumer importing it from this module.
+export { STREAK_MILESTONES } from "@beyou/state/gamification/streakMilestones";
 
 type UiRefreshOptions = { skipCelebrations?: boolean };
 
@@ -18,40 +16,7 @@ export default function useUiRefresh(refreshUi: RefreshUI, options: UiRefreshOpt
     const store = useStore();
 
     useEffect(() => {
-
-        if(refreshUi?.refreshUser){
-            const refreshUser = refreshUi.refreshUser;
-            const previous = (store.getState() as RootState).perfil;
-
-            if (!options.skipCelebrations && refreshUser.level > previous.level) {
-                dispatch(celebrationPushed({ kind: "levelUp", level: refreshUser.level }));
-            }
-
-            const milestone = STREAK_MILESTONES.find(
-                m => previous.constance < m && refreshUser.currentConstance >= m
-            );
-            if (!options.skipCelebrations && milestone) {
-                dispatch(celebrationPushed({ kind: "streakMilestone", days: milestone }));
-            }
-            dispatch(xpEnter(refreshUser.xp));
-            dispatch(levelEnter(refreshUser.level));
-            dispatch(constanceEnter(refreshUser.currentConstance));
-            dispatch(maxConstanceEnter(refreshUser.maxConstance));
-            dispatch(alreadyIncreaseConstanceTodayEnter(refreshUser.alreadyIncreaseConstanceToday));
-            dispatch(nextLevelXpEnter(refreshUser.nextLevelXp));
-            dispatch(actualLevelXpEnter(refreshUser.actualLevelXp));
-        }
-
-        if(refreshUi?.refreshCategories && refreshUi.refreshCategories.length > 0) {
-            refreshUi.refreshCategories.forEach(refreshCat => {
-                dispatch(refreshCategorie(refreshCat));
-            })
-        }
-
-        if(refreshUi?.refreshItemChecked){
-            logger.log("REFRESH ITEM CHECKED => ", refreshUi?.refreshItemChecked)
-            dispatch(refreshItemGroup(refreshUi?.refreshItemChecked));
-        }
-
+        const previous = (store.getState() as RootState).perfil;
+        applyRefreshUi(refreshUi, dispatch, previous, options);
     }, [refreshUi]);
 }
