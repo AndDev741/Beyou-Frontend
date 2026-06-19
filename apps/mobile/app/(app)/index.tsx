@@ -1,4 +1,5 @@
 import { ScrollView } from 'react-native';
+import ProfileHeader from '../../src/ui/dashboard/ProfileHeader';
 import Shortcuts from '../../src/ui/dashboard/Shortcuts';
 
 /**
@@ -13,7 +14,7 @@ export default function AppHome() {
       contentContainerStyle={{ padding: 16, paddingTop: 56, gap: 20 }}
       testID="dashboard-screen"
     >
-      {/* ProfileHeader -> P3-T4 */}
+      <ProfileHeader />
       <Shortcuts />
       {/* RoutineDay -> P3-T5 */}
     </ScrollView>
