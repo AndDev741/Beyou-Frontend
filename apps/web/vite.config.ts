@@ -18,6 +18,7 @@ export default defineConfig({
       // import; spec/schema drift is enforced by `@beyou/contracts run check` in CI.
       '@beyou/contracts': fileURLToPath(new URL('../../packages/contracts/src', import.meta.url)),
       '@beyou/validation': fileURLToPath(new URL('../../packages/validation/src', import.meta.url)),
+      '@beyou/icons': fileURLToPath(new URL('../../packages/icons/src', import.meta.url)),
     },
   },
   // With route-level lazy loading, heavy deps are only discovered when their

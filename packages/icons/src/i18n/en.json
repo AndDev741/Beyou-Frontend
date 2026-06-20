@@ -1,0 +1,44 @@
+{
+    "keywordsById": {},
+    "categoriesById": {},
+    "categoryLabels": {
+        "icons": "Icons",
+        "emoji": "Emoji",
+        "smileys": "Smileys",
+        "people": "People",
+        "nature": "Nature",
+        "food": "Food",
+        "travel": "Travel",
+        "activities": "Activities",
+        "objects": "Objects",
+        "symbols": "Symbols",
+        "flags": "Flags"
+    },
+    "categoryKeywords": {
+        "icons": ["icon", "symbol"],
+        "emoji": ["emoji", "emoticon"],
+        "smileys": ["smile", "happy", "emotion", "face"],
+        "people": ["people", "person", "body"],
+        "nature": ["nature", "animal", "plant"],
+        "food": ["food", "drink", "meal"],
+        "travel": ["travel", "place", "transport"],
+        "activities": ["activity", "sport", "fun"],
+        "objects": ["object", "tool", "item"],
+        "symbols": ["symbol", "sign"],
+        "flags": ["flag", "country"]
+    },
+    "queryAliases": {
+        "home": ["house", "residence"],
+        "book": ["read"],
+        "car": ["auto", "vehicle"],
+        "plane": ["airplane"],
+        "heart": ["love"],
+        "star": ["favorite"],
+        "sun": ["day"],
+        "moon": ["night"],
+        "music": ["song"],
+        "health": ["medical"],
+        "work": ["job"],
+        "study": ["learn"]
+    }
+}

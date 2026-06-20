@@ -21,7 +21,9 @@
       "@beyou/api/*": ["packages/api/src/*"],
       "@beyou/contracts": ["packages/contracts/src/index.ts"],
       "@beyou/validation": ["packages/validation/src/index.ts"],
-      "@beyou/validation/*": ["packages/validation/src/*"]
+      "@beyou/validation/*": ["packages/validation/src/*"],
+      "@beyou/icons": ["packages/icons/src/index.ts"],
+      "@beyou/icons/*": ["packages/icons/src/*"]
     }
   }
 }
