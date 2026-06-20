@@ -108,3 +108,20 @@ jest, and `expo export` validates it bundles for real. Web uses `lucide-react`'s
 (code-split); the registry/search/picker live in `@beyou/icons` (data) + each app's `BeyouIcon`
 (render). Data is generated: `packages/icons/scripts/generate-data.mjs` (lucide names + slim emoji
 char map).
+
+## Configuration + widgets (Phase 5)
+
+Settings live at `app/(app)/configuration.tsx` as `ConfigSection`s (`src/ui/config/`): Profile
+(rhf + shared `profileSchema`, photo via URL modal), Appearance (`ThemeSelector` + persist),
+Preferences (Language/`RoutineSettings`/`Constance`), and Dashboard (`WidgetsSection` picker). Every
+control persists via `editUser` (`@beyou/api/user/editUser`) + a `perfilSlice` action + `notify`;
+`constanceConfiguration` is editUser-only (no slice field). Saved theme/language apply on boot via
+`src/theme/ThemeSync.tsx` / `src/i18n/LanguageSync.tsx` (in `_layout`, keyed on the saved value so a
+live pick isn't overridden). NativeWind `mt-*` didn't reliably apply to the config section divider —
+use an inline `style` margin there.
+
+Dashboard widgets (`src/ui/widgets/`): `WIDGET_IDS`/`BIG_WIDGETS` come from `@beyou/state`.
+`DashboardWidgets` renders `perfil.widgetsIdsInUse` (full-width stack; empty → CTA to config). The 7
+widgets mirror web; charts are hand-drawn with `react-native-svg` (`CategoryBalanceWidget` radar,
+`DailyProgressWidget` reuses `ProgressRing`) — NOT chart.js. The picker (`config/WidgetsSection`) is
+add/remove + ↑↓ reorder (no drag-drop) → `editUser({widgetsId})`.

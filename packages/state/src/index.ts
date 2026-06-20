@@ -52,6 +52,10 @@ export type { ApplyRefreshUiOptions, PreviousProgress } from './user/refreshUiTh
 export { getGreetingKey, calculateLevelProgress } from './dashboard/helpers';
 export type { GreetingKey } from './dashboard/helpers';
 
+// dashboard widgets (ids shared by web + mobile)
+export { WIDGET_IDS, BIG_WIDGETS } from './dashboard/widgets';
+export type { WidgetId } from './dashboard/widgets';
+
 // errorHandler
 export { defaultErrorEnter } from './errorHandler/errorHandlerSlice';
 

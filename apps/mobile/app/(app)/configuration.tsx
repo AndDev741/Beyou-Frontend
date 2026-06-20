@@ -9,6 +9,7 @@ import AppearanceSection from '../../src/ui/config/AppearanceSection';
 import LanguageSection from '../../src/ui/config/LanguageSection';
 import RoutineSettingsSection from '../../src/ui/config/RoutineSettingsSection';
 import ConstanceSection from '../../src/ui/config/ConstanceSection';
+import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
@@ -71,6 +72,15 @@ export default function ConfigurationScreen() {
           <RoutineSettingsSection />
           <ConstanceSection />
         </View>
+      </ConfigSection>
+
+      <ConfigSection
+        iconId="lucide:layout-grid"
+        title={t('ConfigSectionDashboard')}
+        description={t('ConfigSectionDashboardDesc')}
+        testID="section-dashboard"
+      >
+        <WidgetsSection />
       </ConfigSection>
 
       <Pressable
