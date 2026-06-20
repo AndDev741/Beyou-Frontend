@@ -10,6 +10,7 @@ export { successRegisterEnter } from './authentication/registerSlice';
 // `perfilNameEnter`. Existing consumers import the unaliased `nameEnter` via the
 // deep path @beyou/state/user/perfilSlice; the alias keeps the barrel namespace clean.
 export {
+  hydratePerfil,
   nameEnter as perfilNameEnter,
   emailEnter,
   phraseEnter,
@@ -41,6 +42,15 @@ export { idEnter, descriptionEnter, iconEnter } from './category/editCategorySli
 // celebration
 export type { Celebration } from './celebration/celebrationSlice';
 export { celebrationPushed, celebrationShifted } from './celebration/celebrationSlice';
+
+// gamification
+export { STREAK_MILESTONES } from './gamification/streakMilestones';
+export { applyRefreshUi } from './user/refreshUiThunk';
+export type { ApplyRefreshUiOptions, PreviousProgress } from './user/refreshUiThunk';
+
+// dashboard helpers (pure, platform-agnostic)
+export { getGreetingKey, calculateLevelProgress } from './dashboard/helpers';
+export type { GreetingKey } from './dashboard/helpers';
 
 // errorHandler
 export { defaultErrorEnter } from './errorHandler/errorHandlerSlice';

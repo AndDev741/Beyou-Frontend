@@ -70,3 +70,28 @@ scope — otherwise it leaks into the next test and corrupts its render ("overla
 Use a fresh store per test (`makeStore()` from `src/store.ts`); Redux state is not reset between
 Jest cases. `@expo/vector-icons` is mocked globally in `__mocks__/@expo/vector-icons.js` (the real
 package pulls `expo-asset`, an Expo-nested transitive dep jest can't resolve).
+
+Tests that import `expo-router` directly (`useRouter`, `Stack`, …) must `jest.mock('expo-router', …)`
+— the real module is ESM that fails to parse under jest. Tests that mount `react-native-toast-message`
+must stub it (its Animated loop leaves active timers); see `_layout.test.tsx`.
+
+## Jest — react-native-reanimated mock (hand-rolled)
+
+`react-native-reanimated` v4 throws at import under jest — *"Native part of Worklets doesn't seem to
+be initialized"* — because `react-native-worklets`' native module isn't present. Its bundled
+`react-native-reanimated/mock` does NOT help: it re-imports the real index, re-triggering worklets
+init. So `jest.setup.js` registers a **self-contained** `jest.mock('react-native-reanimated', …)` that
+requires nothing real — passthrough `Animated.View`/`Text`, `useSharedValue`/`useAnimatedStyle`/
+`withTiming`/`withSpring`/`useReducedMotion` no-ops, an `Easing` Proxy, and chainable entering presets
+(`FadeInDown`…). NativeWind only uses reanimated lazily for static `className` styling, so this does
+not affect the other tests. `npx expo export` uses the REAL reanimated, so always run it to validate
+the production bundle. The reanimated babel plugin must stay LAST in `babel.config.js`.
+
+## Dashboard (Phase 3)
+
+The dashboard reuses the shared `@beyou/*` data layer end-to-end: slices wired in `src/store.ts`,
+loaded by `src/dashboard/useDashboardData.ts`, check-in via `src/dashboard/useRoutineCheckin.ts` →
+`@beyou/state` `applyRefreshUi` (the gamification brain, shared with web). UI lives in
+`src/ui/dashboard/` (ProfileHeader, RoutineDay/RoutineItem, Shortcuts, XpFloat, CelebrationOverlay,
+RoutineCompleteSummary, ProgressRing). Section screens (categories/habits/…) are `ComingSoon` stubs;
+logout lives on the configuration stub.
