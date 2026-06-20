@@ -23,8 +23,9 @@ export default function ConfigSection({ iconId, title, description, children, te
       {description ? <Text className="text-description mt-0.5 text-sm">{description}</Text> : null}
       <View className="mt-3">{children}</View>
       {/* Primary divider to visually separate sections (solid border — a
-          translucent 1px line was imperceptible on device). */}
-      <View className="mt-5 border-b-2 border-primary" />
+          translucent 1px line was imperceptible on device). mt-8 keeps it from
+          hugging the section content above. */}
+      <View className="mt-8 border-b-2 border-primary" />
     </View>
   );
 }
