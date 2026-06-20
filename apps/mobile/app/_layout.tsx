@@ -15,6 +15,7 @@ import { bootstrap, logout } from '../src/auth/authSlice';
 import { nextAuthRoute } from '../src/auth/authRedirect';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import ThemeSync from '../src/theme/ThemeSync';
+import LanguageSync from '../src/i18n/LanguageSync';
 
 setHttpClient(nativeHttpClient);
 setLogger({ error: (...a: unknown[]) => console.error(...a) });
@@ -67,6 +68,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <BeyouThemeProvider>
           <ThemeSync />
+          <LanguageSync />
           <Gate />
           <Toast />
         </BeyouThemeProvider>

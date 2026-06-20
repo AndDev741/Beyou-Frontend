@@ -6,6 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import ConfigSection from '../../src/ui/config/ConfigSection';
 import ProfileSection from '../../src/ui/config/ProfileSection';
 import AppearanceSection from '../../src/ui/config/AppearanceSection';
+import LanguageSection from '../../src/ui/config/LanguageSection';
+import RoutineSettingsSection from '../../src/ui/config/RoutineSettingsSection';
+import ConstanceSection from '../../src/ui/config/ConstanceSection';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
@@ -57,7 +60,18 @@ export default function ConfigurationScreen() {
         <AppearanceSection />
       </ConfigSection>
 
-      {/* Preferences (P5-A3) lands here */}
+      <ConfigSection
+        iconId="lucide:settings"
+        title={t('ConfigSectionPreferences')}
+        description={t('ConfigSectionPreferencesDesc')}
+        testID="section-preferences"
+      >
+        <View className="gap-6">
+          <LanguageSection />
+          <RoutineSettingsSection />
+          <ConstanceSection />
+        </View>
+      </ConfigSection>
 
       <Pressable
         onPress={() => dispatch(logout())}
