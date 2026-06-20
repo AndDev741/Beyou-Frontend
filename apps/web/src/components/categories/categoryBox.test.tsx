@@ -1,26 +1,24 @@
 import { useDispatch } from "react-redux";
-import iconSearch from "../icons/iconsSearch";
 import { fireEvent, render, screen } from "@testing-library/react";
 import CategoryBox from "./categoryBox";
 import DeleteModal from "../DeleteModal";
 import { vi, type Mock } from "vitest";
 
 vi.mock('react-redux', async () => ({ ...await vi.importActual<typeof import('react-redux')>('react-redux'), useDispatch: vi.fn() }));
-vi.mock('../icons/iconsSearch');
+vi.mock('../../ui/BeyouIcon', () => ({ __esModule: true, default: () => <span data-testid="icon">I</span> }));
 vi.mock('../DeleteModal', () => ({ __esModule: true, default: vi.fn(() => null) }));
 vi.mock('@beyou/api/categories/deleteCategory', () => ({ __esModule: true, default: vi.fn() }));
 vi.mock('@beyou/api/categories/getCategories', () => ({ __esModule: true, default: vi.fn() }));
 
 const dispatch = vi.fn();
-(iconSearch as Mock).mockReturnValue({ IconComponent: () => <span data-testid="icon">I</span> });
 
-beforeEach(() => { 
-    vi.clearAllMocks(); 
+beforeEach(() => {
+    vi.clearAllMocks();
     (useDispatch as unknown as Mock).mockReturnValue(dispatch);
-    (window as any).scrollTo = vi.fn(); 
+    (window as any).scrollTo = vi.fn();
 });
 
-const defaultProps = { id: '1', name: 'Dance', description: "Dance with me", iconId: "dancingMd", level: 2, xp: 50, nextLevelXp: 100, actualLevelXp: 50, setCategories: vi.fn() };
+const defaultProps = { id: '1', name: 'Dance', description: "Dance with me", iconId: "lucide:music", level: 2, xp: 50, nextLevelXp: 100, actualLevelXp: 50, setCategories: vi.fn() };
 
 test('Render collapsed view', () => {
     render(<CategoryBox {...defaultProps} />);

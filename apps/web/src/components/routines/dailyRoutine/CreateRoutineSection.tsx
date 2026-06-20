@@ -3,7 +3,8 @@ import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { v4 as uuidv4 } from "uuid";
-import iconSearch from "../../icons/iconsSearch";
+import BeyouIcon from "../../../ui/BeyouIcon";
+import { resolveIcon } from "@beyou/icons";
 import { formatTimeRange } from "../routineMetrics";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -224,15 +225,14 @@ const CreateRoutineSection = ({
             <div className="flex flex-col items-start justify-start w-full">
                 {editSection == null &&
                     favoritedSections.map((section) => {
-                        const iconObj = iconSearch(section.iconId);
-                        const Icon = iconObj?.IconComponent;
+                        const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
 
                         return (
                             <div key={section.id} className="w-full flex items-center justify-between py-2">
                                 <div className="flex items-center gap-2 w-full">
-                                    {Icon && (
+                                    {hasIcon && (
                                         <span className="text-[25px] md:text-[30px] text-icon">
-                                            <Icon />
+                                            <BeyouIcon id={section.iconId} />
                                         </span>
                                     )}
                                     <span className="text-md md:text-xl font-semibold text-primary line-clamp-1">

@@ -15,8 +15,9 @@ vi.mock('../../../hooks/useUiRefresh', () => ({
     default: vi.fn(),
 }));
 
-vi.mock('../../icons/iconsSearch', () => ({
-    default: () => undefined,
+vi.mock('../../../ui/BeyouIcon', () => ({
+    __esModule: true,
+    default: () => null,
 }));
 
 vi.mock('react-toastify', () => ({

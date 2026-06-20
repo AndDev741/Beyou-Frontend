@@ -1,13 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
 import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '@beyou/state/category/editCategorySlice'
 import deleteCategory from "@beyou/api/categories/deleteCategory";
 import getCategories from "@beyou/api/categories/getCategories";
-import iconSearch from "../icons/iconsSearch"
+import BeyouIcon from "../../ui/BeyouIcon";
 import increaseIcon from '../../assets/categories/increaseIcon.svg';
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
-import { IconObject } from "@beyou/types/icons/IconObject";
 import DeleteModal from "../DeleteModal";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";
 
@@ -22,15 +21,10 @@ type props = {id: string, name: string, description: string, iconId: string, lev
 function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, habits, tasks, goals}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
-    const [Icon, setIcon]= useState<IconObject>();
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
     const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
-    useEffect(() => {
-        const response = iconSearch(iconId);
-        setIcon(response);
-    }, [iconId]);
 
     const handleEdit = () => {
         dispatch(editModeEnter(true));
@@ -56,7 +50,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
                     <p className="text-[35px] text-icon">
-                        {Icon !== undefined && Icon !== null ? <Icon.IconComponent/> : null}
+                        <BeyouIcon id={iconId} />
                     </p>
                     <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
                 </div>

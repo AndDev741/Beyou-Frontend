@@ -25,11 +25,11 @@ export default defineConfig({
   // page chunk is first imported. In dev that triggers a mid-session
   // re-optimization + full reload ("new dependencies optimized"), which is
   // slow and breaks in-flight navigations. Pre-bundle them at server start.
+  // Entity icons now resolve through @beyou/icons + lucide-react/dynamic; the
+  // remaining react-icons usages are app "chrome" (nav/header/buttons) and are
+  // discovered lazily per page, so they no longer need pre-bundling here.
   optimizeDeps: {
     include: [
-      'react-icons/md',
-      'react-icons/fa',
-      'react-icons/ai',
       'framer-motion',
       'react-beautiful-dnd',
       'chart.js',
@@ -38,6 +38,7 @@ export default defineConfig({
       'zod',
       'date-fns',
       'lucide-react',
+      'lucide-react/dynamic',
     ],
   },
   build: {
@@ -45,16 +46,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Split the heavyweight, rarely-changing dependencies into their own
-        // cacheable chunks. The icon system dominates the bundle: the registry
-        // enumerates the full md/fa/ai react-icons packs plus the
-        // emoji-datasource catalog, so each gets its own chunk — they load in
-        // parallel when the first authenticated page mounts and stay cached
-        // across deploys of app code.
+        // cacheable chunks. Entity icons now come from @beyou/icons (a tiny
+        // name/emoji registry) + lucide-react/dynamic (per-icon code-split
+        // imports), so the old md/fa/ai + emoji-datasource icon chunks are
+        // gone. The remaining react-icons usages are app "chrome" — keep them
+        // in one cacheable chunk.
         manualChunks(id: string) {
-          if (id.includes('emoji-datasource')) return 'emoji-data';
-          if (id.includes('react-icons/md')) return 'icons-md';
-          if (id.includes('react-icons/fa')) return 'icons-fa';
-          if (id.includes('react-icons/ai')) return 'icons-ai';
           if (id.includes('react-icons')) return 'icons-base';
           if (id.includes('framer-motion')) return 'motion';
           if (

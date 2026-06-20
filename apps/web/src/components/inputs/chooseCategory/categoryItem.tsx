@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import iconSearch from "../../icons/iconsSearch";
-import { IconObject } from "@beyou/types/icons/IconObject";
+import BeyouIcon from "../../../ui/BeyouIcon";
 import category from "@beyou/types/category/categoryType";
 import { logger } from "../../../utils/logger";
 
@@ -15,12 +14,7 @@ type categoryItemProps = {
 }
 
 function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategoriesIdList, chosenCategories, chosenCategoriesId}: categoryItemProps){
-    const [Icon, setIcon] = useState<IconObject>();
     const [alreadyChosen, setAlreadyChosen] = useState(false);
-    useEffect(() => {
-        const result = iconSearch(iconId);
-        setIcon(result);
-    }, [iconId])
     logger.log(`NAME =? ${name} checked? ${alreadyChosen}`)
     const handleCheckboxChange= (event: { target: { id: string; checked: boolean; }; }) => {
         const {id, checked} = event.target;
@@ -77,7 +71,7 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
                 className="absolute inset-0 opacity-0 cursor-pointer"
             />
             <div className="flex items-start w-full">
-                {Icon?.IconComponent && <Icon.IconComponent className={iconClasses} />}
+                <BeyouIcon id={iconId} className={iconClasses} />
                 <p className="text-lg md:text-xl font-semibold ml-1 line-clamp-2">
                     {name}
                 </p>

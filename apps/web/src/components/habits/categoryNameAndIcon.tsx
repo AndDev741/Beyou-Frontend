@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import iconSearch from "../icons/iconsSearch";
-import { IconObject } from "@beyou/types/icons/IconObject";
+import BeyouIcon from "../../ui/BeyouIcon";
 
 type categoryNameAndIconProps = {
     iconId: string,
@@ -8,17 +6,10 @@ type categoryNameAndIconProps = {
 }
 
 function CategoryNameAndIcon({iconId, name}: categoryNameAndIconProps){
-    const [IconComponent, setIconComponent] = useState<IconObject>();
-
-    useEffect(() => {
-        const response = iconSearch(iconId);
-        setIconComponent(response);
-    }, [])
-
     return(
         <div className="flex items-center">
             <p className="text-[20px] text-icon">
-                {IconComponent !== undefined ? <IconComponent.IconComponent/> : null}
+                <BeyouIcon id={iconId} />
             </p>
             <p className="ml-1 text-secondary">{name}</p>
         </div>

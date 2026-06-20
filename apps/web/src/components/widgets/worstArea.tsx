@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next"
 import BaseDiv from "./baseDiv";
 import category from "@beyou/types/category/categoryType";
-import { useEffect, useState } from "react";
-import iconSearch from "../icons/iconsSearch";
-import { IconObject } from "@beyou/types/icons/IconObject";
+import BeyouIcon from "../../ui/BeyouIcon";
 
 export type worstAreaProps = {
     categoriePassed: category | null;
@@ -11,7 +9,7 @@ export type worstAreaProps = {
 
 const categoryExample: category = {
     id: "differentsksks",
-    iconId: "MdSportsGymnastics",
+    iconId: "lucide:dumbbell",
     name: "Bad Example",
     xp: 150,
     actualLevelXp: 100,
@@ -23,25 +21,15 @@ const categoryExample: category = {
 
 export default function WorstArea({categoriePassed}: worstAreaProps){
     const {t} = useTranslation();
-    const [categoryToUse, setCategoryToUse] = useState<category>(categoryExample);
-    const [Icon, setIcon] = useState<IconObject>();
+    const categoryToUse = categoriePassed ?? categoryExample;
 
-    useEffect(() => {
-        if(categoriePassed){
-            setCategoryToUse(categoriePassed);
-            const response = iconSearch(categoriePassed.iconId) ;
-            setIcon(response as IconObject);
-        }
-    }, [categoriePassed]);
-
-    
     const actualProgress = Math.round(((categoryToUse.xp - categoryToUse.actualLevelXp) / (categoryToUse.nextLevelXp - categoryToUse.actualLevelXp)) * 100);
 
     return (
         <BaseDiv title={t('Worst Area')}>
             <div className="flex items-center justify-center w-full">
                 <p className="text-[25px] text-primary">
-                {Icon !== undefined && Icon !== null ? <Icon.IconComponent/> : null}
+                    <BeyouIcon id={categoryToUse.iconId} />
                 </p>
                 <h3 className={`text-lg text-primary md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{categoryToUse.name}</h3>
             </div>
