@@ -24,7 +24,7 @@ export default function BottomNav() {
         <nav
             data-tutorial-id="dashboard-shortcuts"
             aria-label={t("Shortcuts")}
-            className="fixed bottom-0 left-0 right-0 z-40 flex items-stretch justify-around border-t border-primary/20 bg-background px-1 py-1.5 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] lg:hidden"
+            className="fixed bottom-0 left-0 right-0 z-40 flex items-end justify-around border-t border-primary/20 bg-background px-2 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] lg:hidden"
         >
             {ITEMS.map(({ key, to, Icon, tutorial, emphasis }) => (
                 <Link
@@ -32,7 +32,7 @@ export default function BottomNav() {
                     to={to}
                     data-tutorial-id={tutorial}
                     aria-label={t(key)}
-                    className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 transition-colors duration-200 ${
+                    className={`flex flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1.5 transition-colors duration-200 ${
                         emphasis ? "bg-primary" : "hover:bg-primary/10 active:bg-primary/20"
                     }`}
                 >
