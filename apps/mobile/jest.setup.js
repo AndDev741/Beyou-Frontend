@@ -34,3 +34,14 @@ jest.mock('react-native-reanimated', () => {
     FadeOut: entering,
   };
 });
+
+// lucide-react-native ships ~1754 icon modules + pulls react-native-svg; mocking
+// it keeps icon tests fast and avoids transforming the whole pack. Any icon name
+// (PascalCase) resolves to a no-op component; BeyouIcon's emoji/fallback branches
+// are what the tests assert.
+jest.mock('lucide-react-native', () =>
+  new Proxy(
+    {},
+    { get: (_t, prop) => (prop === '__esModule' ? true : () => null) },
+  ),
+);

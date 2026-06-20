@@ -11,6 +11,7 @@ import {
   totalItemsInScheduledRoutineEnter,
 } from '@beyou/state/user/perfilSlice';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import BeyouIcon from '../BeyouIcon';
 import RoutineItem, { type MergedItem } from './RoutineItem';
 import RoutineCompleteSummary from './RoutineCompleteSummary';
 import type { RootState, AppDispatch } from '../../store';
@@ -88,11 +89,12 @@ export default function RoutineDay() {
         const items = mergeItems(section);
         return (
           <View key={section.id ?? sIdx} className="mb-4 w-full">
-            {/* Name shrinks/wraps; the time stays visible and wraps to the next
-                line when the title is too long (instead of running off-screen). */}
-            <View className="flex-row flex-wrap items-center">
+            {/* Icon (null when unset/legacy) + name (shrinks/wraps) + time. `gap`
+                spaces only the rendered children, so a null icon adds no gap. */}
+            <View className="flex-row flex-wrap items-center gap-1.5">
+              <BeyouIcon id={section.iconId} size={18} />
               <Text className="text-primary shrink text-lg font-bold">{section.name}</Text>
-              <Text className="text-description ml-2 shrink-0 text-sm">
+              <Text className="text-description shrink-0 text-sm">
                 {[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}
               </Text>
             </View>
