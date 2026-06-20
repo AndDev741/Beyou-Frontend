@@ -168,7 +168,7 @@ export default function ProfileSection() {
         disabled={isSubmitting}
         accessibilityRole="button"
         testID="save-profile"
-        className={`mt-4 items-center rounded-md bg-primary px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-md bg-primary px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
           {t('Save')}
