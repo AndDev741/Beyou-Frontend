@@ -25,7 +25,7 @@ export default function ComingSoon({ titleKey, children }: ComingSoonProps) {
   return (
     <View className="flex-1 bg-background px-6 pt-14" testID={`screen-${titleKey}`}>
       <Pressable
-        onPress={() => router.back()}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
         accessibilityRole="button"
         testID="back-button"
         className="mb-6 flex-row items-center"
