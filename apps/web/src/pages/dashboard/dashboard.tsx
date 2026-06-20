@@ -184,7 +184,7 @@ function Dashboard() {
             <div>
                 <div className="lg:flex lg:justify-between items-start">
                     <div className="flex flex-col lg:w-full">
-                        <header className="md:flex md:justify-center lg:justify-start ">
+                        <header className="md:flex md:justify-center lg:justify-start m-1.5 md:m-0">
                             <Perfil />
                         </header>
 
