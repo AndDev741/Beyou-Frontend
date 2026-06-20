@@ -77,7 +77,9 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
   const timeRange = [fmt(item.startTime), fmt(item.endTime)].filter(Boolean).join(' - ');
 
   return (
-    <View className={`mt-1 flex-row items-center justify-between py-1 ${skipped ? 'opacity-60' : ''}`} testID={`routine-item-${item.groupId}`}>
+    <View className={`mt-1 flex-row items-center justify-between gap-2 py-1 ${skipped ? 'opacity-60' : ''}`} testID={`routine-item-${item.groupId}`}>
+      {/* Left: checkbox + name. Name shrinks/wraps so it never pushes the time
+          or skip button off-screen. */}
       <Pressable
         onPress={onCheck}
         disabled={pending}
@@ -89,22 +91,27 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
         <Ionicons name={checked ? 'checkbox' : 'square-outline'} size={24} color={theme.primary} />
-        <Text className={`ml-2 text-base ${skipped ? 'text-description line-through' : 'text-secondary'}`}>{name}</Text>
-        {timeRange ? <Text className="text-primary ml-2 text-xs">{timeRange}</Text> : null}
+        <Text className={`ml-2 shrink text-base ${skipped ? 'text-description line-through' : 'text-secondary'}`}>
+          {name}
+        </Text>
       </Pressable>
 
-      {!checked && (
-        <Pressable
-          onPress={onSkip}
-          disabled={pending}
-          accessibilityRole="button"
-          testID={`routine-skip-${item.groupId}`}
-          className="flex-row items-center gap-1 rounded-md border border-description/40 px-2 py-1.5"
-        >
-          <Ionicons name="ban-outline" size={14} color={theme.description} />
-          <Text className="text-description text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>
-        </Pressable>
-      )}
+      {/* Right: time + skip stay together, fixed — no overlap with the name. */}
+      <View className="shrink-0 flex-row items-center gap-2">
+        {timeRange ? <Text className="text-primary text-xs">{timeRange}</Text> : null}
+        {!checked && (
+          <Pressable
+            onPress={onSkip}
+            disabled={pending}
+            accessibilityRole="button"
+            testID={`routine-skip-${item.groupId}`}
+            className="flex-row items-center gap-1 rounded-md border border-description/40 px-2 py-1.5"
+          >
+            <Ionicons name="ban-outline" size={14} color={theme.description} />
+            <Text className="text-description text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }

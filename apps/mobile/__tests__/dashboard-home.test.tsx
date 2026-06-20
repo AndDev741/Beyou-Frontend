@@ -14,6 +14,11 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
 }));
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  SafeAreaProvider: ({ children }: { children: unknown }) => children,
+}));
+
 import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';

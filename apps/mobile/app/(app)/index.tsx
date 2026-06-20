@@ -2,8 +2,8 @@ import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { useDashboardData } from '../../src/dashboard/useDashboardData';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import ProfileHeader from '../../src/ui/dashboard/ProfileHeader';
-import Shortcuts from '../../src/ui/dashboard/Shortcuts';
 import RoutineDay from '../../src/ui/dashboard/RoutineDay';
+import BottomNav from '../../src/ui/dashboard/BottomNav';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 
 /**
@@ -33,8 +33,8 @@ export default function AppHome() {
       >
         <ProfileHeader />
         <RoutineDay />
-        <Shortcuts />
       </ScrollView>
+      <BottomNav />
       <CelebrationOverlay />
     </View>
   );

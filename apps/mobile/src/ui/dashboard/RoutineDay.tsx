@@ -82,15 +82,17 @@ export default function RoutineDay() {
 
   return (
     <View className="rounded-2xl border border-primary bg-background p-4" testID="routine-day">
-      <Text className="text-secondary mb-3 text-2xl font-semibold">{routine.name}</Text>
+      <Text className="text-secondary mb-3 text-center text-2xl font-semibold">{routine.name}</Text>
 
       {routine.routineSections?.map((section, sIdx) => {
         const items = mergeItems(section);
         return (
           <View key={section.id ?? sIdx} className="mb-4 w-full">
-            <View className="flex-row items-center">
-              <Text className="text-primary text-lg font-bold">{section.name}</Text>
-              <Text className="text-description ml-2 text-sm">
+            {/* Name shrinks/wraps; the time stays visible and wraps to the next
+                line when the title is too long (instead of running off-screen). */}
+            <View className="flex-row flex-wrap items-center">
+              <Text className="text-primary shrink text-lg font-bold">{section.name}</Text>
+              <Text className="text-description ml-2 shrink-0 text-sm">
                 {[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}
               </Text>
             </View>
