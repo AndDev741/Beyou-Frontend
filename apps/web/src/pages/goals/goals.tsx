@@ -100,7 +100,7 @@ function Goals() {
 
   return (
     <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
-      <Header pageName="Your Goals" />
+      <Header pageName="YourGoals" />
       <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] mt-4 lg:px-6">
         <div className="w-full px-2">
           <SortFilterBar
