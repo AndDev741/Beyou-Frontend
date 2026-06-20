@@ -14,6 +14,7 @@ import * as secureStore from '../src/auth/secureStore';
 import { bootstrap, logout } from '../src/auth/authSlice';
 import { nextAuthRoute } from '../src/auth/authRedirect';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
+import ThemeSync from '../src/theme/ThemeSync';
 
 setHttpClient(nativeHttpClient);
 setLogger({ error: (...a: unknown[]) => console.error(...a) });
@@ -65,6 +66,7 @@ export default function RootLayout() {
     <Provider store={store}>
       <SafeAreaProvider>
         <BeyouThemeProvider>
+          <ThemeSync />
           <Gate />
           <Toast />
         </BeyouThemeProvider>

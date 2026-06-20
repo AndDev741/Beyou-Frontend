@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import ConfigSection from '../../src/ui/config/ConfigSection';
 import ProfileSection from '../../src/ui/config/ProfileSection';
+import AppearanceSection from '../../src/ui/config/AppearanceSection';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
@@ -47,7 +48,16 @@ export default function ConfigurationScreen() {
         <ProfileSection />
       </ConfigSection>
 
-      {/* Appearance (P5-A2) + Preferences (P5-A3) land here */}
+      <ConfigSection
+        iconId="lucide:palette"
+        title={t('ConfigSectionAppearance')}
+        description={t('ConfigSectionAppearanceDesc')}
+        testID="section-appearance"
+      >
+        <AppearanceSection />
+      </ConfigSection>
+
+      {/* Preferences (P5-A3) lands here */}
 
       <Pressable
         onPress={() => dispatch(logout())}
