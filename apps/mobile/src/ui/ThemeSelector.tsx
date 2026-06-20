@@ -4,10 +4,11 @@ import { useBeyouTheme } from '../theme/ThemeProvider';
 
 /**
  * Inline theme swatch picker, mirroring the web `authentication/ThemeSelectorInline`.
- * Pre-auth this only switches the live theme (no backend persistence — the user
- * isn't logged in yet). Each swatch is a circle split background / primary.
+ * Always switches the live theme; `onSelect` lets a caller (e.g. the config
+ * Appearance section) also persist the choice. Each swatch is a circle split
+ * background / primary.
  */
-export default function ThemeSelector() {
+export default function ThemeSelector({ onSelect }: { onSelect?: (mode: string) => void }) {
   const { theme, setThemeByMode } = useBeyouTheme();
 
   return (
@@ -18,7 +19,10 @@ export default function ThemeSelector() {
           return (
             <Pressable
               key={item.mode}
-              onPress={() => setThemeByMode(item.mode)}
+              onPress={() => {
+                setThemeByMode(item.mode);
+                onSelect?.(item.mode);
+              }}
               accessibilityRole="button"
               accessibilityLabel={item.mode}
               accessibilityState={{ selected: isActive }}

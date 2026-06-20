@@ -5,10 +5,16 @@ const ON_PRIMARY = '#FFFFFF';
 const LANGS = ['en', 'pt'] as const;
 
 /**
- * EN | PT language switch, mirroring the web `translationButton`. Switches the
- * live i18n language (ephemeral pre-auth — not persisted to the backend).
+ * EN | PT language switch, mirroring the web `translationButton`. Always switches
+ * the live i18n language; `onSelect` lets a caller (e.g. the config Preferences
+ * section) also persist the choice to the backend. Pre-auth it's used without
+ * `onSelect`, so the switch is ephemeral.
  */
-export default function LanguageToggle() {
+export default function LanguageToggle({
+  onSelect,
+}: {
+  onSelect?: (lng: 'en' | 'pt') => void;
+} = {}) {
   const { i18n } = useTranslation();
   const current = i18n.language?.startsWith('pt') ? 'pt' : 'en';
 
@@ -21,6 +27,7 @@ export default function LanguageToggle() {
             key={lng}
             onPress={() => {
               if (current !== lng) i18n.changeLanguage(lng);
+              onSelect?.(lng);
             }}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
