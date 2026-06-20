@@ -128,7 +128,7 @@ export default function ProfileSection() {
       <Input
         value={perfil.email}
         onChangeText={() => {}}
-        editable={false}
+        disabled
         accessibilityLabel={t('Email')}
         testID="config-email"
       />

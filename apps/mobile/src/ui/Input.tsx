@@ -12,6 +12,8 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   eyeClosed?: ReactNode;
   testID?: string;
   accessibilityLabel?: string;
+  /** Read-only + visually muted (e.g. the email field). */
+  disabled?: boolean;
 }
 
 export default function Input({
@@ -24,6 +26,7 @@ export default function Input({
   eyeClosed,
   testID,
   accessibilityLabel,
+  disabled,
   ...rest
 }: Props) {
   const [hidden, setHidden] = useState(!!password);
@@ -32,13 +35,16 @@ export default function Input({
   return (
     <View className="w-full">
       <View
-        className={`flex-row items-center border-2 rounded-md h-[56px] bg-background ${error ? 'border-error' : 'border-primary'}`}
+        className={`flex-row items-center border-2 rounded-md h-[56px] ${
+          disabled ? 'bg-description/10' : 'bg-background'
+        } ${error ? 'border-error' : disabled ? 'border-description/40' : 'border-primary'}`}
       >
         {iconStart ? <View className="mx-3">{iconStart}</View> : null}
         <TextInput
-          className="flex-1 text-lg text-secondary px-2"
+          className={`flex-1 text-lg px-2 ${disabled ? 'text-description' : 'text-secondary'}`}
           value={value}
           onChangeText={onChangeText}
+          editable={!disabled}
           secureTextEntry={hidden}
           placeholderTextColor={theme.placeholder}
           testID={testID}
