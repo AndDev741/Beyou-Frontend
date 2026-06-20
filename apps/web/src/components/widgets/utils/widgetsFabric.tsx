@@ -5,8 +5,9 @@ import DailyProgress, { dailyProgressProps } from "../dailyProgress";
 import FastTips from "../fastTips";
 import WorstArea, { worstAreaProps } from "../worstArea";
 import LevelProgress, { levelProgressProps } from "../levelProgress";
+import { WIDGET_IDS } from "@beyou/state";
 
-export const widgetsIds = ["worstArea", "constance", "betterArea", "dailyProgress", "fastTips", "levelProgress", "categoryBalance"];
+export const widgetsIds: string[] = [...WIDGET_IDS];
 
 export type WidgetProps = {
     betterArea: betterAreaProps;
