@@ -158,11 +158,11 @@ export default function RoutineSection({ section, routineId}: { section: section
                             }}
                         />
                         </label>
-                        <span className={`text-sm md:text-lg ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
+                        <span className={`text-sm md:text-base ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
                             {itemObj.name}
                         </span>
                         <span className="mx-1 md:mx-2 text-secondary">-</span>
-                        <span className="text-center text-primary text-xs md:text-lg">
+                        <span className="text-center text-primary text-xs md:text-base">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>
                         {/* The skipped state is already conveyed by the dimmed row,
@@ -206,9 +206,9 @@ export default function RoutineSection({ section, routineId}: { section: section
     return (
         <div className="flex flex-col items-start justify-center w-full h-full">
             <div className="flex items-center gap-2">
-                <span className="text-[30px] text-icon"><BeyouIcon id={section.iconId} /></span>
-                <span className="text-lg md:text-xl font-bold text-primary line-clamp-1">{section.name}
-                <span className="ml-2 md:ml-4 text-md md:text-lg text-description">
+                <span className="text-[22px] md:text-[30px] text-icon"><BeyouIcon id={section.iconId} /></span>
+                <span className="text-base md:text-xl font-bold text-primary line-clamp-1">{section.name}
+                <span className="ml-2 md:ml-4 text-xs md:text-base text-description">
                         {formatTimeRange(section.startTime, section.endTime)}
                 </span>
             </span>

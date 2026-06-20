@@ -13,7 +13,7 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                 data-tutorial-id="dashboard-routine-today"
             >
                 <div className="flex flex-col items-center lg:items-start border border-primary rounded-md p-4 w-[97%]">
-                    <h2 className="text-2xl font-semibold mb-2 lg:mb-4 text-secondary w-full text-center lg:text-left">
+                    <h2 className="text-lg md:text-2xl font-semibold mb-2 lg:mb-4 text-secondary w-full text-center lg:text-left">
                         {routine.name}
                     </h2>
 
