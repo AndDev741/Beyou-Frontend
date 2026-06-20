@@ -1,0 +1,18 @@
+{
+    "tips": [
+        { "phrase": "FastTipStartSmall", "smallPhrase": "FastTipStartSmallShort" },
+        { "phrase": "FastTipStack", "smallPhrase": "FastTipStackShort" },
+        { "phrase": "FastTipNeverTwice", "smallPhrase": "FastTipNeverTwiceShort" },
+        { "phrase": "FastTipObvious", "smallPhrase": "FastTipObviousShort" },
+        { "phrase": "FastTipChain", "smallPhrase": "FastTipChainShort" },
+        { "phrase": "FastTipReward", "smallPhrase": "FastTipRewardShort" },
+        { "phrase": "FastTipIdentity", "smallPhrase": "FastTipIdentityShort" },
+        {
+            "phrase": "FastTipVideo",
+            "smallPhrase": "FastTipVideoShort",
+            "urlEN": "https://www.youtube.com/watch?v=-moW9jvvMr4",
+            "urlPT": "https://www.youtube.com/watch?v=xjkHcFKUkKY",
+            "phraseURL": "FastTipVideoUrlLabel"
+        }
+    ]
+}
