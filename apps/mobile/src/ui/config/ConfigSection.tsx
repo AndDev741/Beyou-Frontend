@@ -22,10 +22,10 @@ export default function ConfigSection({ iconId, title, description, children, te
       </View>
       {description ? <Text className="text-description mt-0.5 text-sm">{description}</Text> : null}
       <View className="mt-3">{children}</View>
-      {/* Primary divider to visually separate sections (solid border — a
-          translucent 1px line was imperceptible on device). mt-8 keeps it from
-          hugging the section content above. */}
-      <View className="mt-8 border-b-2 border-primary" />
+      {/* Primary divider to visually separate sections. Margin via inline style
+          (RN-native, always applies — the NativeWind mt-* util wasn't taking
+          effect on refresh); border via className (renders fine). */}
+      <View style={{ marginTop: 28, marginBottom: 4 }} className="border-b-2 border-primary" />
     </View>
   );
 }
