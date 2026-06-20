@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { RoutineSection as section } from "@beyou/types/routine/routineSection";
-import iconSearch from "../../icons/iconsSearch";
+import BeyouIcon from "../../../ui/BeyouIcon";
 import { useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
@@ -20,8 +20,6 @@ const XP_FLOAT_DURATION_MS = 1200;
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
-    const iconObj = iconSearch(section.iconId);
-    const Icon = iconObj?.IconComponent;
 
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
     const [xpFloats, setXpFloats] = useState<Record<string, number>>({});
@@ -208,7 +206,7 @@ export default function RoutineSection({ section, routineId}: { section: section
     return (
         <div className="flex flex-col items-start justify-center w-full h-full">
             <div className="flex items-center gap-2">
-                {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
+                <span className="text-[30px] text-icon"><BeyouIcon id={section.iconId} /></span>
                 <span className="text-lg md:text-xl font-bold text-primary line-clamp-1">{section.name}
                 <span className="ml-2 md:ml-4 text-md md:text-lg text-description">
                         {formatTimeRange(section.startTime, section.endTime)}

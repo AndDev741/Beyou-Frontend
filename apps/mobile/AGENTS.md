@@ -95,3 +95,16 @@ loaded by `src/dashboard/useDashboardData.ts`, check-in via `src/dashboard/useRo
 `src/ui/dashboard/` (ProfileHeader, RoutineDay/RoutineItem, Shortcuts, XpFloat, CelebrationOverlay,
 RoutineCompleteSummary, ProgressRing). Section screens (categories/habits/…) are `ComingSoon` stubs;
 logout lives on the configuration stub.
+
+## Icons (Phase 4 — shared `@beyou/icons` + Lucide)
+
+Icons resolve through the platform-neutral `@beyou/icons` package: `resolveIcon(id)` →
+`{ lucide:name | emoji:char | fallback }` (ids: `lucide:<kebab>`, `emoji:<short_name>`, raw emoji
+char; legacy react-icons `ri:*` → fallback). Render saved icons with `src/ui/BeyouIcon.tsx`:
+emoji → `<Text>` char; lucide → `lucide-react-native` PascalCase component (kebab→Pascal via
+`import * as`); fallback → nothing (unless `showFallback`). `lucide-react-native` is mocked in
+`jest.setup.js` (a Proxy of no-op components) — it ships ~1754 icon modules; don't transform it in
+jest, and `expo export` validates it bundles for real. Web uses `lucide-react`'s `DynamicIcon`
+(code-split); the registry/search/picker live in `@beyou/icons` (data) + each app's `BeyouIcon`
+(render). Data is generated: `packages/icons/scripts/generate-data.mjs` (lucide names + slim emoji
+char map).

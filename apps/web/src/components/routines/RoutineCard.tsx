@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle, FiLayers } from "react-icons/fi";
 import { Routine } from "@beyou/types/routine/routine";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
-import iconSearch from "../icons/iconsSearch";
+import { resolveIcon } from "@beyou/icons";
+import BeyouIcon from "../../ui/BeyouIcon";
 import {
     formatTimeRange,
     getSectionStats,
@@ -242,7 +243,7 @@ type SectionRowProps = {
 const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem }: SectionRowProps) => {
     const { t } = useTranslation();
     const sectionStats = useMemo(() => getSectionStats(section, selectedDate), [section, selectedDate]);
-    const Icon = iconSearch(section.iconId || "")?.IconComponent;
+    const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
     const timeOfDay = getTimeOfDay(section.startTime);
 
     const items = useMemo(() => {
@@ -302,7 +303,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     <div
                         className={`flex h-9 w-9 items-center justify-center rounded-lg ${timeOfDayClasses[timeOfDay]} text-base`}
                     >
-                        {Icon ? <Icon /> : <FiClock />}
+                        {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
@@ -330,7 +331,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
             {items.length > 0 && (
                 <div className="mt-3 space-y-2">
                     {items.map((item, idx) => {
-                        const ItemIcon = item.iconId ? iconSearch(item.iconId)?.IconComponent : null;
+                        const hasItemIcon = item.iconId ? resolveIcon(item.iconId).kind !== "fallback" : false;
                         const handleToggle = () => {
                             if (!routineId) return;
                             const payload: itemGroupToCheck = {
@@ -361,7 +362,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                     }`}
                             >
                                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                    {ItemIcon ? <ItemIcon /> : <FiCheckCircle />}
+                                    {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate">{item.label}</p>

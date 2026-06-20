@@ -1,4 +1,5 @@
-import iconSearch from "../../icons/iconsSearch";
+import BeyouIcon from "../../../ui/BeyouIcon";
+import { resolveIcon } from "@beyou/icons";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
@@ -23,8 +24,7 @@ interface SectionItemProps {
 
 const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, newItemIds }: SectionItemProps) => {
     const { t } = useTranslation();
-    const iconObj = iconSearch(section.iconId);
-    const Icon = iconObj?.IconComponent;
+    const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
     const [openTaskSelector, setOpenTaskSelector] = useState(false);
     const isOvernight = isOvernightRange(section.startTime, section.endTime);
 
@@ -270,7 +270,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, newI
             {/* Section  Header */}
             <div className="w-full flex items-center justify-between py-2">
                 <div className="flex items-center gap-2 w-full">
-                    {Icon && <span className="text-[30px] text-icon"><Icon /></span>}
+                    {hasIcon && <span className="text-[30px] text-icon"><BeyouIcon id={section.iconId} /></span>}
                     <span className="text-md md:text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
                 </div>
                 {/* I ALREADY SPEND TOO MUCH TIME TRYING TO UNDERSTAND WHY WHEN I OPEN THE TASK SELECTOR THE HEADER JUST GO TO THE RIGHT... THIS WILL FIX ****  */}

@@ -1,7 +1,8 @@
 import { habit } from "@beyou/types/habit/habitType";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { task } from "@beyou/types/tasks/taskType";
-import iconSearch from "../../../icons/iconsSearch";
+import BeyouIcon from "../../../../ui/BeyouIcon";
+import { resolveIcon } from "@beyou/icons";
 
 interface HabitOrTaskGroupProps {
     habit?: habit;
@@ -16,8 +17,8 @@ interface HabitOrTaskGroupProps {
 }
 
 const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSelector, startTime, endTime, section, disabled = false }: HabitOrTaskGroupProps) => {
-    const iconObj = iconSearch(habit?.iconId || task?.iconId || "");
-    const Icon = iconObj?.IconComponent;
+    const itemIconId = habit?.iconId || task?.iconId || "";
+    const hasIcon = resolveIcon(itemIconId).kind !== "fallback";
     const isSelected = section.habitGroup?.some((habitInGroup) => habitInGroup.habitId === habit?.id) || section.taskGroup?.some((taskInGroup) => taskInGroup.taskId === task?.id)
 
     const addHabitToSection = (habitId: string) => {
@@ -69,7 +70,7 @@ const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSe
             {/* Habit or Task Name and Icon */}
             <div key={habit?.id || task?.id}
                 className="w-full flex items-center">
-                {Icon && <span className={`text-[30px] ${isSelected ? "text-background dark:text-secondary" : "text-icon"}`}><Icon /></span>}
+                {hasIcon && <span className={`text-[30px] ${isSelected ? "text-background dark:text-secondary" : "text-icon"}`}><BeyouIcon id={itemIconId} /></span>}
 
                 <span className={`text-md line-clamp-1 ml-1 ${isSelected ? "text-background dark:text-secondary" : "text-secondary"}`}>{habit?.name || task?.name}</span>
             </div>

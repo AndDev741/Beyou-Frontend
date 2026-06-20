@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import iconSearch from "../icons/iconsSearch";
+import { useState } from "react";
+import BeyouIcon from "../../ui/BeyouIcon";
 import increaseIcon from '../../assets/categories/increaseIcon.svg'
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
 import fireIcon from '../../assets/habit/fire.svg'
@@ -8,7 +8,6 @@ import CategoryNameAndIcon from "./categoryNameAndIcon";
 import { useDispatch } from "react-redux";
 import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "@beyou/state/habit/editHabitSlice";
 import { habit } from "@beyou/types/habit/habitType";
-import { IconObject } from "@beyou/types/icons/IconObject";
 import deleteHabit from "@beyou/api/habits/deleteHabit";
 import getHabits from "@beyou/api/habits/getHabits";
 import useColors from "./utils/useColors";
@@ -22,7 +21,6 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
     const dispatch = useDispatch();
     
     const {t} = useTranslation();
-    const [Icon, setIcon] = useState<IconObject>();
     const [expanded, setExpanded] = useState(false);
     const [expandendIcon, setExpandedIcon] = useState(increaseIcon)
     const [dificultyColor, setDificultyColor] = useState("");
@@ -42,12 +40,6 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
         expanded ? setExpandedIcon(increaseIcon) : setExpandedIcon(decreaseIcon);
     }
 
-    useEffect(() => {
-        const response = iconSearch(iconId);
-        setIcon(response);
-
-    }, [iconId]);
-    
     function handleEditMode(){
         dispatch(editModeEnter(true));
         dispatch(editIdEnter(id))
@@ -65,7 +57,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
                     <p className="text-icon text-[30px] md:text-[34px]">
-                        {Icon !== undefined ? <Icon.IconComponent/> : null}
+                        <BeyouIcon id={iconId} />
                     </p>
                     <h2 className={`text-lg md:text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
                 </div>

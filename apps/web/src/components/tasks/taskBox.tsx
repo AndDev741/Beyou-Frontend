@@ -1,13 +1,12 @@
 import { useDispatch } from "react-redux";
 import { task } from "@beyou/types/tasks/taskType"
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
-import { IconObject } from "@beyou/types/icons/IconObject";
+import { useState } from "react";
 import useColors from "../habits/utils/useColors";
 import increaseIcon from '../../assets/categories/increaseIcon.svg'
 import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
-import iconSearch from "../icons/iconsSearch";
+import BeyouIcon from "../../ui/BeyouIcon";
 import DeleteModal from "../DeleteModal";
 import getTasks from "@beyou/api/tasks/getTasks";
 import deleteTask from "@beyou/api/tasks/deleteTask";
@@ -34,7 +33,6 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     const dispatch = useDispatch();
     
     const {t} = useTranslation();
-    const [Icon, setIcon] = useState<IconObject>();
     const [expanded, setExpanded] = useState(false);
     const [expandendIcon, setExpandedIcon] = useState(increaseIcon)
     const [dificultyColor, setDificultyColor] = useState("");
@@ -43,11 +41,6 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     const [importancePhrase, setImportancePhrase] = useState("");
 
     const [onDelete, setOnDelete] = useState(false);
-
-    useEffect(() => {
-        const response = iconSearch(iconId);
-        setIcon(response);
-    }, [iconId]);
 
     useColors(dificulty!, importance!, setDificultyColor, setDificultyPhrase, setImportanceColor, setImportancePhrase, t);
 
@@ -73,7 +66,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
                     <p className="text-icon text-[34px]">
-                        {Icon !== undefined ? <Icon.IconComponent/> : null}
+                        <BeyouIcon id={iconId} />
                     </p>
                     <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
                 </div>

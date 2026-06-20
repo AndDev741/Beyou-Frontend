@@ -28,8 +28,7 @@ import {
   editTermEnter,
   editIconIdEnter,
 } from "@beyou/state/goal/editGoalSlice";
-import { IconObject } from "@beyou/types/icons/IconObject";
-import iconSearch from "../icons/iconsSearch";
+import BeyouIcon from "../../ui/BeyouIcon";
 import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
 import { ProgressRing } from "../progressRing";
 import { MdOutlineAlbum } from "react-icons/md";
@@ -81,7 +80,6 @@ function GoalBox({
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
-  const [Icon, setIcon] = useState<IconObject>();
   const [statusIcon, setStatusIcon] = useState(notStartedIcon);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
@@ -109,9 +107,6 @@ function GoalBox({
   useUiRefresh(refreshUi);
 
   useEffect(() => {
-    const response = iconSearch(iconId);
-    setIcon(response);
-
     switch (term) {
       case "SHORT_TERM":
         setTermPhrase(t('Short Term'));
@@ -183,7 +178,7 @@ function GoalBox({
         <div className="flex flex-col">
           <div className="flex items-start">
             <p className="text-icon text-[34px]">
-              {Icon !== undefined ? <Icon.IconComponent /> : null}
+              <BeyouIcon id={iconId} />
             </p>
             <h2 className="text-xl ml-1 font-semibold line-clamp-1">{title}</h2>
           </div>

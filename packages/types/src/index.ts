@@ -15,9 +15,6 @@ export * from './goals/goalType';
 export * from './habit/editHabitType';
 export * from './habit/habitType';
 
-// Icons types
-export * from './icons/IconObject';
-
 // RefreshUI types
 export * from './refreshUi/refreshUi.type';
 

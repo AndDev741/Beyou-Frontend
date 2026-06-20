@@ -1,10 +1,18 @@
 import { TFunction } from "i18next";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import React from "react";
 import i18next from "i18next";
-import { searchIcons, getIconCategories, getIconCategoryLabel, normalizeIconId } from "../icons/iconSearchIndex";
-import { getRecentIconIds, pushRecentIconId } from "../icons/iconRecents";
-import { getEntryById, IconEntry } from "../icons/iconRegistry";
+import {
+    searchIcons,
+    getIconCategoryLabel,
+    normalizeIconId,
+    getEntryById,
+    createIconRecents,
+    type IconEntry,
+} from "@beyou/icons";
+import BeyouIcon from "../../ui/BeyouIcon";
+
+const iconRecents = createIconRecents(typeof window !== "undefined" ? window.localStorage : undefined);
 
 type iconsInputProps = {
     search: string;
@@ -31,22 +39,11 @@ function IconsBox({
         window.matchMedia("(min-width: 768px)").matches
     );
     const [category, setCategory] = useState("all");
-    const [recentIds, setRecentIds] = useState<string[]>(getRecentIconIds());
-    const [showMore, setShowMore] = useState(false);
-    const [supportsHover, setSupportsHover] = useState(
-        window.matchMedia("(hover: hover)").matches
-    );
-    const closeTimeoutRef = useRef<number | null>(null);
+    const [recentIds, setRecentIds] = useState<string[]>(() => iconRecents.getRecentIconIds());
 
     useEffect(() => {
         const mediaQuery = window.matchMedia("(min-width: 768px)");
         const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
-        mediaQuery.addEventListener("change", handler);
-        return () => mediaQuery.removeEventListener("change", handler);
-    }, []);
-    useEffect(() => {
-        const mediaQuery = window.matchMedia("(hover: hover)");
-        const handler = (e: MediaQueryListEvent) => setSupportsHover(e.matches);
         mediaQuery.addEventListener("change", handler);
         return () => mediaQuery.removeEventListener("change", handler);
     }, []);
@@ -68,81 +65,18 @@ function IconsBox({
     const locale = i18next.language || "en";
     const selectedCanonical = useMemo(() => normalizeIconId(selectedIcon), [selectedIcon]);
 
-    const availableCategories = useMemo(() => getIconCategories(), []);
+    // Categories are now just icons + emoji (+ recents when present).
     const categoryOptions = useMemo(() => {
-        const base = [
-            { id: "all", label: t("IconCategoryAll") }
-        ];
+        const options = [{ id: "all", label: t("IconCategoryAll") }];
         if (recentIds.length > 0) {
-            base.push({ id: "recents", label: t("IconCategoryRecents") });
+            options.push({ id: "recents", label: t("IconCategoryRecents") });
         }
-
-        const baseCategories = ["icons", "emoji"];
-        const extraCategories = availableCategories.filter(
-            (cat) => !baseCategories.includes(cat)
+        options.push(
+            { id: "icons", label: getIconCategoryLabel("icons", locale) },
+            { id: "emoji", label: getIconCategoryLabel("emoji", locale) }
         );
-        const ordered = [
-            "smileys",
-            "people",
-            "nature",
-            "food",
-            "travel",
-            "activities",
-            "objects",
-            "symbols",
-            "flags"
-        ];
-        const sortedExtras = ordered
-            .filter((cat) => extraCategories.includes(cat))
-            .concat(extraCategories.filter((cat) => !ordered.includes(cat)));
-
-        const baseLabels = baseCategories.map((cat) => ({
-            id: cat,
-            label: getIconCategoryLabel(cat, locale)
-        }));
-
-        return [...base, ...baseLabels, ...sortedExtras.map((cat) => ({
-            id: cat,
-            label: getIconCategoryLabel(cat, locale)
-        }))];
-    }, [availableCategories, locale, recentIds.length, t]);
-
-    const { visibleCategories, hiddenCategories } = useMemo(() => {
-        const maxVisible = 2;
-        return {
-            visibleCategories: categoryOptions.slice(0, maxVisible),
-            hiddenCategories: categoryOptions.slice(maxVisible)
-        };
-    }, [categoryOptions]);
-
-    useEffect(() => {
-        setShowMore(false);
-    }, [category]);
-    useEffect(() => {
-        return () => {
-            if (closeTimeoutRef.current !== null) {
-                window.clearTimeout(closeTimeoutRef.current);
-            }
-        };
-    }, []);
-
-    const handleOpenMore = () => {
-        if (closeTimeoutRef.current !== null) {
-            window.clearTimeout(closeTimeoutRef.current);
-            closeTimeoutRef.current = null;
-        }
-        setShowMore(true);
-    };
-
-    const handleCloseMore = () => {
-        if (closeTimeoutRef.current !== null) {
-            window.clearTimeout(closeTimeoutRef.current);
-        }
-        closeTimeoutRef.current = window.setTimeout(() => {
-            setShowMore(false);
-            closeTimeoutRef.current = null;
-        }, 200);
-    };
+        return options;
+    }, [locale, recentIds.length, t]);
 
     const recentEntries = useMemo(() => {
         return recentIds
@@ -164,8 +98,8 @@ function IconsBox({
 
     const handleSelect = (iconId: string) => {
         const canonical = normalizeIconId(iconId);
-        pushRecentIconId(canonical);
-        setRecentIds(getRecentIconIds());
+        iconRecents.pushRecentIconId(canonical);
+        setRecentIds(iconRecents.getRecentIconIds());
         setSelectedIcon(canonical);
     };
 
@@ -192,8 +126,8 @@ function IconsBox({
             </div>
             {iconError ? <p className={errorCss} title={iconError}>{iconError}</p> : null}
 
-            <div className="flex items-center gap-2 mt-2 w-[30vw] md:w-[230px] flex-nowrap whitespace-nowrap">
-                {visibleCategories.map((option) => (
+            <div className="flex items-center gap-2 mt-2 w-[30vw] md:w-[230px] flex-wrap">
+                {categoryOptions.map((option) => (
                     <button
                         key={option.id}
                         type="button"
@@ -207,50 +141,6 @@ function IconsBox({
                         {option.label}
                     </button>
                 ))}
-                {hiddenCategories.length > 0 && (
-                    <div
-                        className="relative"
-                        onMouseEnter={supportsHover ? handleOpenMore : undefined}
-                        onMouseLeave={supportsHover ? handleCloseMore : undefined}
-                    >
-                        <button
-                            type="button"
-                            aria-label={t("IconCategoryMore")}
-                            onClick={() => setShowMore((prev) => !prev)}
-                            className={`px-2 py-1 text-xs rounded-full border transition-colors duration-150 ${
-                                hiddenCategories.some((item) => item.id === category)
-                                    ? "bg-primary text-background border-primary"
-                                    : "border-primary/30 text-secondary hover:bg-primary/10"
-                            }`}
-                        >
-                            ...
-                        </button>
-                        <div
-                            onMouseEnter={supportsHover ? handleOpenMore : undefined}
-                            onMouseLeave={supportsHover ? handleCloseMore : undefined}
-                            className={`absolute right-0 top-full mt-2 min-w-[180px] max-w-[calc(100vw-16px)] bg-background border border-primary/20 rounded-lg shadow-lg p-2 transition-opacity duration-150 z-50 ${
-                                showMore ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                            }`}
-                        >
-                            <div className="flex flex-wrap gap-2">
-                                {hiddenCategories.map((option) => (
-                                    <button
-                                        key={option.id}
-                                        type="button"
-                                        onClick={() => setCategory(option.id)}
-                                        className={`px-2 py-1 text-xs rounded-full border transition-colors duration-150 ${
-                                            category === option.id
-                                                ? "bg-primary text-background border-primary"
-                                                : "border-primary/30 text-secondary hover:bg-primary/10"
-                                        }`}
-                                    >
-                                        {option.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
 
             <div
@@ -268,9 +158,8 @@ function IconsBox({
                             onClick={() => handleSelect(entry.id)}
                             key={entry.id}
                             // Prefix the accessible name so an icon label can never
-                            // collide with an action button elsewhere in the form.
-                            // react-icons ships e.g. MdCreate ("Create"), which
-                            // otherwise reads identically to a "Create" submit.
+                            // collide with an action button elsewhere in the form
+                            // (e.g. a lucide "circle" tile vs a "Circle" submit).
                             aria-label={`${t("Icon")}: ${entry.label}`}
                             aria-pressed={entry.id === selectedCanonical}
                             className={`${
@@ -279,7 +168,7 @@ function IconsBox({
                                     : "text-description"
                             } text-3xl m-1 bg-transparent border-0 p-0 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
                         >
-                            <entry.IconComponent />
+                            <BeyouIcon id={entry.id} />
                         </button>
                     ))
                 )}

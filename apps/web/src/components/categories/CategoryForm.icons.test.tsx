@@ -5,22 +5,22 @@ import { renderWithProviders } from "../../test/test-utils";
 const iconsFixture = vi.hoisted(() => {
     const entries = [
         {
-            id: "icon-a",
+            id: "lucide:icon-a",
             label: "Icon A",
-            type: "icon" as const,
+            type: "lucide" as const,
             categories: ["icons"],
             legacyIds: [],
             keywords: [],
-            IconComponent: () => <span data-testid="icon-a">A</span>
+            lucideName: "icon-a",
         },
         {
-            id: "icon-b",
+            id: "lucide:icon-b",
             label: "Icon B",
-            type: "icon" as const,
+            type: "lucide" as const,
             categories: ["icons"],
             legacyIds: [],
             keywords: [],
-            IconComponent: () => <span data-testid="icon-b">B</span>
+            lucideName: "icon-b",
         }
     ];
 
@@ -33,17 +33,27 @@ vi.mock("i18next", () => ({
     default: { language: "en" }
 }));
 
-vi.mock("../icons/iconRecents", () => ({
-    getRecentIconIds: vi.fn(() => []),
-    pushRecentIconId: vi.fn()
+vi.mock("../../ui/BeyouIcon", () => ({
+    __esModule: true,
+    default: ({ id }: { id?: string | null }) => (
+        <span data-testid={`beyou-icon-${id}`}>{id}</span>
+    ),
 }));
 
-vi.mock("../icons/iconRegistry", () => ({
-    allEntries: iconsFixture.entries,
-    getAvailableCategories: () => ["icons"],
-    getCanonicalId: (id: string) => id,
-    getEntryById: (id: string) => iconsFixture.entryMap[id]
-}));
+vi.mock("@beyou/icons", () => {
+    const searchIcons = vi.fn(() => iconsFixture.entries);
+    return {
+        searchIcons,
+        getIconCategoryLabel: (category: string) => category,
+        normalizeIconId: (id: string) => id,
+        getEntryById: (id: string) => iconsFixture.entryMap[id],
+        createIconRecents: () => ({
+            getRecentIconIds: vi.fn(() => [] as string[]),
+            pushRecentIconId: vi.fn(),
+            clearRecentIcons: vi.fn(),
+        }),
+    };
+});
 
 vi.mock("@beyou/api/categories/createCategory", () => ({
     default: vi.fn().mockResolvedValue({ success: true })
@@ -54,8 +64,8 @@ vi.mock("@beyou/api/categories/getCategories", () => ({
 }));
 
 test("submits selected icon for category creation", async () => {
-    const iconSearchIndex = await import("../icons/iconSearchIndex");
-    vi.spyOn(iconSearchIndex, "searchIcons");
+    const icons = await import("@beyou/icons");
+    vi.spyOn(icons, "searchIcons");
     const { default: CategoryForm } = await import("./CategoryForm");
     const createCategoryModule = await import("@beyou/api/categories/createCategory");
     const createCategory = createCategoryModule.default;
@@ -71,9 +81,7 @@ test("submits selected icon for category creation", async () => {
         target: { value: "Health" }
     });
 
-    const iconAElement = screen.getByTestId("icon-a");
-    const iconAWrapper = iconAElement.closest("p") ?? iconAElement;
-    fireEvent.click(iconAWrapper);
+    fireEvent.click(screen.getByRole("button", { name: "Icon: Icon A" }));
 
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
 
@@ -85,7 +93,7 @@ test("submits selected icon for category creation", async () => {
         "Health",
         "",
         0,
-        "icon-a",
+        "lucide:icon-a",
         expect.any(Function)
     );
 

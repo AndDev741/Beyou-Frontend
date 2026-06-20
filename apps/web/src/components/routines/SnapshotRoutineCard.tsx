@@ -11,7 +11,8 @@ import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import { checkSnapshotItem, getSnapshot, skipSnapshotItem } from "@beyou/api/routine/snapshot";
 import { enterSnapshot } from "@beyou/state/routine/snapshotSlice";
 import useUiRefresh from "../../hooks/useUiRefresh";
-import iconSearch from "../icons/iconsSearch";
+import { resolveIcon } from "@beyou/icons";
+import BeyouIcon from "../../ui/BeyouIcon";
 import { formatTimeRange, getTimeOfDay } from "./routineMetrics";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -186,7 +187,7 @@ type SnapshotSectionRowProps = {
 
 const SnapshotSectionRow = ({ section, checks, onCheck, onSkip }: SnapshotSectionRowProps) => {
     const { t } = useTranslation();
-    const Icon = iconSearch(section.iconId || "")?.IconComponent;
+    const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
     const timeOfDay = getTimeOfDay(section.startTime || undefined);
 
     const sectionStats = useMemo(() => {
@@ -211,7 +212,7 @@ const SnapshotSectionRow = ({ section, checks, onCheck, onSkip }: SnapshotSectio
                     <div
                         className={`flex h-9 w-9 items-center justify-center rounded-lg ${timeOfDayClasses[timeOfDay]} text-base`}
                     >
-                        {Icon ? <Icon /> : <FiClock />}
+                        {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
@@ -263,7 +264,7 @@ type SnapshotCheckItemProps = {
 
 const SnapshotCheckItem = ({ check, startTime, endTime, onCheck, onSkip }: SnapshotCheckItemProps) => {
     const { t } = useTranslation();
-    const ItemIcon = check.itemIconId ? iconSearch(check.itemIconId)?.IconComponent : null;
+    const hasItemIcon = check.itemIconId ? resolveIcon(check.itemIconId).kind !== "fallback" : false;
 
     return (
         <div
@@ -276,7 +277,7 @@ const SnapshotCheckItem = ({ check, startTime, endTime, onCheck, onSkip }: Snaps
             }`}
         >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                {ItemIcon ? <ItemIcon /> : <FiCheckCircle />}
+                {hasItemIcon ? <BeyouIcon id={check.itemIconId} /> : <FiCheckCircle />}
             </div>
             <div className="flex-1 min-w-0">
                 <p className={`font-medium truncate ${check.skipped ? "line-through" : ""}`}>{check.itemName}</p>
