@@ -5,7 +5,7 @@ import createSchedule from '@beyou/api/schedule/createSchedule';
 import editSchedule from '@beyou/api/schedule/editSchedule';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { Routine } from '@beyou/types/routine/routine';
-import type schedule from '@beyou/types/schedule/schedule';
+import type { schedule } from '@beyou/types/schedule/schedule';
 import Button from '../Button';
 import { DAYS } from './ScheduleIndicator';
 import { notify } from '../../notify';

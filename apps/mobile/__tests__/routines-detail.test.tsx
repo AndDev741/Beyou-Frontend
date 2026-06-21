@@ -60,3 +60,15 @@ describe('RoutineDetailScreen — delete', () => {
     alertSpy.mockRestore();
   });
 });
+
+test('opens the schedule sheet from the detail', async () => {
+  // get returns [] for /schedule; reuse the existing setHttp() + store seed from the delete test.
+  setHttp();
+  const store = makeStore();
+  store.dispatch(enterRoutines([{ id: 'r1', name: 'Morning', iconId: 'lucide:sun', routineSections: [] }] as never));
+  await render(
+    <Provider store={store}><BeyouThemeProvider><RoutineDetailScreen /></BeyouThemeProvider></Provider>,
+  );
+  await act(async () => { fireEvent.press(screen.getByTestId('schedule-routine')); });
+  expect(screen.getByText('Schedule')).toBeTruthy();
+});
