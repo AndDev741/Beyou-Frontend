@@ -180,7 +180,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
                 <Input
                   value={field.value}
                   onChangeText={field.onChange}
-                  placeholder={t('NamePlaceholder')}
+                  placeholder={t('CategoryNamePlaceholder')}
                   error={errors.name?.message}
                   accessibilityLabel={t('Name')}
                   testID="habit-name"
