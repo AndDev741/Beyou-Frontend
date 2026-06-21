@@ -634,5 +634,6 @@
     "LifeBalanceFallback": "Adicione pelo menos 3 categorias para ver sua vida inteira de relance",
     "AlreadyHaveAccount": "Já tem uma conta? Entrar",
     "NoAccount": "Não tem uma conta? Registrar",
-    "HelloUser": "Olá, {{name}}!"
+    "HelloUser": "Olá, {{name}}!",
+    "AssignItems": "Atribuir hábitos e tarefas"
 }
