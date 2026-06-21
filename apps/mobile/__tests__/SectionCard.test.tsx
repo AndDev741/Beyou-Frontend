@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import SectionCard from '../src/ui/routines/SectionCard';
@@ -10,8 +10,12 @@ test('renders the section and fires actions', async () => {
   const onEdit = jest.fn(), onAssign = jest.fn(), onMove = jest.fn(), onRemove = jest.fn();
   await wrap(<SectionCard section={section} index={0} count={2} onEdit={onEdit} onAssign={onAssign} onMove={onMove} onRemove={onRemove} />);
   expect(screen.getByText('Wake')).toBeTruthy();
-  fireEvent.press(screen.getByTestId('section-edit'));
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-edit'));
+  });
   expect(onEdit).toHaveBeenCalled();
-  fireEvent.press(screen.getByTestId('section-down'));
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-down'));
+  });
   expect(onMove).toHaveBeenCalledWith(1);
 });
