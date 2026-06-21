@@ -647,5 +647,7 @@
     "AlreadyHaveAccount": "Already have an account? Log in",
     "NoAccount": "Don't have an account? Register",
     "HelloUser": "Hello, {{name}}!",
-    "AssignItems": "Assign habits & tasks"
+    "AssignItems": "Assign habits & tasks",
+    "NoSnapshotForDay": "No snapshot for this day",
+    "XpEarned": "XP earned"
 }
