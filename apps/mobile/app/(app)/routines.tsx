@@ -12,6 +12,7 @@ import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
 import type { Routine } from '@beyou/types/routine/routine';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
+import RoutineBuilder from '../../src/ui/routines/RoutineBuilder';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 
@@ -26,7 +27,10 @@ export default function RoutinesScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
   const routines = useSelector((s: RootState) => s.routines.routines);
+  const habits = useSelector((s: RootState) => s.habits.habits);
+  const tasks = useSelector((s: RootState) => s.tasks.tasks);
   const [loading, setLoading] = useState(true);
+  const [builder, setBuilder] = useState(false);
 
   const load = useCallback(async () => {
     const [r, h, tk] = await Promise.all([getRoutines(t), getHabits(t), getTasks(t)]);
@@ -59,7 +63,9 @@ export default function RoutinesScreen() {
           </Pressable>
           <Text className="text-primary text-2xl font-bold">{t('Routines')}</Text>
         </View>
-        {/* PR2 wires this "+" button to the routine builder. For PR1 it is hidden. */}
+        <Pressable onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
+          <Ionicons name="add" size={26} color={theme.background} />
+        </Pressable>
       </View>
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -81,6 +87,7 @@ export default function RoutinesScreen() {
           }
         />
       )}
+      <RoutineBuilder visible={builder} mode="create" habits={habits} tasks={tasks} onClose={() => setBuilder(false)} onSaved={load} />
     </View>
   );
 }

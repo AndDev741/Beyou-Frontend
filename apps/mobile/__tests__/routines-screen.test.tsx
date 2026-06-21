@@ -8,7 +8,7 @@ jest.mock('expo-router', () => ({
 }));
 
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
 import '../src/i18n';
 import { makeStore } from '../src/store';
@@ -35,4 +35,12 @@ test('shows the empty state', async () => {
   setHttp([]);
   await renderScreen();
   await waitFor(() => expect(screen.getByText('No routines yet')).toBeTruthy());
+});
+
+test('the + button opens the builder', async () => {
+  setHttp([]);
+  await renderScreen();
+  await waitFor(() => expect(screen.getByTestId('create-routine')).toBeTruthy());
+  await act(async () => { fireEvent.press(screen.getByTestId('create-routine')); });
+  expect(screen.getByTestId('routine-name')).toBeTruthy();
 });

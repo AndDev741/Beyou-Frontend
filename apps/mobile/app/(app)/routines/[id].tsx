@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -10,6 +10,7 @@ import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterRoutines } from '@beyou/state/routine/routinesSlice';
 import type { Routine } from '@beyou/types/routine/routine';
 import RoutineDetail from '../../../src/ui/routines/RoutineDetail';
+import RoutineBuilder from '../../../src/ui/routines/RoutineBuilder';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../../src/store';
@@ -25,6 +26,9 @@ export default function RoutineDetailScreen() {
   const { theme } = useBeyouTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const routine = useSelector((s: RootState) => s.routines.routines.find((r) => r.id === id));
+  const habits = useSelector((s: RootState) => s.habits.habits);
+  const tasks = useSelector((s: RootState) => s.tasks.tasks);
+  const [edit, setEdit] = useState(false);
 
   const onDelete = useCallback(() => {
     if (!routine?.id) return;
@@ -64,14 +68,31 @@ export default function RoutineDetailScreen() {
           </Text>
         </View>
         {routine ? (
-          <Pressable onPress={onDelete} accessibilityRole="button" testID="delete-routine">
-            <Ionicons name="trash-outline" size={22} color={theme.error} />
-          </Pressable>
+          <View className="flex-row items-center gap-3">
+            <Pressable onPress={() => setEdit(true)} accessibilityRole="button" testID="edit-routine">
+              <Ionicons name="create-outline" size={22} color={theme.primary} />
+            </Pressable>
+            <Pressable onPress={onDelete} accessibilityRole="button" testID="delete-routine">
+              <Ionicons name="trash-outline" size={22} color={theme.error} />
+            </Pressable>
+          </View>
         ) : null}
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4 }}>
         {routine ? <RoutineDetail routine={routine} /> : null}
       </ScrollView>
+      <RoutineBuilder
+        visible={edit}
+        mode="edit"
+        routine={routine}
+        habits={habits}
+        tasks={tasks}
+        onClose={() => setEdit(false)}
+        onSaved={async () => {
+          const r = await getRoutines(t);
+          if (r.success) dispatch(enterRoutines(r.success as Routine[]));
+        }}
+      />
     </View>
   );
 }

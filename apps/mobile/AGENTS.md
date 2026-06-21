@@ -149,3 +149,17 @@ with the **native `Alert.alert`** (no custom modal). Create/edit return `{succes
 **Jest act note (reinforced):** ANY `fireEvent` that toggles component/provider state must be wrapped
 in `await act(async () => …)` — even on a *controlled* component (the `BeyouThemeProvider` settle
 leaks otherwise), or the unwrapped update corrupts the NEXT test in the file ("overlapping act()").
+
+## Routines (Phase 7)
+
+Routines CRUD lives across two screens and a builder modal:
+
+- **`app/(app)/routines.tsx`** — list screen; self-fetches routines + habits + tasks into the store; the `+` create button (testID `create-routine`) opens `RoutineBuilder mode="create"`; `onSaved={load}` refetches everything.
+- **`app/(app)/routines/[id].tsx`** — detail screen; reads routine from the slice by id; the edit button (`create-outline` icon, testID `edit-routine`) opens `RoutineBuilder mode="edit" routine={routine}`; `onSaved` re-calls `getRoutines` → `enterRoutines`. Delete uses `Alert.alert` + `deleteRoutine`.
+- **`src/ui/routines/RoutineBuilder.tsx`** — full-page `Modal` slide; manages a working-copy of the routine (deep-cloned from prop on open); `routineFormSchema` validates name+sections before submit; calls `createRoutine`/`editRoutine`; `onSaved()` is called after success, `onClose()` dismisses.
+- **`src/ui/routines/SectionSheet.tsx`** — bottom sheet for add/edit a section (name + time via `TimeField`).
+- **`src/ui/routines/ItemPickerSheet.tsx`** — bottom sheet to assign habits + tasks to a section.
+- **`src/ui/routines/SectionCard.tsx`** — row card for a section inside the builder (edit / assign / move / remove).
+- **`src/ui/routines/TimeField.tsx`** — native `DateTimePicker` in time mode; exports `toHHmm`/`hhmmToDate`.
+
+**Deferred (out of scope for Phase 7):** schedule/snapshot creation, AI routine generation. These remain as backend-only features not yet surfaced in the mobile app.
