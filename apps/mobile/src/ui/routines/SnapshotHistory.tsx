@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { getSnapshot, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
-import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterSnapshot, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';

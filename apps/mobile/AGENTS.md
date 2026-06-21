@@ -163,3 +163,36 @@ Routines CRUD lives across two screens and a builder modal:
 - **`src/ui/routines/TimeField.tsx`** — native `DateTimePicker` in time mode; exports `toHHmm`/`hhmmToDate`.
 
 **Deferred (out of scope for Phase 7):** schedule/snapshot creation, AI routine generation. These remain as backend-only features not yet surfaced in the mobile app.
+
+## Routines schedule/snapshot/AI (Phase 7 Group C)
+
+**Schedule** — `src/ui/routines/ScheduleSheet.tsx` is a bottom sheet opened from the detail screen
+(`app/(app)/routines/[id].tsx`) via `createSchedule` / `editSchedule` buttons (testIDs
+`create-schedule` / `edit-schedule-{idx}`). It renders day-of-week checkboxes (`DAYS` exported from
+`src/ui/routines/ScheduleIndicator.tsx`) + a time picker and calls `createRoutineSchedule` /
+`editRoutineSchedule` from `@beyou/api/routine/schedule`. On success it refetches schedules and
+notifies. A conflict hint surfaces when the backend returns error key `SCHEDULE_CONFLICT`.
+
+**Snapshot history** — `src/ui/routines/SnapshotHistory.tsx` sits below the builder in the detail
+screen and lets the user browse past day snapshots for that routine. Chips for the last 7 days (plus
+a calendar picker) drive `getSnapshot` / `getSnapshotDatesForMonth` calls that populate
+`snapshotSlice` (`enterSnapshot`, `enterSnapshotDates`, `setSelectedDate`). The selected snapshot is
+rendered by `src/ui/routines/SnapshotCard.tsx` which calls `useSnapshotCheckin` for check/skip
+actions. `useSnapshotCheckin` calls `checkSnapshotHabit` / `skipSnapshotHabit` from
+`@beyou/api/routine/snapshotCheckin`, then pipes the `RefreshUiDTO` response through
+`applyRefreshUi` (the shared gamification brain from `@beyou/state`) and dispatches a fresh
+`getSnapshot` to re-sync display state.
+
+**AI wizard** — `src/ui/routines/AiRoutineSheet.tsx` is a bottom-sheet `Modal` with a single text
+input (testID `ai-description`). On submit it calls `generateRoutine` (draft → server AI), then
+`materializeRoutine` (draft → creates real habits/tasks/categories in the backend). The returned
+`MaterializeResponseDTO` is mapped to `RoutineSection[]` via `materializeToSections` from
+`@beyou/api/ai/draftMapping`, and then passed to `onReady(name, sections)`. The list screen
+(`app/(app)/routines.tsx`) wires it as follows: the AI button (testID `ai-routine`,
+`sparkles-outline` icon) opens `AiRoutineSheet`; `onReady` closes the sheet and sets `aiSeed`
+state (`{ name, iconId: '', routineSections }`); a dedicated seeded `RoutineBuilder mode="create"`
+renders when `aiSeed !== null`, pre-populated via its `routine` prop. **Orphan-on-cancel quirk
+(web parity):** `materializeRoutine` creates entities in the backend *before* the user saves the
+builder. If the user cancels the seeded builder, those habits/tasks/categories are left orphaned —
+this matches the web app's behaviour and is a known product decision, not a bug. The e2e profile
+swaps in a `CannedRoutineDraftGenerator` (deterministic, no real API key needed).

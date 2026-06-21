@@ -15,7 +15,6 @@ import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
-import type { RoutineDraft } from '@beyou/types/ai/routineDraft';
 import { store } from '../../store';
 import Input from '../Input';
 import Button from '../Button';
