@@ -6,6 +6,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 export const toHHmm = (d: Date): string => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
+/**
+ * @warning The returned Date's DATE portion is today (a throwaway base) and must NOT be used
+ * for absolute or cross-midnight comparison — only the time portion (hours/minutes) is meaningful.
+ */
 export const hhmmToDate = (hhmm: string): Date => {
   const [h, m] = (hhmm || '00:00').split(':').map(Number);
   const d = new Date();

@@ -17,9 +17,9 @@ import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 
 /**
- * Routines section screen (Phase 7 PR1): self-fetches routines + habits + tasks,
+ * Routines section screen: self-fetches routines + habits + tasks,
  * lists them as cards, and navigates to the detail route on press.
- * Delete lives in the detail route. Create (PR2) wires the "+" button to the builder.
+ * Delete lives in the detail route. The "+" button opens the RoutineBuilder to create a new routine.
  */
 export default function RoutinesScreen() {
   const { t } = useTranslation();

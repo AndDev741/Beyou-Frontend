@@ -62,7 +62,7 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
             value={name}
             onChangeText={setName}
             placeholder={t('Routine name')}
-            accessibilityLabel={t('Routine name')}
+            accessibilityLabel={t('Name')}
             testID="section-name"
           />
           <IconPickerField label={t('Icon')} value={iconId} onChange={setIconId} testID="section-icon" />
