@@ -189,50 +189,59 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         </View>
 
         <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 py-4" keyboardShouldPersistTaps="handled">
-          <Controller
-            control={control}
-            name="name"
-            render={({ field }) => (
-              <Input
-                value={field.value}
-                onChangeText={field.onChange}
-                placeholder={t('NamePlaceholder')}
-                error={errors.name?.message}
-                accessibilityLabel={t('Name')}
-                testID="habit-name"
-              />
-            )}
-          />
+          <View>
+            <Text className="text-secondary mb-1 text-base font-semibold">{t('Name')}</Text>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field }) => (
+                <Input
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  placeholder={t('NamePlaceholder')}
+                  error={errors.name?.message}
+                  accessibilityLabel={t('Name')}
+                  testID="habit-name"
+                />
+              )}
+            />
+          </View>
 
-          <Controller
-            control={control}
-            name="description"
-            render={({ field }) => (
-              <Input
-                value={field.value}
-                onChangeText={field.onChange}
-                placeholder={t('HabitDescriptionPlaceholder')}
-                error={errors.description?.message}
-                accessibilityLabel={t('Description')}
-                testID="habit-description"
-              />
-            )}
-          />
+          <View>
+            <Text className="text-secondary mb-1 text-base font-semibold">{t('Description')}</Text>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field }) => (
+                <Input
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  placeholder={t('HabitDescriptionPlaceholder')}
+                  error={errors.description?.message}
+                  accessibilityLabel={t('Description')}
+                  testID="habit-description"
+                />
+              )}
+            />
+          </View>
 
-          <Controller
-            control={control}
-            name="motivationalPhrase"
-            render={({ field }) => (
-              <Input
-                value={field.value}
-                onChangeText={field.onChange}
-                placeholder={t('MotivationalPhrasePlaceholder')}
-                error={errors.motivationalPhrase?.message}
-                accessibilityLabel={t('MotivationPhrase')}
-                testID="habit-phrase"
-              />
-            )}
-          />
+          <View>
+            <Text className="text-secondary mb-1 text-base font-semibold">{t('MotivationPhrase')}</Text>
+            <Controller
+              control={control}
+              name="motivationalPhrase"
+              render={({ field }) => (
+                <Input
+                  value={field.value}
+                  onChangeText={field.onChange}
+                  placeholder={t('MotivationalPhrasePlaceholder')}
+                  error={errors.motivationalPhrase?.message}
+                  accessibilityLabel={t('MotivationPhrase')}
+                  testID="habit-phrase"
+                />
+              )}
+            />
+          </View>
 
           <Controller
             control={control}
