@@ -162,26 +162,28 @@ Routines CRUD lives across two screens and a builder modal:
 - **`src/ui/routines/SectionCard.tsx`** — row card for a section inside the builder (edit / assign / move / remove).
 - **`src/ui/routines/TimeField.tsx`** — native `DateTimePicker` in time mode; exports `toHHmm`/`hhmmToDate`.
 
-**Deferred (out of scope for Phase 7):** schedule/snapshot creation, AI routine generation. These remain as backend-only features not yet surfaced in the mobile app.
-
 ## Routines schedule/snapshot/AI (Phase 7 Group C)
 
 **Schedule** — `src/ui/routines/ScheduleSheet.tsx` is a bottom sheet opened from the detail screen
-(`app/(app)/routines/[id].tsx`) via `createSchedule` / `editSchedule` buttons (testIDs
-`create-schedule` / `edit-schedule-{idx}`). It renders day-of-week checkboxes (`DAYS` exported from
-`src/ui/routines/ScheduleIndicator.tsx`) + a time picker and calls `createRoutineSchedule` /
-`editRoutineSchedule` from `@beyou/api/routine/schedule`. On success it refetches schedules and
-notifies. A conflict hint surfaces when the backend returns error key `SCHEDULE_CONFLICT`.
+(`app/(app)/routines/[id].tsx`) via a `Pressable` (testID `schedule-routine`). It renders
+day-of-week checkboxes (`DAYS` exported from `src/ui/routines/ScheduleIndicator.tsx`) and calls
+`createSchedule(days, routineId, t)` (default export of `@beyou/api/schedule/createSchedule`) or
+`editSchedule(scheduleId, days, routineId, t)` (default export of `@beyou/api/schedule/editSchedule`).
+The save button carries testID `schedule-save`. On success it refetches schedules and notifies.
+A conflict hint is computed **client-side**: the detail screen fetches all schedules via `getSchedules`
+and passes the other-routine list as `otherSchedules` to `ScheduleSheet`, which derives a `blockedBy`
+map (day → routine name) locally — there is no `SCHEDULE_CONFLICT` backend error key.
 
 **Snapshot history** — `src/ui/routines/SnapshotHistory.tsx` sits below the builder in the detail
 screen and lets the user browse past day snapshots for that routine. Chips for the last 7 days (plus
-a calendar picker) drive `getSnapshot` / `getSnapshotDatesForMonth` calls that populate
-`snapshotSlice` (`enterSnapshot`, `enterSnapshotDates`, `setSelectedDate`). The selected snapshot is
-rendered by `src/ui/routines/SnapshotCard.tsx` which calls `useSnapshotCheckin` for check/skip
-actions. `useSnapshotCheckin` calls `checkSnapshotHabit` / `skipSnapshotHabit` from
-`@beyou/api/routine/snapshotCheckin`, then pipes the `RefreshUiDTO` response through
-`applyRefreshUi` (the shared gamification brain from `@beyou/state`) and dispatches a fresh
-`getSnapshot` to re-sync display state.
+a calendar picker) drive `getSnapshot` / `getSnapshotDatesForMonth` calls (named exports of
+`@beyou/api/routine/snapshot`) that populate `snapshotSlice` (`enterSnapshot`, `enterSnapshotDates`,
+`setSelectedDate`; the reducer is wired in `apps/mobile/src/store.ts` as `snapshot`). The selected
+snapshot is rendered by `src/ui/routines/SnapshotCard.tsx` which calls `useSnapshotCheckin` for
+check/skip actions. `useSnapshotCheckin` calls `checkSnapshotItem(snapshotId, snapshotCheckId, t)` /
+`skipSnapshotItem(snapshotId, snapshotCheckId, t)` (named exports of `@beyou/api/routine/snapshot`),
+then pipes the `RefreshUiDTO` response through `applyRefreshUi` (the shared gamification brain from
+`@beyou/state`) and dispatches a fresh `getSnapshot` to re-sync display state.
 
 **AI wizard** — `src/ui/routines/AiRoutineSheet.tsx` is a bottom-sheet `Modal` with a single text
 input (testID `ai-description`). On submit it calls `generateRoutine` (draft → server AI), then
