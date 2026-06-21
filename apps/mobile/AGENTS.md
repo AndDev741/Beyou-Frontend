@@ -125,3 +125,27 @@ Dashboard widgets (`src/ui/widgets/`): `WIDGET_IDS`/`BIG_WIDGETS` come from `@be
 widgets mirror web; charts are hand-drawn with `react-native-svg` (`CategoryBalanceWidget` radar,
 `DailyProgressWidget` reuses `ProgressRing`) — NOT chart.js. The picker (`config/WidgetsSection`) is
 add/remove + ↑↓ reorder (no drag-drop) → `editUser({widgetsId})`.
+
+## Icon picker + Habits (Phase 6)
+
+Icon picker (`src/ui/icons/`): `IconPicker` is a bottom-sheet `Modal` mirroring the web `iconsBox`
+(search + All/Recents/Icons/Emoji tabs + a `FlatList` grid of `BeyouIcon` tiles); it `searchIcons`
+from `@beyou/icons` and emits the canonical id (`normalizeIconId`) on select. It **early-returns null
+when `!visible`** — RN `Modal` renders children regardless of `visible` under jest, so the gate keeps
+closed-picker tests deterministic and skips mounting the grid. `IconPickerField` is the labeled form
+field. Recents use `iconRecents.ts` = an **in-memory sync** adapter for `createIconRecents` (the shared
+storage interface is sync; AsyncStorage is async → recents are session-scoped for v1).
+
+Habits (`app/(app)/habits.tsx` + `src/ui/habits/`): real CRUD on the shared `@beyou/api/habits` +
+`@beyou/state/habit` + `@beyou/validation` habit schemas. The screen self-fetches habits + categories
+(direct nav needs it; the dashboard also loads them) and refetches after every mutation via an
+`onSaved` callback. `HabitForm` is a full-screen modal (rhf + `habitCreate/EditSchema`); the schema
+field is `difficulty` (correct) but the wire field is `dificulty` (keep the typo) — the api fns take
+positional args so just pass the value. Importance/Difficulty are 1–5 segments; experience (create
+only) maps 0/1/2 → BEGINNER/INTERMEDIARY/ADVANCED via the api's `experienceToEnum`. Delete confirms
+with the **native `Alert.alert`** (no custom modal). Create/edit return `{success?|error?|validation?}`
+→ `getFriendlyErrorMessage` + `notify`. Inline category-create is deferred (pick existing only).
+
+**Jest act note (reinforced):** ANY `fireEvent` that toggles component/provider state must be wrapped
+in `await act(async () => …)` — even on a *controlled* component (the `BeyouThemeProvider` settle
+leaks otherwise), or the unwrapped update corrupts the NEXT test in the file ("overlapping act()").
