@@ -1,13 +1,13 @@
 /**
  * HabitForm (P6-B3) — create posts the right DTO (dificulty spelling + experience
- * enum + categoriesId), validation blocks an empty form, edit PUTs, delete confirms
- * via Alert. Boundary mocked: notify + the @beyou/api HttpClient + RN Alert.
+ * enum + categoriesId + labeled importance/difficulty), validation blocks an empty
+ * form, edit PUTs. Delete lives on the card/screen now, not the form. Boundary
+ * mocked: notify + the @beyou/api HttpClient.
  */
 jest.mock('../src/notify', () => ({
   notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
 
-import { Alert } from 'react-native';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
 import '../src/i18n';
@@ -28,14 +28,13 @@ const habitFixture = {
   categories: [{ id: 'c1', name: 'Health', iconId: 'lucide:heart' }],
 } as never;
 
-let post: jest.Mock, put: jest.Mock, del: jest.Mock;
+let post: jest.Mock, put: jest.Mock;
 beforeEach(() => {
   iconRecents.clearRecentIcons();
   post = jest.fn(async () => ({ data: { success: true } }));
   put = jest.fn(async () => ({ data: { success: true } }));
-  del = jest.fn(async () => ({ data: { success: true } }));
   const noop = async () => ({ data: null });
-  setHttpClient({ get: noop, post, put, delete: del } as never);
+  setHttpClient({ get: noop, post, put, delete: noop } as never);
   setLogger({ error: () => {} });
   (notify.success as jest.Mock).mockClear();
   (notify.error as jest.Mock).mockClear();
@@ -67,9 +66,15 @@ describe('HabitForm create', () => {
       fireEvent.press(screen.getAllByLabelText(/^Icon: /)[0]);
     });
 
-    // Pick a category.
+    // Pick a category + importance (Low=1) + difficulty (Easy=1).
     await act(async () => {
       fireEvent.press(screen.getByTestId('category-c1'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByText('Low'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByText('Easy'));
     });
 
     await act(async () => {
@@ -122,26 +127,5 @@ describe('HabitForm edit', () => {
     expect(url).toBe('/habit');
     expect(body).toMatchObject({ habitId: 'h1', name: 'Read more', dificulty: 2, importance: 3 });
     expect(onSaved).toHaveBeenCalled();
-  });
-
-  it('confirms delete via Alert then calls deleteHabit', async () => {
-    const onSaved = jest.fn();
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      // Press the destructive "Delete" button.
-      const del = (buttons ?? []).find((b) => b.style === 'destructive');
-      del?.onPress?.();
-    });
-
-    await wrap(
-      <HabitForm visible mode="edit" habit={habitFixture} categories={categories} onClose={jest.fn()} onSaved={onSaved} />,
-    );
-
-    await act(async () => {
-      fireEvent.press(screen.getByTestId('habit-delete'));
-    });
-
-    await waitFor(() => expect(del).toHaveBeenCalledWith('/habit/h1'));
-    expect(onSaved).toHaveBeenCalled();
-    alertSpy.mockRestore();
   });
 });

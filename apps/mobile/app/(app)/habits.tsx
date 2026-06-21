@@ -1,16 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getHabits from '@beyou/api/habits/getHabits';
 import getCategories from '@beyou/api/categories/getCategories';
+import deleteHabit from '@beyou/api/habits/deleteHabit';
+import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
+import { sortHabits } from '@beyou/state';
 import type { habit } from '@beyou/types/habit/habitType';
 import HabitCard from '../../src/ui/habits/HabitCard';
 import HabitForm from '../../src/ui/habits/HabitForm';
+import HabitsSortSheet from '../../src/ui/habits/HabitsSortSheet';
+import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 
@@ -30,8 +35,11 @@ export default function HabitsScreen() {
 
   const habits = useSelector((s: RootState) => s.habits.habits);
   const categories = useSelector((s: RootState) => s.categories.categories);
+  const sortBy = useSelector((s: RootState) => s.viewFilters.habits);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+
+  const sortedHabits = useMemo(() => sortHabits(habits, sortBy), [habits, sortBy]);
 
   const load = useCallback(async () => {
     const [h, c] = await Promise.all([getHabits(t), getCategories(t)]);
@@ -49,6 +57,27 @@ export default function HabitsScreen() {
       active = false;
     };
   }, [load]);
+
+  const handleDelete = useCallback(
+    (target: habit) => {
+      Alert.alert(t('DeleteHabit'), t('ConfirmDeleteHabit'), [
+        { text: t('Cancel'), style: 'cancel' },
+        {
+          text: t('Delete'),
+          style: 'destructive',
+          onPress: async () => {
+            const res = await deleteHabit(target.id, t);
+            if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
+            else {
+              notify.success(t('deleted successfully'));
+              await load();
+            }
+          },
+        },
+      ]);
+    },
+    [t, load],
+  );
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
@@ -80,11 +109,16 @@ export default function HabitsScreen() {
         </View>
       ) : (
         <FlatList
-          data={habits}
+          data={sortedHabits}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
+          ListHeaderComponent={habits.length > 0 ? <View className="mb-1"><HabitsSortSheet /></View> : null}
           renderItem={({ item }) => (
-            <HabitCard habit={item} onPress={(h) => setForm({ visible: true, mode: 'edit', habit: h })} />
+            <HabitCard
+              habit={item}
+              onEdit={(h) => setForm({ visible: true, mode: 'edit', habit: h })}
+              onDelete={handleDelete}
+            />
           )}
           ListEmptyComponent={
             <View className="mt-20 items-center gap-3 px-8">

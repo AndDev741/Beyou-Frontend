@@ -14,6 +14,8 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   accessibilityLabel?: string;
   /** Read-only + visually muted (e.g. the email field). */
   disabled?: boolean;
+  /** Multi-line textarea (taller, top-aligned) — e.g. a description field. */
+  multiline?: boolean;
 }
 
 export default function Input({
@@ -27,6 +29,7 @@ export default function Input({
   testID,
   accessibilityLabel,
   disabled,
+  multiline,
   ...rest
 }: Props) {
   const [hidden, setHidden] = useState(!!password);
@@ -35,7 +38,7 @@ export default function Input({
   return (
     <View className="w-full">
       <View
-        className={`flex-row items-center border-2 rounded-md h-[56px] ${
+        className={`flex-row border-2 rounded-md ${multiline ? 'min-h-[100px] items-start py-1' : 'h-[56px] items-center'} ${
           disabled ? 'bg-description/10' : 'bg-background'
         } ${error ? 'border-error' : disabled ? 'border-description/40' : 'border-primary'}`}
       >
@@ -45,7 +48,9 @@ export default function Input({
           value={value}
           onChangeText={onChangeText}
           editable={!disabled}
-          secureTextEntry={hidden}
+          secureTextEntry={hidden && !multiline}
+          multiline={multiline}
+          textAlignVertical={multiline ? 'top' : 'center'}
           placeholderTextColor={theme.placeholder}
           testID={testID}
           accessibilityLabel={accessibilityLabel}

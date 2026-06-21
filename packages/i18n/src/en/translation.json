@@ -108,6 +108,7 @@
     "CreateHabit": "Create Habit",
     "NewHabit": "New Habit",
     "NoHabitsYet": "No habits yet",
+    "DeleteHabit": "Delete habit",
     "ConfirmDeleteHabit": "Delete this habit? This cannot be undone.",
     "QuickCreateHabitTitle": "Quick Create Habit",
     "HabitImgAlt": "Book icon",

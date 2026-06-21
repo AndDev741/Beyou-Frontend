@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
-import { Modal, View, Text, ScrollView, Pressable, Alert } from 'react-native';
+import { Modal, View, Text, ScrollView, Pressable } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { habitCreateSchema, habitEditSchema } from '@beyou/validation';
 import createHabit from '@beyou/api/habits/createHabit';
 import editHabit from '@beyou/api/habits/editHabit';
-import deleteHabit from '@beyou/api/habits/deleteHabit';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { habit } from '@beyou/types/habit/habitType';
 import type category from '@beyou/types/category/categoryType';
@@ -14,6 +13,7 @@ import Input from '../Input';
 import Button from '../Button';
 import IconPickerField from '../icons/IconPickerField';
 import CategorySelector from './CategorySelector';
+import { IMPORTANCE_KEYS, DIFFICULTY_KEYS } from './levelLabels';
 import { notify } from '../../notify';
 
 type HabitFormValues = {
@@ -34,7 +34,7 @@ interface HabitFormProps {
   habit?: habit | null;
   categories: category[];
   onClose: () => void;
-  /** Called after a successful create/edit/delete so the list can refetch. */
+  /** Called after a successful create/edit so the list can refetch. */
   onSaved: () => void;
 }
 
@@ -79,7 +79,9 @@ function Segmented({
   );
 }
 
-const scale = (n: number) => Array.from({ length: n }, (_, i) => ({ value: i + 1, label: String(i + 1) }));
+/** [{value:1,label:t(keys[0])}, …] — keys are 1-based scale labels. */
+const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
+  keys.map((k, i) => ({ value: i + 1, label: t(k) }));
 
 export default function HabitForm({ visible, mode, habit, categories, onClose, onSaved }: HabitFormProps) {
   const { t } = useTranslation();
@@ -97,8 +99,8 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
       description: '',
       motivationalPhrase: '',
       iconId: '',
-      importance: 1,
-      difficulty: 1,
+      importance: 0,
+      difficulty: 0,
       categoriesId: [],
       experience: 0,
     },
@@ -112,8 +114,8 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
       description: habit?.description ?? '',
       motivationalPhrase: habit?.motivationalPhrase ?? '',
       iconId: habit?.iconId ?? '',
-      importance: habit?.importance ?? 1,
-      difficulty: habit?.dificulty ?? 1,
+      importance: habit?.importance ?? 0,
+      difficulty: habit?.dificulty ?? 0,
       categoriesId: habit?.categories?.map((c) => c.id) ?? [],
       experience: 0,
     });
@@ -155,26 +157,6 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
     notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
     onSaved();
     onClose();
-  };
-
-  const onDelete = () => {
-    if (!habit) return;
-    Alert.alert(t('DeleteHabit'), t('ConfirmDeleteHabit'), [
-      { text: t('Cancel'), style: 'cancel' },
-      {
-        text: t('Delete'),
-        style: 'destructive',
-        onPress: async () => {
-          const res = await deleteHabit(habit.id, t);
-          if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
-          else {
-            notify.success(t('deleted successfully'));
-            onSaved();
-            onClose();
-          }
-        },
-      },
-    ]);
   };
 
   return (
@@ -219,6 +201,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
                   placeholder={t('HabitDescriptionPlaceholder')}
                   error={errors.description?.message}
                   accessibilityLabel={t('Description')}
+                  multiline
                   testID="habit-description"
                 />
               )}
@@ -263,9 +246,17 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
               control={control}
               name="importance"
               render={({ field }) => (
-                <Segmented value={field.value} onChange={field.onChange} options={scale(5)} testID="habit-importance" />
+                <Segmented
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={labelOptions(IMPORTANCE_KEYS, t)}
+                  testID="habit-importance"
+                />
               )}
             />
+            {errors.importance?.message ? (
+              <Text className="text-error mt-1 text-sm">{errors.importance.message}</Text>
+            ) : null}
           </View>
 
           <View>
@@ -274,9 +265,17 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
               control={control}
               name="difficulty"
               render={({ field }) => (
-                <Segmented value={field.value} onChange={field.onChange} options={scale(5)} testID="habit-difficulty" />
+                <Segmented
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={labelOptions(DIFFICULTY_KEYS, t)}
+                  testID="habit-difficulty"
+                />
               )}
             />
+            {errors.difficulty?.message ? (
+              <Text className="text-error mt-1 text-sm">{errors.difficulty.message}</Text>
+            ) : null}
           </View>
 
           {!isEdit ? (
@@ -310,7 +309,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
             )}
           />
 
-          <View className="mt-2 items-center gap-3">
+          <View className="mt-2 items-center">
             <Button
               text={t(isEdit ? 'Edit' : 'Create')}
               mode="create"
@@ -318,11 +317,6 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
               onPress={handleSubmit(onSubmit)}
               testID="habit-submit"
             />
-            {isEdit ? (
-              <Pressable onPress={onDelete} accessibilityRole="button" testID="habit-delete" className="py-2">
-                <Text className="text-error text-base font-semibold">{t('DeleteHabit')}</Text>
-              </Pressable>
-            ) : null}
           </View>
         </ScrollView>
       </View>
