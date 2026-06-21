@@ -5,8 +5,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { getSnapshot, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
+import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterSnapshot, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { notify } from '../../notify';
 import SnapshotCard from './SnapshotCard';
 import { useSnapshotCheckin } from './useSnapshotCheckin';
 import type { RootState, AppDispatch } from '../../store';
@@ -24,14 +26,25 @@ export default function SnapshotHistory({ routineId }: { routineId: string }) {
   const snapshots = useSelector((s: RootState) => s.snapshot.snapshots);
   const dates = useSelector((s: RootState) => s.snapshot.snapshotDates ?? []);
   const [showPicker, setShowPicker] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const chips = useMemo(() => Array.from({ length: 7 }, (_, i) => iso(daysBack(i))), []);
 
   useEffect(() => {
     (async () => {
-      const res = await getSnapshotDatesForMonth(routineId, monthOf(new Date()), t);
-      if (res.success) dispatch(enterSnapshotDates(res.success.dates));
+      const currentMonth = monthOf(new Date());
+      const oldestChipMonth = monthOf(daysBack(6));
+
+      const [currentRes, prevRes] = await Promise.all([
+        getSnapshotDatesForMonth(routineId, currentMonth, t),
+        oldestChipMonth !== currentMonth
+          ? getSnapshotDatesForMonth(routineId, oldestChipMonth, t)
+          : Promise.resolve(null),
+      ]);
+
+      const currentDates = currentRes.success?.dates ?? [];
+      const prevDates = prevRes?.success?.dates ?? [];
+      const merged = Array.from(new Set([...currentDates, ...prevDates]));
+      dispatch(enterSnapshotDates(merged));
     })();
   }, [routineId, t, dispatch]);
 
@@ -40,9 +53,8 @@ export default function SnapshotHistory({ routineId }: { routineId: string }) {
     const res = await getSnapshot(routineId, date, t);
     if (res.success) {
       dispatch(enterSnapshot(res.success));
-      setSelectedId(res.success.id);
     } else {
-      setSelectedId(null);
+      notify.error(res.error ?? t('UnexpectedError'));
     }
   };
 
@@ -51,7 +63,7 @@ export default function SnapshotHistory({ routineId }: { routineId: string }) {
     if (e.type === 'set' && d) load(iso(d));
   };
 
-  const current = selectedId != null ? snapshots[selectedId] : undefined;
+  const current = Object.values(snapshots).find((s) => s.snapshotDate === selectedDate);
 
   return (
     <View className="mt-4 gap-3">
