@@ -288,7 +288,7 @@
     "Sat": "Sáb",
     "Sun": "Dom",
     "Weekdays": "Dias úteis",
-    "Weekend": "Fim de semana",
+    "Weekend": "Final de semana",
     "AllDays": "Todos os dias",
     "ScheduledIn": "Em: {{name}}",
     "No routines available, start create some to track you tasks!": "Nenhuma rotina disponível, comece a criar algumas para acompanhar suas tarefas!",
@@ -305,7 +305,6 @@
     "Saturday": "Sábado",
     "Sunday": "Domingo",
     "Mon - Fri": "Seg a Sex",
-    "Weekend": "Final de semana",
     "All week": "Toda a semana",
     "All": "Todos",
     "Swipe to scroll": "Deslize para ver mais",
@@ -649,5 +648,6 @@
     "HelloUser": "Olá, {{name}}!",
     "AssignItems": "Atribuir hábitos e tarefas",
     "NoSnapshotForDay": "Sem registro para este dia",
-    "XpEarned": "XP ganho"
+    "XpEarned": "XP ganho",
+    "History": "Histórico"
 }

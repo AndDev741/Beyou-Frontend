@@ -305,7 +305,6 @@
     "Saturday": "Saturday",
     "Sunday": "Sunday",
     "Mon - Fri": "Mon - Fri",
-    "Weekend": "Weekend",
     "All week": "All week",
     "All": "All",
     "Swipe to scroll": "Swipe to scroll",
@@ -649,5 +648,6 @@
     "HelloUser": "Hello, {{name}}!",
     "AssignItems": "Assign habits & tasks",
     "NoSnapshotForDay": "No snapshot for this day",
-    "XpEarned": "XP earned"
+    "XpEarned": "XP earned",
+    "History": "History"
 }

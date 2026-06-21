@@ -13,6 +13,7 @@ import type { Routine } from '@beyou/types/routine/routine';
 import type { schedule } from '@beyou/types/schedule/schedule';
 import RoutineDetail from '../../../src/ui/routines/RoutineDetail';
 import RoutineBuilder from '../../../src/ui/routines/RoutineBuilder';
+import SnapshotHistory from '../../../src/ui/routines/SnapshotHistory';
 import ScheduleSheet from '../../../src/ui/routines/ScheduleSheet';
 import ScheduleIndicator from '../../../src/ui/routines/ScheduleIndicator';
 import { notify } from '../../../src/notify';
@@ -101,6 +102,7 @@ export default function RoutineDetailScreen() {
       {routine ? <View className="px-4 pb-2"><ScheduleIndicator days={routine.schedule?.days} /></View> : null}
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4 }}>
         {routine ? <RoutineDetail routine={routine} /> : null}
+        {routine?.id ? <SnapshotHistory routineId={routine.id} /> : null}
       </ScrollView>
       <RoutineBuilder
         visible={edit}
