@@ -272,6 +272,8 @@
     "Need to fit between the section time": "Precisa ser entre o horário de início e término da seção",
     "RoutineSectionNameRequired": "O nome da seção é obrigatório",
     "RoutineSectionStartRequired": "O horário de início da seção é obrigatório",
+    "StartTime": "Início",
+    "EndTime": "Fim",
     "ItemEndAfterStart": "O horário de término deve ser após o início",
     "ItemStartWithinSection": "O horário de início precisa estar dentro da seção",
     "ItemEndWithinSection": "O horário de término precisa estar dentro da seção",
