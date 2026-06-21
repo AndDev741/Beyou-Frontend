@@ -27,7 +27,7 @@ test('blocks generate when the description is too short', async () => {
 
 test('generate → materialize → onReady with mapped sections', async () => {
   const post = jest.fn(async (url: string) =>
-    url.includes('/generate') ? { data: { success: { draft } } } : { data: { success: materialized } });
+    url.includes('/generate') ? { data: { draft } } : { data: materialized });
   setHttpClient({ get: async () => ({ data: [] }), post, put: post, delete: post } as never);
   setLogger({ error: () => {} });
   const onReady = jest.fn();

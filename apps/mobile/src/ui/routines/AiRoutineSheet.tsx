@@ -16,7 +16,6 @@ import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { RoutineDraft } from '@beyou/types/ai/routineDraft';
-import type { MaterializeResponse } from '@beyou/types/ai/materialize';
 import { store } from '../../store';
 import Input from '../Input';
 import Button from '../Button';
@@ -50,19 +49,13 @@ export default function AiRoutineSheet({ visible, onClose, onReady }: AiRoutineS
     setLoading(true);
     const gen = await generateRoutine({ description, language: i18next.language || 'en' }, t);
     if (!gen.success) { setLoading(false); notify.error(getFriendlyErrorMessage(t, gen.error)); return; }
-    // gen.success is { draft: RoutineDraft } (from generateRoutine wrapping response.data)
-    // When the HTTP layer returns { data: { success: { draft } } } the inner .success.draft holds the draft
-    const genSuccess = gen.success as { draft?: RoutineDraft; success?: { draft: RoutineDraft } };
-    const draft = genSuccess.draft ?? genSuccess.success?.draft;
+    const draft = gen.success.draft;
     if (!draft) { setLoading(false); notify.error(t('UnexpectedError')); return; }
     const mat = await materializeRoutine(sortDraft(draft), t);
     if (!mat.success) { setLoading(false); notify.error(getFriendlyErrorMessage(t, mat.error)); return; }
-    // mat.success is MaterializeResponse (from materializeRoutine wrapping response.data)
-    // When the HTTP layer returns { data: { success: materialized } } the inner .success holds the response
-    const matResult = ((mat.success as unknown as { success?: MaterializeResponse }).success ?? mat.success) as MaterializeResponse;
     await refreshSlices();
     setLoading(false);
-    onReady(matResult.name, materializeToSections(matResult));
+    onReady(mat.success.name, materializeToSections(mat.success));
     onClose();
   };
 
