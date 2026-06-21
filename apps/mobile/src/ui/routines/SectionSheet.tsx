@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
+import { uuidv4 } from '../../lib/uuid';
 import Input from '../Input';
 import Button from '../Button';
 import IconPickerField from '../icons/IconPickerField';
@@ -35,7 +36,7 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
     if (!name.trim()) { setError(t('RoutineSectionNameRequired')); return; }
     if (!startTime) { setError(t('RoutineSectionStartRequired')); return; }
     onSave({
-      id: section?.id ?? '',
+      id: section?.id || uuidv4(),
       name: name.trim(),
       iconId,
       startTime,
