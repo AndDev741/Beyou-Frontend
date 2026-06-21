@@ -95,7 +95,9 @@ describe('HabitForm create', () => {
     expect(notify.success).toHaveBeenCalled();
     expect(onSaved).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
-  });
+    // Heavy integration test (drives the icon-picker grid through ~8 act cycles);
+    // the 5s default is too tight on slower CI runners.
+  }, 20000);
 
   it('blocks submit when required fields are missing', async () => {
     await wrap(<HabitForm visible mode="create" categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
