@@ -4,6 +4,7 @@ import perfil from '@beyou/state/user/perfilSlice';
 import todayRoutine from '@beyou/state/routine/todayRoutineSlice';
 import routines from '@beyou/state/routine/routinesSlice';
 import editRoutine from '@beyou/state/routine/editRoutineSlice';
+import snapshot from '@beyou/state/routine/snapshotSlice';
 import habits from '@beyou/state/habit/habitsSlice';
 import tasks from '@beyou/state/task/tasksSlice';
 import goals from '@beyou/state/goal/goalsSlice';
@@ -25,6 +26,7 @@ export const makeStore = () =>
       todayRoutine,
       routines,
       editRoutine,
+      snapshot,
       habits,
       tasks,
       goals,
