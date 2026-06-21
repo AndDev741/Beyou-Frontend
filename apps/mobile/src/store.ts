@@ -2,6 +2,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './auth/authSlice';
 import perfil from '@beyou/state/user/perfilSlice';
 import todayRoutine from '@beyou/state/routine/todayRoutineSlice';
+import routines from '@beyou/state/routine/routinesSlice';
+import editRoutine from '@beyou/state/routine/editRoutineSlice';
 import habits from '@beyou/state/habit/habitsSlice';
 import tasks from '@beyou/state/task/tasksSlice';
 import goals from '@beyou/state/goal/goalsSlice';
@@ -21,6 +23,8 @@ export const makeStore = () =>
       auth: authReducer,
       perfil,
       todayRoutine,
+      routines,
+      editRoutine,
       habits,
       tasks,
       goals,

@@ -263,6 +263,7 @@
     "End time": "Hora de término",
     "No sections added": "Nenhuma seção adicionada",
     "Edit Routine Section": "Editar seção da rotina",
+    "Edit Routine": "Editar rotina",
     "Add Habit or task": "Adicionar hábito ou tarefa",
     "No habits or task available, create one": "Nenhum hábito ou tarefa disponível, crie um",
     "Creating Routine Section": "Criar uma seção de rotina",
@@ -272,6 +273,8 @@
     "Need to fit between the section time": "Precisa ser entre o horário de início e término da seção",
     "RoutineSectionNameRequired": "O nome da seção é obrigatório",
     "RoutineSectionStartRequired": "O horário de início da seção é obrigatório",
+    "StartTime": "Início",
+    "EndTime": "Fim",
     "ItemEndAfterStart": "O horário de término deve ser após o início",
     "ItemStartWithinSection": "O horário de início precisa estar dentro da seção",
     "ItemEndWithinSection": "O horário de término precisa estar dentro da seção",
@@ -479,6 +482,9 @@
     "XP": "XP",
     "Diary Routine": "Rotina diária",
     "Routines": "Rotinas",
+    "NoRoutinesYet": "Nenhuma rotina ainda",
+    "DeleteRoutine": "Excluir rotina",
+    "ConfirmDeleteRoutine": "Excluir esta rotina? Isso não pode ser desfeito.",
     "morning": "Manhã",
     "afternoon": "Tarde",
     "evening": "Entardecer",
@@ -629,5 +635,6 @@
     "LifeBalanceFallback": "Adicione pelo menos 3 categorias para ver sua vida inteira de relance",
     "AlreadyHaveAccount": "Já tem uma conta? Entrar",
     "NoAccount": "Não tem uma conta? Registrar",
-    "HelloUser": "Olá, {{name}}!"
+    "HelloUser": "Olá, {{name}}!",
+    "AssignItems": "Atribuir hábitos e tarefas"
 }

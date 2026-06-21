@@ -263,6 +263,7 @@
     "End time": "End time",
     "No sections added": "No sections added",
     "Edit Routine Section": "Edit Routine Section",
+    "Edit Routine": "Edit routine",
     "Add Habit or task": "Add Habit or Task",
     "No habits or task available, create one": "No habits or tasks available, create one",
     "Creating Routine Section": "Creating Routine Section",
@@ -272,6 +273,8 @@
     "Need to fit between the section time": "Need to fit between the section time",
     "RoutineSectionNameRequired": "Section name is required",
     "RoutineSectionStartRequired": "Section start time is required",
+    "StartTime": "Start time",
+    "EndTime": "End time",
     "ItemEndAfterStart": "End time must be after start time",
     "ItemStartWithinSection": "Start time must be within the section time",
     "ItemEndWithinSection": "End time must be within the section time",
@@ -479,6 +482,9 @@
     "XP": "XP",
     "Diary Routine": "Diary Routine",
     "Routines": "Routines",
+    "NoRoutinesYet": "No routines yet",
+    "DeleteRoutine": "Delete routine",
+    "ConfirmDeleteRoutine": "Delete this routine? This cannot be undone.",
     "morning": "Morning",
     "afternoon": "Afternoon",
     "evening": "Evening",
@@ -629,5 +635,6 @@
     "LifeBalanceFallback": "Add at least 3 categories to see your whole life at a glance",
     "AlreadyHaveAccount": "Already have an account? Log in",
     "NoAccount": "Don't have an account? Register",
-    "HelloUser": "Hello, {{name}}!"
+    "HelloUser": "Hello, {{name}}!",
+    "AssignItems": "Assign habits & tasks"
 }

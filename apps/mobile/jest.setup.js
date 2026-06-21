@@ -45,3 +45,9 @@ jest.mock('lucide-react-native', () =>
     { get: (_t, prop) => (prop === '__esModule' ? true : () => null) },
   ),
 );
+
+// @react-native-community/datetimepicker wraps a native module that is absent in
+// jest. The mock lives at __mocks__/@react-native-community/datetimepicker.js
+// (auto-discovered by Jest's manual mock resolution) so NativeWind's babel plugin
+// does not inject _ReactNativeCSSInterop into the factory — placing jest.mock()
+// inside jest.setup.js causes that injection and a "variable out of scope" error.
