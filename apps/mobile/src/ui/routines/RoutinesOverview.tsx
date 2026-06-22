@@ -53,12 +53,17 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
 
   useEffect(() => {
     (async () => {
-      const results = await Promise.all(routines.map((r) => getSnapshotDatesForMonth(r.id as string, monthOf(new Date()), t)));
+      const curMonth = monthOf(new Date());
+      const oldestChip = chips[chips.length - 1]; // 6 days back
+      const oldestMonth = oldestChip.slice(0, 7);
+      const months = oldestMonth !== curMonth ? [curMonth, oldestMonth] : [curMonth];
+      const calls = routines.flatMap((r) => months.map((m) => getSnapshotDatesForMonth(r.id as string, m, t)));
+      const results = await Promise.all(calls);
       const all = new Set<string>();
       results.forEach((res) => { if (res.success?.dates) res.success.dates.forEach((d) => all.add(d)); });
       dispatch(enterSnapshotDates([...all]));
     })();
-  }, [routines, t, dispatch]);
+  }, [routines, t, dispatch, chips]);
 
   const load = async (date: string) => {
     dispatch(setSelectedDate(date === today ? '' : date));
@@ -118,12 +123,15 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
 
       {isPast && snapshotPairs.length > 0 ? (
         <View className="gap-3">
-          {snapshotPairs.map(({ snapshot, routineId }) => (
-            <SnapshotWithCheckin key={snapshot.id} snapshot={snapshot} routineId={routineId} />
-          ))}
+          {snapshotPairs.map((pair) => {
+            const live = snapshots[pair.snapshot.id] ?? pair.snapshot;
+            return (
+              <SnapshotWithCheckin key={pair.snapshot.id} snapshot={live} routineId={pair.routineId} />
+            );
+          })}
         </View>
       ) : null}
-      {isPast && snapshotPairs.length === 0 && daySnapshots.length === 0 ? (
+      {isPast && snapshotPairs.length === 0 ? (
         <Text className="text-description text-center text-sm">{t('NoSnapshotForDay')}</Text>
       ) : null}
     </View>
