@@ -44,3 +44,6 @@ apps/mobile/.expo/
 apps/mobile/android/
 apps/mobile/ios/
 apps/mobile/.metro-health-check*
+
+# Superpowers SDD scratch (briefs, reports, review packages, ledger)
+.superpowers/

@@ -44,3 +44,11 @@ test('the + button opens the builder', async () => {
   await act(async () => { fireEvent.press(screen.getByTestId('create-routine')); });
   expect(screen.getByTestId('routine-name')).toBeTruthy();
 });
+
+test('the AI button opens the AI sheet', async () => {
+  setHttp([]);
+  await renderScreen();
+  await waitFor(() => expect(screen.getByTestId('ai-routine')).toBeTruthy());
+  await act(async () => { fireEvent.press(screen.getByTestId('ai-routine')); });
+  expect(screen.getByTestId('ai-description')).toBeTruthy();
+});

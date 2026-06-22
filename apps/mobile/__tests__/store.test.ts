@@ -5,3 +5,7 @@ test('store wires the routines + editRoutine reducers', () => {
   expect(state.routines).toBeDefined();
   expect(state.editRoutine).toBeDefined();
 });
+
+test('store wires the snapshot reducer', () => {
+  expect((makeStore().getState() as Record<string, unknown>).snapshot).toBeDefined();
+});
