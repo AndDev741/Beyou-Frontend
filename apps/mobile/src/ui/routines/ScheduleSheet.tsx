@@ -2,14 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
 import createSchedule from '@beyou/api/schedule/createSchedule';
 import editSchedule from '@beyou/api/schedule/editSchedule';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { Routine } from '@beyou/types/routine/routine';
 import Button from '../Button';
 import { DAYS } from './ScheduleIndicator';
-import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import type { RootState } from '../../store';
 
@@ -26,7 +24,6 @@ interface ScheduleSheetProps {
 
 export default function ScheduleSheet({ visible, routine, onClose, onSaved }: ScheduleSheetProps) {
   const { t } = useTranslation();
-  const { theme } = useBeyouTheme();
   // Read other routines' schedules straight from the routines slice (each routine
   // carries its `schedule.days`) — same source the web uses. A separate getSchedules
   // call was unreliable (shape mismatch → no conflicts detected).
@@ -128,16 +125,15 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 testID={`day-${d.wire}`}
-                className={`flex-row items-center justify-between rounded-lg border p-3 ${
-                  blocked ? 'border-description/30 bg-description/5' : selected ? 'border-primary bg-primary/10' : 'border-primary/30'
+                className={`flex-row items-center justify-between rounded-lg border-2 p-3 ${
+                  blocked ? 'border-error' : selected ? 'border-primary bg-primary/10' : 'border-primary/30'
                 }`}
               >
                 <View className="flex-row items-center gap-2">
-                  {blocked ? <Ionicons name="lock-closed" size={14} color={theme.description} /> : null}
-                  <Text className={`text-base ${blocked ? 'text-description' : selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{t(d.key)}</Text>
+                  <Text className={`text-base ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{t(d.key)}</Text>
                   {overridden ? <Text className="text-primary text-[10px] font-semibold uppercase">{t('Override')}</Text> : null}
                 </View>
-                {conflict ? <Text className="text-description text-xs">{t('ScheduledIn', { name: conflict })}</Text> : null}
+                {conflict ? <Text className={`text-xs ${blocked ? 'text-error' : 'text-description'}`}>{t('ScheduledIn', { name: conflict })}</Text> : null}
               </Pressable>
             );
           })}
