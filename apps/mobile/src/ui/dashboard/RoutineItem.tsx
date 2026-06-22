@@ -27,6 +27,8 @@ interface RoutineItemProps {
   motivationalPhrase?: string;
   /** YYYY-MM-DD for "today" — matched against check.checkDate. */
   today: string;
+  /** Called after a successful check or skip so callers can refetch routine state. */
+  onChanged?: () => void;
 }
 
 const fmt = (s?: string) => (s ? s.slice(0, 5) : '');
@@ -37,7 +39,7 @@ function groupDTO(item: MergedItem) {
     : { habitGroupDTO: { habitGroupId: item.groupId, startTime: item.startTime ?? '' } };
 }
 
-export default function RoutineItem({ routineId, item, name, motivationalPhrase, today }: RoutineItemProps) {
+export default function RoutineItem({ routineId, item, name, motivationalPhrase, today, onChanged }: RoutineItemProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const { check, skip } = useRoutineCheckin();
@@ -64,6 +66,7 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
       floatTimer.current = setTimeout(() => setXpFloat(null), XP_FLOAT_DURATION_MS);
     }
     setPending(false);
+    onChanged?.();
   };
 
   const onSkip = async () => {
@@ -72,6 +75,7 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
     const dto: itemGroupToSkip = { routineId, skip: !skipped, ...groupDTO(item) };
     await skip(dto);
     setPending(false);
+    onChanged?.();
   };
 
   const timeRange = [fmt(item.startTime), fmt(item.endTime)].filter(Boolean).join(' - ');
