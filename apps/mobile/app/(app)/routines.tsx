@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import getRoutines from '@beyou/api/routine/getRoutines';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
-import getSchedules from '@beyou/api/schedule/getSchedules';
 import deleteRoutine from '@beyou/api/routine/deleteRoutine';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterRoutines } from '@beyou/state/routine/routinesSlice';
@@ -16,7 +15,6 @@ import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { sortRoutines } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
-import type { schedule } from '@beyou/types/schedule/schedule';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
 import RoutinesOverview from '../../src/ui/routines/RoutinesOverview';
 import RoutinesSortSheet from '../../src/ui/routines/RoutinesSortSheet';
@@ -45,7 +43,6 @@ export default function RoutinesScreen() {
   const [aiSeed, setAiSeed] = useState<{ name: string; iconId: string; routineSections: RoutineSection[] } | null>(null);
   const [editTarget, setEditTarget] = useState<Routine | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<Routine | null>(null);
-  const [otherSchedules, setOtherSchedules] = useState<schedule[]>([]);
 
   const today = todayIso();
   const isPast = !!selectedDate && selectedDate < today;
@@ -60,11 +57,8 @@ export default function RoutinesScreen() {
 
   useEffect(() => { let active = true; (async () => { await load(); if (active) setLoading(false); })(); return () => { active = false; }; }, [load]);
 
-  const onSchedule = useCallback(async (r: Routine) => {
-    const res = await getSchedules(t);
-    if (res.success) setOtherSchedules(res.success as schedule[]);
-    setScheduleTarget(r);
-  }, [t]);
+  // ScheduleSheet derives conflicts from the routines slice itself — just open it.
+  const onSchedule = useCallback((r: Routine) => setScheduleTarget(r), []);
 
   const onDelete = useCallback((r: Routine) => {
     if (!r.id) return;
@@ -132,7 +126,7 @@ export default function RoutinesScreen() {
       <AiRoutineSheet visible={aiOpen} onClose={() => setAiOpen(false)} onReady={(name, routineSections) => { setAiOpen(false); setAiSeed({ name, iconId: '', routineSections }); }} />
       <RoutineBuilder visible={aiSeed !== null} mode="create" routine={aiSeed ?? undefined} habits={habits} tasks={tasks} onClose={() => setAiSeed(null)} onSaved={load} />
       {scheduleTarget ? (
-        <ScheduleSheet visible routine={scheduleTarget} otherSchedules={otherSchedules} onClose={() => setScheduleTarget(null)} onSaved={load} />
+        <ScheduleSheet visible routine={scheduleTarget} onClose={() => setScheduleTarget(null)} onSaved={load} />
       ) : null}
     </View>
   );

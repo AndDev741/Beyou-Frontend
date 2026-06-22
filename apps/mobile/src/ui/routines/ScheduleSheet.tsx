@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import createSchedule from '@beyou/api/schedule/createSchedule';
 import editSchedule from '@beyou/api/schedule/editSchedule';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { Routine } from '@beyou/types/routine/routine';
-import type { schedule } from '@beyou/types/schedule/schedule';
 import Button from '../Button';
 import { DAYS } from './ScheduleIndicator';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
+import type { RootState } from '../../store';
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const WEEKEND = ['Saturday', 'Sunday'];
@@ -19,14 +20,17 @@ const ALL = DAYS.map((d) => d.wire);
 interface ScheduleSheetProps {
   visible: boolean;
   routine: Routine;
-  otherSchedules: schedule[];
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function ScheduleSheet({ visible, routine, otherSchedules, onClose, onSaved }: ScheduleSheetProps) {
+export default function ScheduleSheet({ visible, routine, onClose, onSaved }: ScheduleSheetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
+  // Read other routines' schedules straight from the routines slice (each routine
+  // carries its `schedule.days`) — same source the web uses. A separate getSchedules
+  // call was unreliable (shape mismatch → no conflicts detected).
+  const allRoutines = useSelector((s: RootState) => s.routines.routines);
   const [days, setDays] = useState<string[]>([]);
   const [overrides, setOverrides] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
@@ -40,12 +44,12 @@ export default function ScheduleSheet({ visible, routine, otherSchedules, onClos
   // day -> name of ANOTHER routine already scheduled that day (conflict).
   const blockedBy = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const s of otherSchedules) {
-      if (s.routine?.id === routine.id) continue;
-      for (const d of s.days ?? []) if (!map[d]) map[d] = s.routine?.name ?? '';
+    for (const r of allRoutines) {
+      if (r.id === routine.id) continue;
+      for (const d of r.schedule?.days ?? []) if (!map[d]) map[d] = r.name;
     }
     return map;
-  }, [otherSchedules, routine.id]);
+  }, [allRoutines, routine.id]);
 
   // Keep canonical Mon..Sun order on save regardless of tap order.
   const ordered = (list: string[]) => ALL.filter((d) => list.includes(d));
