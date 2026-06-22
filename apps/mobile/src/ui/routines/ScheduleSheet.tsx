@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { Modal, View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import createSchedule from '@beyou/api/schedule/createSchedule';
 import editSchedule from '@beyou/api/schedule/editSchedule';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -8,6 +9,7 @@ import type { Routine } from '@beyou/types/routine/routine';
 import type { schedule } from '@beyou/types/schedule/schedule';
 import Button from '../Button';
 import { DAYS } from './ScheduleIndicator';
+import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -24,15 +26,18 @@ interface ScheduleSheetProps {
 
 export default function ScheduleSheet({ visible, routine, otherSchedules, onClose, onSaved }: ScheduleSheetProps) {
   const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
   const [days, setDays] = useState<string[]>([]);
+  const [overrides, setOverrides] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
     setDays(routine.schedule?.days ?? []);
+    setOverrides(new Set());
   }, [visible, routine]);
 
-  // day -> name of another routine already scheduled that day (conflict hint)
+  // day -> name of ANOTHER routine already scheduled that day (conflict).
   const blockedBy = useMemo(() => {
     const map: Record<string, string> = {};
     for (const s of otherSchedules) {
@@ -42,14 +47,38 @@ export default function ScheduleSheet({ visible, routine, otherSchedules, onClos
     return map;
   }, [otherSchedules, routine.id]);
 
-  const toggle = (day: string) =>
-    setDays((cur) => (cur.includes(day) ? cur.filter((d) => d !== day) : [...cur, day]));
-
   // Keep canonical Mon..Sun order on save regardless of tap order.
   const ordered = (list: string[]) => ALL.filter((d) => list.includes(d));
 
+  const select = (day: string) => setDays((cur) => (cur.includes(day) ? cur : ordered([...cur, day])));
+  const toggle = (day: string) =>
+    setDays((cur) => (cur.includes(day) ? cur.filter((d) => d !== day) : ordered([...cur, day])));
+
+  const onDayPress = (day: string) => {
+    // A day owned by another routine is blocked until the user confirms an override.
+    if (blockedBy[day] && !overrides.has(day)) {
+      Alert.alert(t('DayAlreadyScheduled'), t('ConfirmOverrideDay', { name: blockedBy[day] }), [
+        { text: t('Cancel'), style: 'cancel' },
+        {
+          text: t('Override'),
+          onPress: () => {
+            setOverrides((prev) => new Set(prev).add(day));
+            select(day);
+          },
+        },
+      ]);
+      return;
+    }
+    toggle(day);
+  };
+
+  // Quick-groups skip blocked (non-overridden) days — those need an explicit override.
   const toggleGroup = (group: string[]) =>
-    setDays((cur) => (group.every((d) => cur.includes(d)) ? cur.filter((d) => !group.includes(d)) : ordered([...new Set([...cur, ...group])])));
+    setDays((cur) => {
+      if (group.every((d) => cur.includes(d))) return cur.filter((d) => !group.includes(d));
+      const allowed = group.filter((d) => !blockedBy[d] || overrides.has(d));
+      return ordered([...new Set([...cur, ...allowed])]);
+    });
 
   const save = async () => {
     setSubmitting(true);
@@ -86,16 +115,24 @@ export default function ScheduleSheet({ visible, routine, otherSchedules, onClos
           {DAYS.map((d) => {
             const selected = days.includes(d.wire);
             const conflict = blockedBy[d.wire];
+            const overridden = overrides.has(d.wire);
+            const blocked = !!conflict && !overridden;
             return (
               <Pressable
                 key={d.wire}
-                onPress={() => toggle(d.wire)}
+                onPress={() => onDayPress(d.wire)}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 testID={`day-${d.wire}`}
-                className={`flex-row items-center justify-between rounded-lg border p-3 ${selected ? 'border-primary bg-primary/10' : 'border-primary/30'}`}
+                className={`flex-row items-center justify-between rounded-lg border p-3 ${
+                  blocked ? 'border-description/30 bg-description/5' : selected ? 'border-primary bg-primary/10' : 'border-primary/30'
+                }`}
               >
-                <Text className={`text-base ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{t(d.key)}</Text>
+                <View className="flex-row items-center gap-2">
+                  {blocked ? <Ionicons name="lock-closed" size={14} color={theme.description} /> : null}
+                  <Text className={`text-base ${blocked ? 'text-description' : selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{t(d.key)}</Text>
+                  {overridden ? <Text className="text-primary text-[10px] font-semibold uppercase">{t('Override')}</Text> : null}
+                </View>
                 {conflict ? <Text className="text-description text-xs">{t('ScheduledIn', { name: conflict })}</Text> : null}
               </Pressable>
             );
