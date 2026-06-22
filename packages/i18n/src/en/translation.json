@@ -649,5 +649,7 @@
     "AssignItems": "Assign habits & tasks",
     "NoSnapshotForDay": "No snapshot for this day",
     "XpEarned": "XP earned",
-    "History": "History"
+    "History": "History",
+    "RoutinesCount": "Routines",
+    "ItemsDone": "Items done"
 }

@@ -649,5 +649,7 @@
     "AssignItems": "Atribuir hábitos e tarefas",
     "NoSnapshotForDay": "Sem registro para este dia",
     "XpEarned": "XP ganho",
-    "History": "Histórico"
+    "History": "Histórico",
+    "RoutinesCount": "Rotinas",
+    "ItemsDone": "Itens feitos"
 }
