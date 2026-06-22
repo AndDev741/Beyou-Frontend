@@ -26,6 +26,10 @@ function SnapshotWithCheckin({ snapshot, routineId }: { snapshot: Snapshot; rout
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const monthOf = (d: Date) => d.toISOString().slice(0, 7);
 const daysBack = (n: number): Date => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
+// getDay() 0=Sun..6=Sat → existing Mon..Sun i18n keys (en/pt); reused for the chip weekday label.
+const WEEKDAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+// Parse at noon so the local weekday + day-number match the ISO date (no tz day-shift).
+const dateAtNoon = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
 
 function Insight({ label, value }: { label: string; value: string | number }) {
   return (
@@ -47,14 +51,14 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
   const [snapshotPairs, setSnapshotPairs] = useState<SnapshotPair[]>([]);
 
   const today = iso(new Date());
-  const chips = useMemo(() => Array.from({ length: 7 }, (_, i) => iso(daysBack(i))), []);
+  const chips = useMemo(() => Array.from({ length: 5 }, (_, i) => iso(daysBack(i))), []);
   const day = selectedDate || today;
   const isPast = day < today;
 
   useEffect(() => {
     (async () => {
       const curMonth = monthOf(new Date());
-      const oldestChip = chips[chips.length - 1]; // 6 days back
+      const oldestChip = chips[chips.length - 1]; // 4 days back
       const oldestMonth = oldestChip.slice(0, 7);
       const months = oldestMonth !== curMonth ? [curMonth, oldestMonth] : [curMonth];
       const calls = routines.flatMap((r) => months.map((m) => getSnapshotDatesForMonth(r.id as string, m, t)));
@@ -98,10 +102,13 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
           const sel = date === day;
           const has = dates.includes(date);
           return (
-            <Pressable key={date} onPress={() => load(date)} accessibilityRole="button" testID={`rov-day-${i}`}
-              className={`items-center rounded-lg border px-3 py-2 ${sel ? 'border-primary bg-primary/10' : 'border-primary/30'}`}>
-              <Text className={`text-xs ${sel ? 'text-primary font-semibold' : 'text-secondary'}`}>{i === 0 ? t('History') : date.slice(5)}</Text>
-              {has ? <View className="mt-1 h-1.5 w-1.5 rounded-full bg-primary" /> : null}
+            <Pressable key={date} onPress={() => load(date)} accessibilityRole="button" accessibilityState={{ selected: sel }} testID={`rov-day-${i}`}
+              className={`h-14 w-12 items-center justify-center rounded-2xl border-2 ${sel ? 'border-primary bg-primary' : 'border-primary/20'}`}>
+              <Text className={`text-[10px] font-bold tracking-wide ${sel ? 'text-background' : 'text-description'}`}>
+                {t(WEEKDAY_KEYS[dateAtNoon(date).getDay()]).toUpperCase()}
+              </Text>
+              <Text className={`text-sm font-bold ${sel ? 'text-background' : 'text-secondary'}`}>{dateAtNoon(date).getDate()}</Text>
+              {has && !sel ? <View className="mt-0.5 h-1 w-1 rounded-full bg-primary" /> : null}
             </Pressable>
           );
         })}
