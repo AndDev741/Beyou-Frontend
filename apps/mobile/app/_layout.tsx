@@ -1,3 +1,6 @@
+// Polyfill crypto.getRandomValues FIRST — the shared `uuid` package (used by the
+// AI routine materialize flow) needs it, and React Native/Hermes doesn't provide it.
+import 'react-native-get-random-values';
 import '../global.css';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
