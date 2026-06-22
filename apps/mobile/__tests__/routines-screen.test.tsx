@@ -63,3 +63,26 @@ test('today mode shows the sort pill + an expandable card', async () => {
   await waitFor(() => expect(screen.getByTestId('routine-card-r1')).toBeTruthy());
   expect(screen.getByTestId('routines-sort')).toBeTruthy();
 });
+
+function setHttpForSnapshots(routines: unknown[], date: string) {
+  const snapshot = { id: 'sn1', snapshotDate: date, routineName: 'Morning', routineIconId: '', completed: false, structure: { sections: [{ name: 'Wake', iconId: '', orderIndex: 0, startTime: '06:00', endTime: null, items: [] }] }, checks: [] };
+  const get = async (url: string, opts?: { params?: { month?: string; date?: string } }) => {
+    if (url === '/routine') return { data: routines };
+    if (url === '/schedule') return { data: [] };
+    if (url.includes('/snapshots') && opts?.params?.month) return { data: { dates: [date] } };
+    if (url.includes('/snapshot') && opts?.params?.date) return { data: snapshot };
+    return { data: [] };
+  };
+  setHttpClient({ get, post: get, put: get, delete: get } as never);
+  setLogger({ error: () => {} });
+}
+
+test('past day shows snapshot cards instead of routine cards', async () => {
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  setHttpForSnapshots([{ id: 'r1', name: 'Morning', iconId: '', routineSections: [] }], yesterday);
+  await renderScreen();
+  await waitFor(() => expect(screen.getByTestId('routine-card-r1')).toBeTruthy());
+  await act(async () => { fireEvent.press(screen.getByTestId('rov-day-1')); }); // pick yesterday
+  await waitFor(() => expect(screen.getByTestId('snapshot-card')).toBeTruthy());
+  expect(screen.queryByTestId('routine-card-r1')).toBeNull();
+});

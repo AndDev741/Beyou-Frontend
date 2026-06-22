@@ -10,6 +10,18 @@ import type { Routine } from '@beyou/types/routine/routine';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../store';
+import SnapshotCard from './SnapshotCard';
+import { useSnapshotCheckin } from './useSnapshotCheckin';
+
+interface SnapshotPair {
+  snapshot: Snapshot;
+  routineId: string;
+}
+
+function SnapshotWithCheckin({ snapshot, routineId }: { snapshot: Snapshot; routineId: string }) {
+  const { check, skip } = useSnapshotCheckin(routineId);
+  return <SnapshotCard snapshot={snapshot} onCheck={(id) => check(snapshot, id)} onSkip={(id) => skip(snapshot, id)} />;
+}
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const monthOf = (d: Date) => d.toISOString().slice(0, 7);
@@ -32,6 +44,7 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
   const snapshots = useSelector((s: RootState) => s.snapshot.snapshots);
   const dates = useSelector((s: RootState) => s.snapshot.snapshotDates ?? []);
   const [showPicker, setShowPicker] = useState(false);
+  const [snapshotPairs, setSnapshotPairs] = useState<SnapshotPair[]>([]);
 
   const today = iso(new Date());
   const chips = useMemo(() => Array.from({ length: 7 }, (_, i) => iso(daysBack(i))), []);
@@ -49,10 +62,14 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
 
   const load = async (date: string) => {
     dispatch(setSelectedDate(date === today ? '' : date));
-    if (date >= today) return; // today → live mode, no snapshot fetch
+    if (date >= today) { setSnapshotPairs([]); return; } // today → live mode, no snapshot fetch
     const results = await Promise.all(routines.map((r) => getSnapshot(r.id as string, date, t)));
     const valid = results.map((r) => r.success).filter(Boolean) as Snapshot[];
     dispatch(enterSnapshots(valid));
+    const pairs = results
+      .map((r, i) => r.success ? { snapshot: r.success, routineId: routines[i].id as string } : null)
+      .filter(Boolean) as SnapshotPair[];
+    setSnapshotPairs(pairs);
   };
 
   const onPick = (e: DateTimePickerEvent, d?: Date) => { setShowPicker(false); if (e.type === 'set' && d) load(iso(d)); };
@@ -98,6 +115,17 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
         <Insight label={t('ItemsDone')} value={insights.done} />
         <Insight label={t('XpEarned')} value={insights.xp} />
       </View>
+
+      {isPast && snapshotPairs.length > 0 ? (
+        <View className="gap-3">
+          {snapshotPairs.map(({ snapshot, routineId }) => (
+            <SnapshotWithCheckin key={snapshot.id} snapshot={snapshot} routineId={routineId} />
+          ))}
+        </View>
+      ) : null}
+      {isPast && snapshotPairs.length === 0 && daySnapshots.length === 0 ? (
+        <Text className="text-description text-center text-sm">{t('NoSnapshotForDay')}</Text>
+      ) : null}
     </View>
   );
 }

@@ -109,7 +109,6 @@ export default function RoutinesScreen() {
             <View className="gap-2">
               <RoutinesOverview routines={routines} />
               {!isPast ? <View className="px-4"><RoutinesSortSheet /></View> : null}
-              {/* Task 7 renders the snapshot list here when isPast. */}
             </View>
           }
           renderItem={({ item }) => (
