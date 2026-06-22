@@ -1,5 +1,5 @@
 /**
- * Routines screen (P7 PR1) — self-fetches routines + habits + tasks, renders cards,
+ * Routines screen (P7 PR1 + PR3) — self-fetches routines + habits + tasks, renders cards,
  * shows empty state when none. Boundary mocked = @beyou/api HttpClient + expo-router + notify.
  */
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
@@ -18,7 +18,11 @@ import RoutinesScreen from '../app/(app)/routines';
 const routine = { id: 'r1', name: 'Morning', iconId: 'lucide:sun', routineSections: [] };
 
 function setHttp(routines: unknown[]) {
-  const get = async (url: string) => (url === '/routine' ? { data: routines } : { data: [] });
+  const get = async (url: string) => {
+    if (url === '/routine') return { data: routines };
+    if (url === '/schedule') return { data: [] };
+    return { data: [] };
+  };
   setHttpClient({ get, post: get, put: get, delete: get } as never);
   setLogger({ error: () => {} });
 }
@@ -51,4 +55,11 @@ test('the AI button opens the AI sheet', async () => {
   await waitFor(() => expect(screen.getByTestId('ai-routine')).toBeTruthy());
   await act(async () => { fireEvent.press(screen.getByTestId('ai-routine')); });
   expect(screen.getByTestId('ai-description')).toBeTruthy();
+});
+
+test('today mode shows the sort pill + an expandable card', async () => {
+  setHttp([routine]);
+  await renderScreen();
+  await waitFor(() => expect(screen.getByTestId('routine-card-r1')).toBeTruthy());
+  expect(screen.getByTestId('routines-sort')).toBeTruthy();
 });
