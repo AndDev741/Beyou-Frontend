@@ -18,9 +18,14 @@ const BUCKETS = [
   { key: 'past', title: 'Past Goals' },
 ] as const;
 
+const fmtDate = (v: Date | string | undefined) =>
+  !v ? '' : typeof v === 'string' ? v.slice(0, 10) : new Date(v).toISOString().slice(0, 10);
+
 function GoalRow({ goal, onPress }: { goal: goal; onPress: () => void }) {
   const { theme } = useBeyouTheme();
   const pct = goal.targetValue > 0 ? Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100)) : 0;
+  const steps = `${goal.currentValue} / ${goal.targetValue}${goal.unit ? ` ${goal.unit}` : ''}`;
+  const dateRange = [fmtDate(goal.startDate), fmtDate(goal.endDate)].filter(Boolean).join(' → ');
   return (
     <Pressable
       onPress={onPress}
@@ -30,11 +35,15 @@ function GoalRow({ goal, onPress }: { goal: goal; onPress: () => void }) {
       className="flex-row items-center gap-3 rounded-xl border border-primary/15 bg-background p-3 active:opacity-80"
     >
       <BeyouIcon id={goal.iconId} size={20} showFallback />
-      <View className="flex-1">
-        <Text className="text-secondary text-sm font-semibold" numberOfLines={1}>{goal.name}</Text>
-        <View className="mt-1 h-1.5 overflow-hidden rounded-full bg-primary/15">
+      <View className="flex-1 gap-1">
+        <View className="flex-row items-center justify-between gap-2">
+          <Text className="text-secondary flex-1 text-sm font-semibold" numberOfLines={1}>{goal.name}</Text>
+          <Text className="text-description text-xs">{steps}</Text>
+        </View>
+        <View className="h-1.5 overflow-hidden rounded-full bg-primary/15">
           <View className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
         </View>
+        {dateRange ? <Text className="text-description text-[11px]">{dateRange}</Text> : null}
       </View>
       {goal.complete ? (
         <Ionicons name="checkmark-circle" size={18} color={theme.primary} />

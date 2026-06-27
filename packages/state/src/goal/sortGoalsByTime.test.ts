@@ -33,6 +33,13 @@ describe('sortGoalsByTime', () => {
     expect(total).toBe(1); // invalid dropped
   });
 
+  it('sorts goals within a bucket by end date ascending (soonest first)', () => {
+    const later = g('later', daysFromNow(800));
+    const sooner = g('sooner', daysFromNow(400));
+    const out = sortGoalsByTime([later, sooner]); // both "beyond"
+    expect(out.beyond.map((x) => x.id)).toEqual(['sooner', 'later']);
+  });
+
   it('returns empty buckets for empty input', () => {
     const out = sortGoalsByTime([]);
     expect(out).toEqual({ past: [], thisWeek: [], thisMonth: [], thisYear: [], beyond: [] });

@@ -8,6 +8,12 @@ export type SortedGoals = {
   beyond: goal[];
 };
 
+const endMs = (g: goal): number => {
+  const d = g.endDate instanceof Date ? g.endDate : new Date(g.endDate);
+  const ms = d.getTime();
+  return Number.isNaN(ms) ? Number.POSITIVE_INFINITY : ms;
+};
+
 const startOfWeekMonday = (now: Date): Date => {
   const d = new Date(now);
   const day = d.getDay(); // 0=Sun … 6=Sat
@@ -41,6 +47,11 @@ export function sortGoalsByTime(goals: goal[]): SortedGoals {
     else if (end <= monthEnd) sorted.thisMonth.push(g);
     else if (end <= yearEnd) sorted.thisYear.push(g);
     else sorted.beyond.push(g);
+  }
+
+  // Within every bucket, soonest end date first so the most urgent goals lead.
+  for (const key of Object.keys(sorted) as (keyof SortedGoals)[]) {
+    sorted[key].sort((a, b) => endMs(a) - endMs(b));
   }
 
   return sorted;

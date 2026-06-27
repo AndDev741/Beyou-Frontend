@@ -36,6 +36,7 @@ test('renders the goals view with a bucket + read-only row', async () => {
   expect(screen.getAllByText('This Week').length).toBeGreaterThanOrEqual(1); // chip + section title
   expect(screen.getByTestId('dash-goal-g1')).toBeTruthy();
   expect(screen.getByText('Read books')).toBeTruthy();
+  expect(screen.getByText('3 / 10 books')).toBeTruthy(); // steps (current / target unit)
 });
 
 test('renders nothing when there are no goals', async () => {
