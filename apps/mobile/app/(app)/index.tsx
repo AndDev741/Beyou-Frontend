@@ -35,8 +35,8 @@ export default function AppHome() {
       >
         <ProfileHeader />
         <RoutineDay />
-        <DashboardGoals />
         <DashboardWidgets />
+        <DashboardGoals />
       </ScrollView>
       <BottomNav />
       <CelebrationOverlay />
