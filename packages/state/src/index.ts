@@ -112,5 +112,7 @@ export { sortHabits, HABIT_SORT_KEYS } from './viewFilters/sortHabits';
 export type { HabitSortKey } from './viewFilters/sortHabits';
 export { sortRoutines, ROUTINE_SORT_KEYS } from './viewFilters/sortRoutines';
 export type { RoutineSortKey } from './viewFilters/sortRoutines';
+export { sortGoals, GOAL_SORT_KEYS } from './viewFilters/sortGoals';
+export type { GoalSortKey } from './viewFilters/sortGoals';
 export { getRoutineStats, countItemsInRoutine } from './routine/routineMetrics';
 export type { RoutineStats } from './routine/routineMetrics';
