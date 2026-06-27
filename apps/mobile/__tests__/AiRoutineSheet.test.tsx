@@ -15,27 +15,36 @@ const materialized = { name: 'AI Morning', iconId: null, scheduleDays: null, new
 
 const wrap = (n: React.ReactElement) => render(<BeyouThemeProvider>{n}</BeyouThemeProvider>);
 
-test('blocks generate when the description is too short', async () => {
+test('shows "Create with AI" with no base, blocks generate on short description', async () => {
   const post = jest.fn();
   setHttpClient({ get: async () => ({ data: [] }), post, put: post, delete: post } as never);
   setLogger({ error: () => {} });
-  await wrap(<AiRoutineSheet visible onClose={jest.fn()} onReady={jest.fn()} />);
+  await wrap(<AiRoutineSheet visible currentName="" currentSections={[]} onApply={jest.fn()} onClose={jest.fn()} />);
+  expect(screen.getByText('Create with AI')).toBeTruthy();
   await act(async () => { fireEvent.changeText(screen.getByTestId('ai-description'), 'short'); });
   await act(async () => { fireEvent.press(screen.getByTestId('ai-generate')); });
   expect(post).not.toHaveBeenCalled();
 });
 
-test('generate → materialize → onReady with mapped sections', async () => {
+test('shows "Adjust with AI" when there is a base routine', async () => {
+  setHttpClient({ get: async () => ({ data: [] }), post: jest.fn(), put: jest.fn(), delete: jest.fn() } as never);
+  setLogger({ error: () => {} });
+  const base = [{ id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0, habitGroup: [], taskGroup: [] }] as never;
+  await wrap(<AiRoutineSheet visible currentName="Morning" currentSections={base} onApply={jest.fn()} onClose={jest.fn()} />);
+  expect(screen.getByText('Adjust with AI')).toBeTruthy();
+});
+
+test('generate → materialize → onApply with mapped sections', async () => {
   const post = jest.fn(async (url: string) =>
     url.includes('/generate') ? { data: { draft } } : { data: materialized });
   setHttpClient({ get: async () => ({ data: [] }), post, put: post, delete: post } as never);
   setLogger({ error: () => {} });
-  const onReady = jest.fn();
-  await wrap(<AiRoutineSheet visible onClose={jest.fn()} onReady={onReady} />);
+  const onApply = jest.fn();
+  await wrap(<AiRoutineSheet visible currentName="" currentSections={[]} onApply={onApply} onClose={jest.fn()} />);
   await act(async () => { fireEvent.changeText(screen.getByTestId('ai-description'), 'I wake at 6 and meditate then read before bed every morning'); });
   await act(async () => { fireEvent.press(screen.getByTestId('ai-generate')); });
-  await waitFor(() => expect(onReady).toHaveBeenCalled());
-  const [name, sections] = onReady.mock.calls[0];
+  await waitFor(() => expect(onApply).toHaveBeenCalled());
+  const [name, sections] = onApply.mock.calls[0];
   expect(name).toBe('AI Morning');
   expect(sections[0]).toEqual(expect.objectContaining({ name: 'Wake' }));
   expect(sections[0].habitGroup[0]).toEqual(expect.objectContaining({ habitId: 'h1' }));

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import { uuidv4 } from '../../lib/uuid';
 import Input from '../Input';
 import Button from '../Button';
+import BottomSheet from '../BottomSheet';
 import IconPickerField from '../icons/IconPickerField';
 import TimeField from './TimeField';
 
@@ -49,11 +50,8 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
     onClose();
   };
 
-  if (!visible) return null;
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/40" onPress={onClose} accessibilityLabel={t('Cancel')} />
-      <View className="absolute bottom-0 left-0 right-0 max-h-[85%] rounded-t-2xl bg-background p-4">
+    <BottomSheet visible={visible} onClose={onClose}>
         <Text className="text-secondary mb-3 text-lg font-bold">
           {t(section ? 'Edit Routine Section' : 'Creating Routine Section')}
         </Text>
@@ -78,7 +76,6 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
             <Button text={t('Save')} mode="create" size="small" onPress={save} testID="section-save" />
           </View>
         </ScrollView>
-      </View>
-    </Modal>
+    </BottomSheet>
   );
 }

@@ -291,6 +291,9 @@
     "Weekend": "Final de semana",
     "AllDays": "Todos os dias",
     "ScheduledIn": "Em: {{name}}",
+    "Override": "Sobrepor",
+    "DayAlreadyScheduled": "Dia já agendado",
+    "ConfirmOverrideDay": "{{name}} já está agendada neste dia. Agendar esta rotina nele também?",
     "No routines available, start create some to track you tasks!": "Nenhuma rotina disponível, comece a criar algumas para acompanhar suas tarefas!",
     "Confirm Deletion": "Confirmar Deleção",
     "Yes": "Sim",
@@ -647,7 +650,15 @@
     "NoAccount": "Não tem uma conta? Registrar",
     "HelloUser": "Olá, {{name}}!",
     "AssignItems": "Atribuir hábitos e tarefas",
+    "Assigned": "Atribuídos",
+    "Start": "Início",
+    "End": "Fim",
+    "Remove": "Remover",
+    "NothingAssignedYet": "Nada atribuído ainda — escolha hábitos ou tarefas abaixo",
+    "NoItemsToAssign": "Nada aqui ainda",
     "NoSnapshotForDay": "Sem registro para este dia",
     "XpEarned": "XP ganho",
-    "History": "Histórico"
+    "History": "Histórico",
+    "RoutinesCount": "Rotinas",
+    "ItemsDone": "Itens feitos"
 }

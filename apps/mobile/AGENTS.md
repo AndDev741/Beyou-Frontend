@@ -152,10 +152,9 @@ leaks otherwise), or the unwrapped update corrupts the NEXT test in the file ("o
 
 ## Routines (Phase 7)
 
-Routines CRUD lives across two screens and a builder modal:
+Routines CRUD lives on one screen and a builder modal (the detail route `app/(app)/routines/[id].tsx` was removed during Task 6/7 polish — it does not exist):
 
 - **`app/(app)/routines.tsx`** — list screen; self-fetches routines + habits + tasks into the store; the `+` create button (testID `create-routine`) opens `RoutineBuilder mode="create"`; `onSaved={load}` refetches everything.
-- **`app/(app)/routines/[id].tsx`** — detail screen; reads routine from the slice by id; the edit button (`create-outline` icon, testID `edit-routine`) opens `RoutineBuilder mode="edit" routine={routine}`; `onSaved` re-calls `getRoutines` → `enterRoutines`. Delete uses `Alert.alert` + `deleteRoutine`.
 - **`src/ui/routines/RoutineBuilder.tsx`** — full-page `Modal` slide; manages a working-copy of the routine (deep-cloned from prop on open); `routineFormSchema` validates name+sections before submit; calls `createRoutine`/`editRoutine`; `onSaved()` is called after success, `onClose()` dismisses.
 - **`src/ui/routines/SectionSheet.tsx`** — bottom sheet for add/edit a section (name + time via `TimeField`).
 - **`src/ui/routines/ItemPickerSheet.tsx`** — bottom sheet to assign habits + tasks to a section.
@@ -164,8 +163,8 @@ Routines CRUD lives across two screens and a builder modal:
 
 ## Routines schedule/snapshot/AI (Phase 7 Group C)
 
-**Schedule** — `src/ui/routines/ScheduleSheet.tsx` is a bottom sheet opened from the detail screen
-(`app/(app)/routines/[id].tsx`) via a `Pressable` (testID `schedule-routine`). It renders
+**Schedule** — `src/ui/routines/ScheduleSheet.tsx` is a bottom sheet opened from the list screen
+(`app/(app)/routines.tsx`) via a `Pressable` (testID `schedule-routine`). It renders
 day-of-week checkboxes (`DAYS` exported from `src/ui/routines/ScheduleIndicator.tsx`) and calls
 `createSchedule(days, routineId, t)` (default export of `@beyou/api/schedule/createSchedule`) or
 `editSchedule(scheduleId, days, routineId, t)` (default export of `@beyou/api/schedule/editSchedule`).
@@ -174,16 +173,7 @@ A conflict hint is computed **client-side**: the detail screen fetches all sched
 and passes the other-routine list as `otherSchedules` to `ScheduleSheet`, which derives a `blockedBy`
 map (day → routine name) locally — there is no `SCHEDULE_CONFLICT` backend error key.
 
-**Snapshot history** — `src/ui/routines/SnapshotHistory.tsx` sits below the builder in the detail
-screen and lets the user browse past day snapshots for that routine. Chips for the last 7 days (plus
-a calendar picker) drive `getSnapshot` / `getSnapshotDatesForMonth` calls (named exports of
-`@beyou/api/routine/snapshot`) that populate `snapshotSlice` (`enterSnapshot`, `enterSnapshotDates`,
-`setSelectedDate`; the reducer is wired in `apps/mobile/src/store.ts` as `snapshot`). The selected
-snapshot is rendered by `src/ui/routines/SnapshotCard.tsx` which calls `useSnapshotCheckin` for
-check/skip actions. `useSnapshotCheckin` calls `checkSnapshotItem(snapshotId, snapshotCheckId, t)` /
-`skipSnapshotItem(snapshotId, snapshotCheckId, t)` (named exports of `@beyou/api/routine/snapshot`),
-then pipes the `RefreshUiDTO` response through `applyRefreshUi` (the shared gamification brain from
-`@beyou/state`) and dispatches a fresh `getSnapshot` to re-sync display state.
+**Snapshot history** — The routines list screen (`app/(app)/routines.tsx`) shows past-day snapshots when the user picks a past chip in `RoutinesOverview`. `RoutinesOverview` fetches `getSnapshot(r.id, date, t)` for each routine in a `Promise.all`, builds a `{ snapshot, routineId }[]` pair array in local state, and renders a `SnapshotWithCheckin` wrapper per pair (defined in `RoutinesOverview.tsx`) that calls `useSnapshotCheckin(routineId)` with the correct routine id — solving the mapping problem because `Snapshot` has no `routineId` field. The per-routine `SnapshotHistory.tsx` detail component and its test were removed (orphans after the detail route was cut in Task 6). `SnapshotCard` is pure presentation; `useSnapshotCheckin` calls `checkSnapshotItem`/`skipSnapshotItem`, pipes the `RefreshUiDTO` through `applyRefreshUi`, and dispatches `enterSnapshot` to re-sync display state.
 
 **AI wizard** — `src/ui/routines/AiRoutineSheet.tsx` is a bottom-sheet `Modal` with a single text
 input (testID `ai-description`). On submit it calls `generateRoutine` (draft → server AI), then

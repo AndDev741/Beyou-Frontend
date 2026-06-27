@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,7 +8,8 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import BottomSheet from '../BottomSheet';
 import type { RootState, AppDispatch } from '../../store';
 
-/** value → i18n key, mirroring the web habits SortFilterBar options. */
+/** value → i18n key, mirroring the web routines SortFilterBar options.
+ *  Routines do NOT have importance/difficulty/created sort options. */
 const OPTIONS: { value: string; key: string }[] = [
   { value: 'default', key: 'Default order' },
   { value: 'name-asc', key: 'Name (A-Z)' },
@@ -17,21 +18,15 @@ const OPTIONS: { value: string; key: string }[] = [
   { value: 'level-asc', key: 'Level (Low to High)' },
   { value: 'xp-desc', key: 'XP (High to Low)' },
   { value: 'xp-asc', key: 'XP (Low to High)' },
-  { value: 'importance-desc', key: 'Importance (High to Low)' },
-  { value: 'importance-asc', key: 'Importance (Low to High)' },
-  { value: 'difficulty-desc', key: 'Difficulty (High to Low)' },
-  { value: 'difficulty-asc', key: 'Difficulty (Low to High)' },
-  { value: 'created-desc', key: 'Newest first' },
-  { value: 'created-asc', key: 'Oldest first' },
 ];
 
-/** A pill showing the current habit sort that opens a bottom-sheet of options.
+/** A pill showing the current routine sort that opens a bottom-sheet of options.
  *  Sort state lives in the shared `viewFilters` slice (same as web). */
-export default function HabitsSortSheet() {
+export default function RoutinesSortSheet() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
-  const sortBy = useSelector((s: RootState) => s.viewFilters.habits);
+  const sortBy = useSelector((s: RootState) => s.viewFilters.routines);
   const [open, setOpen] = useState(false);
   const current = OPTIONS.find((o) => o.value === sortBy) ?? OPTIONS[0];
 
@@ -41,7 +36,7 @@ export default function HabitsSortSheet() {
         onPress={() => setOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={t('Sort results')}
-        testID="habits-sort"
+        testID="routines-sort"
         className="flex-row items-center gap-1.5 self-start rounded-full border border-primary/30 px-3 py-1.5"
       >
         <Ionicons name="swap-vertical" size={16} color={theme.primary} />
@@ -57,7 +52,7 @@ export default function HabitsSortSheet() {
                 <Pressable
                   key={o.value}
                   onPress={() => {
-                    dispatch(setViewSort({ view: 'habits', sortBy: o.value }));
+                    dispatch(setViewSort({ view: 'routines', sortBy: o.value }));
                     setOpen(false);
                   }}
                   accessibilityRole="button"
