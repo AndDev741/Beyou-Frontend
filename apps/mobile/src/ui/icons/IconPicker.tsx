@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Modal, View, Text, Pressable, FlatList } from 'react-native';
+import { View, Text, Pressable, FlatList } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@beyou/icons';
 import BeyouIcon from '../BeyouIcon';
 import Input from '../Input';
+import BottomSheet from '../BottomSheet';
 import { iconRecents } from './iconRecents';
 
 const NUM_COLUMNS = 6;
@@ -73,9 +74,7 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
   if (!visible) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/40" onPress={onClose} accessibilityLabel={t('Close')} />
-      <View className="absolute bottom-0 left-0 right-0 max-h-[80%] rounded-t-2xl bg-background p-4">
+    <BottomSheet visible={visible} onClose={onClose} closeLabel="Close" maxHeight="max-h-[80%]">
         <View className="mb-3 flex-row items-center justify-between">
           <Text className="text-secondary text-lg font-semibold">{t('Icon')}</Text>
           <Pressable
@@ -139,7 +138,6 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
             )}
           />
         )}
-      </View>
-    </Modal>
+    </BottomSheet>
   );
 }

@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { Modal, View, Text, ScrollView, Pressable } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -85,6 +86,7 @@ const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
 
 export default function HabitForm({ visible, mode, habit, categories, onClose, onSaved }: HabitFormProps) {
   const { t } = useTranslation();
+  const insets = useContext(SafeAreaInsetsContext);
   const isEdit = mode === 'edit';
 
   const {
@@ -161,7 +163,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
         <View className="flex-row items-center justify-between border-b border-primary/15 px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="habit-form-cancel">
             <Text className="text-description text-base">{t('Cancel')}</Text>
@@ -170,7 +172,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
           <View className="w-12" />
         </View>
 
-        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 py-4" keyboardShouldPersistTaps="handled">
+        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
           <View>
             <Text className="text-secondary mb-1 text-base font-semibold">{t('Name')}</Text>
             <Controller

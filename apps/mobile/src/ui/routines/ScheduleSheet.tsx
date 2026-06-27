@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import createSchedule from '@beyou/api/schedule/createSchedule';
@@ -7,6 +7,7 @@ import editSchedule from '@beyou/api/schedule/editSchedule';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { Routine } from '@beyou/types/routine/routine';
 import Button from '../Button';
+import BottomSheet from '../BottomSheet';
 import { DAYS } from './ScheduleIndicator';
 import { notify } from '../../notify';
 import type { RootState } from '../../store';
@@ -95,11 +96,8 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
     onClose();
   };
 
-  if (!visible) return null;
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/40" onPress={onClose} accessibilityLabel={t('Cancel')} />
-      <View className="absolute bottom-0 left-0 right-0 max-h-[85%] rounded-t-2xl bg-background p-4">
+    <BottomSheet visible={visible} onClose={onClose}>
         <Text className="text-secondary mb-3 text-lg font-bold">{t('Schedule')}</Text>
         <View className="mb-3 flex-row flex-wrap gap-2">
           <Pressable onPress={() => toggleGroup(WEEKDAYS)} accessibilityRole="button" testID="group-weekdays" className="rounded-full border border-primary/40 px-3 py-1.5">
@@ -141,7 +139,6 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
             <Button text={t('Save schedule')} mode="create" submitting={submitting} onPress={save} testID="schedule-save" />
           </View>
         </ScrollView>
-      </View>
-    </Modal>
+    </BottomSheet>
   );
 }

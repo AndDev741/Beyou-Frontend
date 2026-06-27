@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { setViewSort } from '@beyou/state';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import BottomSheet from '../BottomSheet';
 import type { RootState, AppDispatch } from '../../store';
 
 /** value → i18n key, mirroring the web routines SortFilterBar options.
@@ -42,9 +43,7 @@ export default function RoutinesSortSheet() {
         <Text className="text-secondary text-sm">{t(current.key)}</Text>
       </Pressable>
 
-      <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-        <Pressable className="flex-1 bg-black/40" onPress={() => setOpen(false)} accessibilityLabel={t('Close')} />
-        <View className="absolute bottom-0 left-0 right-0 max-h-[70%] rounded-t-2xl bg-background p-4">
+      <BottomSheet visible={open} onClose={() => setOpen(false)} closeLabel="Close" maxHeight="max-h-[70%]">
           <Text className="text-secondary mb-2 text-lg font-bold">{t('Sort results')}</Text>
           <ScrollView>
             {OPTIONS.map((o) => {
@@ -67,8 +66,7 @@ export default function RoutinesSortSheet() {
               );
             })}
           </ScrollView>
-        </View>
-      </Modal>
+      </BottomSheet>
     </>
   );
 }
