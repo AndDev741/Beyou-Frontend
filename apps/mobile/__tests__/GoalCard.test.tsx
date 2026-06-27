@@ -21,7 +21,9 @@ const goal = {
 
 let put: jest.Mock;
 beforeEach(() => {
-  put = jest.fn(async (url: string) => (url.includes('/complete') ? { data: {} } : { data: { ...goal, currentValue: 4 } }));
+  // increase/decrease return the updated goal; the card reads from props (not the
+  // slice), so a minimal stub is enough — and avoids spreading the `as never` fixture.
+  put = jest.fn(async (url: string) => (url.includes('/complete') ? { data: {} } : { data: { id: 'g1', currentValue: 4 } }));
   const noop = async () => ({ data: null });
   setHttpClient({ get: noop, post: noop, put, delete: noop } as never);
   setLogger({ error: () => {} });
