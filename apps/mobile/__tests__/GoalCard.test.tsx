@@ -60,4 +60,9 @@ describe('GoalCard', () => {
     await act(async () => { fireEvent.press(screen.getByTestId('goal-delete-g1')); });
     expect(onDelete).toHaveBeenCalledWith(goal);
   });
+
+  it('starts expanded when initialExpanded is set (opened from the dashboard)', async () => {
+    await wrap(<GoalCard goal={goal} initialExpanded onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
+    expect(screen.getByTestId('goal-edit-g1')).toBeTruthy(); // expanded without a tap
+  });
 });

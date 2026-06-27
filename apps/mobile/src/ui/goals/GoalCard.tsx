@@ -13,17 +13,19 @@ interface GoalCardProps {
   onDelete: (goal: goal) => void;
   /** Refetch goals (e.g. after completing, which changes status server-side). */
   onChanged: () => void;
+  /** Start expanded — e.g. when opened from a dashboard goal tap. */
+  initialExpanded?: boolean;
 }
 
 const STATUS_KEY: Record<string, string> = { NOT_STARTED: 'Not Started', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
 const TERM_KEY: Record<string, string> = { SHORT_TERM: 'Short Term', MEDIUM_TERM: 'Medium Term', LONG_TERM: 'Long Term' };
 const fmtDate = (v: Date | string | undefined) => (!v ? '' : typeof v === 'string' ? v.slice(0, 10) : v.toISOString().slice(0, 10));
 
-export default function GoalCard({ goal, onEdit, onDelete, onChanged }: GoalCardProps) {
+export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExpanded }: GoalCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const { increase, decrease, complete } = useGoalActions();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(initialExpanded ?? false);
   const [pending, setPending] = useState(false);
 
   const pct = goal.targetValue > 0 ? Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100)) : 0;

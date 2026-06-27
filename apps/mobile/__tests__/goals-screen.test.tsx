@@ -10,6 +10,7 @@ jest.mock('../src/notify', () => ({
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
+  useLocalSearchParams: () => ({}),
 }));
 
 import { Alert } from 'react-native';

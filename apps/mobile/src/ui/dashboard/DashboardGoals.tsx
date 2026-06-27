@@ -85,6 +85,7 @@ export default function DashboardGoals() {
     });
   const visible = sections.filter((s) => isAll || tags.includes(s.key));
   const goToGoals = () => router.push('/goals');
+  const openGoal = (id: string) => router.push({ pathname: '/goals', params: { expand: id } });
 
   return (
     <View className="gap-3">
@@ -115,7 +116,7 @@ export default function DashboardGoals() {
         <View key={section.key} className="gap-2">
           <Text className="text-description text-sm font-semibold">{t(section.title)}</Text>
           {section.goals.map((g) => (
-            <GoalRow key={g.id} goal={g} onPress={goToGoals} />
+            <GoalRow key={g.id} goal={g} onPress={() => openGoal(g.id)} />
           ))}
         </View>
       ))}
