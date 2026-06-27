@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getGoals from '@beyou/api/goals/getGoals';
@@ -32,6 +32,7 @@ const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
 export default function GoalsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { expand } = useLocalSearchParams<{ expand?: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
 
@@ -118,6 +119,7 @@ export default function GoalsScreen() {
           renderItem={({ item }) => (
             <GoalCard
               goal={item}
+              initialExpanded={item.id === expand}
               onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
               onDelete={handleDelete}
               onChanged={load}

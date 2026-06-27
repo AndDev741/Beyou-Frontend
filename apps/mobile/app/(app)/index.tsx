@@ -5,6 +5,7 @@ import ProfileHeader from '../../src/ui/dashboard/ProfileHeader';
 import RoutineDay from '../../src/ui/dashboard/RoutineDay';
 import BottomNav from '../../src/ui/dashboard/BottomNav';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
+import DashboardGoals from '../../src/ui/dashboard/DashboardGoals';
 import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
 
 /**
@@ -35,6 +36,7 @@ export default function AppHome() {
         <ProfileHeader />
         <RoutineDay />
         <DashboardWidgets />
+        <DashboardGoals />
       </ScrollView>
       <BottomNav />
       <CelebrationOverlay />
