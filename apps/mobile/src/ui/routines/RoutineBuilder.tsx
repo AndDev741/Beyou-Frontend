@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { routineFormSchema } from '@beyou/validation';
+import { routineFormSchema, getSectionErrorKeys, getItemTimeErrorKeys } from '@beyou/validation';
 import createRoutine from '@beyou/api/routine/createRoutine';
 import editRoutine from '@beyou/api/routine/editRoutine';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -15,6 +16,8 @@ import IconPickerField from '../icons/IconPickerField';
 import SectionSheet from './SectionSheet';
 import ItemPickerSheet from './ItemPickerSheet';
 import SectionCard from './SectionCard';
+import RoutineTypePicker from './RoutineTypePicker';
+import AiRoutineSheet from './AiRoutineSheet';
 import { notify } from '../../notify';
 
 interface RoutineBuilderProps {
@@ -31,17 +34,26 @@ const emptyRoutine = (): Routine => ({ name: '', iconId: '', routineSections: []
 
 export default function RoutineBuilder({ visible, mode, routine, habits, tasks, onClose, onSaved }: RoutineBuilderProps) {
   const { t } = useTranslation();
+  const insets = useContext(SafeAreaInsetsContext);
+  const bottomPad = (insets?.bottom ?? 0) + 16;
   const isEdit = mode === 'edit';
   const [working, setWorking] = useState<Routine>(emptyRoutine());
   const [sectionSheet, setSectionSheet] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
   const [itemSheet, setItemSheet] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | undefined>();
+  const [aiOpen, setAiOpen] = useState(false);
+  // Plain create starts on the type-picker; edit / AI-seeded create skip straight to the form.
+  const [typeChosen, setTypeChosen] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
     // Deep clone so edits never mutate the slice.
     setWorking(routine ? JSON.parse(JSON.stringify(routine)) : emptyRoutine());
-  }, [visible, routine]);
+    setTypeChosen(isEdit || !!routine);
+    setFormError(undefined);
+    setAiOpen(false);
+  }, [visible, routine, isEdit]);
 
   const setSections = (routineSections: RoutineSection[]) =>
     setWorking((w) => ({ ...w, routineSections: routineSections.map((s, i) => ({ ...s, order: i })) }));
@@ -61,17 +73,39 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
     setSections(list);
   };
 
+  // Find the first section/item time problem and qualify it with the section name —
+  // clearer than the schema's generic message ("Morning: item time is outside the section").
+  const sectionQualifiedError = (): string | null => {
+    for (const section of working.routineSections) {
+      const prefix = section.name ? `${section.name}: ` : '';
+      const secErrs = getSectionErrorKeys(section.name, section.startTime);
+      if (secErrs.length) return `${prefix}${t(secErrs[0])}`;
+      const groups = [...(section.taskGroup ?? []), ...(section.habitGroup ?? [])];
+      for (const g of groups) {
+        const itemErrs = getItemTimeErrorKeys(section.startTime, section.endTime, g.startTime, g.endTime);
+        if (itemErrs.length) return `${prefix}${t(itemErrs[0])}`;
+      }
+    }
+    return null;
+  };
+
+  const fail = (msg: string) => { setFormError(msg); notify.error(msg); };
+
   const save = async () => {
+    setFormError(undefined);
     const parsed = routineFormSchema(t).safeParse({
       routineName: working.name,
       routineSections: working.routineSections,
     });
-    if (!parsed.success) { notify.error(parsed.error.issues[0]?.message ?? t('UnexpectedError')); return; }
+    if (!parsed.success) {
+      fail(sectionQualifiedError() ?? parsed.error.issues[0]?.message ?? t('UnexpectedError'));
+      return;
+    }
     setSubmitting(true);
     const res = isEdit ? await editRoutine(working, t) : await createRoutine(working, t);
     setSubmitting(false);
-    if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
-    if (res.validation) { notify.error(res.validation); return; }
+    if (res.error) { fail(getFriendlyErrorMessage(t, res.error)); return; }
+    if (res.validation) { fail(res.validation); return; }
     notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
     onSaved();
     onClose();
@@ -80,13 +114,26 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   if (!visible) return null;
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
         <View className="flex-row items-center justify-between border-b border-primary/15 px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="routine-form-cancel"><Text className="text-description text-base">{t('Cancel')}</Text></Pressable>
           <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'Edit Routine' : 'Create routine')}</Text>
           <View className="w-12" />
         </View>
-        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 py-4" keyboardShouldPersistTaps="handled">
+        {!typeChosen ? (
+          <ScrollView className="flex-1 px-4" contentContainerClassName="pt-6" contentContainerStyle={{ paddingBottom: bottomPad }} keyboardShouldPersistTaps="handled">
+            <RoutineTypePicker onChoose={() => setTypeChosen(true)} />
+          </ScrollView>
+        ) : (
+        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: bottomPad }} keyboardShouldPersistTaps="handled">
+          <Pressable
+            onPress={() => setAiOpen(true)}
+            accessibilityRole="button"
+            testID="ai-routine"
+            className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-primary px-4 py-2.5 active:opacity-80"
+          >
+            <Text className="text-primary text-base font-semibold">✨ {t(isEdit ? 'AdjustWithAi' : 'CreateWithAi')}</Text>
+          </Pressable>
           <View>
             <Text className="text-secondary mb-1 text-base font-semibold">{t('Routine name')}</Text>
             <Input value={working.name} onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))} placeholder={t('Routine name')} accessibilityLabel={t('Routine name')} testID="routine-name" />
@@ -95,8 +142,8 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
 
           <View className="flex-row items-center justify-between">
             <Text className="text-secondary text-base font-semibold">{t('Sections')}</Text>
-            <Pressable onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="rounded-full bg-primary px-3 py-1.5">
-              <Text className="text-background text-sm font-semibold">{t('add section')}</Text>
+            <Pressable onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="items-center justify-center rounded-full bg-primary px-3 py-1.5">
+              <Text className="text-background text-center text-sm font-semibold">{t('add section')}</Text>
             </Pressable>
           </View>
 
@@ -110,6 +157,8 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
                   section={section}
                   index={i}
                   count={working.routineSections.length}
+                  habits={habits}
+                  tasks={tasks}
                   onEdit={() => setSectionSheet({ open: true, index: i })}
                   onAssign={() => setItemSheet(i)}
                   onMove={(dir) => move(i, dir)}
@@ -119,10 +168,14 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
             </View>
           )}
 
+          {formError ? (
+            <Text className="text-error text-center text-sm font-semibold" testID="routine-form-error">{formError}</Text>
+          ) : null}
           <View className="mt-2 items-center">
             <Button text={t(isEdit ? 'Edit' : 'Create')} mode="create" submitting={submitting} onPress={save} testID="routine-save" />
           </View>
         </ScrollView>
+        )}
 
         <SectionSheet
           visible={sectionSheet.open}
@@ -140,6 +193,13 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
             onClose={() => setItemSheet(null)}
           />
         ) : null}
+        <AiRoutineSheet
+          visible={aiOpen}
+          currentName={working.name}
+          currentSections={working.routineSections}
+          onApply={(name, sections) => setWorking((w) => ({ ...w, name: name || w.name, routineSections: sections }))}
+          onClose={() => setAiOpen(false)}
+        />
       </View>
     </Modal>
   );

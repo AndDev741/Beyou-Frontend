@@ -14,12 +14,10 @@ import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { sortRoutines } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
-import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
 import RoutinesOverview from '../../src/ui/routines/RoutinesOverview';
 import RoutinesSortSheet from '../../src/ui/routines/RoutinesSortSheet';
 import RoutineBuilder from '../../src/ui/routines/RoutineBuilder';
-import AiRoutineSheet from '../../src/ui/routines/AiRoutineSheet';
 import ScheduleSheet from '../../src/ui/routines/ScheduleSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
@@ -39,8 +37,6 @@ export default function RoutinesScreen() {
   const selectedDate = useSelector((s: RootState) => s.snapshot.selectedDate);
   const [loading, setLoading] = useState(true);
   const [builder, setBuilder] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
-  const [aiSeed, setAiSeed] = useState<{ name: string; iconId: string; routineSections: RoutineSection[] } | null>(null);
   const [editTarget, setEditTarget] = useState<Routine | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<Routine | null>(null);
 
@@ -82,14 +78,9 @@ export default function RoutinesScreen() {
           </Pressable>
           <Text className="text-primary text-2xl font-bold">{t('Routines')}</Text>
         </View>
-        <View className="flex-row items-center gap-2">
-          <Pressable onPress={() => setAiOpen(true)} accessibilityRole="button" accessibilityLabel={t('CreateWithAi')} testID="ai-routine" className="h-10 w-10 items-center justify-center rounded-full border border-primary">
-            <Ionicons name="sparkles-outline" size={22} color={theme.primary} />
-          </Pressable>
-          <Pressable onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
-            <Ionicons name="add" size={26} color={theme.background} />
-          </Pressable>
-        </View>
+        <Pressable onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
+          <Ionicons name="add" size={26} color={theme.background} />
+        </Pressable>
       </View>
 
       {loading ? (
@@ -123,8 +114,6 @@ export default function RoutinesScreen() {
 
       <RoutineBuilder visible={builder} mode="create" habits={habits} tasks={tasks} onClose={() => setBuilder(false)} onSaved={load} />
       <RoutineBuilder visible={editTarget !== null} mode="edit" routine={editTarget ?? undefined} habits={habits} tasks={tasks} onClose={() => setEditTarget(null)} onSaved={load} />
-      <AiRoutineSheet visible={aiOpen} onClose={() => setAiOpen(false)} onReady={(name, routineSections) => { setAiOpen(false); setAiSeed({ name, iconId: '', routineSections }); }} />
-      <RoutineBuilder visible={aiSeed !== null} mode="create" routine={aiSeed ?? undefined} habits={habits} tasks={tasks} onClose={() => setAiSeed(null)} onSaved={load} />
       {scheduleTarget ? (
         <ScheduleSheet visible routine={scheduleTarget} onClose={() => setScheduleTarget(null)} onSaved={load} />
       ) : null}

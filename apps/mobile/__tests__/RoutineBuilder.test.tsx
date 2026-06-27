@@ -19,16 +19,50 @@ beforeEach(() => {
   (notify.error as jest.Mock).mockClear();
 });
 
+test('create starts on the type picker; only Daily is selectable', async () => {
+  await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  // Picker shown, form hidden until a type is chosen.
+  expect(screen.getByTestId('routine-type-daily')).toBeTruthy();
+  expect(screen.queryByTestId('routine-name')).toBeNull();
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
+  expect(screen.getByTestId('routine-name')).toBeTruthy();
+});
+
 test('blocks save with no name/sections', async () => {
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
   await act(async () => { fireEvent.press(screen.getByTestId('routine-save')); });
   expect(post).not.toHaveBeenCalled();
   expect(notify.error).toHaveBeenCalled();
 });
 
+test('shows an inline, section-qualified error when an item time is outside the section', async () => {
+  const routine = {
+    id: 'r1', name: 'Morning', iconId: '', routineSections: [
+      { id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0,
+        habitGroup: [{ id: 'g1', habitId: 'h1', startTime: '09:00', endTime: '' }], taskGroup: [] },
+    ],
+  } as never;
+  await wrap(<RoutineBuilder visible mode="edit" routine={routine} habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-save')); });
+  const err = screen.getByTestId('routine-form-error');
+  expect(err).toBeTruthy();
+  expect(err.props.children).toContain('Wake: ');
+});
+
+test('edit mode shows the in-form Adjust with AI button', async () => {
+  const routine = { id: 'r1', name: 'Morning', iconId: '', routineSections: [
+    { id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0, habitGroup: [], taskGroup: [] },
+  ] } as never;
+  await wrap(<RoutineBuilder visible mode="edit" routine={routine} habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  expect(screen.getByTestId('ai-routine')).toBeTruthy();
+  expect(screen.getByText(/Adjust with AI/)).toBeTruthy();
+});
+
 test('posts a routine with a section', async () => {
   const onSaved = jest.fn();
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={onSaved} />);
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
   await act(async () => { fireEvent.changeText(screen.getByTestId('routine-name'), 'Morning'); });
 
   // Add a section via the sheet.
