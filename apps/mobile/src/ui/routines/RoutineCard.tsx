@@ -79,16 +79,36 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
         </Pressable>
 
-        {/* Schedule is a key action — always visible regardless of expand state. */}
-        <Pressable
-          onPress={() => onSchedule(routine)}
-          accessibilityRole="button"
-          accessibilityLabel={t('Schedule')}
-          testID={`schedule-${routine.id}`}
-          className="h-9 w-9 items-center justify-center rounded-full bg-primary/10"
-        >
-          <Ionicons name="calendar-outline" size={18} color={theme.primary} />
-        </Pressable>
+        {/* Edit / Delete / Schedule — key actions, always visible (no need to expand & scroll). */}
+        <View className="flex-row items-center gap-1.5">
+          <Pressable
+            onPress={() => onEdit(routine)}
+            accessibilityRole="button"
+            accessibilityLabel={t('Edit')}
+            testID={`edit-${routine.id}`}
+            className="h-9 w-9 items-center justify-center rounded-full bg-primary/10"
+          >
+            <Ionicons name="create-outline" size={18} color={theme.primary} />
+          </Pressable>
+          <Pressable
+            onPress={() => onDelete(routine)}
+            accessibilityRole="button"
+            accessibilityLabel={t('Delete')}
+            testID={`delete-${routine.id}`}
+            className="h-9 w-9 items-center justify-center rounded-full bg-error/10"
+          >
+            <Ionicons name="trash-outline" size={18} color={theme.error} />
+          </Pressable>
+          <Pressable
+            onPress={() => onSchedule(routine)}
+            accessibilityRole="button"
+            accessibilityLabel={t('Schedule')}
+            testID={`schedule-${routine.id}`}
+            className="h-9 w-9 items-center justify-center rounded-full bg-primary/10"
+          >
+            <Ionicons name="calendar-outline" size={18} color={theme.primary} />
+          </Pressable>
+        </View>
       </View>
 
       {/* Schedule indicator (days) */}
@@ -145,25 +165,6 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
               })}
             </View>
           ))}
-
-          <View className="flex-row gap-3">
-            <Pressable
-              onPress={() => onEdit(routine)}
-              accessibilityRole="button"
-              testID={`edit-${routine.id}`}
-              className="flex-1 items-center rounded-lg bg-primary py-2.5"
-            >
-              <Text style={{ color: theme.background }} className="font-semibold">{t('Edit')}</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => onDelete(routine)}
-              accessibilityRole="button"
-              testID={`delete-${routine.id}`}
-              className="flex-1 items-center rounded-lg border border-error py-2.5"
-            >
-              <Text className="text-error font-semibold">{t('Delete')}</Text>
-            </Pressable>
-          </View>
         </View>
       ) : null}
     </View>

@@ -27,15 +27,20 @@ async function wrap() {
   return { props, ...result };
 }
 
-test('shows stats + always-visible schedule; expands to sections + edit/delete', async () => {
+test('shows stats + always-visible edit/delete/schedule; expands to sections', async () => {
   const { props } = await wrap();
   expect(screen.getByText('Morning')).toBeTruthy();
-  expect(screen.getByTestId('schedule-r1')).toBeTruthy(); // always visible
-  expect(screen.queryByTestId('edit-r1')).toBeNull();      // hidden until expanded
-
-  await act(async () => { fireEvent.press(screen.getByTestId('routine-card-r1')); });
-  expect(screen.getByText('Meditate')).toBeTruthy();       // section item resolved
+  // Edit / Delete / Schedule are all in the header — no need to expand & scroll.
+  expect(screen.getByTestId('schedule-r1')).toBeTruthy();
   expect(screen.getByTestId('edit-r1')).toBeTruthy();
+  expect(screen.getByTestId('delete-r1')).toBeTruthy();
+  expect(screen.queryByText('Meditate')).toBeNull();       // section hidden until expanded
+
   fireEvent.press(screen.getByTestId('edit-r1'));
   expect(props.onEdit).toHaveBeenCalledWith(routine);
+  fireEvent.press(screen.getByTestId('delete-r1'));
+  expect(props.onDelete).toHaveBeenCalledWith(routine);
+
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-card-r1')); });
+  expect(screen.getByText('Meditate')).toBeTruthy();       // section item resolved on expand
 });
