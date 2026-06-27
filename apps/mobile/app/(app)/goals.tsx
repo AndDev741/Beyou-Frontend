@@ -15,6 +15,7 @@ import type { goal } from '@beyou/types/goals/goalType';
 import GoalCard from '../../src/ui/goals/GoalCard';
 import GoalForm from '../../src/ui/goals/GoalForm';
 import GoalsSortSheet from '../../src/ui/goals/GoalsSortSheet';
+import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
@@ -147,6 +148,9 @@ export default function GoalsScreen() {
         onClose={() => setForm(CLOSED)}
         onSaved={load}
       />
+
+      {/* Surfaces the level-up / streak celebration when completing a goal awards XP. */}
+      <CelebrationOverlay />
     </View>
   );
 }

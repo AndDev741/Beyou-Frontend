@@ -22,6 +22,7 @@ const habit = {
   actualLevelXp: 0,
   nextLevelXp: 100,
   constance: 4,
+  routines: { r1: 'Morning Routine' },
 } as never;
 
 const wrap = (node: React.ReactElement) =>
@@ -44,6 +45,7 @@ describe('HabitCard', () => {
     expect(screen.getByText('"keep growing"')).toBeTruthy();
     expect(screen.getByText('High')).toBeTruthy(); // importance 3
     expect(screen.getByText('Normal')).toBeTruthy(); // dificulty 2
+    expect(screen.getByText('Morning Routine')).toBeTruthy(); // "Using in" routine
 
     fireEvent.press(screen.getByTestId('habit-edit-h1'));
     expect(onEdit).toHaveBeenCalledWith(habit);
