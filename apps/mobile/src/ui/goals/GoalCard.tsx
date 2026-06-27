@@ -16,7 +16,7 @@ interface GoalCardProps {
 }
 
 const STATUS_KEY: Record<string, string> = { NOT_STARTED: 'Not Started', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
-const TERM_KEY: Record<string, string> = { SHORT_TERM: 'Short Term', LONG_TERM: 'Long Term' };
+const TERM_KEY: Record<string, string> = { SHORT_TERM: 'Short Term', MEDIUM_TERM: 'Medium Term', LONG_TERM: 'Long Term' };
 const fmtDate = (v: Date | string | undefined) => (!v ? '' : typeof v === 'string' ? v.slice(0, 10) : v.toISOString().slice(0, 10));
 
 export default function GoalCard({ goal, onEdit, onDelete, onChanged }: GoalCardProps) {

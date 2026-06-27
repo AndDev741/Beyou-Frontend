@@ -48,6 +48,7 @@ const STATUS = [
 ] as const;
 const TERM = [
   { value: 'SHORT_TERM', key: 'Short Term' },
+  { value: 'MEDIUM_TERM', key: 'Medium Term' },
   { value: 'LONG_TERM', key: 'Long Term' },
 ] as const;
 
