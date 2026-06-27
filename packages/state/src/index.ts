@@ -61,6 +61,8 @@ export { defaultErrorEnter } from './errorHandler/errorHandlerSlice';
 
 // goals
 export { enterGoals, updateGoal } from './goal/goalsSlice';
+export { sortGoalsByTime } from './goal/sortGoalsByTime';
+export type { SortedGoals } from './goal/sortGoalsByTime';
 // editGoalSlice: editModeEnter, editDescriptionEnter, editIconIdEnter collide — import via deep path @beyou/state/goal/editGoalSlice
 export {
   editGoalIdEnter,
