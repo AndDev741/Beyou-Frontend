@@ -26,3 +26,18 @@ test('calls onChanged after a check', async () => {
   await act(async () => { fireEvent.press(screen.getByTestId('routine-check-g1')); });
   await waitFor(() => expect(onChanged).toHaveBeenCalled());
 });
+
+test('optimistically shows checked without waiting for slice to update', async () => {
+  const item = { type: 'habit', id: 'h1', groupId: 'g1', startTime: '06:00', check: [] } as never;
+  await render(
+    <Provider store={makeStore()}>
+      <BeyouThemeProvider>
+        <RoutineItem routineId="r1" item={item} name="Meditate" today="2026-06-22" onChanged={jest.fn()} />
+      </BeyouThemeProvider>
+    </Provider>,
+  );
+  expect(screen.getByTestId('routine-check-g1').props.accessibilityState.checked).toBe(false);
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-check-g1')); });
+  // Server returned an empty RefreshUI (item.check stays []), but the optimistic override holds.
+  expect(screen.getByTestId('routine-check-g1').props.accessibilityState.checked).toBe(true);
+});

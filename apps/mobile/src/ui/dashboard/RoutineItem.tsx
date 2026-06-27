@@ -45,19 +45,32 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
   const { check, skip } = useRoutineCheckin();
   const [pending, setPending] = useState(false);
   const [xpFloat, setXpFloat] = useState<number | null>(null);
+  // Optimistic overrides so the tap feels instant instead of waiting a server round-trip.
+  const [optChecked, setOptChecked] = useState<boolean | null>(null);
+  const [optSkipped, setOptSkipped] = useState<boolean | null>(null);
   const floatTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => { if (floatTimer.current) clearTimeout(floatTimer.current); }, []);
 
   const todayCheck = item.check?.find((c) => c?.checkDate === today);
-  const checked = todayCheck?.checked === true;
-  const skipped = todayCheck?.skipped === true && !checked;
+  const baseChecked = todayCheck?.checked === true;
+  const baseSkipped = todayCheck?.skipped === true;
+  const checked = optChecked ?? baseChecked;
+  const skipped = (optSkipped ?? baseSkipped) && !checked;
+
+  // Drop each optimistic override once the real (prop) state catches up to it.
+  useEffect(() => { if (optChecked !== null && baseChecked === optChecked) setOptChecked(null); }, [baseChecked, optChecked]);
+  useEffect(() => { if (optSkipped !== null && baseSkipped === optSkipped) setOptSkipped(null); }, [baseSkipped, optSkipped]);
 
   const onCheck = async () => {
     if (pending) return;
+    const next = !checked;
     setPending(true);
+    setOptChecked(next);
+    if (next) setOptSkipped(false); // checking clears any skipped state
     const dto: itemGroupToCheck = { routineId, ...groupDTO(item) };
     const result = await check(dto, { wasChecked: checked, motivationalPhrase });
+    if (!result) { setOptChecked(null); setOptSkipped(null); } // failed → revert
     const itemChecked = result?.refreshItemChecked;
     const gen = itemChecked?.check?.xpGenerated;
     if (itemChecked && gen && itemChecked.check.checked) {
@@ -71,9 +84,12 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
 
   const onSkip = async () => {
     if (pending) return;
+    const next = !skipped;
     setPending(true);
-    const dto: itemGroupToSkip = { routineId, skip: !skipped, ...groupDTO(item) };
-    await skip(dto);
+    setOptSkipped(next);
+    const dto: itemGroupToSkip = { routineId, skip: next, ...groupDTO(item) };
+    const result = await skip(dto);
+    if (!result) setOptSkipped(null); // failed → revert
     setPending(false);
     onChanged?.();
   };
