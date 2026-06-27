@@ -68,11 +68,11 @@ export default function CategorySelector({ categories, value, onChange, error }:
         </Pressable>
       </View>
 
-      {categories.length === 0 ? (
+      {list.length === 0 ? (
         <Text className="text-description text-sm">{t('NoCategories')}</Text>
       ) : (
         <View className="flex-row flex-wrap gap-2">
-          {categories.map((cat) => {
+          {list.map((cat) => {
             const selected = value.includes(cat.id);
             return (
               <Pressable

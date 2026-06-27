@@ -79,7 +79,8 @@ describe('CategorySelector', () => {
     });
 
     await waitFor(() => expect(post).toHaveBeenCalledWith('/category', expect.anything()));
-    // After the refetch lands, the new category is auto-selected.
+    // After the refetch lands, the new category renders as a chip AND is auto-selected.
+    await waitFor(() => expect(screen.getByTestId('category-c-new')).toBeTruthy());
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(['c-new']));
   }, 20000);
 });
