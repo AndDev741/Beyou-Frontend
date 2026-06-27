@@ -2,13 +2,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import getHabits from '@beyou/api/habits/getHabits';
+import getTasks from '@beyou/api/tasks/getTasks';
+import getCategories from '@beyou/api/categories/getCategories';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
+import type category from '@beyou/types/category/categoryType';
 import { uuidv4 } from '../../lib/uuid';
 import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import BottomSheet from '../BottomSheet';
+import HabitForm from '../habits/HabitForm';
+import TaskForm from '../tasks/TaskForm';
 import TimeField from './TimeField';
 import { mergeSectionItems } from './sectionItems';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -33,25 +39,36 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   const [habitGroup, setHabitGroup] = useState<HabitGroup[]>([]);
   const [taskGroup, setTaskGroup] = useState<TaskGroup[]>([]);
   const [tab, setTab] = useState<'habit' | 'task'>('habit');
+  const [quickOpen, setQuickOpen] = useState<'habit' | 'task' | null>(null);
+  const [pending, setPending] = useState<{ type: 'habit' | 'task'; name: string } | null>(null);
+  // After quick-create we refetch locally (no redux dep) and render the merged lists.
+  const [fetchedHabits, setFetchedHabits] = useState<habit[] | null>(null);
+  const [fetchedTasks, setFetchedTasks] = useState<task[] | null>(null);
+  const [cats, setCats] = useState<category[]>([]);
+
+  const allHabits = fetchedHabits ?? habits;
+  const allTasks = fetchedTasks ?? tasks;
 
   useEffect(() => {
     if (!visible) return;
     setHabitGroup(section.habitGroup ?? []);
     setTaskGroup(section.taskGroup ?? []);
     setTab('habit');
+    setFetchedHabits(null);
+    setFetchedTasks(null);
   }, [visible, section]);
 
   // The tray (selected items, both types) — name/icon resolved, sorted.
   const assigned = useMemo(
-    () => mergeSectionItems({ ...section, habitGroup, taskGroup }, habits, tasks),
-    [section, habitGroup, taskGroup, habits, tasks],
+    () => mergeSectionItems({ ...section, habitGroup, taskGroup }, allHabits, allTasks),
+    [section, habitGroup, taskGroup, allHabits, allTasks],
   );
 
   // Available = items of the active tab NOT yet selected, sorted A→Z.
   const available = useMemo(() => {
-    if (tab === 'habit') return habits.filter((h) => !habitGroup.some((g) => g.habitId === h.id)).slice().sort(byName);
-    return tasks.filter((tk) => !taskGroup.some((g) => g.taskId === tk.id)).slice().sort(byName);
-  }, [tab, habits, tasks, habitGroup, taskGroup]);
+    if (tab === 'habit') return allHabits.filter((h) => !habitGroup.some((g) => g.habitId === h.id)).slice().sort(byName);
+    return allTasks.filter((tk) => !taskGroup.some((g) => g.taskId === tk.id)).slice().sort(byName);
+  }, [tab, allHabits, allTasks, habitGroup, taskGroup]);
 
   const addHabit = (id: string) => setHabitGroup((g) => [...g, { id: uuidv4(), habitId: id, startTime: '', endTime: '' }]);
   const addTask = (id: string) => setTaskGroup((g) => [...g, { id: uuidv4(), taskId: id, startTime: '', endTime: '' }]);
@@ -62,6 +79,39 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     setHabitGroup((g) => g.map((x) => (x.habitId === id ? { ...x, [field]: v } : x)));
   const setTaskField = (id: string, field: 'startTime' | 'endTime', v: string) =>
     setTaskGroup((g) => g.map((x) => (x.taskId === id ? { ...x, [field]: v } : x)));
+
+  // Open quick-create: lazy-load categories for the nested form, then show it.
+  const openQuickCreate = async (type: 'habit' | 'task') => {
+    if (cats.length === 0) {
+      const r = await getCategories(t);
+      if (Array.isArray(r.success)) setCats(r.success);
+    }
+    setQuickOpen(type);
+  };
+
+  // Quick-create: after the new habit/task is created, refetch its list and mark it
+  // pending so the auto-add effect assigns it once it lands in the merged list (by name).
+  const handleQuickCreated = async (type: 'habit' | 'task', name: string) => {
+    setPending({ type, name });
+    if (type === 'habit') {
+      const r = await getHabits(t);
+      if (Array.isArray(r.success)) setFetchedHabits(r.success);
+    } else {
+      const r = await getTasks(t);
+      if (Array.isArray(r.success)) setFetchedTasks(r.success);
+    }
+  };
+
+  useEffect(() => {
+    if (!pending) return;
+    if (pending.type === 'habit') {
+      const h = allHabits.find((x) => x.name === pending.name && !habitGroup.some((g) => g.habitId === x.id));
+      if (h) { addHabit(h.id); setPending(null); }
+    } else {
+      const tk = allTasks.find((x) => x.name === pending.name && !taskGroup.some((g) => g.taskId === x.id));
+      if (tk) { addTask(tk.id); setPending(null); }
+    }
+  }, [allHabits, allTasks, pending, habitGroup, taskGroup]);
 
   const save = () => { onSave({ ...section, habitGroup, taskGroup }); onClose(); };
 
@@ -135,7 +185,39 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
             ))}
           </View>
         )}
+
+        {/* Quick-create a new habit/task without leaving the routine builder. */}
+        <Pressable
+          onPress={() => openQuickCreate(tab)}
+          accessibilityRole="button"
+          testID={`quick-create-${tab}`}
+          className="mt-1 flex-row items-center justify-center gap-1.5 rounded-lg border border-dashed border-primary/50 py-2.5"
+        >
+          <Ionicons name="add" size={16} color={theme.primary} />
+          <Text className="text-primary text-sm font-semibold">{tab === 'habit' ? t('CreateHabit') : t('CreateTask')}</Text>
+        </Pressable>
       </ScrollView>
+
+      {quickOpen === 'habit' ? (
+        <HabitForm
+          visible
+          mode="create"
+          categories={cats}
+          onCreated={(name) => handleQuickCreated('habit', name)}
+          onSaved={() => {}}
+          onClose={() => setQuickOpen(null)}
+        />
+      ) : null}
+      {quickOpen === 'task' ? (
+        <TaskForm
+          visible
+          mode="create"
+          categories={cats}
+          onCreated={(name) => handleQuickCreated('task', name)}
+          onSaved={() => {}}
+          onClose={() => setQuickOpen(null)}
+        />
+      ) : null}
 
       {/* Fixed footer — actions stay visible regardless of scroll. */}
       <View className="mt-2 flex-row justify-end gap-3 border-t border-primary/10 pt-3">
