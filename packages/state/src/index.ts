@@ -114,5 +114,7 @@ export { sortRoutines, ROUTINE_SORT_KEYS } from './viewFilters/sortRoutines';
 export type { RoutineSortKey } from './viewFilters/sortRoutines';
 export { sortCategories, CATEGORY_SORT_KEYS } from './viewFilters/sortCategories';
 export type { CategorySortKey } from './viewFilters/sortCategories';
+export { sortTasks, TASK_SORT_KEYS } from './viewFilters/sortTasks';
+export type { TaskSortKey } from './viewFilters/sortTasks';
 export { getRoutineStats, countItemsInRoutine } from './routine/routineMetrics';
 export type { RoutineStats } from './routine/routineMetrics';
