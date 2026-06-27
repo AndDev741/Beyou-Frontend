@@ -19,6 +19,7 @@ import { nextAuthRoute } from '../src/auth/authRedirect';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import ThemeSync from '../src/theme/ThemeSync';
 import LanguageSync from '../src/i18n/LanguageSync';
+import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
 
 setHttpClient(nativeHttpClient);
@@ -73,6 +74,7 @@ export default function RootLayout() {
         <BeyouThemeProvider>
           <ThemeSync />
           <LanguageSync />
+          <ViewFiltersSync />
           <ErrorBoundary>
             <Gate />
           </ErrorBoundary>
