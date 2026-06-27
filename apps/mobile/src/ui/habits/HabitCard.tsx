@@ -130,6 +130,19 @@ export default function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
           <ScaleRow label={t('Importance')} value={habit.importance} phraseKey={importanceKey(habit.importance)} />
           <ScaleRow label={t('Difficulty')} value={habit.dificulty} phraseKey={difficultyKey(habit.dificulty)} />
 
+          {habit.routines && Object.keys(habit.routines).length ? (
+            <View className="gap-1">
+              <Text className="text-secondary text-sm font-semibold">{t('UsingIn')}</Text>
+              <View className="flex-row flex-wrap gap-1.5">
+                {Object.entries(habit.routines).map(([id, name]) => (
+                  <View key={id} className="rounded-full bg-primary/10 px-2 py-0.5">
+                    <Text className="text-primary text-xs">{name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
           <View className="mt-1 flex-row gap-3">
             <Pressable
               onPress={() => onEdit(habit)}
