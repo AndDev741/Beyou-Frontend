@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
 import getCategories from '@beyou/api/categories/getCategories';
+import { enterHabits } from '@beyou/state/habit/habitsSlice';
+import { enterTasks } from '@beyou/state/task/tasksSlice';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
@@ -18,6 +21,7 @@ import TaskForm from '../tasks/TaskForm';
 import TimeField from './TimeField';
 import { mergeSectionItems } from './sectionItems';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import type { AppDispatch } from '../../store';
 
 type HabitGroup = NonNullable<RoutineSection['habitGroup']>[number];
 type TaskGroup = NonNullable<RoutineSection['taskGroup']>[number];
@@ -36,6 +40,7 @@ const byName = <T extends { name: string }>(a: T, b: T) => a.name.localeCompare(
 export default function ItemPickerSheet({ visible, section, habits, tasks, onSave, onClose }: ItemPickerSheetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
+  const dispatch = useDispatch<AppDispatch>();
   const [habitGroup, setHabitGroup] = useState<HabitGroup[]>([]);
   const [taskGroup, setTaskGroup] = useState<TaskGroup[]>([]);
   const [tab, setTab] = useState<'habit' | 'task'>('habit');
@@ -91,14 +96,16 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
 
   // Quick-create: after the new habit/task is created, refetch its list and mark it
   // pending so the auto-add effect assigns it once it lands in the merged list (by name).
+  // Also dispatch to the store so the rest of the builder (SectionCard, the routines
+  // screen) sees the new item — local `fetched` alone wouldn't reach those siblings.
   const handleQuickCreated = async (type: 'habit' | 'task', name: string) => {
     setPending({ type, name });
     if (type === 'habit') {
       const r = await getHabits(t);
-      if (Array.isArray(r.success)) setFetchedHabits(r.success);
+      if (Array.isArray(r.success)) { setFetchedHabits(r.success); dispatch(enterHabits(r.success)); }
     } else {
       const r = await getTasks(t);
-      if (Array.isArray(r.success)) setFetchedTasks(r.success);
+      if (Array.isArray(r.success)) { setFetchedTasks(r.success); dispatch(enterTasks(r.success)); }
     }
   };
 

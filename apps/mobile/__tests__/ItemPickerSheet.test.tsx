@@ -3,8 +3,10 @@ jest.mock('../src/notify', () => ({
 }));
 
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
+import { Provider } from 'react-redux';
 import { setHttpClient, setLogger } from '@beyou/api';
 import '../src/i18n';
+import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import ItemPickerSheet from '../src/ui/routines/ItemPickerSheet';
 import { iconRecents } from '../src/ui/icons/iconRecents';
@@ -12,7 +14,8 @@ import { iconRecents } from '../src/ui/icons/iconRecents';
 const section = { id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0, habitGroup: [], taskGroup: [] } as never;
 const habits = [{ id: 'h1', name: 'Meditate', iconId: 'lucide:brain' }] as never[];
 const tasks = [{ id: 't1', name: 'Email', iconId: 'lucide:mail' }] as never[];
-const wrap = (n: React.ReactElement) => render(<BeyouThemeProvider>{n}</BeyouThemeProvider>);
+const wrap = (n: React.ReactElement) =>
+  render(<Provider store={makeStore()}><BeyouThemeProvider>{n}</BeyouThemeProvider></Provider>);
 
 test('adds a habit to the tray with empty times and emits it', async () => {
   const onSave = jest.fn();
