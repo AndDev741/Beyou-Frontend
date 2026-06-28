@@ -100,7 +100,7 @@ export default function ForgotRoute() {
               )}
             />
 
-            <View className="items-center mt-12">
+            <View className="items-center mt-6">
               <Button
                 text={t('SendResetLink')}
                 mode="create"
