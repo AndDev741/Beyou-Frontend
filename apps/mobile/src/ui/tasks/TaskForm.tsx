@@ -37,6 +37,8 @@ interface TaskFormProps {
   onClose: () => void;
   /** Called after a successful create/edit so the list can refetch. */
   onSaved: () => void;
+  /** Called after a successful CREATE with the new task's name (for quick-create callers). */
+  onCreated?: (name: string) => void;
 }
 
 function Segmented({
@@ -78,7 +80,7 @@ function Segmented({
 const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
   keys.map((k, i) => ({ value: i + 1, label: t(k) }));
 
-export default function TaskForm({ visible, mode, task, categories, onClose, onSaved }: TaskFormProps) {
+export default function TaskForm({ visible, mode, task, categories, onClose, onSaved, onCreated }: TaskFormProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const insets = useContext(SafeAreaInsetsContext);
@@ -122,6 +124,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
       return;
     }
     notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    if (!isEdit) onCreated?.(v.name);
     onSaved();
     onClose();
   };

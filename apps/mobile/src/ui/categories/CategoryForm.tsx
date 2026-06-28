@@ -26,6 +26,8 @@ interface CategoryFormProps {
   mode: 'create' | 'edit';
   /** Seeds the form in edit mode. */
   category?: category | null;
+  /** Called after a successful CREATE with the submitted values (for inline-create callers). */
+  onCreated?: (values: { name: string; iconId: string }) => void;
   onClose: () => void;
   /** Called after a successful create/edit so the list can refetch. */
   onSaved: () => void;
@@ -70,7 +72,7 @@ function Segmented({
   );
 }
 
-export default function CategoryForm({ visible, mode, category, onClose, onSaved }: CategoryFormProps) {
+export default function CategoryForm({ visible, mode, category, onCreated, onClose, onSaved }: CategoryFormProps) {
   const { t } = useTranslation();
   const insets = useContext(SafeAreaInsetsContext);
   const isEdit = mode === 'edit';
@@ -110,6 +112,7 @@ export default function CategoryForm({ visible, mode, category, onClose, onSaved
       return;
     }
     notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    if (!isEdit) onCreated?.({ name: v.name, iconId: v.iconId });
     onSaved();
     onClose();
   };

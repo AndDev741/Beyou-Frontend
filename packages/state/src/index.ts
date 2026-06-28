@@ -109,7 +109,7 @@ export { editOneTimeTaskEnter } from './task/editTaskSlice';
 
 // viewFilters
 export type { ViewSortKey } from './viewFilters/viewFiltersSlice';
-export { setViewSort } from './viewFilters/viewFiltersSlice';
+export { setViewSort, hydrateViewFilters } from './viewFilters/viewFiltersSlice';
 export { sortHabits, HABIT_SORT_KEYS } from './viewFilters/sortHabits';
 export type { HabitSortKey } from './viewFilters/sortHabits';
 export { sortRoutines, ROUTINE_SORT_KEYS } from './viewFilters/sortRoutines';

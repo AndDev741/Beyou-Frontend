@@ -37,6 +37,8 @@ interface HabitFormProps {
   onClose: () => void;
   /** Called after a successful create/edit so the list can refetch. */
   onSaved: () => void;
+  /** Called after a successful CREATE with the new habit's name (for quick-create callers). */
+  onCreated?: (name: string) => void;
 }
 
 const EXPERIENCE = [
@@ -84,7 +86,7 @@ function Segmented({
 const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
   keys.map((k, i) => ({ value: i + 1, label: t(k) }));
 
-export default function HabitForm({ visible, mode, habit, categories, onClose, onSaved }: HabitFormProps) {
+export default function HabitForm({ visible, mode, habit, categories, onClose, onSaved, onCreated }: HabitFormProps) {
   const { t } = useTranslation();
   const insets = useContext(SafeAreaInsetsContext);
   const isEdit = mode === 'edit';
@@ -157,6 +159,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
       return;
     }
     notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    if (!isEdit) onCreated?.(v.name);
     onSaved();
     onClose();
   };
