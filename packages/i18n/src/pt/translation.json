@@ -52,6 +52,8 @@
     "VerifyEmailErrorMessage": "Este link de verificação é inválido ou já foi utilizado.",
     "VerifyEmailExpiredTitle": "Link expirado",
     "VerifyEmailExpiredMessage": "Este link de verificação expirou. Registre-se novamente para receber um novo.",
+    "OpenInBeyouApp": "Abrir no app BeYou",
+    "VerifyInBrowser": "Verificar neste navegador",
     "UnknownError": "Um erro desconhecido ocorreu, tente novamente",
     "SuccessRegisterPhrase": "Conta criada! Verifique seu email para ativar sua conta.",
     "CheckIconAlt": "Ícone de verificado",

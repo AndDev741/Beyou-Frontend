@@ -1,22 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import Logo from "../../../components/authentication/logo";
+import OpenInAppButton from "../../../components/authentication/OpenInAppButton";
+import { isMobileDevice } from "../../../components/utils/openInApp";
 
 type VerifyState = "loading" | "success" | "error" | "expired";
 
 function VerifyEmail() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
+    const token = searchParams.get("token") ?? "";
+    const mobile = isMobileDevice();
     const [state, setState] = useState<VerifyState>("loading");
     const calledRef = useRef(false);
 
-    useEffect(() => {
+    const runVerify = useCallback(() => {
         if (calledRef.current) return;
         calledRef.current = true;
 
-        const token = searchParams.get("token");
         if (!token) {
             setState("error");
             return;
@@ -33,7 +36,19 @@ function VerifyEmail() {
                     setState("error");
                 }
             });
-    }, [searchParams]);
+    }, [token]);
+
+    useEffect(() => {
+        // The verification token is single-use. On a phone we defer verifying so
+        // the "Open in app" deep link still carries a live token — the user picks
+        // app vs browser. On desktop we verify immediately as before.
+        if (!token) {
+            setState("error");
+            return;
+        }
+        if (mobile) return;
+        runVerify();
+    }, [token, mobile, runVerify]);
 
     return (
         <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
@@ -43,7 +58,22 @@ function VerifyEmail() {
 
             <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center px-8 py-12 max-w-[420px] text-center">
-                    {state === "loading" && (
+                    {state === "loading" && mobile && token && (
+                        <div className="flex flex-col items-center w-full" data-testid="verify-choose">
+                            <h1 className="text-2xl font-bold mb-6">{t("VerifyEmailSuccessTitle")}</h1>
+                            <OpenInAppButton path="verify" token={token} />
+                            <button
+                                type="button"
+                                onClick={runVerify}
+                                className="text-primary underline text-lg mt-2"
+                                data-testid="verify-in-browser"
+                            >
+                                {t("VerifyInBrowser")}
+                            </button>
+                        </div>
+                    )}
+
+                    {state === "loading" && !(mobile && token) && (
                         <>
                             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6" />
                             <p className="text-xl text-secondary/70">{t("VerifyEmailLoading")}</p>
