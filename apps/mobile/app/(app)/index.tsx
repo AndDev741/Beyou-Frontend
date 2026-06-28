@@ -1,4 +1,6 @@
+import { useCallback, useRef } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { useDashboardData } from '../../src/dashboard/useDashboardData';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import ProfileHeader from '../../src/ui/dashboard/ProfileHeader';
@@ -15,8 +17,23 @@ import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
  * celebrations queued by check-ins.
  */
 export default function AppHome() {
-  const { loading } = useDashboardData();
+  const { loading, reload } = useDashboardData();
   const { theme } = useBeyouTheme();
+  const firstFocus = useRef(true);
+
+  // Refetch when returning to the dashboard (e.g. after editing a routine). The
+  // screen stays mounted under the stack, so the mount-load goes stale otherwise.
+  // Skip the first focus — useDashboardData already loads on mount — and stay
+  // silent (reload doesn't toggle the spinner), so there's no flash on return.
+  useFocusEffect(
+    useCallback(() => {
+      if (firstFocus.current) {
+        firstFocus.current = false;
+        return;
+      }
+      reload();
+    }, [reload]),
+  );
 
   if (loading) {
     return (

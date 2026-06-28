@@ -10,8 +10,11 @@ jest.mock('react-native-toast-message', () => {
   return { __esModule: true, default: S };
 });
 
+// Capture the focus callback so a test can simulate returning to the dashboard.
+let mockFocusCb: (() => void) | undefined;
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
+  useFocusEffect: (cb: () => void) => { mockFocusCb = cb; },
 }));
 
 jest.mock('react-native-safe-area-context', () => ({
@@ -20,7 +23,7 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 
 import { Provider } from 'react-redux';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { render, screen, waitFor, act } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
 import '../src/i18n';
 import { makeStore } from '../src/store';
@@ -64,5 +67,32 @@ describe('AppHome (dashboard)', () => {
     expect(screen.getByTestId('level-ring')).toBeTruthy();
     expect(screen.getByText('3')).toBeTruthy(); // level in the ring
     expect(screen.getByText('7')).toBeTruthy(); // streak
+  });
+
+  it("refetches today's routine when the dashboard regains focus", async () => {
+    const get = jest.fn(async (url: string) => {
+      if (url === '/user') return { data: user };
+      if (url === '/routine/today') return { data: null };
+      return { data: [] };
+    });
+    setHttpClient({ get, post: async () => ({ data: null }), put: async () => ({ data: null }), delete: async () => ({ data: null }) } as never);
+
+    await render(
+      <Provider store={makeStore()}>
+        <BeyouThemeProvider>
+          <AppHome />
+        </BeyouThemeProvider>
+      </Provider>,
+    );
+
+    const todayCalls = () => get.mock.calls.filter((c) => c[0] === '/routine/today').length;
+    await waitFor(() => expect(todayCalls()).toBe(1)); // mount load
+    const afterMount = todayCalls();
+
+    // First focus is skipped (mount already loaded); the second simulates returning.
+    await act(async () => { mockFocusCb?.(); });
+    expect(todayCalls()).toBe(afterMount); // skipped
+    await act(async () => { mockFocusCb?.(); });
+    await waitFor(() => expect(todayCalls()).toBeGreaterThan(afterMount)); // refetched
   });
 });
