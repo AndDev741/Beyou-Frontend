@@ -1,5 +1,6 @@
 import { nativeHttpClient } from '../lib/nativeHttpClient';
 import { ApiError } from '@beyou/api';
+import { parseApiError, type ApiErrorPayload } from '@beyou/api/apiError';
 import type { Profile } from './types';
 
 export interface LoginResult { accessToken: string; refreshToken: string; profile: Profile; }
@@ -41,4 +42,38 @@ export async function logoutRequest(refreshToken: string): Promise<void> {
 // exists, so the screen always shows the same "check your inbox" message.
 export async function forgotPasswordRequest(email: string): Promise<void> {
   await nativeHttpClient.post('/auth/forgot-password', { email });
+}
+
+// Reset / verify flows are reached via deep link (beyou://reset|verify?token=)
+// and run logged-out, so — unlike login/register — they return a result object
+// instead of throwing, letting the screen branch on token validity inline.
+export interface ResetPasswordResult { success?: boolean; error?: ApiErrorPayload; }
+export async function resetPasswordRequest(token: string, password: string): Promise<ResetPasswordResult> {
+  try {
+    await nativeHttpClient.post('/auth/reset-password', { token, password });
+    return { success: true };
+  } catch (e) {
+    return { error: parseApiError(e) };
+  }
+}
+
+export interface ValidateResetTokenResult { valid?: boolean; error?: ApiErrorPayload; }
+export async function validateResetTokenRequest(token: string): Promise<ValidateResetTokenResult> {
+  try {
+    await nativeHttpClient.get('/auth/reset-password/validate', { params: { token } });
+    return { valid: true };
+  } catch (e) {
+    return { error: parseApiError(e) };
+  }
+}
+
+export type VerifyEmailResult = 'success' | 'expired' | 'error';
+export async function verifyEmailRequest(token: string): Promise<VerifyEmailResult> {
+  try {
+    await nativeHttpClient.get('/auth/verify-email', { params: { token } });
+    return 'success';
+  } catch (e) {
+    // Backend signals an expired token in the error message body (web parity).
+    return parseApiError(e).message?.includes('expired') ? 'expired' : 'error';
+  }
 }
