@@ -70,7 +70,7 @@ export default function ForgotRoute() {
         <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-2">
           {t('ForgotPasswordTitle')}
         </Text>
-        <Text className="text-secondary/80 text-center mb-8">{t('ForgotPasswordSubtitle')}</Text>
+        <Text className="text-description text-center mb-8">{t('ForgotPasswordSubtitle')}</Text>
 
         {sent ? (
           <View className="items-center gap-4" testID="forgot-success">
@@ -100,7 +100,7 @@ export default function ForgotRoute() {
               )}
             />
 
-            <View className="items-center mt-8">
+            <View className="items-center mt-12">
               <Button
                 text={t('SendResetLink')}
                 mode="create"
