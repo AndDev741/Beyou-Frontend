@@ -4,6 +4,7 @@ import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
 import TranslationButton from "../../../components/translationButton";
 import Logo from "../../../components/authentication/logo";
+import OpenInAppButton from "../../../components/authentication/OpenInAppButton";
 // Functions
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -124,6 +125,8 @@ function ResetPassword() {
                     <div className="hidden lg:block my-2">
                         <TranslationButton />
                     </div>
+
+                    <OpenInAppButton path="reset" token={token} />
 
                     {isTokenValid === null && (
                         <p className="text-center text-xl mt-6">{t("ValidatingToken")}</p>

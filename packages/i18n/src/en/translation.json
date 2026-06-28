@@ -52,6 +52,8 @@
     "VerifyEmailErrorMessage": "This verification link is invalid or has already been used.",
     "VerifyEmailExpiredTitle": "Link expired",
     "VerifyEmailExpiredMessage": "This verification link has expired. Please register again to receive a new one.",
+    "OpenInBeyouApp": "Open in the BeYou app",
+    "VerifyInBrowser": "Verify in this browser",
     "UnknownError": "An unknown error occurred, try again",
     "SuccessRegisterPhrase": "Account created! Check your email to verify your account.",
     "CheckIconAlt": "Check icon",
