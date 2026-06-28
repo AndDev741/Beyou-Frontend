@@ -36,3 +36,9 @@ export async function refreshRequest(refreshToken: string): Promise<RefreshResul
 export async function logoutRequest(refreshToken: string): Promise<void> {
   await nativeHttpClient.post('/auth/logout', undefined, { headers: { 'X-Refresh-Token': refreshToken } });
 }
+
+// Non-enumerating by design: the backend responds 200 whether or not the email
+// exists, so the screen always shows the same "check your inbox" message.
+export async function forgotPasswordRequest(email: string): Promise<void> {
+  await nativeHttpClient.post('/auth/forgot-password', { email });
+}
