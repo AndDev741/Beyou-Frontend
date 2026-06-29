@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { calculateLevelProgress } from '@beyou/state';
@@ -12,6 +13,8 @@ interface HabitCardProps {
   habit: habit;
   onEdit: (habit: habit) => void;
   onDelete: (habit: habit) => void;
+  /** Optional tutorial ref — passed only for the first card (index 0) to register the habit-first spotlight target. */
+  viewRef?: RefObject<View | null>;
 }
 
 function LevelBar({ habit }: { habit: habit }) {
@@ -52,13 +55,13 @@ function ScaleRow({ label, value, phraseKey }: { label: string; value: number; p
  * description, categories, motivational phrase, importance/difficulty, and the
  * Edit/Delete actions — so viewing details never requires the edit form.
  */
-export default function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
+export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View className="rounded-2xl border border-primary/20 bg-background p-4">
+    <View ref={viewRef} className="rounded-2xl border border-primary/20 bg-background p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"

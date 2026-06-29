@@ -18,6 +18,9 @@ import HabitsSortSheet from '../../src/ui/habits/HabitsSortSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import { useHabitsTutorial } from '../../src/tutorial/hooks/useHabitsTutorial';
+import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
+import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; habit: habit | null };
 const CLOSED: FormState = { visible: false, mode: 'create', habit: null };
@@ -38,6 +41,10 @@ export default function HabitsScreen() {
   const sortBy = useSelector((s: RootState) => s.viewFilters.habits);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+
+  const hab = useHabitsTutorial();
+  const createRef = useTutorialTarget('habit-create');
+  const firstCardRef = useTutorialTarget('habit-first');
 
   const sortedHabits = useMemo(() => sortHabits(habits, sortBy), [habits, sortBy]);
 
@@ -93,6 +100,7 @@ export default function HabitsScreen() {
           <Text className="text-primary text-2xl font-bold">{t('Habits')}</Text>
         </View>
         <Pressable
+          ref={createRef}
           onPress={() => setForm({ visible: true, mode: 'create', habit: null })}
           accessibilityRole="button"
           accessibilityLabel={t('CreateHabit')}
@@ -113,11 +121,12 @@ export default function HabitsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
           ListHeaderComponent={habits.length > 0 ? <View className="mb-1"><HabitsSortSheet /></View> : null}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <HabitCard
               habit={item}
               onEdit={(h) => setForm({ visible: true, mode: 'edit', habit: h })}
               onDelete={handleDelete}
+              viewRef={index === 0 ? firstCardRef : undefined}
             />
           )}
           ListEmptyComponent={
@@ -147,6 +156,17 @@ export default function HabitsScreen() {
         onClose={() => setForm(CLOSED)}
         onSaved={load}
       />
+
+      {hab.active ? (
+        <SpotlightOverlay
+          step={hab.steps[hab.stepIndex]}
+          stepIndex={hab.stepIndex}
+          stepCount={hab.steps.length}
+          onNext={hab.next}
+          onPrev={hab.prev}
+          onSkip={hab.skip}
+        />
+      ) : null}
     </View>
   );
 }
