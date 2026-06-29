@@ -73,3 +73,30 @@ describe('nativeHttpClient (refresh)', () => {
     expect(onUnauth).toHaveBeenCalled();
   });
 });
+
+describe('nativeHttpClient (timeout + transport errors)', () => {
+  beforeEach(() => { setAccessToken(null); __setBaseUrl('http://test.local/api/v1'); });
+  afterEach(() => { jest.useRealTimers(); });
+
+  it('aborts and throws ApiError(0) when the request exceeds the timeout', async () => {
+    jest.useFakeTimers();
+    // A fetch that never resolves on its own — it only rejects when the signal aborts.
+    global.fetch = jest.fn((_url: string, init: { signal: AbortSignal }) =>
+      new Promise((_resolve, reject) => {
+        init.signal.addEventListener('abort', () =>
+          reject(Object.assign(new Error('Aborted'), { name: 'AbortError' })),
+        );
+      }),
+    ) as unknown as typeof fetch;
+
+    const p = nativeHttpClient.post('/slow', {}, { timeout: 1000 });
+    const assertion = expect(p).rejects.toMatchObject({ status: 0 });
+    jest.advanceTimersByTime(1000);
+    await assertion;
+  });
+
+  it('wraps a transport failure (unreachable host) as ApiError(0)', async () => {
+    global.fetch = jest.fn().mockRejectedValueOnce(new TypeError('Network request failed')) as unknown as typeof fetch;
+    await expect(nativeHttpClient.get('/x')).rejects.toBeInstanceOf(ApiError);
+  });
+});

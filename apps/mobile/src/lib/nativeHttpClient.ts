@@ -39,15 +39,33 @@ function buildHeaders(extra?: Record<string, string>): Record<string, string> {
   return h;
 }
 
-// TODO: RequestConfig.timeout is not yet honored — implement via AbortController in
-// a future task. No Phase 1 path uses it and adding it now would complicate the
-// upcoming refresh/retry logic.
+// A request with no response would otherwise hang forever (no native fetch timeout),
+// leaving the UI stuck on a spinner. Abort after DEFAULT_TIMEOUT_MS (override per call
+// via config.timeout) so callers get a rejected promise → error toast instead.
+const DEFAULT_TIMEOUT_MS = 20000;
+
 async function request<T>(method: string, path: string, body?: unknown, config?: RequestConfig, isRetry = false): Promise<HttpResponse<T>> {
-  const res = await fetch(buildUrl(path, config?.params), {
-    method,
-    headers: buildHeaders(config?.headers),
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeoutMs = config?.timeout ?? DEFAULT_TIMEOUT_MS;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let res: Response;
+  try {
+    res = await fetch(buildUrl(path, config?.params), {
+      method,
+      headers: buildHeaders(config?.headers),
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (e) {
+    // AbortError = our timeout fired; anything else = a transport failure
+    // (unreachable host, DNS, connection refused). Surface both as a status-0 ApiError.
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new ApiError(0, undefined, `Request timed out after ${timeoutMs}ms`);
+    }
+    throw new ApiError(0, undefined, e instanceof Error ? e.message : 'Network request failed');
+  } finally {
+    clearTimeout(timer);
+  }
   const headerObj: Record<string, string> = {};
   // Fetch's Headers.forEach yields lowercased keys — consumers read e.g. 'x-access-token', not 'X-Access-Token'.
   res.headers.forEach((v, k) => { headerObj[k] = v; });
