@@ -1,6 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from 'expo-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { useDashboardData } from '../../src/dashboard/useDashboardData';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import ProfileHeader from '../../src/ui/dashboard/ProfileHeader';
@@ -9,6 +11,10 @@ import BottomNav from '../../src/ui/dashboard/BottomNav';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import DashboardGoals from '../../src/ui/dashboard/DashboardGoals';
 import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
+import OnboardingTutorial from '../../src/ui/tutorial/OnboardingTutorial';
+import { setPhase } from '../../src/tutorial/tutorialSlice';
+import { completeTutorial } from '../../src/tutorial/completeTutorial';
+import type { RootState, AppDispatch } from '../../src/store';
 
 /**
  * Dashboard home: loads profile + today's routine + lists on mount
@@ -20,6 +26,9 @@ export default function AppHome() {
   const { loading, reload } = useDashboardData();
   const { theme } = useBeyouTheme();
   const firstFocus = useRef(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
+  const phase = useSelector((s: RootState) => s.tutorial.phase);
 
   // Refetch when returning to the dashboard (e.g. after editing a routine). The
   // screen stays mounted under the stack, so the mount-load goes stale otherwise.
@@ -57,6 +66,12 @@ export default function AppHome() {
       </ScrollView>
       <BottomNav />
       <CelebrationOverlay />
+      {phase === 'intro' ? (
+        <OnboardingTutorial
+          onComplete={() => dispatch(setPhase('dashboard'))}
+          onSkip={() => completeTutorial({ dispatch, t })}
+        />
+      ) : null}
     </View>
   );
 }
