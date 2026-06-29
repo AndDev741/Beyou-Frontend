@@ -57,7 +57,8 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     signIn: jest.fn().mockResolvedValue({ type: 'cancelled', data: null }),
   },
   isSuccessResponse: jest.fn((r) => r?.type === 'success'),
-  statusCodes: {},
+  isErrorWithCode: jest.fn(() => false),
+  statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED', IN_PROGRESS: 'IN_PROGRESS', PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE', DEVELOPER_ERROR: 'DEVELOPER_ERROR' },
 }));
 
 // @react-native-community/datetimepicker wraps a native module that is absent in
