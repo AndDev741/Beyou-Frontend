@@ -10,6 +10,7 @@ import LanguageSection from '../../src/ui/config/LanguageSection';
 import RoutineSettingsSection from '../../src/ui/config/RoutineSettingsSection';
 import ConstanceSection from '../../src/ui/config/ConstanceSection';
 import WidgetsSection from '../../src/ui/config/WidgetsSection';
+import TutorialSection from '../../src/ui/config/TutorialSection';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
@@ -81,6 +82,15 @@ export default function ConfigurationScreen() {
         testID="section-dashboard"
       >
         <WidgetsSection />
+      </ConfigSection>
+
+      <ConfigSection
+        iconId="lucide:graduation-cap"
+        title={t('Tutorial')}
+        description={t('TutorialDescription')}
+        testID="section-tutorial"
+      >
+        <TutorialSection />
       </ConfigSection>
 
       <Pressable
