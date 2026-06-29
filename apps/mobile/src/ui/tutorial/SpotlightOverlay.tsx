@@ -17,7 +17,7 @@ const PAD = 8;
 export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, onPrev, onSkip }: Props) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
-  const { width: W, height: H } = useWindowDimensions();
+  const { height: H } = useWindowDimensions();
   const { measure } = useTutorialRegistry();
   const [rect, setRect] = useState<Rect | null>(null);
 
@@ -50,9 +50,6 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
   const tooltipPositionStyle = tooltipBelow
     ? { top: holeBottom + 12 }
     : { bottom: H - holeTop + 12 };
-
-  // W is used implicitly through the left/right style — suppress unused-var warning.
-  void W;
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onSkip}>

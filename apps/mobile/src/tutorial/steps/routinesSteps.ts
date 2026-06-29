@@ -32,12 +32,6 @@ export const routinesSteps: SpotlightStep[] = [
     targetId: 'routine-schedule',
     titleKey: 'TutorialSpotlightScheduleTitle',
     descKey: 'TutorialSpotlightScheduleDescription',
-  },
-  {
-    id: 'go-config',
-    targetId: 'nav-config',
-    titleKey: 'TutorialSpotlightConfigTitle',
-    descKey: 'TutorialSpotlightConfigDescription',
     nextLabelKey: 'TutorialGoToConfig',
   },
 ];
