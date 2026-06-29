@@ -23,6 +23,9 @@ test('advancing past the last step transitions to categories', async () => {
   store.dispatch({ type: 'tutorial/setPhase', payload: 'dashboard' });
   const { result } = await renderHook(() => useDashboardTutorial(), { wrapper: wrapper(store) });
   expect(result.current.active).toBe(true);
-  await act(async () => { for (let i = 0; i < result.current.steps.length; i++) result.current.next(); });
+  // One next() per commit (real usage: one tap per render) so each call sees fresh stepIndex.
+  for (let i = 0; i < result.current.steps.length; i++) {
+    await act(async () => { result.current.next(); });
+  }
   expect(store.getState().tutorial.phase).toBe('categories');
 });
