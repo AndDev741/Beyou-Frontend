@@ -9,7 +9,8 @@ import {
 } from "chart.js"
 import { useEffect, useRef } from "react"
 import { ProgressRing } from "../progressRing"
-import { resolveThemeColor } from "./utils/chartColors"
+import { toHex6 } from "./utils/chartColors"
+import { useTheme } from "../../context/ThemeContext"
 
 Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
 
@@ -20,6 +21,7 @@ export type dailyProgressProps = {
 
 export default function DailyProgress({ checked, total }: dailyProgressProps) {
     const { t } = useTranslation()
+    const { theme } = useTheme()
     const chartRef = useRef<HTMLCanvasElement>(null)
     const chartInstanceRef = useRef<Chart | null>(null)
 
@@ -31,9 +33,10 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
             chartInstanceRef.current.destroy()
         }
 
-        // Canvas can't resolve CSS variables — read the theme colors here.
-        const primary = resolveThemeColor("--primary", "#0082E1")
-        const secondary = resolveThemeColor("--secondary", "#000000")
+        // Canvas can't resolve CSS variables, and the provider's CSS-var effect
+        // runs after this child effect — so read straight off the theme object.
+        const primary = toHex6(theme.primary)
+        const secondary = toHex6(theme.secondary)
 
         chartInstanceRef.current = new Chart(chartRef.current, {
             type: 'doughnut',
@@ -65,7 +68,7 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
                 chartInstanceRef.current.destroy()
             }
         }
-    }, [checked, total])
+    }, [checked, total, theme])
 
     return (
         <BaseDiv title={t('Daily Progress')} bigSize={true}>

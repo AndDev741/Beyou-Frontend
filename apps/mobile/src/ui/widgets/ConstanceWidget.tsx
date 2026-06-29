@@ -12,7 +12,7 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
   return (
     <WidgetCard title={t('Constance')} testID="widget-constance">
       <Text className="text-primary text-2xl font-semibold">{constance}</Text>
-      <Text className="text-secondary text-lg font-semibold">{t('Days')}</Text>
+      <Text className="text-secondary text-lg font-semibold">{t('Days', { count: constance })}</Text>
     </WidgetCard>
   );
 }

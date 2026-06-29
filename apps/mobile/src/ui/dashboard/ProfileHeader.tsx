@@ -84,7 +84,7 @@ export default function ProfileHeader() {
         <Ionicons name="flame" size={18} color={theme.primary} />
         <Text className="text-secondary ml-1 font-bold">{constance}</Text>
         <Text className="text-description ml-1">
-          {t('Days')} · {t('Constance')}
+          {t('Days', { count: constance })} · {t('Constance')}
         </Text>
       </View>
     </View>

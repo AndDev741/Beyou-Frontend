@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import BaseDiv from "./baseDiv";
 import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, RadarController } from "chart.js";
 import category from "@beyou/types/category/categoryType";
-import { resolveThemeColor, toHex6 } from "./utils/chartColors";
+import { toHex6 } from "./utils/chartColors";
+import { useTheme } from "../../context/ThemeContext";
 
 Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip);
 
@@ -18,6 +19,7 @@ const MIN_CATEGORIES = 3;
 
 export default function CategoryBalance({ categories }: categoryBalanceProps) {
     const { t } = useTranslation();
+    const { theme } = useTheme();
     const chartRef = useRef<HTMLCanvasElement>(null);
     const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -30,8 +32,10 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
             chartInstanceRef.current.destroy();
         }
 
-        const primary = resolveThemeColor("--primary", "#0082E1");
-        const secondary = resolveThemeColor("--secondary", "#000000");
+        // Canvas can't resolve CSS variables, and the provider's CSS-var effect
+        // runs after this child effect — so read straight off the theme object.
+        const primary = toHex6(theme.primary);
+        const secondary = toHex6(theme.secondary);
 
         chartInstanceRef.current = new Chart(chartRef.current, {
             type: "radar",
@@ -64,7 +68,7 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
                 chartInstanceRef.current.destroy();
             }
         };
-    }, [categories, hasEnough]);
+    }, [categories, hasEnough, theme]);
 
     return (
         <BaseDiv title={t("LifeBalance")} bigSize={true}>
