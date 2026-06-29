@@ -20,6 +20,8 @@ import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import ThemeSync from '../src/theme/ThemeSync';
 import LanguageSync from '../src/i18n/LanguageSync';
 import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
+import { TutorialProvider } from '../src/tutorial/TutorialProvider';
+import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
 
 setHttpClient(nativeHttpClient);
@@ -70,17 +72,20 @@ function Gate() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <SafeAreaProvider>
-        <BeyouThemeProvider>
-          <ThemeSync />
-          <LanguageSync />
-          <ViewFiltersSync />
-          <ErrorBoundary>
-            <Gate />
-          </ErrorBoundary>
-          <Toast />
-        </BeyouThemeProvider>
-      </SafeAreaProvider>
+      <TutorialProvider>
+        <SafeAreaProvider>
+          <BeyouThemeProvider>
+            <ThemeSync />
+            <LanguageSync />
+            <ViewFiltersSync />
+            <TutorialSync />
+            <ErrorBoundary>
+              <Gate />
+            </ErrorBoundary>
+            <Toast />
+          </BeyouThemeProvider>
+        </SafeAreaProvider>
+      </TutorialProvider>
     </Provider>
   );
 }
