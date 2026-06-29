@@ -188,3 +188,70 @@ renders when `aiSeed !== null`, pre-populated via its `routine` prop. **Orphan-o
 builder. If the user cancels the seeded builder, those habits/tasks/categories are left orphaned —
 this matches the web app's behaviour and is a known product decision, not a bug. The e2e profile
 swaps in a `CannedRoutineDraftGenerator` (deterministic, no real API key needed).
+
+## Tutorial / onboarding (Phase 8)
+
+**Phase slice + SecureStore persist + `TutorialSync` boot gate**
+
+Tutorial state lives in `@beyou/state`'s `tutorialSlice` (`src/tutorial/tutorialSlice.ts`) with three
+fields: `phase` (`'intro' | 'categories' | 'habits' | 'routines' | 'config' | 'done'`), `stepIndex`
+(int), and `completed` (bool). The slice is persisted to `expo-secure-store` via a dedicated
+`SecureStore` adapter in `src/auth/secureStore.ts` — tutorial state travels alongside the auth token so
+a fresh install starts from `'intro'` and a completed user never sees the intro again. `TutorialSync`
+(`src/tutorial/TutorialSync.tsx`) mounts inside `_layout` and reads the stored phase on boot; until the
+async read settles it returns `null` (acts as a loading gate), then dispatches `setPhase` into the Redux
+store. Screens must not read `tutorialSlice.phase` until `TutorialSync` has committed it.
+
+**`TutorialProvider` / `useTutorialTarget` / `measureInWindow`**
+
+`TutorialProvider` (`src/tutorial/TutorialProvider.tsx`) holds a ref registry: a `Map<string, RefObject>`
+keyed by target-id strings. Screens call `useTutorialTarget(id)` to register their element's ref; the
+hook returns the ref to attach to the target node. When the overlay needs to spotlight a target it calls
+`ref.current.measureInWindow(cb)` — the React Native equivalent of `getBoundingClientRect`. This
+replaces the web's `data-tutorial-id` attribute approach; there are no DOM query selectors.
+
+**`SpotlightOverlay` — transparent Modal + holed dimmer + touch passthrough**
+
+`SpotlightOverlay` (`src/tutorial/SpotlightOverlay.tsx`) renders as a transparent full-screen `Modal`
+(Model A: a single modal layer, `transparent={true}`, `animationType="fade"`). The dimmer is drawn via
+SVG (`react-native-svg`): a full-screen rect minus a rounded cutout at the measured target coordinates
+gives the "hole". Taps that land inside the cutout region pass through to the underlying real UI
+(achieved by `pointerEvents="box-none"` on the overlay container + a small absolute `View` covering
+the hole with `pointerEvents="none"` to let touches fall through). The tooltip (title + description +
+hint text + Prev/Next/Skip buttons) is positioned above or below the hole depending on available
+screen space. The **Next button is disabled** when the current step has a `disabledHintKey` and the
+associated data condition has not yet flipped; the hint key translates to a short user-facing string
+explaining what action is required.
+
+**Per-screen hooks — EVENT-HANDLER `next()` pattern**
+
+Each screen has a dedicated tutorial hook: `useDashboardTutorial`, `useCategoriesTutorial`,
+`useHabitsTutorial`, `useRoutinesTutorial`, `useConfigTutorial`. Each hook:
+1. Reads the active `SpotlightStep[]` list and `stepIndex` from the store.
+2. Calls `useTutorialTarget` for every target-id referenced by its steps.
+3. Returns `{ active, steps, stepIndex, next, prev, skip }` to the screen.
+
+The `next()` function (and `prev`, `skip`) are **event handlers** — they dispatch `advanceStep` /
+`decrementStep` / `skipTutorial` directly. They are NOT passed as `setState` updaters or called from
+inside `useEffect`; calling `next()` from a `useEffect` body would create infinite dispatch loops.
+Screens advance the tutorial from user-action callbacks (button presses, form submits, item creation
+confirmations) not from render-time effects.
+
+**Trimmed routines flow + `hasSection=true` screen-level limitation**
+
+The routine tutorial (Phase 7 scope) spotlights: routine name input → add-section button → section
+form (name + time) → save/create button → schedule indicator. The routine builder runs inside a
+`Modal`; `measureInWindow` on elements inside a `Modal` can give coordinates relative to the inner
+window rather than the screen — the overlay re-measures on every step advance to compensate. The
+`hasSection` condition that ungates the Next button on the "add a section" step is evaluated at the
+**screen level** (the routines screen knows when `workingCopy.sections.length > 0`) rather than
+inside the modal, which means the spotlight and the condition check are on the same coordinate space.
+This is the accepted screen-level limitation noted in the plan.
+
+**Replay via `TutorialSection` in config**
+
+`TutorialSection` (`src/ui/config/TutorialSection.tsx`) renders in the Configuration screen under
+the Preferences group. It shows the current tutorial status (completed / in-progress) and a
+"Restart tutorial" button that dispatches `resetTutorial()` (sets phase back to `'intro'`, stepIndex
+to 0, completed to false) + persists via `SecureStore`. On next navigation to the dashboard the
+`TutorialSync` gate picks up `'intro'` and the intro modal fires again.
