@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
-import editUser from "@beyou/api/user/editUser";
 import { themeInUseEnter } from "@beyou/state/user/perfilSlice";
 import { themes } from "@beyou/theme";
 
@@ -10,12 +9,9 @@ export default function ThemeSelectorInline() {
     const { theme, setTheme } = useTheme();
     const dispatch = useDispatch();
 
+    // Login page only: no user is authenticated, so don't hit the user API —
+    // just apply the theme locally.
     const onSubmit = (nextTheme: typeof themes[0]) => {
-        const themeToSave = {
-            theme: nextTheme.mode
-        };
-
-        editUser(themeToSave);
         dispatch(themeInUseEnter(nextTheme));
         setTheme(nextTheme);
     };

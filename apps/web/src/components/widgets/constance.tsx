@@ -10,7 +10,7 @@ export default function Constance({constance}: constanceProps){
     return (
         <BaseDiv title={t('Constance')} >
             <p className="text-lg text-lg font-semibold text-primary">{constance}</p>
-            <p className="text-primary text-lg font-semibold text-secondary">{t('Days')}</p>
+            <p className="text-primary text-lg font-semibold text-secondary">{t('Days', { count: constance })}</p>
         </BaseDiv>
     )
 }

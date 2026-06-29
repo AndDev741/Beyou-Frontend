@@ -86,7 +86,7 @@ function Perfil() {
                 <Flame size={16} className="text-primary" />
                 <span className="text-sm font-bold text-secondary">{constance}</span>
                 <span className="text-xs text-description">
-                    {t('Days')} · {t('Constance')}
+                    {t('Days', { count: constance })} · {t('Constance')}
                 </span>
             </div>
         </div>
