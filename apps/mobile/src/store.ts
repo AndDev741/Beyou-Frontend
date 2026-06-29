@@ -11,6 +11,7 @@ import goals from '@beyou/state/goal/goalsSlice';
 import categories from '@beyou/state/category/categoriesSlice';
 import celebration from '@beyou/state/celebration/celebrationSlice';
 import viewFilters from '@beyou/state/viewFilters/viewFiltersSlice';
+import tutorial from './tutorial/tutorialSlice';
 
 // Factory so tests can spin up an isolated store per test (Redux state is not
 // reset between Jest cases). App code uses the singleton `store` below.
@@ -33,6 +34,7 @@ export const makeStore = () =>
       categories,
       celebration,
       viewFilters,
+      tutorial,
     },
   });
 
