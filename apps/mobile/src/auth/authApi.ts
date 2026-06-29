@@ -26,6 +26,14 @@ export async function registerRequest(name: string, email: string, password: str
   await nativeHttpClient.post('/auth/register', { name, email, password });
 }
 
+// Mobile Google sign-in: send the on-device Google ID token; the backend verifies
+// it and issues JWT + refresh on the same mobile contract as loginRequest.
+export async function googleMobileLoginRequest(idToken: string): Promise<LoginResult> {
+  const r = await nativeHttpClient.post<{ success: Profile; refreshToken: string }>('/auth/google/mobile', { idToken });
+  requireTokens(r.headers['x-access-token'], r.data?.refreshToken);
+  return { accessToken: r.headers['x-access-token'], refreshToken: r.data.refreshToken, profile: r.data.success };
+}
+
 export async function refreshRequest(refreshToken: string): Promise<RefreshResult> {
   const r = await nativeHttpClient.post<{ refreshToken: string }>('/auth/refresh', undefined, {
     headers: { 'X-Refresh-Token': refreshToken },

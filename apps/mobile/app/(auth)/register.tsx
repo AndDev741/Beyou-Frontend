@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
+import GoogleSignInButton from '../../src/ui/GoogleSignInButton';
 import MobileBrand from '../../src/ui/MobileBrand';
 import LanguageToggle from '../../src/ui/LanguageToggle';
 import AuthTabs from '../../src/ui/AuthTabs';
@@ -176,13 +177,7 @@ export default function RegisterRoute() {
               />
 
               <View className="mt-4">
-                <Button
-                  text={t('ComingSoon')}
-                  mode="default"
-                  size="big"
-                  disabled
-                  testID="register-google-button"
-                />
+                <GoogleSignInButton />
               </View>
             </View>
           </>
