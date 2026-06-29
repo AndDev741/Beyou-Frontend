@@ -16,6 +16,9 @@ import CategoriesSortSheet from '../../src/ui/categories/CategoriesSortSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import { useCategoriesTutorial } from '../../src/tutorial/hooks/useCategoriesTutorial';
+import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
+import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; category: category | null };
 const CLOSED: FormState = { visible: false, mode: 'create', category: null };
@@ -35,6 +38,10 @@ export default function CategoriesScreen() {
   const sortBy = useSelector((s: RootState) => s.viewFilters.categories);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+
+  const cat = useCategoriesTutorial();
+  const createRef = useTutorialTarget('category-create');
+  const firstCardRef = useTutorialTarget('category-first');
 
   const sortedCategories = useMemo(() => sortCategories(categories, sortBy), [categories, sortBy]);
 
@@ -89,6 +96,7 @@ export default function CategoriesScreen() {
           <Text className="text-primary text-2xl font-bold">{t('Categories')}</Text>
         </View>
         <Pressable
+          ref={createRef}
           onPress={() => setForm({ visible: true, mode: 'create', category: null })}
           accessibilityRole="button"
           accessibilityLabel={t('CreateCategory')}
@@ -109,11 +117,12 @@ export default function CategoriesScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
           ListHeaderComponent={categories.length > 0 ? <View className="mb-1"><CategoriesSortSheet /></View> : null}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <CategoryCard
               category={item}
               onEdit={(c) => setForm({ visible: true, mode: 'edit', category: c })}
               onDelete={handleDelete}
+              viewRef={index === 0 ? firstCardRef : undefined}
             />
           )}
           ListEmptyComponent={
@@ -140,6 +149,17 @@ export default function CategoriesScreen() {
         onClose={() => setForm(CLOSED)}
         onSaved={load}
       />
+
+      {cat.active ? (
+        <SpotlightOverlay
+          step={cat.steps[cat.stepIndex]}
+          stepIndex={cat.stepIndex}
+          stepCount={cat.steps.length}
+          onNext={cat.next}
+          onPrev={cat.prev}
+          onSkip={cat.skip}
+        />
+      ) : null}
     </View>
   );
 }
