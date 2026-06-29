@@ -36,8 +36,10 @@ const renderWithTheme = () =>
 
 describe("ThemeContext — login OS detection + saved-theme precedence", () => {
   beforeEach(() => {
-    // The login screen / a brand-new account has no saved theme.
+    // The login screen / a brand-new account has no saved theme — neither on
+    // the account (redux) nor as a pre-signup pick (localStorage).
     store.dispatch(themeInUseEnter(null));
+    localStorage.clear();
   });
 
   it("applies the OS dark theme at login when no theme is saved", () => {
@@ -58,5 +60,25 @@ describe("ThemeContext — login OS detection + saved-theme precedence", () => {
     store.dispatch(themeInUseEnter(saved));
     const { getByTestId } = renderWithTheme();
     expect(getByTestId("mode").textContent).toBe(saved.mode);
+  });
+
+  it("falls back to the localStorage pick over the OS preference when the account has no theme", () => {
+    // A theme chosen on the login page before signing up is stored locally;
+    // an account with no theme of its own should carry that pick forward.
+    setOSPrefersDark(true); // OS is dark...
+    const picked = themes.find((t) => t.mode !== defaultDark.mode)!; // ...but a non-dark theme was picked
+    localStorage.setItem("beyou-theme", JSON.stringify(picked));
+    const { getByTestId } = renderWithTheme();
+    expect(getByTestId("mode").textContent).toBe(picked.mode);
+  });
+
+  it("lets the account theme win over the localStorage pick", () => {
+    setOSPrefersDark(true);
+    const stored = themes.find((t) => t.mode !== defaultDark.mode)!;
+    const account = themes.find((t) => t.mode !== stored.mode && t.mode !== defaultDark.mode)!;
+    localStorage.setItem("beyou-theme", JSON.stringify(stored));
+    store.dispatch(themeInUseEnter(account)); // account has its own theme
+    const { getByTestId } = renderWithTheme();
+    expect(getByTestId("mode").textContent).toBe(account.mode);
   });
 });
