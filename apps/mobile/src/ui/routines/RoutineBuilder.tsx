@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { useTutorialTarget } from '../../tutorial/useTutorialTarget';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { routineFormSchema, getSectionErrorKeys, getItemTimeErrorKeys } from '@beyou/validation';
@@ -45,6 +46,10 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   const [aiOpen, setAiOpen] = useState(false);
   // Plain create starts on the type-picker; edit / AI-seeded create skip straight to the form.
   const [typeChosen, setTypeChosen] = useState(false);
+
+  const nameRef = useTutorialTarget('routine-name');
+  const addSectionRef = useTutorialTarget('routine-add-section');
+  const saveRef = useTutorialTarget('routine-save');
 
   useEffect(() => {
     if (!visible) return;
@@ -134,7 +139,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           >
             <Text className="text-primary text-base font-semibold">✨ {t(isEdit ? 'AdjustWithAi' : 'CreateWithAi')}</Text>
           </Pressable>
-          <View>
+          <View ref={nameRef}>
             <Text className="text-secondary mb-1 text-base font-semibold">{t('Routine name')}</Text>
             <Input value={working.name} onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))} placeholder={t('Routine name')} accessibilityLabel={t('Routine name')} testID="routine-name" />
           </View>
@@ -142,7 +147,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
 
           <View className="flex-row items-center justify-between">
             <Text className="text-secondary text-base font-semibold">{t('Sections')}</Text>
-            <Pressable onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="items-center justify-center rounded-full bg-primary px-3 py-1.5">
+            <Pressable ref={addSectionRef} onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="items-center justify-center rounded-full bg-primary px-3 py-1.5">
               <Text className="text-background text-center text-sm font-semibold">{t('add section')}</Text>
             </Pressable>
           </View>
@@ -171,7 +176,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           {formError ? (
             <Text className="text-error text-center text-sm font-semibold" testID="routine-form-error">{formError}</Text>
           ) : null}
-          <View className="mt-2 items-center">
+          <View ref={saveRef} className="mt-2 items-center">
             <Button text={t(isEdit ? 'Edit' : 'Create')} mode="create" submitting={submitting} onPress={save} testID="routine-save" />
           </View>
         </ScrollView>

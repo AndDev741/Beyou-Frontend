@@ -22,6 +22,9 @@ import ScheduleSheet from '../../src/ui/routines/ScheduleSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import { useRoutinesTutorial } from '../../src/tutorial/hooks/useRoutinesTutorial';
+import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
+import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -39,6 +42,12 @@ export default function RoutinesScreen() {
   const [builder, setBuilder] = useState(false);
   const [editTarget, setEditTarget] = useState<Routine | null>(null);
   const [scheduleTarget, setScheduleTarget] = useState<Routine | null>(null);
+
+  const createRoutineRef = useTutorialTarget('routine-add');
+  const scheduleRoutineRef = useTutorialTarget('routine-schedule');
+  // hasSection cannot be observed at screen level (it lives in the builder's working copy).
+  // The save step's !hasRoutines gate still protects correctness for that step.
+  const rt = useRoutinesTutorial({ builderOpen: builder, hasSection: true });
 
   const today = todayIso();
   const isPast = !!selectedDate && selectedDate < today;
@@ -78,7 +87,7 @@ export default function RoutinesScreen() {
           </Pressable>
           <Text className="text-primary text-2xl font-bold">{t('Routines')}</Text>
         </View>
-        <Pressable onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
+        <Pressable ref={createRoutineRef} onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
           <Ionicons name="add" size={26} color={theme.background} />
         </Pressable>
       </View>
@@ -96,9 +105,9 @@ export default function RoutinesScreen() {
               {!isPast ? <View className="px-4"><RoutinesSortSheet /></View> : null}
             </View>
           }
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <View className="px-4">
-              <RoutineCard routine={item} today={today} onSchedule={onSchedule} onEdit={setEditTarget} onDelete={onDelete} onChanged={load} />
+              <RoutineCard routine={item} today={today} onSchedule={onSchedule} onEdit={setEditTarget} onDelete={onDelete} onChanged={load} scheduleRef={index === 0 ? scheduleRoutineRef : undefined} />
             </View>
           )}
           ListEmptyComponent={
@@ -116,6 +125,17 @@ export default function RoutinesScreen() {
       <RoutineBuilder visible={editTarget !== null} mode="edit" routine={editTarget ?? undefined} habits={habits} tasks={tasks} onClose={() => setEditTarget(null)} onSaved={load} />
       {scheduleTarget ? (
         <ScheduleSheet visible routine={scheduleTarget} onClose={() => setScheduleTarget(null)} onSaved={load} />
+      ) : null}
+
+      {rt.active ? (
+        <SpotlightOverlay
+          step={rt.steps[rt.stepIndex]}
+          stepIndex={rt.stepIndex}
+          stepCount={rt.steps.length}
+          onNext={rt.next}
+          onPrev={rt.prev}
+          onSkip={rt.skip}
+        />
       ) : null}
     </View>
   );

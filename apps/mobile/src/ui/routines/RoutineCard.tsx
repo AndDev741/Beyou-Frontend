@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { RefObject } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -41,9 +42,10 @@ interface RoutineCardProps {
   onEdit: (r: Routine) => void;
   onDelete: (r: Routine) => void;
   onChanged: () => void;
+  scheduleRef?: React.RefObject<View | null>;
 }
 
-export default function RoutineCard({ routine, today, onSchedule, onEdit, onDelete, onChanged }: RoutineCardProps) {
+export default function RoutineCard({ routine, today, onSchedule, onEdit, onDelete, onChanged, scheduleRef }: RoutineCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const habits = useSelector((s: RootState) => s.habits.habits);
@@ -100,10 +102,11 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             <Ionicons name="trash-outline" size={18} color={theme.error} />
           </Pressable>
           <Pressable
+            ref={scheduleRef}
             onPress={() => onSchedule(routine)}
             accessibilityRole="button"
             accessibilityLabel={t('Schedule')}
-            testID={`schedule-${routine.id}`}
+            testID={scheduleRef ? 'schedule-routine' : `schedule-${routine.id}`}
             className="h-9 w-9 items-center justify-center rounded-full bg-primary/10"
           >
             <Ionicons name="calendar-outline" size={18} color={theme.primary} />
