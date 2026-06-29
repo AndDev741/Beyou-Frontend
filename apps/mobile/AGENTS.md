@@ -191,67 +191,63 @@ swaps in a `CannedRoutineDraftGenerator` (deterministic, no real API key needed)
 
 ## Tutorial / onboarding (Phase 8)
 
-**Phase slice + SecureStore persist + `TutorialSync` boot gate**
+**Phase state + persistence + boot gate**
 
-Tutorial state lives in `@beyou/state`'s `tutorialSlice` (`src/tutorial/tutorialSlice.ts`) with three
-fields: `phase` (`'intro' | 'categories' | 'habits' | 'routines' | 'config' | 'done'`), `stepIndex`
-(int), and `completed` (bool). The slice is persisted to `expo-secure-store` via a dedicated
-`SecureStore` adapter in `src/auth/secureStore.ts` — tutorial state travels alongside the auth token so
-a fresh install starts from `'intro'` and a completed user never sees the intro again. `TutorialSync`
-(`src/tutorial/TutorialSync.tsx`) mounts inside `_layout` and reads the stored phase on boot; until the
-async read settles it returns `null` (acts as a loading gate), then dispatches `setPhase` into the Redux
-store. Screens must not read `tutorialSlice.phase` until `TutorialSync` has committed it.
+Tutorial phase lives in a MOBILE-LOCAL Redux slice `src/tutorial/tutorialSlice.ts` (NOT `@beyou/state`).
+State is exactly `{ phase: TutorialPhase | null }` — only `phase`, no `stepIndex` or `completed` fields.
+`TutorialPhase = 'intro' | 'dashboard' | 'categories' | 'habits' | 'routines' | 'config' | 'done'`.
+Actions: `setPhase`, `clearPhase`. Per-screen step index is LOCAL `useState` inside each hook (not in
+the slice). Completion is `perfil.isTutorialCompleted` (the shared `@beyou/state` perfilSlice),
+persisted via `editUser`.
 
-**`TutorialProvider` / `useTutorialTarget` / `measureInWindow`**
+Phase is persisted to expo-secure-store by `src/lib/tutorialStore.ts` (its own key
+`beyou.tutorial.phase` — SEPARATE from the auth refresh-token store in `src/auth/secureStore.ts`).
+`TutorialSync` (`src/tutorial/TutorialSync.tsx`, mounted in `_layout`) hydrates the saved phase on
+boot, persists on change, and gates the start: when `isTutorialCompleted === false` and
+`phase === null` it sets `phase = 'intro'`. Mirrors the `ViewFiltersSync` pattern.
 
-`TutorialProvider` (`src/tutorial/TutorialProvider.tsx`) holds a ref registry: a `Map<string, RefObject>`
-keyed by target-id strings. Screens call `useTutorialTarget(id)` to register their element's ref; the
-hook returns the ref to attach to the target node. When the overlay needs to spotlight a target it calls
-`ref.current.measureInWindow(cb)` — the React Native equivalent of `getBoundingClientRect`. This
-replaces the web's `data-tutorial-id` attribute approach; there are no DOM query selectors.
+**Target registry + measure**
 
-**`SpotlightOverlay` — transparent Modal + holed dimmer + touch passthrough**
+`TutorialProvider` (`src/tutorial/TutorialProvider.tsx`) holds a `Map<id, RefObject<View>>`.
+`useTutorialTarget(id)` (`src/tutorial/useTutorialTarget.ts`) returns a ref to attach to the target
+`View`; the overlay measures it with `measureInWindow`. Never call `useTutorialTarget` inside a
+`.map()` — pass a `viewRef` prop into the row component (CategoryCard/HabitCard/RoutineCard do this
+for the first item).
 
-`SpotlightOverlay` (`src/tutorial/SpotlightOverlay.tsx`) renders as a transparent full-screen `Modal`
-(Model A: a single modal layer, `transparent={true}`, `animationType="fade"`). The dimmer is drawn via
-SVG (`react-native-svg`): a full-screen rect minus a rounded cutout at the measured target coordinates
-gives the "hole". Taps that land inside the cutout region pass through to the underlying real UI
-(achieved by `pointerEvents="box-none"` on the overlay container + a small absolute `View` covering
-the hole with `pointerEvents="none"` to let touches fall through). The tooltip (title + description +
-hint text + Prev/Next/Skip buttons) is positioned above or below the hole depending on available
-screen space. The **Next button is disabled** when the current step has a `disabledHintKey` and the
-associated data condition has not yet flipped; the hint key translates to a short user-facing string
-explaining what action is required.
+**SpotlightOverlay**
 
-**Per-screen hooks — EVENT-HANDLER `next()` pattern**
+`SpotlightOverlay` (`src/ui/tutorial/SpotlightOverlay.tsx`) is a transparent `Modal` (so it floats
+above the routine builder Modal + sheets). The dimmer is **4 plain `View`s** framing the measured
+target rect (a rgba(0,0,0,0.6) scrim with a transparent hole) — NOT SVG. Plus a highlight-ring View.
+Container is `pointerEvents="box-none"` so taps in the hole pass through to the real UI (Model A).
+It re-measures on an interval guarded by a rect-equality check (returns the previous rect reference
+when unchanged, so React bails out — no render loop). The tooltip's primary Next button is `disabled`
+until a step's data condition flips, showing a `disabledHintKey` hint line.
 
-Each screen has a dedicated tutorial hook: `useDashboardTutorial`, `useCategoriesTutorial`,
-`useHabitsTutorial`, `useRoutinesTutorial`, `useConfigTutorial`. Each hook:
-1. Reads the active `SpotlightStep[]` list and `stepIndex` from the store.
-2. Calls `useTutorialTarget` for every target-id referenced by its steps.
-3. Returns `{ active, steps, stepIndex, next, prev, skip }` to the screen.
+**Per-screen hooks**
 
-The `next()` function (and `prev`, `skip`) are **event handlers** — they dispatch `advanceStep` /
-`decrementStep` / `skipTutorial` directly. They are NOT passed as `setState` updaters or called from
-inside `useEffect`; calling `next()` from a `useEffect` body would create infinite dispatch loops.
-Screens advance the tutorial from user-action callbacks (button presses, form submits, item creation
-confirmations) not from render-time effects.
+Each returns `{ active, steps, stepIndex, next, prev, skip }` (config hook is a void finalizer).
+`active` gates on `phase`. `next()` is an EVENT HANDLER:
+`if (stepIndex < steps.length - 1) setStepIndex(stepIndex + 1); else { dispatch(setPhase(nextPhase)); router.push(nextRoute); }`.
+It is NOT a `setStepIndex` updater side-effect and NOT called from `useEffect` (that pattern was
+rejected in review for a same-value-setState bail-out). `skip` calls `completeTutorial`. There are
+NO `advanceStep`/`decrementStep`/`skipTutorial`/`resetTutorial` actions — only `setPhase`/`clearPhase`
+plus local step state. `completeTutorial` (`src/tutorial/completeTutorial.ts`):
+`editUser({ isTutorialCompleted: true })` + `tutorialCompletedEnter(true)` + `setPhase(null)` +
+`saveTutorialPhase(null)`.
 
-**Trimmed routines flow + `hasSection=true` screen-level limitation**
+**Trimmed routines flow + accepted limitation**
 
-The routine tutorial (Phase 7 scope) spotlights: routine name input → add-section button → section
-form (name + time) → save/create button → schedule indicator. The routine builder runs inside a
-`Modal`; `measureInWindow` on elements inside a `Modal` can give coordinates relative to the inner
-window rather than the screen — the overlay re-measures on every step advance to compensate. The
-`hasSection` condition that ungates the Next button on the "add a section" step is evaluated at the
-**screen level** (the routines screen knows when `workingCopy.sections.length > 0`) rather than
-inside the modal, which means the spotlight and the condition check are on the same coordinate space.
-This is the accepted screen-level limitation noted in the plan.
+Steps: create-routine (+) → name → add section → save → schedule → hop to config. The builder is a
+Modal; the overlay (also a Modal) floats above and re-measures so the ring tracks targets inside it.
+ACCEPTED LIMITATION: `hasSection` is passed `true` from the routines screen because the builder's
+working-copy sections are PRIVATE local state the screen can't observe; the `save` step's
+`!hasRoutines` gate (a routine must actually be created) preserves correctness.
 
-**Replay via `TutorialSection` in config**
+**Replay**
 
-`TutorialSection` (`src/ui/config/TutorialSection.tsx`) renders in the Configuration screen under
-the Preferences group. It shows the current tutorial status (completed / in-progress) and a
-"Restart tutorial" button that dispatches `resetTutorial()` (sets phase back to `'intro'`, stepIndex
-to 0, completed to false) + persists via `SecureStore`. On next navigation to the dashboard the
-`TutorialSync` gate picks up `'intro'` and the intro modal fires again.
+`TutorialSection` (`src/ui/config/TutorialSection.tsx`) renders in its OWN `ConfigSection` (title
+`Tutorial`) on the configuration screen — NOT under the Preferences group. Its Replay button
+dispatches `setPhase('intro')` + `tutorialCompletedEnter(false)` + `saveTutorialPhase('intro')` +
+`editUser({ isTutorialCompleted: false })`. `useConfigTutorial` auto-finalizes (calls `completeTutorial`)
+when the user reaches config with `phase === 'config'`.
