@@ -46,6 +46,21 @@ jest.mock('lucide-react-native', () =>
   ),
 );
 
+// @react-native-google-signin/google-signin wraps a native module absent in jest,
+// and GoogleSignInButton calls GoogleSignin.configure() at module load. Default the
+// mock to a "cancelled" sign-in so screen tests that merely render the button stay
+// inert; the dedicated GoogleSignInButton test overrides signIn/isSuccessResponse.
+jest.mock('@react-native-google-signin/google-signin', () => ({
+  GoogleSignin: {
+    configure: jest.fn(),
+    hasPlayServices: jest.fn().mockResolvedValue(true),
+    signIn: jest.fn().mockResolvedValue({ type: 'cancelled', data: null }),
+  },
+  isSuccessResponse: jest.fn((r) => r?.type === 'success'),
+  isErrorWithCode: jest.fn(() => false),
+  statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED', IN_PROGRESS: 'IN_PROGRESS', PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE', DEVELOPER_ERROR: 'DEVELOPER_ERROR' },
+}));
+
 // @react-native-community/datetimepicker wraps a native module that is absent in
 // jest. The mock lives at __mocks__/@react-native-community/datetimepicker.js
 // (auto-discovered by Jest's manual mock resolution) so NativeWind's babel plugin

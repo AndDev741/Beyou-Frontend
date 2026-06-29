@@ -3,7 +3,7 @@ import { ApiError, parseApiError, getLogger } from '@beyou/api';
 import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
-import { loginRequest, registerRequest, refreshRequest, logoutRequest } from './authApi';
+import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
 import type { AuthStatus, Profile } from './types';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
@@ -37,6 +37,21 @@ export const login = createAsyncThunk(
         return rejectWithValue('EMAIL_NOT_VERIFIED');
       }
       return rejectWithValue('INVALID_CREDENTIALS');
+    }
+  },
+);
+
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (idToken: string, { rejectWithValue }) => {
+    try {
+      const { accessToken, refreshToken, profile } = await googleMobileLoginRequest(idToken);
+      setAccessToken(accessToken);
+      await secureStore.setRefreshToken(refreshToken);
+      return profile;
+    } catch (e) {
+      getLogger().error('auth google login failed', e);
+      return rejectWithValue('GOOGLE_LOGIN_FAILED');
     }
   },
 );
@@ -106,6 +121,19 @@ const authSlice = createSlice({
     b.addCase(login.rejected, (s, a) => {
       s.status = 'unauthenticated';
       s.needsVerification = a.payload === 'EMAIL_NOT_VERIFIED';
+      s.error = a.payload as string;
+    });
+    b.addCase(googleLogin.pending, (s) => {
+      s.error = null;
+      s.needsVerification = false;
+    });
+    b.addCase(googleLogin.fulfilled, (s, a) => {
+      s.status = 'authenticated';
+      s.profile = a.payload as Profile;
+      s.error = null;
+    });
+    b.addCase(googleLogin.rejected, (s, a) => {
+      s.status = 'unauthenticated';
       s.error = a.payload as string;
     });
     b.addCase(register.pending, (s) => {
