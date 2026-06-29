@@ -12,6 +12,8 @@ import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import DashboardGoals from '../../src/ui/dashboard/DashboardGoals';
 import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
 import OnboardingTutorial from '../../src/ui/tutorial/OnboardingTutorial';
+import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
 import { setPhase } from '../../src/tutorial/tutorialSlice';
 import { completeTutorial } from '../../src/tutorial/completeTutorial';
 import type { RootState, AppDispatch } from '../../src/store';
@@ -29,6 +31,7 @@ export default function AppHome() {
   const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation();
   const phase = useSelector((s: RootState) => s.tutorial.phase);
+  const dash = useDashboardTutorial();
 
   // Refetch when returning to the dashboard (e.g. after editing a routine). The
   // screen stays mounted under the stack, so the mount-load goes stale otherwise.
@@ -71,6 +74,9 @@ export default function AppHome() {
           onComplete={() => dispatch(setPhase('dashboard'))}
           onSkip={() => completeTutorial({ dispatch, t })}
         />
+      ) : null}
+      {dash.active ? (
+        <SpotlightOverlay step={dash.steps[dash.stepIndex]} stepIndex={dash.stepIndex} stepCount={dash.steps.length} onNext={dash.next} onPrev={dash.prev} onSkip={dash.skip} />
       ) : null}
     </View>
   );
