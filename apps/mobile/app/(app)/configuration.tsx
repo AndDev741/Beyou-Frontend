@@ -13,6 +13,7 @@ import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import TutorialSection from '../../src/ui/config/TutorialSection';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
+import { useConfigTutorial } from '../../src/tutorial/hooks/useConfigTutorial';
 import type { AppDispatch } from '../../src/store';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -26,6 +27,7 @@ export default function ConfigurationScreen() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
+  useConfigTutorial();
 
   return (
     <ScrollView
