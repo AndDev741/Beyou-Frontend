@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Modal, View, Text, Pressable, useWindowDimensions } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTutorialRegistry, type Rect } from '../../tutorial/TutorialProvider';
 import type { SpotlightStep } from '../../tutorial/steps/types';
@@ -19,6 +20,11 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
   const { theme } = useBeyouTheme();
   const { height: H } = useWindowDimensions();
   const { measure } = useTutorialRegistry();
+  const insets = useContext(SafeAreaInsetsContext);
+  // measureInWindow reports y below the status bar, but the statusBarTranslucent
+  // Modal spans the full screen — so shift the hole down by the top inset to land
+  // it on the real target. (Null-safe so unit tests without a provider use 0.)
+  const topInset = insets?.top ?? 0;
   const [rect, setRect] = useState<Rect | null>(null);
 
   // Re-measure while the step is active (targets in lists/modals move).
@@ -40,9 +46,10 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
     return () => { alive = false; clearInterval(id); };
   }, [measure, step.targetId]);
 
-  const tooltipBelow = !rect || rect.y < H / 2;
-  const holeTop = rect ? Math.max(0, rect.y - PAD) : 0;
-  const holeBottom = rect ? rect.y + rect.height + PAD : 0;
+  const ry = rect ? rect.y + topInset : 0;
+  const tooltipBelow = !rect || ry < H / 2;
+  const holeTop = rect ? Math.max(0, ry - PAD) : 0;
+  const holeBottom = rect ? ry + rect.height + PAD : 0;
   const holeLeft = rect ? Math.max(0, rect.x - PAD) : 0;
   const holeRight = rect ? rect.x + rect.width + PAD : 0;
 
