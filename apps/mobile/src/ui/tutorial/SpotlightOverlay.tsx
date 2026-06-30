@@ -52,7 +52,7 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
     : { bottom: H - holeTop + 12 };
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onSkip}>
+    <Modal visible transparent statusBarTranslucent animationType="fade" onRequestClose={onSkip}>
       <View style={{ flex: 1 }} pointerEvents="box-none">
         {/* Dimmer (4 frames around the hole). Omitted entirely until measured. */}
         {rect ? (
