@@ -4,7 +4,6 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTutorialRegistry, type Rect } from '../../tutorial/TutorialProvider';
 import type { SpotlightStep } from '../../tutorial/steps/types';
-import Button from '../Button';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 interface Props {
@@ -14,6 +13,8 @@ interface Props {
 
 const DIM = 'rgba(0,0,0,0.6)';
 const PAD = 8;
+// White label on the primary button — matches the config Save buttons.
+const ON_PRIMARY = '#FFFFFF';
 
 export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, onPrev, onSkip }: Props) {
   const { t } = useTranslation();
@@ -95,14 +96,17 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
                 <Text className="text-secondary font-semibold">{t('TutorialPrevious')}</Text>
               </Pressable>
             ) : <View />}
-            <Button
-              text={t(step.nextLabelKey ?? 'TutorialNext')}
-              mode="create"
-              size="small"
-              disabled={step.disabled}
+            <Pressable
               onPress={() => { if (!step.disabled) onNext(); }}
+              disabled={step.disabled}
+              accessibilityRole="button"
               testID="spotlight-next"
-            />
+              className={`items-center rounded-md bg-primary px-5 py-2.5 ${step.disabled ? 'opacity-50' : ''}`}
+            >
+              <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold" numberOfLines={1}>
+                {t(step.nextLabelKey ?? 'TutorialNext')}
+              </Text>
+            </Pressable>
           </View>
           {step.disabled && step.disabledHintKey ? (
             <Text testID="spotlight-hint" className="text-placeholder mt-2 text-xs">{t(step.disabledHintKey)}</Text>
