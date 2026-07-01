@@ -15,34 +15,31 @@ const wrapper = (store: ReturnType<typeof makeStore>) => ({ children }: { childr
 
 test('active is false when phase is not routines', async () => {
   const store = makeStore();
-  const { result } = await renderHook(() => useRoutinesTutorial({ builderOpen: false, hasSection: false }), { wrapper: wrapper(store) });
+  const { result } = await renderHook(() => useRoutinesTutorial(), { wrapper: wrapper(store) });
   expect(result.current.active).toBe(false);
 });
 
-test('routines walkthrough finishes into config', async () => {
+test('the add step is disabled until a routine exists', async () => {
   const store = makeStore();
   store.dispatch({ type: 'tutorial/setPhase', payload: 'routines' });
-  store.dispatch({ type: 'routines/enterRoutines', payload: [{ id: 'r1', name: 'AM', routineSections: [] }] });
-  const { result } = await renderHook(() => useRoutinesTutorial({ builderOpen: false, hasSection: true }), { wrapper: wrapper(store) });
+  const { result } = await renderHook(() => useRoutinesTutorial(), { wrapper: wrapper(store) });
+  const addStep = result.current.steps.find((s) => s.id === 'add');
+  expect(addStep?.disabled).toBe(true);
+});
+
+test('auto-advances to schedule once a routine exists, then finishes into config', async () => {
+  const store = makeStore();
+  store.dispatch({ type: 'tutorial/setPhase', payload: 'routines' });
+  const { result } = await renderHook(() => useRoutinesTutorial(), { wrapper: wrapper(store) });
   expect(result.current.active).toBe(true);
-  for (let i = 0; i < result.current.steps.length; i++) {
-    await act(async () => { result.current.next(); });
-  }
+  expect(result.current.stepIndex).toBe(0);
+
+  // Creating a routine auto-advances past the (hidden-behind-builder) add step.
+  await act(async () => {
+    store.dispatch({ type: 'routines/enterRoutines', payload: [{ id: 'r1', name: 'AM', routineSections: [] }] });
+  });
+  expect(result.current.stepIndex).toBe(1);
+
+  await act(async () => { result.current.next(); });
   expect(store.getState().tutorial.phase).toBe('config');
-});
-
-test('section step is disabled when hasSection is false', async () => {
-  const store = makeStore();
-  store.dispatch({ type: 'tutorial/setPhase', payload: 'routines' });
-  const { result } = await renderHook(() => useRoutinesTutorial({ builderOpen: false, hasSection: false }), { wrapper: wrapper(store) });
-  const sectionStep = result.current.steps.find((s) => s.id === 'section');
-  expect(sectionStep?.disabled).toBe(true);
-});
-
-test('save step is disabled when no routines exist', async () => {
-  const store = makeStore();
-  store.dispatch({ type: 'tutorial/setPhase', payload: 'routines' });
-  const { result } = await renderHook(() => useRoutinesTutorial({ builderOpen: false, hasSection: true }), { wrapper: wrapper(store) });
-  const saveStep = result.current.steps.find((s) => s.id === 'save');
-  expect(saveStep?.disabled).toBe(true);
 });

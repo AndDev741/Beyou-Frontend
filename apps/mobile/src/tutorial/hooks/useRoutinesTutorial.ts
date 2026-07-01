@@ -7,7 +7,7 @@ import { completeTutorial } from '../completeTutorial';
 import { routinesSteps } from '../steps/routinesSteps';
 import type { RootState, AppDispatch } from '../../store';
 
-export function useRoutinesTutorial({ builderOpen, hasSection }: { builderOpen: boolean; hasSection: boolean }) {
+export function useRoutinesTutorial() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { t } = useTranslation();
@@ -19,11 +19,15 @@ export function useRoutinesTutorial({ builderOpen, hasSection }: { builderOpen: 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (active) setStepIndex(0); }, [active]);
 
-  const steps = routinesSteps.map((s) => {
-    if (s.id === 'section') return { ...s, disabled: !hasSection };
-    if (s.id === 'save') return { ...s, disabled: !hasRoutines };
-    return s;
-  });
+  // The `add` step's Next is hidden while the builder Modal is open, so auto-advance
+  // to `schedule` the moment a routine exists (created + saved inside the builder).
+  useEffect(() => {
+    if (active && stepIndex === 0 && hasRoutines) setStepIndex(1);
+  }, [active, stepIndex, hasRoutines]);
+
+  // `add` Next stays disabled until a routine is created (points the user into the
+  // builder); the auto-advance above normally moves past it before it matters.
+  const steps = routinesSteps.map((s) => (s.id === 'add' ? { ...s, disabled: !hasRoutines } : s));
 
   const next = () => {
     if (stepIndex < steps.length - 1) {
@@ -38,5 +42,5 @@ export function useRoutinesTutorial({ builderOpen, hasSection }: { builderOpen: 
 
   const skip = () => { completeTutorial({ dispatch, t }); };
 
-  return { active, steps, stepIndex, next, prev, skip, builderOpen };
+  return { active, steps, stepIndex, next, prev, skip };
 }

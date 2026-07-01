@@ -47,7 +47,7 @@ export default function RoutinesScreen() {
   const scheduleRoutineRef = useTutorialTarget('routine-schedule');
   // hasSection cannot be observed at screen level (it lives in the builder's working copy).
   // The save step's !hasRoutines gate still protects correctness for that step.
-  const rt = useRoutinesTutorial({ builderOpen: builder, hasSection: true });
+  const rt = useRoutinesTutorial();
 
   const today = todayIso();
   const isPast = !!selectedDate && selectedDate < today;
