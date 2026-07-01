@@ -6,7 +6,8 @@ name: Mobile APK
 #   https://github.com/AndDev741/Beyou-Frontend/releases/download/mobile-latest/beyou-latest.apk
 #
 # One-time setup (repo Settings → Secrets and variables → Actions):
-#   Variable: EXPO_PUBLIC_API_URL   = https://<your-public-backend>/api/v1   (must be HTTPS)
+#   EXPO_PUBLIC_API_URL = https://<your-public-backend>/api/v1  (must be HTTPS)
+#     — may be a repo Variable or a Secret; the build reads either.
 #   Secrets:  ANDROID_KEYSTORE_BASE64   (base64 of a keystore you generate once)
 #             ANDROID_KEYSTORE_PASSWORD
 #             ANDROID_KEY_ALIAS
@@ -67,8 +68,9 @@ jobs:
         working-directory: apps/mobile/android
         env:
           # EXPO_PUBLIC_* is inlined into the JS bundle at build time — this is
-          # what points the installed app at your public backend.
-          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+          # what points the installed app at your public backend. Accept it as a
+          # repo Variable OR a Secret (falls back to the secret if the var is unset).
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
         run: |
           chmod +x ./gradlew
           ./gradlew assembleRelease \
