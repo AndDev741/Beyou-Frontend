@@ -9,6 +9,7 @@ import WidgetsConfiguration from "../../components/configuration/WidgetsConfigur
 import ConfigSection from "../../components/configuration/ConfigSection";
 import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
+import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
 import { CgProfile } from "react-icons/cg";
 import { IoColorPaletteOutline } from "react-icons/io5";
@@ -16,12 +17,22 @@ import { FiSettings, FiGrid } from "react-icons/fi";
 
 export default function Configuration() {
     useAuthGuard();
-    useConfigTutorial();
+    const { configSteps, configStep, setConfigStep, showConfigSpotlight, onComplete, onSkip } = useConfigTutorial();
     const { t } = useTranslation();
 
     return (
         <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">
             <Header pageName={"Configuration"} showLogout={true} />
+            {showConfigSpotlight && (
+                <SpotlightTutorial
+                    steps={configSteps}
+                    isActive={showConfigSpotlight}
+                    currentStep={configStep}
+                    onStepChange={setConfigStep}
+                    onComplete={onComplete}
+                    onSkip={onSkip}
+                />
+            )}
 
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] px-2 lg:px-6 gap-6">
                 <div className="flex flex-col items-center w-full lg:w-[50%] lg:border-r lg:border-primary">
@@ -30,6 +41,7 @@ export default function Configuration() {
                             icon={<CgProfile />}
                             title={t("ConfigSectionProfile")}
                             description={t("ConfigSectionProfileDesc")}
+                            tutorialId="config-profile"
                         >
                             <ProfileConfiguration />
                         </ConfigSection>
@@ -42,6 +54,7 @@ export default function Configuration() {
                             icon={<IoColorPaletteOutline />}
                             title={t("ConfigSectionAppearance")}
                             description={t("ConfigSectionAppearanceDesc")}
+                            tutorialId="config-appearance"
                         >
                             <ThemeSelector />
                         </ConfigSection>
@@ -54,6 +67,7 @@ export default function Configuration() {
                             icon={<FiSettings />}
                             title={t("ConfigSectionPreferences")}
                             description={t("ConfigSectionPreferencesDesc")}
+                            tutorialId="config-preferences"
                         >
                             <LanguageSelector />
                             <ConstanceConfiguration />
@@ -72,6 +86,7 @@ export default function Configuration() {
                             icon={<FiGrid />}
                             title={t("ConfigSectionDashboard")}
                             description={t("ConfigSectionDashboardDesc")}
+                            tutorialId="config-dashboard"
                         >
                             <WidgetsConfiguration />
                         </ConfigSection>

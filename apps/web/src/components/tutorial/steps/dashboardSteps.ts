@@ -20,7 +20,7 @@ export const getDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-categories']",
         titleKey: "TutorialSpotlightCategoriesTitle",
         descriptionKey: "TutorialSpotlightCategoriesDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];
@@ -31,7 +31,7 @@ export const getHabitsDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-habits']",
         titleKey: "TutorialSpotlightHabitsTitle",
         descriptionKey: "TutorialSpotlightHabitsDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];
@@ -42,7 +42,7 @@ export const getRoutinesDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-routines']",
         titleKey: "TutorialSpotlightRoutinesTitle",
         descriptionKey: "TutorialSpotlightRoutinesDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];
@@ -64,7 +64,7 @@ export const getConfigDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-configuration']",
         titleKey: "TutorialSpotlightConfigurationTitle",
         descriptionKey: "TutorialSpotlightConfigurationDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];

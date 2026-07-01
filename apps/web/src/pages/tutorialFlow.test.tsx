@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import rootReducer, { RootState } from "@beyou/state/rootReducer";
@@ -111,14 +111,23 @@ describe("tutorial flow (core)", () => {
         expect(await screen.findByText("TutorialSpotlightCreateRoutineTitle")).toBeInTheDocument();
     });
 
-    test("configuration completes tutorial when phase is config", async () => {
+    test("configuration shows the per-section walkthrough on config phase", async () => {
         window.localStorage.setItem("beyou.tutorial.phase", "config");
         const store = buildStore();
 
         renderWithProviders(<Configuration />, { storeOverride: store });
 
-        await waitFor(() => {
-            expect(vi.mocked(completeTutorial)).toHaveBeenCalled();
-        });
+        // Walkthrough spotlight is up (not an auto-finish); its Next button is unique to the spotlight.
+        expect(await screen.findByText("TutorialNext")).toBeInTheDocument();
+        expect(vi.mocked(completeTutorial)).not.toHaveBeenCalled();
+    });
+
+    test("dashboard shows the finale on the done phase", async () => {
+        window.localStorage.setItem("beyou.tutorial.phase", "done");
+        const store = buildStore();
+
+        renderWithProviders(<Dashboard />, { storeOverride: store });
+
+        expect(await screen.findByTestId("tutorial-finale-done")).toBeInTheDocument();
     });
 });

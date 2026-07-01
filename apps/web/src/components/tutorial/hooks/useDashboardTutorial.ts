@@ -78,9 +78,11 @@ export const useDashboardTutorial = () => {
         tutorialPhase === "routines-dashboard" || tutorialPhase === "routines";
     const showRoutineSummarySpotlight = tutorialPhase === "routines-summary";
     const showConfigDashboardSpotlight = tutorialPhase === "config-dashboard";
+    const showFinale = tutorialPhase === "done";
 
     return {
         isTutorialCompleted,
+        showFinale,
         showIntroModal,
         showDashboardSpotlight,
         showHabitsDashboardSpotlight,

@@ -5,11 +5,13 @@ type ConfigSectionProps = {
     title: string;
     description: string;
     children: ReactNode;
+    /** Tutorial spotlight target id (rendered as data-tutorial-id). */
+    tutorialId?: string;
 };
 
-export default function ConfigSection({ icon, title, description, children }: ConfigSectionProps) {
+export default function ConfigSection({ icon, title, description, children, tutorialId }: ConfigSectionProps) {
     return (
-        <section className="w-full py-4">
+        <section className="w-full py-4" data-tutorial-id={tutorialId}>
             <header className="flex items-center gap-2 px-2">
                 <span className="text-xl text-primary">{icon}</span>
                 <div>

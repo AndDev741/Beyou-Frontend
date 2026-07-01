@@ -1,33 +1,48 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { completeTutorial as finishTutorial } from "../flow/completeTutorial";
 import { useTutorialPhaseState } from "./useTutorialPhaseState";
+import { completeTutorial as finishTutorial } from "../flow/completeTutorial";
+import { getConfigSteps } from "../steps/configSteps";
 
+/**
+ * Config walkthrough: one spotlight step per settings section. Finishing moves to
+ * the 'done' phase and navigates to the dashboard, where the finale message shows.
+ * Uses defaultPhase=null so visiting settings normally never starts the tutorial.
+ */
 export const useConfigTutorial = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { t } = useTranslation();
-    const { tutorialPhase, clearPhase, isTutorialCompleted } = useTutorialPhaseState(null);
-    const finishingTutorial = useRef(false);
+    const [configStep, setConfigStep] = useState(0);
+    const { tutorialPhase, setPhase, clearPhase, isTutorialCompleted } = useTutorialPhaseState(null);
 
     useEffect(() => {
-        if (finishingTutorial.current) return;
-        if (isTutorialCompleted) {
-            clearPhase();
-            return;
-        }
         if (tutorialPhase !== "config") return;
-        finishingTutorial.current = true;
+        setConfigStep(0);
+    }, [tutorialPhase]);
 
-        const run = async () => {
-            const success = await finishTutorial({ dispatch, t });
-            if (!success) {
-                finishingTutorial.current = false;
-            } else {
-                clearPhase();
-            }
-        };
+    const onComplete = useCallback(() => {
+        setPhase("done");
+        navigate("/dashboard");
+    }, [setPhase, navigate]);
 
-        run();
-    }, [dispatch, t, tutorialPhase, isTutorialCompleted, clearPhase]);
+    const onSkip = useCallback(async () => {
+        const success = await finishTutorial({ dispatch, t });
+        if (success) clearPhase();
+    }, [dispatch, t, clearPhase]);
+
+    const configSteps = useMemo(() => getConfigSteps(), []);
+
+    const showConfigSpotlight = !isTutorialCompleted && tutorialPhase === "config";
+
+    return {
+        configSteps,
+        configStep,
+        setConfigStep,
+        showConfigSpotlight,
+        onComplete,
+        onSkip
+    };
 };
