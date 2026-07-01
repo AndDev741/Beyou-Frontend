@@ -79,7 +79,7 @@ export default function RegisterRoute() {
               testID="register-success"
             >
               <Text className="text-primary font-semibold mb-1">{t('EmailVerificationSentTitle')}</Text>
-              <Text className="text-secondary/80">{t('EmailVerificationSentMessage')}</Text>
+              <Text className="text-description">{t('EmailVerificationSentMessage')}</Text>
             </View>
 
             <View className="items-center">

@@ -69,6 +69,15 @@ describe('AppHome (dashboard)', () => {
     expect(screen.getByText('7')).toBeTruthy(); // streak
   });
 
+  it('shows the intro modal when phase is intro', async () => {
+    const store = makeStore();
+    store.dispatch({ type: 'tutorial/setPhase', payload: 'intro' });
+    await render(
+      <Provider store={store}><BeyouThemeProvider><AppHome /></BeyouThemeProvider></Provider>,
+    );
+    await waitFor(() => expect(screen.getByTestId('onboarding-next')).toBeTruthy());
+  });
+
   it("refetches today's routine when the dashboard regains focus", async () => {
     const get = jest.fn(async (url: string) => {
       if (url === '/user') return { data: user };

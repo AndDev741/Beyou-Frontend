@@ -188,3 +188,80 @@ renders when `aiSeed !== null`, pre-populated via its `routine` prop. **Orphan-o
 builder. If the user cancels the seeded builder, those habits/tasks/categories are left orphaned —
 this matches the web app's behaviour and is a known product decision, not a bug. The e2e profile
 swaps in a `CannedRoutineDraftGenerator` (deterministic, no real API key needed).
+
+## Tutorial / onboarding (Phase 8)
+
+**Phase state + persistence + boot gate**
+
+Tutorial phase lives in a MOBILE-LOCAL Redux slice `src/tutorial/tutorialSlice.ts` (NOT `@beyou/state`).
+State is exactly `{ phase: TutorialPhase | null }` — only `phase`, no `stepIndex` or `completed` fields.
+`TutorialPhase = 'intro' | 'dashboard' | 'categories' | 'habits' | 'routines' | 'config' | 'done'`.
+Actions: `setPhase`, `clearPhase`. Per-screen step index is LOCAL `useState` inside each hook (not in
+the slice). Completion is `perfil.isTutorialCompleted` (the shared `@beyou/state` perfilSlice),
+persisted via `editUser`.
+
+Phase is persisted to expo-secure-store by `src/lib/tutorialStore.ts` (its own key
+`beyou.tutorial.phase` — SEPARATE from the auth refresh-token store in `src/auth/secureStore.ts`).
+`TutorialSync` (`src/tutorial/TutorialSync.tsx`, mounted in `_layout`) hydrates the saved phase on
+boot, persists on change, and gates the start: when `isTutorialCompleted === false` and
+`phase === null` it sets `phase = 'intro'`. Mirrors the `ViewFiltersSync` pattern.
+
+**Target registry + measure**
+
+`TutorialProvider` (`src/tutorial/TutorialProvider.tsx`) holds a `Map<id, RefObject<View>>`.
+`useTutorialTarget(id)` (`src/tutorial/useTutorialTarget.ts`) returns a ref to attach to the target
+`View`; the overlay measures it with `measureInWindow`. Never call `useTutorialTarget` inside a
+`.map()` — pass a `viewRef` prop into the row component (CategoryCard/HabitCard/RoutineCard do this
+for the first item).
+
+**SpotlightOverlay**
+
+`SpotlightOverlay` (`src/ui/tutorial/SpotlightOverlay.tsx`) is an **in-tree absolute-fill `View`**
+(NOT a Modal), rendered as the last child of each screen's root so `pointerEvents="box-none"` lets
+taps in the hole pass through to the real UI (Model A). A Modal is a separate window and would
+swallow those taps (that broke "create category"), and it cannot draw over other Modals (builder /
+sheets), so those steps are avoided instead (see routines). The dimmer is **4 plain `View`s** framing
+the measured target rect (rgba(0,0,0,0.6) scrim + transparent hole) — NOT SVG — plus a highlight ring.
+The target `y` is shifted by the top safe-area inset (`SafeAreaInsetsContext`) because `measureInWindow`
+reports y below the status bar while the overlay is anchored at the physical top. It re-measures on an
+interval guarded by a rect-equality check (returns the prev reference when unchanged — no render loop).
+The tooltip's primary Next auto-sizes (matches config Save buttons), is `disabled` until a step's data
+condition flips (showing a `disabledHintKey` hint), and the ScrollView content is keyed by step to
+avoid Android content-retain ghosting.
+
+**Per-screen hooks**
+
+Each returns `{ active, steps, stepIndex, next, prev, skip }` (all five screen hooks share this shape).
+`active` gates on `phase`. `next()` is an EVENT HANDLER:
+`if (stepIndex < steps.length - 1) setStepIndex(stepIndex + 1); else { dispatch(setPhase(nextPhase)); router.push(nextRoute); }`.
+It is NOT a `setStepIndex` updater side-effect and NOT called from `useEffect` (that pattern was
+rejected in review for a same-value-setState bail-out). `skip` calls `completeTutorial`. There are
+NO `advanceStep`/`decrementStep`/`skipTutorial`/`resetTutorial` actions — only `setPhase`/`clearPhase`
+plus local step state. `completeTutorial` (`src/tutorial/completeTutorial.ts`):
+`editUser({ isTutorialCompleted: true })` + `tutorialCompletedEnter(true)` + `setPhase(null)` +
+`saveTutorialPhase(null)`.
+
+**Routines flow (only on-screen controls)**
+
+Because the in-tree overlay View can't draw over the builder/schedule Modals, only the two on-screen
+controls are spotlit: the **+** button (`routine-add`, copy guides the whole builder flow) and the
+**schedule** button (`routine-schedule`). The builder + schedule sheet guide themselves. The hook
+auto-advances past `add` once `hasRoutines` (the Next button is hidden while the builder Modal is open);
+the `add` step's Next stays disabled until then. Finishing hops to `config`.
+
+**Config walkthrough + finale**
+
+`useConfigTutorial` is a step-driven walkthrough (`configSteps`) — one spotlight per settings section
+(`config-profile/appearance/preferences/dashboard/tutorial`), reusing each section's own title/desc
+i18n. `ConfigSection` takes a `viewRef` (spotlight target) + `onLayout` (records its y); the config
+screen auto-scrolls each section into view as its step activates. Finishing sets `phase='done'` and
+`router.replace('/')` back to the dashboard, which renders `TutorialFinale` (`src/ui/tutorial/`) — an
+in-tree View (not a Modal) whose copy depends on `!!s.todayRoutine.routine` (scheduled-today message
+vs "create an awesome life"); its button calls `completeTutorial`.
+
+**Replay**
+
+`TutorialSection` (`src/ui/config/TutorialSection.tsx`) renders in its OWN `ConfigSection` (title
+`Tutorial`) on the configuration screen. Its Replay button dispatches `setPhase('intro')` +
+`tutorialCompletedEnter(false)` + `saveTutorialPhase('intro')` + `editUser({ isTutorialCompleted: false })`,
+then `router.replace('/')` so the intro starts on the dashboard.

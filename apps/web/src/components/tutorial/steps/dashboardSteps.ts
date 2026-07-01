@@ -13,14 +13,17 @@ export const getDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='dashboard-shortcuts']",
         titleKey: "TutorialSpotlightShortcutsTitle",
         descriptionKey: "TutorialSpotlightShortcutsDescription",
-        position: "right"
+        // auto → tooltip above the fixed bottom bar on mobile (arrow points down),
+        // beside the left sidebar grid on desktop. "right" got clamped mid-screen
+        // on mobile because the bar sits at the very bottom.
+        position: "auto"
     },
     {
         id: "categories-shortcut",
         targetSelector: "[data-tutorial-id='shortcut-categories']",
         titleKey: "TutorialSpotlightCategoriesTitle",
         descriptionKey: "TutorialSpotlightCategoriesDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];
@@ -31,7 +34,7 @@ export const getHabitsDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-habits']",
         titleKey: "TutorialSpotlightHabitsTitle",
         descriptionKey: "TutorialSpotlightHabitsDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];
@@ -42,7 +45,7 @@ export const getRoutinesDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-routines']",
         titleKey: "TutorialSpotlightRoutinesTitle",
         descriptionKey: "TutorialSpotlightRoutinesDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];
@@ -64,7 +67,7 @@ export const getConfigDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='shortcut-configuration']",
         titleKey: "TutorialSpotlightConfigurationTitle",
         descriptionKey: "TutorialSpotlightConfigurationDescription",
-        position: "right",
+        position: "auto",
         action: "click"
     }
 ];

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { calculateLevelProgress } from '@beyou/state';
@@ -11,6 +12,8 @@ interface CategoryCardProps {
   category: category;
   onEdit: (category: category) => void;
   onDelete: (category: category) => void;
+  /** Optional tutorial ref — passed only for the first card (index 0) to register the category-first spotlight target. */
+  viewRef?: RefObject<View | null>;
 }
 
 /**
@@ -18,14 +21,14 @@ interface CategoryCardProps {
  * the card shows a level bar like habits; collapsed shows icon + name +
  * description, tapping expands to reveal the full description + Edit/Delete.
  */
-export default function CategoryCard({ category, onEdit, onDelete }: CategoryCardProps) {
+export default function CategoryCard({ category, onEdit, onDelete, viewRef }: CategoryCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const [expanded, setExpanded] = useState(false);
   const progress = calculateLevelProgress(category.xp, category.actualLevelXp, category.nextLevelXp);
 
   return (
-    <View className="rounded-2xl border border-primary/20 bg-background p-4">
+    <View ref={viewRef} className="rounded-2xl border border-primary/20 bg-background p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"

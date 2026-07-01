@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTutorialPhaseState } from "./useTutorialPhaseState";
 import { completeTutorial as finishTutorial } from "../flow/completeTutorial";
@@ -12,6 +13,7 @@ type UseHabitsTutorialOptions = {
 
 export const useHabitsTutorial = ({ hasHabits }: UseHabitsTutorialOptions) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const isMobile = useIsMobile();
     const [habitStep, setHabitStep] = useState(0);
@@ -35,9 +37,11 @@ export const useHabitsTutorial = ({ hasHabits }: UseHabitsTutorialOptions) => {
         }
     }, [dispatch, t, clearPhase]);
 
+    // Back to the dashboard — the "open routines" shortcut spotlight only renders there.
     const advanceToRoutinesFlow = useCallback(() => {
         setPhase("routines-dashboard");
-    }, [setPhase]);
+        navigate("/dashboard");
+    }, [setPhase, navigate]);
 
     const habitSteps = useMemo(
         () => getHabitSteps({ isMobile, hasHabits }),

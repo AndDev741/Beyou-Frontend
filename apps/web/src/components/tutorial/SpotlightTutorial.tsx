@@ -93,18 +93,22 @@ export default function SpotlightTutorial({
         if (!isActive || !step) return;
 
         let frame = 0;
-        let timeout: ReturnType<typeof setTimeout> | null = null;
 
-        const findTarget = () => {
+        // Returns true once a VISIBLE target is measured. The target often mounts
+        // late (dashboard finishes its async load after we navigate in), so a
+        // one-shot measure would miss it and the spotlight would only appear once
+        // the user scrolled. We poll until it's found (then stop).
+        const findTarget = (): boolean => {
             const targets = Array.from(document.querySelectorAll(step.targetSelector)) as HTMLElement[];
-            if (targets.length === 0) {
-                setIsVisible(false);
-                return;
-            }
-            const target = targets.find((item) => {
+            const visible = targets.find((item) => {
                 const rect = item.getBoundingClientRect();
                 return rect.width > 0 && rect.height > 0;
-            }) ?? targets[0];
+            });
+            const target = visible ?? targets[0];
+            if (!target) {
+                setIsVisible(false);
+                return false;
+            }
 
             const rect = target.getBoundingClientRect();
             setTargetRect(rect);
@@ -118,17 +122,25 @@ export default function SpotlightTutorial({
             if (isOutside && !(isMobile && (isCreateFormStep || isRoutineStep))) {
                 target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
             }
+            return Boolean(visible);
         };
 
-        timeout = setTimeout(() => {
-            frame = window.requestAnimationFrame(findTarget);
-        }, 120);
+        frame = window.requestAnimationFrame(findTarget);
+
+        // Poll ~150ms until the target renders, capped at ~6s so we never spin forever.
+        let attempts = 0;
+        const poll = window.setInterval(() => {
+            attempts += 1;
+            if (findTarget() || attempts >= 40) {
+                window.clearInterval(poll);
+            }
+        }, 150);
 
         window.addEventListener("scroll", findTarget, true);
         window.addEventListener("resize", findTarget);
 
         return () => {
-            if (timeout) clearTimeout(timeout);
+            window.clearInterval(poll);
             if (frame) window.cancelAnimationFrame(frame);
             window.removeEventListener("scroll", findTarget, true);
             window.removeEventListener("resize", findTarget);

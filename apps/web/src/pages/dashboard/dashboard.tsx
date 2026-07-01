@@ -25,6 +25,7 @@ import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import useChangeLanguage from "../../hooks/useChangeLanguage";
 import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
+import TutorialFinale from "../../components/tutorial/TutorialFinale";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
@@ -105,6 +106,7 @@ function Dashboard() {
     }, [routine]);
 
     const {
+        showFinale,
         showIntroModal,
         showDashboardSpotlight,
         showHabitsDashboardSpotlight,
@@ -173,6 +175,7 @@ function Dashboard() {
                     onSkip={completeTutorial}
                 />
             )}
+            {showFinale && <TutorialFinale onDone={completeTutorial} />}
             {isDashboardLoading ? (
                 <div
                     className="flex min-h-screen items-center justify-center"

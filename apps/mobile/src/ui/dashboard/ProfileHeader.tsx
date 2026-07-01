@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { getGreetingKey, calculateLevelProgress } from '@beyou/state/dashboard/helpers';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { useTutorialTarget } from '../../tutorial/useTutorialTarget';
 import ProgressRing from './ProgressRing';
 import type { RootState } from '../../store';
 
@@ -39,6 +40,7 @@ function Avatar({ photo, name }: { photo: string; name: string }) {
 export default function ProfileHeader() {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
+  const profileRef = useTutorialTarget('dashboard-profile');
 
   const name = useSelector((s: RootState) => s.perfil.username);
   const photo = useSelector((s: RootState) => s.perfil.photo);
@@ -54,7 +56,7 @@ export default function ProfileHeader() {
   const levelProgress = calculateLevelProgress(xp, actualLevelXp, nextLevelXp);
 
   return (
-    <View className="rounded-2xl border border-primary bg-background p-4" testID="profile-header">
+    <View ref={profileRef} className="rounded-2xl border border-primary bg-background p-4" testID="profile-header">
       <View className="flex-row items-center">
         <Avatar photo={photo} name={name} />
         <View className="ml-3 flex-1">
