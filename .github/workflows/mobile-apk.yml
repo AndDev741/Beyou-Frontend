@@ -1,0 +1,92 @@
+name: Mobile APK
+
+# Builds a signed release APK on every push to main and publishes it to a
+# rolling GitHub Release ("mobile-latest") with a STABLE filename, so the
+# download URL never changes:
+#   https://github.com/AndDev741/Beyou-Frontend/releases/download/mobile-latest/beyou-latest.apk
+#
+# One-time setup (repo Settings → Secrets and variables → Actions):
+#   Variable: EXPO_PUBLIC_API_URL   = https://<your-public-backend>/api/v1   (must be HTTPS)
+#   Secrets:  ANDROID_KEYSTORE_BASE64   (base64 of a keystore you generate once)
+#             ANDROID_KEYSTORE_PASSWORD
+#             ANDROID_KEY_ALIAS
+#             ANDROID_KEY_PASSWORD
+# Generate the keystore + base64 (run locally, keep the .keystore file safe):
+#   keytool -genkeypair -v -keystore beyou.keystore -alias beyou \
+#     -keyalg RSA -keysize 2048 -validity 10000 \
+#     -storepass <pw> -keypass <pw> -dname "CN=BeYou"
+#   base64 -w0 beyou.keystore   # paste output into ANDROID_KEYSTORE_BASE64
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - ".github/workflows/mobile-apk.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: mobile-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # publish the release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prebuild Android project
+        working-directory: apps/mobile
+        env:
+          EXPO_NO_TELEMETRY: "1"
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Decode release keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > apps/mobile/android/app/release.keystore
+
+      - name: Build release APK
+        working-directory: apps/mobile/android
+        env:
+          # EXPO_PUBLIC_* is inlined into the JS bundle at build time — this is
+          # what points the installed app at your public backend.
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file="$PWD/app/release.keystore" \
+            -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
+
+      - name: Stage APK with a stable name
+        run: cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk beyou-latest.apk
+
+      - name: Publish to rolling release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mobile-latest
+          name: BeYou Mobile (latest)
+          files: beyou-latest.apk
+          body: |
+            Auto-built from `${{ github.sha }}` on push to main.
+            Install: open this page on your Android phone and download `beyou-latest.apk`
+            (enable "install unknown apps" for your browser the first time).
