@@ -13,7 +13,10 @@ export const getDashboardSteps = (): SpotlightStep[] => [
         targetSelector: "[data-tutorial-id='dashboard-shortcuts']",
         titleKey: "TutorialSpotlightShortcutsTitle",
         descriptionKey: "TutorialSpotlightShortcutsDescription",
-        position: "right"
+        // auto → tooltip above the fixed bottom bar on mobile (arrow points down),
+        // beside the left sidebar grid on desktop. "right" got clamped mid-screen
+        // on mobile because the bar sits at the very bottom.
+        position: "auto"
     },
     {
         id: "categories-shortcut",
