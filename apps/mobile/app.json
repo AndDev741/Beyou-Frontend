@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "BeYou",
     "slug": "beyou-mobile",
     "version": "1.0.0",
     "scheme": "beyou",
@@ -13,7 +13,7 @@
     "android": {
       "package": "com.beyou.mobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0082E1",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
