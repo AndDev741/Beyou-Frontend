@@ -13,6 +13,7 @@ import DashboardGoals from '../../src/ui/dashboard/DashboardGoals';
 import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
 import OnboardingTutorial from '../../src/ui/tutorial/OnboardingTutorial';
 import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import TutorialFinale from '../../src/ui/tutorial/TutorialFinale';
 import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
 import { setPhase } from '../../src/tutorial/tutorialSlice';
 import { completeTutorial } from '../../src/tutorial/completeTutorial';
@@ -78,6 +79,7 @@ export default function AppHome() {
       {dash.active ? (
         <SpotlightOverlay step={dash.steps[dash.stepIndex]} stepIndex={dash.stepIndex} stepCount={dash.steps.length} onNext={dash.next} onPrev={dash.prev} onSkip={dash.skip} />
       ) : null}
+      {phase === 'done' ? <TutorialFinale /> : null}
     </View>
   );
 }

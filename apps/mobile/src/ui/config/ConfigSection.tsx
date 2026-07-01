@@ -1,5 +1,5 @@
-import { type ReactNode } from 'react';
-import { View, Text } from 'react-native';
+import { type ReactNode, type RefObject } from 'react';
+import { View, Text, type LayoutChangeEvent } from 'react-native';
 import BeyouIcon from '../BeyouIcon';
 
 interface ConfigSectionProps {
@@ -9,13 +9,17 @@ interface ConfigSectionProps {
   description?: string;
   children: ReactNode;
   testID?: string;
+  /** Tutorial spotlight target ref (attached to the section root). */
+  viewRef?: RefObject<View | null>;
+  /** Fires with the section's layout so the tutorial can scroll it into view. */
+  onLayout?: (e: LayoutChangeEvent) => void;
 }
 
 /** Titled settings section (icon + title + description + body), mirroring the
  *  web ConfigSection. */
-export default function ConfigSection({ iconId, title, description, children, testID }: ConfigSectionProps) {
+export default function ConfigSection({ iconId, title, description, children, testID, viewRef, onLayout }: ConfigSectionProps) {
   return (
-    <View className="w-full" testID={testID}>
+    <View className="w-full" testID={testID} ref={viewRef} onLayout={onLayout}>
       <View className="flex-row items-center gap-2">
         {iconId ? <BeyouIcon id={iconId} size={20} /> : null}
         <Text className="text-secondary text-xl font-bold">{title}</Text>
