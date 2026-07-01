@@ -4,6 +4,7 @@ import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
 import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
+import { saveTutorialPhase } from '../lib/tutorialStore';
 import type { AuthStatus, Profile } from './types';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
@@ -102,6 +103,8 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   }
   await secureStore.clearRefreshToken();
   setAccessToken(null);
+  // Don't leak a mid-onboarding phase to the next account after an app restart.
+  await saveTutorialPhase(null);
 });
 
 const authSlice = createSlice({
