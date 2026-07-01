@@ -110,7 +110,7 @@ export default function OnboardingTutorial({
             ))}
           </View>
 
-          <ScrollView className="max-h-[60vh]" contentContainerClassName="gap-4">
+          <ScrollView key={step.id} className="max-h-[60vh]" contentContainerClassName="gap-4">
             <View className="flex-row items-center gap-3">
               <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/15">
                 <BeyouIcon id={step.icon} size={26} />
