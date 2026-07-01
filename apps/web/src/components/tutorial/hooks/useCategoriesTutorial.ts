@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useTutorialPhaseState } from "./useTutorialPhaseState";
 import { completeTutorial as finishTutorial } from "../flow/completeTutorial";
@@ -12,6 +13,7 @@ type UseCategoriesTutorialOptions = {
 
 export const useCategoriesTutorial = ({ hasCategories }: UseCategoriesTutorialOptions) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { t } = useTranslation();
     const isMobile = useIsMobile();
     const [categoryStep, setCategoryStep] = useState(0);
@@ -29,9 +31,11 @@ export const useCategoriesTutorial = ({ hasCategories }: UseCategoriesTutorialOp
         }
     }, [dispatch, t, clearPhase]);
 
+    // Back to the dashboard — the "open habits" shortcut spotlight only renders there.
     const advanceToHabitsFlow = useCallback(() => {
         setPhase("habits-dashboard");
-    }, [setPhase]);
+        navigate("/dashboard");
+    }, [setPhase, navigate]);
 
     const categorySteps = useMemo(
         () => getCategorySteps({ isMobile, hasCategories }),
