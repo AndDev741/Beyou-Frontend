@@ -38,6 +38,7 @@ export type SnapshotStructure = {
 
 export type Snapshot = {
     id: string;
+    routineId: string;
     snapshotDate: string;
     routineName: string;
     routineIconId: string;

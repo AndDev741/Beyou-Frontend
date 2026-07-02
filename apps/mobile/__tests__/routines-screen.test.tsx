@@ -72,12 +72,13 @@ test('today mode shows the sort pill + an expandable card', async () => {
 });
 
 function setHttpForSnapshots(routines: unknown[], date: string) {
-  const snapshot = { id: 'sn1', snapshotDate: date, routineName: 'Morning', routineIconId: '', completed: false, structure: { sections: [{ name: 'Wake', iconId: '', orderIndex: 0, startTime: '06:00', endTime: null, items: [] }] }, checks: [] };
+  const snapshot = { id: 'sn1', routineId: 'r1', snapshotDate: date, routineName: 'Morning', routineIconId: '', completed: false, structure: { sections: [{ name: 'Wake', iconId: '', orderIndex: 0, startTime: '06:00', endTime: null, items: [] }] }, checks: [] };
   const get = async (url: string, opts?: { params?: { month?: string; date?: string } }) => {
     if (url === '/routine') return { data: routines };
     if (url === '/schedule') return { data: [] };
     if (url.includes('/snapshots') && opts?.params?.month) return { data: { dates: [date] } };
-    if (url.includes('/snapshot') && opts?.params?.date) return { data: snapshot };
+    // Day-batch endpoint returns an array of all the day's snapshots.
+    if (url.includes('/snapshot') && opts?.params?.date) return { data: [snapshot] };
     return { data: [] };
   };
   setHttpClient({ get, post: get, put: get, delete: get } as never);

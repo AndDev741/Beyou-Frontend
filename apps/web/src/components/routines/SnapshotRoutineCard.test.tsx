@@ -66,6 +66,7 @@ test("does not duplicate habits across two sections that share a name", async ()
     // Two sections named "Morning"; each holds a DIFFERENT habit.
     const snapshot: Snapshot = {
         id: "snap-1",
+        routineId: "r1",
         snapshotDate: "2026-05-20",
         routineName: "My Routine",
         routineIconId: "",
@@ -94,6 +95,7 @@ test("renders a habit once per section when it is genuinely in two sections", as
     // once in each (2 total). This is the correct behavior the fix must keep.
     const snapshot: Snapshot = {
         id: "snap-2",
+        routineId: "r1",
         snapshotDate: "2026-05-20",
         routineName: "My Routine",
         routineIconId: "",

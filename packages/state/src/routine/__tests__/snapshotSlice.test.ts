@@ -32,6 +32,7 @@ const buildCheck = (overrides: Partial<SnapshotCheck> = {}): SnapshotCheck => ({
 
 const buildSnapshot = (overrides: Partial<Snapshot> = {}): Snapshot => ({
     id: 'snap-1',
+    routineId: 'routine-1',
     snapshotDate: '2025-06-15',
     routineName: 'Morning Routine',
     routineIconId: 'sunrise',

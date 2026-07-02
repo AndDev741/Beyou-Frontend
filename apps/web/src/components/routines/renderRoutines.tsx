@@ -104,17 +104,13 @@ export default function RenderRoutines({
             return (
                 <div className="w-full text-secondary space-y-4">
                     <div className="flex flex-col gap-4">
-                        {snapshotList.map((snapshot) => {
-                            const matchingRoutine = routines.find((r) => r.name === snapshot.routineName);
-                            const routineId = matchingRoutine?.id || "";
-                            return (
-                                <SnapshotRoutineCard
-                                    key={snapshot.id}
-                                    snapshot={snapshot}
-                                    routineId={routineId}
-                                />
-                            );
-                        })}
+                        {snapshotList.map((snapshot) => (
+                            <SnapshotRoutineCard
+                                key={snapshot.id}
+                                snapshot={snapshot}
+                                routineId={snapshot.routineId}
+                            />
+                        ))}
                     </div>
                 </div>
             );

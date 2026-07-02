@@ -11,15 +11,19 @@ const routines = [{ id: 'r1', name: 'Morning', iconId: '', routineSections: [
   { id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0,
     habitGroup: [{ id: 'g1', habitId: 'h1', startTime: '06:10', habitGroupChecks: [] }], taskGroup: [] }] }];
 
-test('renders insight cards and selecting a past day fetches snapshots', async () => {
-  const get = jest.fn(async (url: string) => (url.includes('/snapshots?month=') ? { data: { dates: [] } } : { data: { id: 'sn1', snapshotDate: 'x', routineName: 'Morning', routineIconId: '', completed: false, structure: { sections: [] }, checks: [] } }));
+test('renders insight cards and selecting a past day fetches snapshots in one call', async () => {
+  // '/snapshots' (plural, per-routine month dates) → dates; '/snapshot' (day batch) → array of snapshots
+  const get = jest.fn(async (url: string) => (url.includes('/snapshots')
+    ? { data: { dates: [] } }
+    : { data: [{ id: 'sn1', routineId: 'r1', snapshotDate: 'x', routineName: 'Morning', routineIconId: '', completed: false, structure: { sections: [] }, checks: [] }] }));
   setHttpClient({ get, post: get, put: get, delete: get } as never);
   setLogger({ error: () => {} });
   const store = makeStore();
   await render(<Provider store={store}><BeyouThemeProvider><RoutinesOverview routines={routines as never} /></BeyouThemeProvider></Provider>);
   expect(screen.getByText('Routines')).toBeTruthy(); // an insight label
   await act(async () => { fireEvent.press(screen.getByTestId('rov-day-1')); }); // a past day chip
-  await waitFor(() => expect(get).toHaveBeenCalledWith(expect.stringContaining('/routine/r1/snapshot'), expect.anything()));
+  // Single day-scoped request, not one-per-routine
+  await waitFor(() => expect(get).toHaveBeenCalledWith('/routine/snapshot', expect.anything()));
 });
 
 test('snapshot card reflects live slice state after check — card re-renders with updated data', async () => {
@@ -30,6 +34,7 @@ test('snapshot card reflects live slice state after check — card re-renders wi
 
   const initialSnapshot = {
     id: snapshotId,
+    routineId: 'r1',
     snapshotDate: pastDate,
     routineName: 'Morning',
     routineIconId: '',
@@ -62,13 +67,12 @@ test('snapshot card reflects live slice state after check — card re-renders wi
 
   const checkedSnapshot = { ...initialSnapshot, completed: true, checks: [{ ...initialSnapshot.checks[0], checked: true, checkTime: '06:15' }] };
 
-  // The GET for snapshot dates returns empty; the GET for /snapshot returns based on call count
-  let snapshotGetCount = 0;
+  // '/snapshots' (month dates) → dates; '/routine/snapshot' (day batch) → array (unchecked);
+  // '/routine/r1/snapshot' (per-routine re-fetch after check) → single checked snapshot
   const get = jest.fn(async (url: string) => {
     if (url.includes('/snapshots')) return { data: { dates: [pastDate] } };
-    // First call (on day chip press) returns unchecked; second call (after post) returns checked
-    snapshotGetCount += 1;
-    return { data: snapshotGetCount === 1 ? initialSnapshot : checkedSnapshot };
+    if (url === '/routine/snapshot') return { data: [initialSnapshot] };
+    return { data: checkedSnapshot };
   });
   const post = jest.fn(async () => ({ data: {} }));
   setHttpClient({ get, post, put: get, delete: get } as never);

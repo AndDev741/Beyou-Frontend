@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getSnapshot, getSnapshotDatesForMonth, checkSnapshotItem, skipSnapshotItem } from '../snapshot';
+import { getSnapshot, getSnapshotsForDay, getSnapshotDatesForMonth, checkSnapshotItem, skipSnapshotItem } from '../snapshot';
 import { setHttpClient, ApiError } from '../../httpClient';
 import type { HttpClient } from '../../httpClient';
 
@@ -72,6 +72,33 @@ describe('getSnapshot', () => {
         expect(consoleSpy).toHaveBeenCalledWith(apiError);
         expect(result).toEqual({ error: 'UnexpectedError' });
         consoleSpy.mockRestore();
+    });
+});
+
+// ---------------------------------------------------------------------------
+// getSnapshotsForDay (batched — all routines' snapshots for a day in one call)
+// ---------------------------------------------------------------------------
+describe('getSnapshotsForDay', () => {
+    it('calls /routine/snapshot once with the date param and returns the array', async () => {
+        const daySnapshots = [
+            { id: 'snap-1', routineId: 'r1', snapshotDate: '2025-06-15', routineName: 'Morning', routineIconId: 'sun', completed: false, structure: { sections: [] }, checks: [] },
+            { id: 'snap-2', routineId: 'r2', snapshotDate: '2025-06-15', routineName: 'Evening', routineIconId: 'moon', completed: true, structure: { sections: [] }, checks: [] },
+        ];
+        (mockClient.get as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ data: daySnapshots, headers: {} });
+
+        const result = await getSnapshotsForDay('2025-06-15', t);
+
+        expect(mockClient.get).toHaveBeenCalledTimes(1);
+        expect(mockClient.get).toHaveBeenCalledWith('/routine/snapshot', { params: { date: '2025-06-15' } });
+        expect(result).toEqual({ success: daySnapshots });
+    });
+
+    it('returns an error message on failure', async () => {
+        (mockClient.get as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
+
+        const result = await getSnapshotsForDay('2025-06-15', t);
+
+        expect(result).toEqual({ error: 'UnexpectedError' });
     });
 });
 

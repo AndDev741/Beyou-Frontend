@@ -26,7 +26,7 @@ import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
-import { getSnapshot } from "@beyou/api/routine/snapshot";
+import { getSnapshotsForDay } from "@beyou/api/routine/snapshot";
 import {
     clearSnapshot,
     enterSnapshots,
@@ -107,18 +107,8 @@ const Routine = () => {
         dispatch(setSnapshotLoading(true));
 
         try {
-            const routinesWithIds = routines.filter((r) => r.id);
-            const snapshotResults = await Promise.all(
-                routinesWithIds.map((routine) =>
-                    getSnapshot(routine.id!, newDate, t)
-                )
-            );
-
-            const validSnapshots = snapshotResults
-                .filter((result) => result.success)
-                .map((result) => result.success!);
-
-            dispatch(enterSnapshots(validSnapshots));
+            const dayResult = await getSnapshotsForDay(newDate, t);
+            dispatch(enterSnapshots(dayResult.success ?? []));
         } catch (error) {
             console.error("Failed to fetch snapshots:", error);
             dispatch(clearSnapshot());
@@ -126,7 +116,7 @@ const Routine = () => {
         } finally {
             dispatch(setSnapshotLoading(false));
         }
-    }, [routines, t, dispatch]);
+    }, [t, dispatch]);
 
     useEffect(() => {
 
