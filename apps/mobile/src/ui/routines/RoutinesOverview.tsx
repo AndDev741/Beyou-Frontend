@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
-import { getSnapshot, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
+import { getSnapshotsForDay, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
 import { getRoutineStats, enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
@@ -72,13 +72,10 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
   const load = async (date: string) => {
     dispatch(setSelectedDate(date === today ? '' : date));
     if (date >= today) { setSnapshotPairs([]); return; } // today → live mode, no snapshot fetch
-    const results = await Promise.all(routines.map((r) => getSnapshot(r.id as string, date, t)));
-    const valid = results.map((r) => r.success).filter(Boolean) as Snapshot[];
+    const result = await getSnapshotsForDay(date, t);
+    const valid = result.success ?? [];
     dispatch(enterSnapshots(valid));
-    const pairs = results
-      .map((r, i) => r.success ? { snapshot: r.success, routineId: routines[i].id as string } : null)
-      .filter(Boolean) as SnapshotPair[];
-    setSnapshotPairs(pairs);
+    setSnapshotPairs(valid.map((s) => ({ snapshot: s, routineId: s.routineId })));
   };
 
   const onPick = (e: DateTimePickerEvent, d?: Date) => { setShowPicker(false); if (e.type === 'set' && d) load(iso(d)); };
