@@ -66,3 +66,21 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
 // (auto-discovered by Jest's manual mock resolution) so NativeWind's babel plugin
 // does not inject _ReactNativeCSSInterop into the factory — placing jest.mock()
 // inside jest.setup.js causes that injection and a "variable out of scope" error.
+
+// expo-sqlite's native module doesn't exist under jest. This no-op stub keeps the
+// offline cache inert in tests: reads always miss (empty/null), writes vanish —
+// so every existing screen test behaves exactly as it did before the cache.
+// Real cache semantics are covered by vitest in packages/offline (real SQLite).
+jest.mock('expo-sqlite', () => ({
+  __esModule: true,
+  openDatabaseAsync: jest.fn(async () => ({
+    execAsync: async () => {},
+    runAsync: async () => {},
+    getAllAsync: async () => [],
+    getFirstAsync: async () => null,
+    withTransactionAsync: async (fn) => {
+      await fn();
+    },
+    closeAsync: async () => {},
+  })),
+}));
