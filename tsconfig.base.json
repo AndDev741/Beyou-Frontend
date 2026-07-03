@@ -23,7 +23,9 @@
       "@beyou/validation": ["packages/validation/src/index.ts"],
       "@beyou/validation/*": ["packages/validation/src/*"],
       "@beyou/icons": ["packages/icons/src/index.ts"],
-      "@beyou/icons/*": ["packages/icons/src/*"]
+      "@beyou/icons/*": ["packages/icons/src/*"],
+      "@beyou/offline": ["packages/offline/src/index.ts"],
+      "@beyou/offline/*": ["packages/offline/src/*"]
     }
   }
 }
