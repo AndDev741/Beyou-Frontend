@@ -49,16 +49,18 @@ jest.mock('@beyou/offline', () => {
   };
 });
 
-import { render, waitFor } from '@testing-library/react-native';
+import { render, waitFor, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { useDashboardData } from '../src/dashboard/useDashboardData';
+import type { DashboardData } from '../src/dashboard/useDashboardData';
 import { readCollection, writeCollection } from '@beyou/offline';
 import getHabits from '@beyou/api/habits/getHabits';
 
+let hookResult: DashboardData;
 function Harness() {
-  useDashboardData();
+  hookResult = useDashboardData();
   return null;
 }
 
@@ -72,23 +74,30 @@ test('hydrates habits from the SQLite cache when every fetch fails (offline boot
     table === 'habits' ? [{ id: 'h1', name: 'Cached habit' }] : []
   );
   const store = makeStore();
-  render(
-    <Provider store={store}>
-      <Harness />
-    </Provider>
-  );
+  await act(async () => {
+    render(
+      <Provider store={store}>
+        <Harness />
+      </Provider>
+    );
+  });
   await waitFor(() => expect(store.getState().habits.habits).toHaveLength(1));
   expect(store.getState().habits.habits[0].name).toBe('Cached habit');
+
+  await waitFor(() => expect(hookResult.loading).toBe(false));
+  expect(hookResult.error).toBeNull();
 });
 
 test('persists fresh habits to the cache after a successful fetch', async () => {
   (getHabits as jest.Mock).mockResolvedValue({ success: [{ id: 'h2', name: 'Fresh habit' }] });
   const store = makeStore();
-  render(
-    <Provider store={store}>
-      <Harness />
-    </Provider>
-  );
+  await act(async () => {
+    render(
+      <Provider store={store}>
+        <Harness />
+      </Provider>
+    );
+  });
   await waitFor(() =>
     expect(writeCollection).toHaveBeenCalledWith(expect.anything(), 'habits', [
       { id: 'h2', name: 'Fresh habit' },

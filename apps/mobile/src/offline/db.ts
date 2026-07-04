@@ -29,6 +29,9 @@ export function getDb(): Promise<SqlDriver> {
       await migrate(driver);
       return driver;
     })();
+    dbPromise.catch(() => {
+      dbPromise = null;
+    });
   }
   return dbPromise;
 }

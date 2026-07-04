@@ -65,14 +65,26 @@ export function useDashboardData(): DashboardData {
         dispatch(hydratePerfil(cPerfil));
         hydratedFromCache = true;
       }
-      if (cToday && cToday.date === localDateKey()) dispatch(enterTodayRoutine(cToday.routine));
+      if (cToday && cToday.date === localDateKey()) {
+        dispatch(enterTodayRoutine(cToday.routine));
+        hydratedFromCache = true;
+      }
       if (cHabits.length) {
         dispatch(enterHabits(cHabits));
         hydratedFromCache = true;
       }
-      if (cTasks.length) dispatch(enterTasks(cTasks));
-      if (cGoals.length) dispatch(enterGoals(cGoals));
-      if (cCats.length) dispatch(enterCategories(cCats));
+      if (cTasks.length) {
+        dispatch(enterTasks(cTasks));
+        hydratedFromCache = true;
+      }
+      if (cGoals.length) {
+        dispatch(enterGoals(cGoals));
+        hydratedFromCache = true;
+      }
+      if (cCats.length) {
+        dispatch(enterCategories(cCats));
+        hydratedFromCache = true;
+      }
       if (hydratedFromCache) setLoading(false);
 
       // Stage 2 — network refresh + write-through (original behavior).
