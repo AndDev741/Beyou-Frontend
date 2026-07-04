@@ -5,6 +5,7 @@ import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
 import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
 import { saveTutorialPhase } from '../lib/tutorialStore';
+import { clearOfflineCache } from '../offline/db';
 import type { AuthStatus, Profile } from './types';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
@@ -105,6 +106,13 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   setAccessToken(null);
   // Don't leak a mid-onboarding phase to the next account after an app restart.
   await saveTutorialPhase(null);
+  // Next account must not inherit this one's cached data. Best-effort: a cache
+  // purge failure must never block logout.
+  try {
+    await clearOfflineCache();
+  } catch {
+    // ignore
+  }
 });
 
 const authSlice = createSlice({
