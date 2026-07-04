@@ -13,6 +13,10 @@ import { enterRoutines } from '@beyou/state/routine/routinesSlice';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { sortRoutines } from '@beyou/state';
+import { cachedList } from '@beyou/offline';
+import type { habit } from '@beyou/types/habit/habitType';
+import type { task } from '@beyou/types/tasks/taskType';
+import { getDb } from '../../src/offline/db';
 import type { Routine } from '@beyou/types/routine/routine';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
 import RoutinesOverview from '../../src/ui/routines/RoutinesOverview';
@@ -54,10 +58,27 @@ export default function RoutinesScreen() {
   const sorted = useMemo(() => sortRoutines(routines, sortBy), [routines, sortBy]);
 
   const load = useCallback(async () => {
-    const [r, h, tk] = await Promise.all([getRoutines(t), getHabits(t), getTasks(t)]);
-    if (r.success) dispatch(enterRoutines(r.success as Routine[]));
-    if (h.success) dispatch(enterHabits(h.success));
-    if (tk.success) dispatch(enterTasks(tk.success));
+    const db = await getDb();
+    await Promise.all([
+      cachedList<Routine>({
+        db,
+        table: 'routines',
+        fetch: () => getRoutines(t),
+        onRows: (rows) => dispatch(enterRoutines(rows)),
+      }),
+      cachedList<habit>({
+        db,
+        table: 'habits',
+        fetch: () => getHabits(t),
+        onRows: (rows) => dispatch(enterHabits(rows)),
+      }),
+      cachedList<task>({
+        db,
+        table: 'tasks',
+        fetch: () => getTasks(t),
+        onRows: (rows) => dispatch(enterTasks(rows)),
+      }),
+    ]);
   }, [dispatch, t]);
 
   useEffect(() => { let active = true; (async () => { await load(); if (active) setLoading(false); })(); return () => { active = false; }; }, [load]);

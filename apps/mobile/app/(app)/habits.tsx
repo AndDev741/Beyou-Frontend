@@ -11,6 +11,9 @@ import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import { sortHabits } from '@beyou/state';
+import { cachedList } from '@beyou/offline';
+import type categoryType from '@beyou/types/category/categoryType';
+import { getDb } from '../../src/offline/db';
 import type { habit } from '@beyou/types/habit/habitType';
 import HabitCard from '../../src/ui/habits/HabitCard';
 import HabitForm from '../../src/ui/habits/HabitForm';
@@ -49,9 +52,21 @@ export default function HabitsScreen() {
   const sortedHabits = useMemo(() => sortHabits(habits, sortBy), [habits, sortBy]);
 
   const load = useCallback(async () => {
-    const [h, c] = await Promise.all([getHabits(t), getCategories(t)]);
-    if (h.success) dispatch(enterHabits(h.success as habit[]));
-    if (c.success) dispatch(enterCategories(c.success));
+    const db = await getDb();
+    await Promise.all([
+      cachedList<habit>({
+        db,
+        table: 'habits',
+        fetch: () => getHabits(t),
+        onRows: (rows) => dispatch(enterHabits(rows)),
+      }),
+      cachedList<categoryType>({
+        db,
+        table: 'categories',
+        fetch: () => getCategories(t),
+        onRows: (rows) => dispatch(enterCategories(rows)),
+      }),
+    ]);
   }, [dispatch, t]);
 
   useEffect(() => {
