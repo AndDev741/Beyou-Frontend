@@ -58,7 +58,15 @@ export default function RoutinesScreen() {
   const sorted = useMemo(() => sortRoutines(routines, sortBy), [routines, sortBy]);
 
   const load = useCallback(async () => {
-    const db = await getDb();
+    // ponytail: cache layer unavailable → plain network path (pre-cache behavior)
+    const db = await getDb().catch(() => null);
+    if (!db) {
+      const [r, h, tk] = await Promise.all([getRoutines(t), getHabits(t), getTasks(t)]);
+      if (Array.isArray(r.success)) dispatch(enterRoutines(r.success));
+      if (Array.isArray(h.success)) dispatch(enterHabits(h.success));
+      if (Array.isArray(tk.success)) dispatch(enterTasks(tk.success));
+      return;
+    }
     await Promise.all([
       cachedList<Routine>({
         db,

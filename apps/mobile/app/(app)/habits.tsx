@@ -52,7 +52,14 @@ export default function HabitsScreen() {
   const sortedHabits = useMemo(() => sortHabits(habits, sortBy), [habits, sortBy]);
 
   const load = useCallback(async () => {
-    const db = await getDb();
+    // ponytail: cache layer unavailable → plain network path (pre-cache behavior)
+    const db = await getDb().catch(() => null);
+    if (!db) {
+      const [h, c] = await Promise.all([getHabits(t), getCategories(t)]);
+      if (Array.isArray(h.success)) dispatch(enterHabits(h.success));
+      if (Array.isArray(c.success)) dispatch(enterCategories(c.success));
+      return;
+    }
     await Promise.all([
       cachedList<habit>({
         db,
