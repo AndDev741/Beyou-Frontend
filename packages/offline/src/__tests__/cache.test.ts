@@ -44,6 +44,24 @@ describe('collections', () => {
   test('reading a never-written table returns []', async () => {
     expect(await readCollection(db, 'goals')).toEqual([]);
   });
+
+  test('a row with corrupt JSON is skipped; the valid rows still come back', async () => {
+    await writeCollection(db, 'habits', [{ id: 'h1', name: 'Good' }]);
+    await db.runAsync('INSERT INTO habits (id, json) VALUES (?, ?)', ['h2', '{not valid json']);
+    const rows = await readCollection<{ id: string; name?: string }>(db, 'habits');
+    expect(rows).toEqual([{ id: 'h1', name: 'Good' }]);
+  });
+
+  test('duplicate-id rows in one writeCollection reject and the previous cache survives (rollback)', async () => {
+    await writeCollection(db, 'habits', [{ id: 'h1', name: 'Old' }]);
+    await expect(
+      writeCollection(db, 'habits', [
+        { id: 'dup', name: 'A' },
+        { id: 'dup', name: 'B' },
+      ])
+    ).rejects.toThrow();
+    expect(await readCollection(db, 'habits')).toEqual([{ id: 'h1', name: 'Old' }]);
+  });
 });
 
 describe('kv', () => {
@@ -57,6 +75,11 @@ describe('kv', () => {
     await writeKV(db, 'perfil', { xp: 1 });
     await writeKV(db, 'perfil', { xp: 2 });
     expect(await readKV(db, 'perfil')).toEqual({ xp: 2 });
+  });
+
+  test('a corrupt kv row reads back as null instead of throwing', async () => {
+    await db.runAsync('INSERT INTO kv (key, json) VALUES (?, ?)', ['perfil', '{not valid json']);
+    expect(await readKV(db, 'perfil')).toBeNull();
   });
 });
 

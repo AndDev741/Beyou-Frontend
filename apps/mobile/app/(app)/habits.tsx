@@ -8,12 +8,13 @@ import getHabits from '@beyou/api/habits/getHabits';
 import getCategories from '@beyou/api/categories/getCategories';
 import deleteHabit from '@beyou/api/habits/deleteHabit';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
+import { getLogger } from '@beyou/api';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import { sortHabits } from '@beyou/state';
 import { cachedList } from '@beyou/offline';
 import type categoryType from '@beyou/types/category/categoryType';
-import { getDb } from '../../src/offline/db';
+import { getDb, getCacheGeneration } from '../../src/offline/db';
 import type { habit } from '@beyou/types/habit/habitType';
 import HabitCard from '../../src/ui/habits/HabitCard';
 import HabitForm from '../../src/ui/habits/HabitForm';
@@ -53,25 +54,33 @@ export default function HabitsScreen() {
 
   const load = useCallback(async () => {
     // ponytail: cache layer unavailable → plain network path (pre-cache behavior)
-    const db = await getDb().catch(() => null);
+    const db = await getDb().catch((e) => {
+      getLogger().error(e);
+      return null;
+    });
     if (!db) {
       const [h, c] = await Promise.all([getHabits(t), getCategories(t)]);
       if (Array.isArray(h.success)) dispatch(enterHabits(h.success));
       if (Array.isArray(c.success)) dispatch(enterCategories(c.success));
       return;
     }
+    // Captured once per load; a logout mid-fetch bumps the generation so the
+    // write-through below is skipped instead of leaking into the next account.
+    const gen = getCacheGeneration();
     await Promise.all([
       cachedList<habit>({
         db,
         table: 'habits',
         fetch: () => getHabits(t),
         onRows: (rows) => dispatch(enterHabits(rows)),
+        shouldWrite: () => gen === getCacheGeneration(),
       }),
       cachedList<categoryType>({
         db,
         table: 'categories',
         fetch: () => getCategories(t),
         onRows: (rows) => dispatch(enterCategories(rows)),
+        shouldWrite: () => gen === getCacheGeneration(),
       }),
     ]);
   }, [dispatch, t]);

@@ -34,6 +34,7 @@ jest.mock('@beyou/api/categories/getCategories', () => ({
 
 jest.mock('../src/offline/db', () => ({
   getDb: jest.fn(async () => ({})),
+  getCacheGeneration: jest.fn(() => 0),
   clearOfflineCache: jest.fn(async () => {}),
 }));
 
@@ -51,12 +52,15 @@ jest.mock('@beyou/offline', () => {
 
 import { render, waitFor, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
+import { setLogger } from '@beyou/api';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { useDashboardData } from '../src/dashboard/useDashboardData';
 import type { DashboardData } from '../src/dashboard/useDashboardData';
-import { readCollection, writeCollection } from '@beyou/offline';
+import { localDateKey, readCollection, readKV, writeCollection, writeKV } from '@beyou/offline';
 import getHabits from '@beyou/api/habits/getHabits';
+import getTodayRoutine from '@beyou/api/routine/getTodayRoutine';
+import { getDb } from '../src/offline/db';
 
 let hookResult: DashboardData;
 function Harness() {
@@ -64,15 +68,7 @@ function Harness() {
   return null;
 }
 
-beforeEach(() => {
-  (readCollection as jest.Mock).mockReset().mockResolvedValue([]);
-  (getHabits as jest.Mock).mockReset().mockResolvedValue({ error: 'offline' });
-});
-
-test('hydrates habits from the SQLite cache when every fetch fails (offline boot)', async () => {
-  (readCollection as jest.Mock).mockImplementation(async (_db: unknown, table: string) =>
-    table === 'habits' ? [{ id: 'h1', name: 'Cached habit' }] : []
-  );
+const renderHook = async () => {
   const store = makeStore();
   await act(async () => {
     render(
@@ -81,6 +77,25 @@ test('hydrates habits from the SQLite cache when every fetch fails (offline boot
       </Provider>
     );
   });
+  return store;
+};
+
+beforeEach(() => {
+  setLogger({ error: () => {} });
+  (getDb as jest.Mock).mockReset().mockResolvedValue({});
+  (readCollection as jest.Mock).mockReset().mockResolvedValue([]);
+  (readKV as jest.Mock).mockReset().mockResolvedValue(null);
+  (writeCollection as jest.Mock).mockReset().mockResolvedValue(undefined);
+  (writeKV as jest.Mock).mockReset().mockResolvedValue(undefined);
+  (getHabits as jest.Mock).mockReset().mockResolvedValue({ error: 'offline' });
+  (getTodayRoutine as jest.Mock).mockReset().mockResolvedValue({ error: 'offline' });
+});
+
+test('hydrates habits from the SQLite cache when every fetch fails (offline boot)', async () => {
+  (readCollection as jest.Mock).mockImplementation(async (_db: unknown, table: string) =>
+    table === 'habits' ? [{ id: 'h1', name: 'Cached habit' }] : []
+  );
+  const store = await renderHook();
   await waitFor(() => expect(store.getState().habits.habits).toHaveLength(1));
   expect(store.getState().habits.habits[0].name).toBe('Cached habit');
 
@@ -90,18 +105,57 @@ test('hydrates habits from the SQLite cache when every fetch fails (offline boot
 
 test('persists fresh habits to the cache after a successful fetch', async () => {
   (getHabits as jest.Mock).mockResolvedValue({ success: [{ id: 'h2', name: 'Fresh habit' }] });
-  const store = makeStore();
-  await act(async () => {
-    render(
-      <Provider store={store}>
-        <Harness />
-      </Provider>
-    );
-  });
+  const store = await renderHook();
   await waitFor(() =>
     expect(writeCollection).toHaveBeenCalledWith(expect.anything(), 'habits', [
       { id: 'h2', name: 'Fresh habit' },
     ])
   );
   expect(store.getState().habits.habits[0].name).toBe('Fresh habit');
+});
+
+test('falls back to network-only (no write-throughs) when getDb() rejects', async () => {
+  (getDb as jest.Mock).mockRejectedValueOnce(new Error('sqlite init failed'));
+  (getHabits as jest.Mock).mockResolvedValue({ success: [{ id: 'h3', name: 'Network habit' }] });
+  const store = await renderHook();
+
+  await waitFor(() => expect(store.getState().habits.habits).toHaveLength(1));
+  expect(store.getState().habits.habits[0].name).toBe('Network habit');
+  await waitFor(() => expect(hookResult.loading).toBe(false));
+  expect(hookResult.error).toBeNull();
+  expect(writeCollection).not.toHaveBeenCalled();
+});
+
+test('stage-1 date guard: a cached todayRoutine from another day is not dispatched', async () => {
+  (readKV as jest.Mock).mockImplementation(async (_db: unknown, key: string) =>
+    key === 'todayRoutine' ? { date: '2000-01-01', routine: { id: 'r-stale', name: 'Stale' } } : null
+  );
+  const store = await renderHook();
+  await waitFor(() => expect(hookResult.loading).toBe(false));
+  expect(store.getState().todayRoutine.routine).toBeNull();
+});
+
+test('stage-1 date guard: a cached todayRoutine from today IS dispatched', async () => {
+  const cachedRoutine = { id: 'r-today', name: 'Todays routine' };
+  (readKV as jest.Mock).mockImplementation(async (_db: unknown, key: string) =>
+    key === 'todayRoutine' ? { date: localDateKey(), routine: cachedRoutine } : null
+  );
+  const store = await renderHook();
+  await waitFor(() => expect(store.getState().todayRoutine.routine?.id).toBe('r-today'));
+});
+
+test('server-null day clears a stale cached todayRoutine and persists routine: null', async () => {
+  const cachedRoutine = { id: 'r-old', name: 'Stale morning routine' };
+  (readKV as jest.Mock).mockImplementation(async (_db: unknown, key: string) =>
+    key === 'todayRoutine' ? { date: localDateKey(), routine: cachedRoutine } : null
+  );
+  (getTodayRoutine as jest.Mock).mockResolvedValue({ success: null });
+  const store = await renderHook();
+
+  await waitFor(() => expect(hookResult.loading).toBe(false));
+  expect(store.getState().todayRoutine.routine).toBeNull();
+  expect(writeKV).toHaveBeenCalledWith(expect.anything(), 'todayRoutine', {
+    date: localDateKey(),
+    routine: null,
+  });
 });

@@ -110,8 +110,8 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   // purge failure must never block logout.
   try {
     await clearOfflineCache();
-  } catch {
-    // ignore
+  } catch (e) {
+    getLogger().error(e);
   }
 });
 

@@ -9,6 +9,7 @@ import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
 import deleteRoutine from '@beyou/api/routine/deleteRoutine';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
+import { getLogger } from '@beyou/api';
 import { enterRoutines } from '@beyou/state/routine/routinesSlice';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
@@ -16,7 +17,7 @@ import { sortRoutines } from '@beyou/state';
 import { cachedList } from '@beyou/offline';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
-import { getDb } from '../../src/offline/db';
+import { getDb, getCacheGeneration } from '../../src/offline/db';
 import type { Routine } from '@beyou/types/routine/routine';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
 import RoutinesOverview from '../../src/ui/routines/RoutinesOverview';
@@ -59,7 +60,10 @@ export default function RoutinesScreen() {
 
   const load = useCallback(async () => {
     // ponytail: cache layer unavailable → plain network path (pre-cache behavior)
-    const db = await getDb().catch(() => null);
+    const db = await getDb().catch((e) => {
+      getLogger().error(e);
+      return null;
+    });
     if (!db) {
       const [r, h, tk] = await Promise.all([getRoutines(t), getHabits(t), getTasks(t)]);
       if (Array.isArray(r.success)) dispatch(enterRoutines(r.success));
@@ -67,24 +71,30 @@ export default function RoutinesScreen() {
       if (Array.isArray(tk.success)) dispatch(enterTasks(tk.success));
       return;
     }
+    // Captured once per load; a logout mid-fetch bumps the generation so the
+    // write-through below is skipped instead of leaking into the next account.
+    const gen = getCacheGeneration();
     await Promise.all([
       cachedList<Routine>({
         db,
         table: 'routines',
         fetch: () => getRoutines(t),
         onRows: (rows) => dispatch(enterRoutines(rows)),
+        shouldWrite: () => gen === getCacheGeneration(),
       }),
       cachedList<habit>({
         db,
         table: 'habits',
         fetch: () => getHabits(t),
         onRows: (rows) => dispatch(enterHabits(rows)),
+        shouldWrite: () => gen === getCacheGeneration(),
       }),
       cachedList<task>({
         db,
         table: 'tasks',
         fetch: () => getTasks(t),
         onRows: (rows) => dispatch(enterTasks(rows)),
+        shouldWrite: () => gen === getCacheGeneration(),
       }),
     ]);
   }, [dispatch, t]);

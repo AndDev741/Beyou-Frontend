@@ -1,10 +1,22 @@
 import type { SqlDriver } from './driver';
 import { CACHE_TABLES, type CacheTable } from './schema';
 
-/** Read a whole mirrored collection. Empty array = cache miss OR genuinely empty — same UI outcome. */
+/**
+ * Read a whole mirrored collection. Empty array = cache miss OR genuinely empty
+ * — same UI outcome. A row with corrupt JSON is skipped rather than thrown on,
+ * so one bad row can't blank the whole cached list.
+ */
 export async function readCollection<T>(db: SqlDriver, table: CacheTable): Promise<T[]> {
   const rows = await db.getAllAsync(`SELECT json FROM ${table}`);
-  return rows.map((r) => JSON.parse(r.json as string) as T);
+  const result: T[] = [];
+  for (const r of rows) {
+    try {
+      result.push(JSON.parse(r.json as string) as T);
+    } catch {
+      // corrupt row — skip it, don't let it take down the whole read
+    }
+  }
+  return result;
 }
 
 /** Replace the mirrored collection with the server's list (full-pull semantics). */
@@ -25,9 +37,15 @@ export async function writeCollection<T extends { id?: string }>(
   });
 }
 
+/** Corrupt JSON in a kv row reads back as a miss (null), not a thrown error. */
 export async function readKV<T>(db: SqlDriver, key: string): Promise<T | null> {
   const row = await db.getFirstAsync('SELECT json FROM kv WHERE key = ?', [key]);
-  return row ? (JSON.parse(row.json as string) as T) : null;
+  if (!row) return null;
+  try {
+    return JSON.parse(row.json as string) as T;
+  } catch {
+    return null;
+  }
 }
 
 export async function writeKV(db: SqlDriver, key: string, value: unknown): Promise<void> {

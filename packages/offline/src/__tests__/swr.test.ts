@@ -95,4 +95,46 @@ describe('cachedList', () => {
     expect(calls[1]).toEqual([[], 'network']);
     expect(await readCollection<Item>(db, 'habits')).toEqual([]);
   });
+
+  test('shouldWrite: () => false still emits network rows but skips the persist (logout race guard)', async () => {
+    await writeCollection<Item>(db, 'habits', [{ id: 'h1', name: 'Cached' }]);
+    const onRows = vi.fn();
+    const result = await cachedList<Item>({
+      db,
+      table: 'habits',
+      fetch: async () => ({ success: [{ id: 'h1', name: 'Fresh' }] }),
+      onRows,
+      shouldWrite: () => false,
+    });
+    expect(result).toEqual({});
+    expect(onRows).toHaveBeenCalledWith([{ id: 'h1', name: 'Fresh' }], 'network');
+    // persist was skipped — the cache mirror is untouched
+    expect(await readCollection<Item>(db, 'habits')).toEqual([{ id: 'h1', name: 'Cached' }]);
+  });
+
+  test('a persist failure (duplicate-id network rows) still emits network rows and does not throw', async () => {
+    await writeCollection<Item>(db, 'habits', [{ id: 'h1', name: 'Cached' }]);
+    const onRows = vi.fn();
+    const result = await cachedList<Item>({
+      db,
+      table: 'habits',
+      fetch: async () => ({
+        success: [
+          { id: 'dup', name: 'A' },
+          { id: 'dup', name: 'B' },
+        ],
+      }),
+      onRows,
+    });
+    expect(result).toEqual({});
+    expect(onRows).toHaveBeenCalledWith(
+      [
+        { id: 'dup', name: 'A' },
+        { id: 'dup', name: 'B' },
+      ],
+      'network'
+    );
+    // the write-through rolled back on the PK violation — previous cache survives
+    expect(await readCollection<Item>(db, 'habits')).toEqual([{ id: 'h1', name: 'Cached' }]);
+  });
 });

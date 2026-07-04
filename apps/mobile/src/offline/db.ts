@@ -36,8 +36,17 @@ export function getDb(): Promise<SqlDriver> {
   return dbPromise;
 }
 
+let cacheGeneration = 0;
+
+/** Bumped by clearOfflineCache; in-flight loads compare it to skip stale write-throughs. */
+export function getCacheGeneration(): number {
+  return cacheGeneration;
+}
+
 /** Purge all cached data — logout must not leak one account's data to the next. */
 export async function clearOfflineCache(): Promise<void> {
+  // ponytail: gen check closes the logout race to a ms-level window; Phase 2's sync session guard replaces it
+  cacheGeneration += 1;
   const db = await getDb();
   await clearAll(db);
 }
