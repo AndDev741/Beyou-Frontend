@@ -9,6 +9,8 @@ import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import type { RefreshUI } from '@beyou/types/refreshUi/refreshUi.type';
 import { notify } from '../notify';
+import { isOffline } from '../offline/mutations';
+import { checkItemOffline, skipItemOffline } from '../offline/ops/checkinOps';
 import type { AppDispatch, RootState } from '../store';
 
 interface CheckOpts {
@@ -38,6 +40,11 @@ export function useRoutineCheckin() {
 
   const check = useCallback(
     async (dto: itemGroupToCheck, opts: CheckOpts): Promise<RefreshUI | null> => {
+      if (isOffline()) {
+        const groupItemId = dto.habitGroupDTO?.habitGroupId ?? dto.taskGroupDTO?.taskGroupId ?? '';
+        await checkItemOffline(dto, groupItemId, !opts.wasChecked);
+        return null;
+      }
       const res = await checkRoutine(dto, t);
       if (res.success) {
         apply(res.success);
@@ -52,6 +59,11 @@ export function useRoutineCheckin() {
 
   const skip = useCallback(
     async (dto: itemGroupToSkip): Promise<RefreshUI | null> => {
+      if (isOffline()) {
+        const groupItemId = dto.habitGroupDTO?.habitGroupId ?? dto.taskGroupDTO?.taskGroupId ?? '';
+        await skipItemOffline(dto, groupItemId, dto.skip);
+        return null;
+      }
       const res = await skipRoutine(dto, t);
       if (res.success) {
         apply(res.success);
