@@ -22,9 +22,9 @@ export function getSyncEngine(): SyncEngine | null {
   return syncEngine;
 }
 
-/** Offline means the connectivity slice SAYS offline; unknown (null) counts as online. */
+/** Offline means the connectivity slice SAYS offline; unknown OR not-yet-configured counts as online. */
 export function isOffline(): boolean {
-  return getOfflineStore().getState().connectivity.isOnline === false;
+  return offlineStore !== null && offlineStore.getState().connectivity.isOnline === false;
 }
 
 /**
