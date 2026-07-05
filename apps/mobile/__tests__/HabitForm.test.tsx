@@ -15,6 +15,8 @@ import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import HabitForm from '../src/ui/habits/HabitForm';
 import { iconRecents } from '../src/ui/icons/iconRecents';
 import { notify } from '../src/notify';
+import { makeStore } from '../src/store';
+import { setOfflineStore } from '../src/offline/mutations';
 
 const categories = [{ id: 'c1', name: 'Health', iconId: 'lucide:heart' }] as never[];
 const habitFixture = {
@@ -36,6 +38,11 @@ beforeEach(() => {
   const noop = async () => ({ data: null });
   setHttpClient({ get: noop, post, put, delete: noop } as never);
   setLogger({ error: () => {} });
+  // Create/edit now route through the offline ops layer, which reads
+  // connectivity off a store configured via setOfflineStore. Default
+  // connectivity.isOnline is null, which isOffline() treats as online, so
+  // this keeps the form on the unchanged (byte-identical) api path.
+  setOfflineStore(makeStore());
   (notify.success as jest.Mock).mockClear();
   (notify.error as jest.Mock).mockClear();
 });

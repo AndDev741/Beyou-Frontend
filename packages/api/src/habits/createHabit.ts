@@ -15,7 +15,8 @@ const createHabit = async (
     iconId: string,
     experience: number,
     categoriesId: string[],
-    t: TFunction
+    t: TFunction,
+    id?: string
 ): apiResponse => {
     const habitData = {
         name: name,
@@ -25,7 +26,8 @@ const createHabit = async (
         dificulty: dificulty,
         iconId: iconId,
         categoriesId: categoriesId,
-        experience: experienceToEnum(experience)
+        experience: experienceToEnum(experience),
+        ...(id ? { id } : {})
     };
 
     try {

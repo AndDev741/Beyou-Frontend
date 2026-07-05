@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getHabits from '@beyou/api/habits/getHabits';
 import getCategories from '@beyou/api/categories/getCategories';
-import deleteHabit from '@beyou/api/habits/deleteHabit';
+import { deleteHabitOffline } from '../../src/offline/ops/habitOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { getLogger } from '@beyou/api';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
@@ -104,10 +104,10 @@ export default function HabitsScreen() {
           text: t('Delete'),
           style: 'destructive',
           onPress: async () => {
-            const res = await deleteHabit(target.id, t);
+            const res = await deleteHabitOffline(target.id, t);
             if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
             else {
-              notify.success(t('deleted successfully'));
+              notify.success(res.queued ? t('SavedOffline') : t('deleted successfully'));
               await load();
             }
           },

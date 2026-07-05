@@ -5,8 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { habitCreateSchema, habitEditSchema } from '@beyou/validation';
-import createHabit from '@beyou/api/habits/createHabit';
-import editHabit from '@beyou/api/habits/editHabit';
+import { createHabitOffline, editHabitOffline } from '../../offline/ops/habitOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { habit } from '@beyou/types/habit/habitType';
 import type category from '@beyou/types/category/categoryType';
@@ -127,7 +126,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
 
   const onSubmit = async (v: HabitFormValues) => {
     const res = isEdit
-      ? await editHabit(
+      ? await editHabitOffline(
           habit!.id,
           v.name,
           v.description,
@@ -138,7 +137,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
           v.categoriesId,
           t,
         )
-      : await createHabit(
+      : await createHabitOffline(
           v.name,
           v.description,
           v.motivationalPhrase,
@@ -158,7 +157,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
       notify.error(res.validation);
       return;
     }
-    notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    notify.success(res.queued ? t('SavedOffline') : t(isEdit ? 'edited successfully' : 'created successfully'));
     if (!isEdit) onCreated?.(v.name);
     onSaved();
     onClose();

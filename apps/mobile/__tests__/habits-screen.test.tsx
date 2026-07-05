@@ -18,6 +18,7 @@ import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-
 import { setHttpClient, setLogger } from '@beyou/api';
 import '../src/i18n';
 import { makeStore } from '../src/store';
+import { setOfflineStore } from '../src/offline/mutations';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import HabitsScreen from '../app/(app)/habits';
 
@@ -44,14 +45,22 @@ function setHttp(habits: unknown[]) {
   setLogger({ error: () => {} });
 }
 
-const renderScreen = () =>
-  render(
-    <Provider store={makeStore()}>
+// The screen's delete handler now routes through the offline ops layer, which
+// reads connectivity off a store configured via setOfflineStore (a separate
+// seam from the Provider store the component reads/dispatches through) — wire
+// both to the SAME store so this stays the unchanged online path (default
+// connectivity.isOnline is null, which isOffline() treats as online).
+const renderScreen = () => {
+  const store = makeStore();
+  setOfflineStore(store);
+  return render(
+    <Provider store={store}>
       <BeyouThemeProvider>
         <HabitsScreen />
       </BeyouThemeProvider>
     </Provider>,
   );
+};
 
 describe('HabitsScreen', () => {
   it('renders fetched habits as cards + a sort control', async () => {

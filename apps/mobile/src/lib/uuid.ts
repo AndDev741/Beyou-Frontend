@@ -1,12 +1,13 @@
 /**
- * RFC4122 version-4 UUID, dependency-free. Used for client-side ids of NEW
- * routine sections/items (the backend accepts client-supplied UUIDs on edit,
- * mirroring the web `uuid` usage). Math.random is fine for these low-volume ids.
+ * RFC-4122 v4 via crypto.getRandomValues (react-native-get-random-values is
+ * polyfilled at boot in app/_layout.tsx). These ids become REAL server PKs for
+ * offline-created entities, so Math.random is not acceptable here.
  */
 export function uuidv4(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0'));
+  return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10, 16).join('')}`;
 }
