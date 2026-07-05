@@ -708,5 +708,13 @@
     "XpEarned": "XP earned",
     "History": "History",
     "RoutinesCount": "Routines",
-    "ItemsDone": "Items done"
+    "ItemsDone": "Items done",
+    "OfflineBannerTitle": "You're offline",
+    "OfflineBannerBody": "You can keep using the app — create, edit and check your habits normally. Everything is saved on this device and will sync automatically when your connection returns.",
+    "OfflineBannerPending": "{{count}} change waiting to sync",
+    "OfflineBannerPending_plural": "{{count}} changes waiting to sync",
+    "OfflineBannerClose": "Got it",
+    "OfflineSyncedToast": "Back online — {{count}} changes synced",
+    "OfflineSyncFailedToast": "{{count}} changes could not be synced and were discarded",
+    "SavedOffline": "Saved on your device — it will sync when you're back online"
 }
