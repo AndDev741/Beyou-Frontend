@@ -14,6 +14,7 @@ async function createTask(
   importance?: number,
   difficulty?: number,
   oneTimeTask: boolean = false,
+  id?: string,
 ): apiResponse {
   const taskData = {
     name: name,
@@ -23,6 +24,7 @@ async function createTask(
     difficulty: difficulty,
     categoriesId: categoriesId,
     oneTimeTask: oneTimeTask,
+    ...(id ? { id } : {}),
   };
 
   try {

@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getCategories from '@beyou/api/categories/getCategories';
-import deleteCategory from '@beyou/api/categories/deleteCategory';
+import { deleteCategoryOffline } from '../../src/offline/ops/categoryOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import { sortCategories } from '@beyou/state';
@@ -69,10 +69,10 @@ export default function CategoriesScreen() {
           text: t('Delete'),
           style: 'destructive',
           onPress: async () => {
-            const res = await deleteCategory(target.id, t);
+            const res = await deleteCategoryOffline(target.id, t);
             if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
             else {
-              notify.success(t('deleted successfully'));
+              notify.success(res.queued ? t('SavedOffline') : t('deleted successfully'));
               await load();
             }
           },

@@ -5,8 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { taskFormSchema } from '@beyou/validation';
-import createTask from '@beyou/api/tasks/createTask';
-import editTask from '@beyou/api/tasks/editTask';
+import { createTaskOffline, editTaskOffline } from '../../offline/ops/taskOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { task } from '@beyou/types/tasks/taskType';
 import type category from '@beyou/types/category/categoryType';
@@ -112,8 +111,8 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
 
   const onSubmit = async (v: TaskFormValues) => {
     const res = isEdit
-      ? await editTask(task!.id, v.name, v.description, v.iconId, v.importance, v.difficulty, v.categoriesId, v.oneTimeTask, t)
-      : await createTask(v.name, v.description, v.iconId, v.categoriesId, t, v.importance, v.difficulty, v.oneTimeTask);
+      ? await editTaskOffline(task!.id, v.name, v.description, v.iconId, v.importance, v.difficulty, v.categoriesId, v.oneTimeTask, t)
+      : await createTaskOffline(v.name, v.description, v.iconId, v.categoriesId, t, v.importance, v.difficulty, v.oneTimeTask);
 
     if (res.error) {
       notify.error(getFriendlyErrorMessage(t, res.error));
@@ -123,7 +122,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
       notify.error(res.validation);
       return;
     }
-    notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    notify.success(res.queued ? t('SavedOffline') : t(isEdit ? 'edited successfully' : 'created successfully'));
     if (!isEdit) onCreated?.(v.name);
     onSaved();
     onClose();

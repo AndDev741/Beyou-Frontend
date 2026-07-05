@@ -5,8 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { categoryCreateSchema, categoryEditSchema } from '@beyou/validation';
-import createCategory from '@beyou/api/categories/createCategory';
-import editCategory from '@beyou/api/categories/editCategory';
+import { createCategoryOffline, editCategoryOffline } from '../../offline/ops/categoryOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type category from '@beyou/types/category/categoryType';
 import Input from '../Input';
@@ -100,8 +99,8 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
 
   const onSubmit = async (v: CategoryFormValues) => {
     const res = isEdit
-      ? await editCategory(category!.id, v.name, v.description, v.iconId, t)
-      : await createCategory(v.name, v.description, v.experience, v.iconId, t);
+      ? await editCategoryOffline(category!.id, v.name, v.description, v.iconId, t)
+      : await createCategoryOffline(v.name, v.description, v.experience, v.iconId, t);
 
     if (res.error) {
       notify.error(getFriendlyErrorMessage(t, res.error));
@@ -111,7 +110,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
       notify.error(res.validation);
       return;
     }
-    notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    notify.success(res.queued ? t('SavedOffline') : t(isEdit ? 'edited successfully' : 'created successfully'));
     if (!isEdit) onCreated?.({ name: v.name, iconId: v.iconId });
     onSaved();
     onClose();

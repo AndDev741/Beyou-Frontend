@@ -11,13 +11,15 @@ const createCategory = async (
     description: string,
     experience: number,
     icon: string,
-    t: TFunction
+    t: TFunction,
+    id?: string
 ): apiResponse => {
     const categoryData = {
         name: name,
         description: description,
         icon: icon,
-        experience: experienceToEnum(experience)
+        experience: experienceToEnum(experience),
+        ...(id ? { id } : {})
     };
 
     try {

@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getTasks from '@beyou/api/tasks/getTasks';
 import getCategories from '@beyou/api/categories/getCategories';
-import deleteTask from '@beyou/api/tasks/deleteTask';
+import { deleteTaskOffline } from '../../src/offline/ops/taskOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
@@ -66,10 +66,10 @@ export default function TasksScreen() {
           text: t('Delete'),
           style: 'destructive',
           onPress: async () => {
-            const res = await deleteTask(target.id, t);
+            const res = await deleteTaskOffline(target.id, t);
             if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
             else {
-              notify.success(t('deleted successfully'));
+              notify.success(res.queued ? t('SavedOffline') : t('deleted successfully'));
               await load();
             }
           },
