@@ -9,7 +9,10 @@ type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validat
 
 async function createRoutine(routine: Routine, t: TFunction): apiResponse {
     try {
-        const response = await getHttpClient().post("/routine", buildRoutinePayload(routine, { includeSectionIds: false, includeGroupIds: false }));
+        const payload = buildRoutinePayload(routine, { includeSectionIds: false, includeGroupIds: false });
+        // Client-supplied id (offline-created routines): pass the root id through so
+        // sync replay can hand the backend the id it already committed locally.
+        const response = await getHttpClient().post("/routine", routine.id ? { ...payload, id: routine.id } : payload);
         return response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
     } catch (e) {
         getLogger().error(e);

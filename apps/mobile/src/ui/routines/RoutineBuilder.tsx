@@ -3,8 +3,7 @@ import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { routineFormSchema, getSectionErrorKeys, getItemTimeErrorKeys } from '@beyou/validation';
-import createRoutine from '@beyou/api/routine/createRoutine';
-import editRoutine from '@beyou/api/routine/editRoutine';
+import { createRoutineOffline, editRoutineOffline } from '../../offline/ops/routineOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
@@ -102,11 +101,11 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
       return;
     }
     setSubmitting(true);
-    const res = isEdit ? await editRoutine(working, t) : await createRoutine(working, t);
+    const res = isEdit ? await editRoutineOffline(working, t) : await createRoutineOffline(working, t);
     setSubmitting(false);
     if (res.error) { fail(getFriendlyErrorMessage(t, res.error)); return; }
     if (res.validation) { fail(res.validation); return; }
-    notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    notify.success(res.queued ? t('SavedOffline') : t(isEdit ? 'edited successfully' : 'created successfully'));
     onSaved();
     onClose();
   };

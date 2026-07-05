@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import createSchedule from '@beyou/api/schedule/createSchedule';
-import editSchedule from '@beyou/api/schedule/editSchedule';
+import { createScheduleOffline, editScheduleOffline } from '../../offline/ops/routineOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { Routine } from '@beyou/types/routine/routine';
 import Button from '../Button';
@@ -86,12 +85,12 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
     setSubmitting(true);
     const payload = ordered(days);
     const res = routine.schedule?.id
-      ? await editSchedule(routine.schedule.id, payload, routine.id as string, t)
-      : await createSchedule(payload, routine.id as string, t);
+      ? await editScheduleOffline(routine.schedule.id, payload, routine.id as string, t)
+      : await createScheduleOffline(payload, routine.id as string, t);
     setSubmitting(false);
     if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
     if (res.validation) { notify.error(res.validation); return; }
-    notify.success(t(routine.schedule?.id ? 'edited successfully' : 'created successfully'));
+    notify.success(res.queued ? t('SavedOffline') : t(routine.schedule?.id ? 'edited successfully' : 'created successfully'));
     onSaved();
     onClose();
   };

@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import getRoutines from '@beyou/api/routine/getRoutines';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
-import deleteRoutine from '@beyou/api/routine/deleteRoutine';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { getLogger } from '@beyou/api';
 import { enterRoutines } from '@beyou/state/routine/routinesSlice';
@@ -30,6 +29,7 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useRoutinesTutorial } from '../../src/tutorial/hooks/useRoutinesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import { deleteRoutineOffline } from '../../src/offline/ops/routineOps';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -109,9 +109,9 @@ export default function RoutinesScreen() {
     Alert.alert(t('DeleteRoutine'), t('ConfirmDeleteRoutine'), [
       { text: t('Cancel'), style: 'cancel' },
       { text: t('Delete'), style: 'destructive', onPress: async () => {
-        const res = await deleteRoutine(r.id as string, t);
+        const res = await deleteRoutineOffline(r.id as string, t);
         if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
-        notify.success(t('deleted successfully'));
+        notify.success(res.queued ? t('SavedOffline') : t('deleted successfully'));
         await load();
       } },
     ]);
