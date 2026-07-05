@@ -126,6 +126,17 @@ test('falls back to network-only (no write-throughs) when getDb() rejects', asyn
   expect(writeCollection).not.toHaveBeenCalled();
 });
 
+test('a stage-1 cache read failure degrades to a cold cache — the network fetch still loads', async () => {
+  (readCollection as jest.Mock).mockRejectedValue(new Error('disk I/O error'));
+  (getHabits as jest.Mock).mockResolvedValue({ success: [{ id: 'h9', name: 'Net habit' }] });
+  const store = await renderHook();
+
+  await waitFor(() => expect(store.getState().habits.habits).toHaveLength(1));
+  expect(store.getState().habits.habits[0].name).toBe('Net habit');
+  await waitFor(() => expect(hookResult.loading).toBe(false));
+  expect(hookResult.error).toBeNull();
+});
+
 test('stage-1 date guard: a cached todayRoutine from another day is not dispatched', async () => {
   (readKV as jest.Mock).mockImplementation(async (_db: unknown, key: string) =>
     key === 'todayRoutine' ? { date: '2000-01-01', routine: { id: 'r-stale', name: 'Stale' } } : null

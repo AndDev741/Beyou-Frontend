@@ -15,6 +15,7 @@ import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import { localDateKey, readCollection, readKV, writeCollection, writeKV } from '@beyou/offline';
+import type { SqlDriver } from '@beyou/offline';
 import type { UserType } from '@beyou/types/user/UserType';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { habit } from '@beyou/types/habit/habitType';
@@ -67,41 +68,56 @@ export function useDashboardData(): DashboardData {
       if (db) {
         gen = getCacheGeneration();
 
-        // Stage 1 — SQLite mirror.
-        const [cPerfil, cToday, cHabits, cTasks, cGoals, cCats] = await Promise.all([
-          readKV<UserType>(db, 'perfil'),
-          readKV<TodayRoutineCache>(db, 'todayRoutine'),
-          readCollection<habit>(db, 'habits'),
-          readCollection<task>(db, 'tasks'),
-          readCollection<goal>(db, 'goals'),
-          readCollection<categoryType>(db, 'categories'),
-        ]);
-        if (cPerfil) {
-          dispatch(hydratePerfil(cPerfil));
-          hydratedFromCache = true;
+        try {
+          // Stage 1 — SQLite mirror.
+          const [cPerfil, cToday, cHabits, cTasks, cGoals, cCats] = await Promise.all([
+            readKV<UserType>(db, 'perfil'),
+            readKV<TodayRoutineCache>(db, 'todayRoutine'),
+            readCollection<habit>(db, 'habits'),
+            readCollection<task>(db, 'tasks'),
+            readCollection<goal>(db, 'goals'),
+            readCollection<categoryType>(db, 'categories'),
+          ]);
+          if (cPerfil) {
+            dispatch(hydratePerfil(cPerfil));
+            hydratedFromCache = true;
+          }
+          if (cToday && cToday.date === localDateKey()) {
+            dispatch(enterTodayRoutine(cToday.routine));
+            hydratedFromCache = true;
+          }
+          if (cHabits.length) {
+            dispatch(enterHabits(cHabits));
+            hydratedFromCache = true;
+          }
+          if (cTasks.length) {
+            dispatch(enterTasks(cTasks));
+            hydratedFromCache = true;
+          }
+          if (cGoals.length) {
+            dispatch(enterGoals(cGoals));
+            hydratedFromCache = true;
+          }
+          if (cCats.length) {
+            dispatch(enterCategories(cCats));
+            hydratedFromCache = true;
+          }
+          if (hydratedFromCache) setLoading(false);
+        } catch (e) {
+          // Driver-level read failure after a successful open — degrade to a
+          // cold cache; stage 2 (network) must still run.
+          getLogger().error(e);
         }
-        if (cToday && cToday.date === localDateKey()) {
-          dispatch(enterTodayRoutine(cToday.routine));
-          hydratedFromCache = true;
-        }
-        if (cHabits.length) {
-          dispatch(enterHabits(cHabits));
-          hydratedFromCache = true;
-        }
-        if (cTasks.length) {
-          dispatch(enterTasks(cTasks));
-          hydratedFromCache = true;
-        }
-        if (cGoals.length) {
-          dispatch(enterGoals(cGoals));
-          hydratedFromCache = true;
-        }
-        if (cCats.length) {
-          dispatch(enterCategories(cCats));
-          hydratedFromCache = true;
-        }
-        if (hydratedFromCache) setLoading(false);
       }
+
+      // Best-effort write-through: skipped when the cache is unavailable or a
+      // logout/login purged it mid-flight (generation bump); a persist failure
+      // never aborts the remaining dispatches.
+      const persist = async (write: (d: SqlDriver) => Promise<void>) => {
+        if (db && gen === getCacheGeneration()) {
+          await write(db).catch(() => {});
+        }
+      };
 
       // Stage 2 — network refresh + best-effort write-through (original behavior).
       const [profileRes, routineRes, habitsRes, tasksRes, goalsRes, catsRes] = await Promise.all([
@@ -114,54 +130,47 @@ export function useDashboardData(): DashboardData {
       ]);
 
       if (profileRes.data) {
-        dispatch(hydratePerfil(profileRes.data));
-        if (db && gen === getCacheGeneration()) {
-          await writeKV(db, 'perfil', profileRes.data).catch(() => {});
-        }
+        const profile = profileRes.data;
+        dispatch(hydratePerfil(profile));
+        await persist((d) => writeKV(d, 'perfil', profile));
       }
       if (routineRes.success && typeof routineRes.success !== 'string') {
-        dispatch(enterTodayRoutine(routineRes.success));
-        if (db && gen === getCacheGeneration()) {
-          await writeKV(db, 'todayRoutine', {
-            date: localDateKey(),
-            routine: routineRes.success,
-          } satisfies TodayRoutineCache).catch(() => {});
-        }
+        const routine = routineRes.success;
+        dispatch(enterTodayRoutine(routine));
+        await persist((d) =>
+          writeKV(d, 'todayRoutine', { date: localDateKey(), routine } satisfies TodayRoutineCache)
+        );
       } else if (!routineRes.error) {
         // The fetch genuinely succeeded with no routine scheduled today
         // (backend returns 200 + null body) — clear any stale routine left
         // over from an earlier day or a previous cache write.
         dispatch(enterTodayRoutine(null));
-        if (db && gen === getCacheGeneration()) {
-          await writeKV(db, 'todayRoutine', {
+        await persist((d) =>
+          writeKV(d, 'todayRoutine', {
             date: localDateKey(),
             routine: null,
-          } satisfies TodayRoutineCache).catch(() => {});
-        }
+          } satisfies TodayRoutineCache)
+        );
       }
       if (Array.isArray(habitsRes.success)) {
-        dispatch(enterHabits(habitsRes.success));
-        if (db && gen === getCacheGeneration()) {
-          await writeCollection(db, 'habits', habitsRes.success).catch(() => {});
-        }
+        const rows = habitsRes.success;
+        dispatch(enterHabits(rows));
+        await persist((d) => writeCollection(d, 'habits', rows));
       }
       if (Array.isArray(tasksRes.success)) {
-        dispatch(enterTasks(tasksRes.success));
-        if (db && gen === getCacheGeneration()) {
-          await writeCollection(db, 'tasks', tasksRes.success).catch(() => {});
-        }
+        const rows = tasksRes.success;
+        dispatch(enterTasks(rows));
+        await persist((d) => writeCollection(d, 'tasks', rows));
       }
       if (Array.isArray(goalsRes.success)) {
-        dispatch(enterGoals(goalsRes.success));
-        if (db && gen === getCacheGeneration()) {
-          await writeCollection(db, 'goals', goalsRes.success).catch(() => {});
-        }
+        const rows = goalsRes.success;
+        dispatch(enterGoals(rows));
+        await persist((d) => writeCollection(d, 'goals', rows));
       }
       if (Array.isArray(catsRes.success)) {
-        dispatch(enterCategories(catsRes.success));
-        if (db && gen === getCacheGeneration()) {
-          await writeCollection(db, 'categories', catsRes.success).catch(() => {});
-        }
+        const rows = catsRes.success;
+        dispatch(enterCategories(rows));
+        await persist((d) => writeCollection(d, 'categories', rows));
       }
     } catch {
       if (!hydratedFromCache) setError(t('UnexpectedError'));

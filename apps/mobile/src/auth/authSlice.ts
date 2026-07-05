@@ -5,7 +5,9 @@ import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
 import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
 import { saveTutorialPhase } from '../lib/tutorialStore';
-import { clearOfflineCache } from '../offline/db';
+import { clearOfflineCache, getDb } from '../offline/db';
+import { readKV } from '@beyou/offline';
+import type { UserType } from '@beyou/types/user/UserType';
 import type { AuthStatus, Profile } from './types';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
@@ -25,6 +27,32 @@ const initialState: AuthState = {
   error: null,
 };
 
+// A different account may have used this device before this sign-in — the next
+// session must never inherit its SQLite cache. Purging here also bumps the
+// cache generation, so any still-in-flight load's write-through is dropped.
+// Cost: a same-user re-login loses its warm cache, but login requires network,
+// so the dashboard repopulates it immediately.
+async function purgePreviousAccountCache(): Promise<void> {
+  try {
+    await clearOfflineCache();
+  } catch (e) {
+    // best-effort — a purge failure must never block sign-in
+    getLogger().error('offline cache purge on sign-in failed', e);
+  }
+}
+
+// Offline boot grace: when the refresh endpoint is unreachable (not a token
+// rejection), enter with the profile the dashboard's write-through cached.
+async function readCachedProfile(): Promise<Profile | null> {
+  try {
+    const db = await getDb();
+    const cached = await readKV<UserType>(db, 'perfil');
+    return cached ? (cached as unknown as Profile) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const login = createAsyncThunk(
   'auth/login',
   async (creds: { email: string; password: string }, { rejectWithValue }) => {
@@ -32,6 +60,7 @@ export const login = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await loginRequest(creds.email, creds.password);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
+      await purgePreviousAccountCache();
       return profile;
     } catch (e) {
       const parsed = parseApiError(e);
@@ -50,6 +79,7 @@ export const googleLogin = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await googleMobileLoginRequest(idToken);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
+      await purgePreviousAccountCache();
       return profile;
     } catch (e) {
       getLogger().error('auth google login failed', e);
@@ -82,13 +112,29 @@ export const bootstrap = createAsyncThunk<Profile, void>(
       await secureStore.setRefreshToken(refreshToken);
       // getProfile() takes no arguments and returns { data?: UserType } | { error?: string }
       const res = await getProfile();
-      if (res.error || !res.data) return rejectWithValue('PROFILE_FAILED');
+      if (res.error || !res.data) {
+        // Token is valid (refresh succeeded) — a profile fetch hiccup must not
+        // kick the user to login when a cached profile can carry the session.
+        const cached = await readCachedProfile();
+        if (cached) return cached;
+        return rejectWithValue('PROFILE_FAILED');
+      }
       // TODO: reconcile @beyou/types UserType with @beyou/contracts UserResponseDTO (tracked: thread contract types into @beyou/api)
       return res.data as unknown as Profile;
     } catch (e) {
       getLogger().error('auth bootstrap failed', e);
-      await secureStore.clearRefreshToken();
-      return rejectWithValue('REFRESH_FAILED');
+      // Only a genuine token rejection invalidates the session. Everything else
+      // — network failure/timeout (ApiError status 0), server errors — keeps
+      // the refresh token and enters with the cached profile, so an offline
+      // cold start still boots into the app. A revoked token self-heals later:
+      // the first online 401 runs the refresh handler, which fails and logs out.
+      if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
+        await secureStore.clearRefreshToken();
+        return rejectWithValue('REFRESH_FAILED');
+      }
+      const cached = await readCachedProfile();
+      if (cached) return cached;
+      return rejectWithValue('OFFLINE_NO_CACHED_PROFILE');
     }
   },
 );
