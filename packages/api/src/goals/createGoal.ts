@@ -18,7 +18,8 @@ const createGoal = async (
   endDate: string,
   status: string,
   term: string,
-  t: TFunction
+  t: TFunction,
+  id?: string
 ): apiResponse => {
   const goalData = {
     name: title,
@@ -32,7 +33,8 @@ const createGoal = async (
     startDate: startDate,
     endDate: endDate,
     status: status,
-    term: term
+    term: term,
+    ...(id ? { id } : {})
   };
 
   try {

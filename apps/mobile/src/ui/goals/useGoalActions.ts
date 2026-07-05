@@ -1,9 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import increaseCurrentValue from '@beyou/api/goals/increaseCurrentValue';
-import decreaseCurrentValue from '@beyou/api/goals/decreaseCurrentValue';
-import markGoalAsComplete from '@beyou/api/goals/markGoalAsComplete';
+import { increaseGoalOffline, decreaseGoalOffline, completeGoalOffline } from '../../offline/ops/goalOps';
 import { updateGoal } from '@beyou/state/goal/goalsSlice';
 import { applyRefreshUi } from '@beyou/state/user/refreshUiThunk';
 import { notify } from '../../notify';
@@ -21,7 +19,7 @@ export function useGoalActions() {
 
   const increase = useCallback(async (id: string) => {
     try {
-      dispatch(updateGoal(await increaseCurrentValue(id, t)));
+      dispatch(updateGoal(await increaseGoalOffline(id, t)));
       return true;
     } catch {
       notify.error(t('UnexpectedError'));
@@ -31,7 +29,7 @@ export function useGoalActions() {
 
   const decrease = useCallback(async (id: string) => {
     try {
-      dispatch(updateGoal(await decreaseCurrentValue(id, t)));
+      dispatch(updateGoal(await decreaseGoalOffline(id, t)));
       return true;
     } catch {
       notify.error(t('UnexpectedError'));
@@ -40,10 +38,14 @@ export function useGoalActions() {
   }, [dispatch, t]);
 
   const complete = useCallback(async (id: string) => {
-    const res = await markGoalAsComplete(id, t);
+    const res = await completeGoalOffline(id, t);
     if (res.error) {
       notify.error(res.error);
       return false;
+    }
+    if (res.queued) {
+      notify.success(t('SavedOffline'));
+      return true;
     }
     if (res.success) {
       const prev = store.getState().perfil;

@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import getGoals from '@beyou/api/goals/getGoals';
 import getCategories from '@beyou/api/categories/getCategories';
-import deleteGoal from '@beyou/api/goals/deleteGoal';
+import { deleteGoalOffline } from '../../src/offline/ops/goalOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
@@ -69,10 +69,10 @@ export default function GoalsScreen() {
           text: t('Delete'),
           style: 'destructive',
           onPress: async () => {
-            const res = await deleteGoal(target.id, t);
+            const res = await deleteGoalOffline(target.id, t);
             if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
             else {
-              notify.success(t('deleted successfully'));
+              notify.success(res.queued ? t('SavedOffline') : t('deleted successfully'));
               await load();
             }
           },

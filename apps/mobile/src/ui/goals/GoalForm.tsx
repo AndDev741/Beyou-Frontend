@@ -5,8 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { goalFormSchema } from '@beyou/validation';
-import createGoal from '@beyou/api/goals/createGoal';
-import editGoal from '@beyou/api/goals/editGoal';
+import { createGoalOffline, editGoalOffline } from '../../offline/ops/goalOps';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { goal } from '@beyou/types/goals/goalType';
 import type category from '@beyou/types/category/categoryType';
@@ -128,12 +127,12 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
     const target = Number(v.targetValue) || 0;
     const current = Number(v.currentValue) || 0;
     const res = isEdit
-      ? await editGoal(goal!.id, v.title, v.iconId, v.description, target, v.unit, current, goal?.complete ?? false, v.categoriesId, v.motivation, v.startDate, v.endDate, v.status, v.term, t)
-      : await createGoal(v.title, v.iconId, v.description, target, v.unit, current, v.categoriesId, v.motivation, v.startDate, v.endDate, v.status, v.term, t);
+      ? await editGoalOffline(goal!.id, v.title, v.iconId, v.description, target, v.unit, current, goal?.complete ?? false, v.categoriesId, v.motivation, v.startDate, v.endDate, v.status, v.term, t)
+      : await createGoalOffline(v.title, v.iconId, v.description, target, v.unit, current, v.categoriesId, v.motivation, v.startDate, v.endDate, v.status, v.term, t);
 
     if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
     if (res.validation) { notify.error(res.validation); return; }
-    notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    notify.success(res.queued ? t('SavedOffline') : t(isEdit ? 'edited successfully' : 'created successfully'));
     onSaved();
     onClose();
   };
