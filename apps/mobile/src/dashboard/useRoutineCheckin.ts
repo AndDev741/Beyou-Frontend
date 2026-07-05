@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import checkRoutine from '@beyou/api/routine/checkItem';
 import skipRoutine from '@beyou/api/routine/skipItem';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
+import { getLogger } from '@beyou/api';
 import { applyRefreshUi } from '@beyou/state/user/refreshUiThunk';
 import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
@@ -42,7 +43,12 @@ export function useRoutineCheckin() {
     async (dto: itemGroupToCheck, opts: CheckOpts): Promise<RefreshUI | null> => {
       if (isOffline()) {
         const groupItemId = dto.habitGroupDTO?.habitGroupId ?? dto.taskGroupDTO?.taskGroupId ?? '';
-        await checkItemOffline(dto, groupItemId, !opts.wasChecked);
+        try {
+          await checkItemOffline(dto, groupItemId, !opts.wasChecked);
+        } catch (e) {
+          getLogger().error('offline check enqueue failed', e);
+          notify.error(getFriendlyErrorMessage(t));
+        }
         return null;
       }
       const res = await checkRoutine(dto, t);
@@ -61,7 +67,12 @@ export function useRoutineCheckin() {
     async (dto: itemGroupToSkip): Promise<RefreshUI | null> => {
       if (isOffline()) {
         const groupItemId = dto.habitGroupDTO?.habitGroupId ?? dto.taskGroupDTO?.taskGroupId ?? '';
-        await skipItemOffline(dto, groupItemId, dto.skip);
+        try {
+          await skipItemOffline(dto, groupItemId, dto.skip);
+        } catch (e) {
+          getLogger().error('offline skip enqueue failed', e);
+          notify.error(getFriendlyErrorMessage(t));
+        }
         return null;
       }
       const res = await skipRoutine(dto, t);

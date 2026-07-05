@@ -21,6 +21,7 @@ import ThemeSync from '../src/theme/ThemeSync';
 import LanguageSync from '../src/i18n/LanguageSync';
 import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
 import ConnectivitySync from '../src/offline/ConnectivitySync';
+import { initOfflineSync, flushOutbox } from '../src/offline/syncSetup';
 import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
@@ -52,12 +53,19 @@ function Gate() {
       dispatch(logout());
     });
     dispatch(bootstrap());
+    void initOfflineSync(store);
   }, [dispatch]);
 
   useEffect(() => {
     const target = nextAuthRoute(status, segments);
     if (target) router.replace(target);
   }, [status, segments, router]);
+
+  // One flush right after boot resolves authenticated — catches ops queued in a
+  // previous session that never got a chance to replay before the app closed.
+  useEffect(() => {
+    if (status === 'authenticated') void flushOutbox();
+  }, [status]);
 
   if (status === 'loading') {
     return (
@@ -79,7 +87,7 @@ export default function RootLayout() {
             <ThemeSync />
             <LanguageSync />
             <ViewFiltersSync />
-            <ConnectivitySync />
+            <ConnectivitySync onOnline={flushOutbox} />
             <TutorialSync />
             <ErrorBoundary>
               <Gate />
