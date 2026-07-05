@@ -7,3 +7,5 @@ export type { CachedListOptions } from './swr';
 export { localDateKey } from './date';
 export { enqueueOp, peekOps, deleteOp, bumpAttempt, countOps } from './outbox';
 export type { OutboxOp } from './outbox';
+export { createSyncEngine, MAX_OP_ATTEMPTS } from './syncEngine';
+export type { OpHandler, FlushResult, SyncEngine } from './syncEngine';
