@@ -84,3 +84,11 @@ jest.mock('expo-sqlite', () => ({
     closeAsync: async () => {},
   })),
 }));
+
+// expo-network's native module is absent under jest: report "online" so every
+// existing test keeps exercising the plain network paths.
+jest.mock('expo-network', () => ({
+  __esModule: true,
+  getNetworkStateAsync: jest.fn(async () => ({ isConnected: true, isInternetReachable: true })),
+  addNetworkStateListener: jest.fn(() => ({ remove: () => {} })),
+}));

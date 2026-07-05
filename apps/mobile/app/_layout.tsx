@@ -20,6 +20,7 @@ import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import ThemeSync from '../src/theme/ThemeSync';
 import LanguageSync from '../src/i18n/LanguageSync';
 import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
+import ConnectivitySync from '../src/offline/ConnectivitySync';
 import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
@@ -78,6 +79,7 @@ export default function RootLayout() {
             <ThemeSync />
             <LanguageSync />
             <ViewFiltersSync />
+            <ConnectivitySync />
             <TutorialSync />
             <ErrorBoundary>
               <Gate />

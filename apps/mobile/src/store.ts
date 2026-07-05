@@ -12,6 +12,7 @@ import categories from '@beyou/state/category/categoriesSlice';
 import celebration from '@beyou/state/celebration/celebrationSlice';
 import viewFilters from '@beyou/state/viewFilters/viewFiltersSlice';
 import tutorial from './tutorial/tutorialSlice';
+import connectivity from './offline/connectivitySlice';
 
 // Factory so tests can spin up an isolated store per test (Redux state is not
 // reset between Jest cases). App code uses the singleton `store` below.
@@ -33,6 +34,7 @@ const combinedReducer = combineReducers({
   celebration,
   viewFilters,
   tutorial,
+  connectivity,
 });
 
 // On logout, reset EVERY slice to its initial state. Mobile redux is in-memory
