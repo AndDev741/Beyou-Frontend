@@ -5,3 +5,5 @@ export { clearAll, deleteRow, readCollection, readKV, upsertRow, writeCollection
 export { cachedList } from './swr';
 export type { CachedListOptions } from './swr';
 export { localDateKey } from './date';
+export { enqueueOp, peekOps, deleteOp, bumpAttempt, countOps } from './outbox';
+export type { OutboxOp } from './outbox';
