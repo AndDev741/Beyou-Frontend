@@ -1,8 +1,8 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, expect, test } from 'vitest';
 import { createTestDriver } from './testDriver';
 import { migrate } from '../schema';
 import { countOps } from '../outbox';
-import { createSyncEngine, MAX_OP_ATTEMPTS } from '../syncEngine';
+import { createSyncEngine, MAX_OP_ATTEMPTS, type FlushResult } from '../syncEngine';
 import type { SqlDriver } from '../driver';
 
 let db: SqlDriver & { close: () => void };
@@ -99,7 +99,46 @@ test('onCountChange fires on enqueue and on drain', async () => {
     onCountChange: (c) => counts.push(c),
   });
   await engine.enqueue('a.op', {});
+  await engine.enqueue('a.op', {});
+  await engine.enqueue('ghost.op', {}); // will be dropped (no handler)
   await engine.flush();
-  expect(counts[0]).toBe(1);
-  expect(counts[counts.length - 1]).toBe(0);
+  expect(counts).toEqual([1, 2, 3, 2, 1, 0]);
+});
+
+test('onFlushEnd is called with the flush summary', async () => {
+  const ends: FlushResult[] = [];
+  const engine = createSyncEngine({
+    db,
+    handlers: {
+      'ok.op': async () => ({ ok: true }),
+      'fail.op': async () => ({ ok: false, error: 'net' }),
+    },
+    onFlushEnd: (result) => ends.push(result),
+  });
+  await engine.enqueue('ok.op', {});
+  await engine.enqueue('ok.op', {});
+  await engine.enqueue('fail.op', {});
+  await engine.flush();
+  expect(ends).toHaveLength(1);
+  expect(ends[0]).toEqual({ flushed: 2, dropped: 0, remaining: 1 });
+});
+
+test('flush returns the same promise for concurrent calls', async () => {
+  const engine = createSyncEngine({
+    db,
+    handlers: {
+      'slow.op': async () => {
+        await new Promise((r) => setTimeout(r, 10));
+        return { ok: true };
+      },
+    },
+  });
+  await engine.enqueue('slow.op', {});
+  const p1 = engine.flush();
+  const p2 = engine.flush();
+  expect(p1).toBe(p2);
+  await p1;
+  const p3 = engine.flush();
+  expect(p3).not.toBe(p1);
+  await p3;
 });
