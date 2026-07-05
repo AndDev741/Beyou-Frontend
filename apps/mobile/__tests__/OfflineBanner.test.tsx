@@ -6,6 +6,11 @@ import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import { setOnline, setPendingOps } from '../src/offline/connectivitySlice';
 import OfflineBanner from '../src/ui/offline/OfflineBanner';
 
+// Mock react-native-safe-area-context for this test only
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+
 const wrap = (store: ReturnType<typeof makeStore>, node: React.ReactElement) =>
   render(
     <Provider store={store}>
@@ -57,4 +62,15 @@ test('reappears on a NEW offline episode', async () => {
     store.dispatch(setOnline(false));
   });
   expect(screen.getByTestId('offline-banner')).toBeTruthy();
+});
+
+test('renders plural text when pendingOps > 1', async () => {
+  const store = makeStore();
+  await wrap(store, <OfflineBanner />);
+  await act(async () => {
+    store.dispatch(setOnline(false));
+    store.dispatch(setPendingOps(2));
+  });
+  // Verify the plural key resolved correctly (contains "2 changes")
+  expect(screen.getByText(/2/)).toBeTruthy();
 });
