@@ -15,7 +15,8 @@ import '../src/i18n';
 import { setLogger } from '@beyou/api';
 import { makeStore } from '../src/store';
 import { hydratePerfil } from '@beyou/state/user/perfilSlice';
-import { buildHandlers } from '../src/offline/syncSetup';
+import { buildHandlers, flushOutbox } from '../src/offline/syncSetup';
+import { setSyncEngine } from '../src/offline/mutations';
 import createHabit from '@beyou/api/habits/createHabit';
 import checkRoutine from '@beyou/api/routine/checkItem';
 import increaseCurrentValue from '@beyou/api/goals/increaseCurrentValue';
@@ -55,6 +56,19 @@ test('habit.create returns ok:false when the api resolves {error}', async () => 
   expect(result.ok).toBe(false);
 });
 
+test('habit.create returns ok:false (not ok:true) when the api resolves {validation} — a server-side validation rejection must not be treated as a synced success', async () => {
+  (createHabit as jest.Mock).mockResolvedValueOnce({ validation: 'Name already in use' });
+  const store = makeStore();
+  const handlers = buildHandlers(store);
+
+  const result = await handlers['habit.create'](
+    { id: 'client-id', name: 'Run', description: 'd', motivationalPhrase: 'm', importance: 3, dificulty: 4, iconId: 'lucide:zap', experience: 0, categoriesId: [] },
+    op,
+  );
+
+  expect(result).toEqual({ ok: false, error: 'Name already in use' });
+});
+
 test('routine.check calls checkRoutine(dto, t, date) and applies the returned RefreshUI to the store', async () => {
   const refreshUiFixture: RefreshUI = {
     refreshUser: {
@@ -88,4 +102,16 @@ test('goal.increase returns {ok:false, error} when increaseCurrentValue throws',
   const result = await handlers['goal.increase']({ id: 'g1' }, op);
 
   expect(result).toEqual({ ok: false, error: 'boom' });
+});
+
+test('flushOutbox contains a driver-level flush failure instead of rejecting — a trigger site must never crash', async () => {
+  setSyncEngine({
+    enqueue: async () => {},
+    flush: async () => {
+      throw new Error('driver exploded');
+    },
+    pendingCount: async () => 0,
+  });
+
+  await expect(flushOutbox()).resolves.toBeUndefined();
 });

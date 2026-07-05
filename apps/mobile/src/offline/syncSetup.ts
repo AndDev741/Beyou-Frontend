@@ -55,8 +55,18 @@ function errorToString(error: unknown): string {
   return i18n.t('UnexpectedError');
 }
 
-/** CRUD result shapes all carry `error` on failure and nothing conclusive otherwise. */
-function toResult(res: { error?: unknown }): { ok: boolean; error?: string } {
+/**
+ * CRUD result shapes carry THREE possible signals: `success`, `error`
+ * (transport/server failure — retryable), and `validation` (the server
+ * rejected the payload itself — not retryable, replaying the same op will
+ * fail again). `validation` must be checked before falling through to
+ * `ok: true`, otherwise a rejected replay reads as a successful sync and the
+ * op is deleted from the outbox while the user sees a "synced" toast.
+ * ponytail: validation failures burn the 5-attempt cap before dropping; a
+ * permanent-failure fast-path is Phase 3.
+ */
+function toResult(res: { error?: unknown; validation?: string }): { ok: boolean; error?: string } {
+  if (res.validation) return { ok: false, error: res.validation };
   if (res.error) return { ok: false, error: errorToString(res.error) };
   return { ok: true };
 }
@@ -248,6 +258,13 @@ export async function initOfflineSync(store: AppStore): Promise<void> {
     AppState.addEventListener('change', (state) => {
       if (state === 'active') void flushOutbox();
     });
+    // initOfflineSync is fire-and-forgotten from the boot Gate effect, so it can
+    // finish AFTER the Gate's own `status === 'authenticated'` flush effect already
+    // ran (and no-op'd because the engine wasn't set yet). Re-check auth status here
+    // once the engine is live so that ordering doesn't drop the boot-time flush.
+    if (store.getState().auth.status === 'authenticated') {
+      void flushOutbox();
+    }
   } catch (e) {
     getLogger().error('initOfflineSync failed', e);
   }
@@ -257,5 +274,11 @@ export async function initOfflineSync(store: AppStore): Promise<void> {
 export async function flushOutbox(): Promise<void> {
   const engine = getSyncEngine();
   if (!engine) return;
-  await engine.flush();
+  try {
+    await engine.flush();
+  } catch (e) {
+    // A driver-level flush failure must never crash a trigger site (AppState
+    // listener, ConnectivitySync, boot Gate effect) — the next trigger retries.
+    getLogger().error('outbox flush failed', e);
+  }
 }

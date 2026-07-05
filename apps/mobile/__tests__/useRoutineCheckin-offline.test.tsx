@@ -116,3 +116,24 @@ test('offline check: when the engine throws mid-queue, the error is logged and s
   expect(ret).toBeNull();
   expect(notify.error).toHaveBeenCalledTimes(1);
 });
+
+test('offline skip: when the engine throws mid-queue, the error is logged and surfaced via notify.error, still returns null', async () => {
+  const store = seedStore();
+  setOfflineStore(store);
+  setSyncEngine({
+    enqueue: async () => {
+      throw new Error('outbox insert failed');
+    },
+    flush: async () => ({ flushed: 0, dropped: 0, remaining: 0 }),
+    pendingCount: async () => 0,
+  });
+
+  const { result } = await renderHook(() => useRoutineCheckin(), { wrapper: wrapper(store) });
+  let ret: unknown = 'not-set';
+  await act(async () => {
+    ret = await result.current.skip({ ...dto, skip: true });
+  });
+
+  expect(ret).toBeNull();
+  expect(notify.error).toHaveBeenCalledTimes(1);
+});
