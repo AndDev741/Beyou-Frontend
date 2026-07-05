@@ -4,7 +4,7 @@ import type { SqlDriver } from './driver';
 export const CACHE_TABLES = ['categories', 'habits', 'tasks', 'goals', 'routines'] as const;
 export type CacheTable = (typeof CACHE_TABLES)[number];
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 /**
  * Idempotent, versioned migrations via PRAGMA user_version.
@@ -23,6 +23,19 @@ export async function migrate(db: SqlDriver): Promise<void> {
     }
     await db.execAsync(
       'CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY NOT NULL, json TEXT NOT NULL)'
+    );
+  }
+  if (current < 2) {
+    await db.execAsync(
+      `CREATE TABLE IF NOT EXISTS outbox (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        op_type TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        entity_id TEXT,
+        created_at TEXT NOT NULL,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT
+      )`
     );
   }
   await db.execAsync(`PRAGMA user_version = ${SCHEMA_VERSION}`);

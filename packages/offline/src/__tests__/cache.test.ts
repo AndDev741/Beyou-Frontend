@@ -92,3 +92,34 @@ describe('clearAll', () => {
     expect(await readKV(db, 'perfil')).toBeNull();
   });
 });
+
+describe('row-level primitives', () => {
+  test('upsertRow inserts then replaces a single row without touching siblings', async () => {
+    const { upsertRow } = await import('../cache');
+    await writeCollection(db, 'habits', [{ id: 'h1', name: 'A' }, { id: 'h2', name: 'B' }]);
+    await upsertRow(db, 'habits', { id: 'h1', name: 'A2' });
+    const back = await readCollection<{ id: string; name: string }>(db, 'habits');
+    expect(back.find((r) => r.id === 'h1')?.name).toBe('A2');
+    expect(back).toHaveLength(2);
+    await upsertRow(db, 'habits', { id: 'h3', name: 'C' });
+    expect(await readCollection(db, 'habits')).toHaveLength(3);
+  });
+
+  test('deleteRow removes only the targeted row', async () => {
+    const { deleteRow } = await import('../cache');
+    await writeCollection(db, 'habits', [{ id: 'h1' }, { id: 'h2' }]);
+    await deleteRow(db, 'habits', 'h1');
+    const back = await readCollection<{ id: string }>(db, 'habits');
+    expect(back.map((r) => r.id)).toEqual(['h2']);
+  });
+
+  test('clearAll also empties the outbox', async () => {
+    await db.runAsync(
+      'INSERT INTO outbox (op_type, payload, created_at) VALUES (?, ?, ?)',
+      ['habit.create', '{}', 'now']
+    );
+    await clearAll(db);
+    const row = await db.getFirstAsync('SELECT COUNT(*) AS c FROM outbox');
+    expect(row?.c).toBe(0);
+  });
+});

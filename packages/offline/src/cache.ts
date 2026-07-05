@@ -55,6 +55,23 @@ export async function writeKV(db: SqlDriver, key: string, value: unknown): Promi
   ]);
 }
 
+/** Insert or replace ONE mirrored row (offline optimistic writes). */
+export async function upsertRow<T extends { id?: string }>(
+  db: SqlDriver,
+  table: CacheTable,
+  row: T
+): Promise<void> {
+  if (!row.id) return;
+  await db.runAsync(`INSERT OR REPLACE INTO ${table} (id, json) VALUES (?, ?)`, [
+    row.id,
+    JSON.stringify(row),
+  ]);
+}
+
+export async function deleteRow(db: SqlDriver, table: CacheTable, id: string): Promise<void> {
+  await db.runAsync(`DELETE FROM ${table} WHERE id = ?`, [id]);
+}
+
 /** Purge everything — called on logout so the next account can't inherit cached data. */
 export async function clearAll(db: SqlDriver): Promise<void> {
   await db.withTransactionAsync(async () => {
@@ -62,5 +79,6 @@ export async function clearAll(db: SqlDriver): Promise<void> {
       await db.runAsync(`DELETE FROM ${table}`);
     }
     await db.runAsync('DELETE FROM kv');
+    await db.runAsync('DELETE FROM outbox');
   });
 }
