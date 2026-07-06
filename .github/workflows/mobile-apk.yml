@@ -8,6 +8,9 @@ name: Mobile APK
 # One-time setup (repo Settings → Secrets and variables → Actions):
 #   EXPO_PUBLIC_API_URL = https://<your-public-backend>/api/v1  (must be HTTPS)
 #     — may be a repo Variable or a Secret; the build reads either.
+#   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = <web-oauth-client-id>.apps.googleusercontent.com
+#     — the Web OAuth client id; without it signIn() returns a null idToken and
+#       "Continue with Google" silently fails. Variable OR Secret; build reads either.
 #   Secrets:  ANDROID_KEYSTORE_BASE64   (base64 of a keystore you generate once)
 #             ANDROID_KEYSTORE_PASSWORD
 #             ANDROID_KEY_ALIAS
@@ -71,6 +74,7 @@ jobs:
           # what points the installed app at your public backend. Accept it as a
           # repo Variable OR a Secret (falls back to the secret if the var is unset).
           EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
         run: |
           chmod +x ./gradlew
           ./gradlew assembleRelease \
