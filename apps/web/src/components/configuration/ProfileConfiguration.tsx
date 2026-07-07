@@ -1,22 +1,26 @@
 import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
-import { MdClose, MdCreate } from "react-icons/md";
+import { MdCreate } from "react-icons/md";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { EditUser } from "@beyou/types/user/EditUser";
 import editUser from "@beyou/api/user/editUser";
-import { nameEnter, photoEnter, phraseAuthorEnter, phraseEnter } from "@beyou/state/user/perfilSlice";
+import { nameEnter, phraseAuthorEnter, phraseEnter } from "@beyou/state/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { profileSchema, photoUrlSchema } from "@beyou/validation/forms/profileSchemas";
+import { profileSchema } from "@beyou/validation/forms/profileSchemas";
+import uploadUserPhoto from "@beyou/api/user/uploadUserPhoto";
+import getProfile from "@beyou/api/user/getProfile";
+import { hydratePerfil } from "@beyou/state/user/perfilSlice";
+
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 type ProfileFormValues = {
     name: string;
-    photo: string;
     phrase: string;
     phrase_author: string;
 };
@@ -40,14 +44,12 @@ export default function ProfileConfiguration() {
         handleSubmit,
         setError,
         reset,
-        watch,
         formState: { errors }
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema(t)),
         mode: "onBlur",
         defaultValues: {
             name,
-            photo,
             phrase,
             phrase_author
         }
@@ -56,11 +58,10 @@ export default function ProfileConfiguration() {
     useEffect(() => {
         reset({
             name,
-            photo,
             phrase,
             phrase_author
         });
-    }, [name, photo, phrase, phrase_author, reset]);
+    }, [name, phrase, phrase_author, reset]);
 
     const labelStyle = "mb-1 font-medium text-lg self-start text-secondary";
     const inputStyle =
@@ -75,13 +76,11 @@ export default function ProfileConfiguration() {
         resetErrorAndSuccessMessage();
 
         const sanitizedName = values.name.trim();
-        const sanitizedPhoto = values.photo.trim();
         const sanitizedPhrase = values.phrase.trim();
         const sanitizedPhraseAuthor = values.phrase_author.trim();
 
         const editUserDTO: EditUser = {
             name: sanitizedName,
-            photo: sanitizedPhoto,
             phrase: sanitizedPhrase,
             phrase_author: sanitizedPhraseAuthor
         };
@@ -93,7 +92,6 @@ export default function ProfileConfiguration() {
             const details = response.error.details;
             if (details) {
                 if (details.name) setError("name", { message: details.name });
-                if (details.photo) setError("photo", { message: details.photo });
                 if (details.phrase) setError("phrase", { message: details.phrase });
                 if (details.phrase_author) setError("phrase_author", { message: details.phrase_author });
             }
@@ -107,12 +105,11 @@ export default function ProfileConfiguration() {
             dispatch(nameEnter(sanitizedName));
             dispatch(phraseEnter(sanitizedPhrase));
             dispatch(phraseAuthorEnter(sanitizedPhraseAuthor));
-            dispatch(photoEnter(sanitizedPhoto));
         }
     };
 
     const hasErrors = Object.values(errors).some(Boolean);
-    const currentPhoto = watch("photo") || "";
+    const currentPhoto = photo;
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
@@ -130,9 +127,6 @@ export default function ProfileConfiguration() {
                     <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />
                     </label>
-                    {errors.photo?.message && (
-                        <p className="text-xs text-error mt-1 text-center">{errors.photo?.message}</p>
-                    )}
                 </div>
 
                 <div className="w-[80%] lg:w-[75%] flex flex-col items-end">
@@ -217,121 +211,139 @@ export default function ProfileConfiguration() {
                 <p className="text-success">{successPhrase}</p>
                 {errorMessage && <p className="text-error text-xs">{errorMessage}</p>}
             </div>
-            <div className={`${editPhotoModal ? "block" : "hidden"}`}>
-                <EditPhotoUrl
-                    setEditPhotoModal={setEditPhotoModal}
+            {editPhotoModal && (
+                <EditPhoto
                     currentPhotoUrl={currentPhoto}
-                    onSave={(value) => {
+                    onSave={() => {
                         resetErrorAndSuccessMessage();
-                        reset({
-                            name: watch("name"),
-                            photo: value,
-                            phrase: watch("phrase"),
-                            phrase_author: watch("phrase_author")
-                        });
+                        setSuccessPhrase(t("SuccessEditProfile"));
+                        setTimeout(() => setSuccessPhrase(""), 5000);
                     }}
-                    t={t}
+                    onClose={() => setEditPhotoModal(false)}
                 />
-            </div>
+            )}
         </div>
     );
 }
 
-type EditPhotoUrlProps = {
-    setEditPhotoModal: Dispatch<SetStateAction<boolean>>;
+function EditPhoto({
+    currentPhotoUrl,
+    onSave,
+    onClose,
+}: {
     currentPhotoUrl: string;
-    onSave: (value: string) => void;
-    t: TFunction;
-};
+    onSave: () => void;
+    onClose: () => void;
+}) {
+    const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string>(currentPhotoUrl);
+    const [error, setError] = useState<string>('');
+    const [uploading, setUploading] = useState(false);
 
-function EditPhotoUrl({ setEditPhotoModal, currentPhotoUrl, onSave, t }: EditPhotoUrlProps) {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        watch,
-        formState: { errors }
-    } = useForm<{ photo: string }>({
-        resolver: zodResolver(photoUrlSchema(t)),
-        mode: "onBlur",
-        defaultValues: {
-            photo: currentPhotoUrl || ""
+    const validateFile = (file: File): string | null => {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            return t('PhotoUploadInvalidType');
         }
-    });
-
-    useEffect(() => {
-        reset({ photo: currentPhotoUrl || "" });
-    }, [currentPhotoUrl, reset]);
-
-    const photoValue = watch("photo") || "";
-
-    const onSubmit = (values: { photo: string }) => {
-        onSave(values.photo.trim());
-        setEditPhotoModal(false);
+        if (file.size > MAX_SIZE) {
+            return t('PhotoUploadTooLarge');
+        }
+        return null;
     };
 
-    const handleClose = () => {
-        reset({ photo: currentPhotoUrl || "" });
-        setEditPhotoModal(false);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const validationError = validateFile(file);
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+        setError('');
+        setSelectedFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) {
+            setError(t('PhotoUploadNoFile'));
+            return;
+        }
+        setUploading(true);
+        setError('');
+
+        const response = await uploadUserPhoto(selectedFile);
+        if (response.error) {
+            setError(getFriendlyErrorMessage(t, response.error));
+            setUploading(false);
+            return;
+        }
+
+        // Re-fetch profile to get updated photo URL
+        const profileRes = await getProfile();
+        if (profileRes.data) {
+            dispatch(hydratePerfil(profileRes.data));
+        }
+
+        setUploading(false);
+        onSave();
+        onClose();
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-            <div className="bg-background text-secondary border border-primary/20 rounded-xl shadow-2xl w-full max-w-lg p-6 flex flex-col gap-4 transform transition-all duration-300 scale-100">
-                <div className="flex justify-between items-center border-b pb-3">
-                    <h2 className="text-xl font-bold">{t("ChangeProfilePhoto")}</h2>
-                    <button
-                        onClick={handleClose}
-                        className="text-description hover:text-error transition duration-150"
-                        aria-label={t("Close")}
-                    >
-                        <MdClose size={24} />
-                    </button>
-                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-background rounded-2xl p-6 w-[90%] max-w-md shadow-2xl">
+                <h3 className="text-lg font-semibold text-secondary mb-4">{t('ChangePhoto')}</h3>
 
-                <div className="flex flex-col items-center gap-3">
+                <div className="flex flex-col items-center gap-4">
                     <img
-                        src={photoValue}
-                        alt={t("PhotoPreview")}
+                        src={previewUrl}
+                        alt={t('PhotoPreview')}
                         onError={(e) => {
-                            e.currentTarget.src = "https://placehold.co/128x128/ccc/333?text=URL+Inv\u00e1lida";
+                            e.currentTarget.src = 'https://placehold.co/128x128/ccc/333?text=No+Image';
                         }}
                         className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
                     />
-                    <p className="text-sm text-description text-center">{t("PhotoPreviewInfo")}</p>
-                </div>
 
-                <div className="flex flex-col gap-1">
-                    <label htmlFor="photoUrl" className="font-medium text-secondary">
-                        {t("ImageURL")}
-                    </label>
                     <input
-                        id="photoUrl"
-                        type="url"
-                        placeholder={t("EnterPhotoURL")}
-                        {...register("photo")}
-                        className="border border-primary rounded-lg p-3 outline-none w-full bg-background text-secondary placeholder:text-placeholder focus:ring-2 focus:ring-primary/40 transition duration-150"
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handleFileChange}
+                        className="hidden"
                     />
-                    <p className="text-xs text-description">
-                        {t("PhotoUrlHelper")}
-                    </p>
-                    {errors.photo?.message && (
-                        <p className="text-xs text-error mt-1">{errors.photo?.message}</p>
+
+                    <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
+                    >
+                        {selectedFile ? selectedFile.name : t('ChooseFile')}
+                    </button>
+
+                    {error && (
+                        <p className="text-error text-sm text-center">{error}</p>
                     )}
                 </div>
 
-                <div className="flex justify-end gap-3 pt-3 border-t">
+                <div className="flex justify-end gap-3 mt-6">
                     <button
-                        onClick={handleClose}
-                        className="px-4 py-2 text-secondary border border-primary/20 rounded-lg hover:bg-secondary/10 transition duration-150"
+                        type="button"
+                        onClick={onClose}
+                        className="px-4 py-2 text-secondary hover:bg-surface rounded-lg transition"
                     >
-                        {t("Cancel")}
+                        {t('Cancel')}
                     </button>
-                    <SmallButton
-                        text={t("Save")}
-                        disabled={!photoValue?.trim() || Boolean(errors.photo?.message)}
-                        onClick={handleSubmit(onSubmit)}
-                    />
+                    <button
+                        type="button"
+                        onClick={handleUpload}
+                        disabled={uploading || !selectedFile}
+                        className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
+                    >
+                        {uploading ? t('PhotoUploading') : t('Save')}
+                    </button>
                 </div>
             </div>
         </div>
