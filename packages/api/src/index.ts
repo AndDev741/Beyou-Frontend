@@ -62,3 +62,4 @@ export * from './ai/sortDraft';
 // User
 export { default as editUser } from './user/editUser';
 export { default as getProfile } from './user/getProfile';
+export { default as uploadUserPhoto } from './user/uploadUserPhoto';
