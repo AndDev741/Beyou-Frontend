@@ -64,7 +64,7 @@ function Modal({ isOpen, onClose, children, className, dataTutorialId, labelledB
 
     const content = (
         <div
-            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-[110]"
             onClick={onClose}
         >
             <div

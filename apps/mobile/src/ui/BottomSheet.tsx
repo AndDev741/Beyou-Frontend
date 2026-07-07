@@ -1,5 +1,5 @@
 import { useContext, type ReactNode } from 'react';
-import { Modal, View, Pressable } from 'react-native';
+import { Modal, View, Pressable, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -34,12 +34,20 @@ export default function BottomSheet({
   if (!visible) return null;
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/40" onPress={dismissable ? onClose : undefined} accessibilityLabel={t(closeLabel)} />
-      <View
-        className={`absolute bottom-0 left-0 right-0 ${maxHeight} rounded-t-2xl bg-background px-4 pt-4`}
-        style={{ paddingBottom: (insets?.bottom ?? 0) + 16 }}
-      >
-        {children}
+      <View style={{ flex: 1 }}>
+        <Pressable
+          className="flex-1 bg-black/40"
+          onPress={dismissable ? onClose : undefined}
+          accessibilityLabel={t(closeLabel)}
+        />
+        <KeyboardAvoidingView behavior="padding">
+          <View
+            className={`${maxHeight} rounded-t-2xl bg-background px-4 pt-4`}
+            style={{ paddingBottom: (insets?.bottom ?? 0) + 16 }}
+          >
+            {children}
+          </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );

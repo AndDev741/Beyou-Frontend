@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.beyou.mobile",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "backgroundColor": "#0082E1",
         "foregroundImage": "./assets/android-icon-foreground.png",
