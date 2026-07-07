@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import i18next from 'i18next';
 import refreshTokenRequest from './authentication/request/refreshTokenRequest';
 
 // Backend serves all endpoints under /api/v1 (see Beyou-backend-spring application.yaml).
@@ -37,6 +39,11 @@ instance.interceptors.response.use(
         }
 
         if (originalRequest.url.includes("/auth/refresh") || originalRequest.url.includes("/auth/login") || originalRequest.url.includes("/auth/google")) { //Refresh auth trow 401 too, so we need toi escape here
+            return Promise.reject(error);
+        }
+
+        if (error.response.status === 429) {
+            toast.error(i18next.t('RATE_LIMIT_EXCEEDED'));
             return Promise.reject(error);
         }
 

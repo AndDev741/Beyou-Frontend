@@ -1,5 +1,7 @@
 import type { HttpClient, HttpResponse, RequestConfig } from '@beyou/api';
 import { ApiError } from '@beyou/api';
+import i18next from 'i18next';
+import { notify } from '../notify';
 
 let baseUrl = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8099/api/v1';
 let accessToken: string | null = null;
@@ -85,6 +87,10 @@ async function request<T>(method: string, path: string, body?: unknown, config?:
     if (refreshed) return request<T>(method, path, body, config, true);
     onUnauthenticatedCb?.();
     throw new ApiError(401, data, 'Unauthorized');
+  }
+  if (res.status === 429) {
+    notify.error(i18next.t('RATE_LIMIT_EXCEEDED'));
+    throw new ApiError(res.status, data, `HTTP ${res.status}`);
   }
   if (!res.ok) {
     throw new ApiError(res.status, data, `HTTP ${res.status}`);
