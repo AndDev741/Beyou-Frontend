@@ -265,3 +265,101 @@ vs "create an awesome life"); its button calls `completeTutorial`.
 `Tutorial`) on the configuration screen. Its Replay button dispatches `setPhase('intro')` +
 `tutorialCompletedEnter(false)` + `saveTutorialPhase('intro')` + `editUser({ isTutorialCompleted: false })`,
 then `router.replace('/')` so the intro starts on the dashboard.
+
+## Offline (Phase 1 — read cache + Phase 2 — writes, outbox, sync)
+
+All offline logic lives under `src/offline/` and the shared platform-neutral `@beyou/offline`
+package (`packages/offline`). The design is network-first with offline fallback: online paths are
+byte-identical to pre-offline code; offline mutations apply optimistically (Redux + SQLite mirror)
+and queue a replay op in an outbox table.
+
+### Shared package (`@beyou/offline` — `packages/offline/src/`)
+
+- **`driver.ts`** — `SqlDriver` interface (execAsync/runAsync/getAllAsync/getFirstAsync/
+  withTransactionAsync), exactly shaped like the expo-sqlite async API.
+- **`schema.ts`** — `CACHE_TABLES` (categories/habits/tasks/goals/routines) + `kv` + `outbox`
+  table; `migrate(db)` via `PRAGMA user_version` (v1=Phase-1 mirror, v2=outbox).
+- **`cache.ts`** — `readCollection<T>(table)`, `writeCollection<T extends {id?}>(table, rows)`
+  (replace-all, the pull path), `readKV<T>(key)`, `writeKV(key,value)`, `clearAll` (purging),
+  `upsertRow(table,row)` / `deleteRow(table,id)` (optimistic single-row writes).
+- **`swr.ts`** — `cachedList<T>({db,table,fetch,onRows,shouldWrite?})` stale-while-revalidate:
+  emits cached rows instantly, fetches, persists best-effort; corrupt-row-safe, non-throwing.
+- **`outbox.ts`** — `enqueueOp/peekOps/deleteOp/bumpAttempt/countOps` FIFO queue
+  (AUTOINCREMENT + ORDER BY id ASC); `OutboxOp {id,opType,payload,entityId,createdAt,attempts,lastError}`.
+- **`syncEngine.ts`** — `createSyncEngine({db,handlers,onCountChange?,onFlushEnd?})`: FIFO
+  drain through INJECTED handlers; transient failure stops the flush (preserves order);
+  `MAX_OP_ATTEMPTS=5` then drops; unknown-opType drops immediately; single-flight concurrent flush.
+- **`date.ts`** — `localDateKey(d)` — Hermes-safe `YYYY-MM-DD` formatter.
+- Package is platform-neutral (no expo/react-native/axios/@beyou/api imports);
+  tests via vitest against real in-memory `better-sqlite3` (devDependency).
+
+### Mobile wiring (`apps/mobile/src/offline/`)
+
+- **`db.ts`** — expo-sqlite pass-through `SqlDriver` adapter; `getDb()` lazy retryable singleton
+  (WAL, migrate-once); `clearOfflineCache()` (purges everything + bumps `cacheGeneration` to drop
+  in-flight write-throughs — closes the logout race); `getCacheGeneration()`.
+- **`connectivitySlice.ts`** — Redux state `{isOnline, bannerDismissed, pendingOps}` under store
+  key `connectivity`. EPISODE SEMANTICS: `setOnline(false)` from a previously online (or null)
+  state resets `bannerDismissed=false` — the banner reappears on every NEW offline episode;
+  `dismissBanner()` hides for the current episode only; repeated offline reports are no-ops.
+- **`ConnectivitySync.tsx`** — feeds the slice from `expo-network` (`getNetworkStateAsync` +
+  `addNetworkStateListener`); fires `onOnline()` on each `false→true` transition. Mounted in root
+  `app/_layout.tsx` beside `ThemeSync`/`ViewFiltersSync`.
+- **`mutations.ts`** — `setOfflineStore(store)`, `getOfflineStore()`, `setSyncEngine(engine)`,
+  `getSyncEngine()`, `isOffline()` (fail-open: unconfigured store counts as ONLINE — guards
+  against a half-wired boot), `queueMutation(opts)` (optimistic mirror write + enqueue).
+- **`ops/habitOps | categoryOps | taskOps | goalOps | routineOps | checkinOps.ts`** — one
+  module per domain. Structure: network-first (`isOffline()?` → api delegate); offline path:
+  uuid-based client id (crypto.getRandomValues polyfilled at boot) → optimistic Redux dispatch
+  (bulk `enter*` or per-item `updateGoal`/`refreshItemGroup`) → `upsertRow`/`deleteRow` mirror
+  → `queueMutation` with the **exact registry payload** from the plan. Returns `{success,
+  queued:true}` on offline, `{error?,validation?,validation?}` online.
+- **`syncSetup.ts`** — `initOfflineSync(store)` (idempotent; wires DB + engine + handlers +
+  AppState listener; flushes at end-of-init if authenticated); `flushOutbox()` (safe no-op when
+  engine absent; try/catch contained); `buildHandlers(store)` (22 opType handlers — exported for
+  test isolation). Handlers call the api fns with payload fields in exact positional order + pass
+  `payload.id` as the create trailing `id` param. Goal complete / routine check/skip pipe
+  `res.success` through the shared `applyRefreshUi` (XP NEVER computed locally). Engine callbacks:
+  `onCountChange→dispatch setPendingOps`, `onFlushEnd→notify` success/failure toast.
+
+### Operation registry (source of truth — plan §op-type-registry)
+
+Every mutation routes through an opType string (e.g. `habit.create`, `goal.complete`,
+`routine.check`) whose payload shape and handler position are defined in the Phase 2 plan
+`docs/superpowers/plans/2026-07-05-offline-writes-phase2.md` § "Op type registry".
+
+### Ceilings (documented, not bugs)
+
+- **Check/skip replay is a server-side toggle** — a response lost after server commit + retry
+  can double-toggle (source: `// ponytail:` in `checkinOps.ts`). Op idempotency keys are Phase 3
+  (backend item).
+- **Offline-created routines can't be checked until their first sync** — the `todayRoutine` is
+  server-generated, and the builder-assigned temp group ids never leave the device (source:
+  `// ponytail:` in `routineOps.ts`).
+- **Offline schedule create → immediate edit of that same schedule unsupported v1** — the
+  schedule has no client id; the edit relies on the server-known schedule id (source:
+  `// ponytail:` in `routineOps.ts`).
+
+### Test strategy
+
+- **jest:** `expo-sqlite` and `expo-network` stubs in `jest.setup.js` make the cache INERT and
+  the network ONLINE by default — every pre-existing screen/form test exercises the unchanged
+  online paths. Unit tests for ops (`*Ops.test.ts`) and the sync setup
+  (`syncSetup.test.ts`) explicitly configure `setOfflineStore(makeStore())` +
+  a recorder `setSyncEngine` and flip `setOnline(false)` to test offline branches.
+- **vitest:** `packages/offline` is tested against real in-memory `better-sqlite3` — schema
+  migration idempotency, cache round-trips, outbox FIFO ordering, sync engine drain semantics,
+  all covered.
+- **`npx expo export --platform android`** is a required gate whenever a new native module is
+  added or when `@beyou/offline`/mobile-offline imports change — it validates the production
+  bundle end-to-end.
+
+### Backend contract (Beyou-backend-spring `feat/offline-sync-support`)
+
+- Create endpoints accept an optional `"id": "<uuid>"` in the request body; when present the
+  persisted entity keeps that id (making replay idempotent — same-id create is a no-op, not a
+  duplicate). Cross-user id injection is rejected (`*_NOT_OWNED` BusinessException).
+- `POST /routine/check` honors `date` in the request body (`CheckItemService` now mirrors the
+  skip path: `dto.date() != null ? dto.date() : LocalDate.now()`). Constance/XP flags are already
+  date-keyed — no cross-contamination between a backdated replay and today's completion markers.
+- All id columns are plain `uuid NOT NULL` with no DB default — no Flyway migration needed.
