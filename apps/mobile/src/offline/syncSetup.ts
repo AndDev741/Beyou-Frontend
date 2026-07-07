@@ -21,6 +21,7 @@ import deleteGoal from '@beyou/api/goals/deleteGoal';
 import increaseCurrentValue from '@beyou/api/goals/increaseCurrentValue';
 import decreaseCurrentValue from '@beyou/api/goals/decreaseCurrentValue';
 import markGoalAsComplete from '@beyou/api/goals/markGoalAsComplete';
+import { updateGoal } from '@beyou/state/goal/goalsSlice';
 import createRoutine from '@beyou/api/routine/createRoutine';
 import editRoutine from '@beyou/api/routine/editRoutine';
 import deleteRoutine from '@beyou/api/routine/deleteRoutine';
@@ -169,7 +170,8 @@ export function buildHandlers(store: AppStore): Record<string, OpHandler> {
     'goal.increase': async (payload) => {
       const p = payload as IdPayload;
       try {
-        await increaseCurrentValue(p.id, t);
+        const returned = await increaseCurrentValue(p.id, t);
+        store.dispatch(updateGoal(returned));
         return { ok: true };
       } catch (e) {
         return { ok: false, error: errorToString(e) };
@@ -178,7 +180,8 @@ export function buildHandlers(store: AppStore): Record<string, OpHandler> {
     'goal.decrease': async (payload) => {
       const p = payload as IdPayload;
       try {
-        await decreaseCurrentValue(p.id, t);
+        const returned = await decreaseCurrentValue(p.id, t);
+        store.dispatch(updateGoal(returned));
         return { ok: true };
       } catch (e) {
         return { ok: false, error: errorToString(e) };
@@ -188,7 +191,9 @@ export function buildHandlers(store: AppStore): Record<string, OpHandler> {
       const p = payload as IdPayload;
       const res = await markGoalAsComplete(p.id, t);
       if (res.error) return { ok: false, error: errorToString(res.error) };
-      applyRefreshUi(res.success, store.dispatch, previous());
+      if (res.success) {
+        applyRefreshUi(res.success, store.dispatch, previous());
+      }
       return { ok: true };
     },
 
@@ -255,6 +260,7 @@ export async function initOfflineSync(store: AppStore): Promise<void> {
       },
     });
     setSyncEngine(engine);
+    // Listener lives for app lifetime (initOfflineSync is called once, same scope as the engine)
     AppState.addEventListener('change', (state) => {
       if (state === 'active') void flushOutbox();
     });

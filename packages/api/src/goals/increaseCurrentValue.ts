@@ -15,7 +15,7 @@ async function increaseCurrentValue(id: string, t: TFunction): Promise<goal> {
     if (e instanceof ApiError) {
       getLogger().error(e);
     }
-    throw new Error(t('UnexpectedError') + e);
+    throw new Error(`${t('UnexpectedError')}: ${e instanceof Error ? e.message : String(e)}`);
   }
 }
 
