@@ -16,6 +16,7 @@ import { enterTasks } from '@beyou/state/task/tasksSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import { store } from '../../store';
+import { notify } from '../../notify';
 import Input from '../Input';
 import Button from '../Button';
 import BottomSheet from '../BottomSheet';
@@ -63,9 +64,9 @@ export default function AiRoutineSheet({ visible, currentName, currentSections, 
       },
       t,
     );
-    if (!gen.success?.draft) { setLoading(false); setError(getFriendlyErrorMessage(t, gen.error)); return; }
+    if (!gen.success?.draft) { setLoading(false); const msg = getFriendlyErrorMessage(t, gen.error); setError(msg); notify.error(msg); return; }
     const mat = await materializeRoutine(sortDraft(gen.success.draft), t);
-    if (!mat.success) { setLoading(false); setError(getFriendlyErrorMessage(t, mat.error)); return; }
+    if (!mat.success) { setLoading(false); const msg = getFriendlyErrorMessage(t, mat.error); setError(msg); notify.error(msg); return; }
     await refreshSlices();
     setLoading(false);
     onApply(mat.success.name, materializeToSections(mat.success));

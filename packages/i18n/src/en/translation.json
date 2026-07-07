@@ -180,6 +180,7 @@
     "AI_GENERATION_FAILED": "The AI service is unavailable right now, try again later",
     "AI_RESPONSE_INVALID": "The AI returned an invalid plan, try generating again",
     "AI_DRAFT_INVALID": "This draft has invalid data, adjust it and try again",
+    "RATE_LIMIT_EXCEEDED": "Too many requests. Please wait a moment and try again.",
     "DescribeRoutineChanges": "Describe what you want to change in this routine",
     "DescribeChangesPlaceholder": "Example: make mornings lighter and add 30 minutes of reading at night",
     "AiRoutineUpdated": "Your routine has been updated!",
