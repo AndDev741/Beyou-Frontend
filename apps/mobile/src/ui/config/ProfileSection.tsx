@@ -43,7 +43,7 @@ function Avatar({ photo, name }: { photo: string; name: string }) {
   );
 }
 
-type ProfileForm = { name: string; photo: string; phrase: string; phrase_author: string };
+type ProfileForm = { name: string; phrase: string; phrase_author: string };
 
 export default function ProfileSection() {
   const { t } = useTranslation();
@@ -60,20 +60,19 @@ export default function ProfileSection() {
   const {
     control,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema(t)),
     defaultValues: {
       name: perfil.username,
-      photo: perfil.photo,
       phrase: perfil.phrase,
       phrase_author: perfil.phrase_author,
     },
   });
 
-  const photo = watch('photo');
+  // Photo is no longer a form field — it's managed by the upload flow. Read it
+  // straight from Redux so it updates after a successful upload (photoEnter).
+  const photo = perfil.photo;
 
   const onSave = async (data: ProfileForm) => {
     const res = await editUser(data);
