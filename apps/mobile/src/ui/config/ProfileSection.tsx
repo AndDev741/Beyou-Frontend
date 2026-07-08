@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { profileSchema } from '@beyou/validation';
 import editUser from '@beyou/api/user/editUser';
-import uploadUserPhoto from '@beyou/api/user/uploadUserPhoto';
 import getProfile from '@beyou/api/user/getProfile';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import {
@@ -21,6 +20,7 @@ import Input from '../Input';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import { resolvePhotoUrl } from '../../lib/photoUrl';
+import { uploadPhoto } from '../../lib/uploadPhoto';
 import type { RootState, AppDispatch } from '../../store';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -118,13 +118,8 @@ export default function ProfileSection() {
     setPhotoUploading(true);
     setPhotoError(undefined);
 
-    // RN uploads the file natively from its uri via a FormData descriptor
-    // (fetching the uri into a Blob is not supported on React Native).
-    const uploadRes = await uploadUserPhoto({
-      uri: photoAsset.uri,
-      name: photoAsset.fileName ?? 'photo.jpg',
-      type: photoAsset.mimeType ?? 'image/jpeg',
-    });
+    // expo-file-system uploads the picked file natively from its uri.
+    const uploadRes = await uploadPhoto(photoAsset.uri, photoAsset.mimeType);
     if (uploadRes.error) {
       setPhotoError(getFriendlyErrorMessage(t, uploadRes.error));
       setPhotoUploading(false);

@@ -9,6 +9,8 @@ let accessToken: string | null = null;
 // NOTE: accessToken is module-level singleton state. Test files that import this
 // module must reset it in beforeEach (e.g. setAccessToken(null)) to avoid state bleed.
 export function setAccessToken(token: string | null): void { accessToken = token; }
+export function getAccessToken(): string | null { return accessToken; }
+export function getApiBaseUrl(): string { return baseUrl; }
 export function __setBaseUrl(url: string): void { baseUrl = url; } // test seam
 
 type RefreshHandler = () => Promise<boolean>; // resolves true if a new access token is now set
