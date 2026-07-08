@@ -5,7 +5,7 @@ import { RootState } from "@beyou/state/rootReducer";
 import { useEffect, useState, useRef } from "react";
 import { EditUser } from "@beyou/types/user/EditUser";
 import editUser from "@beyou/api/user/editUser";
-import { nameEnter, phraseAuthorEnter, phraseEnter, photoEnter } from "@beyou/state/user/perfilSlice";
+import { nameEnter, phraseAuthorEnter, phraseEnter } from "@beyou/state/user/perfilSlice";
 import SmallButton from "../SmallButton";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -282,16 +282,11 @@ function EditPhoto({
             return;
         }
 
-        // Re-fetch profile to get updated photo URL
+        // Re-fetch profile — the served photo URL is versioned by the backend
+        // (?v=<file-mtime>), so hydrate alone busts the image cache on change.
         const profileRes = await getProfile();
         if (profileRes.data) {
             dispatch(hydratePerfil(profileRes.data));
-            // The served photo URL is stable across uploads (same userId), so the
-            // browser would keep the cached image. Bust it with a version query.
-            const photoUrl = profileRes.data.photo;
-            if (photoUrl && photoUrl.startsWith('/')) {
-                dispatch(photoEnter(`${photoUrl}?v=${Date.now()}`));
-            }
         }
 
         setUploading(false);

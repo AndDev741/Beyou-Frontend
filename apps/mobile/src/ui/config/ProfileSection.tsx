@@ -11,7 +11,6 @@ import getProfile from '@beyou/api/user/getProfile';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import {
   nameEnter,
-  photoEnter,
   phraseEnter,
   phraseAuthorEnter,
   hydratePerfil,
@@ -78,7 +77,6 @@ export default function ProfileSection() {
     const res = await editUser(data);
     if (res.data) {
       dispatch(nameEnter(data.name));
-      dispatch(photoEnter(data.photo ?? ''));
       dispatch(phraseEnter(data.phrase ?? ''));
       dispatch(phraseAuthorEnter(data.phrase_author ?? ''));
       notify.success(t('SuccessEditProfile'));
@@ -125,16 +123,11 @@ export default function ProfileSection() {
       return;
     }
 
-    // Re-fetch profile to get updated photo URL
+    // Re-fetch profile — the served photo URL is versioned by the backend
+    // (?v=<file-mtime>), so hydrate alone busts the image cache on change.
     const profileRes = await getProfile();
     if (profileRes.data) {
       dispatch(hydratePerfil(profileRes.data));
-      // The served photo URL is stable across uploads (same userId), so the
-      // image cache would keep the old photo. Bust it with a version query.
-      const photoUrl = profileRes.data.photo;
-      if (photoUrl && photoUrl.startsWith('/')) {
-        dispatch(photoEnter(`${photoUrl}?v=${Date.now()}`));
-      }
     }
 
     setPhotoUploading(false);
