@@ -118,11 +118,13 @@ export default function ProfileSection() {
     setPhotoUploading(true);
     setPhotoError(undefined);
 
-    // Build a Blob from the picked image URI
-    const response = await fetch(photoAsset.uri);
-    const blob = await response.blob();
-
-    const uploadRes = await uploadUserPhoto(blob);
+    // RN uploads the file natively from its uri via a FormData descriptor
+    // (fetching the uri into a Blob is not supported on React Native).
+    const uploadRes = await uploadUserPhoto({
+      uri: photoAsset.uri,
+      name: photoAsset.fileName ?? 'photo.jpg',
+      type: photoAsset.mimeType ?? 'image/jpeg',
+    });
     if (uploadRes.error) {
       setPhotoError(getFriendlyErrorMessage(t, uploadRes.error));
       setPhotoUploading(false);

@@ -7,10 +7,16 @@ type UploadPhotoResponse = {
     error?: ApiErrorPayload;
 };
 
-export default async function uploadUserPhoto(file: File | Blob): Promise<UploadPhotoResponse> {
+// Web passes a File/Blob; React Native passes a { uri, name, type } descriptor
+// (RN's FormData uploads the file natively from the uri — Blobs from a fetched
+// uri are not supported there).
+export type UploadablePhoto = File | Blob | { uri: string; name: string; type: string };
+
+export default async function uploadUserPhoto(file: UploadablePhoto): Promise<UploadPhotoResponse> {
     try {
         const formData = new FormData();
-        formData.append('file', file);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- RN FormData accepts the descriptor object
+        formData.append('file', file as any);
         await getHttpClient().post('/user/photo', formData);
         return { success: true };
     } catch (e) {
