@@ -133,6 +133,12 @@ export default function ProfileSection() {
     const profileRes = await getProfile();
     if (profileRes.data) {
       dispatch(hydratePerfil(profileRes.data));
+      // The served photo URL is stable across uploads (same userId), so the
+      // image cache would keep the old photo. Bust it with a version query.
+      const photoUrl = profileRes.data.photo;
+      if (photoUrl && photoUrl.startsWith('/')) {
+        dispatch(photoEnter(`${photoUrl}?v=${Date.now()}`));
+      }
     }
 
     setPhotoUploading(false);
