@@ -240,7 +240,7 @@ export default function ProfileSection() {
                 className="rounded-lg bg-primary px-4 py-2 active:opacity-80"
               >
                 <Text className="font-medium text-white">
-                  {photoAsset ? photoAsset.fileName ?? t('PhotoSelected') : t('ChooseFile')}
+                  {photoAsset ? t('PhotoSelected') : t('ChooseFile')}
                 </Text>
               </Pressable>
 
