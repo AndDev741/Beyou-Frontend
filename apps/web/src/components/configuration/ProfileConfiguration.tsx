@@ -15,6 +15,7 @@ import { profileSchema } from "@beyou/validation/forms/profileSchemas";
 import uploadUserPhoto from "@beyou/api/user/uploadUserPhoto";
 import getProfile from "@beyou/api/user/getProfile";
 import { hydratePerfil } from "@beyou/state/user/perfilSlice";
+import { resolvePhotoUrl } from "../../services/photoUrl";
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -109,7 +110,7 @@ export default function ProfileConfiguration() {
     };
 
     const hasErrors = Object.values(errors).some(Boolean);
-    const currentPhoto = photo;
+    const currentPhoto = resolvePhotoUrl(photo);
 
     return (
         <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
@@ -320,7 +321,7 @@ function EditPhoto({
                         onClick={() => fileInputRef.current?.click()}
                         className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
                     >
-                        {selectedFile ? selectedFile.name : t('ChooseFile')}
+                        {t('ChooseFile')}
                     </button>
 
                     {error && (

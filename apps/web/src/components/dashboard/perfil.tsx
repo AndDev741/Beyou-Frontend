@@ -6,12 +6,13 @@ import { RootState } from "@beyou/state/rootReducer";
 import { calculateLevelProgress } from "@beyou/state";
 import { getGreetingKey, GreetingKey } from "./getGreetingKey";
 import { ProgressRing } from "../progressRing";
+import { resolvePhotoUrl } from "../../services/photoUrl";
 
 function Avatar({ photo, name, alt }: { photo: string; name: string; alt: string }) {
     if (photo) {
         return (
             <img
-                src={photo}
+                src={resolvePhotoUrl(photo)}
                 alt={alt}
                 aria-label={alt}
                 className="w-14 h-14 rounded-full object-cover border-2 border-primary bg-white/20"

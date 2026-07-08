@@ -20,6 +20,7 @@ import {
 import Input from '../Input';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
+import { resolvePhotoUrl } from '../../lib/photoUrl';
 import type { RootState, AppDispatch } from '../../store';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -27,7 +28,7 @@ const ON_PRIMARY = '#FFFFFF';
 function Avatar({ photo, name }: { photo: string; name: string }) {
   const { theme } = useBeyouTheme();
   if (photo) {
-    return <Image source={{ uri: photo }} className="h-16 w-16 rounded-full border-2 border-primary" />;
+    return <Image source={{ uri: resolvePhotoUrl(photo) }} className="h-16 w-16 rounded-full border-2 border-primary" />;
   }
   const initial = (name.trim()[0] ?? '?').toUpperCase();
   return (
@@ -231,7 +232,7 @@ export default function ProfileSection() {
 
             <View className="items-center gap-4">
               <Image
-                source={{ uri: photoPreview }}
+                source={{ uri: resolvePhotoUrl(photoPreview) }}
                 className="h-32 w-32 rounded-full border-4 border-primary"
               />
 
