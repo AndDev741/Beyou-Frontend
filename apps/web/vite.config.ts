@@ -28,6 +28,14 @@ export default defineConfig({
   // Entity icons now resolve through @beyou/icons + lucide-react/dynamic; the
   // remaining react-icons usages are app "chrome" (nav/header/buttons) and are
   // discovered lazily per page, so they no longer need pre-bundling here.
+  server: {
+    proxy: {
+      '/api/v1': {
+        target: 'http://localhost:8099',
+        changeOrigin: true,
+      },
+    },
+  },
   optimizeDeps: {
     include: [
       'framer-motion',
