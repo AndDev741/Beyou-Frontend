@@ -87,20 +87,3 @@ export const requiredNumberMinMax = (
 
 export const stringDateRequired = (t: TFunction, requiredKey: string) =>
     z.string().min(1, t(requiredKey));
-
-export const stringUrlOptional = (t: TFunction, invalidKey: string, maxKey: string) =>
-    z.string().trim().superRefine((value, ctx) => {
-        if (!value) return;
-        if (value.length > 2048) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: t(maxKey) });
-            return;
-        }
-        try {
-            const url = new URL(value);
-            if (url.protocol !== "http:" && url.protocol !== "https:") {
-                ctx.addIssue({ code: z.ZodIssueCode.custom, message: t(invalidKey) });
-            }
-        } catch (e) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: t(invalidKey) });
-        }
-    });

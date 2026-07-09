@@ -109,7 +109,7 @@ export default function ProfileSection() {
 
   const confirmUpload = async () => {
     if (!photoAsset) {
-      setPhotoError(t('PhotoUploadNoFile'));
+      setPhotoError(t('PHOTO_UPLOAD_NO_FILE'));
       return;
     }
     setPhotoUploading(true);

@@ -68,7 +68,7 @@ test("shows error for invalid file type", () => {
     const invalidFile = new File(["not-an-image"], "test.txt", { type: "text/plain" });
     fireEvent.change(fileInput!, { target: { files: [invalidFile] } });
 
-    expect(screen.getByText("PhotoUploadInvalidType")).toBeInTheDocument();
+    expect(screen.getByText("PHOTO_UPLOAD_INVALID_TYPE")).toBeInTheDocument();
 });
 
 test("closes modal when Cancel is clicked", () => {

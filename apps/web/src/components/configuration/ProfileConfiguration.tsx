@@ -239,17 +239,23 @@ function EditPhoto({
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const objectUrlRef = useRef<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>(currentPhotoUrl);
     const [error, setError] = useState<string>('');
     const [uploading, setUploading] = useState(false);
 
+    // Release the last created object URL when the modal unmounts.
+    useEffect(() => () => {
+        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    }, []);
+
     const validateFile = (file: File): string | null => {
         if (!ALLOWED_TYPES.includes(file.type)) {
-            return t('PhotoUploadInvalidType');
+            return t('PHOTO_UPLOAD_INVALID_TYPE');
         }
         if (file.size > MAX_SIZE) {
-            return t('PhotoUploadTooLarge');
+            return t('PHOTO_UPLOAD_TOO_LARGE');
         }
         return null;
     };
@@ -264,12 +270,16 @@ function EditPhoto({
         }
         setError('');
         setSelectedFile(file);
-        setPreviewUrl(URL.createObjectURL(file));
+        // Revoke the previous preview blob before replacing it.
+        if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+        const url = URL.createObjectURL(file);
+        objectUrlRef.current = url;
+        setPreviewUrl(url);
     };
 
     const handleUpload = async () => {
         if (!selectedFile) {
-            setError(t('PhotoUploadNoFile'));
+            setError(t('PHOTO_UPLOAD_NO_FILE'));
             return;
         }
         setUploading(true);

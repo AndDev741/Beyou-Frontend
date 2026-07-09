@@ -29,6 +29,10 @@ function refreshOnce(): Promise<boolean> {
   return refreshPromise;
 }
 
+// Public single-flight refresh for callers that bypass request() (e.g. the
+// expo-file-system photo upload) but still need the same 401 recovery.
+export function refreshAccessToken(): Promise<boolean> { return refreshOnce(); }
+
 function buildUrl(path: string, params?: RequestConfig['params']): string {
   if (!params) return `${baseUrl}${path}`;
   const qs = new URLSearchParams(
@@ -38,7 +42,7 @@ function buildUrl(path: string, params?: RequestConfig['params']): string {
 }
 
 function buildHeaders(extra?: Record<string, string>): Record<string, string> {
-  const h: Record<string, string> = { 'X-Client': 'mobile', ...extra };
+  const h: Record<string, string> = { 'Content-Type': 'application/json', 'X-Client': 'mobile', ...extra };
   if (accessToken) h['Authorization'] = `Bearer ${accessToken}`;
   return h;
 }
@@ -54,14 +58,10 @@ async function request<T>(method: string, path: string, body?: unknown, config?:
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res: Response;
   try {
-    const headers = buildHeaders(config?.headers);
-    if (!(body instanceof FormData)) {
-      headers['Content-Type'] = 'application/json';
-    }
     res = await fetch(buildUrl(path, config?.params), {
       method,
-      headers,
-      body: body === undefined ? undefined : (body instanceof FormData ? body : JSON.stringify(body)),
+      headers: buildHeaders(config?.headers),
+      body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
   } catch (e) {
