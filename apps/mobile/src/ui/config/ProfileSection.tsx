@@ -1,21 +1,25 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Image, Modal, TextInput } from 'react-native';
+import { View, Text, Pressable, Image, Modal } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import * as ImagePicker from 'expo-image-picker';
 import { profileSchema } from '@beyou/validation';
 import editUser from '@beyou/api/user/editUser';
+import getProfile from '@beyou/api/user/getProfile';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import {
   nameEnter,
-  photoEnter,
   phraseEnter,
   phraseAuthorEnter,
+  hydratePerfil,
 } from '@beyou/state/user/perfilSlice';
 import Input from '../Input';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
+import { resolvePhotoUrl } from '../../lib/photoUrl';
+import { uploadPhoto } from '../../lib/uploadPhoto';
 import type { RootState, AppDispatch } from '../../store';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -23,7 +27,7 @@ const ON_PRIMARY = '#FFFFFF';
 function Avatar({ photo, name }: { photo: string; name: string }) {
   const { theme } = useBeyouTheme();
   if (photo) {
-    return <Image source={{ uri: photo }} className="h-16 w-16 rounded-full border-2 border-primary" />;
+    return <Image source={{ uri: resolvePhotoUrl(photo) }} className="h-16 w-16 rounded-full border-2 border-primary" />;
   }
   const initial = (name.trim()[0] ?? '?').toUpperCase();
   return (
@@ -38,7 +42,7 @@ function Avatar({ photo, name }: { photo: string; name: string }) {
   );
 }
 
-type ProfileForm = { name: string; photo: string; phrase: string; phrase_author: string };
+type ProfileForm = { name: string; phrase: string; phrase_author: string };
 
 export default function ProfileSection() {
   const { t } = useTranslation();
@@ -47,32 +51,32 @@ export default function ProfileSection() {
   const perfil = useSelector((s: RootState) => s.perfil);
 
   const [photoModal, setPhotoModal] = useState(false);
-  const [photoDraft, setPhotoDraft] = useState(perfil.photo);
-  const [photoError, setPhotoError] = useState<string | undefined>();
+  const [photoPreview, setPhotoPreview] = useState(perfil.photo);
+  const [photoAsset, setPhotoAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [photoError, setPhotoError] = useState<string>();
+  const [photoUploading, setPhotoUploading] = useState(false);
 
   const {
     control,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema(t)),
     defaultValues: {
       name: perfil.username,
-      photo: perfil.photo,
       phrase: perfil.phrase,
       phrase_author: perfil.phrase_author,
     },
   });
 
-  const photo = watch('photo');
+  // Photo is no longer a form field — it's managed by the upload flow. Read it
+  // straight from Redux so it updates after a successful upload (photoEnter).
+  const photo = perfil.photo;
 
   const onSave = async (data: ProfileForm) => {
     const res = await editUser(data);
     if (res.data) {
       dispatch(nameEnter(data.name));
-      dispatch(photoEnter(data.photo ?? ''));
       dispatch(phraseEnter(data.phrase ?? ''));
       dispatch(phraseAuthorEnter(data.phrase_author ?? ''));
       notify.success(t('SuccessEditProfile'));
@@ -81,15 +85,55 @@ export default function ProfileSection() {
     }
   };
 
-  const confirmPhoto = () => {
-    const url = photoDraft.trim();
-    if (url && !/^https?:\/\//i.test(url)) {
-      setPhotoError(t('ProfilePhotoUrlInvalid'));
+  const pickPhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      setPhotoError(t('PhotoPermissionDenied'));
       return;
     }
-    setValue('photo', url, { shouldValidate: true });
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      setPhotoAsset(asset);
+      setPhotoPreview(asset.uri);
+      setPhotoError(undefined);
+    }
+  };
+
+  const confirmUpload = async () => {
+    if (!photoAsset) {
+      setPhotoError(t('PHOTO_UPLOAD_NO_FILE'));
+      return;
+    }
+    setPhotoUploading(true);
     setPhotoError(undefined);
+
+    // expo-file-system uploads the picked file natively from its uri.
+    const uploadRes = await uploadPhoto(photoAsset.uri, photoAsset.mimeType);
+    if (uploadRes.error) {
+      setPhotoError(getFriendlyErrorMessage(t, uploadRes.error));
+      setPhotoUploading(false);
+      return;
+    }
+
+    // Re-fetch profile — the served photo URL is versioned by the backend
+    // (?v=<file-mtime>), so hydrate alone busts the image cache on change.
+    const profileRes = await getProfile();
+    if (profileRes.data) {
+      dispatch(hydratePerfil(profileRes.data));
+    }
+
+    setPhotoUploading(false);
     setPhotoModal(false);
+    setPhotoAsset(null);
+    notify.success(t('SuccessEditProfile'));
   };
 
   return (
@@ -98,7 +142,8 @@ export default function ProfileSection() {
         <Avatar photo={photo} name={perfil.username} />
         <Pressable
           onPress={() => {
-            setPhotoDraft(photo);
+            setPhotoPreview(photo);
+            setPhotoAsset(null);
             setPhotoError(undefined);
             setPhotoModal(true);
           }}
@@ -175,31 +220,51 @@ export default function ProfileSection() {
         </Text>
       </Pressable>
 
-      <Modal visible={photoModal} transparent animationType="fade" onRequestClose={() => setPhotoModal(false)}>
-        <View className="flex-1 items-center justify-center bg-black/50 px-6">
-          <View className="w-full rounded-2xl border-2 border-primary bg-background p-5" testID="photo-modal">
-            <Text className="text-secondary mb-3 text-lg font-bold">{t('ChangeProfilePhoto')}</Text>
-            {photoDraft ? (
-              <Image source={{ uri: photoDraft }} className="mb-3 h-20 w-20 self-center rounded-full border border-primary" />
-            ) : null}
-            <TextInput
-              value={photoDraft}
-              onChangeText={setPhotoDraft}
-              placeholder={t('EnterPhotoURL')}
-              placeholderTextColor={theme.placeholder}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="url"
-              testID="photo-url-input"
-              className="border-2 border-primary rounded-md px-3 py-2 text-secondary"
-            />
-            {photoError ? <Text className="text-error mt-1 text-sm">{photoError}</Text> : null}
-            <View className="mt-4 flex-row justify-end gap-3">
-              <Pressable onPress={() => setPhotoModal(false)} accessibilityRole="button" className="px-4 py-2">
-                <Text className="text-description font-semibold">{t('Cancel')}</Text>
+      <Modal visible={photoModal} transparent animationType="fade">
+        <View className="flex-1 items-center justify-center bg-black/50 px-4">
+          <View className="w-full max-w-sm rounded-2xl bg-background p-6 shadow-2xl" testID="photo-modal">
+            <Text className="mb-4 text-lg font-semibold text-secondary">{t('ChangePhoto')}</Text>
+
+            <View className="items-center gap-4">
+              <Image
+                source={{ uri: resolvePhotoUrl(photoPreview) }}
+                className="h-32 w-32 rounded-full border-4 border-primary"
+              />
+
+              <Pressable
+                onPress={pickPhoto}
+                className="rounded-lg bg-primary px-4 py-2 active:opacity-80"
+              >
+                <Text className="font-medium text-white">
+                  {photoAsset ? t('PhotoSelected') : t('ChooseFile')}
+                </Text>
               </Pressable>
-              <Pressable onPress={confirmPhoto} accessibilityRole="button" testID="photo-save" className="rounded-md bg-primary px-4 py-2">
-                <Text style={{ color: ON_PRIMARY }} className="font-semibold">{t('Save')}</Text>
+
+              {photoError && (
+                <Text className="text-center text-sm text-error">{photoError}</Text>
+              )}
+            </View>
+
+            <View className="mt-6 flex-row justify-end gap-3">
+              <Pressable
+                onPress={() => {
+                  setPhotoModal(false);
+                  setPhotoAsset(null);
+                  setPhotoError(undefined);
+                  setPhotoPreview(photo);
+                }}
+                className="rounded-lg px-4 py-2 active:opacity-80"
+              >
+                <Text className="text-secondary">{t('Cancel')}</Text>
+              </Pressable>
+              <Pressable
+                onPress={confirmUpload}
+                disabled={photoUploading || !photoAsset}
+                className="rounded-lg bg-primary px-4 py-2 active:opacity-80 disabled:opacity-50"
+              >
+                <Text className="font-medium text-white">
+                  {photoUploading ? t('PhotoUploading') : t('Save')}
+                </Text>
               </Pressable>
             </View>
           </View>

@@ -7,13 +7,14 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useTutorialTarget } from '../../tutorial/useTutorialTarget';
 import ProgressRing from './ProgressRing';
 import type { RootState } from '../../store';
+import { resolvePhotoUrl } from '../../lib/photoUrl';
 
 function Avatar({ photo, name }: { photo: string; name: string }) {
   const { theme } = useBeyouTheme();
   if (photo) {
     return (
       <Image
-        source={{ uri: photo }}
+        source={{ uri: resolvePhotoUrl(photo) }}
         accessibilityRole="image"
         className="h-16 w-16 rounded-full border-2 border-primary"
       />
