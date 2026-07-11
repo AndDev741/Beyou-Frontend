@@ -10,10 +10,11 @@ import { Text, View, Linking } from 'react-native';
 type Segment =
   | { kind: 'plain'; text: string }
   | { kind: 'bold'; text: string }
+  | { kind: 'italic'; text: string }
   | { kind: 'code'; text: string }
   | { kind: 'link'; text: string; href: string };
 
-const INLINE = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\((https?:\/\/[^)]+)\))/g;
+const INLINE = /(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`|\[[^\]]+\]\((https?:\/\/[^)]+)\))/g;
 const LINK = /^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/;
 
 export function parseInline(text: string): Segment[] {
@@ -25,6 +26,8 @@ export function parseInline(text: string): Segment[] {
     const token = match[0];
     if (token.startsWith('**')) {
       segments.push({ kind: 'bold', text: token.slice(2, -2) });
+    } else if (token.startsWith('*')) {
+      segments.push({ kind: 'italic', text: token.slice(1, -1) });
     } else if (token.startsWith('`')) {
       segments.push({ kind: 'code', text: token.slice(1, -1) });
     } else {
@@ -37,9 +40,11 @@ export function parseInline(text: string): Segment[] {
   return segments;
 }
 
+export type ListItem = { text: string; number?: number };
+
 type Block =
   | { kind: 'paragraph'; text: string }
-  | { kind: 'list'; ordered: boolean; items: string[] }
+  | { kind: 'list'; ordered: boolean; items: ListItem[] }
   | { kind: 'table'; header: string[]; rows: string[][] };
 
 const TABLE_ROW = /^\s*\|(.+)\|\s*$/;
@@ -51,7 +56,7 @@ function splitCells(line: string): string[] {
 
 export function parseBlocks(text: string): Block[] {
   const blocks: Block[] = [];
-  let list: { ordered: boolean; items: string[] } | null = null;
+  let list: { ordered: boolean; items: ListItem[] } | null = null;
   let table: { header: string[]; rows: string[][] } | null = null;
   let paragraph: string[] = [];
 
@@ -71,7 +76,7 @@ export function parseBlocks(text: string): Block[] {
   for (const raw of text.split('\n')) {
     const line = raw.trimEnd();
     const bullet = /^\s*[-*]\s+(.*)$/.exec(line);
-    const numbered = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+    const numbered = /^\s*(\d+)[.)]\s+(.*)$/.exec(line);
     if (TABLE_ROW.test(line)) {
       flushParagraph();
       flushList();
@@ -86,13 +91,19 @@ export function parseBlocks(text: string): Block[] {
         flushList();
         list = { ordered, items: [] };
       }
-      list.items.push((bullet ?? numbered)![1]);
+      // Keep the source number: a wrapped/split list must not restart at 1.
+      if (numbered) list.items.push({ text: numbered[2], number: Number(numbered[1]) });
+      else list.items.push({ text: bullet![1] });
     } else if (line.trim() === '') {
       flushParagraph();
       flushList();
       flushTable();
+    } else if (list) {
+      // Lazy continuation (markdown semantics): a plain line right after a
+      // list item is the same item wrapped, not a new paragraph — otherwise
+      // the list splits and the numbering visually breaks.
+      list.items[list.items.length - 1].text += ` ${line.trim()}`;
     } else {
-      flushList();
       flushTable();
       // Strip heading/blockquote markers the prompt forbids anyway.
       paragraph.push(line.replace(/^#{1,6}\s+|^>\s+/, ''));
@@ -111,6 +122,12 @@ function InlineText({ text, small = false }: { text: string; small?: boolean }) 
         if (segment.kind === 'bold')
           return (
             <Text key={i} className="font-semibold">
+              {segment.text}
+            </Text>
+          );
+        if (segment.kind === 'italic')
+          return (
+            <Text key={i} className="italic">
               {segment.text}
             </Text>
           );
@@ -180,11 +197,11 @@ export default function AgentMarkdown({ text }: { text: string }) {
           <View key={i} className="gap-1">
             {block.items.map((item, j) => (
               <View key={j} className="flex-row">
-                <Text className="w-5 text-[15px] leading-[22px] text-description">
-                  {block.ordered ? `${j + 1}.` : '•'}
+                <Text className="min-w-[22px] pr-1 text-[15px] leading-[22px] text-description">
+                  {block.ordered ? `${item.number ?? j + 1}.` : '•'}
                 </Text>
                 <View className="flex-1">
-                  <InlineText text={item} />
+                  <InlineText text={item.text} />
                 </View>
               </View>
             ))}

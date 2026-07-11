@@ -14,6 +14,14 @@ describe('parseInline', () => {
     ]);
   });
 
+  it('parses italics without leaking asterisks', () => {
+    expect(parseInline('done *(nível 5!)* ok')).toEqual([
+      { kind: 'plain', text: 'done ' },
+      { kind: 'italic', text: '(nível 5!)' },
+      { kind: 'plain', text: ' ok' },
+    ]);
+  });
+
   it('parses http links and ignores non-http schemes', () => {
     expect(parseInline('[site](https://a.com)')).toEqual([
       { kind: 'link', text: 'site', href: 'https://a.com' },
@@ -28,7 +36,7 @@ describe('parseBlocks', () => {
   it('groups bullets into a list and separates paragraphs', () => {
     expect(parseBlocks('intro\n\n- one\n- two\n\noutro')).toEqual([
       { kind: 'paragraph', text: 'intro' },
-      { kind: 'list', ordered: false, items: ['one', 'two'] },
+      { kind: 'list', ordered: false, items: [{ text: 'one' }, { text: 'two' }] },
       { kind: 'paragraph', text: 'outro' },
     ]);
   });
@@ -36,7 +44,27 @@ describe('parseBlocks', () => {
   it('parses ordered lists and strips heading markers', () => {
     expect(parseBlocks('# Title\n1. a\n2. b')).toEqual([
       { kind: 'paragraph', text: 'Title' },
-      { kind: 'list', ordered: true, items: ['a', 'b'] },
+      { kind: 'list', ordered: true, items: [{ text: 'a', number: 1 }, { text: 'b', number: 2 }] },
+    ]);
+  });
+
+  it('keeps the source numbering instead of restarting at 1', () => {
+    const blocks = parseBlocks('7. seventh\n8. eighth');
+    expect(blocks).toEqual([
+      { kind: 'list', ordered: true, items: [{ text: 'seventh', number: 7 }, { text: 'eighth', number: 8 }] },
+    ]);
+  });
+
+  it('treats a wrapped line as continuation of the previous list item', () => {
+    expect(parseBlocks('1. Preparar marmita\n(nível 5!)\n2. Meditar')).toEqual([
+      {
+        kind: 'list',
+        ordered: true,
+        items: [
+          { text: 'Preparar marmita (nível 5!)', number: 1 },
+          { text: 'Meditar', number: 2 },
+        ],
+      },
     ]);
   });
 
