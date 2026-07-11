@@ -1,4 +1,4 @@
-import { Text, View, Linking, ScrollView } from 'react-native';
+import { Text, View, Linking } from 'react-native';
 
 /**
  * Minimal markdown renderer for agent replies. The system prompt restricts
@@ -104,9 +104,9 @@ export function parseBlocks(text: string): Block[] {
   return blocks;
 }
 
-function InlineText({ text }: { text: string }) {
+function InlineText({ text, small = false }: { text: string; small?: boolean }) {
   return (
-    <Text className="text-[15px] leading-[22px] text-secondary">
+    <Text className={small ? 'text-[13px] leading-[19px] text-secondary' : 'text-[15px] leading-[22px] text-secondary'}>
       {parseInline(text).map((segment, i) => {
         if (segment.kind === 'bold')
           return (
@@ -136,28 +136,37 @@ function InlineText({ text }: { text: string }) {
   );
 }
 
+/**
+ * Plain-View table: no nested horizontal ScrollView — inside the thread's
+ * vertical ScrollView it inflates without an explicit height (RN quirk).
+ * Cells flex evenly and wrap their text; cell content goes through the
+ * inline parser so **bold** etc. render instead of showing markers.
+ */
 function TableBlock({ header, rows }: { header: string[]; rows: string[][] }) {
+  const cellClass = (col: number) => `flex-1 px-2 py-1.5 ${col > 0 ? 'border-l border-primary/15' : ''}`;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <View className="rounded-lg border border-primary/15">
-        <View className="flex-row bg-primary/10">
-          {header.map((cell, i) => (
-            <View key={i} className="min-w-[90px] flex-1 border-r border-primary/15 px-2 py-1.5 last:border-r-0">
-              <Text className="text-[13px] font-semibold text-secondary">{cell}</Text>
-            </View>
-          ))}
-        </View>
-        {rows.map((row, r) => (
-          <View key={r} className="flex-row border-t border-primary/15">
-            {header.map((_, c) => (
-              <View key={c} className="min-w-[90px] flex-1 border-r border-primary/15 px-2 py-1.5 last:border-r-0">
-                <Text className="text-[13px] leading-[19px] text-secondary">{row[c] ?? ''}</Text>
-              </View>
-            ))}
+    <View className="overflow-hidden rounded-lg border border-primary/15">
+      <View className="flex-row bg-primary/10">
+        {header.map((cell, i) => (
+          <View key={i} className={cellClass(i)}>
+            <Text className="text-[13px] font-semibold text-secondary">
+              {parseInline(cell).map((s, j) => (
+                <Text key={j}>{s.text}</Text>
+              ))}
+            </Text>
           </View>
         ))}
       </View>
-    </ScrollView>
+      {rows.map((row, r) => (
+        <View key={r} className="flex-row border-t border-primary/15">
+          {header.map((_, c) => (
+            <View key={c} className={cellClass(c)}>
+              <InlineText text={row[c] ?? ''} small />
+            </View>
+          ))}
+        </View>
+      ))}
+    </View>
   );
 }
 

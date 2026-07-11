@@ -80,4 +80,14 @@ describe('AgentMarkdown', () => {
     expect(getByText('Read')).toBeTruthy();
     expect(getByText('3')).toBeTruthy();
   });
+
+  it('parses inline markdown inside table cells instead of showing markers', async () => {
+    const { getByText, queryByText } = await render(
+      <BeyouThemeProvider>
+        <AgentMarkdown text={'| Categoria | Nível |\n|---|---|\n| **Saúde Física** | 2 |'} />
+      </BeyouThemeProvider>,
+    );
+    expect(getByText('Saúde Física')).toBeTruthy();
+    expect(queryByText('**Saúde Física**')).toBeNull();
+  });
 });
