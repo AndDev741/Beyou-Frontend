@@ -4,7 +4,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -64,8 +63,12 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
 
   return (
     <Modal visible transparent={false} animationType="slide" onRequestClose={onClose}>
+      {/* behavior="padding" on BOTH platforms: the app's android
+          softwareKeyboardLayoutMode is "pan", which doesn't apply inside a
+          Modal (separate window) — without the padding the keyboard covers
+          the composer. */}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
         className="flex-1 bg-background"
         style={{ paddingTop: insets?.top ?? 0, paddingBottom: insets?.bottom ?? 0 }}
       >

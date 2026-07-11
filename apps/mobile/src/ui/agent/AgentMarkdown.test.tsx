@@ -39,6 +39,24 @@ describe('parseBlocks', () => {
       { kind: 'list', ordered: true, items: ['a', 'b'] },
     ]);
   });
+
+  it('parses a GFM table with separator row', () => {
+    expect(parseBlocks('| Habit | Level |\n|---|---|\n| Read | 3 |\n| Gym | 1 |')).toEqual([
+      {
+        kind: 'table',
+        header: ['Habit', 'Level'],
+        rows: [
+          ['Read', '3'],
+          ['Gym', '1'],
+        ],
+      },
+    ]);
+  });
+
+  it('separates tables from surrounding paragraphs', () => {
+    const blocks = parseBlocks('Your habits:\n| A | B |\n|---|---|\n| 1 | 2 |\nDone!');
+    expect(blocks.map((b) => b.kind)).toEqual(['paragraph', 'table', 'paragraph']);
+  });
 });
 
 describe('AgentMarkdown', () => {
@@ -50,5 +68,16 @@ describe('AgentMarkdown', () => {
     );
     expect(getByText('Read')).toBeTruthy();
     expect(getByText('daily at 08:00')).toBeTruthy();
+  });
+
+  it('renders table header and cells', async () => {
+    const { getByText } = await render(
+      <BeyouThemeProvider>
+        <AgentMarkdown text={'| Habit | Level |\n|---|---|\n| Read | 3 |'} />
+      </BeyouThemeProvider>,
+    );
+    expect(getByText('Habit')).toBeTruthy();
+    expect(getByText('Read')).toBeTruthy();
+    expect(getByText('3')).toBeTruthy();
   });
 });

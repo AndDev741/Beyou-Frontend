@@ -26,12 +26,18 @@ export function useAgentChat() {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const loadedRef = useRef(false);
+  // Mirrors activeChatId for in-flight sends: if the user switches chats while
+  // the agent is replying, the reply must NOT land in the newly opened thread.
+  // Updated explicitly at every transition (state updates are async, so a
+  // render-time mirror alone misses the create-chat-then-send path).
+  const activeChatIdRef = useRef<string | null>(null);
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
   const openChat = useCallback(
     async (chatId: string) => {
       setActiveChatId(chatId);
+      activeChatIdRef.current = chatId;
       setMessages([]);
       const response = await getAgentMessages(chatId, t);
       if (response.success) {
@@ -60,6 +66,7 @@ export function useAgentChat() {
   const startNewChat = useCallback(() => {
     // No server round-trip: the chat row is only created with the first message.
     setActiveChatId(null);
+    activeChatIdRef.current = null;
     setMessages([]);
   }, []);
 
@@ -73,6 +80,7 @@ export function useAgentChat() {
       setChats((prev) => prev.filter((c) => c.id !== chatId));
       setActiveChatId((current) => {
         if (current === chatId) {
+          activeChatIdRef.current = null;
           setMessages([]);
           return null;
         }
@@ -103,12 +111,19 @@ export function useAgentChat() {
           }
           chatId = created.success.id;
           setActiveChatId(chatId);
+          activeChatIdRef.current = chatId;
           setChats((prev) => [created.success as agentChat, ...prev]);
         }
 
         const response = await sendAgentMessage(chatId, text, t);
+        // User may have switched chats mid-flight; the exchange is persisted
+        // server-side and appears when the original chat is reopened — never
+        // touch the visible thread of a different chat.
+        const stillOnSameChat = activeChatIdRef.current === chatId;
         if (response.success) {
-          setMessages((prev) => [...prev, { role: 'ASSISTANT', text: response.success as string }]);
+          if (stillOnSameChat) {
+            setMessages((prev) => [...prev, { role: 'ASSISTANT', text: response.success as string }]);
+          }
           setChats((prev) => {
             const current = prev.find((c) => c.id === chatId);
             if (!current) return prev;
@@ -117,8 +132,10 @@ export function useAgentChat() {
           });
         } else {
           notify.error(getFriendlyErrorMessage(t, response.error));
-          setMessages((prev) => prev.slice(0, -1));
-          setInput(text);
+          if (stillOnSameChat) {
+            setMessages((prev) => prev.slice(0, -1));
+            setInput(text);
+          }
         }
       } finally {
         setIsSending(false);
