@@ -53,9 +53,9 @@ export async function getAgentMessages(chatId: string, t: TFunction): Result<age
 
 export async function sendAgentMessage(chatId: string, userInput: string, t: TFunction): Result<string> {
     try {
-        const response = await getHttpClient().post<string>(
+        const response = await getHttpClient().post<{ reply: string }>(
             `/ai/agent/chats/${chatId}`, { userInput }, { timeout: AI_TIMEOUT_MS });
-        return { success: response.data };
+        return { success: response.data.reply };
     } catch (e) {
         return toError(e, t);
     }
