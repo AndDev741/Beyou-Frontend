@@ -63,6 +63,16 @@
   opacity: 1;
 }
 
+/* Agent FAB breathing halo — slow, soft, killed by the reduced-motion block below. */
+@keyframes agent-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50% { transform: scale(1.45); opacity: 0; }
+}
+
+.animate-agent-breathe {
+  animation: agent-breathe 3s ease-in-out infinite;
+}
+
 /* Collapses CSS transitions/animations only. framer-motion animates via JS
    transforms — new motion components use useReducedMotion(); the older
    tutorial components (OnboardingTutorial/SpotlightTutorial) do not yet. */

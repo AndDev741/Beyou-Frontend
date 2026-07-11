@@ -2,6 +2,9 @@
 export * from './ai/materialize';
 export * from './ai/routineDraft';
 
+// Agent chat types
+export * from './agent/chatType';
+
 // Category types
 export type { default as category } from './category/categoryType';
 export type { default as categoryGeneratedByAi } from './category/categoryGeneratedByAiType';

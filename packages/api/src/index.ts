@@ -10,6 +10,9 @@ export * from './apiError';
 // Utilities
 export * from './utils/experienceToEnum';
 
+// AI agent chats
+export * from './agent/agentChats';
+
 // Categories
 export { default as createCategory } from './categories/createCategory';
 export { default as deleteCategory } from './categories/deleteCategory';
