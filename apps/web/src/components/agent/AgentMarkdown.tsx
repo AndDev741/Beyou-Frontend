@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 /* Theme-token styling for agent markdown (no typography plugin; react-markdown
    ignores raw HTML by default, so this stays XSS-safe). */
@@ -21,8 +22,23 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>["components
     blockquote: (props) => (
         <blockquote className="mb-2 border-l-2 border-primary/40 pl-3 text-description last:mb-0" {...props} />
     ),
+    // GFM tables (remark-gfm). The wrapper scrolls so wide tables never
+    // stretch the chat bubble.
+    table: (props) => (
+        <div className="mb-2 overflow-x-auto last:mb-0">
+            <table className="w-full border-collapse text-sm" {...props} />
+        </div>
+    ),
+    th: (props) => (
+        <th className="border border-primary/20 bg-primary/10 px-2 py-1 text-left font-semibold" {...props} />
+    ),
+    td: (props) => <td className="border border-primary/15 px-2 py-1 align-top" {...props} />,
 };
 
 export default function AgentMarkdown({ text }: { text: string }) {
-    return <ReactMarkdown components={markdownComponents}>{text}</ReactMarkdown>;
+    return (
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {text}
+        </ReactMarkdown>
+    );
 }

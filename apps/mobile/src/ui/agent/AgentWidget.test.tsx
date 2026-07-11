@@ -87,6 +87,43 @@ describe('AgentWidget', () => {
     await waitFor(() => expect(getByText('Read')).toBeTruthy());
   });
 
+  it('does not deliver a late reply into a chat opened mid-flight', async () => {
+    const chatA = { id: 'a', title: 'Chat A', createdAt: '2026-07-10T10:00:00', updatedAt: '2026-07-11T10:00:00' };
+    const chatB = { id: 'b', title: 'Chat B', createdAt: '2026-07-01T10:00:00', updatedAt: '2026-07-02T10:00:00' };
+    api.getAgentChats.mockResolvedValue({ success: [chatA, chatB] });
+    api.getAgentMessages.mockResolvedValue({ success: [] });
+    let resolveSend: (v: unknown) => void = () => {};
+    api.sendAgentMessage.mockReturnValue(new Promise((resolve) => { resolveSend = resolve; }));
+
+    const { getByTestId, queryByText, getByText } = await wrap();
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-fab'));
+    });
+
+    // Send in chat A (reply stays pending)…
+    await act(async () => {
+      fireEvent.changeText(getByTestId('agent-input'), 'slow question');
+    });
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-send'));
+    });
+
+    // …switch to chat B while the agent is still replying…
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-history'));
+    });
+    await act(async () => {
+      fireEvent.press(getByText('Chat B'));
+    });
+
+    // …then the reply for A arrives: it must NOT appear in B's thread.
+    await act(async () => {
+      resolveSend({ success: 'late reply for A' });
+    });
+    expect(queryByText('late reply for A')).toBeNull();
+    expect(queryByText('slow question')).toBeNull();
+  });
+
   it('switches to the history pane and back', async () => {
     api.getAgentChats.mockResolvedValue({
       success: [{ id: 'c1', title: 'Plan my week', createdAt: '2026-07-10T10:00:00', updatedAt: '2026-07-11T10:00:00' }],

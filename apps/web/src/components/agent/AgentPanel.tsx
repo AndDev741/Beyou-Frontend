@@ -57,11 +57,24 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
 
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    // Mirrors activeChatId for in-flight sends: if the user switches chats
+    // while the agent is replying, the reply must NOT land in the new thread.
+    // Updated explicitly at every transition (state updates are async, so a
+    // render-time mirror alone misses the create-chat-then-send path).
+    const activeChatIdRef = useRef<string | null>(null);
 
     const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
+    const resetInputHeight = () => {
+        if (inputRef.current) {
+            inputRef.current.style.height = "auto";
+            inputRef.current.style.overflowY = "hidden";
+        }
+    };
+
     const openChat = useCallback(async (chatId: string) => {
         setActiveChatId(chatId);
+        activeChatIdRef.current = chatId;
         setHistoryOpen(false);
         setMessages([]);
         const response = await getAgentMessages(chatId, t);
@@ -106,6 +119,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const startNewChat = () => {
         // No server round-trip: the chat row is only created with the first message.
         setActiveChatId(null);
+        activeChatIdRef.current = null;
         setMessages([]);
         setHistoryOpen(false);
         inputRef.current?.focus();
@@ -121,6 +135,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         setConfirmDeleteId(null);
         if (activeChatId === chatId) {
             setActiveChatId(null);
+            activeChatIdRef.current = null;
             setMessages([]);
         }
     };
@@ -130,6 +145,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         if (!text || isSending) return;
 
         setInput("");
+        resetInputHeight();
         setIsSending(true);
         setMessages((prev) => [...prev, { role: "USER", text }]);
 
@@ -145,12 +161,19 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 }
                 chatId = created.success.id;
                 setActiveChatId(chatId);
+                activeChatIdRef.current = chatId;
                 setChats((prev) => [created.success as agentChat, ...prev]);
             }
 
             const response = await sendAgentMessage(chatId, text, t);
+            // The user may have switched chats while the agent was replying —
+            // the exchange is persisted server-side and will show up when the
+            // original chat is reopened, so never touch the visible thread.
+            const stillOnSameChat = activeChatIdRef.current === chatId;
             if (response.success) {
-                setMessages((prev) => [...prev, { role: "ASSISTANT", text: response.success as string }]);
+                if (stillOnSameChat) {
+                    setMessages((prev) => [...prev, { role: "ASSISTANT", text: response.success as string }]);
+                }
                 setChats((prev) => {
                     const current = prev.find((c) => c.id === chatId);
                     if (!current) return prev;
@@ -159,8 +182,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 });
             } else {
                 toast.error(getFriendlyErrorMessage(t, response.error));
-                setMessages((prev) => prev.slice(0, -1));
-                setInput(text);
+                if (stillOnSameChat) {
+                    setMessages((prev) => prev.slice(0, -1));
+                    setInput(text);
+                }
             }
         } finally {
             setIsSending(false);
@@ -253,7 +278,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         lg:border-primary/15 ${
                             expanded
                                 ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)]"
-                                : "lg:inset-auto lg:bottom-[92px] lg:right-6 lg:h-[min(600px,calc(100vh-120px))] lg:w-[380px]"
+                                : "lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[min(720px,calc(100vh-48px))] lg:w-[440px]"
                         }`}
                     >
                         <div className="flex min-h-0 flex-1">
@@ -425,14 +450,18 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                 setInput(e.target.value);
                                                 e.target.style.height = "auto";
                                                 e.target.style.height = `${Math.min(e.target.scrollHeight, 128)}px`;
+                                                // Scrollbar only once the cap is hit — otherwise the
+                                                // 1-row placeholder shows a phantom scroll.
+                                                e.target.style.overflowY =
+                                                    e.target.scrollHeight > 128 ? "auto" : "hidden";
                                             }}
                                             onKeyDown={onInputKeyDown}
                                             placeholder={t("AgentInputPlaceholder")}
                                             maxLength={4000}
-                                            className="max-h-32 flex-1 resize-none rounded-2xl border border-primary/25
-                                            bg-background px-4 py-2.5 text-[15px] text-secondary outline-none
-                                            placeholder:text-placeholder focus:border-primary focus:ring-2
-                                            focus:ring-primary/20"
+                                            className="max-h-32 flex-1 resize-none overflow-y-hidden rounded-2xl
+                                            border border-primary/25 bg-background px-4 py-2.5 text-[15px]
+                                            text-secondary outline-none placeholder:text-placeholder
+                                            focus:border-primary focus:ring-2 focus:ring-primary/20"
                                         />
                                         <button
                                             type="button"
