@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import axios from "../services/axiosConfig";
 import type { AuthBootState } from "../hooks/useSilentRefresh";
+import AgentWidget from "./agent/AgentWidget";
 
 type Props = {
     authState: AuthBootState;
@@ -16,7 +17,12 @@ function ProtectedRoute({ authState }: Props) {
     if (authState !== "authenticated" && !hasRuntimeToken) {
         return <Navigate to="/" replace />;
     }
-    return <Outlet />;
+    return (
+        <>
+            <Outlet />
+            <AgentWidget />
+        </>
+    );
 }
 
 export default ProtectedRoute;
