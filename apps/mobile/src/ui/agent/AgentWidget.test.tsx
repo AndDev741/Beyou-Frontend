@@ -12,6 +12,13 @@ jest.mock('@beyou/api/agent/agentChats', () => ({
   sendAgentMessage: jest.fn(),
 }));
 
+// Real expo-router is ESM that fails to parse under jest (see AGENTS.md).
+const mockRouterPush = jest.fn();
+jest.mock('expo-router', () => ({
+  usePathname: () => '/habits',
+  useRouter: () => ({ push: mockRouterPush }),
+}));
+
 const api = jest.requireMock('@beyou/api/agent/agentChats');
 
 const wrap = async () =>
@@ -83,7 +90,8 @@ describe('AgentWidget', () => {
     });
 
     expect(api.createAgentChat).toHaveBeenCalledWith(expect.anything(), 'create a habit');
-    expect(api.sendAgentMessage).toHaveBeenCalledWith('new1', 'create a habit', expect.anything());
+    // 4th arg: page context from usePathname (mocked as /habits)
+    expect(api.sendAgentMessage).toHaveBeenCalledWith('new1', 'create a habit', expect.anything(), '/habits');
     await waitFor(() => expect(getByText('Read')).toBeTruthy());
   });
 

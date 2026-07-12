@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
@@ -45,6 +46,10 @@ function TypingDots() {
 function AgentPanel({ open, onClose }: AgentPanelProps) {
     const { t, i18n } = useTranslation();
     const reducedMotion = useReducedMotion();
+    const location = useLocation();
+    // Ref so an in-flight send captures the page the message was SENT from.
+    const currentPageRef = useRef(location.pathname);
+    currentPageRef.current = location.pathname;
 
     const [expanded, setExpanded] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
@@ -165,7 +170,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 setChats((prev) => [created.success as agentChat, ...prev]);
             }
 
-            const response = await sendAgentMessage(chatId, text, t);
+            const response = await sendAgentMessage(chatId, text, t, currentPageRef.current);
             // The user may have switched chats while the agent was replying —
             // the exchange is persisted server-side and will show up when the
             // original chat is reopened, so never touch the visible thread.
