@@ -14,8 +14,10 @@ type Segment =
   | { kind: 'code'; text: string }
   | { kind: 'link'; text: string; href: string };
 
-const INLINE = /(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`|\[[^\]]+\]\((https?:\/\/[^)]+)\))/g;
-const LINK = /^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/;
+// Links: https URLs open externally; /paths are in-app navigation (the prompt
+// tells the agent to guide users with them). Other schemes stay plain text.
+const INLINE = /(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`|\[[^\]]+\]\((?:https?:\/\/[^)\s]+|\/[^)\s]*)\))/g;
+const LINK = /^\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*)\)$/;
 
 export function parseInline(text: string): Segment[] {
   const segments: Segment[] = [];
@@ -115,7 +117,21 @@ export function parseBlocks(text: string): Block[] {
   return blocks;
 }
 
-function InlineText({ text, small = false }: { text: string; small?: boolean }) {
+export type OnInternalLink = (path: string) => void;
+
+function InlineText({
+  text,
+  small = false,
+  onInternalLink,
+}: {
+  text: string;
+  small?: boolean;
+  onInternalLink?: OnInternalLink;
+}) {
+  const openLink = (href: string) => {
+    if (href.startsWith('/')) onInternalLink?.(href);
+    else Linking.openURL(href);
+  };
   return (
     <Text className={small ? 'text-[13px] leading-[19px] text-secondary' : 'text-[15px] leading-[22px] text-secondary'}>
       {parseInline(text).map((segment, i) => {
@@ -141,8 +157,8 @@ function InlineText({ text, small = false }: { text: string; small?: boolean }) 
           return (
             <Text
               key={i}
-              className="text-primary underline"
-              onPress={() => Linking.openURL(segment.href)}
+              className="font-medium text-primary underline"
+              onPress={() => openLink(segment.href)}
             >
               {segment.text}
             </Text>
@@ -187,11 +203,18 @@ function TableBlock({ header, rows }: { header: string[]; rows: string[][] }) {
   );
 }
 
-export default function AgentMarkdown({ text }: { text: string }) {
+export default function AgentMarkdown({
+  text,
+  onInternalLink,
+}: {
+  text: string;
+  onInternalLink?: OnInternalLink;
+}) {
   return (
     <View className="gap-2">
       {parseBlocks(text).map((block, i) => {
-        if (block.kind === 'paragraph') return <InlineText key={i} text={block.text} />;
+        if (block.kind === 'paragraph')
+          return <InlineText key={i} text={block.text} onInternalLink={onInternalLink} />;
         if (block.kind === 'table') return <TableBlock key={i} header={block.header} rows={block.rows} />;
         return (
           <View key={i} className="gap-1">
@@ -201,7 +224,7 @@ export default function AgentMarkdown({ text }: { text: string }) {
                   {block.ordered ? `${item.number ?? j + 1}.` : '•'}
                 </Text>
                 <View className="flex-1">
-                  <InlineText text={item.text} />
+                  <InlineText text={item.text} onInternalLink={onInternalLink} />
                 </View>
               </View>
             ))}

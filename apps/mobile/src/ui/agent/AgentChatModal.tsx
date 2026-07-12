@@ -11,11 +11,15 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, History, Plus, Send, Sparkles, Trash2, X } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import AgentMarkdown from './AgentMarkdown';
 import type { AgentChatState } from './useAgentChat';
+
+// The agent links web-canonical routes; the mobile dashboard lives at '/'.
+const WEB_TO_MOBILE_ROUTE: Record<string, string> = { '/dashboard': '/' };
 
 interface AgentChatModalProps {
   visible: boolean;
@@ -32,8 +36,15 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
   const { t, i18n } = useTranslation();
   const { theme } = useBeyouTheme();
   const insets = useContext(SafeAreaInsetsContext);
+  const router = useRouter();
   const [pane, setPane] = useState<'thread' | 'history'>('thread');
   const scrollRef = useRef<ScrollView>(null);
+
+  // Agent-suggested in-app link: the modal covers the screen, so close first.
+  const goToPage = (path: string) => {
+    onClose();
+    router.push((WEB_TO_MOBILE_ROUTE[path] ?? path) as never);
+  };
 
   const {
     chats, activeChat, activeChatId, messages, input, setInput,
@@ -206,7 +217,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                       key={`${index}-a`}
                       className="max-w-[88%] self-start rounded-2xl rounded-bl-md border border-primary/10 bg-primary/5 px-3.5 py-2.5"
                     >
-                      <AgentMarkdown text={message.text} />
+                      <AgentMarkdown text={message.text} onInternalLink={goToPage} />
                     </View>
                   ),
                 )}

@@ -30,6 +30,14 @@ describe('parseInline', () => {
       { kind: 'plain', text: '[x](javascript:alert(1))' },
     ]);
   });
+
+  it('parses internal app paths as links', () => {
+    expect(parseInline('go to [your routines](/routines)!')).toEqual([
+      { kind: 'plain', text: 'go to ' },
+      { kind: 'link', text: 'your routines', href: '/routines' },
+      { kind: 'plain', text: '!' },
+    ]);
+  });
 });
 
 describe('parseBlocks', () => {
@@ -107,6 +115,18 @@ describe('AgentMarkdown', () => {
     expect(getByText('Habit')).toBeTruthy();
     expect(getByText('Read')).toBeTruthy();
     expect(getByText('3')).toBeTruthy();
+  });
+
+  it('fires onInternalLink when an internal link is pressed', async () => {
+    const onInternalLink = jest.fn();
+    const { getByText } = await render(
+      <BeyouThemeProvider>
+        <AgentMarkdown text={'See [your routines](/routines)'} onInternalLink={onInternalLink} />
+      </BeyouThemeProvider>,
+    );
+    const { fireEvent } = require('@testing-library/react-native');
+    fireEvent.press(getByText('your routines'));
+    expect(onInternalLink).toHaveBeenCalledWith('/routines');
   });
 
   it('parses inline markdown inside table cells instead of showing markers', async () => {

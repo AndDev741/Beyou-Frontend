@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { agentChat, agentMessage } from '@beyou/types/agent/chatType';
 import {
@@ -20,6 +21,11 @@ const AUTO_TITLE_MAX = 40;
  */
 export function useAgentChat() {
   const { t } = useTranslation();
+  const pathname = usePathname();
+  // Page context for the agent: web route names are the canonical ones the
+  // prompt knows, and the mobile dashboard lives at '/'.
+  const currentPageRef = useRef('/dashboard');
+  currentPageRef.current = pathname === '/' ? '/dashboard' : pathname;
   const [chats, setChats] = useState<agentChat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<agentMessage[]>([]);
@@ -115,7 +121,7 @@ export function useAgentChat() {
           setChats((prev) => [created.success as agentChat, ...prev]);
         }
 
-        const response = await sendAgentMessage(chatId, text, t);
+        const response = await sendAgentMessage(chatId, text, t, currentPageRef.current);
         // User may have switched chats mid-flight; the exchange is persisted
         // server-side and appears when the original chat is reopened — never
         // touch the visible thread of a different chat.

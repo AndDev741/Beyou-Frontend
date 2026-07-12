@@ -51,10 +51,16 @@ export async function getAgentMessages(chatId: string, t: TFunction): Result<age
     }
 }
 
-export async function sendAgentMessage(chatId: string, userInput: string, t: TFunction): Result<string> {
+export async function sendAgentMessage(
+    chatId: string,
+    userInput: string,
+    t: TFunction,
+    /** App route the user is on (e.g. "/habits") — page context for the agent. */
+    currentPage?: string,
+): Result<string> {
     try {
         const response = await getHttpClient().post<{ reply: string }>(
-            `/ai/agent/chats/${chatId}`, { userInput }, { timeout: AI_TIMEOUT_MS });
+            `/ai/agent/chats/${chatId}`, { userInput, currentPage }, { timeout: AI_TIMEOUT_MS });
         return { success: response.data.reply };
     } catch (e) {
         return toError(e, t);
