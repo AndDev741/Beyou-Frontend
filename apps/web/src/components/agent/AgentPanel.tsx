@@ -13,6 +13,7 @@ import {
 } from "@beyou/api/agent/agentChats";
 import { streamAgentMessage } from "@beyou/api/agent/agentStream";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
+import { useAgentRefresh } from "../../hooks/useAgentRefresh";
 import AgentSegments from "./AgentSegments";
 
 const VISIBLE_ROLES = ["USER", "ASSISTANT"];
@@ -47,6 +48,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const { t, i18n } = useTranslation();
     const reducedMotion = useReducedMotion();
     const location = useLocation();
+    const refreshDomains = useAgentRefresh();
     // Ref so an in-flight send captures the page the message was SENT from.
     const currentPageRef = useRef(location.pathname);
     currentPageRef.current = location.pathname;
@@ -263,6 +265,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         clearStreaming();
                     }
                     bumpChat(chatId as string);
+                    // Refetch exactly the slices the agent's write tools touched,
+                    // once, from the union of domains across the whole turn.
+                    const domains = segments.flatMap((s) => (s.type === "tool" ? s.domains ?? [] : []));
+                    if (domains.length) refreshDomains(domains);
                 },
                 onError: () => {
                     if (!onThisChat()) return;
