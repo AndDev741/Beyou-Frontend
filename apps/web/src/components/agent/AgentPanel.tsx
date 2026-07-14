@@ -4,16 +4,16 @@ import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
 import { History, Maximize2, Minimize2, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
-import { agentChat, agentMessage } from "@beyou/types/agent/chatType";
+import { agentChat, agentMessage, agentSegment } from "@beyou/types/agent/chatType";
 import {
     createAgentChat,
     deleteAgentChat,
     getAgentChats,
     getAgentMessages,
-    sendAgentMessage,
 } from "@beyou/api/agent/agentChats";
+import { streamAgentMessage } from "@beyou/api/agent/agentStream";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
-import AgentMarkdown from "./AgentMarkdown";
+import AgentSegments from "./AgentSegments";
 
 const VISIBLE_ROLES = ["USER", "ASSISTANT"];
 const AUTO_TITLE_MAX = 40;
@@ -59,6 +59,12 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const [input, setInput] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+    // Streaming reply in flight: segments accumulate in a ref (cheap) and are
+    // flushed to state once per animation frame — a setState per token would
+    // re-render the markdown tree dozens of times a second.
+    const [streamSegments, setStreamSegments] = useState<agentSegment[]>([]);
+    const streamSegmentsRef = useRef<agentSegment[]>([]);
+    const rafRef = useRef<number | null>(null);
 
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -77,18 +83,65 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         }
     };
 
+    const scheduleStreamFlush = useCallback(() => {
+        if (rafRef.current != null) return;
+        rafRef.current = requestAnimationFrame(() => {
+            rafRef.current = null;
+            setStreamSegments([...streamSegmentsRef.current]);
+        });
+    }, []);
+
+    const clearStreaming = useCallback(() => {
+        if (rafRef.current != null) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = null;
+        }
+        streamSegmentsRef.current = [];
+        setStreamSegments([]);
+    }, []);
+
+    // Live segment building, mirroring the backend AgentTurnBuilder: tokens
+    // extend the trailing text run; a finished tool replaces its started chip.
+    const appendToken = useCallback((token: string) => {
+        const segs = streamSegmentsRef.current;
+        const last = segs[segs.length - 1];
+        if (last && last.type === "text") {
+            segs[segs.length - 1] = { ...last, text: (last.text ?? "") + token };
+        } else {
+            segs.push({ type: "text", text: token });
+        }
+    }, []);
+
+    const applyToolEvent = useCallback((tool: agentSegment) => {
+        const segs = streamSegmentsRef.current;
+        if (tool.status === "started") {
+            segs.push(tool);
+            return;
+        }
+        for (let i = segs.length - 1; i >= 0; i--) {
+            const seg = segs[i];
+            if (seg.type === "tool" && seg.tool === tool.tool && seg.status === "started") {
+                segs[i] = tool;
+                return;
+            }
+        }
+        segs.push(tool);
+    }, []);
+
     const openChat = useCallback(async (chatId: string) => {
         setActiveChatId(chatId);
         activeChatIdRef.current = chatId;
         setHistoryOpen(false);
         setMessages([]);
+        // An in-flight stream belongs to the previous chat — stop showing it.
+        clearStreaming();
         const response = await getAgentMessages(chatId, t);
         if (response.success) {
             setMessages(response.success.filter((m) => VISIBLE_ROLES.includes(m.role)));
         } else {
             toast.error(getFriendlyErrorMessage(t, response.error));
         }
-    }, [t]);
+    }, [t, clearStreaming]);
 
     // First mount (= first FAB click): load the list and resume the most
     // recent conversation — the backend already orders by activity.
@@ -110,7 +163,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         if (open) {
             bottomRef.current?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
         }
-    }, [messages, isSending, open, reducedMotion]);
+    }, [messages, isSending, streamSegments, open, reducedMotion]);
 
     useEffect(() => {
         if (!open) return;
@@ -126,6 +179,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         setActiveChatId(null);
         activeChatIdRef.current = null;
         setMessages([]);
+        clearStreaming();
         setHistoryOpen(false);
         inputRef.current?.focus();
     };
@@ -142,7 +196,17 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
             setActiveChatId(null);
             activeChatIdRef.current = null;
             setMessages([]);
+            clearStreaming();
         }
+    };
+
+    const bumpChat = (chatId: string) => {
+        setChats((prev) => {
+            const current = prev.find((c) => c.id === chatId);
+            if (!current) return prev;
+            const bumped = { ...current, updatedAt: new Date().toISOString() };
+            return [bumped, ...prev.filter((c) => c.id !== chatId)];
+        });
     };
 
     const send = async (rawText?: string) => {
@@ -152,7 +216,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         setInput("");
         resetInputHeight();
         setIsSending(true);
-        setMessages((prev) => [...prev, { role: "USER", text }]);
+        setMessages((prev) => [...prev, { role: "USER", segments: [{ type: "text", text }] }]);
 
         try {
             let chatId = activeChatId;
@@ -170,28 +234,44 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 setChats((prev) => [created.success as agentChat, ...prev]);
             }
 
-            const response = await sendAgentMessage(chatId, text, t, currentPageRef.current);
-            // The user may have switched chats while the agent was replying —
-            // the exchange is persisted server-side and will show up when the
-            // original chat is reopened, so never touch the visible thread.
-            const stillOnSameChat = activeChatIdRef.current === chatId;
-            if (response.success) {
-                if (stillOnSameChat) {
-                    setMessages((prev) => [...prev, { role: "ASSISTANT", text: response.success as string }]);
-                }
-                setChats((prev) => {
-                    const current = prev.find((c) => c.id === chatId);
-                    if (!current) return prev;
-                    const bumped = { ...current, updatedAt: new Date().toISOString() };
-                    return [bumped, ...prev.filter((c) => c.id !== chatId)];
-                });
-            } else {
-                toast.error(getFriendlyErrorMessage(t, response.error));
-                if (stillOnSameChat) {
+            // The user may switch chats while the agent streams — the exchange
+            // is persisted server-side and will show up when the original chat
+            // is reopened, so events for another thread are dropped, not shown.
+            const onThisChat = () => activeChatIdRef.current === chatId;
+
+            await streamAgentMessage(chatId, text, {
+                onToken: (token) => {
+                    if (!onThisChat()) return;
+                    appendToken(token);
+                    scheduleStreamFlush();
+                },
+                onTool: (event) => {
+                    if (!onThisChat()) return;
+                    applyToolEvent({
+                        type: "tool",
+                        tool: event.tool,
+                        status: event.status,
+                        error: event.error,
+                        domains: event.domains,
+                    });
+                    scheduleStreamFlush();
+                },
+                onDone: (segments) => {
+                    if (onThisChat()) {
+                        // Live segments are best-effort display; done is the source of truth.
+                        setMessages((prev) => [...prev, { role: "ASSISTANT", segments }]);
+                        clearStreaming();
+                    }
+                    bumpChat(chatId as string);
+                },
+                onError: () => {
+                    if (!onThisChat()) return;
+                    toast.error(t("UnexpectedError"));
+                    clearStreaming();
                     setMessages((prev) => prev.slice(0, -1));
                     setInput(text);
-                }
-            }
+                },
+            }, currentPageRef.current);
         } finally {
             setIsSending(false);
         }
@@ -427,16 +507,20 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     }`}
                                                 >
                                                     {message.role === "USER"
-                                                        ? message.text
-                                                        : <AgentMarkdown text={message.text} />}
+                                                        ? message.segments[0]?.text
+                                                        : <AgentSegments segments={message.segments} />}
                                                 </motion.div>
                                             ))}
                                             {isSending && (
-                                                <div className="max-w-[75%] self-start rounded-2xl rounded-bl-md border
-                                                border-primary/10 bg-primary/5"
+                                                <div className={`self-start rounded-2xl rounded-bl-md border
+                                                border-primary/10 bg-primary/5 ${
+                                                    streamSegments.length > 0 ? "max-w-[88%] px-3.5 py-2.5 text-[15px] leading-relaxed" : "max-w-[75%]"
+                                                }`}
                                                     aria-label={t("AgentThinking")}
                                                 >
-                                                    <TypingDots />
+                                                    {streamSegments.length > 0
+                                                        ? <AgentSegments segments={streamSegments} />
+                                                        : <TypingDots />}
                                                 </div>
                                             )}
                                             <div ref={bottomRef} />

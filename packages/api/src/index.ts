@@ -12,6 +12,7 @@ export * from './utils/experienceToEnum';
 
 // AI agent chats
 export * from './agent/agentChats';
+export * from './agent/agentStream';
 
 // Categories
 export { default as createCategory } from './categories/createCategory';
