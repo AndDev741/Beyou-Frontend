@@ -92,6 +92,36 @@ describe('createSseParser', () => {
 
         expect(handlers.onError).toHaveBeenCalledWith('NonTransientAiException');
     });
+
+    test('a malformed done (segments not an array) surfaces as an error, not a crash', () => {
+        const handlers = makeHandlers();
+        const parse = createSseParser(handlers);
+
+        parse('event: done\ndata: {"segments":"oops"}\n\n');
+
+        expect(handlers.onDone).not.toHaveBeenCalled();
+        expect(handlers.onError).toHaveBeenCalledWith('MALFORMED_STREAM');
+    });
+
+    test('a malformed tool (no tool name) is skipped, not dispatched', () => {
+        const handlers = makeHandlers();
+        const parse = createSseParser(handlers);
+
+        parse('event: tool\ndata: {"status":"finished"}\n\n');
+        parse('event: token\ndata: {"text":"ok"}\n\n');
+
+        expect(handlers.onTool).not.toHaveBeenCalled();
+        expect(handlers.onToken).toHaveBeenCalledWith('ok'); // stream keeps going
+    });
+
+    test('a token with a non-string text is skipped', () => {
+        const handlers = makeHandlers();
+        const parse = createSseParser(handlers);
+
+        parse('event: token\ndata: {"text":42}\n\n');
+
+        expect(handlers.onToken).not.toHaveBeenCalled();
+    });
 });
 
 /** Minimal ReadableStream that emits one text chunk then closes. */

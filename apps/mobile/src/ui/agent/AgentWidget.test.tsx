@@ -158,6 +158,37 @@ describe('AgentWidget', () => {
     expect(queryByText('slow question')).toBeNull();
   });
 
+  it('aborts the in-flight stream when the widget unmounts (logout)', async () => {
+    api.createAgentChat.mockResolvedValue({
+      success: { id: 'new1', title: 'q', createdAt: '', updatedAt: '' },
+    });
+    // Capture the AbortSignal (5th arg) and keep the stream pending.
+    let signal: AbortSignal | undefined;
+    stream.streamAgentMessage.mockImplementation(
+      (_c: string, _t: string, _h: unknown, _p: unknown, sig: AbortSignal) => {
+        signal = sig;
+        return new Promise(() => {});
+      },
+    );
+
+    const view = await wrap();
+    await act(async () => {
+      fireEvent.press(view.getByTestId('agent-fab'));
+    });
+    await act(async () => {
+      fireEvent.changeText(view.getByTestId('agent-input'), 'slow one');
+    });
+    await act(async () => {
+      fireEvent.press(view.getByTestId('agent-send'));
+    });
+
+    expect(signal?.aborted).toBe(false);
+    await act(async () => {
+      view.unmount();
+    });
+    expect(signal?.aborted).toBe(true);
+  });
+
   it('switches to the history pane and back', async () => {
     api.getAgentChats.mockResolvedValue({
       success: [{ id: 'c1', title: 'Plan my week', createdAt: '2026-07-10T10:00:00', updatedAt: '2026-07-11T10:00:00' }],
