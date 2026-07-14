@@ -9,9 +9,10 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import '../src/i18n';
-import { setHttpClient, setLogger } from '@beyou/api';
+import { fetch as expoFetch } from 'expo/fetch';
+import { setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
 import { store, type RootState, type AppDispatch } from '../src/store';
-import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated } from '../src/lib/nativeHttpClient';
+import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
 import { refreshRequest } from '../src/auth/authApi';
 import * as secureStore from '../src/auth/secureStore';
 import { bootstrap, logout } from '../src/auth/authSlice';
@@ -26,6 +27,17 @@ import ErrorBoundary from '../src/ui/ErrorBoundary';
 
 setHttpClient(nativeHttpClient);
 setLogger({ error: (...a: unknown[]) => console.error(...a) });
+// SSE streaming needs expo/fetch — RN's global fetch buffers the whole body.
+// Borrows the same base URL, fresh access token, and single-flight refresh.
+setAgentStreamConfig({
+  baseUrl: getApiBaseUrl(),
+  getHeaders: (): Record<string, string> => {
+    const token = getAccessToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  },
+  refreshAuth: refreshAccessToken,
+  fetchImpl: expoFetch as unknown as typeof fetch,
+});
 setRefreshHandler(async () => {
   const stored = await secureStore.getRefreshToken();
   if (!stored) return false;

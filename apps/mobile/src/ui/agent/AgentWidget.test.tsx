@@ -1,7 +1,9 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import AgentWidget from './AgentWidget';
 import { BeyouThemeProvider } from '../../theme/ThemeProvider';
+import { makeStore } from '../../store';
 import '../../i18n';
 
 jest.mock('@beyou/api/agent/agentChats', () => ({
@@ -9,7 +11,10 @@ jest.mock('@beyou/api/agent/agentChats', () => ({
   createAgentChat: jest.fn(),
   deleteAgentChat: jest.fn(),
   getAgentMessages: jest.fn(),
-  sendAgentMessage: jest.fn(),
+}));
+
+jest.mock('@beyou/api/agent/agentStream', () => ({
+  streamAgentMessage: jest.fn(),
 }));
 
 // Real expo-router is ESM that fails to parse under jest (see AGENTS.md).
@@ -20,12 +25,18 @@ jest.mock('expo-router', () => ({
 }));
 
 const api = jest.requireMock('@beyou/api/agent/agentChats');
+const stream = jest.requireMock('@beyou/api/agent/agentStream');
+
+/** Turn a plain text reply into the segment shape the done event carries. */
+const textTurn = (text: string) => [{ type: 'text', text }];
 
 const wrap = async () =>
   render(
-    <BeyouThemeProvider>
-      <AgentWidget />
-    </BeyouThemeProvider>,
+    <Provider store={makeStore()}>
+      <BeyouThemeProvider>
+        <AgentWidget />
+      </BeyouThemeProvider>
+    </Provider>,
   );
 
 describe('AgentWidget', () => {
@@ -58,8 +69,8 @@ describe('AgentWidget', () => {
     });
     api.getAgentMessages.mockResolvedValue({
       success: [
-        { role: 'USER', text: 'hello' },
-        { role: 'ASSISTANT', text: 'Hi! How can I help?' },
+        { role: 'USER', segments: textTurn('hello') },
+        { role: 'ASSISTANT', segments: textTurn('Hi! How can I help?') },
       ],
     });
 
@@ -76,7 +87,14 @@ describe('AgentWidget', () => {
     api.createAgentChat.mockResolvedValue({
       success: { id: 'new1', title: 'create a habit', createdAt: '', updatedAt: '' },
     });
-    api.sendAgentMessage.mockResolvedValue({ success: 'Habit **Read** created!' });
+    // Drive the stream straight to a done event carrying the reply (no domains,
+    // so no refetch fires — keeps the test focused on display).
+    stream.streamAgentMessage.mockImplementation(
+      (_chatId: string, _text: string, handlers: { onDone: (s: unknown) => void }) => {
+        handlers.onDone(textTurn('Habit **Read** created!'));
+        return Promise.resolve();
+      },
+    );
 
     const { getByTestId, getByText } = await wrap();
     await act(async () => {
@@ -91,7 +109,7 @@ describe('AgentWidget', () => {
 
     expect(api.createAgentChat).toHaveBeenCalledWith(expect.anything(), 'create a habit');
     // 4th arg: page context from usePathname (mocked as /habits)
-    expect(api.sendAgentMessage).toHaveBeenCalledWith('new1', 'create a habit', expect.anything(), '/habits');
+    expect(stream.streamAgentMessage).toHaveBeenCalledWith('new1', 'create a habit', expect.anything(), '/habits');
     await waitFor(() => expect(getByText('Read')).toBeTruthy());
   });
 
@@ -100,8 +118,14 @@ describe('AgentWidget', () => {
     const chatB = { id: 'b', title: 'Chat B', createdAt: '2026-07-01T10:00:00', updatedAt: '2026-07-02T10:00:00' };
     api.getAgentChats.mockResolvedValue({ success: [chatA, chatB] });
     api.getAgentMessages.mockResolvedValue({ success: [] });
-    let resolveSend: (v: unknown) => void = () => {};
-    api.sendAgentMessage.mockReturnValue(new Promise((resolve) => { resolveSend = resolve; }));
+    // Capture the stream handlers so we can fire onDone AFTER switching chats.
+    let captured: { onDone: (s: unknown) => void } | null = null;
+    stream.streamAgentMessage.mockImplementation(
+      (_chatId: string, _text: string, handlers: { onDone: (s: unknown) => void }) => {
+        captured = handlers;
+        return new Promise(() => {}); // never resolves on its own
+      },
+    );
 
     const { getByTestId, queryByText, getByText } = await wrap();
     await act(async () => {
@@ -126,7 +150,7 @@ describe('AgentWidget', () => {
 
     // …then the reply for A arrives: it must NOT appear in B's thread.
     await act(async () => {
-      resolveSend({ success: 'late reply for A' });
+      captured?.onDone(textTurn('late reply for A'));
     });
     expect(queryByText('late reply for A')).toBeNull();
     expect(queryByText('slow question')).toBeNull();

@@ -34,6 +34,11 @@ interface AgentStreamConfig {
      * 401-refresh interceptor, so the stream drives its own single retry.
      */
     refreshAuth?: () => Promise<boolean>;
+    /**
+     * Streaming-capable fetch. Web uses the global fetch; React Native's
+     * global fetch buffers the whole body, so mobile passes expo/fetch here.
+     */
+    fetchImpl?: typeof fetch;
 }
 
 let config: AgentStreamConfig | undefined;
@@ -120,12 +125,13 @@ export async function streamAgentMessage(
         throw new Error('Agent stream not configured — call setAgentStreamConfig() at app startup');
     }
     const cfg = config;
+    const doFetch = cfg.fetchImpl ?? fetch;
     const parse = createSseParser(handlers);
 
     // getHeaders() is re-read on each call, so a retry after refreshAuth()
     // picks up the renewed token automatically.
     const openStream = () =>
-        fetch(`${cfg.baseUrl}/ai/agent/chats/${chatId}/stream`, {
+        doFetch(`${cfg.baseUrl}/ai/agent/chats/${chatId}/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...cfg.getHeaders() },
             body: JSON.stringify({ userInput, currentPage }),
