@@ -88,18 +88,35 @@ function dispatchEvent(piece: string, handlers: AgentStreamHandlers) {
         return;
     }
 
+    // Validate shape at this external boundary — a malformed event must not flow
+    // into React state and crash a render. A bad token/tool is logged and
+    // skipped; a bad done is terminal, so it surfaces as an error.
     switch (eventName) {
         case 'token':
-            handlers.onToken(String(data.text ?? ''));
+            if (typeof data.text === 'string') handlers.onToken(data.text);
+            else getLogger().error('agentStream: malformed token event');
             break;
         case 'tool':
-            handlers.onTool(data as unknown as AgentToolEvent);
+            if (typeof data.tool === 'string') {
+                handlers.onTool({
+                    tool: data.tool,
+                    status: data.status === 'started' ? 'started' : 'finished',
+                    error: typeof data.error === 'string' ? data.error : undefined,
+                    domains: Array.isArray(data.domains) ? (data.domains as string[]) : undefined,
+                });
+            } else {
+                getLogger().error('agentStream: malformed tool event');
+            }
             break;
         case 'done':
-            handlers.onDone((data.segments as agentSegment[]) ?? []);
+            if (Array.isArray(data.segments)) handlers.onDone(data.segments as agentSegment[]);
+            else {
+                getLogger().error('agentStream: malformed done event');
+                handlers.onError('MALFORMED_STREAM');
+            }
             break;
         case 'error':
-            handlers.onError(String(data.error ?? 'UNKNOWN'));
+            handlers.onError(typeof data.error === 'string' ? data.error : 'UNKNOWN');
             break;
     }
 }

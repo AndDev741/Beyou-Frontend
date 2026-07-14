@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { agentChat, agentMessage, agentSegment } from '@beyou/types/agent/chatType';
@@ -32,13 +32,18 @@ export function useAgentChat() {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<agentMessage[]>([]);
   const [input, setInput] = useState('');
-  const [isSending, setIsSending] = useState(false);
+  // Which chat currently has a stream in flight (null = none). Per-chat, so
+  // switching away doesn't lock the composer or show a phantom thinking bubble.
+  const [streamingChatId, setStreamingChatId] = useState<string | null>(null);
   // In-flight streaming reply: segments accumulate in a ref (cheap) and flush
   // to state on an animation frame — a setState per token would re-parse the
   // markdown tree dozens of times a second.
   const [streamSegments, setStreamSegments] = useState<agentSegment[]>([]);
   const streamSegmentsRef = useRef<agentSegment[]>([]);
   const rafRef = useRef<number | null>(null);
+  // Cancels the in-flight fetch on chat switch / logout so the reader stops
+  // and we stop paying for the LLM instead of firing setState after teardown.
+  const abortRef = useRef<AbortController | null>(null);
   const loadedRef = useRef(false);
   // Mirrors activeChatId for in-flight sends: if the user switches chats while
   // the agent is replying, the reply must NOT land in the newly opened thread.
@@ -61,9 +66,14 @@ export function useAgentChat() {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     }
+    abortRef.current?.abort();
+    abortRef.current = null;
     streamSegmentsRef.current = [];
     setStreamSegments([]);
   }, []);
+
+  // Abort any in-flight stream when the widget tears down (e.g. logout).
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   // Live segment building, mirroring the backend AgentTurnBuilder: tokens
   // extend the trailing text run; a finished tool replaces its started chip.
@@ -152,17 +162,25 @@ export function useAgentChat() {
     [t, clearStreaming],
   );
 
+  const isSending = streamingChatId !== null && streamingChatId === activeChatId;
+
   const send = useCallback(
     async (rawText?: string) => {
       const text = (rawText ?? input).trim();
-      if (!text || isSending) return;
+      // Guard on the VIEWED chat's stream, computed here (not the stale closure).
+      const viewedIsStreaming = streamingChatId !== null && streamingChatId === activeChatIdRef.current;
+      if (!text || viewedIsStreaming) return;
 
       setInput('');
-      setIsSending(true);
       setMessages((prev) => [...prev, { role: 'USER', segments: [{ type: 'text', text }] }]);
 
+      // Fresh cancel handle for this stream (abort any prior in-flight one).
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      let chatId = activeChatId;
       try {
-        let chatId = activeChatId;
         if (!chatId) {
           // First message names the chat so the history never fills with "New chat".
           const created = await createAgentChat(t, text.slice(0, AUTO_TITLE_MAX));
@@ -176,6 +194,7 @@ export function useAgentChat() {
           activeChatIdRef.current = chatId;
           setChats((prev) => [created.success as agentChat, ...prev]);
         }
+        setStreamingChatId(chatId);
 
         // User may switch chats mid-stream; the exchange is persisted
         // server-side and appears when the original chat is reopened — never
@@ -218,21 +237,23 @@ export function useAgentChat() {
               const domains = segments.flatMap((s) => (s.type === 'tool' ? s.domains ?? [] : []));
               if (domains.length) refreshDomains(domains);
             },
-            onError: () => {
+            onError: (errorKey) => {
               if (!onThisChat()) return;
-              notify.error(t('UnexpectedError'));
+              notify.error(t(errorKey, { defaultValue: t('UnexpectedError') }));
               clearStreaming();
               setMessages((prev) => prev.slice(0, -1));
               setInput(text);
             },
           },
           currentPageRef.current,
+          controller.signal,
         );
       } finally {
-        setIsSending(false);
+        // Clear only if a newer send hasn't taken over the streaming slot.
+        setStreamingChatId((cur) => (cur === chatId ? null : cur));
       }
     },
-    [activeChatId, input, isSending, t, appendToken, applyToolEvent, scheduleStreamFlush, clearStreaming, refreshDomains],
+    [activeChatId, input, streamingChatId, t, appendToken, applyToolEvent, scheduleStreamFlush, clearStreaming, refreshDomains],
   );
 
   return {

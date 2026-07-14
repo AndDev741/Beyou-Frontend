@@ -59,7 +59,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
     const [messages, setMessages] = useState<agentMessage[]>([]);
     const [input, setInput] = useState("");
-    const [isSending, setIsSending] = useState(false);
+    // Which chat currently has a stream in flight (null = none). Per-chat, so
+    // switching away doesn't lock the composer or show a phantom "thinking"
+    // bubble in a different chat.
+    const [streamingChatId, setStreamingChatId] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     // Streaming reply in flight: segments accumulate in a ref (cheap) and are
     // flushed to state once per animation frame — a setState per token would
@@ -67,6 +70,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const [streamSegments, setStreamSegments] = useState<agentSegment[]>([]);
     const streamSegmentsRef = useRef<agentSegment[]>([]);
     const rafRef = useRef<number | null>(null);
+    // Cancels the in-flight fetch on unmount (logout) / chat switch, so the
+    // reader stops and we stop paying for the LLM instead of firing setState
+    // into an unmounted tree.
+    const abortRef = useRef<AbortController | null>(null);
 
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -77,6 +84,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const activeChatIdRef = useRef<string | null>(null);
 
     const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
+    // The composer/indicator reflect only the chat being viewed.
+    const isSending = streamingChatId !== null && streamingChatId === activeChatId;
 
     const resetInputHeight = () => {
         if (inputRef.current) {
@@ -98,9 +107,15 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
             cancelAnimationFrame(rafRef.current);
             rafRef.current = null;
         }
+        abortRef.current?.abort();
+        abortRef.current = null;
         streamSegmentsRef.current = [];
         setStreamSegments([]);
     }, []);
+
+    // Stop any in-flight stream when the panel unmounts (e.g. logout tears down
+    // the ProtectedRoute subtree while a reply is still streaming).
+    useEffect(() => () => abortRef.current?.abort(), []);
 
     // Live segment building, mirroring the backend AgentTurnBuilder: tokens
     // extend the trailing text run; a finished tool replaces its started chip.
@@ -217,11 +232,15 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
 
         setInput("");
         resetInputHeight();
-        setIsSending(true);
         setMessages((prev) => [...prev, { role: "USER", segments: [{ type: "text", text }] }]);
 
+        // Fresh cancel handle for this stream (abort any prior in-flight one).
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        let chatId = activeChatId;
         try {
-            let chatId = activeChatId;
             if (!chatId) {
                 // First message names the chat so the history never fills with "New chat".
                 const created = await createAgentChat(t, text.slice(0, AUTO_TITLE_MAX));
@@ -235,6 +254,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 activeChatIdRef.current = chatId;
                 setChats((prev) => [created.success as agentChat, ...prev]);
             }
+            setStreamingChatId(chatId);
 
             // The user may switch chats while the agent streams — the exchange
             // is persisted server-side and will show up when the original chat
@@ -270,16 +290,17 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     const domains = segments.flatMap((s) => (s.type === "tool" ? s.domains ?? [] : []));
                     if (domains.length) refreshDomains(domains);
                 },
-                onError: () => {
+                onError: (errorKey) => {
                     if (!onThisChat()) return;
-                    toast.error(t("UnexpectedError"));
+                    toast.error(t(errorKey, { defaultValue: t("UnexpectedError") }));
                     clearStreaming();
                     setMessages((prev) => prev.slice(0, -1));
                     setInput(text);
                 },
-            }, currentPageRef.current);
+            }, currentPageRef.current, controller.signal);
         } finally {
-            setIsSending(false);
+            // Clear only if a newer send hasn't taken over the streaming slot.
+            setStreamingChatId((cur) => (cur === chatId ? null : cur));
         }
     };
 

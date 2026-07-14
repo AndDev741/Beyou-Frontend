@@ -50,7 +50,9 @@ export function useAgentRefresh() {
           // A routine change also shifts today's view (schedule, items).
           const [routines, today] = await Promise.all([getRoutines(t), getTodayRoutine(t)]);
           if (routines.success) dispatch(enterRoutines(routines.success));
-          dispatch(enterTodayRoutine(today.success)); // null = no routine today
+          // success is null when there's genuinely no routine today (valid,
+          // dispatch it); undefined means the fetch failed — don't wipe the view.
+          if (today.success !== undefined) dispatch(enterTodayRoutine(today.success));
         },
         perfil: async () => {
           const profile = await getProfile();

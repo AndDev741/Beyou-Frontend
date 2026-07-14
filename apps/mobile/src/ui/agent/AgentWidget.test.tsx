@@ -109,7 +109,9 @@ describe('AgentWidget', () => {
 
     expect(api.createAgentChat).toHaveBeenCalledWith(expect.anything(), 'create a habit');
     // 4th arg: page context from usePathname (mocked as /habits)
-    expect(stream.streamAgentMessage).toHaveBeenCalledWith('new1', 'create a habit', expect.anything(), '/habits');
+    expect(stream.streamAgentMessage).toHaveBeenCalledWith(
+      'new1', 'create a habit', expect.anything(), '/habits', expect.anything(),
+    );
     await waitFor(() => expect(getByText('Read')).toBeTruthy());
   });
 
