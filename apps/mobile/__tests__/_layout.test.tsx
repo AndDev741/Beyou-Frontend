@@ -63,6 +63,9 @@ jest.mock('../src/lib/nativeHttpClient', () => ({
   setAccessToken: jest.fn(),
   setRefreshHandler: jest.fn(),
   setOnUnauthenticated: jest.fn(),
+  getApiBaseUrl: () => 'http://localhost:8099/api/v1',
+  getAccessToken: () => null,
+  refreshAccessToken: jest.fn(),
 }));
 
 // 5. react-native-safe-area-context: in jest, the real SafeAreaProvider waits for

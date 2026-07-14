@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, History, Plus, Send, Sparkles, Trash2, X } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import AgentMarkdown from './AgentMarkdown';
+import AgentSegments from './AgentSegments';
 import type { AgentChatState } from './useAgentChat';
 
 // The agent links web-canonical routes; the mobile dashboard lives at '/'.
@@ -47,7 +47,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
   };
 
   const {
-    chats, activeChat, activeChatId, messages, input, setInput,
+    chats, activeChat, activeChatId, messages, streamSegments, input, setInput,
     isSending, openChat, startNewChat, removeChat, send,
   } = chat;
 
@@ -210,23 +210,31 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                       key={`${index}-u`}
                       className="max-w-[88%] self-end rounded-2xl rounded-br-md bg-primary px-3.5 py-2.5"
                     >
-                      <Text className="text-[15px] leading-[22px] text-white">{message.text}</Text>
+                      <Text className="text-[15px] leading-[22px] text-white">
+                        {message.segments[0]?.text}
+                      </Text>
                     </View>
                   ) : (
                     <View
                       key={`${index}-a`}
                       className="max-w-[88%] self-start rounded-2xl rounded-bl-md border border-primary/10 bg-primary/5 px-3.5 py-2.5"
                     >
-                      <AgentMarkdown text={message.text} onInternalLink={goToPage} />
+                      <AgentSegments segments={message.segments} onInternalLink={goToPage} />
                     </View>
                   ),
                 )}
                 {isSending && (
                   <View
                     accessibilityLabel={t('AgentThinking')}
-                    className="max-w-[75%] self-start rounded-2xl rounded-bl-md border border-primary/10 bg-primary/5 px-4 py-3"
+                    className={`max-w-[88%] self-start rounded-2xl rounded-bl-md border border-primary/10 bg-primary/5 ${
+                      streamSegments.length > 0 ? 'px-3.5 py-2.5' : 'px-4 py-3'
+                    }`}
                   >
-                    <ActivityIndicator size="small" color={theme.primary} />
+                    {streamSegments.length > 0 ? (
+                      <AgentSegments segments={streamSegments} onInternalLink={goToPage} />
+                    ) : (
+                      <ActivityIndicator size="small" color={theme.primary} />
+                    )}
                   </View>
                 )}
               </ScrollView>

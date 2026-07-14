@@ -12,7 +12,7 @@ const instance = axios.create({
 
 let refreshPromise: Promise<string> | null = null;
 
-const getRefreshedAccessToken = async () => {
+export const getRefreshedAccessToken = async () => {
     if (!refreshPromise) {
         refreshPromise = refreshTokenRequest()
             .then(response => {
