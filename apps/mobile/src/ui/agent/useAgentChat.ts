@@ -5,8 +5,10 @@ import type { agentChat, agentMessage, agentSegment } from '@beyou/types/agent/c
 import {
   createAgentChat,
   deleteAgentChat,
+  deleteAllAgentChats,
   getAgentChats,
   getAgentMessages,
+  renameAgentChat,
 } from '@beyou/api/agent/agentChats';
 import { streamAgentMessage } from '@beyou/api/agent/agentStream';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -162,6 +164,36 @@ export function useAgentChat() {
     [t, clearStreaming],
   );
 
+  const renameChat = useCallback(
+    async (chatId: string, rawTitle: string) => {
+      const title = rawTitle.trim();
+      const current = chats.find((c) => c.id === chatId);
+      if (!title || title === current?.title) return;
+      const response = await renameAgentChat(chatId, title, t);
+      if (response.error) {
+        notify.error(getFriendlyErrorMessage(t, response.error));
+        return;
+      }
+      setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, title } : c)));
+    },
+    [chats, t],
+  );
+
+  /** Reset the agent: delete all chats + clear its remembered context. */
+  const clearAllChats = useCallback(async () => {
+    const response = await deleteAllAgentChats(t);
+    if (response.error) {
+      notify.error(getFriendlyErrorMessage(t, response.error));
+      return;
+    }
+    setChats([]);
+    setActiveChatId(null);
+    activeChatIdRef.current = null;
+    setMessages([]);
+    clearStreaming();
+    notify.success(t('ClearAllChatsDone'));
+  }, [t, clearStreaming]);
+
   const isSending = streamingChatId !== null && streamingChatId === activeChatId;
 
   const send = useCallback(
@@ -269,6 +301,8 @@ export function useAgentChat() {
     openChat,
     startNewChat,
     removeChat,
+    renameChat,
+    clearAllChats,
     send,
   };
 }

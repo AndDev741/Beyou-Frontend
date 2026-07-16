@@ -3,13 +3,15 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
-import { History, Maximize2, Minimize2, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
+import { Check, History, Maximize2, Minimize2, Pencil, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
 import { agentChat, agentMessage, agentSegment } from "@beyou/types/agent/chatType";
 import {
     createAgentChat,
     deleteAgentChat,
+    deleteAllAgentChats,
     getAgentChats,
     getAgentMessages,
+    renameAgentChat,
 } from "@beyou/api/agent/agentChats";
 import { streamAgentMessage } from "@beyou/api/agent/agentStream";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -64,6 +66,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     // bubble in a different chat.
     const [streamingChatId, setStreamingChatId] = useState<string | null>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+    // Inline chat-title editing + the two-tap "clear all" confirm.
+    const [editingChatId, setEditingChatId] = useState<string | null>(null);
+    const [editingTitle, setEditingTitle] = useState("");
+    const [confirmClearAll, setConfirmClearAll] = useState(false);
     // Streaming reply in flight: segments accumulate in a ref (cheap) and are
     // flushed to state once per animation frame — a setState per token would
     // re-render the markdown tree dozens of times a second.
@@ -226,6 +232,39 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         });
     };
 
+    const startRename = (chat: agentChat) => {
+        setEditingChatId(chat.id);
+        setEditingTitle(chat.title);
+    };
+
+    const saveRename = async (chatId: string) => {
+        const title = editingTitle.trim();
+        setEditingChatId(null);
+        const current = chats.find((c) => c.id === chatId);
+        if (!title || title === current?.title) return; // nothing to do
+        const response = await renameAgentChat(chatId, title, t);
+        if (response.error) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return;
+        }
+        setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, title } : c)));
+    };
+
+    const clearAllChats = async () => {
+        setConfirmClearAll(false);
+        const response = await deleteAllAgentChats(t);
+        if (response.error) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return;
+        }
+        setChats([]);
+        setActiveChatId(null);
+        activeChatIdRef.current = null;
+        setMessages([]);
+        clearStreaming();
+        toast.success(t("ClearAllChatsDone"));
+    };
+
     const send = async (rawText?: string) => {
         const text = (rawText ?? input).trim();
         if (!text || isSending) return;
@@ -317,45 +356,105 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const suggestions = [t("AgentSuggestion1"), t("AgentSuggestion2"), t("AgentSuggestion3")];
 
     const chatList = (
-        <div className="flex-1 space-y-1 overflow-y-auto p-2">
-            {chats.length === 0 && (
-                <p className="px-3 py-6 text-center text-sm text-description">{t("NoChatsYet")}</p>
-            )}
-            {chats.map((chat) => (
-                <div
-                    key={chat.id}
-                    className={`group flex items-center rounded-xl transition-colors duration-150 ${
-                        chat.id === activeChatId
-                            ? "bg-primary/10 shadow-[inset_3px_0_0_0_var(--primary)]"
-                            : "hover:bg-primary/5"
-                    }`}
-                >
-                    <button
-                        type="button"
-                        onClick={() => openChat(chat.id)}
-                        className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-3 py-2.5 text-left"
-                    >
-                        <span className="w-full truncate text-sm font-medium">{chat.title}</span>
-                        <span className="text-xs text-description">{formatDay(chat.updatedAt)}</span>
-                    </button>
-                    <button
-                        type="button"
-                        aria-label={confirmDeleteId === chat.id ? t("ConfirmDeleteChat") : t("DeleteChat")}
-                        title={confirmDeleteId === chat.id ? t("ConfirmDeleteChat") : t("DeleteChat")}
-                        onClick={() =>
-                            confirmDeleteId === chat.id ? removeChat(chat.id) : setConfirmDeleteId(chat.id)
-                        }
-                        onBlur={() => setConfirmDeleteId(null)}
-                        className={`mr-2 rounded-lg p-2 transition-all duration-150 ${
-                            confirmDeleteId === chat.id
-                                ? "bg-error/15 text-error"
-                                : "text-description hover:text-error"
+        <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-1 overflow-y-auto p-2">
+                {chats.length === 0 && (
+                    <p className="px-3 py-6 text-center text-sm text-description">{t("NoChatsYet")}</p>
+                )}
+                {chats.map((chat) => (
+                    <div
+                        key={chat.id}
+                        className={`group flex items-center rounded-xl transition-colors duration-150 ${
+                            chat.id === activeChatId
+                                ? "bg-primary/10 shadow-[inset_3px_0_0_0_var(--primary)]"
+                                : "hover:bg-primary/5"
                         }`}
                     >
-                        <Trash2 size={16} />
-                    </button>
-                </div>
-            ))}
+                        {editingChatId === chat.id ? (
+                            <input
+                                autoFocus
+                                value={editingTitle}
+                                maxLength={255}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") saveRename(chat.id);
+                                    if (e.key === "Escape") setEditingChatId(null);
+                                }}
+                                onBlur={() => saveRename(chat.id)}
+                                className="min-w-0 flex-1 rounded-lg border border-primary/30 bg-background
+                                px-3 py-2 text-sm text-secondary outline-none focus:border-primary"
+                            />
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => openChat(chat.id)}
+                                className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-3 py-2.5 text-left"
+                            >
+                                <span className="w-full truncate text-sm font-medium">{chat.title}</span>
+                                <span className="text-xs text-description">{formatDay(chat.updatedAt)}</span>
+                            </button>
+                        )}
+                        {editingChatId === chat.id ? (
+                            <button
+                                type="button"
+                                aria-label={t("SaveTitle")}
+                                title={t("SaveTitle")}
+                                // onMouseDown (not onClick) so it fires before the input's onBlur.
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    saveRename(chat.id);
+                                }}
+                                className="mr-1 rounded-lg p-2 text-primary hover:bg-primary/10"
+                            >
+                                <Check size={16} />
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                aria-label={t("RenameChat")}
+                                title={t("RenameChat")}
+                                onClick={() => startRename(chat)}
+                                className="rounded-lg p-2 text-description transition-colors duration-150 hover:text-primary"
+                            >
+                                <Pencil size={15} />
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            aria-label={confirmDeleteId === chat.id ? t("ConfirmDeleteChat") : t("DeleteChat")}
+                            title={confirmDeleteId === chat.id ? t("ConfirmDeleteChat") : t("DeleteChat")}
+                            onClick={() =>
+                                confirmDeleteId === chat.id ? removeChat(chat.id) : setConfirmDeleteId(chat.id)
+                            }
+                            onBlur={() => setConfirmDeleteId(null)}
+                            className={`mr-2 rounded-lg p-2 transition-all duration-150 ${
+                                confirmDeleteId === chat.id
+                                    ? "bg-error/15 text-error"
+                                    : "text-description hover:text-error"
+                            }`}
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    </div>
+                ))}
+            </div>
+            {chats.length > 0 && (
+                <button
+                    type="button"
+                    title={t("ClearAllChatsConfirm")}
+                    onClick={() => (confirmClearAll ? clearAllChats() : setConfirmClearAll(true))}
+                    onBlur={() => setConfirmClearAll(false)}
+                    className={`m-2 flex items-center justify-center gap-2 rounded-xl border px-3 py-2
+                    text-sm transition-colors duration-150 ${
+                        confirmClearAll
+                            ? "border-error/40 bg-error/15 text-error"
+                            : "border-primary/15 text-description hover:text-error"
+                    }`}
+                >
+                    <Trash2 size={15} />
+                    {confirmClearAll ? t("ConfirmClearAllChats") : t("ClearAllChats")}
+                </button>
+            )}
         </div>
     );
 
