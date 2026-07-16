@@ -16,6 +16,7 @@ import {
 import { streamAgentMessage } from "@beyou/api/agent/agentStream";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useAgentRefresh } from "../../hooks/useAgentRefresh";
+import Modal from "../modals/Modal";
 import AgentSegments from "./AgentSegments";
 
 const VISIBLE_ROLES = ["USER", "ASSISTANT"];
@@ -65,11 +66,12 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     // switching away doesn't lock the composer or show a phantom "thinking"
     // bubble in a different chat.
     const [streamingChatId, setStreamingChatId] = useState<string | null>(null);
-    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-    // Inline chat-title editing + the two-tap "clear all" confirm.
+    // Pending destructive action awaiting confirmation in the shared Modal —
+    // one chat, or "all" (reset). Clearer than a two-tap-to-confirm button.
+    const [confirm, setConfirm] = useState<{ kind: "chat"; chat: agentChat } | { kind: "all" } | null>(null);
+    // Inline chat-title editing.
     const [editingChatId, setEditingChatId] = useState<string | null>(null);
     const [editingTitle, setEditingTitle] = useState("");
-    const [confirmClearAll, setConfirmClearAll] = useState(false);
     // Streaming reply in flight: segments accumulate in a ref (cheap) and are
     // flushed to state once per animation frame — a setState per token would
     // re-render the markdown tree dozens of times a second.
@@ -214,7 +216,6 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
             return;
         }
         setChats((prev) => prev.filter((c) => c.id !== chatId));
-        setConfirmDeleteId(null);
         if (activeChatId === chatId) {
             setActiveChatId(null);
             activeChatIdRef.current = null;
@@ -251,7 +252,6 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     };
 
     const clearAllChats = async () => {
-        setConfirmClearAll(false);
         const response = await deleteAllAgentChats(t);
         if (response.error) {
             toast.error(getFriendlyErrorMessage(t, response.error));
@@ -263,6 +263,13 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         setMessages([]);
         clearStreaming();
         toast.success(t("ClearAllChatsDone"));
+    };
+
+    const runConfirm = () => {
+        if (!confirm) return;
+        if (confirm.kind === "chat") removeChat(confirm.chat.id);
+        else clearAllChats();
+        setConfirm(null);
     };
 
     const send = async (rawText?: string) => {
@@ -421,17 +428,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         )}
                         <button
                             type="button"
-                            aria-label={confirmDeleteId === chat.id ? t("ConfirmDeleteChat") : t("DeleteChat")}
-                            title={confirmDeleteId === chat.id ? t("ConfirmDeleteChat") : t("DeleteChat")}
-                            onClick={() =>
-                                confirmDeleteId === chat.id ? removeChat(chat.id) : setConfirmDeleteId(chat.id)
-                            }
-                            onBlur={() => setConfirmDeleteId(null)}
-                            className={`mr-2 rounded-lg p-2 transition-all duration-150 ${
-                                confirmDeleteId === chat.id
-                                    ? "bg-error/15 text-error"
-                                    : "text-description hover:text-error"
-                            }`}
+                            aria-label={t("DeleteChat")}
+                            title={t("DeleteChat")}
+                            onClick={() => setConfirm({ kind: "chat", chat })}
+                            className="mr-2 rounded-lg p-2 text-description transition-colors duration-150 hover:text-error"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -441,21 +441,46 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
             {chats.length > 0 && (
                 <button
                     type="button"
-                    title={t("ClearAllChatsConfirm")}
-                    onClick={() => (confirmClearAll ? clearAllChats() : setConfirmClearAll(true))}
-                    onBlur={() => setConfirmClearAll(false)}
-                    className={`m-2 flex items-center justify-center gap-2 rounded-xl border px-3 py-2
-                    text-sm transition-colors duration-150 ${
-                        confirmClearAll
-                            ? "border-error/40 bg-error/15 text-error"
-                            : "border-primary/15 text-description hover:text-error"
-                    }`}
+                    onClick={() => setConfirm({ kind: "all" })}
+                    className="m-2 flex items-center justify-center gap-2 rounded-xl border border-primary/15
+                    px-3 py-2 text-sm text-description transition-colors duration-150 hover:text-error"
                 >
                     <Trash2 size={15} />
-                    {confirmClearAll ? t("ConfirmClearAllChats") : t("ClearAllChats")}
+                    {t("ClearAllChats")}
                 </button>
             )}
         </div>
+    );
+
+    const confirmDialog = confirm && (
+        <Modal isOpen onClose={() => setConfirm(null)} labelledBy="agent-confirm-title" className="max-w-sm">
+            <h2 id="agent-confirm-title" className="text-lg font-semibold">
+                {confirm.kind === "all" ? t("ClearAllChats") : t("DeleteChat")}
+            </h2>
+            <p className="mt-2 text-sm text-description">
+                {confirm.kind === "all"
+                    ? t("ClearAllChatsConfirm")
+                    : t("DeleteChatConfirm", { title: confirm.chat.title })}
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+                <button
+                    type="button"
+                    onClick={() => setConfirm(null)}
+                    className="rounded-xl px-4 py-2 text-sm font-medium text-secondary hover:bg-primary/10"
+                >
+                    {t("Cancel")}
+                </button>
+                <button
+                    type="button"
+                    autoFocus
+                    onClick={runConfirm}
+                    className="rounded-xl bg-error px-4 py-2 text-sm font-semibold text-white
+                    transition-transform duration-150 hover:scale-105"
+                >
+                    {t("Delete")}
+                </button>
+            </div>
+        </Modal>
     );
 
     const headerButton = "rounded-lg p-2 text-secondary transition-colors duration-150 hover:bg-primary/10";
@@ -694,6 +719,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                             </div>
                         </div>
                     </motion.div>
+                    {confirmDialog}
                 </>
             )}
         </AnimatePresence>

@@ -730,6 +730,7 @@
     "AgentThinking": "Pensando...",
     "DeleteChat": "Excluir conversa",
     "ConfirmDeleteChat": "Clique novamente para confirmar",
+    "DeleteChatConfirm": "Excluir \"{{title}}\"? Não dá pra desfazer.",
     "RenameChat": "Renomear conversa",
     "SaveTitle": "Salvar título",
     "ClearAllChats": "Limpar todas as conversas",

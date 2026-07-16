@@ -730,6 +730,7 @@
     "AgentThinking": "Thinking...",
     "DeleteChat": "Delete chat",
     "ConfirmDeleteChat": "Click again to confirm",
+    "DeleteChatConfirm": "Delete \"{{title}}\"? This can't be undone.",
     "RenameChat": "Rename chat",
     "SaveTitle": "Save title",
     "ClearAllChats": "Clear all conversations",
