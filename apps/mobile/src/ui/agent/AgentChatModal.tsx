@@ -13,7 +13,7 @@ import {
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, History, Plus, Send, Sparkles, Trash2, X } from 'lucide-react-native';
+import { ArrowLeft, Check, History, Pencil, Plus, Send, Sparkles, Trash2, X } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import AgentSegments from './AgentSegments';
 import type { AgentChatState } from './useAgentChat';
@@ -38,6 +38,8 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
   const insets = useContext(SafeAreaInsetsContext);
   const router = useRouter();
   const [pane, setPane] = useState<'thread' | 'history'>('thread');
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
   const scrollRef = useRef<ScrollView>(null);
 
   // Agent-suggested in-app link: the modal covers the screen, so close first.
@@ -48,8 +50,21 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
 
   const {
     chats, activeChat, activeChatId, messages, streamSegments, input, setInput,
-    isSending, openChat, startNewChat, removeChat, send,
+    isSending, openChat, startNewChat, removeChat, renameChat, clearAllChats, send,
   } = chat;
+
+  const submitRename = (chatId: string) => {
+    const title = editingTitle;
+    setEditingChatId(null);
+    renameChat(chatId, title);
+  };
+
+  const confirmClearAll = () => {
+    Alert.alert(t('ClearAllChats'), t('ClearAllChatsConfirm'), [
+      { text: t('Cancel'), style: 'cancel' },
+      { text: t('Delete'), style: 'destructive', onPress: () => clearAllChats() },
+    ]);
+  };
 
   useEffect(() => {
     if (visible) setPane('thread');
@@ -135,42 +150,89 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
         </View>
 
         {pane === 'history' ? (
-          <ScrollView className="flex-1 p-2">
-            {chats.length === 0 && (
-              <Text className="px-3 py-6 text-center text-sm text-description">
-                {t('NoChatsYet')}
-              </Text>
-            )}
-            {chats.map((item) => (
-              <View
-                key={item.id}
-                className={`flex-row items-center rounded-xl ${
-                  item.id === activeChatId ? 'bg-primary/10' : ''
-                }`}
+          <View className="flex-1">
+            <ScrollView className="flex-1 p-2">
+              {chats.length === 0 && (
+                <Text className="px-3 py-6 text-center text-sm text-description">
+                  {t('NoChatsYet')}
+                </Text>
+              )}
+              {chats.map((item) => (
+                <View
+                  key={item.id}
+                  className={`flex-row items-center rounded-xl ${
+                    item.id === activeChatId ? 'bg-primary/10' : ''
+                  }`}
+                >
+                  {editingChatId === item.id ? (
+                    <TextInput
+                      autoFocus
+                      value={editingTitle}
+                      onChangeText={setEditingTitle}
+                      maxLength={255}
+                      onSubmitEditing={() => submitRename(item.id)}
+                      onBlur={() => submitRename(item.id)}
+                      className="min-w-0 flex-1 rounded-lg border border-primary/30 bg-background px-3 py-2 text-sm text-secondary"
+                      testID={`agent-rename-input-${item.id}`}
+                    />
+                  ) : (
+                    <Pressable
+                      onPress={() => {
+                        openChat(item.id);
+                        setPane('thread');
+                      }}
+                      className="min-w-0 flex-1 px-3 py-3"
+                    >
+                      <Text numberOfLines={1} className="text-sm font-medium text-secondary">
+                        {item.title}
+                      </Text>
+                      <Text className="text-xs text-description">{formatDay(item.updatedAt)}</Text>
+                    </Pressable>
+                  )}
+                  {editingChatId === item.id ? (
+                    <Pressable
+                      accessibilityLabel={t('SaveTitle')}
+                      onPress={() => submitRename(item.id)}
+                      className="mr-1 h-9 w-9 items-center justify-center rounded-lg"
+                    >
+                      <Check size={17} color={theme.primary} />
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      accessibilityLabel={t('RenameChat')}
+                      onPress={() => {
+                        setEditingChatId(item.id);
+                        setEditingTitle(item.title);
+                      }}
+                      className="h-9 w-9 items-center justify-center rounded-lg"
+                      testID={`agent-rename-${item.id}`}
+                    >
+                      <Pencil size={15} color={theme.description} />
+                    </Pressable>
+                  )}
+                  <Pressable
+                    accessibilityLabel={t('DeleteChat')}
+                    onPress={() => confirmDelete(item.id, item.title)}
+                    className="mr-1 h-9 w-9 items-center justify-center rounded-lg"
+                    testID={`agent-delete-${item.id}`}
+                  >
+                    <Trash2 size={16} color={theme.description} />
+                  </Pressable>
+                </View>
+              ))}
+            </ScrollView>
+            {chats.length > 0 && (
+              <Pressable
+                accessibilityLabel={t('ClearAllChats')}
+                onPress={confirmClearAll}
+                className="m-2 flex-row items-center justify-center gap-2 rounded-xl border border-primary/15 px-3 py-2.5 active:bg-error/10"
+                testID="agent-clear-all"
               >
-                <Pressable
-                  onPress={() => {
-                    openChat(item.id);
-                    setPane('thread');
-                  }}
-                  className="min-w-0 flex-1 px-3 py-3"
-                >
-                  <Text numberOfLines={1} className="text-sm font-medium text-secondary">
-                    {item.title}
-                  </Text>
-                  <Text className="text-xs text-description">{formatDay(item.updatedAt)}</Text>
-                </Pressable>
-                <Pressable
-                  accessibilityLabel={t('DeleteChat')}
-                  onPress={() => confirmDelete(item.id, item.title)}
-                  className="mr-1 h-9 w-9 items-center justify-center rounded-lg"
-                  testID={`agent-delete-${item.id}`}
-                >
-                  <Trash2 size={16} color={theme.description} />
-                </Pressable>
-              </View>
-            ))}
-          </ScrollView>
+                <Trash2 size={15} color={theme.error} />
+                <Text className="text-sm text-error">{t('ClearAllChats')}</Text>
+              </Pressable>
+            )}
+          </View>
         ) : (
           <>
             {/* Messages / empty state */}

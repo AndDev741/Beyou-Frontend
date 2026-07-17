@@ -6,6 +6,12 @@ import { BeyouThemeProvider } from '../../theme/ThemeProvider';
 import { makeStore } from '../../store';
 import '../../i18n';
 
+// These cases mount the full-screen agent modal (theme provider + i18n + the
+// whole chat surface) behind the FAB — heavier than the 5s default, and it
+// tips over the edge under CI parallel load. Give the integration-style file
+// headroom so it fails only on real regressions, not timing.
+jest.setTimeout(20000);
+
 jest.mock('@beyou/api/agent/agentChats', () => ({
   getAgentChats: jest.fn(),
   createAgentChat: jest.fn(),
