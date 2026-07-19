@@ -293,7 +293,15 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                     }`}
                   >
                     {streamSegments.length > 0 ? (
-                      <AgentSegments segments={streamSegments} onInternalLink={goToPage} />
+                      <>
+                        <AgentSegments segments={streamSegments} onInternalLink={goToPage} />
+                        {/* Still streaming: keep a small spinner under the growing reply. */}
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.primary}
+                          style={{ marginTop: 8, alignSelf: 'flex-start' }}
+                        />
+                      </>
                     ) : (
                       <ActivityIndicator size="small" color={theme.primary} />
                     )}
