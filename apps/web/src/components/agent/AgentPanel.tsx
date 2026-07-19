@@ -33,7 +33,10 @@ function TypingDots() {
             {[0, 150, 300].map((delay) => (
                 <span
                     key={delay}
-                    className="h-2 w-2 animate-bounce rounded-full bg-primary/60"
+                    // Theme colors are plain CSS-var strings, so Tailwind opacity
+                    // modifiers (bg-primary/60) silently compile to NOTHING —
+                    // use the solid color + opacity utility instead.
+                    className="h-2 w-2 animate-bounce rounded-full bg-primary opacity-70"
                     style={{ animationDelay: `${delay}ms` }}
                 />
             ))}
@@ -670,7 +673,17 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     aria-label={t("AgentThinking")}
                                                 >
                                                     {streamSegments.length > 0
-                                                        ? <AgentSegments segments={streamSegments} />
+                                                        ? (
+                                                            <>
+                                                                <AgentSegments segments={streamSegments} />
+                                                                {/* Blinking caret: the reply is still streaming. */}
+                                                                <span
+                                                                    aria-hidden="true"
+                                                                    className="mt-1.5 inline-block h-4 w-2
+                                                                    animate-pulse rounded-sm bg-primary"
+                                                                />
+                                                            </>
+                                                        )
                                                         : <TypingDots />}
                                                 </div>
                                             )}
