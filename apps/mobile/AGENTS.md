@@ -175,20 +175,6 @@ map (day → routine name) locally — there is no `SCHEDULE_CONFLICT` backend e
 
 **Snapshot history** — The routines list screen (`app/(app)/routines.tsx`) shows past-day snapshots when the user picks a past chip in `RoutinesOverview`. `RoutinesOverview` fetches `getSnapshotsForDay(date, t)` — ONE call returning all of the day's snapshots (`GET /routine/snapshot?date=`), not one-per-routine. Each `Snapshot` now carries its own `routineId`, so it builds a `{ snapshot, routineId }[]` pair array from `s.routineId` and renders a `SnapshotWithCheckin` wrapper per pair (defined in `RoutinesOverview.tsx`) that calls `useSnapshotCheckin(routineId)` with the correct routine id. (The per-routine month-dates fetch for the calendar dots is still a `Promise.all` over routines — separate endpoint, not yet batched.) The per-routine `SnapshotHistory.tsx` detail component and its test were removed (orphans after the detail route was cut in Task 6). `SnapshotCard` is pure presentation; `useSnapshotCheckin` calls `checkSnapshotItem`/`skipSnapshotItem`, pipes the `RefreshUiDTO` through `applyRefreshUi`, and dispatches `enterSnapshot` to re-sync display state.
 
-**AI wizard** — `src/ui/routines/AiRoutineSheet.tsx` is a bottom-sheet `Modal` with a single text
-input (testID `ai-description`). On submit it calls `generateRoutine` (draft → server AI), then
-`materializeRoutine` (draft → creates real habits/tasks/categories in the backend). The returned
-`MaterializeResponseDTO` is mapped to `RoutineSection[]` via `materializeToSections` from
-`@beyou/api/ai/draftMapping`, and then passed to `onReady(name, sections)`. The list screen
-(`app/(app)/routines.tsx`) wires it as follows: the AI button (testID `ai-routine`,
-`sparkles-outline` icon) opens `AiRoutineSheet`; `onReady` closes the sheet and sets `aiSeed`
-state (`{ name, iconId: '', routineSections }`); a dedicated seeded `RoutineBuilder mode="create"`
-renders when `aiSeed !== null`, pre-populated via its `routine` prop. **Orphan-on-cancel quirk
-(web parity):** `materializeRoutine` creates entities in the backend *before* the user saves the
-builder. If the user cancels the seeded builder, those habits/tasks/categories are left orphaned —
-this matches the web app's behaviour and is a known product decision, not a bug. The e2e profile
-swaps in a `CannedRoutineDraftGenerator` (deterministic, no real API key needed).
-
 ## Tutorial / onboarding (Phase 8)
 
 **Phase state + persistence + boot gate**

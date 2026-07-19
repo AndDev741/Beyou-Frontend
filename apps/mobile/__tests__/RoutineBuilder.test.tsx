@@ -50,15 +50,6 @@ test('shows an inline, section-qualified error when an item time is outside the 
   expect(err.props.children).toContain('Wake: ');
 });
 
-test('edit mode shows the in-form Adjust with AI button', async () => {
-  const routine = { id: 'r1', name: 'Morning', iconId: '', routineSections: [
-    { id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0, habitGroup: [], taskGroup: [] },
-  ] } as never;
-  await wrap(<RoutineBuilder visible mode="edit" routine={routine} habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
-  expect(screen.getByTestId('ai-routine')).toBeTruthy();
-  expect(screen.getByText(/Adjust with AI/)).toBeTruthy();
-});
-
 test('posts a routine with a section', async () => {
   const onSaved = jest.fn();
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={onSaved} />);

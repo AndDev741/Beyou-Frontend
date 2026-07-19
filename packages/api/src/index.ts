@@ -58,10 +58,6 @@ export { default as editTask } from './tasks/editTask';
 export { default as getTasks } from './tasks/getTasks';
 
 // AI
-export * from './ai/draftMapping';
-export { default as generateRoutine } from './ai/generateRoutine';
-export { default as materializeRoutine } from './ai/materializeRoutine';
-export * from './ai/sortDraft';
 
 // User
 export { default as editUser } from './user/editUser';

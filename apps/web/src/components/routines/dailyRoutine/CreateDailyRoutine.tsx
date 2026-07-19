@@ -19,7 +19,6 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { routineFormSchema } from "@beyou/validation/forms/routineSchemas";
-import CreateRoutineWithAi from "../ai/CreateRoutineWithAi";
 
 const CreateDailyRoutine = ({
     onSectionChange,
@@ -36,8 +35,6 @@ const CreateDailyRoutine = ({
 
     const [editIndex, setEditIndex] = useState<number | null>(null);
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
-    const [showAiWizard, setShowAiWizard] = useState(false);
-    const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set());
 
     const {
         control,
@@ -132,15 +129,8 @@ const CreateDailyRoutine = ({
         const routinesResponse = await getRoutines(t);
         dispatch(enterRoutines(routinesResponse?.success));
         setRoutineSection([]);
-        setNewItemIds(new Set());
         reset({ routineName: "", routineSections: [] });
         toast.success(t("created successfully"));
-    };
-
-    const handleAiApply = (name: string, sections: RoutineSection[], aiNewItemIds: string[]) => {
-        if (name) setValue("routineName", name, { shouldValidate: true });
-        setRoutineSection(sections);
-        setNewItemIds(new Set(aiNewItemIds));
     };
 
     const handleOnDragEnd = (result: any) => {
@@ -175,18 +165,6 @@ const CreateDailyRoutine = ({
                 {errors.routineName?.message && (
                     <p className="text-error text-center mt-2">{errors.routineName?.message}</p>
                 )}
-
-                <button
-                    className="absolute top-3 left-3 flex flex-col items-center hover:scale-105 transition-transform duration-200"
-                    data-testid="create-with-ai"
-                    onClick={() => setShowAiWizard(true)}
-                    type="button"
-                >
-                    <span className="text-[26px]" aria-hidden="true">✨</span>
-                    <span className="text-sm text-center font-medium mt-1 whitespace-pre-line">
-                        {t("CreateWithAi")}
-                    </span>
-                </button>
 
                 <button
                     className="absolute top-3 right-3 flex flex-col items-center"
@@ -239,7 +217,6 @@ const CreateDailyRoutine = ({
                                                         onDelete={() => handleDeleteSection(index)}
                                                         setRoutineSection={setRoutineSection}
                                                         index={index}
-                                                        newItemIds={newItemIds}
                                                     />
                                                 </div>
                                             )}
@@ -288,14 +265,6 @@ const CreateDailyRoutine = ({
                         />
                     </div>
                 </div>
-            )}
-            {showAiWizard && (
-                <CreateRoutineWithAi
-                    currentName={getValues("routineName")}
-                    currentSections={routineSection}
-                    onApply={handleAiApply}
-                    onClose={() => setShowAiWizard(false)}
-                />
             )}
 
             <div className="my-2 mb-6 flex flex-col items-center">

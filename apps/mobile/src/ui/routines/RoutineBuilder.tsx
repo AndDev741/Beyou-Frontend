@@ -17,7 +17,6 @@ import SectionSheet from './SectionSheet';
 import ItemPickerSheet from './ItemPickerSheet';
 import SectionCard from './SectionCard';
 import RoutineTypePicker from './RoutineTypePicker';
-import AiRoutineSheet from './AiRoutineSheet';
 import { notify } from '../../notify';
 
 interface RoutineBuilderProps {
@@ -42,7 +41,6 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   const [itemSheet, setItemSheet] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
-  const [aiOpen, setAiOpen] = useState(false);
   // Plain create starts on the type-picker; edit / AI-seeded create skip straight to the form.
   const [typeChosen, setTypeChosen] = useState(false);
 
@@ -52,7 +50,6 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
     setWorking(routine ? JSON.parse(JSON.stringify(routine)) : emptyRoutine());
     setTypeChosen(isEdit || !!routine);
     setFormError(undefined);
-    setAiOpen(false);
   }, [visible, routine, isEdit]);
 
   const setSections = (routineSections: RoutineSection[]) =>
@@ -126,14 +123,6 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           </ScrollView>
         ) : (
         <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: bottomPad }} keyboardShouldPersistTaps="handled">
-          <Pressable
-            onPress={() => setAiOpen(true)}
-            accessibilityRole="button"
-            testID="ai-routine"
-            className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-primary px-4 py-2.5 active:opacity-80"
-          >
-            <Text className="text-primary text-base font-semibold">✨ {t(isEdit ? 'AdjustWithAi' : 'CreateWithAi')}</Text>
-          </Pressable>
           <View>
             <Text className="text-secondary mb-1 text-base font-semibold">{t('Routine name')}</Text>
             <Input value={working.name} onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))} placeholder={t('Routine name')} accessibilityLabel={t('Routine name')} testID="routine-name" />
@@ -193,13 +182,6 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
             onClose={() => setItemSheet(null)}
           />
         ) : null}
-        <AiRoutineSheet
-          visible={aiOpen}
-          currentName={working.name}
-          currentSections={working.routineSections}
-          onApply={(name, sections) => setWorking((w) => ({ ...w, name: name || w.name, routineSections: sections }))}
-          onClose={() => setAiOpen(false)}
-        />
       </View>
     </Modal>
   );
