@@ -1,6 +1,5 @@
 export * from './common';
 export * from './routineValidation';
-export * from './forms/aiRoutineSchemas';
 export * from './forms/authSchemas';
 export * from './forms/categorySchemas';
 export * from './forms/goalSchemas';

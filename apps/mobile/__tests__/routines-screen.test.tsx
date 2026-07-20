@@ -52,18 +52,6 @@ test('the + button opens the type picker, then the builder', async () => {
   expect(screen.getByTestId('routine-name')).toBeTruthy();
 });
 
-test('the AI button lives inside the create form and opens the AI sheet', async () => {
-  setHttp([]);
-  await renderScreen();
-  await waitFor(() => expect(screen.getByTestId('create-routine')).toBeTruthy());
-  // No AI shortcut on the list header anymore — it lives in the form.
-  expect(screen.queryByTestId('ai-routine')).toBeNull();
-  await act(async () => { fireEvent.press(screen.getByTestId('create-routine')); });
-  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
-  await act(async () => { fireEvent.press(screen.getByTestId('ai-routine')); });
-  expect(screen.getByTestId('ai-description')).toBeTruthy();
-});
-
 test('today mode shows the sort pill + an expandable card', async () => {
   setHttp([routine]);
   await renderScreen();

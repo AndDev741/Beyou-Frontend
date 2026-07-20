@@ -1,6 +1,4 @@
 // AI types
-export * from './ai/materialize';
-export * from './ai/routineDraft';
 
 // Agent chat types
 export * from './agent/chatType';
