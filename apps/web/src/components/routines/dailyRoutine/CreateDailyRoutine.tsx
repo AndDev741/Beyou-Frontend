@@ -41,7 +41,6 @@ const CreateDailyRoutine = ({
         handleSubmit,
         reset,
         setValue,
-        getValues,
         setError,
         clearErrors,
         formState: { errors }

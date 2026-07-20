@@ -37,7 +37,6 @@ const EditDailyRoutine = () => {
         handleSubmit,
         reset,
         setValue,
-        getValues,
         setError,
         clearErrors,
         formState: { errors }
