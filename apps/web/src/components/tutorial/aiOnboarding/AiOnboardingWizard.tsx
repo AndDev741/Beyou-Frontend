@@ -6,12 +6,18 @@ import { useDispatch } from "react-redux";
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import fetchOnboardingSuggestions from "@beyou/api/onboarding/fetchOnboardingSuggestions";
-import { HabitSuggestion, TaskSuggestion } from "@beyou/types/onboarding/suggestions";
+import {
+    HabitSuggestion,
+    RoutineSuggestion,
+    TaskSuggestion
+} from "@beyou/types/onboarding/suggestions";
 import CategoriesStep from "./CategoriesStep";
 import HabitsTasksStep, { HabitsTasksSelection } from "./HabitsTasksStep";
+import RoutineStep from "./RoutineStep";
 import {
     createCategoriesFromSuggestions,
     createHabitsFromSuggestions,
+    createRoutineFromSuggestion,
     createTasksFromSuggestions,
     CreatedRef
 } from "./createFromSuggestions";
@@ -72,11 +78,14 @@ export default function AiOnboardingWizard({
         habits: HabitSuggestion[];
         tasks: TaskSuggestion[];
     } | null>(null);
+    const [suggestedRoutine, setSuggestedRoutine] = useState<RoutineSuggestion | null>(null);
 
     // Holds the last failed async action so the error banner's Retry can re-run it.
     const retryRef = useRef<(() => Promise<void>) | null>(null);
     // Guards the habitsTasks initial fetch so it only fires once per wizard run.
     const habitsTasksRequested = useRef(false);
+    // Same one-shot guard for the routine draft fetch.
+    const routineRequested = useRef(false);
 
     const runGuarded = async (action: () => Promise<void>) => {
         retryRef.current = action;
@@ -177,6 +186,50 @@ export default function AiOnboardingWizard({
         });
     };
 
+    const routineContext = (feedback?: string) => ({
+        categories: data.categories.map((c) => c.name),
+        habits: data.habits.map((h) => ({ name: h.name })),
+        tasks: data.tasks.map((task) => ({ name: task.name })),
+        freeTexts: data.freeTexts,
+        ...(feedback ? { feedback } : {})
+    });
+
+    const fetchRoutineSuggestion = (feedback?: string) => async () => {
+        const res = await fetchOnboardingSuggestions(
+            { step: "ROUTINE", context: routineContext(feedback) },
+            t
+        );
+        if (res.error || !res.success?.routine) {
+            throw new Error("suggestions failed");
+        }
+        setSuggestedRoutine(res.success.routine);
+    };
+
+    useEffect(() => {
+        if (step !== "routine" || routineRequested.current) return;
+        routineRequested.current = true;
+        void runGuarded(fetchRoutineSuggestion());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step]);
+
+    const handleRoutineRegenerate = (feedback: string) => {
+        void runGuarded(fetchRoutineSuggestion(feedback || undefined));
+    };
+
+    const handleRoutineAccept = (edited: RoutineSuggestion, days: string[]) => {
+        void runGuarded(async () => {
+            const { name } = await createRoutineFromSuggestion(
+                { ...edited, scheduleDays: days },
+                data.habits,
+                data.tasks,
+                t,
+                dispatch
+            );
+            setData((prev) => ({ ...prev, routineName: name }));
+            setStep("goals");
+        });
+    };
+
     const handleRetry = () => {
         if (retryRef.current) void runGuarded(retryRef.current);
     };
@@ -260,8 +313,13 @@ export default function AiOnboardingWizard({
                                     onContinue={handleHabitsTasksContinue}
                                 />
                             )}
-                            {step === "routine" && (
-                                <div data-testid="ai-onboarding-routine-placeholder" />
+                            {step === "routine" && suggestedRoutine && (
+                                <RoutineStep
+                                    suggestion={suggestedRoutine}
+                                    loading={busy}
+                                    onRegenerate={handleRoutineRegenerate}
+                                    onAccept={handleRoutineAccept}
+                                />
                             )}
                             {step === "goals" && (
                                 <div data-testid="ai-onboarding-goals-placeholder" />

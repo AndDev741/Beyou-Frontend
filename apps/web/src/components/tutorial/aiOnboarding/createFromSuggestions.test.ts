@@ -15,10 +15,18 @@ const getTasks = vi.fn();
 vi.mock("@beyou/api/tasks/createTask", () => ({ default: (...a: unknown[]) => createTask(...a) }));
 vi.mock("@beyou/api/tasks/getTasks", () => ({ default: (...a: unknown[]) => getTasks(...a) }));
 
+const createRoutine = vi.fn();
+const getRoutines = vi.fn();
+const createSchedule = vi.fn();
+vi.mock("@beyou/api/routine/createRoutine", () => ({ default: (...a: unknown[]) => createRoutine(...a) }));
+vi.mock("@beyou/api/routine/getRoutines", () => ({ default: (...a: unknown[]) => getRoutines(...a) }));
+vi.mock("@beyou/api/schedule/createSchedule", () => ({ default: (...a: unknown[]) => createSchedule(...a) }));
+
 import {
   createCategoriesFromSuggestions,
   createHabitsFromSuggestions,
-  createTasksFromSuggestions
+  createTasksFromSuggestions,
+  createRoutineFromSuggestion
 } from "./createFromSuggestions";
 
 const t = ((k: string) => k) as never;
@@ -109,6 +117,54 @@ describe("createTasksFromSuggestions", () => {
       [{ name: "Buy shoes", description: "d", iconId: "lucide:zap",
          categoryName: "Health", importance: 3, difficulty: 3 }],
       [{ id: "cat-1", name: "Health" }], t, vi.fn()
+    )).rejects.toThrow();
+  });
+});
+
+describe("createRoutineFromSuggestion", () => {
+  beforeEach(() => { createRoutine.mockReset(); getRoutines.mockReset(); createSchedule.mockReset(); });
+
+  test("builds Routine from suggestion resolving item names to ids, schedules it", async () => {
+    createRoutine.mockResolvedValue({ success: {} });
+    getRoutines.mockResolvedValue({ success: [{ id: "r-1", name: "Morning flow" }] });
+    createSchedule.mockResolvedValue({ success: {} });
+
+    const result = await createRoutineFromSuggestion(
+      { name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["MONDAY"],
+        sections: [{ name: "Wake", iconId: "lucide:sun", startTime: "07:00", endTime: "08:00",
+          habits: [{ name: "Run", startTime: "07:00", endTime: "07:30" }],
+          tasks: [{ name: "Ghost task", startTime: "07:30", endTime: "07:40" }] }] },
+      [{ id: "h-1", name: "Run" }], [], t, vi.fn());
+
+    const routineArg = createRoutine.mock.calls[0][0];
+    expect(routineArg.name).toBe("Morning flow");
+    expect(routineArg.routineSections[0].habitGroup).toEqual(
+      [{ habitId: "h-1", startTime: "07:00", endTime: "07:30" }]);
+    expect(routineArg.routineSections[0].taskGroup).toEqual([]); // unknown names dropped
+    expect(createSchedule).toHaveBeenCalledWith(["MONDAY"], "r-1", t);
+    expect(result).toEqual({ routineId: "r-1", name: "Morning flow" });
+  });
+
+  test("dispatches the re-fetched routines into redux", async () => {
+    createRoutine.mockResolvedValue({ success: {} });
+    getRoutines.mockResolvedValue({ success: [{ id: "r-1", name: "Morning flow" }] });
+    createSchedule.mockResolvedValue({ success: {} });
+    const dispatch = vi.fn();
+
+    await createRoutineFromSuggestion(
+      { name: "Morning flow", iconId: "lucide:sun", scheduleDays: [],
+        sections: [] },
+      [], [], t, dispatch);
+
+    expect(dispatch).toHaveBeenCalled(); // enterRoutines with the fetched list
+    expect(createSchedule).not.toHaveBeenCalled(); // no days selected -> no schedule
+  });
+
+  test("throws when the create fails so the wizard can show retry", async () => {
+    createRoutine.mockResolvedValue({ error: { message: "nope" } });
+    await expect(createRoutineFromSuggestion(
+      { name: "Morning flow", iconId: "lucide:sun", scheduleDays: [], sections: [] },
+      [], [], t, vi.fn()
     )).rejects.toThrow();
   });
 });

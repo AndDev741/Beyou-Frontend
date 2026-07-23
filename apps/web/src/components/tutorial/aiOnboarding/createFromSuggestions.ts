@@ -6,12 +6,18 @@ import createHabit from "@beyou/api/habits/createHabit";
 import getHabits from "@beyou/api/habits/getHabits";
 import createTask from "@beyou/api/tasks/createTask";
 import getTasks from "@beyou/api/tasks/getTasks";
+import createRoutine from "@beyou/api/routine/createRoutine";
+import getRoutines from "@beyou/api/routine/getRoutines";
+import createSchedule from "@beyou/api/schedule/createSchedule";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
+import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { enterTasks } from "@beyou/state/task/tasksSlice";
+import { Routine } from "@beyou/types/routine/routine";
 import {
     CategorySuggestion,
     HabitSuggestion,
+    RoutineSuggestion,
     TaskSuggestion
 } from "@beyou/types/onboarding/suggestions";
 
@@ -103,6 +109,67 @@ export async function createTasksFromSuggestions(
     return (all.success as Array<{ id: string; name: string }>)
         .filter((task) => wanted.has(task.name))
         .map((task) => ({ id: task.id, name: task.name }));
+}
+
+/** Create the accepted routine draft for real: resolve item names to the ids created
+ *  in the previous step (unknown names are dropped — the AI may hallucinate items),
+ *  re-fetch to learn the new routine's id, refresh redux, and schedule the days. */
+export async function createRoutineFromSuggestion(
+    suggestion: RoutineSuggestion,
+    habits: CreatedRef[],
+    tasks: CreatedRef[],
+    t: TFunction,
+    dispatch: Dispatch
+): Promise<{ routineId: string; name: string }> {
+    const byName = (refs: CreatedRef[]) =>
+        new Map(refs.map((r) => [r.name.toLowerCase(), r.id]));
+    const habitIds = byName(habits);
+    const taskIds = byName(tasks);
+
+    const routine: Routine = {
+        name: suggestion.name,
+        iconId: suggestion.iconId,
+        routineSections: suggestion.sections.map((s, i) => ({
+            id: "",
+            order: i,
+            name: s.name,
+            iconId: s.iconId,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            habitGroup: s.habits
+                .filter((h) => habitIds.has(h.name.toLowerCase()))
+                .map((h) => ({
+                    habitId: habitIds.get(h.name.toLowerCase())!,
+                    startTime: h.startTime,
+                    endTime: h.endTime
+                })),
+            taskGroup: s.tasks
+                .filter((item) => taskIds.has(item.name.toLowerCase()))
+                .map((item) => ({
+                    taskId: taskIds.get(item.name.toLowerCase())!,
+                    startTime: item.startTime,
+                    endTime: item.endTime
+                }))
+        }))
+    };
+
+    const res = await createRoutine(routine, t);
+    if (res.error) throw new Error(res.error.message ?? "create routine failed");
+
+    // The create response doesn't reliably carry the id -> re-fetch and match by
+    // name (which also refreshes redux with the new routine).
+    const all = await getRoutines(t);
+    const list = all.success;
+    if (all.error || !Array.isArray(list)) throw new Error("fetch routines failed");
+    dispatch(enterRoutines(list));
+    const created = list.find((r) => r.name === suggestion.name);
+    if (!created?.id) throw new Error("created routine not found");
+
+    if (suggestion.scheduleDays.length > 0) {
+        const sched = await createSchedule(suggestion.scheduleDays, created.id, t);
+        if (sched.error) throw new Error(sched.error.message ?? "create schedule failed");
+    }
+    return { routineId: created.id, name: suggestion.name };
 }
 
 function resolveCategoryId(categoryName: string, categories: CreatedRef[]): string | undefined {
