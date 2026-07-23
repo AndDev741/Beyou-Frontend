@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Sparkles, AlertTriangle, RotateCcw, Compass } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,8 +6,15 @@ import { useDispatch } from "react-redux";
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import fetchOnboardingSuggestions from "@beyou/api/onboarding/fetchOnboardingSuggestions";
+import { HabitSuggestion, TaskSuggestion } from "@beyou/types/onboarding/suggestions";
 import CategoriesStep from "./CategoriesStep";
-import { createCategoriesFromSuggestions, CreatedRef } from "./createFromSuggestions";
+import HabitsTasksStep, { HabitsTasksSelection } from "./HabitsTasksStep";
+import {
+    createCategoriesFromSuggestions,
+    createHabitsFromSuggestions,
+    createTasksFromSuggestions,
+    CreatedRef
+} from "./createFromSuggestions";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -61,9 +68,15 @@ export default function AiOnboardingWizard({
     });
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [suggestedHabitsTasks, setSuggestedHabitsTasks] = useState<{
+        habits: HabitSuggestion[];
+        tasks: TaskSuggestion[];
+    } | null>(null);
 
     // Holds the last failed async action so the error banner's Retry can re-run it.
     const retryRef = useRef<(() => Promise<void>) | null>(null);
+    // Guards the habitsTasks initial fetch so it only fires once per wizard run.
+    const habitsTasksRequested = useRef(false);
 
     const runGuarded = async (action: () => Promise<void>) => {
         retryRef.current = action;
@@ -94,6 +107,73 @@ export default function AiOnboardingWizard({
             );
             setData((prev) => ({ ...prev, categories: refs }));
             setStep("habitsTasks");
+        });
+    };
+
+    const habitsTasksContext = () => ({
+        categories: data.categories.map((c) => c.name)
+    });
+
+    const fetchHabitsTasksSuggestions = async () => {
+        const res = await fetchOnboardingSuggestions(
+            { step: "HABITS_TASKS", context: habitsTasksContext() },
+            t
+        );
+        if (res.error || !res.success) {
+            throw new Error("suggestions failed");
+        }
+        setSuggestedHabitsTasks({
+            habits: res.success.habits ?? [],
+            tasks: res.success.tasks ?? []
+        });
+    };
+
+    useEffect(() => {
+        if (step !== "habitsTasks" || habitsTasksRequested.current) return;
+        habitsTasksRequested.current = true;
+        void runGuarded(fetchHabitsTasksSuggestions);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step]);
+
+    const handleFetchMoreHabitsTasks = async (newRequest: string) => {
+        const res = await fetchOnboardingSuggestions(
+            { step: "HABITS_TASKS", context: habitsTasksContext(), newRequest },
+            t
+        );
+        if (res.error || !res.success) {
+            // Route the failure through the shared error banner; Retry re-fetches
+            // fresh suggestions since the step's local state unmounts with it.
+            retryRef.current = fetchHabitsTasksSuggestions;
+            setError("ai");
+            throw new Error("suggestions failed");
+        }
+        return {
+            habits: res.success.habits ?? [],
+            tasks: res.success.tasks ?? []
+        };
+    };
+
+    const handleHabitsTasksContinue = (sel: HabitsTasksSelection) => {
+        void runGuarded(async () => {
+            const habitRefs = await createHabitsFromSuggestions(
+                sel.habits,
+                data.categories,
+                t,
+                dispatch
+            );
+            const taskRefs = await createTasksFromSuggestions(
+                sel.tasks,
+                data.categories,
+                t,
+                dispatch
+            );
+            setData((prev) => ({
+                ...prev,
+                habits: habitRefs,
+                tasks: taskRefs,
+                freeTexts: [...prev.freeTexts, ...sel.freeTexts]
+            }));
+            setStep("routine");
         });
     };
 
@@ -171,8 +251,14 @@ export default function AiOnboardingWizard({
                                     loading={busy}
                                 />
                             )}
-                            {step === "habitsTasks" && (
-                                <div data-testid="ai-onboarding-habits-tasks-placeholder" />
+                            {step === "habitsTasks" && suggestedHabitsTasks && (
+                                <HabitsTasksStep
+                                    categories={data.categories}
+                                    initial={suggestedHabitsTasks}
+                                    loading={busy}
+                                    fetchMore={handleFetchMoreHabitsTasks}
+                                    onContinue={handleHabitsTasksContinue}
+                                />
                             )}
                             {step === "routine" && (
                                 <div data-testid="ai-onboarding-routine-placeholder" />
