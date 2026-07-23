@@ -7,6 +7,7 @@ import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import fetchOnboardingSuggestions from "@beyou/api/onboarding/fetchOnboardingSuggestions";
 import {
+    GoalSuggestion,
     HabitSuggestion,
     RoutineSuggestion,
     TaskSuggestion
@@ -14,8 +15,11 @@ import {
 import CategoriesStep from "./CategoriesStep";
 import HabitsTasksStep, { HabitsTasksSelection } from "./HabitsTasksStep";
 import RoutineStep from "./RoutineStep";
+import GoalsStep from "./GoalsStep";
+import SummaryStep from "./SummaryStep";
 import {
     createCategoriesFromSuggestions,
+    createGoalsFromSuggestions,
     createHabitsFromSuggestions,
     createRoutineFromSuggestion,
     createTasksFromSuggestions,
@@ -79,6 +83,7 @@ export default function AiOnboardingWizard({
         tasks: TaskSuggestion[];
     } | null>(null);
     const [suggestedRoutine, setSuggestedRoutine] = useState<RoutineSuggestion | null>(null);
+    const [suggestedGoals, setSuggestedGoals] = useState<GoalSuggestion[] | null>(null);
 
     // Holds the last failed async action so the error banner's Retry can re-run it.
     const retryRef = useRef<(() => Promise<void>) | null>(null);
@@ -86,6 +91,8 @@ export default function AiOnboardingWizard({
     const habitsTasksRequested = useRef(false);
     // Same one-shot guard for the routine draft fetch.
     const routineRequested = useRef(false);
+    // Same one-shot guard for the goals suggestions fetch.
+    const goalsRequested = useRef(false);
 
     const runGuarded = async (action: () => Promise<void>) => {
         retryRef.current = action;
@@ -230,6 +237,61 @@ export default function AiOnboardingWizard({
         });
     };
 
+    const goalsContext = () => ({
+        categories: data.categories.map((c) => c.name),
+        habits: data.habits.map((h) => ({ name: h.name })),
+        tasks: data.tasks.map((task) => ({ name: task.name })),
+        freeTexts: data.freeTexts
+    });
+
+    const fetchGoalsSuggestions = async () => {
+        const res = await fetchOnboardingSuggestions(
+            { step: "GOALS", context: goalsContext() },
+            t
+        );
+        if (res.error || !res.success) {
+            throw new Error("suggestions failed");
+        }
+        setSuggestedGoals(res.success.goals ?? []);
+    };
+
+    useEffect(() => {
+        if (step !== "goals" || goalsRequested.current) return;
+        goalsRequested.current = true;
+        void runGuarded(fetchGoalsSuggestions);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step]);
+
+    const handleFetchMoreGoals = async (newRequest: string) => {
+        const res = await fetchOnboardingSuggestions(
+            { step: "GOALS", context: goalsContext(), newRequest },
+            t
+        );
+        if (res.error || !res.success) {
+            // Route the failure through the shared error banner; Retry re-fetches
+            // fresh suggestions since the step's local state unmounts with it.
+            retryRef.current = fetchGoalsSuggestions;
+            setError("ai");
+            throw new Error("suggestions failed");
+        }
+        return res.success.goals ?? [];
+    };
+
+    const handleGoalsContinue = (selected: GoalSuggestion[]) => {
+        void runGuarded(async () => {
+            const refs = await createGoalsFromSuggestions(selected, data.categories, t, dispatch);
+            setData((prev) => ({ ...prev, goals: refs }));
+            setStep("summary");
+        });
+    };
+
+    // Persist tutorial completion; the wizard unmounts when the phase leaves "ai-onboarding".
+    const handleStart = () => {
+        void runGuarded(async () => {
+            await onFinish();
+        });
+    };
+
     const handleRetry = () => {
         if (retryRef.current) void runGuarded(retryRef.current);
     };
@@ -321,32 +383,21 @@ export default function AiOnboardingWizard({
                                     onAccept={handleRoutineAccept}
                                 />
                             )}
-                            {step === "goals" && (
-                                <div data-testid="ai-onboarding-goals-placeholder" />
+                            {step === "goals" && suggestedGoals && (
+                                <GoalsStep
+                                    categories={data.categories}
+                                    initial={suggestedGoals}
+                                    loading={busy}
+                                    fetchMore={handleFetchMoreGoals}
+                                    onContinue={handleGoalsContinue}
+                                />
                             )}
                             {step === "summary" && (
-                                <div
-                                    data-testid="ai-onboarding-summary-placeholder"
-                                    className="flex flex-col items-center gap-6 text-center"
-                                >
-                                    <h2 className="text-2xl md:text-3xl font-semibold text-secondary">
-                                        {t("AiOnboardingSummaryTitle")}
-                                    </h2>
-                                    <p className="text-description max-w-md">
-                                        {t("AiOnboardingSummaryDescription")}
-                                    </p>
-                                    <p className="text-sm text-description">
-                                        {t("AiOnboardingSummaryCategories")}: {data.categories.length}
-                                    </p>
-                                    <button
-                                        type="button"
-                                        onClick={() => void onFinish()}
-                                        className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                                    >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("AiOnboardingStart")}
-                                    </button>
-                                </div>
+                                <SummaryStep
+                                    data={data}
+                                    onStart={handleStart}
+                                    onTour={onTakeTour}
+                                />
                             )}
                         </motion.div>
                     </AnimatePresence>

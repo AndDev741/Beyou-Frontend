@@ -22,8 +22,14 @@ vi.mock("@beyou/api/routine/createRoutine", () => ({ default: (...a: unknown[]) 
 vi.mock("@beyou/api/routine/getRoutines", () => ({ default: (...a: unknown[]) => getRoutines(...a) }));
 vi.mock("@beyou/api/schedule/createSchedule", () => ({ default: (...a: unknown[]) => createSchedule(...a) }));
 
+const createGoal = vi.fn();
+const getGoals = vi.fn();
+vi.mock("@beyou/api/goals/createGoal", () => ({ default: (...a: unknown[]) => createGoal(...a) }));
+vi.mock("@beyou/api/goals/getGoals", () => ({ default: (...a: unknown[]) => getGoals(...a) }));
+
 import {
   createCategoriesFromSuggestions,
+  createGoalsFromSuggestions,
   createHabitsFromSuggestions,
   createTasksFromSuggestions,
   createRoutineFromSuggestion
@@ -165,6 +171,66 @@ describe("createRoutineFromSuggestion", () => {
     await expect(createRoutineFromSuggestion(
       { name: "Morning flow", iconId: "lucide:sun", scheduleDays: [], sections: [] },
       [], [], t, vi.fn()
+    )).rejects.toThrow();
+  });
+});
+
+describe("createGoalsFromSuggestions", () => {
+  beforeEach(() => { createGoal.mockReset(); getGoals.mockReset(); });
+
+  test("creates goals with dates derived from durationDays, status NOT_STARTED, currentValue 0", async () => {
+    createGoal.mockResolvedValue({ success: {} });
+    getGoals.mockResolvedValue({ success: [{ id: "g-1", name: "Read 12 books" }] });
+    vi.useFakeTimers(); vi.setSystemTime(new Date("2026-07-23"));
+
+    try {
+      const refs = await createGoalsFromSuggestions(
+        [{ name: "Read 12 books", description: "d", iconId: "lucide:book-open", categoryName: "Reading",
+           targetValue: 12, unit: "books", motivation: "grow", term: "LONG_TERM", durationDays: 365 }],
+        [{ id: "cat-r", name: "Reading" }], t, vi.fn());
+
+      expect(createGoal).toHaveBeenCalledWith("Read 12 books", "lucide:book-open", "d", 12, "books",
+        0, ["cat-r"], "grow", "2026-07-23", "2027-07-23", "NOT_STARTED", "LONG_TERM", t);
+      expect(refs).toEqual([{ id: "g-1", name: "Read 12 books" }]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("falls back to term-based duration when durationDays is not positive", async () => {
+    createGoal.mockResolvedValue({ success: {} });
+    getGoals.mockResolvedValue({ success: [{ id: "g-1", name: "Save money" }] });
+    vi.useFakeTimers(); vi.setSystemTime(new Date("2026-07-23"));
+
+    try {
+      await createGoalsFromSuggestions(
+        [{ name: "Save money", description: "d", iconId: "lucide:piggy-bank", categoryName: "Finances",
+           targetValue: 500, unit: "USD", motivation: null, term: "SHORT_TERM", durationDays: 0 }],
+        [{ id: "cat-f", name: "Finances" }], t, vi.fn());
+
+      // SHORT_TERM fallback = 30 days; null motivation becomes ""
+      expect(createGoal).toHaveBeenCalledWith("Save money", "lucide:piggy-bank", "d", 500, "USD",
+        0, ["cat-f"], "", "2026-07-23", "2026-08-22", "NOT_STARTED", "SHORT_TERM", t);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("skips API calls entirely for an empty selection", async () => {
+    const dispatch = vi.fn();
+    const refs = await createGoalsFromSuggestions([], [], t, dispatch);
+    expect(refs).toEqual([]);
+    expect(createGoal).not.toHaveBeenCalled();
+    expect(getGoals).not.toHaveBeenCalled();
+    expect(dispatch).not.toHaveBeenCalled();
+  });
+
+  test("throws when a create fails so the wizard can show retry", async () => {
+    createGoal.mockResolvedValue({ error: { message: "nope" } });
+    await expect(createGoalsFromSuggestions(
+      [{ name: "Read 12 books", description: "d", iconId: "lucide:book-open", categoryName: "Reading",
+         targetValue: 12, unit: "books", motivation: "grow", term: "LONG_TERM", durationDays: 365 }],
+      [{ id: "cat-r", name: "Reading" }], t, vi.fn()
     )).rejects.toThrow();
   });
 });

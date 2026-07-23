@@ -9,13 +9,17 @@ import getTasks from "@beyou/api/tasks/getTasks";
 import createRoutine from "@beyou/api/routine/createRoutine";
 import getRoutines from "@beyou/api/routine/getRoutines";
 import createSchedule from "@beyou/api/schedule/createSchedule";
+import createGoal from "@beyou/api/goals/createGoal";
+import getGoals from "@beyou/api/goals/getGoals";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";
+import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { enterTasks } from "@beyou/state/task/tasksSlice";
 import { Routine } from "@beyou/types/routine/routine";
 import {
     CategorySuggestion,
+    GoalSuggestion,
     HabitSuggestion,
     RoutineSuggestion,
     TaskSuggestion
@@ -170,6 +174,52 @@ export async function createRoutineFromSuggestion(
         if (sched.error) throw new Error(sched.error.message ?? "create schedule failed");
     }
     return { routineId: created.id, name: suggestion.name };
+}
+
+/** How far out a goal's end date lands when the AI didn't provide a usable duration. */
+const TERM_FALLBACK_DAYS = { SHORT_TERM: 30, MEDIUM_TERM: 90, LONG_TERM: 365 } as const;
+
+const toIsoDate = (d: Date) => d.toISOString().slice(0, 10);
+
+/** Create accepted goals starting today with an end date derived from `durationDays`
+ *  (falling back per `term`), status NOT_STARTED and progress zero. */
+export async function createGoalsFromSuggestions(
+    suggestions: GoalSuggestion[],
+    categories: CreatedRef[],
+    t: TFunction,
+    dispatch: Dispatch
+): Promise<CreatedRef[]> {
+    if (suggestions.length === 0) return [];
+    const today = new Date();
+    for (const s of suggestions) {
+        const categoryId = resolveCategoryId(s.categoryName, categories);
+        const days = s.durationDays > 0 ? s.durationDays : TERM_FALLBACK_DAYS[s.term];
+        const end = new Date(today);
+        end.setDate(end.getDate() + days);
+        const res = await createGoal(
+            s.name,
+            s.iconId,
+            s.description,
+            s.targetValue,
+            s.unit,
+            0,
+            categoryId ? [categoryId] : [],
+            s.motivation ?? "",
+            toIsoDate(today),
+            toIsoDate(end),
+            "NOT_STARTED",
+            s.term,
+            t
+        );
+        if (res.error) throw new Error(res.error.message ?? "create goal failed");
+    }
+    const all = await getGoals(t);
+    if (all.error || !Array.isArray(all.success)) throw new Error("fetch goals failed");
+    dispatch(enterGoals(all.success));
+    const wanted = new Set(suggestions.map((s) => s.name));
+    return (all.success as Array<{ id: string; name: string }>)
+        .filter((g) => wanted.has(g.name))
+        .map((g) => ({ id: g.id, name: g.name }));
 }
 
 function resolveCategoryId(categoryName: string, categories: CreatedRef[]): string | undefined {
