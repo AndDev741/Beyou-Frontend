@@ -27,6 +27,7 @@ import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import TutorialFinale from "../../components/tutorial/TutorialFinale";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
+import AiOnboardingWizard from "../../components/tutorial/aiOnboarding/AiOnboardingWizard";
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
 
@@ -108,6 +109,7 @@ function Dashboard() {
     const {
         showFinale,
         showIntroModal,
+        showAiOnboarding,
         showDashboardSpotlight,
         showHabitsDashboardSpotlight,
         showRoutinesDashboardSpotlight,
@@ -175,6 +177,13 @@ function Dashboard() {
                     isActive={showConfigDashboardSpotlight}
                     onComplete={completeConfigDashboardSpotlight}
                     onSkip={completeTutorial}
+                />
+            )}
+            {showAiOnboarding && (
+                <AiOnboardingWizard
+                    onFinish={completeTutorial}
+                    onTakeTour={startDashboardSpotlight}
+                    onFallbackToManual={startDashboardSpotlight}
                 />
             )}
             {showFinale && <TutorialFinale onDone={completeTutorial} />}
