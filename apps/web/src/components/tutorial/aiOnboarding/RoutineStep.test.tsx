@@ -3,7 +3,7 @@ import { describe, test, expect, vi } from "vitest";
 import RoutineStep from "./RoutineStep";
 
 const suggestion = {
-  name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["MONDAY"],
+  name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["Monday"],
   sections: [
     { name: "Wake", iconId: "lucide:sun", startTime: "07:00", endTime: "08:00",
       habits: [{ name: "Run", startTime: "07:00", endTime: "07:30" }], tasks: [] },
@@ -34,7 +34,7 @@ describe("RoutineStep", () => {
     render(<RoutineStep suggestion={suggestion} onAccept={onAccept} onRegenerate={vi.fn()} loading={false} />);
     fireEvent.click(screen.getByRole("button", { name: /TUESDAY/i }));
     fireEvent.click(screen.getByRole("button", { name: "AiOnboardingRoutineAccept" }));
-    expect(onAccept.mock.calls[0][1]).toEqual(["MONDAY", "TUESDAY"]);
+    expect(onAccept.mock.calls[0][1]).toEqual(["Monday", "Tuesday"]);
   });
 
   test("moving an item to another section keeps its times", () => {

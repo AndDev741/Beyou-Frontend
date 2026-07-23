@@ -25,13 +25,13 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const WEEK_DAYS = [
-    "MONDAY",
-    "TUESDAY",
-    "WEDNESDAY",
-    "THURSDAY",
-    "FRIDAY",
-    "SATURDAY",
-    "SUNDAY"
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
 ] as const;
 
 const MAX_STAGGER_DELAY = 0.4;

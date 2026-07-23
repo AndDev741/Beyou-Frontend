@@ -136,7 +136,7 @@ describe("createRoutineFromSuggestion", () => {
     createSchedule.mockResolvedValue({ success: {} });
 
     const result = await createRoutineFromSuggestion(
-      { name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["MONDAY"],
+      { name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["Monday"],
         sections: [{ name: "Wake", iconId: "lucide:sun", startTime: "07:00", endTime: "08:00",
           habits: [{ name: "Run", startTime: "07:00", endTime: "07:30" }],
           tasks: [{ name: "Ghost task", startTime: "07:30", endTime: "07:40" }] }] },
@@ -147,7 +147,7 @@ describe("createRoutineFromSuggestion", () => {
     expect(routineArg.routineSections[0].habitGroup).toEqual(
       [{ habitId: "h-1", startTime: "07:00", endTime: "07:30" }]);
     expect(routineArg.routineSections[0].taskGroup).toEqual([]); // unknown names dropped
-    expect(createSchedule).toHaveBeenCalledWith(["MONDAY"], "r-1", t);
+    expect(createSchedule).toHaveBeenCalledWith(["Monday"], "r-1", t);
     expect(result).toEqual({ routineId: "r-1", name: "Morning flow" });
   });
 
