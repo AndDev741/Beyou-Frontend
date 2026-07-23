@@ -40,6 +40,10 @@ export const useDashboardTutorial = () => {
         setPhase("dashboard");
     }, [setPhase]);
 
+    const startAiOnboarding = useCallback(() => {
+        setPhase("ai-onboarding");
+    }, [setPhase]);
+
     const completeDashboardSpotlight = useCallback(() => {
         setPhase("categories");
         navigate("/categories");
@@ -71,6 +75,7 @@ export const useDashboardTutorial = () => {
     const configDashboardSteps = useMemo(() => getConfigDashboardSteps(), []);
 
     const showIntroModal = tutorialPhase === "intro";
+    const showAiOnboarding = tutorialPhase === "ai-onboarding";
     const showDashboardSpotlight = tutorialPhase === "dashboard";
     const showHabitsDashboardSpotlight =
         tutorialPhase === "habits-dashboard" || tutorialPhase === "habits";
@@ -84,6 +89,7 @@ export const useDashboardTutorial = () => {
         isTutorialCompleted,
         showFinale,
         showIntroModal,
+        showAiOnboarding,
         showDashboardSpotlight,
         showHabitsDashboardSpotlight,
         showRoutinesDashboardSpotlight,
@@ -95,6 +101,7 @@ export const useDashboardTutorial = () => {
         routineSummarySteps,
         configDashboardSteps,
         startDashboardSpotlight,
+        startAiOnboarding,
         completeDashboardSpotlight,
         completeHabitsDashboardSpotlight,
         completeRoutinesDashboardSpotlight,

@@ -119,6 +119,7 @@ function Dashboard() {
         routineSummarySteps,
         configDashboardSteps,
         startDashboardSpotlight,
+        startAiOnboarding,
         completeDashboardSpotlight,
         completeHabitsDashboardSpotlight,
         completeRoutinesDashboardSpotlight,
@@ -133,6 +134,7 @@ function Dashboard() {
                 <OnboardingTutorial
                     onComplete={startDashboardSpotlight}
                     onSkip={completeTutorial}
+                    onChooseAi={startAiOnboarding}
                 />
             )}
             {showDashboardSpotlight && (
