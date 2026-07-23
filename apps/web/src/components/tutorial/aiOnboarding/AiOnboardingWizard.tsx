@@ -106,13 +106,13 @@ export default function AiOnboardingWizard({
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-[var(--background)] overflow-y-auto">
             {/* Ambient glow */}
-            <div className="pointer-events-none absolute -z-10 -top-24 -left-24 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
-            <div className="pointer-events-none absolute -z-10 -bottom-24 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
+            <div className="pointer-events-none absolute -z-10 -top-24 -left-24 w-72 h-72 bg-primary opacity-[0.15] rounded-full blur-3xl" />
+            <div className="pointer-events-none absolute -z-10 -bottom-24 -right-24 w-72 h-72 bg-primary opacity-[0.1] rounded-full blur-3xl" />
 
             {/* Header: step dots + escape hatch */}
             <header className="flex items-center justify-between gap-4 px-4 md:px-8 pt-5 pb-3 shrink-0">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white shadow-md shadow-primary/25">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white shadow-md">
                         <Sparkles className="w-4 h-4" />
                     </div>
                     <div className="hidden sm:flex items-center gap-2" aria-hidden="true">
@@ -124,8 +124,8 @@ export default function AiOnboardingWizard({
                                     index === currentIndex
                                         ? "w-8 bg-primary"
                                         : index < currentIndex
-                                          ? "w-4 bg-primary/50"
-                                          : "w-4 bg-description/30"
+                                          ? "w-4 bg-primary opacity-50"
+                                          : "w-4 bg-description opacity-30"
                                 )}
                             />
                         ))}
@@ -197,7 +197,7 @@ export default function AiOnboardingWizard({
                                     <button
                                         type="button"
                                         onClick={() => void onFinish()}
-                                        className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white hover:bg-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                                        className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {t("AiOnboardingStart")}
@@ -222,8 +222,17 @@ interface ErrorBannerProps {
 
 function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
     return (
-        <div className="w-full max-w-md rounded-3xl border border-primary/20 bg-secondary/5 p-8 text-center shadow-lg">
-            <div className="mx-auto mb-5 flex w-14 h-14 items-center justify-center rounded-2xl bg-primary/10">
+        <div
+            className="w-full max-w-md rounded-3xl border p-8 text-center shadow-lg"
+            style={{
+                backgroundColor: "color-mix(in srgb, var(--secondary) 6%, var(--background))",
+                borderColor: "color-mix(in srgb, var(--primary) 20%, var(--background))"
+            }}
+        >
+            <div
+                className="mx-auto mb-5 flex w-14 h-14 items-center justify-center rounded-2xl"
+                style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
+            >
                 <AlertTriangle className="w-7 h-7 text-primary" />
             </div>
             <h2 className="text-xl font-semibold text-secondary mb-2">
@@ -234,7 +243,7 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                 <button
                     type="button"
                     onClick={onRetry}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-white hover:bg-primary/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <RotateCcw className="w-4 h-4" />
                     {t("AiOnboardingRetry")}
@@ -242,7 +251,8 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                 <button
                     type="button"
                     onClick={onTakeTour}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-secondary/10 px-5 py-2.5 font-semibold text-secondary hover:bg-secondary/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                     <Compass className="w-4 h-4" />
                     {t("AiOnboardingTakeTour")}
@@ -254,7 +264,10 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
 
 function BusyOverlay({ label, spin }: { label: string; spin: boolean }) {
     return (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-background/80 backdrop-blur-sm">
+        <div
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 backdrop-blur-sm"
+            style={{ backgroundColor: "color-mix(in srgb, var(--background) 82%, transparent)" }}
+        >
             <div className="relative flex items-center justify-center">
                 <div
                     className={cn(

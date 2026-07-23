@@ -204,13 +204,14 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                   aria-label={t("TutorialPathAiTitle")}
                   whileHover={prefersReducedMotion ? undefined : { y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative flex-1 text-left rounded-2xl p-6 md:p-7 overflow-hidden border border-primary/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="group relative flex-1 text-left rounded-2xl p-6 md:p-7 overflow-hidden border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   style={{
                     background:
-                      "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--background)), var(--background))"
+                      "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--background)), var(--background))",
+                    borderColor: "color-mix(in srgb, var(--primary) 40%, var(--background))"
                   }}
                 >
-                  <div className="absolute -z-10 -top-10 -right-10 w-32 h-32 bg-primary/30 rounded-full blur-3xl transition-opacity group-hover:opacity-90" />
+                  <div className="absolute -z-10 -top-10 -right-10 w-32 h-32 bg-primary opacity-30 rounded-full blur-3xl transition-opacity group-hover:opacity-90" />
 
                   <div className="flex items-center justify-between mb-4">
                     <div
@@ -244,9 +245,16 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                   aria-label={t("TutorialPathManualTitle")}
                   whileHover={prefersReducedMotion ? undefined : { y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group flex-1 text-left rounded-2xl p-6 md:p-7 bg-secondary/5 border border-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  style={{
+                    backgroundColor: "color-mix(in srgb, var(--secondary) 5%, var(--background))",
+                    borderColor: "color-mix(in srgb, var(--primary) 15%, var(--background))"
+                  }}
+                  className="group flex-1 text-left rounded-2xl p-6 md:p-7 border focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-secondary/10 mb-4">
+                  <div
+                    className="w-12 h-12 flex items-center justify-center rounded-xl mb-4"
+                    style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
+                  >
                     <Compass className="w-6 h-6 text-secondary" />
                   </div>
 
