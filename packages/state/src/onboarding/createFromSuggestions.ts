@@ -11,11 +11,11 @@ import getRoutines from "@beyou/api/routine/getRoutines";
 import createSchedule from "@beyou/api/schedule/createSchedule";
 import createGoal from "@beyou/api/goals/createGoal";
 import getGoals from "@beyou/api/goals/getGoals";
-import { enterCategories } from "@beyou/state/category/categoriesSlice";
-import { enterGoals } from "@beyou/state/goal/goalsSlice";
-import { enterHabits } from "@beyou/state/habit/habitsSlice";
-import { enterRoutines } from "@beyou/state/routine/routinesSlice";
-import { enterTasks } from "@beyou/state/task/tasksSlice";
+import { enterCategories } from "../category/categoriesSlice";
+import { enterGoals } from "../goal/goalsSlice";
+import { enterHabits } from "../habit/habitsSlice";
+import { enterRoutines } from "../routine/routinesSlice";
+import { enterTasks } from "../task/tasksSlice";
 import { Routine } from "@beyou/types/routine/routine";
 import {
     CategorySuggestion,

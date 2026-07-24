@@ -17,7 +17,7 @@ import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { HabitSuggestion, TaskSuggestion } from "@beyou/types/onboarding/suggestions";
 import SuggestionCard from "./SuggestionCard";
-import { CreatedRef } from "./createFromSuggestions";
+import { CreatedRef } from "@beyou/state/onboarding/createFromSuggestions";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));

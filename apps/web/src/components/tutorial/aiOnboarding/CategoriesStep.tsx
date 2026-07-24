@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import BeyouIcon from "../../../ui/BeyouIcon";
-import { DEFAULT_CATEGORIES } from "./defaultCategories";
+import { DEFAULT_CATEGORIES } from "@beyou/state/onboarding/defaultCategories";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));

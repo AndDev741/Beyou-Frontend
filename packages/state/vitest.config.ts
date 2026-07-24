@@ -13,6 +13,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@beyou/api': fileURLToPath(new URL('../api/src', import.meta.url)),
       '@beyou/types': fileURLToPath(new URL('../types/src', import.meta.url)),
       '@beyou/theme': fileURLToPath(new URL('../theme/src', import.meta.url)),
     },

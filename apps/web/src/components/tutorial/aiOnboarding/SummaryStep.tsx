@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { WizardData } from "./AiOnboardingWizard";
-import { CreatedRef } from "./createFromSuggestions";
+import { CreatedRef } from "@beyou/state/onboarding/createFromSuggestions";
 
 interface SummaryStepProps {
     data: WizardData;

@@ -30,7 +30,7 @@ import {
     createRoutineFromSuggestion,
     createTasksFromSuggestions,
     CreatedRef
-} from "./createFromSuggestions";
+} from "@beyou/state/onboarding/createFromSuggestions";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
