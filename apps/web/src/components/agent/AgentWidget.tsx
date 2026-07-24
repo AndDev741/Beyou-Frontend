@@ -1,7 +1,9 @@
 import { lazy, Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import { useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import type { RootState } from "@beyou/state/rootReducer";
 
 // Lazy: react-markdown and the whole chat surface stay out of the boot
 // bundle until the first FAB click.
@@ -15,6 +17,9 @@ const AgentPanel = lazy(() => import("./AgentPanel"));
 function AgentWidget() {
     const { t } = useTranslation();
     const reducedMotion = useReducedMotion();
+    const isTutorialCompleted = useSelector(
+        (state: RootState) => state.perfil.isTutorialCompleted,
+    );
     const [open, setOpen] = useState(false);
     const [hasOpened, setHasOpened] = useState(false);
 
@@ -22,6 +27,12 @@ function AgentWidget() {
         setHasOpened(true);
         setOpen(true);
     };
+
+    // Hidden until onboarding finishes: the tutorial (manual or AI) should own
+    // the user's attention, and the AI wizard already covers assisted setup.
+    if (!isTutorialCompleted) {
+        return null;
+    }
 
     return (
         <>
