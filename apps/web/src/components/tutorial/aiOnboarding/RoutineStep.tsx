@@ -188,6 +188,31 @@ export default function RoutineStep({
         });
     };
 
+    /** Edit an item's start/end time in place. Empty values (mid-edit) are ignored. */
+    const setItemTime = (
+        kind: ItemKind,
+        sectionIndex: number,
+        itemIndex: number,
+        field: "startTime" | "endTime",
+        value: string
+    ) => {
+        if (!value) return;
+        setDraft((prev) => ({
+            ...prev,
+            sections: prev.sections.map((section, i) =>
+                i === sectionIndex
+                    ? withItems(
+                          section,
+                          kind,
+                          section[kind].map((item, j) =>
+                              j === itemIndex ? { ...item, [field]: value } : item
+                          )
+                      )
+                    : section
+            )
+        }));
+    };
+
     const removeItem = (kind: ItemKind, sectionIndex: number, itemIndex: number) => {
         setDraft((prev) => ({
             ...prev,
@@ -307,6 +332,7 @@ export default function RoutineStep({
                                                 canMoveEarlier={pos > 0}
                                                 canMoveLater={pos < entries.length - 1}
                                                 onReorder={reorderItem}
+                                                onTimeChange={setItemTime}
                                                 onMove={moveItem}
                                                 onRemove={removeItem}
                                                 t={t}
@@ -427,6 +453,13 @@ interface ItemRowProps {
     canMoveEarlier: boolean;
     canMoveLater: boolean;
     onReorder: (kind: ItemKind, sectionIndex: number, itemIndex: number, direction: -1 | 1) => void;
+    onTimeChange: (
+        kind: ItemKind,
+        sectionIndex: number,
+        itemIndex: number,
+        field: "startTime" | "endTime",
+        value: string
+    ) => void;
     onMove: (kind: ItemKind, fromSection: number, itemIndex: number, toSection: number) => void;
     onRemove: (kind: ItemKind, sectionIndex: number, itemIndex: number) => void;
     t: (key: string) => string;
@@ -443,45 +476,67 @@ function ItemRow({
     canMoveEarlier,
     canMoveLater,
     onReorder,
+    onTimeChange,
     onMove,
     onRemove,
     t
 }: ItemRowProps) {
     const Glyph = kind === "habits" ? Repeat : ListChecks;
+    const arrowClass = (enabled: boolean) =>
+        cn(
+            "flex w-7 h-7 shrink-0 items-center justify-center rounded-lg text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            enabled ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
+        );
+    const timeInputClass =
+        "shrink-0 rounded-lg border bg-background px-1.5 py-1 text-xs text-secondary tabular-nums focus:outline-none focus:ring-2 focus:ring-primary";
+    const timeInputStyle = { borderColor: "color-mix(in srgb, var(--primary) 18%, var(--background))" };
     return (
+        // Two tiers on mobile (name row, controls row) — a single line can't
+        // hold name + times + arrows + select + remove on a phone.
         <li
-            className="flex items-center gap-2 rounded-xl px-2.5 py-2"
+            className="flex flex-col gap-1.5 rounded-xl px-2.5 py-2 md:flex-row md:items-center md:gap-2"
             style={{ backgroundColor: "color-mix(in srgb, var(--background) 60%, transparent)" }}
         >
-            <span
-                className="flex w-7 h-7 shrink-0 items-center justify-center rounded-lg"
-                style={{
-                    backgroundColor: `color-mix(in srgb, var(${
-                        kind === "habits" ? "--primary" : "--secondary"
-                    }) 10%, var(--background))`
-                }}
-            >
-                <Glyph
-                    className={cn("w-3.5 h-3.5", kind === "habits" ? "text-primary" : "text-secondary")}
-                    aria-hidden="true"
-                />
-            </span>
-            <span className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-center sm:gap-2">
-                <span className="truncate text-sm font-medium text-secondary">{item.name}</span>
-                <span className="shrink-0 text-xs text-description tabular-nums">
-                    {item.startTime}–{item.endTime}
+            <span className="flex min-w-0 flex-1 items-center gap-2">
+                <span
+                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-lg"
+                    style={{
+                        backgroundColor: `color-mix(in srgb, var(${
+                            kind === "habits" ? "--primary" : "--secondary"
+                        }) 10%, var(--background))`
+                    }}
+                >
+                    <Glyph
+                        className={cn("w-3.5 h-3.5", kind === "habits" ? "text-primary" : "text-secondary")}
+                        aria-hidden="true"
+                    />
                 </span>
+                <span className="truncate text-sm font-medium text-secondary">{item.name}</span>
             </span>
-            <span className="flex shrink-0 flex-col">
+            <span className="flex flex-wrap items-center justify-end gap-1.5">
+                <input
+                    type="time"
+                    aria-label={t("Start time")}
+                    value={item.startTime}
+                    onChange={(e) => onTimeChange(kind, sectionIndex, itemIndex, "startTime", e.target.value)}
+                    style={timeInputStyle}
+                    className={timeInputClass}
+                />
+                <span className="text-xs text-description" aria-hidden="true">–</span>
+                <input
+                    type="time"
+                    aria-label={t("End time")}
+                    value={item.endTime}
+                    onChange={(e) => onTimeChange(kind, sectionIndex, itemIndex, "endTime", e.target.value)}
+                    style={timeInputStyle}
+                    className={timeInputClass}
+                />
                 <button
                     type="button"
                     aria-label={t("AiOnboardingMoveEarlier")}
                     disabled={!canMoveEarlier}
                     onClick={() => onReorder(kind, sectionIndex, itemIndex, -1)}
-                    className={cn(
-                        "flex h-4 w-6 items-center justify-center rounded text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                        canMoveEarlier ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
-                    )}
+                    className={arrowClass(canMoveEarlier)}
                 >
                     <ChevronUp className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -490,35 +545,32 @@ function ItemRow({
                     aria-label={t("AiOnboardingMoveLater")}
                     disabled={!canMoveLater}
                     onClick={() => onReorder(kind, sectionIndex, itemIndex, 1)}
-                    className={cn(
-                        "flex h-4 w-6 items-center justify-center rounded text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                        canMoveLater ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
-                    )}
+                    className={arrowClass(canMoveLater)}
                 >
                     <ChevronDown className="w-4 h-4" aria-hidden="true" />
                 </button>
+                <select
+                    aria-label={t("AiOnboardingMoveToSection")}
+                    value={sectionIndex}
+                    onChange={(e) => onMove(kind, sectionIndex, itemIndex, Number(e.target.value))}
+                    style={timeInputStyle}
+                    className="max-w-28 shrink-0 truncate rounded-lg border bg-background px-1.5 py-1 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                    {sections.map((section, index) => (
+                        <option key={`${section.name}-${index}`} value={index}>
+                            {section.name}
+                        </option>
+                    ))}
+                </select>
+                <button
+                    type="button"
+                    aria-label={t("AiOnboardingRemoveItem")}
+                    onClick={() => onRemove(kind, sectionIndex, itemIndex)}
+                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-lg text-description hover:text-primary hover:bg-background transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                    <X className="w-4 h-4" aria-hidden="true" />
+                </button>
             </span>
-            <select
-                aria-label={t("AiOnboardingMoveToSection")}
-                value={sectionIndex}
-                onChange={(e) => onMove(kind, sectionIndex, itemIndex, Number(e.target.value))}
-                style={{ borderColor: "color-mix(in srgb, var(--primary) 18%, var(--background))" }}
-                className="max-w-28 shrink-0 truncate rounded-lg border bg-background px-1.5 py-1 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-                {sections.map((section, index) => (
-                    <option key={`${section.name}-${index}`} value={index}>
-                        {section.name}
-                    </option>
-                ))}
-            </select>
-            <button
-                type="button"
-                aria-label={t("AiOnboardingRemoveItem")}
-                onClick={() => onRemove(kind, sectionIndex, itemIndex)}
-                className="flex w-7 h-7 shrink-0 items-center justify-center rounded-lg text-description hover:text-primary hover:bg-background transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-                <X className="w-4 h-4" aria-hidden="true" />
-            </button>
         </li>
     );
 }

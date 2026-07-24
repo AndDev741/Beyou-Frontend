@@ -44,6 +44,17 @@ describe("RoutineStep", () => {
     expect(accepted.sections[0].habits[0]).toEqual({ name: "Run", startTime: "07:10", endTime: "07:40" });
   });
 
+
+  test("editing an item's start time lands in the accepted draft", () => {
+    const onAccept = vi.fn();
+    render(<RoutineStep suggestion={suggestion} onAccept={onAccept} onRegenerate={vi.fn()} loading={false} />);
+
+    fireEvent.change(screen.getByLabelText("Start time"), { target: { value: "06:45" } });
+    fireEvent.click(screen.getByRole("button", { name: "AiOnboardingRoutineAccept" }));
+
+    expect(onAccept.mock.calls[0][0].sections[0].habits[0].startTime).toBe("06:45");
+  });
+
   test("feedback triggers regenerate", () => {
     const onRegenerate = vi.fn();
     render(<RoutineStep suggestion={suggestion} onAccept={vi.fn()} onRegenerate={onRegenerate} loading={false} />);
