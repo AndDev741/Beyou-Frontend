@@ -231,7 +231,8 @@ export default function OnboardingTutorial({
               testID="onboarding-prev"
               className="px-3 py-2"
             >
-              <Text className={isFirst ? 'text-description/40' : 'text-secondary font-semibold'}>
+              {/* Same weight on every card — only the color signals disabled. */}
+              <Text className={`font-semibold ${isFirst ? 'text-description/40' : 'text-secondary'}`}>
                 {t('TutorialPrevious')}
               </Text>
             </Pressable>
