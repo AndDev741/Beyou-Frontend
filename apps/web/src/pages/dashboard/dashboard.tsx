@@ -60,6 +60,33 @@ function Dashboard() {
     logger.log("Language in use => ", languageInUse)
     useChangeLanguage(languageInUse);
     
+    const {
+        showFinale,
+        showIntroModal,
+        showAiOnboarding,
+        showDashboardSpotlight,
+        showHabitsDashboardSpotlight,
+        showRoutinesDashboardSpotlight,
+        showRoutineSummarySpotlight,
+        showConfigDashboardSpotlight,
+        dashboardSteps,
+        habitsDashboardSteps,
+        routinesDashboardSteps,
+        routineSummarySteps,
+        configDashboardSteps,
+        startDashboardSpotlight,
+        startAiOnboarding,
+        completeDashboardSpotlight,
+        completeHabitsDashboardSpotlight,
+        completeRoutinesDashboardSpotlight,
+        completeRoutineSummarySpotlight,
+        completeConfigDashboardSpotlight,
+        completeTutorial
+    } = useDashboardTutorial();
+
+    // Also re-runs when the AI onboarding wizard closes (showAiOnboarding
+    // true -> false): the wizard creates entities — including the scheduled
+    // routine that getTodayRoutine depends on — after this initial load.
     useEffect(() => {
         let cancelled = false;
         const fetchDashboardData = async () => {
@@ -76,7 +103,7 @@ function Dashboard() {
         return () => {
             cancelled = true;
         };
-    }, [dispatch, t])
+    }, [dispatch, t, showAiOnboarding])
 
     useEffect(() => {
         if (!routine) return;
@@ -105,30 +132,6 @@ function Dashboard() {
         dispatch(totalItemsInScheduledRoutineEnter(totalCount));
 
     }, [routine]);
-
-    const {
-        showFinale,
-        showIntroModal,
-        showAiOnboarding,
-        showDashboardSpotlight,
-        showHabitsDashboardSpotlight,
-        showRoutinesDashboardSpotlight,
-        showRoutineSummarySpotlight,
-        showConfigDashboardSpotlight,
-        dashboardSteps,
-        habitsDashboardSteps,
-        routinesDashboardSteps,
-        routineSummarySteps,
-        configDashboardSteps,
-        startDashboardSpotlight,
-        startAiOnboarding,
-        completeDashboardSpotlight,
-        completeHabitsDashboardSpotlight,
-        completeRoutinesDashboardSpotlight,
-        completeRoutineSummarySpotlight,
-        completeConfigDashboardSpotlight,
-        completeTutorial
-    } = useDashboardTutorial();
 
     return (
         <>
