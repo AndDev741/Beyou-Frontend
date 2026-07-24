@@ -326,12 +326,18 @@ export default function AiOnboardingWizard({
     }, [step, data]);
 
     // Lock the page behind the overlay: without this the dashboard keeps its
-    // own scrollbar visible next to the wizard.
+    // own scrollbars visible next to the wizard. Both elements are locked —
+    // body-only relies on overflow propagation to the viewport, which breaks
+    // the moment anything sets overflow on <html>, and the dashboard keeps
+    // re-rendering (and growing) behind us as the wizard creates entities.
     useEffect(() => {
-        const previous = document.body.style.overflow;
+        const previousBody = document.body.style.overflow;
+        const previousHtml = document.documentElement.style.overflow;
         document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
         return () => {
-            document.body.style.overflow = previous;
+            document.body.style.overflow = previousBody;
+            document.documentElement.style.overflow = previousHtml;
         };
     }, []);
 
