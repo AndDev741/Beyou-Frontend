@@ -5,7 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { Sparkles, AlertTriangle, RotateCcw, Compass } from 'lucide-react-native';
 import fetchOnboardingSuggestions from '@beyou/api/onboarding/fetchOnboardingSuggestions';
-import { createCategoriesFromSuggestions } from '@beyou/state/onboarding/createFromSuggestions';
+import {
+  createCategoriesFromSuggestions,
+  createHabitsFromSuggestions,
+  createTasksFromSuggestions,
+} from '@beyou/state/onboarding/createFromSuggestions';
 import type { HabitSuggestion, TaskSuggestion } from '@beyou/types/onboarding/suggestions';
 import {
   clearWizardProgress,
@@ -17,6 +21,7 @@ import {
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { AppDispatch } from '../../store';
 import CategoriesStep from './CategoriesStep';
+import HabitsTasksStep, { type HabitsTasksSelection } from './HabitsTasksStep';
 import BusyOverlay from './BusyOverlay';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -177,6 +182,38 @@ export default function AiOnboardingWizard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, step]);
 
+  const handleFetchMoreHabitsTasks = async (newRequest: string) => {
+    const res = await fetchOnboardingSuggestions(
+      { step: 'HABITS_TASKS', context: habitsTasksContext(), newRequest },
+      t
+    );
+    if (res.error || !res.success) {
+      // Route the failure through the shared error banner; Retry re-fetches
+      // fresh suggestions since the step's local state unmounts with it.
+      retryRef.current = fetchHabitsTasksSuggestions;
+      setError(true);
+      throw new Error('suggestions failed');
+    }
+    return {
+      habits: res.success.habits ?? [],
+      tasks: res.success.tasks ?? [],
+    };
+  };
+
+  const handleHabitsTasksContinue = (sel: HabitsTasksSelection) => {
+    void runGuarded(async () => {
+      const habitRefs = await createHabitsFromSuggestions(sel.habits, data.categories, t, dispatch);
+      const taskRefs = await createTasksFromSuggestions(sel.tasks, data.categories, t, dispatch);
+      setData((prev) => ({
+        ...prev,
+        habits: habitRefs,
+        tasks: taskRefs,
+        freeTexts: [...prev.freeTexts, ...sel.freeTexts],
+      }));
+      setStep('routine');
+    });
+  };
+
   // Persist tutorial completion; the wizard unmounts when the phase leaves "ai".
   const handleStart = () => {
     void runGuarded(async () => {
@@ -264,8 +301,17 @@ export default function AiOnboardingWizard({
                   {step === 'categories' ? (
                     <CategoriesStep onContinue={handleCategoriesContinue} loading={busy} />
                   ) : null}
-                  {/* habitsTasks / routine / goals / summary steps land in Tasks 4-6;
-                      suggestedHabitsTasks + handleStart are already wired for them. */}
+                  {step === 'habitsTasks' && suggestedHabitsTasks ? (
+                    <HabitsTasksStep
+                      categories={data.categories}
+                      initial={suggestedHabitsTasks}
+                      loading={busy}
+                      fetchMore={handleFetchMoreHabitsTasks}
+                      onContinue={handleHabitsTasksContinue}
+                    />
+                  ) : null}
+                  {/* routine / goals / summary steps land in Tasks 5-6;
+                      handleStart is already wired for them. */}
                 </>
               )}
             </ScrollView>

@@ -24,13 +24,19 @@ jest.mock('@beyou/api/onboarding/fetchOnboardingSuggestions', () => ({
 jest.mock('@beyou/state/onboarding/createFromSuggestions', () => ({
   __esModule: true,
   createCategoriesFromSuggestions: jest.fn(),
+  createHabitsFromSuggestions: jest.fn(),
+  createTasksFromSuggestions: jest.fn(),
 }));
 
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import fetchOnboardingSuggestions from '@beyou/api/onboarding/fetchOnboardingSuggestions';
-import { createCategoriesFromSuggestions } from '@beyou/state/onboarding/createFromSuggestions';
+import {
+  createCategoriesFromSuggestions,
+  createHabitsFromSuggestions,
+  createTasksFromSuggestions,
+} from '@beyou/state/onboarding/createFromSuggestions';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
@@ -39,6 +45,8 @@ import AiOnboardingWizard from '../src/ui/aiOnboarding/AiOnboardingWizard';
 const PROGRESS_KEY = 'beyou.aiOnboarding.progress';
 const fetchMock = fetchOnboardingSuggestions as jest.Mock;
 const createCategoriesMock = createCategoriesFromSuggestions as jest.Mock;
+const createHabitsMock = createHabitsFromSuggestions as jest.Mock;
+const createTasksMock = createTasksFromSuggestions as jest.Mock;
 
 const renderWizard = async (over: Record<string, unknown> = {}) => {
   const props = {
@@ -177,5 +185,116 @@ describe('AiOnboardingWizard', () => {
     );
     expect(screen.getByText('Habits & Tasks')).toBeTruthy();
     expect(screen.queryByText(CATEGORIES_QUESTION)).toBeNull();
+  });
+
+  it('habitsTasks continue creates the selected habits/tasks and advances to routine', async () => {
+    const storedData = {
+      categories: [{ id: 'c1', name: 'Health' }],
+      habits: [],
+      tasks: [],
+      goals: [],
+      freeTexts: [],
+    };
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({ step: 'habitsTasks', data: storedData })
+    );
+    const habit = {
+      name: 'Run',
+      description: 'd',
+      motivationalPhrase: '',
+      iconId: 'lucide:zap',
+      categoryName: 'Health',
+      importance: 3,
+      difficulty: 2,
+    };
+    fetchMock.mockResolvedValue({ success: { habits: [habit], tasks: [] } });
+    createHabitsMock.mockResolvedValue([{ id: 'h1', name: 'Run' }]);
+    createTasksMock.mockResolvedValue([]);
+
+    await renderWizard();
+    await screen.findByText('Run');
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-select-all-habits'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-continue'));
+    });
+
+    expect(createHabitsMock).toHaveBeenCalledWith(
+      [habit],
+      [{ id: 'c1', name: 'Health' }],
+      expect.any(Function),
+      expect.any(Function)
+    );
+    expect(createTasksMock).toHaveBeenCalledWith(
+      [],
+      [{ id: 'c1', name: 'Health' }],
+      expect.any(Function),
+      expect.any(Function)
+    );
+    // Advanced to the routine step (placeholder until Task 5) and persisted the refs.
+    expect(screen.getByText('Routine')).toBeTruthy();
+    const raw = await SecureStore.getItemAsync(PROGRESS_KEY);
+    expect(JSON.parse(raw as string)).toMatchObject({
+      step: 'routine',
+      data: { habits: [{ id: 'h1', name: 'Run' }], tasks: [] },
+    });
+  });
+
+  it('fetchMore failure routes to the banner; Retry re-runs the base habitsTasks fetch', async () => {
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({
+        step: 'habitsTasks',
+        data: {
+          categories: [{ id: 'c1', name: 'Health' }],
+          habits: [],
+          tasks: [],
+          goals: [],
+          freeTexts: [],
+        },
+      })
+    );
+    const habit = {
+      name: 'Run',
+      description: 'd',
+      motivationalPhrase: '',
+      iconId: 'lucide:zap',
+      categoryName: 'Health',
+      importance: 3,
+      difficulty: 2,
+    };
+    fetchMock
+      .mockResolvedValueOnce({ success: { habits: [habit], tasks: [] } }) // initial step fetch
+      .mockResolvedValueOnce({ error: { message: 'down' } }) // fetchMore fails
+      .mockResolvedValue({ success: { habits: [habit], tasks: [] } }); // retry succeeds
+
+    await renderWizard();
+    await screen.findByText('Run');
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('ai-onboarding-free-input'), 'something calm');
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-free-add'));
+    });
+    expect(await screen.findByText('AI setup is unavailable right now')).toBeTruthy();
+    expect(fetchMock).toHaveBeenCalledWith(
+      { step: 'HABITS_TASKS', context: { categories: ['Health'] }, newRequest: 'something calm' },
+      expect.any(Function)
+    );
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-retry'));
+    });
+    // Retry re-ran the BASE fetch (no newRequest) and recovered the step.
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      { step: 'HABITS_TASKS', context: { categories: ['Health'] } },
+      expect.any(Function)
+    );
+    expect(screen.queryByText('AI setup is unavailable right now')).toBeNull();
+    expect(screen.getByText('Run')).toBeTruthy();
   });
 });
