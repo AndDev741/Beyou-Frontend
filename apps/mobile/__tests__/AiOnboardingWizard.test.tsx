@@ -27,6 +27,7 @@ jest.mock('@beyou/state/onboarding/createFromSuggestions', () => ({
   createHabitsFromSuggestions: jest.fn(),
   createTasksFromSuggestions: jest.fn(),
   createRoutineFromSuggestion: jest.fn(),
+  createGoalsFromSuggestions: jest.fn(),
 }));
 
 import { Provider } from 'react-redux';
@@ -35,6 +36,7 @@ import * as SecureStore from 'expo-secure-store';
 import fetchOnboardingSuggestions from '@beyou/api/onboarding/fetchOnboardingSuggestions';
 import {
   createCategoriesFromSuggestions,
+  createGoalsFromSuggestions,
   createHabitsFromSuggestions,
   createRoutineFromSuggestion,
   createTasksFromSuggestions,
@@ -50,6 +52,7 @@ const createCategoriesMock = createCategoriesFromSuggestions as jest.Mock;
 const createHabitsMock = createHabitsFromSuggestions as jest.Mock;
 const createTasksMock = createTasksFromSuggestions as jest.Mock;
 const createRoutineMock = createRoutineFromSuggestion as jest.Mock;
+const createGoalsMock = createGoalsFromSuggestions as jest.Mock;
 
 const renderWizard = async (over: Record<string, unknown> = {}) => {
   const props = {
@@ -435,5 +438,147 @@ describe('AiOnboardingWizard', () => {
     });
     expect(screen.getByText('Fresh flow')).toBeTruthy();
     expect(screen.getByTestId('ai-onboarding-feedback').props.value).toBe('');
+  });
+
+  it('goals step fetches with the full context; continue creates goals and advances to summary', async () => {
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({
+        step: 'goals',
+        data: {
+          categories: [{ id: 'c1', name: 'Health' }],
+          habits: [{ id: 'h1', name: 'Run' }],
+          tasks: [{ id: 't1', name: 'Buy shoes' }],
+          routineName: 'Morning flow',
+          goals: [],
+          freeTexts: ['something calm'],
+        },
+      })
+    );
+    const goal = {
+      name: 'Run 100 km',
+      description: 'd',
+      iconId: 'lucide:target',
+      categoryName: 'Health',
+      targetValue: 100,
+      unit: 'km',
+      motivation: '',
+      term: 'MEDIUM_TERM',
+      durationDays: 90,
+    };
+    fetchMock.mockResolvedValue({ success: { goals: [goal] } });
+    createGoalsMock.mockResolvedValue([{ id: 'g1', name: 'Run 100 km' }]);
+
+    await renderWizard();
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        {
+          step: 'GOALS',
+          context: {
+            categories: ['Health'],
+            habits: [{ name: 'Run' }],
+            tasks: [{ name: 'Buy shoes' }],
+            freeTexts: ['something calm'],
+          },
+        },
+        expect.any(Function)
+      )
+    );
+    await screen.findByText('Run 100 km');
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-select-all-goals'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-continue'));
+    });
+
+    expect(createGoalsMock).toHaveBeenCalledWith(
+      [goal],
+      [{ id: 'c1', name: 'Health' }],
+      expect.any(Function),
+      expect.any(Function)
+    );
+    // Advanced to the summary with the created goal refs persisted.
+    expect(screen.getByText("You're all set!")).toBeTruthy();
+    const raw = await SecureStore.getItemAsync(PROGRESS_KEY);
+    expect(JSON.parse(raw as string)).toMatchObject({
+      step: 'summary',
+      data: { goals: [{ id: 'g1', name: 'Run 100 km' }] },
+    });
+  });
+
+  it('summary start awaits onFinish BEFORE clearing progress, then calls onClosed', async () => {
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({
+        step: 'summary',
+        data: {
+          categories: [{ id: 'c1', name: 'Health' }],
+          habits: [{ id: 'h1', name: 'Run' }],
+          tasks: [],
+          routineName: 'Morning flow',
+          goals: [{ id: 'g1', name: 'Run 100 km' }],
+          freeTexts: [],
+        },
+      })
+    );
+    let resolveFinish: () => void = () => {};
+    const onFinish = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFinish = resolve;
+        })
+    );
+
+    const props = await renderWizard({ onFinish });
+    expect(await screen.findByText("You're all set!")).toBeTruthy();
+    // Everything created is listed on the summary.
+    expect(screen.getByText('Morning flow')).toBeTruthy();
+    expect(screen.getByText('Run 100 km')).toBeTruthy();
+
+    // Only count deletions from here on (beforeEach + seeding touched the mock).
+    (SecureStore.deleteItemAsync as jest.Mock).mockClear();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-start'));
+    });
+    // onFinish is pending: progress must NOT be cleared and the wizard not closed yet.
+    expect(onFinish).toHaveBeenCalledTimes(1);
+    expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+    expect(props.onClosed).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveFinish();
+    });
+    expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(PROGRESS_KEY);
+    expect(props.onClosed).toHaveBeenCalledTimes(1);
+  });
+
+  it('summary tour CTA exits to the manual tour and clears progress', async () => {
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({
+        step: 'summary',
+        data: {
+          categories: [{ id: 'c1', name: 'Health' }],
+          habits: [],
+          tasks: [],
+          goals: [],
+          freeTexts: [],
+        },
+      })
+    );
+    const props = await renderWizard();
+    await screen.findByText("You're all set!");
+    (SecureStore.deleteItemAsync as jest.Mock).mockClear();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-tour'));
+    });
+    expect(props.onTakeTour).toHaveBeenCalledTimes(1);
+    expect(props.onClosed).toHaveBeenCalledTimes(1);
+    expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(PROGRESS_KEY);
   });
 });

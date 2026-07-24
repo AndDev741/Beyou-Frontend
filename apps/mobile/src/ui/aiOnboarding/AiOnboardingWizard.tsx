@@ -7,11 +7,13 @@ import { Sparkles, AlertTriangle, RotateCcw, Compass } from 'lucide-react-native
 import fetchOnboardingSuggestions from '@beyou/api/onboarding/fetchOnboardingSuggestions';
 import {
   createCategoriesFromSuggestions,
+  createGoalsFromSuggestions,
   createHabitsFromSuggestions,
   createRoutineFromSuggestion,
   createTasksFromSuggestions,
 } from '@beyou/state/onboarding/createFromSuggestions';
 import type {
+  GoalSuggestion,
   HabitSuggestion,
   RoutineSuggestion,
   TaskSuggestion,
@@ -28,6 +30,8 @@ import type { AppDispatch } from '../../store';
 import CategoriesStep from './CategoriesStep';
 import HabitsTasksStep, { type HabitsTasksSelection } from './HabitsTasksStep';
 import RoutineStep from './RoutineStep';
+import GoalsStep, { type GoalsSelection } from './GoalsStep';
+import SummaryStep from './SummaryStep';
 import BusyOverlay from './BusyOverlay';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -91,6 +95,7 @@ export default function AiOnboardingWizard({
     tasks: TaskSuggestion[];
   } | null>(null);
   const [suggestedRoutine, setSuggestedRoutine] = useState<RoutineSuggestion | null>(null);
+  const [suggestedGoals, setSuggestedGoals] = useState<GoalSuggestion[] | null>(null);
 
   // Holds the last failed async action so the error banner's Retry can re-run it.
   const retryRef = useRef<(() => Promise<void>) | null>(null);
@@ -98,6 +103,8 @@ export default function AiOnboardingWizard({
   const habitsTasksRequested = useRef(false);
   // Guards the routine initial fetch so it only fires once per wizard run.
   const routineRequested = useRef(false);
+  // Guards the goals initial fetch so it only fires once per wizard run.
+  const goalsRequested = useRef(false);
 
   // Resume where a restart interrupted: entities from finished steps already
   // exist, so restarting at "categories" would duplicate them.
@@ -270,6 +277,57 @@ export default function AiOnboardingWizard({
     });
   };
 
+  const goalsContext = () => ({
+    categories: data.categories.map((c) => c.name),
+    habits: data.habits.map((h) => ({ name: h.name })),
+    tasks: data.tasks.map((task) => ({ name: task.name })),
+    freeTexts: data.freeTexts,
+  });
+
+  const fetchGoalsSuggestions = async () => {
+    const res = await fetchOnboardingSuggestions({ step: 'GOALS', context: goalsContext() }, t);
+    if (res.error || !res.success) {
+      throw new Error('suggestions failed');
+    }
+    setSuggestedGoals(res.success.goals ?? []);
+  };
+
+  // One-shot fetch when the goals step becomes active (gated on `hydrated`
+  // like habitsTasks/routine — a resumed run must restore the stored refs first).
+  useEffect(() => {
+    if (!hydrated || step !== 'goals' || goalsRequested.current) return;
+    goalsRequested.current = true;
+    void runGuarded(fetchGoalsSuggestions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, step]);
+
+  const handleFetchMoreGoals = async (newRequest: string) => {
+    const res = await fetchOnboardingSuggestions(
+      { step: 'GOALS', context: goalsContext(), newRequest },
+      t
+    );
+    if (res.error || !res.success) {
+      // Route the failure through the shared error banner; Retry re-fetches
+      // fresh suggestions since the step's local state unmounts with it.
+      retryRef.current = fetchGoalsSuggestions;
+      setError(true);
+      throw new Error('suggestions failed');
+    }
+    return res.success.goals ?? [];
+  };
+
+  const handleGoalsContinue = (sel: GoalsSelection) => {
+    void runGuarded(async () => {
+      const refs = await createGoalsFromSuggestions(sel.goals, data.categories, t, dispatch);
+      setData((prev) => ({
+        ...prev,
+        goals: refs,
+        freeTexts: [...prev.freeTexts, ...sel.freeTexts],
+      }));
+      setStep('summary');
+    });
+  };
+
   // Persist tutorial completion; the wizard unmounts when the phase leaves "ai".
   const handleStart = () => {
     void runGuarded(async () => {
@@ -374,8 +432,18 @@ export default function AiOnboardingWizard({
                       onAccept={handleRoutineAccept}
                     />
                   ) : null}
-                  {/* goals / summary steps land in Task 6;
-                      handleStart is already wired for them. */}
+                  {step === 'goals' && suggestedGoals ? (
+                    <GoalsStep
+                      categories={data.categories}
+                      initial={suggestedGoals}
+                      loading={busy}
+                      fetchMore={handleFetchMoreGoals}
+                      onContinue={handleGoalsContinue}
+                    />
+                  ) : null}
+                  {step === 'summary' ? (
+                    <SummaryStep data={data} onStart={handleStart} onTour={exitToTour} />
+                  ) : null}
                 </>
               )}
             </ScrollView>
