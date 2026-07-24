@@ -331,7 +331,11 @@ export default function AiOnboardingWizard({
   // Persist tutorial completion; the wizard unmounts when the phase leaves "ai".
   const handleStart = () => {
     void runGuarded(async () => {
-      await onFinish();
+      // completeTutorial resolves false (no throw) when persisting fails —
+      // keep the stored progress so a retry/restart resumes at summary
+      // instead of re-running the wizard and duplicating entities.
+      const finished = await onFinish();
+      if (finished === false) return;
       await clearWizardProgress();
       onClosed();
     });
