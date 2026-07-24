@@ -88,6 +88,7 @@ export default function AiOnboardingWizard({
         }
     );
     const [busy, setBusy] = useState(false);
+    const [showOverlay, setShowOverlay] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [suggestedHabitsTasks, setSuggestedHabitsTasks] = useState<{
         habits: HabitSuggestion[];
@@ -105,9 +106,16 @@ export default function AiOnboardingWizard({
     // Same one-shot guard for the goals suggestions fetch.
     const goalsRequested = useRef(false);
 
-    const runGuarded = async (action: () => Promise<void>) => {
+    // `overlay: false` = in-step action (e.g. routine regenerate): the step stays
+    // visible and shows its own busy indicator; the full-screen tips overlay is
+    // reserved for between-step transitions.
+    const runGuarded = async (
+        action: () => Promise<void>,
+        { overlay = true }: { overlay?: boolean } = {}
+    ) => {
         retryRef.current = action;
         setBusy(true);
+        setShowOverlay(overlay);
         setError(null);
         try {
             await action();
@@ -231,7 +239,7 @@ export default function AiOnboardingWizard({
     }, [step]);
 
     const handleRoutineRegenerate = (feedback: string) => {
-        void runGuarded(fetchRoutineSuggestion(feedback || undefined));
+        void runGuarded(fetchRoutineSuggestion(feedback || undefined), { overlay: false });
     };
 
     const handleRoutineAccept = (edited: RoutineSuggestion, days: string[]) => {
@@ -458,7 +466,9 @@ export default function AiOnboardingWizard({
                 )}
                 </div>
 
-                {busy && <BusyOverlay label={t("AiOnboardingLoading")} spin={!prefersReducedMotion} t={t} />}
+                {busy && showOverlay && (
+                    <BusyOverlay label={t("AiOnboardingLoading")} spin={!prefersReducedMotion} t={t} />
+                )}
             </main>
         </div>
     );
@@ -546,7 +556,7 @@ export function BusyOverlay({ label, spin, t }: { label: string; spin: boolean; 
 
     return (
         <div
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-6 backdrop-blur-sm"
+            className="fixed inset-0 z-20 flex flex-col items-center justify-center gap-4 px-6 backdrop-blur-sm"
             style={{ backgroundColor: "color-mix(in srgb, var(--background) 82%, transparent)" }}
         >
             <div className="relative flex items-center justify-center">

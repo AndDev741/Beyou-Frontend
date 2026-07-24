@@ -78,6 +78,8 @@ export default function RoutineStep({
     useEffect(() => {
         setDraft({ ...suggestion, sections: sortSections(suggestion.sections) });
         setSelectedDays(new Set(suggestion.scheduleDays));
+        // A new draft means the regenerate request succeeded — clear the ask.
+        setFeedback("");
     }, [suggestion]);
 
     const moveItem = (kind: ItemKind, fromSection: number, itemIndex: number, toSection: number) => {
@@ -309,8 +311,11 @@ export default function RoutineStep({
                             loading ? "opacity-60 cursor-wait" : "hover:brightness-95"
                         )}
                     >
-                        <Wand2 className="w-4 h-4" aria-hidden="true" />
-                        <span>{t("AiOnboardingRoutineRegenerate")}</span>
+                        <Wand2
+                            className={cn("w-4 h-4", loading && "animate-spin")}
+                            aria-hidden="true"
+                        />
+                        <span>{loading ? t("AiOnboardingLoading") : t("AiOnboardingRoutineRegenerate")}</span>
                     </button>
                 </div>
 
