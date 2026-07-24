@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import type { TutorialPhase } from '../tutorial/tutorialSlice';
 
 const KEY = 'beyou.tutorial.phase';
-const PHASES: TutorialPhase[] = ['intro', 'dashboard', 'categories', 'habits', 'routines', 'config', 'done'];
+const PHASES: TutorialPhase[] = ['intro', 'ai', 'dashboard', 'categories', 'habits', 'routines', 'config', 'done'];
 
 export async function loadTutorialPhase(): Promise<TutorialPhase | null> {
   try {

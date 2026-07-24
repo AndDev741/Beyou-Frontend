@@ -27,6 +27,7 @@ import OnboardingTutorial from "../../components/tutorial/OnboardingTutorial";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import TutorialFinale from "../../components/tutorial/TutorialFinale";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
+import AiOnboardingWizard from "../../components/tutorial/aiOnboarding/AiOnboardingWizard";
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
 
@@ -59,6 +60,33 @@ function Dashboard() {
     logger.log("Language in use => ", languageInUse)
     useChangeLanguage(languageInUse);
     
+    const {
+        showFinale,
+        showIntroModal,
+        showAiOnboarding,
+        showDashboardSpotlight,
+        showHabitsDashboardSpotlight,
+        showRoutinesDashboardSpotlight,
+        showRoutineSummarySpotlight,
+        showConfigDashboardSpotlight,
+        dashboardSteps,
+        habitsDashboardSteps,
+        routinesDashboardSteps,
+        routineSummarySteps,
+        configDashboardSteps,
+        startDashboardSpotlight,
+        startAiOnboarding,
+        completeDashboardSpotlight,
+        completeHabitsDashboardSpotlight,
+        completeRoutinesDashboardSpotlight,
+        completeRoutineSummarySpotlight,
+        completeConfigDashboardSpotlight,
+        completeTutorial
+    } = useDashboardTutorial();
+
+    // Also re-runs when the AI onboarding wizard closes (showAiOnboarding
+    // true -> false): the wizard creates entities — including the scheduled
+    // routine that getTodayRoutine depends on — after this initial load.
     useEffect(() => {
         let cancelled = false;
         const fetchDashboardData = async () => {
@@ -75,7 +103,7 @@ function Dashboard() {
         return () => {
             cancelled = true;
         };
-    }, [dispatch, t])
+    }, [dispatch, t, showAiOnboarding])
 
     useEffect(() => {
         if (!routine) return;
@@ -105,34 +133,13 @@ function Dashboard() {
 
     }, [routine]);
 
-    const {
-        showFinale,
-        showIntroModal,
-        showDashboardSpotlight,
-        showHabitsDashboardSpotlight,
-        showRoutinesDashboardSpotlight,
-        showRoutineSummarySpotlight,
-        showConfigDashboardSpotlight,
-        dashboardSteps,
-        habitsDashboardSteps,
-        routinesDashboardSteps,
-        routineSummarySteps,
-        configDashboardSteps,
-        startDashboardSpotlight,
-        completeDashboardSpotlight,
-        completeHabitsDashboardSpotlight,
-        completeRoutinesDashboardSpotlight,
-        completeRoutineSummarySpotlight,
-        completeConfigDashboardSpotlight,
-        completeTutorial
-    } = useDashboardTutorial();
-
     return (
         <>
             {showIntroModal && (
                 <OnboardingTutorial
                     onComplete={startDashboardSpotlight}
                     onSkip={completeTutorial}
+                    onChooseAi={startAiOnboarding}
                 />
             )}
             {showDashboardSpotlight && (
@@ -173,6 +180,13 @@ function Dashboard() {
                     isActive={showConfigDashboardSpotlight}
                     onComplete={completeConfigDashboardSpotlight}
                     onSkip={completeTutorial}
+                />
+            )}
+            {showAiOnboarding && (
+                <AiOnboardingWizard
+                    onFinish={completeTutorial}
+                    onTakeTour={startDashboardSpotlight}
+                    onFallbackToManual={startDashboardSpotlight}
                 />
             )}
             {showFinale && <TutorialFinale onDone={completeTutorial} />}

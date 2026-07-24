@@ -2,7 +2,9 @@ import { useContext, useState } from 'react';
 import { Pressable } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { Sparkles } from 'lucide-react-native';
+import type { RootState } from '../../store';
 import AgentChatModal from './AgentChatModal';
 import { useAgentChat } from './useAgentChat';
 
@@ -14,6 +16,9 @@ import { useAgentChat } from './useAgentChat';
 export default function AgentWidget() {
   const { t } = useTranslation();
   const insets = useContext(SafeAreaInsetsContext);
+  const isTutorialCompleted = useSelector(
+    (state: RootState) => state.perfil.isTutorialCompleted
+  );
   const [open, setOpen] = useState(false);
   const chat = useAgentChat();
 
@@ -21,6 +26,12 @@ export default function AgentWidget() {
     chat.ensureLoaded();
     setOpen(true);
   };
+
+  // Hidden until onboarding finishes: the tutorial (manual or AI) should own
+  // the user's attention, and the AI wizard already covers assisted setup.
+  if (!isTutorialCompleted) {
+    return null;
+  }
 
   return (
     <>

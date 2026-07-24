@@ -1,5 +1,6 @@
 export type TutorialPhase =
     | "intro"
+    | "ai-onboarding"
     | "dashboard"
     | "categories"
     | "habits-dashboard"
@@ -19,6 +20,7 @@ export const getTutorialPhase = (): TutorialPhase | null => {
     if (!raw) return null;
     if (
         raw === "intro" ||
+        raw === "ai-onboarding" ||
         raw === "dashboard" ||
         raw === "categories" ||
         raw === "habits-dashboard" ||

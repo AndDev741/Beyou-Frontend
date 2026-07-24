@@ -251,3 +251,14 @@ vs "create an awesome life"); its button calls `completeTutorial`.
 `Tutorial`) on the configuration screen. Its Replay button dispatches `setPhase('intro')` +
 `tutorialCompletedEnter(false)` + `saveTutorialPhase('intro')` + `editUser({ isTutorialCompleted: false })`,
 then `router.replace('/')` so the intro starts on the dashboard.
+
+## AI onboarding wizard (Phase 8b)
+
+Tutorial phase `'ai'` (fork screen after the intro cards) mounts `src/ui/aiOnboarding/AiOnboardingWizard.tsx`
+on the dashboard (`app/(app)/index.tsx`): categories → habitsTasks → routine → goals → summary. Steps live in
+`src/ui/aiOnboarding/` (CategoriesStep, HabitsTasksStep, RoutineStep, GoalsStep, SummaryStep, SuggestionCard,
+BusyOverlay). Suggestions come from `@beyou/api/onboarding/fetchOnboardingSuggestions`; entities are created
+FOR REAL at each step via the shared helpers in `@beyou/state/onboarding/createFromSuggestions`. Progress
+(step + created refs) persists to SecureStore key `beyou.aiOnboarding.progress` (`src/lib/aiOnboardingStore.ts`)
+so a restart resumes instead of duplicating; every exit (finish/tour/fallback) clears it and calls `onClosed`
+so the dashboard reloads. The agent FAB (`src/ui/agent/AgentWidget.tsx`) hides until `perfil.isTutorialCompleted`.

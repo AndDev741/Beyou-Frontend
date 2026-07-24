@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { Compass, Sparkles } from 'lucide-react-native';
 import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+
+const ON_PRIMARY = '#FFFFFF';
 
 type Step = {
   id: string;
@@ -67,16 +70,92 @@ const STEPS: Step[] = [
 export default function OnboardingTutorial({
   onComplete,
   onSkip,
+  onChooseAi,
 }: {
   onComplete: () => void;
   onSkip: () => void;
+  onChooseAi: () => void;
 }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const [i, setI] = useState(0);
+  const [showFork, setShowFork] = useState(false);
   const step = STEPS[i];
   const isFirst = i === 0;
   const isLast = i === STEPS.length - 1;
+
+  if (showFork) {
+    return (
+      <Modal visible animationType="fade" transparent onRequestClose={onSkip}>
+        <View className="flex-1 items-center justify-center bg-black/60 p-4">
+          <View className="w-full max-w-xl rounded-3xl border border-primary/20 bg-background p-5">
+            <View className="mb-3 flex-row items-center justify-end">
+              <Pressable
+                onPress={onSkip}
+                accessibilityRole="button"
+                testID="onboarding-skip"
+                hitSlop={8}
+                className="flex-row items-center gap-1"
+              >
+                <Text className="text-description text-sm font-semibold">{t('TutorialSkip')}</Text>
+                <Ionicons name="close" size={16} color={theme.description} />
+              </Pressable>
+            </View>
+
+            <Text className="text-secondary mb-5 text-center text-2xl font-bold">
+              {t('TutorialPathTitle')}
+            </Text>
+
+            <View className="gap-4">
+              <Pressable
+                onPress={onChooseAi}
+                accessibilityRole="button"
+                accessibilityLabel={t('TutorialPathAiTitle')}
+                testID="tutorial-path-ai"
+                className="rounded-2xl border border-primary bg-primary/10 p-5 active:opacity-80"
+              >
+                <View className="mb-3 flex-row items-center justify-between">
+                  <View className="h-12 w-12 items-center justify-center rounded-xl bg-primary">
+                    <Sparkles size={24} color={ON_PRIMARY} />
+                  </View>
+                  <View className="flex-row items-center gap-1 rounded-full bg-primary px-3 py-1">
+                    <Sparkles size={12} color={ON_PRIMARY} />
+                    <Text className="text-xs font-semibold" style={{ color: ON_PRIMARY }}>
+                      {t('TutorialPathAiBadge')}
+                    </Text>
+                  </View>
+                </View>
+                <Text className="text-secondary mb-1 text-xl font-bold">
+                  {t('TutorialPathAiTitle')}
+                </Text>
+                <Text className="text-description text-sm leading-relaxed">
+                  {t('TutorialPathAiDescription')}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={onComplete}
+                accessibilityRole="button"
+                accessibilityLabel={t('TutorialPathManualTitle')}
+                testID="tutorial-path-manual"
+                className="rounded-2xl border border-primary/20 bg-background p-5 active:opacity-80"
+              >
+                <View className="mb-3 h-12 w-12 items-center justify-center rounded-xl bg-primary/15">
+                  <Compass size={24} color={theme.secondary} />
+                </View>
+                <Text className="text-secondary mb-1 text-xl font-bold">
+                  {t('TutorialPathManualTitle')}
+                </Text>
+                <Text className="text-description text-sm leading-relaxed">
+                  {t('TutorialPathManualDescription')}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
 
   return (
     <Modal visible animationType="fade" transparent onRequestClose={onSkip}>
@@ -152,7 +231,8 @@ export default function OnboardingTutorial({
               testID="onboarding-prev"
               className="px-3 py-2"
             >
-              <Text className={isFirst ? 'text-description/40' : 'text-secondary font-semibold'}>
+              {/* Same weight on every card — only the color signals disabled. */}
+              <Text className={`font-semibold ${isFirst ? 'text-description/40' : 'text-secondary'}`}>
                 {t('TutorialPrevious')}
               </Text>
             </Pressable>
@@ -160,7 +240,7 @@ export default function OnboardingTutorial({
               text={isLast ? t('TutorialGetStarted') : t('TutorialNext')}
               mode="create"
               size="small"
-              onPress={() => (isLast ? onComplete() : setI((p) => p + 1))}
+              onPress={() => (isLast ? setShowFork(true) : setI((p) => p + 1))}
               testID="onboarding-next"
             />
           </View>

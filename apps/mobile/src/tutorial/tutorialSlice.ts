@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export type TutorialPhase =
-  | 'intro' | 'dashboard' | 'categories' | 'habits' | 'routines' | 'config' | 'done';
+  | 'intro' | 'ai' | 'dashboard' | 'categories' | 'habits' | 'routines' | 'config' | 'done';
 
 interface TutorialState { phase: TutorialPhase | null }
 const initialState: TutorialState = { phase: null };

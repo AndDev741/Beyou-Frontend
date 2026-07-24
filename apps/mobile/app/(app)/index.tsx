@@ -12,6 +12,7 @@ import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import DashboardGoals from '../../src/ui/dashboard/DashboardGoals';
 import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
 import OnboardingTutorial from '../../src/ui/tutorial/OnboardingTutorial';
+import AiOnboardingWizard from '../../src/ui/aiOnboarding/AiOnboardingWizard';
 import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
 import TutorialFinale from '../../src/ui/tutorial/TutorialFinale';
 import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
@@ -74,6 +75,15 @@ export default function AppHome() {
         <OnboardingTutorial
           onComplete={() => dispatch(setPhase('dashboard'))}
           onSkip={() => completeTutorial({ dispatch, t })}
+          onChooseAi={() => dispatch(setPhase('ai'))}
+        />
+      ) : null}
+      {phase === 'ai' ? (
+        <AiOnboardingWizard
+          visible
+          onFinish={() => completeTutorial({ dispatch, t })}
+          onTakeTour={() => dispatch(setPhase('dashboard'))}
+          onClosed={reload}
         />
       ) : null}
       {dash.active ? (

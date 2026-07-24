@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { tutorialCompletedEnter } from '@beyou/state/user/perfilSlice';
 import AgentWidget from './AgentWidget';
 import { BeyouThemeProvider } from '../../theme/ThemeProvider';
 import { makeStore } from '../../store';
@@ -36,14 +37,19 @@ const stream = jest.requireMock('@beyou/api/agent/agentStream');
 /** Turn a plain text reply into the segment shape the done event carries. */
 const textTurn = (text: string) => [{ type: 'text', text }];
 
-const wrap = async () =>
-  render(
-    <Provider store={makeStore()}>
+// The FAB is gated on tutorial completion (web parity), so the default
+// harness renders as a user who already finished onboarding.
+const wrap = async ({ isTutorialCompleted = true }: { isTutorialCompleted?: boolean } = {}) => {
+  const store = makeStore();
+  store.dispatch(tutorialCompletedEnter(isTutorialCompleted));
+  return render(
+    <Provider store={store}>
       <BeyouThemeProvider>
         <AgentWidget />
       </BeyouThemeProvider>
     </Provider>,
   );
+};
 
 describe('AgentWidget', () => {
   beforeEach(() => {
@@ -55,6 +61,11 @@ describe('AgentWidget', () => {
     const { getByTestId, queryByTestId } = await wrap();
     expect(getByTestId('agent-fab')).toBeTruthy();
     expect(queryByTestId('agent-input')).toBeNull();
+  });
+
+  it('hides the FAB until the tutorial is completed (web parity)', async () => {
+    const { queryByTestId } = await wrap({ isTutorialCompleted: false });
+    expect(queryByTestId('agent-fab')).toBeNull();
   });
 
   it('opens the modal with the empty state when there are no chats', async () => {

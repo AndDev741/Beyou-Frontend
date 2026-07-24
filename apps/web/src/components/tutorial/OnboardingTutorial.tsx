@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   FolderOpen,
   Target,
@@ -12,7 +12,8 @@ import {
   Zap,
   X,
   Check,
-  Flag
+  Flag,
+  Compass
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import clsx, { ClassValue } from "clsx";
@@ -109,13 +110,16 @@ const steps: OnboardingStep[] = [
 interface OnboardingTutorialProps {
   onComplete: () => void;
   onSkip: () => void;
+  onChooseAi: () => void;
 }
 
-export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTutorialProps) {
+export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: OnboardingTutorialProps) {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [showFork, setShowFork] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const step = steps[currentStep];
   const isFirst = currentStep === 0;
@@ -123,7 +127,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
 
   const goNext = () => {
     if (isLast) {
-      onComplete();
+      setShowFork(true);
     } else {
       setDirection(1);
       setCurrentStep((prev) => prev + 1);
@@ -180,11 +184,95 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
             <motion.div
               className="h-full bg-primary"
               initial={{ width: 0 }}
-              animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              animate={{ width: showFork ? "100%" : `${((currentStep + 1) / steps.length) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
 
+          {showFork ? (
+            <div className="p-5 md:p-10 flex flex-1 flex-col justify-center gap-8 overflow-y-auto">
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl md:text-3xl font-semibold text-secondary">
+                  {t("TutorialPathTitle")}
+                </h2>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                <motion.button
+                  type="button"
+                  onClick={onChooseAi}
+                  aria-label={t("TutorialPathAiTitle")}
+                  whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className="group relative flex-1 text-left rounded-2xl p-6 md:p-7 overflow-hidden border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--background)), var(--background))",
+                    borderColor: "color-mix(in srgb, var(--primary) 40%, var(--background))"
+                  }}
+                >
+                  <div className="absolute -z-10 -top-10 -right-10 w-32 h-32 bg-primary opacity-30 rounded-full blur-3xl transition-opacity group-hover:opacity-90" />
+
+                  <div className="flex items-center justify-between mb-4">
+                    <div
+                      className="w-12 h-12 flex items-center justify-center rounded-xl shadow-lg"
+                      style={{ background: "linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--background)))" }}
+                    >
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-primary rounded-full px-3 py-1">
+                      <Sparkles className="w-3 h-3" />
+                      {t("TutorialPathAiBadge")}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-secondary mb-2">
+                    {t("TutorialPathAiTitle")}
+                  </h3>
+                  <p className="text-description leading-relaxed">
+                    {t("TutorialPathAiDescription")}
+                  </p>
+
+                  <div className="mt-5 flex items-center gap-2 text-primary font-semibold">
+                    <span>{t("TutorialGetStarted")}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </motion.button>
+
+                <motion.button
+                  type="button"
+                  onClick={onComplete}
+                  aria-label={t("TutorialPathManualTitle")}
+                  whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  style={{
+                    backgroundColor: "color-mix(in srgb, var(--secondary) 5%, var(--background))",
+                    borderColor: "color-mix(in srgb, var(--primary) 15%, var(--background))"
+                  }}
+                  className="group flex-1 text-left rounded-2xl p-6 md:p-7 border focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <div
+                    className="w-12 h-12 flex items-center justify-center rounded-xl mb-4"
+                    style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
+                  >
+                    <Compass className="w-6 h-6 text-secondary" />
+                  </div>
+
+                  <h3 className="text-xl font-semibold text-secondary mb-2">
+                    {t("TutorialPathManualTitle")}
+                  </h3>
+                  <p className="text-description leading-relaxed">
+                    {t("TutorialPathManualDescription")}
+                  </p>
+
+                  <div className="mt-5 flex items-center gap-2 text-secondary font-semibold">
+                    <span>{t("TutorialGetStarted")}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </motion.button>
+              </div>
+            </div>
+          ) : (
           <div className="p-5 md:p-10 flex flex-col gap-6 overflow-hidden">
             <div className="flex items-center justify-center gap-2 md:mb-8">
               {steps.map((s, index) => (
@@ -365,6 +453,7 @@ export default function OnboardingTutorial({ onComplete, onSkip }: OnboardingTut
               </button>
             </div>
           </div>
+          )}
         </div>
 
         <div className="absolute -z-10 -top-16 -left-16 w-40 h-40 bg-primary/20 rounded-full blur-3xl" />

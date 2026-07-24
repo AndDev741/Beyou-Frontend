@@ -1,4 +1,5 @@
 import { Pressable, Text, ActivityIndicator, type PressableProps } from 'react-native';
+import { useBeyouTheme } from '../theme/ThemeProvider';
 
 type Mode = 'create' | 'cancel' | 'default';
 type Size = 'big' | 'medium' | 'small';
@@ -34,6 +35,7 @@ export default function Button({
   testID,
   ...rest
 }: Props) {
+  const { theme } = useBeyouTheme();
   const isDisabled = disabled || submitting;
   return (
     <Pressable
@@ -44,7 +46,8 @@ export default function Button({
       {...rest}
     >
       {submitting ? (
-        <ActivityIndicator color={ON_PRIMARY} />
+        // White only over the primary background; light modes need a visible spinner.
+        <ActivityIndicator color={mode === 'create' ? ON_PRIMARY : theme.primary} />
       ) : (
         <Text className="text-secondary text-lg font-semibold">{text}</Text>
       )}

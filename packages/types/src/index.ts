@@ -3,6 +3,9 @@
 // Agent chat types
 export * from './agent/chatType';
 
+// Onboarding types
+export * from './onboarding/suggestions';
+
 // Category types
 export type { default as category } from './category/categoryType';
 export type { default as categoryGeneratedByAi } from './category/categoryGeneratedByAiType';
