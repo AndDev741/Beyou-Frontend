@@ -299,7 +299,9 @@ export default function AiOnboardingWizard({
     const currentIndex = STEP_ORDER.indexOf(step);
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[var(--background)] overflow-y-auto">
+        // overflow-hidden: the decorative glows extend past the viewport corners and
+        // would otherwise force page scrollbars; the step body scrolls on its own.
+        <div className="fixed inset-0 z-50 flex flex-col bg-[var(--background)] overflow-hidden">
             {/* Ambient glow */}
             <div className="pointer-events-none absolute -z-10 -top-24 -left-24 w-72 h-72 bg-primary opacity-[0.15] rounded-full blur-3xl" />
             <div className="pointer-events-none absolute -z-10 -bottom-24 -right-24 w-72 h-72 bg-primary opacity-[0.1] rounded-full blur-3xl" />
@@ -342,8 +344,12 @@ export default function AiOnboardingWizard({
                 </div>
             </header>
 
-            {/* Step body */}
-            <main className="relative flex-1 flex items-center justify-center px-4 md:px-8 py-6">
+            {/* Step body — the ONLY scroll container: vertical when a step outgrows
+                the viewport (mobile), never horizontal. The inner wrapper keeps short
+                steps vertically centered without clipping tall ones (min-h-full trick:
+                items-center directly on a scroll container cuts off the top). */}
+            <main className="relative flex-1 overflow-y-auto overflow-x-hidden">
+                <div className="min-h-full flex items-center justify-center px-4 md:px-8 py-6">
                 {error ? (
                     <ErrorBanner
                         onRetry={handleRetry}
@@ -402,6 +408,7 @@ export default function AiOnboardingWizard({
                         </motion.div>
                     </AnimatePresence>
                 )}
+                </div>
 
                 {busy && <BusyOverlay label={t("AiOnboardingLoading")} spin={!prefersReducedMotion} />}
             </main>
