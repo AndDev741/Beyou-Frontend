@@ -149,14 +149,14 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                         }}
                         placeholder={t("AiOnboardingCategoriesPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="flex-1 rounded-xl border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="min-w-0 flex-1 rounded-xl border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
                     />
                     <button
                         type="button"
                         onClick={addCustom}
                         aria-label={t("AiOnboardingAdd")}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
-                        className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
                         <Plus className="w-4 h-4" />
                         <span className="hidden sm:inline">{t("AiOnboardingAdd")}</span>
