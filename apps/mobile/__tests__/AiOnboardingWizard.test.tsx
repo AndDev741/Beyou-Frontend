@@ -26,6 +26,7 @@ jest.mock('@beyou/state/onboarding/createFromSuggestions', () => ({
   createCategoriesFromSuggestions: jest.fn(),
   createHabitsFromSuggestions: jest.fn(),
   createTasksFromSuggestions: jest.fn(),
+  createRoutineFromSuggestion: jest.fn(),
 }));
 
 import { Provider } from 'react-redux';
@@ -35,6 +36,7 @@ import fetchOnboardingSuggestions from '@beyou/api/onboarding/fetchOnboardingSug
 import {
   createCategoriesFromSuggestions,
   createHabitsFromSuggestions,
+  createRoutineFromSuggestion,
   createTasksFromSuggestions,
 } from '@beyou/state/onboarding/createFromSuggestions';
 import '../src/i18n';
@@ -47,6 +49,7 @@ const fetchMock = fetchOnboardingSuggestions as jest.Mock;
 const createCategoriesMock = createCategoriesFromSuggestions as jest.Mock;
 const createHabitsMock = createHabitsFromSuggestions as jest.Mock;
 const createTasksMock = createTasksFromSuggestions as jest.Mock;
+const createRoutineMock = createRoutineFromSuggestion as jest.Mock;
 
 const renderWizard = async (over: Record<string, unknown> = {}) => {
   const props = {
@@ -66,6 +69,22 @@ const renderWizard = async (over: Record<string, unknown> = {}) => {
 };
 
 const CATEGORIES_QUESTION = 'Which parts of your life do you want to improve?';
+
+const routineSuggestion = {
+  name: 'Morning flow',
+  iconId: 'lucide:sun',
+  scheduleDays: ['Monday'],
+  sections: [
+    {
+      name: 'Wake',
+      iconId: 'lucide:sun',
+      startTime: '07:00',
+      endTime: '08:00',
+      habits: [{ name: 'Run', startTime: '07:00', endTime: '07:30' }],
+      tasks: [],
+    },
+  ],
+};
 
 const selectHealthAndContinue = async () => {
   await screen.findByText(CATEGORIES_QUESTION);
@@ -208,7 +227,11 @@ describe('AiOnboardingWizard', () => {
       importance: 3,
       difficulty: 2,
     };
-    fetchMock.mockResolvedValue({ success: { habits: [habit], tasks: [] } });
+    // The same mock serves the habitsTasks fetch AND the routine step's
+    // one-shot fetch that fires after the advance.
+    fetchMock.mockResolvedValue({
+      success: { habits: [habit], tasks: [], routine: routineSuggestion },
+    });
     createHabitsMock.mockResolvedValue([{ id: 'h1', name: 'Run' }]);
     createTasksMock.mockResolvedValue([]);
 
@@ -234,8 +257,9 @@ describe('AiOnboardingWizard', () => {
       expect.any(Function),
       expect.any(Function)
     );
-    // Advanced to the routine step (placeholder until Task 5) and persisted the refs.
+    // Advanced to the routine step and persisted the refs.
     expect(screen.getByText('Routine')).toBeTruthy();
+    expect(await screen.findByTestId('ai-onboarding-routine-accept')).toBeTruthy();
     const raw = await SecureStore.getItemAsync(PROGRESS_KEY);
     expect(JSON.parse(raw as string)).toMatchObject({
       step: 'routine',
@@ -296,5 +320,120 @@ describe('AiOnboardingWizard', () => {
     );
     expect(screen.queryByText('AI setup is unavailable right now')).toBeNull();
     expect(screen.getByText('Run')).toBeTruthy();
+  });
+
+  it('routine step fetches with the full context on entry; accept creates the routine and advances to goals', async () => {
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({
+        step: 'routine',
+        data: {
+          categories: [{ id: 'c1', name: 'Health' }],
+          habits: [{ id: 'h1', name: 'Run' }],
+          tasks: [],
+          goals: [],
+          freeTexts: ['something calm'],
+        },
+      })
+    );
+    fetchMock.mockResolvedValue({ success: { routine: routineSuggestion } });
+    createRoutineMock.mockResolvedValue({ routineId: 'r1', name: 'Morning flow' });
+
+    await renderWizard();
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        {
+          step: 'ROUTINE',
+          context: {
+            categories: ['Health'],
+            habits: [{ name: 'Run' }],
+            tasks: [],
+            freeTexts: ['something calm'],
+          },
+        },
+        expect.any(Function)
+      )
+    );
+    expect(await screen.findByTestId('ai-onboarding-routine-accept')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-routine-accept'));
+    });
+
+    // The edited draft is created with the selected days folded into scheduleDays.
+    expect(createRoutineMock).toHaveBeenCalledWith(
+      { ...routineSuggestion, scheduleDays: ['Monday'] },
+      [{ id: 'h1', name: 'Run' }],
+      [],
+      expect.any(Function),
+      expect.any(Function)
+    );
+    // Advanced to the goals step (placeholder until Task 6) with routineName persisted.
+    expect(screen.getByText('Goals')).toBeTruthy();
+    const raw = await SecureStore.getItemAsync(PROGRESS_KEY);
+    expect(JSON.parse(raw as string)).toMatchObject({
+      step: 'goals',
+      data: { routineName: 'Morning flow' },
+    });
+  });
+
+  it('routine regenerate is an in-step action: feedback in the request, no full-screen overlay', async () => {
+    await SecureStore.setItemAsync(
+      PROGRESS_KEY,
+      JSON.stringify({
+        step: 'routine',
+        data: {
+          categories: [{ id: 'c1', name: 'Health' }],
+          habits: [{ id: 'h1', name: 'Run' }],
+          tasks: [],
+          goals: [],
+          freeTexts: [],
+        },
+      })
+    );
+    fetchMock.mockResolvedValueOnce({ success: { routine: routineSuggestion } });
+
+    await renderWizard();
+    await screen.findByTestId('ai-onboarding-routine-accept');
+
+    // Keep the regenerate request pending so the busy state is observable.
+    let resolveRegenerate: (v: unknown) => void = () => {};
+    fetchMock.mockImplementationOnce(
+      () => new Promise((resolve) => (resolveRegenerate = resolve))
+    );
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('ai-onboarding-feedback'), 'I wake at 6');
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-regenerate'));
+    });
+
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      {
+        step: 'ROUTINE',
+        context: {
+          categories: ['Health'],
+          habits: [{ name: 'Run' }],
+          tasks: [],
+          freeTexts: [],
+          feedback: 'I wake at 6',
+        },
+      },
+      expect.any(Function)
+    );
+    // overlay: false — the step stays visible, no full-screen busy overlay.
+    expect(screen.queryByTestId('ai-onboarding-busy')).toBeNull();
+    expect(screen.getByTestId('ai-onboarding-routine-accept')).toBeTruthy();
+
+    // A fresh draft replaces the old one and clears the feedback.
+    await act(async () => {
+      resolveRegenerate({
+        success: { routine: { ...routineSuggestion, name: 'Fresh flow' } },
+      });
+    });
+    expect(screen.getByText('Fresh flow')).toBeTruthy();
+    expect(screen.getByTestId('ai-onboarding-feedback').props.value).toBe('');
   });
 });

@@ -8,9 +8,14 @@ import fetchOnboardingSuggestions from '@beyou/api/onboarding/fetchOnboardingSug
 import {
   createCategoriesFromSuggestions,
   createHabitsFromSuggestions,
+  createRoutineFromSuggestion,
   createTasksFromSuggestions,
 } from '@beyou/state/onboarding/createFromSuggestions';
-import type { HabitSuggestion, TaskSuggestion } from '@beyou/types/onboarding/suggestions';
+import type {
+  HabitSuggestion,
+  RoutineSuggestion,
+  TaskSuggestion,
+} from '@beyou/types/onboarding/suggestions';
 import {
   clearWizardProgress,
   loadWizardProgress,
@@ -22,6 +27,7 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { AppDispatch } from '../../store';
 import CategoriesStep from './CategoriesStep';
 import HabitsTasksStep, { type HabitsTasksSelection } from './HabitsTasksStep';
+import RoutineStep from './RoutineStep';
 import BusyOverlay from './BusyOverlay';
 
 const ON_PRIMARY = '#FFFFFF';
@@ -84,11 +90,14 @@ export default function AiOnboardingWizard({
     habits: HabitSuggestion[];
     tasks: TaskSuggestion[];
   } | null>(null);
+  const [suggestedRoutine, setSuggestedRoutine] = useState<RoutineSuggestion | null>(null);
 
   // Holds the last failed async action so the error banner's Retry can re-run it.
   const retryRef = useRef<(() => Promise<void>) | null>(null);
   // Guards the habitsTasks initial fetch so it only fires once per wizard run.
   const habitsTasksRequested = useRef(false);
+  // Guards the routine initial fetch so it only fires once per wizard run.
+  const routineRequested = useRef(false);
 
   // Resume where a restart interrupted: entities from finished steps already
   // exist, so restarting at "categories" would duplicate them.
@@ -214,6 +223,53 @@ export default function AiOnboardingWizard({
     });
   };
 
+  const routineContext = (feedback?: string) => ({
+    categories: data.categories.map((c) => c.name),
+    habits: data.habits.map((h) => ({ name: h.name })),
+    tasks: data.tasks.map((task) => ({ name: task.name })),
+    freeTexts: data.freeTexts,
+    ...(feedback ? { feedback } : {}),
+  });
+
+  const fetchRoutineSuggestion = (feedback?: string) => async () => {
+    const res = await fetchOnboardingSuggestions(
+      { step: 'ROUTINE', context: routineContext(feedback) },
+      t
+    );
+    if (res.error || !res.success?.routine) {
+      throw new Error('suggestions failed');
+    }
+    setSuggestedRoutine(res.success.routine);
+  };
+
+  // One-shot fetch when the routine step becomes active (gated on `hydrated`
+  // like habitsTasks — a resumed run must restore the stored refs first).
+  useEffect(() => {
+    if (!hydrated || step !== 'routine' || routineRequested.current) return;
+    routineRequested.current = true;
+    void runGuarded(fetchRoutineSuggestion());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, step]);
+
+  // In-step action: the step stays visible with its own busy indicator.
+  const handleRoutineRegenerate = (feedback: string) => {
+    void runGuarded(fetchRoutineSuggestion(feedback || undefined), { overlay: false });
+  };
+
+  const handleRoutineAccept = (edited: RoutineSuggestion, days: string[]) => {
+    void runGuarded(async () => {
+      const { name } = await createRoutineFromSuggestion(
+        { ...edited, scheduleDays: days },
+        data.habits,
+        data.tasks,
+        t,
+        dispatch
+      );
+      setData((prev) => ({ ...prev, routineName: name }));
+      setStep('goals');
+    });
+  };
+
   // Persist tutorial completion; the wizard unmounts when the phase leaves "ai".
   const handleStart = () => {
     void runGuarded(async () => {
@@ -310,7 +366,15 @@ export default function AiOnboardingWizard({
                       onContinue={handleHabitsTasksContinue}
                     />
                   ) : null}
-                  {/* routine / goals / summary steps land in Tasks 5-6;
+                  {step === 'routine' && suggestedRoutine ? (
+                    <RoutineStep
+                      suggestion={suggestedRoutine}
+                      loading={busy}
+                      onRegenerate={handleRoutineRegenerate}
+                      onAccept={handleRoutineAccept}
+                    />
+                  ) : null}
+                  {/* goals / summary steps land in Task 6;
                       handleStart is already wired for them. */}
                 </>
               )}
