@@ -1,11 +1,50 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_CATEGORIES } from '@beyou/state/onboarding/defaultCategories';
 import BeyouIcon from '../BeyouIcon';
 import Input from '../Input';
 import Button from '../Button';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+
+// Deterministic per-chip drift so the cloud floats organically (web parity)
+// without randomizing on every render.
+const FLOAT_OFFSETS = [-6, -4, -8, -3, -7, -5, -9, -4, -6, -3, -8, -5];
+
+/** Gentle infinite up-and-down drift, disabled under reduced motion. */
+function FloatingChip({ index, children }: { index: number; children: ReactNode }) {
+  const reducedMotion = useReducedMotion();
+  const y = useSharedValue(0);
+
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const drift = FLOAT_OFFSETS[index % FLOAT_OFFSETS.length];
+    // Full cycle 3-5s like web (3 + index % 3 seconds), split across the two phases.
+    const phaseMs = ((3 + (index % 3)) * 1000) / 2;
+    y.value = withRepeat(
+      withSequence(
+        withTiming(drift, { duration: phaseMs, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: phaseMs, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+    );
+    return () => cancelAnimation(y);
+  }, [index, reducedMotion, y]);
+
+  const style = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
+
+  return <Animated.View style={style}>{children}</Animated.View>;
+}
 
 const ON_PRIMARY = '#FFFFFF';
 
@@ -69,11 +108,11 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
       </View>
 
       <View className="flex-row flex-wrap justify-center gap-2">
-        {chips.map((chip) => {
+        {chips.map((chip, index) => {
           const active = isSelected(chip.name);
           return (
+            <FloatingChip key={chip.name} index={index}>
             <Pressable
-              key={chip.name}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               onPress={() => toggle(chip.name)}
@@ -95,6 +134,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                 {chip.name}
               </Text>
             </Pressable>
+            </FloatingChip>
           );
         })}
       </View>
