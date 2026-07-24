@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Sparkles, AlertTriangle, RotateCcw, Compass } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useDispatch } from "react-redux";
 import clsx, { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -423,7 +424,7 @@ export default function AiOnboardingWizard({
                 )}
                 </div>
 
-                {busy && <BusyOverlay label={t("AiOnboardingLoading")} spin={!prefersReducedMotion} />}
+                {busy && <BusyOverlay label={t("AiOnboardingLoading")} spin={!prefersReducedMotion} t={t} />}
             </main>
         </div>
     );
@@ -477,10 +478,41 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
     );
 }
 
-function BusyOverlay({ label, spin }: { label: string; spin: boolean }) {
+/** BeYou-mechanics tips rotated while the AI thinks, so waiting teaches the app. */
+export const BUSY_TIP_KEYS = [
+    "AiOnboardingTipXp",
+    "AiOnboardingTipStreak",
+    "AiOnboardingTipSkip",
+    "AiOnboardingTipLevels",
+    "AiOnboardingTipGoals",
+    "AiOnboardingTipSchedule",
+    "AiOnboardingTipAgent",
+    "AiOnboardingTipWidgets",
+];
+
+const TIP_ROTATE_MS = 4_000;
+
+// Module-level cursor: each new wait continues where the last one stopped,
+// so short back-to-back loads don't always show the same first tip.
+let tipCursor = 0;
+
+export function BusyOverlay({ label, spin, t }: { label: string; spin: boolean; t: TFunction }) {
+    const [tipIndex, setTipIndex] = useState(() => tipCursor % BUSY_TIP_KEYS.length);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            tipCursor += 1;
+            setTipIndex(tipCursor % BUSY_TIP_KEYS.length);
+        }, TIP_ROTATE_MS);
+        return () => {
+            tipCursor += 1; // next wait starts on a fresh tip
+            clearInterval(interval);
+        };
+    }, []);
+
     return (
         <div
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 backdrop-blur-sm"
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-6 backdrop-blur-sm"
             style={{ backgroundColor: "color-mix(in srgb, var(--background) 82%, transparent)" }}
         >
             <div className="relative flex items-center justify-center">
@@ -493,6 +525,25 @@ function BusyOverlay({ label, spin }: { label: string; spin: boolean }) {
                 <Sparkles className="absolute w-6 h-6 text-primary" />
             </div>
             <p className="text-secondary font-medium">{label}</p>
+
+            <div className="mt-2 max-w-md text-center">
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    {t("AiOnboardingTipLabel")}
+                </p>
+                <AnimatePresence mode="wait">
+                    <motion.p
+                        key={tipIndex}
+                        initial={spin ? { opacity: 0, y: 6 } : undefined}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={spin ? { opacity: 0, y: -6 } : undefined}
+                        transition={{ duration: 0.25 }}
+                        className="mt-1 text-sm text-description"
+                        data-testid="busy-tip"
+                    >
+                        {t(BUSY_TIP_KEYS[tipIndex])}
+                    </motion.p>
+                </AnimatePresence>
+            </div>
         </div>
     );
 }
