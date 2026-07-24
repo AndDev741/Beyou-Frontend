@@ -57,7 +57,11 @@ function BusyOverlayContent({ label }: { label: string }) {
 
   return (
     <View
-      className="absolute inset-0 items-center justify-center gap-4 bg-background/90 px-6"
+      className="absolute inset-0 items-center justify-center gap-4 px-6"
+      // Imperative scrim: NativeWind alpha variants (bg-background/90) on the
+      // runtime vars() theme colors apply late/not at all — the overlay was
+      // mounting see-through. slice(0,7) guards 8-digit hex themes; E6 ≈ 90%.
+      style={{ backgroundColor: `${theme.background.slice(0, 7)}E6` }}
       testID="ai-onboarding-busy"
     >
       <View className="h-14 w-14 items-center justify-center">
