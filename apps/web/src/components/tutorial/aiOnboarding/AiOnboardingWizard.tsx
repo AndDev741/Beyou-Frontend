@@ -13,6 +13,11 @@ import {
     RoutineSuggestion,
     TaskSuggestion
 } from "@beyou/types/onboarding/suggestions";
+import {
+    clearWizardProgress,
+    loadWizardProgress,
+    saveWizardProgress
+} from "./aiOnboardingStorage";
 import CategoriesStep from "./CategoriesStep";
 import HabitsTasksStep, { HabitsTasksSelection } from "./HabitsTasksStep";
 import RoutineStep from "./RoutineStep";
@@ -69,14 +74,19 @@ export default function AiOnboardingWizard({
     const dispatch = useDispatch();
     const prefersReducedMotion = useReducedMotion();
 
-    const [step, setStep] = useState<WizardStep>("categories");
-    const [data, setData] = useState<WizardData>({
-        categories: [],
-        habits: [],
-        tasks: [],
-        goals: [],
-        freeTexts: []
-    });
+    // Resume where a reload interrupted: entities from finished steps already
+    // exist, so restarting at "categories" would duplicate them.
+    const [stored] = useState(loadWizardProgress);
+    const [step, setStep] = useState<WizardStep>(stored?.step ?? "categories");
+    const [data, setData] = useState<WizardData>(
+        stored?.data ?? {
+            categories: [],
+            habits: [],
+            tasks: [],
+            goals: [],
+            freeTexts: []
+        }
+    );
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [suggestedHabitsTasks, setSuggestedHabitsTasks] = useState<{
@@ -290,12 +300,30 @@ export default function AiOnboardingWizard({
     const handleStart = () => {
         void runGuarded(async () => {
             await onFinish();
+            clearWizardProgress();
         });
+    };
+
+    // Any exit toward the manual tour abandons the AI flow — a later re-entry
+    // (tutorial reset in Settings) should start fresh, not resume.
+    const exitToTour = () => {
+        clearWizardProgress();
+        onTakeTour();
+    };
+
+    const exitToFallback = () => {
+        clearWizardProgress();
+        onFallbackToManual();
     };
 
     const handleRetry = () => {
         if (retryRef.current) void runGuarded(retryRef.current);
     };
+
+    // Persist progress so a refresh resumes this step with the created refs.
+    useEffect(() => {
+        saveWizardProgress({ step, data });
+    }, [step, data]);
 
     // Lock the page behind the overlay: without this the dashboard keeps its
     // own scrollbar visible next to the wizard.
@@ -346,7 +374,7 @@ export default function AiOnboardingWizard({
                     </span>
                     <button
                         type="button"
-                        onClick={onTakeTour}
+                        onClick={exitToTour}
                         aria-label={t("AiOnboardingTakeTour")}
                         title={t("AiOnboardingTakeTour")}
                         className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-2 py-1"
@@ -367,7 +395,7 @@ export default function AiOnboardingWizard({
                 {error ? (
                     <ErrorBanner
                         onRetry={handleRetry}
-                        onTakeTour={onFallbackToManual}
+                        onTakeTour={exitToFallback}
                         t={t}
                     />
                 ) : (
@@ -416,7 +444,7 @@ export default function AiOnboardingWizard({
                                 <SummaryStep
                                     data={data}
                                     onStart={handleStart}
-                                    onTour={onTakeTour}
+                                    onTour={exitToTour}
                                 />
                             )}
                         </motion.div>
