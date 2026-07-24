@@ -74,6 +74,7 @@ export default function AppHome() {
         <OnboardingTutorial
           onComplete={() => dispatch(setPhase('dashboard'))}
           onSkip={() => completeTutorial({ dispatch, t })}
+          onChooseAi={() => dispatch(setPhase('ai'))}
         />
       ) : null}
       {dash.active ? (
