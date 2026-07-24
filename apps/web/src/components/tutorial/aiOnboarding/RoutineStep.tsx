@@ -3,6 +3,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
     ArrowRight,
     CalendarDays,
+    ChevronDown,
+    ChevronUp,
     Lightbulb,
     ListChecks,
     Repeat,
@@ -56,6 +58,52 @@ const withItems = (
 ): SectionSuggestion =>
     kind === "habits" ? { ...section, habits: items } : { ...section, tasks: items };
 
+/** One display row: which array the item lives in plus its index there. */
+type SectionEntry = { kind: ItemKind; item: ItemPlacement; index: number };
+
+/** Habits and tasks merged into ONE chronological list — the real routine
+ *  orders items by time, so the draft must too (and reordering means
+ *  exchanging time slots, not array positions). */
+const sectionEntries = (section: SectionSuggestion): SectionEntry[] =>
+    [
+        ...section.habits.map((item, index) => ({ kind: "habits" as const, item, index })),
+        ...section.tasks.map((item, index) => ({ kind: "tasks" as const, item, index }))
+    ].sort((a, b) => a.item.startTime.localeCompare(b.item.startTime));
+
+const toMinutes = (hhmm: string): number => {
+    const match = /^(\d{1,2}):(\d{2})$/.exec(hhmm ?? "");
+    return match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
+};
+
+const toHHMM = (minutes: number): string => {
+    const clamped = Math.max(0, Math.min(23 * 60 + 59, minutes));
+    return `${String(Math.floor(clamped / 60)).padStart(2, "0")}:${String(clamped % 60).padStart(2, "0")}`;
+};
+
+/** Puts `second` before `first` in time, keeping each item's duration and the
+ *  original starting point. Malformed times fall back to a plain window swap. */
+const swapChronology = (
+    first: ItemPlacement,
+    second: ItemPlacement
+): { newFirst: ItemPlacement; newSecond: ItemPlacement } => {
+    const start = toMinutes(first.startTime);
+    const durFirst = toMinutes(first.endTime) - toMinutes(first.startTime);
+    const durSecond = toMinutes(second.endTime) - toMinutes(second.startTime);
+    if ([start, durFirst, durSecond].some(Number.isNaN)) {
+        return {
+            newFirst: { ...first, startTime: second.startTime, endTime: second.endTime },
+            newSecond: { ...second, startTime: first.startTime, endTime: first.endTime }
+        };
+    }
+    const newSecond = { ...second, startTime: toHHMM(start), endTime: toHHMM(start + durSecond) };
+    const newFirst = {
+        ...first,
+        startTime: newSecond.endTime,
+        endTime: toHHMM(start + durSecond + durFirst)
+    };
+    return { newFirst, newSecond };
+};
+
 export default function RoutineStep({
     suggestion,
     onAccept,
@@ -99,6 +147,43 @@ export default function RoutineStep({
                     }
                     return section;
                 })
+            };
+        });
+    };
+
+    /** Swap this item's time slot with its chronological neighbor in the section. */
+    const reorderItem = (
+        kind: ItemKind,
+        sectionIndex: number,
+        itemIndex: number,
+        direction: -1 | 1
+    ) => {
+        setDraft((prev) => {
+            const section = prev.sections[sectionIndex];
+            if (!section) return prev;
+            const entries = sectionEntries(section);
+            const pos = entries.findIndex((e) => e.kind === kind && e.index === itemIndex);
+            const neighborPos = pos + direction;
+            if (pos === -1 || neighborPos < 0 || neighborPos >= entries.length) return prev;
+            const earlier = entries[Math.min(pos, neighborPos)];
+            const later = entries[Math.max(pos, neighborPos)];
+            const { newFirst, newSecond } = swapChronology(earlier.item, later.item);
+            const updateEntry = (items: ItemPlacement[], entry: SectionEntry, next: ItemPlacement) =>
+                items.map((item, i) => (i === entry.index ? next : item));
+            let updated = section;
+            updated = withItems(
+                updated,
+                earlier.kind,
+                updateEntry(updated[earlier.kind], earlier, newFirst)
+            );
+            updated = withItems(
+                updated,
+                later.kind,
+                updateEntry(updated[later.kind], later, newSecond)
+            );
+            return {
+                ...prev,
+                sections: prev.sections.map((s, i) => (i === sectionIndex ? updated : s))
             };
         });
     };
@@ -211,27 +296,17 @@ export default function RoutineStep({
 
                                 {(section.habits.length > 0 || section.tasks.length > 0) && (
                                     <ul className="mt-3 space-y-1.5">
-                                        {section.habits.map((item, itemIndex) => (
+                                        {sectionEntries(section).map((entry, pos, entries) => (
                                             <ItemRow
-                                                key={`h-${item.name}-${itemIndex}`}
-                                                kind="habits"
-                                                item={item}
+                                                key={`${entry.kind}-${entry.item.name}-${entry.index}`}
+                                                kind={entry.kind}
+                                                item={entry.item}
                                                 sectionIndex={sectionIndex}
-                                                itemIndex={itemIndex}
+                                                itemIndex={entry.index}
                                                 sections={draft.sections}
-                                                onMove={moveItem}
-                                                onRemove={removeItem}
-                                                t={t}
-                                            />
-                                        ))}
-                                        {section.tasks.map((item, itemIndex) => (
-                                            <ItemRow
-                                                key={`t-${item.name}-${itemIndex}`}
-                                                kind="tasks"
-                                                item={item}
-                                                sectionIndex={sectionIndex}
-                                                itemIndex={itemIndex}
-                                                sections={draft.sections}
+                                                canMoveEarlier={pos > 0}
+                                                canMoveLater={pos < entries.length - 1}
+                                                onReorder={reorderItem}
                                                 onMove={moveItem}
                                                 onRemove={removeItem}
                                                 t={t}
@@ -349,13 +424,29 @@ interface ItemRowProps {
     sectionIndex: number;
     itemIndex: number;
     sections: SectionSuggestion[];
+    canMoveEarlier: boolean;
+    canMoveLater: boolean;
+    onReorder: (kind: ItemKind, sectionIndex: number, itemIndex: number, direction: -1 | 1) => void;
     onMove: (kind: ItemKind, fromSection: number, itemIndex: number, toSection: number) => void;
     onRemove: (kind: ItemKind, sectionIndex: number, itemIndex: number) => void;
     t: (key: string) => string;
 }
 
-/** One habit/task placement row: type glyph, name, times, move-to-section select, remove. */
-function ItemRow({ kind, item, sectionIndex, itemIndex, sections, onMove, onRemove, t }: ItemRowProps) {
+/** One habit/task placement row: type glyph, name, times, reorder arrows,
+ *  move-to-section select, remove. */
+function ItemRow({
+    kind,
+    item,
+    sectionIndex,
+    itemIndex,
+    sections,
+    canMoveEarlier,
+    canMoveLater,
+    onReorder,
+    onMove,
+    onRemove,
+    t
+}: ItemRowProps) {
     const Glyph = kind === "habits" ? Repeat : ListChecks;
     return (
         <li
@@ -380,6 +471,32 @@ function ItemRow({ kind, item, sectionIndex, itemIndex, sections, onMove, onRemo
                 <span className="shrink-0 text-xs text-description tabular-nums">
                     {item.startTime}–{item.endTime}
                 </span>
+            </span>
+            <span className="flex shrink-0 flex-col">
+                <button
+                    type="button"
+                    aria-label={t("AiOnboardingMoveEarlier")}
+                    disabled={!canMoveEarlier}
+                    onClick={() => onReorder(kind, sectionIndex, itemIndex, -1)}
+                    className={cn(
+                        "flex h-4 w-6 items-center justify-center rounded text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        canMoveEarlier ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
+                    )}
+                >
+                    <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                </button>
+                <button
+                    type="button"
+                    aria-label={t("AiOnboardingMoveLater")}
+                    disabled={!canMoveLater}
+                    onClick={() => onReorder(kind, sectionIndex, itemIndex, 1)}
+                    className={cn(
+                        "flex h-4 w-6 items-center justify-center rounded text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        canMoveLater ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
+                    )}
+                >
+                    <ChevronDown className="w-4 h-4" aria-hidden="true" />
+                </button>
             </span>
             <select
                 aria-label={t("AiOnboardingMoveToSection")}

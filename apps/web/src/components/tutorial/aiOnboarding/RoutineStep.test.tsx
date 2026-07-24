@@ -20,6 +20,30 @@ describe("RoutineStep", () => {
     expect(onAccept.mock.calls[0][0].sections[0].habits).toEqual([]);
   });
 
+
+  test("move earlier swaps time slots with the previous item, keeping durations", () => {
+    const onAccept = vi.fn();
+    const twoItems = {
+      ...suggestion,
+      sections: [
+        { name: "Wake", iconId: "lucide:sun", startTime: "07:00", endTime: "09:00",
+          habits: [{ name: "Run", startTime: "07:00", endTime: "07:30" }],
+          tasks: [{ name: "Stretch", startTime: "07:30", endTime: "07:40" }] }
+      ]
+    };
+    render(<RoutineStep suggestion={twoItems} onAccept={onAccept} onRegenerate={vi.fn()} loading={false} />);
+
+    // "Stretch" (07:30, second chronologically) moves earlier — it takes the
+    // 07:00 start with its own 10min duration; "Run" follows with its 30min.
+    const earlierButtons = screen.getAllByRole("button", { name: "AiOnboardingMoveEarlier" });
+    fireEvent.click(earlierButtons[1]);
+    fireEvent.click(screen.getByRole("button", { name: "AiOnboardingRoutineAccept" }));
+
+    const accepted = onAccept.mock.calls[0][0];
+    expect(accepted.sections[0].tasks[0]).toEqual({ name: "Stretch", startTime: "07:00", endTime: "07:10" });
+    expect(accepted.sections[0].habits[0]).toEqual({ name: "Run", startTime: "07:10", endTime: "07:40" });
+  });
+
   test("feedback triggers regenerate", () => {
     const onRegenerate = vi.fn();
     render(<RoutineStep suggestion={suggestion} onAccept={vi.fn()} onRegenerate={onRegenerate} loading={false} />);

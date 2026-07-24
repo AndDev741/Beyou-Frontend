@@ -567,6 +567,8 @@
     "AiOnboardingRoutineAccept": "Aceitar rotina",
     "AiOnboardingScheduleDays": "Repetir em",
     "AiOnboardingMoveToSection": "Mover para seção",
+    "AiOnboardingMoveEarlier": "Mover para antes",
+    "AiOnboardingMoveLater": "Mover para depois",
     "AiOnboardingRemoveItem": "Remover",
     "AiOnboardingGoalsTitle": "Metas para buscar",
     "AiOnboardingGoalsHint": "Escolha as metas que fazem sentido para você — dá para editar depois.",

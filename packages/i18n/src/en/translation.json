@@ -567,6 +567,8 @@
     "AiOnboardingRoutineAccept": "Accept routine",
     "AiOnboardingScheduleDays": "Repeat on",
     "AiOnboardingMoveToSection": "Move to section",
+    "AiOnboardingMoveEarlier": "Move earlier",
+    "AiOnboardingMoveLater": "Move later",
     "AiOnboardingRemoveItem": "Remove",
     "AiOnboardingGoalsTitle": "Goals to aim for",
     "AiOnboardingGoalsHint": "Pick the goals that speak to you — you can edit them later.",
