@@ -59,6 +59,22 @@ jest.mock('react-native-view-shot', () => ({
   captureRef: jest.fn(async () => 'file:///tmp/mock-capture.jpg'),
 }));
 
+// @sentry/react-native wraps the RNSentry native module, which does not exist
+// under jest — importing the real SDK would nag about the missing native layer and
+// try to stand up a transport. Mocked to plain spies so tests can assert the JS
+// call path (init options, captureException) without any network or native part.
+//
+// IMPORTANT: this mock is why the suite can only ever prove that events are
+// HANDED to the SDK. It cannot prove they are transmitted. Real delivery has to
+// be observed from a release build on a physical device (see src/lib/telemetry.ts).
+jest.mock('@sentry/react-native', () => ({
+  __esModule: true,
+  init: jest.fn(),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  wrap: jest.fn((c) => c),
+}));
+
 // @react-native-google-signin/google-signin wraps a native module absent in jest,
 // and GoogleSignInButton calls GoogleSignin.configure() at module load. Default the
 // mock to a "cancelled" sign-in so screen tests that merely render the button stay

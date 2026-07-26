@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 import i18next from 'i18next';
 import ErrorReport from './feedback/ErrorReport';
 
@@ -29,6 +30,15 @@ export default class ErrorBoundary extends Component<Props, State> {
     // Kept so the crash report can carry the component stack (R8/KTD3) — the
     // error alone rarely says WHICH screen blew up.
     this.setState({ componentStack: info?.componentStack ?? undefined });
+    // Report to the collector WITHOUT waiting for the user (R16). This call is
+    // load-bearing rather than belt-and-braces: catching an error here stops it
+    // propagating, so React Native's global handler never sees it and the SDK's
+    // automatic capture would miss every render crash. `ErrorReport` below is the
+    // separate, user-driven feedback path — it is not a substitute for this.
+    // No-op when telemetry was never initialised (no DSN → no bound client).
+    Sentry.captureException(error, {
+      contexts: { react: { componentStack: info?.componentStack ?? undefined } },
+    });
     // eslint-disable-next-line no-console
     console.error('[ErrorBoundary]', error);
   }

@@ -25,6 +25,17 @@ import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
 import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
+import { initTelemetry } from '../src/lib/telemetry';
+
+// Error reporting comes up before any app wiring so a crash *during* the setup
+// below is still captured. No-ops when EXPO_PUBLIC_SENTRY_DSN is unset.
+// NOTE: end-to-end delivery is unverified on a real device — see telemetry.ts.
+// Deliberately NOT the very first statement in the module (upstream #5508 saw
+// events dropped in that position), and deliberately NOT using `Sentry.wrap()`:
+// on RN 0.85 / React 19.2 the wrapper remounts the whole tree on every save and
+// breaks Fast Refresh (upstream #6514, still open). `wrap` only adds touch
+// breadcrumbs and profiling, both of which are off here anyway.
+initTelemetry();
 
 setHttpClient(nativeHttpClient);
 setLogger({ error: (...a: unknown[]) => console.error(...a) });
