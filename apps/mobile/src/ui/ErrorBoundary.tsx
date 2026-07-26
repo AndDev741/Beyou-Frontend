@@ -1,12 +1,15 @@
-import { Component, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import i18next from 'i18next';
+import ErrorReport from './feedback/ErrorReport';
 
 interface Props {
   children: ReactNode;
 }
 interface State {
   hasError: boolean;
+  error: unknown;
+  componentStack?: string;
 }
 
 /**
@@ -16,18 +19,21 @@ interface State {
  * copy reads from the already-initialised i18next instance.
  */
 export default class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { hasError: false, error: undefined };
 
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: unknown): Partial<State> {
+    return { hasError: true, error };
   }
 
-  componentDidCatch(error: unknown) {
+  componentDidCatch(error: unknown, info: ErrorInfo) {
+    // Kept so the crash report can carry the component stack (R8/KTD3) — the
+    // error alone rarely says WHICH screen blew up.
+    this.setState({ componentStack: info?.componentStack ?? undefined });
     // eslint-disable-next-line no-console
     console.error('[ErrorBoundary]', error);
   }
 
-  reset = () => this.setState({ hasError: false });
+  reset = () => this.setState({ hasError: false, error: undefined, componentStack: undefined });
 
   render() {
     if (!this.state.hasError) return this.props.children;
@@ -43,6 +49,8 @@ export default class ErrorBoundary extends Component<Props, State> {
         >
           <Text className="text-background font-semibold">{i18next.t('TryAgain')}</Text>
         </Pressable>
+        {/* R8: reporting is offered, never demanded — retry keeps top billing. */}
+        <ErrorReport error={this.state.error} componentStack={this.state.componentStack} />
       </View>
     );
   }

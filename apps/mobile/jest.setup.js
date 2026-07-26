@@ -49,6 +49,16 @@ jest.mock('lucide-react-native', () =>
   ),
 );
 
+// react-native-view-shot wraps a native module (it snapshots the real view
+// hierarchy) that does not exist under jest. Feedback capture is exercised by
+// passing a uri through the screen's route params instead; this mock just keeps
+// the import resolvable. A REAL capture can only be verified on a device.
+jest.mock('react-native-view-shot', () => ({
+  __esModule: true,
+  captureScreen: jest.fn(async () => 'file:///tmp/mock-capture.jpg'),
+  captureRef: jest.fn(async () => 'file:///tmp/mock-capture.jpg'),
+}));
+
 // @react-native-google-signin/google-signin wraps a native module absent in jest,
 // and GoogleSignInButton calls GoogleSignin.configure() at module load. Default the
 // mock to a "cancelled" sign-in so screen tests that merely render the button stay

@@ -13,6 +13,7 @@ import { fetch as expoFetch } from 'expo/fetch';
 import { setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
 import { store, type RootState, type AppDispatch } from '../src/store';
 import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
+import { registerFeedbackNativeUploader } from '../src/lib/feedbackUploader';
 import { refreshRequest } from '../src/auth/authApi';
 import * as secureStore from '../src/auth/secureStore';
 import { bootstrap, logout } from '../src/auth/authSlice';
@@ -27,6 +28,9 @@ import ErrorBoundary from '../src/ui/ErrorBoundary';
 
 setHttpClient(nativeHttpClient);
 setLogger({ error: (...a: unknown[]) => console.error(...a) });
+// Feedback images are `file://` uris — RN's FormData cannot carry them, so the
+// shared uploader needs the expo-file-system transport registered up front.
+registerFeedbackNativeUploader();
 // SSE streaming needs expo/fetch — RN's global fetch buffers the whole body.
 // Borrows the same base URL, fresh access token, and single-flight refresh.
 setAgentStreamConfig({
