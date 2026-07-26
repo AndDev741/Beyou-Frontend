@@ -181,7 +181,10 @@ function Feedback() {
                     >
                         <p className="text-base font-semibold text-error">{t("FeedbackFailedTitle")}</p>
                         <p className="mt-1 text-sm text-description">{t("FeedbackFailedBody")}</p>
-                        <ErrorNotice error={outcome.error} className="mt-1" />
+                        {/* Already a feedback form: offering "report this problem"
+                            here would just loop the user back to where they are.
+                            The mailto below is the real way out. */}
+                        <ErrorNotice error={outcome.error} className="mt-1" canReport={false} />
                         <a
                             data-testid="feedback-mailto-fallback"
                             href={mailtoHref}
