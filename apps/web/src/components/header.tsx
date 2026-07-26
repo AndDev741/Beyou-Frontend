@@ -3,6 +3,7 @@ import returnPageIcon from "../assets/returnPage.svg";
 import { useTranslation } from "react-i18next";
 import Button from "./Button";
 import { CgLogOut } from "react-icons/cg";
+import { MessageSquarePlus } from "lucide-react";
 import logoutRequest from "../services/authentication/request/logoutRequest";
 import { persistor } from "../redux/store";
 import { toast } from "react-toastify";
@@ -46,6 +47,19 @@ function Header({pageName, showLogout}: {pageName: string, showLogout?: boolean}
                 icon={<CgLogOut size={24} />}
                 />
             )}
+
+            {/* R1: feedback is reachable from every authenticated page — this
+                header is the authenticated chrome (the auth pages use
+                components/authentication/header instead). */}
+            <Link
+                to={"/feedback"}
+                aria-label={t('FeedbackNavLabel')}
+                title={t('FeedbackNavLabel')}
+                data-testid="header-feedback-link"
+                className="flex items-center justify-center rounded-full p-1.5 duration-300 ease-in-out transform hover:scale-105 hover:bg-background/20"
+            >
+                <MessageSquarePlus size={26} aria-hidden="true" />
+            </Link>
 
             <Link to={"/dashboard"}>
                 <img className="w-[45px] duration-300 ease-in-out transform hover:scale-105"

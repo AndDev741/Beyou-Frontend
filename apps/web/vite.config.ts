@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
+
+// Build-time app version. Feedback submissions and error reports carry it, so a
+// report can be traced back to the build that produced it.
+const packageJson = JSON.parse(
+  readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8')
+) as { version: string };
 
 export default defineConfig({
   plugins: [svgr(), react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+  },
   resolve: {
     alias: {
       '@beyou/types': fileURLToPath(new URL('../../packages/types/src', import.meta.url)),

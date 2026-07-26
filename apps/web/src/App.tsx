@@ -23,6 +23,7 @@ const Goals = lazy(() => import("./pages/goals/goals"));
 const Tasks = lazy(() => import("./pages/tasks/Tasks"));
 const Routine = lazy(() => import("./pages/routines/routine"));
 const Configuration = lazy(() => import("./pages/configuration/Configuration"));
+const Feedback = lazy(() => import("./pages/feedback/Feedback"));
 
 /** Full-screen spinner shared by the auth boot check and lazy route loads. */
 function FullScreenSpinner() {
@@ -59,6 +60,7 @@ function AppContent() {
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/routines" element={<Routine />} />
             <Route path="/configuration" element={<Configuration />} />
+            <Route path="/feedback" element={<Feedback />} />
           </Route>
         </Routes>
       </Suspense>

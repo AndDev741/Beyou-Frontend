@@ -5,6 +5,7 @@ import { CiSquareCheck } from "react-icons/ci";
 import { CiMemoPad } from "react-icons/ci";
 import { CiMedal } from "react-icons/ci";
 import { CiSettings } from "react-icons/ci";
+import { CiChat1 } from "react-icons/ci";
 import { useTranslation } from "react-i18next";
 
 function Shortcuts() {
@@ -54,6 +55,14 @@ function Shortcuts() {
                     <CiSettings className="text-[25px] mr-2 text-icon" />
 
                     {t('Config')}
+                </Link>
+                {/* The dashboard is the only authenticated page without the shared
+                    Header, so the feedback entry point lives here too. */}
+                <Link to={"/feedback"}
+                    data-tutorial-id="shortcut-feedback"
+                    className={linkStyle}>
+                    <CiChat1 className="text-[25px] mr-2 text-icon" />
+                    {t('FeedbackNavLabel')}
                 </Link>
             </nav>
         </div>
