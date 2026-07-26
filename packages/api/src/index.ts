@@ -20,6 +20,15 @@ export { default as deleteCategory } from './categories/deleteCategory';
 export { default as editCategory } from './categories/editCategory';
 export { default as getCategories } from './categories/getCategories';
 
+// Feedback
+export { default as buildFeedbackContext } from './feedback/feedbackContext';
+export * from './feedback/feedbackContext';
+export { default as createFeedback } from './feedback/createFeedback';
+export * from './feedback/feedbackTypes';
+export * from './feedback/nativeUploader';
+export { default as submitFeedback } from './feedback/submitFeedback';
+export { default as uploadFeedbackAttachment } from './feedback/uploadFeedbackAttachment';
+
 // Goals
 export { default as createGoal } from './goals/createGoal';
 export { default as decreaseCurrentValue } from './goals/decreaseCurrentValue';
