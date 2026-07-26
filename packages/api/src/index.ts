@@ -29,6 +29,14 @@ export * from './feedback/nativeUploader';
 export { default as submitFeedback } from './feedback/submitFeedback';
 export { default as uploadFeedbackAttachment } from './feedback/uploadFeedbackAttachment';
 
+// Feedback — admin triage (ROLE_ADMIN). The web admin console imports these by
+// deep path so they stay out of any bundle that only submits feedback.
+export { default as createFeedbackReply } from './feedback/createFeedbackReply';
+export { default as getFeedbackAdminCounts } from './feedback/getFeedbackAdminCounts';
+export { default as getFeedbackAdminItem } from './feedback/getFeedbackAdminItem';
+export { default as listFeedbackAdminItems } from './feedback/listFeedbackAdminItems';
+export { default as updateFeedbackStatus } from './feedback/updateFeedbackStatus';
+
 // Goals
 export { default as createGoal } from './goals/createGoal';
 export { default as decreaseCurrentValue } from './goals/decreaseCurrentValue';

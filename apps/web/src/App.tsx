@@ -24,6 +24,10 @@ const Tasks = lazy(() => import("./pages/tasks/Tasks"));
 const Routine = lazy(() => import("./pages/routines/routine"));
 const Configuration = lazy(() => import("./pages/configuration/Configuration"));
 const Feedback = lazy(() => import("./pages/feedback/Feedback"));
+// Admin console (KD7): both the gate and the page are lazy, so no ordinary
+// user ever downloads the triage interface or its admin API client.
+const AdminRoute = lazy(() => import("./components/AdminRoute"));
+const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
 
 /** Full-screen spinner shared by the auth boot check and lazy route loads. */
 function FullScreenSpinner() {
@@ -61,6 +65,9 @@ function AppContent() {
             <Route path="/routines" element={<Routine />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/feedback" element={<Feedback />} />
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/feedback" element={<AdminFeedback />} />
+            </Route>
           </Route>
         </Routes>
       </Suspense>

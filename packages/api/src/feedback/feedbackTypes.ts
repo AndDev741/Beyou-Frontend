@@ -9,6 +9,50 @@ export type CreateFeedbackRequest = Schemas["CreateFeedbackRequest"];
 export type FeedbackResponse = Schemas["FeedbackResponse"];
 export type FeedbackAttachment = Schemas["FeedbackAttachment"];
 
+// --- Admin triage wire shapes (ROLE_ADMIN-gated endpoints) -------------------
+// `status` exists only on these shapes: it is internal triage state and never
+// travels back to the submitter (see FeedbackResponse, which has no status).
+export type FeedbackStatus = Schemas["UpdateFeedbackStatusRequest"]["status"];
+export type FeedbackSubmitter = Schemas["FeedbackSubmitter"];
+export type FeedbackReply = Schemas["FeedbackReply"];
+export type FeedbackAdminItem = Schemas["FeedbackAdminItem"];
+export type FeedbackAdminDetail = Schemas["FeedbackAdminDetail"];
+export type FeedbackAdminPage = Schemas["FeedbackAdminPage"];
+export type FeedbackCounts = Schemas["FeedbackCounts"];
+
+/** Every field optional: an omitted filter means "do not filter on it". */
+export type ListFeedbackAdminItemsQuery = {
+  status?: FeedbackStatus;
+  category?: FeedbackCategory;
+  page?: number;
+  size?: number;
+};
+
+export type FeedbackAdminPageResult = {
+  success?: FeedbackAdminPage;
+  error?: ApiErrorPayload;
+};
+
+export type FeedbackCountsResult = {
+  success?: FeedbackCounts;
+  error?: ApiErrorPayload;
+};
+
+export type FeedbackAdminDetailResult = {
+  success?: FeedbackAdminDetail;
+  error?: ApiErrorPayload;
+};
+
+export type FeedbackAdminItemResult = {
+  success?: FeedbackAdminItem;
+  error?: ApiErrorPayload;
+};
+
+export type FeedbackReplyResult = {
+  success?: FeedbackReply;
+  error?: ApiErrorPayload;
+};
+
 /**
  * One image to attach. Web passes a `Blob`/`File`; React Native passes the
  * `file://` uri it got from the image picker — RN's FormData cannot carry a
