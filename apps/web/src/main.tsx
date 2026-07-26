@@ -11,6 +11,12 @@ import { setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
 import { axiosHttpClient } from './lib/axiosHttpClient';
 import instance, { getRefreshedAccessToken } from './services/axiosConfig';
 import { logger } from './utils/logger';
+import { initTelemetry } from './lib/telemetry';
+
+// First thing in the entry module: unhandled errors thrown while the rest of
+// the boot sequence runs are only reported if the SDK is already listening.
+// No-ops entirely when VITE_SENTRY_DSN is unset (see lib/telemetry.ts).
+initTelemetry();
 
 setHttpClient(axiosHttpClient);
 setLogger(logger);

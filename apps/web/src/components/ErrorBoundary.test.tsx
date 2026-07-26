@@ -16,6 +16,18 @@ vi.mock("./errorReport/captureScreenshot", () => ({
 }));
 
 /**
+ * R16: the crash boundary must report on its own. Mocked at the SDK boundary so
+ * the whole chain (boundary → telemetry → SDK) is exercised, not just an
+ * internal call.
+ */
+vi.mock("@sentry/react", () => ({
+  init: vi.fn(),
+  captureException: vi.fn()
+}));
+import * as Sentry from "@sentry/react";
+const mockCaptureException = Sentry.captureException as unknown as ReturnType<typeof vi.fn>;
+
+/**
  * Lets one test simulate "the report feature is unavailable" (a broken or
  * unloadable control) without a second test file.
  */
@@ -57,6 +69,7 @@ describe("ErrorBoundary", () => {
       success: { feedback: { id: "fb-1" }, attachments: [], failedAttachments: [] }
     });
     mockCaptureScreenshot.mockReset().mockResolvedValue(null);
+    mockCaptureException.mockReset();
   });
 
   afterEach(() => {
@@ -103,6 +116,34 @@ describe("ErrorBoundary", () => {
     expect(input.body).toContain("ThrowingComponent");
     expect(input.attachments).toBeUndefined();
     expect(mockCaptureScreenshot).not.toHaveBeenCalled();
+  });
+
+  /**
+   * R16: catching the error here stops it propagating, so the SDK's automatic
+   * global handler never sees it. Without this explicit report every render
+   * crash — the most valuable kind — would be invisible in the collector.
+   */
+  it("reports the caught error to the collector with no user action", () => {
+    renderBoundary();
+
+    expect(mockCaptureException).toHaveBeenCalledTimes(1);
+    const [reported, context] = mockCaptureException.mock.calls[0];
+    expect((reported as Error).message).toBe("Test error");
+    expect(context.contexts.react.componentStack).toContain("ThrowingComponent");
+    // Nothing was clicked — the user-driven report control is a separate path.
+    expect(mockSubmitFeedback).not.toHaveBeenCalled();
+  });
+
+  it("reports nothing when children render successfully", () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <ErrorBoundary>
+          <p>Hello world</p>
+        </ErrorBoundary>
+      </I18nextProvider>
+    );
+
+    expect(mockCaptureException).not.toHaveBeenCalled();
   });
 
   it("still renders its fallback and reload control when the report feature is unavailable", () => {

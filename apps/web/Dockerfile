@@ -23,9 +23,19 @@ FROM base AS build
 ARG VITE_API_URL
 ARG VITE_GOOGLE_CLIENT_ID
 ARG VITE_APP_URL
+# Error-collector DSN. A DSN is a public ingest identifier, not a secret, so a
+# build ARG is fine. Leave it unset to build with telemetry off.
+#
+# Source-map UPLOAD is deliberately NOT wired here: it needs SENTRY_AUTH_TOKEN,
+# a real secret, and build ARGs are readable in `docker history`. Uploading from
+# a CI step that builds outside this image (or via BuildKit `--secret`) keeps the
+# token out of the layers. Without an upload the maps stay hidden and undeleted
+# in the image — which is why nginx.conf refuses `.map` requests.
+ARG VITE_SENTRY_DSN
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 ENV VITE_APP_URL=${VITE_APP_URL}
+ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
 COPY . .
 RUN npm run build
 

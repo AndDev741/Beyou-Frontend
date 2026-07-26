@@ -1,6 +1,7 @@
 import React from "react";
 import { withTranslation, WithTranslation } from "react-i18next";
 import { logger } from "../utils/logger";
+import { reportCaughtError } from "../lib/telemetry";
 import ErrorReportControl from "./errorReport/ErrorReportControl";
 import ReportControlGuard from "./errorReport/ReportControlGuard";
 
@@ -38,6 +39,12 @@ class ErrorBoundaryClass extends React.Component<
     // Kept, not discarded: the component stack is the single most useful thing
     // a crash report can carry, and it exists only inside this callback.
     this.setState({ componentStack: errorInfo.componentStack ?? null });
+    // Report to the collector WITHOUT waiting for the user (R16). Catching here
+    // stops the error propagating, so the SDK's automatic global handler never
+    // sees it — every render crash would otherwise be invisible. The report
+    // control rendered below is the separate, user-driven feedback path; it is
+    // not a substitute for this.
+    reportCaughtError(error, errorInfo.componentStack ?? null);
   }
 
   render() {
