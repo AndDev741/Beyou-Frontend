@@ -7,6 +7,9 @@ export * from './logger';
 // Error handling
 export * from './apiError';
 
+// Error reporting — which handled failures deserve a telemetry issue
+export * from './errorReporting';
+
 // Utilities
 export * from './utils/experienceToEnum';
 

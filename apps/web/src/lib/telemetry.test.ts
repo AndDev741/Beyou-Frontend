@@ -192,3 +192,111 @@ describe("reportCaughtError", () => {
     expect(captureMock).toHaveBeenCalledTimes(1);
   });
 });
+
+/**
+ * Handled API failures (R16 gap).
+ *
+ * The shared API client never throws — every operation returns `{ success?,
+ * error? }` and routes the failure through `getLogger().error(...)`. That means a
+ * backend outage or a network timeout is *handled*, so neither `window.onerror`
+ * nor the ErrorBoundary ever sees it and the collector stayed empty during real
+ * incidents. The logger installed in `main.tsx` closes that gap; these tests pin
+ * the app-side half of it (the classifier itself lives in `@beyou/api` and is
+ * tested there).
+ */
+describe("handled API failure reporting", () => {
+  beforeEach(() => {
+    initMock.mockClear();
+    captureMock.mockClear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  /**
+   * Builds the exact logger `main.tsx` installs, over a spied console leg.
+   *
+   * `ApiError` is handed back from the SAME `@beyou/api` instance the classifier
+   * came from. `loadTelemetry()` calls `vi.resetModules()`, so a copy imported
+   * before that reset is a different class object and `instanceof` would miss —
+   * making every 4xx look unrecognisable and get reported.
+   */
+  async function installedLogger(dsn: string) {
+    vi.stubEnv("VITE_SENTRY_DSN", dsn);
+    const { initTelemetry, reportHandledFailure } = await loadTelemetry();
+    initTelemetry();
+    const { createReportingLogger, ApiError } = await import("@beyou/api");
+    const consoleError = vi.fn();
+    return {
+      logger: createReportingLogger({ error: consoleError }, reportHandledFailure),
+      consoleError,
+      ApiError
+    };
+  }
+
+  it("reports a 5xx — a backend outage is no longer invisible", async () => {
+    const { logger, ApiError } = await installedLogger(DSN);
+    const failure = new ApiError(500, { errorKey: "INTERNAL" });
+
+    logger.error(failure);
+
+    expect(captureMock).toHaveBeenCalledTimes(1);
+    expect(captureMock.mock.calls[0][0]).toBe(failure);
+  });
+
+  it("does NOT report a 4xx — the server correctly rejected the request", async () => {
+    const { logger, ApiError } = await installedLogger(DSN);
+
+    logger.error(new ApiError(400, { errorKey: "ValidationError" }));
+    logger.error(new ApiError(401, undefined, "Unauthorized"));
+    logger.error(new ApiError(404, { errorKey: "FEEDBACK_NOT_FOUND" }));
+    logger.error(new ApiError(429, { errorKey: "RATE_LIMIT_EXCEEDED" }));
+
+    expect(captureMock).not.toHaveBeenCalled();
+  });
+
+  it("reports a network failure where no response was ever received", async () => {
+    const { logger, ApiError } = await installedLogger(DSN);
+
+    logger.error(new ApiError(0, undefined, "Network Error"));
+
+    expect(captureMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports nothing at all when no DSN is configured", async () => {
+    const { logger, consoleError, ApiError } = await installedLogger("");
+
+    logger.error(new ApiError(500));
+    logger.error(new ApiError(0, undefined, "Network Error"));
+    logger.error(new TypeError("boom"));
+
+    expect(initMock).not.toHaveBeenCalled();
+    expect(captureMock).not.toHaveBeenCalled();
+    // Inert for the collector, but still visible locally.
+    expect(consoleError).toHaveBeenCalledTimes(3);
+  });
+
+  it("still writes to the console for every failure class", async () => {
+    const { logger, consoleError, ApiError } = await installedLogger(DSN);
+
+    logger.error(new ApiError(500));
+    logger.error(new ApiError(403));
+    logger.error(new ApiError(0, undefined, "Network Error"));
+    logger.error("agentStream: malformed done event");
+
+    expect(consoleError).toHaveBeenCalledTimes(4);
+  });
+
+  it("tags handled failures so they are distinguishable from render crashes", async () => {
+    const { logger, ApiError } = await installedLogger(DSN);
+
+    logger.error(new ApiError(503));
+
+    const [, context] = captureMock.mock.calls[0];
+    expect(context.tags.handled).toBe("api");
+    // No component stack — a handled API failure did not crash a render, and
+    // claiming otherwise would make the two paths look like the same issue.
+    expect(context.contexts).toBeUndefined();
+  });
+});

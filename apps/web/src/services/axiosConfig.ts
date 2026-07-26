@@ -62,7 +62,13 @@ instance.interceptors.response.use(
             }catch (refreshError) {
                 console.error('Token refresh failed:', refreshError);
                 window.location.href = "/";
-                return Promise.reject(refreshError);
+                // Reject with the ORIGINAL 401, not the refresh failure. The
+                // caller's request did fail with 401 — that is the accurate
+                // outcome — and it is what error classification needs: the
+                // refresh error is an opaque non-ApiError, so surfacing it made
+                // every expired session look like an unrecognised fault worth
+                // reporting to the collector. Expired sessions are routine.
+                return Promise.reject(error);
             }
         }
         return Promise.reject(error);

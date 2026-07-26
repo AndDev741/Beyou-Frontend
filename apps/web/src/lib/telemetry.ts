@@ -154,3 +154,31 @@ export function reportCaughtError(error: unknown, componentStack: string | null)
     contexts: { react: { componentStack: componentStack ?? undefined } }
   });
 }
+
+/**
+ * Report a failure the shared API client already handled.
+ *
+ * The client never throws — every operation returns `{ success?, error? }` — so a
+ * 500, a dropped connection or a DNS failure never reaches `window.onerror` and
+ * never reaches `ErrorBoundary`. Without this the collector was blind to exactly
+ * the failures an outage produces.
+ *
+ * Wired in `main.tsx` as the `report` leg of `createReportingLogger()`, which
+ * owns the decision of WHICH failures get here (5xx, transport failures, and
+ * anything that is not a recognisable API error — never a 4xx). Keeping the
+ * classifier in `@beyou/api` is what guarantees mobile applies the same rule.
+ *
+ * The `handled: "api"` tag separates these from `reportCaughtError`'s render
+ * crashes in the collector. The two paths never see the same error — one covers
+ * API catch blocks, the other covers `componentDidCatch` — so a failure produces
+ * one issue, not two; the tag is for triage, not deduplication.
+ *
+ * Explicitly inert before `initTelemetry()` has run with a DSN. `captureException`
+ * is already a no-op with no bound client, but stating it here means "no DSN
+ * means nothing is reported" is a property of this module rather than of SDK
+ * internals that an upgrade could change.
+ */
+export function reportHandledFailure(error: unknown): void {
+  if (!initialised) return;
+  Sentry.captureException(error, { tags: { handled: "api" } });
+}

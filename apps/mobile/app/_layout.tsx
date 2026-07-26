@@ -10,7 +10,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import '../src/i18n';
 import { fetch as expoFetch } from 'expo/fetch';
-import { setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
+import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
 import { store, type RootState, type AppDispatch } from '../src/store';
 import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
 import { registerFeedbackNativeUploader } from '../src/lib/feedbackUploader';
@@ -25,7 +25,7 @@ import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
 import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
-import { initTelemetry } from '../src/lib/telemetry';
+import { initTelemetry, reportHandledFailure } from '../src/lib/telemetry';
 
 // Error reporting comes up before any app wiring so a crash *during* the setup
 // below is still captured. No-ops when EXPO_PUBLIC_SENTRY_DSN is unset.
@@ -38,7 +38,18 @@ import { initTelemetry } from '../src/lib/telemetry';
 initTelemetry();
 
 setHttpClient(nativeHttpClient);
-setLogger({ error: (...a: unknown[]) => console.error(...a) });
+// The shared API client handles every failure itself, so a 500 or an unreachable
+// host never reaches ErrorBoundary or the SDK's global handler. This keeps the
+// console output intact and additionally forwards the failures that indicate a
+// real defect — 5xx, transport failures, and anything that is not a recognisable
+// API error — to the collector. 4xx stay console-only: those are the server
+// rejecting a request on purpose. See @beyou/api's errorReporting.ts.
+setLogger(
+  createReportingLogger(
+    { error: (...a: unknown[]) => console.error(...a) },
+    reportHandledFailure,
+  ),
+);
 // Feedback images are `file://` uris — RN's FormData cannot carry them, so the
 // shared uploader needs the expo-file-system transport registered up front.
 registerFeedbackNativeUploader();

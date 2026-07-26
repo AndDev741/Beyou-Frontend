@@ -87,3 +87,33 @@ export function initTelemetry(): boolean {
   initialised = true;
   return true;
 }
+
+/**
+ * Report a failure the shared API client already handled.
+ *
+ * The client never throws — every operation returns `{ success?, error? }` — so a
+ * 500, an unreachable host, or `nativeHttpClient`'s own 20s abort never reaches
+ * the SDK's global handler and never reaches `ErrorBoundary`. Without this the
+ * collector was blind to exactly the failures an outage produces, which on mobile
+ * also covers the very common "device has no usable connectivity" case.
+ *
+ * Wired in `app/_layout.tsx` as the `report` leg of `createReportingLogger()`,
+ * which owns the decision of WHICH failures get here (5xx, transport failures,
+ * and anything that is not a recognisable API error — never a 4xx). The
+ * classifier lives in `@beyou/api` precisely so web and mobile cannot drift.
+ *
+ * The `handled: 'api'` tag separates these from `ErrorBoundary`'s render crashes
+ * in the collector. The two paths never see the same error — one covers API catch
+ * blocks, the other `componentDidCatch` — so a failure produces one issue, not
+ * two; the tag is for triage, not deduplication.
+ *
+ * Explicitly inert before `initTelemetry()` has run with a DSN, so "no DSN means
+ * nothing is reported" is a property of this module rather than of SDK internals.
+ *
+ * ⚠️ Same KTD7 caveat as the rest of this module: handing an event to the SDK is
+ * not proof of transmission on a device.
+ */
+export function reportHandledFailure(error: unknown): void {
+  if (!initialised) return;
+  Sentry.captureException(error, { tags: { handled: 'api' } });
+}
