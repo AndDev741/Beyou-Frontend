@@ -62,7 +62,7 @@ function Shortcuts() {
                     data-tutorial-id="shortcut-feedback"
                     className={linkStyle}>
                     <CiChat1 className="text-[25px] mr-2 text-icon" />
-                    {t('FeedbackNavLabel')}
+                    {t('FeedbackShortcutLabel')}
                 </Link>
             </nav>
         </div>

@@ -806,6 +806,7 @@
     "CloseHistory": "Close history",
     "AgentToolFailed": "failed",
     "FeedbackPageTitle": "Feedback",
+    "FeedbackShortcutLabel": "Feedback",
     "FeedbackNavLabel": "Send feedback",
     "FeedbackIntro": "Tell us what is working, what is not, and what you would like to see next.",
     "FeedbackCategoryLabel": "What is this about?",
