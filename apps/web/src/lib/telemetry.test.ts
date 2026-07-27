@@ -13,7 +13,8 @@ import type { ErrorEvent, EventHint } from "@sentry/react";
  */
 vi.mock("@sentry/react", () => ({
   init: vi.fn(),
-  captureException: vi.fn()
+  captureException: vi.fn(),
+  breadcrumbsIntegration: vi.fn((options) => ({ name: "Breadcrumbs", options }))
 }));
 
 import * as Sentry from "@sentry/react";
@@ -299,4 +300,97 @@ describe("handled API failure reporting", () => {
     // claiming otherwise would make the two paths look like the same issue.
     expect(context.contexts).toBeUndefined();
   });
+});
+
+describe("credential scrubbing", () => {
+    // Both of these are live single-use credentials read straight out of the
+    // query string (reset.tsx:32, verify.tsx:14). httpContextIntegration is a
+    // DEFAULT integration and puts the full href on every event, so without the
+    // scrub a failure on either screen hands the token to the collector for the
+    // whole retention window.
+    it("strips the query string off the event URL", async () => {
+        const { dropNoisyEvents } = await loadTelemetry();
+
+        const event = {
+            request: { url: "https://beyou.app/reset-password?token=live-single-use-token" }
+        } as ErrorEvent;
+
+        const sent = dropNoisyEvents(event, {} as EventHint);
+
+        expect(sent).not.toBeNull();
+        expect(sent!.request!.url).toBe("https://beyou.app/reset-password");
+        expect(JSON.stringify(sent)).not.toContain("live-single-use-token");
+    });
+
+    it("strips the query string off navigation and request breadcrumbs", async () => {
+        const { dropNoisyEvents } = await loadTelemetry();
+
+        const event = {
+            breadcrumbs: [
+                { data: { from: "/dashboard", to: "/auth/verify?token=verify-token" } },
+                { data: { url: "https://beyou.app/api/v1/auth/reset?token=reset-token" } }
+            ]
+        } as unknown as ErrorEvent;
+
+        const sent = dropNoisyEvents(event, {} as EventHint);
+
+        expect(JSON.stringify(sent)).not.toContain("verify-token");
+        expect(JSON.stringify(sent)).not.toContain("reset-token");
+        expect(sent!.breadcrumbs![0].data!.to).toBe("/auth/verify");
+    });
+
+    it("leaves a URL with no query string untouched", async () => {
+        const { dropNoisyEvents } = await loadTelemetry();
+
+        const event = { request: { url: "https://beyou.app/routines" } } as ErrorEvent;
+
+        expect(dropNoisyEvents(event, {} as EventHint)!.request!.url)
+            .toBe("https://beyou.app/routines");
+    });
+});
+
+describe("DOM breadcrumb attribute allowlist", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        vi.unstubAllEnvs();
+    });
+
+    // The default DOM serialiser appends [aria-label="..."] to the element
+    // description unconditionally, and routineSection.tsx:132 labels the
+    // check-in control with the user's own habit name. sendDefaultPii: false
+    // does NOT gate breadcrumbs, so the default cannot be left in place.
+    it("asks for a breadcrumb serialiser restricted to test ids", async () => {
+        vi.stubEnv("VITE_SENTRY_DSN", DSN);
+        const breadcrumbsMock = Sentry.breadcrumbsIntegration as unknown as ReturnType<typeof vi.fn>;
+        breadcrumbsMock.mockImplementation((options: unknown) => ({ name: "Breadcrumbs", options }));
+
+        const { initTelemetry } = await loadTelemetry();
+        expect(initTelemetry()).toBe(true);
+
+        const { integrations } = initMock.mock.calls[0][0];
+        expect(typeof integrations).toBe("function");
+
+        // Resolving is what triggers the SDK call we care about.
+        integrations([{ name: "Breadcrumbs" }, { name: "HttpContext" }]);
+
+        expect(breadcrumbsMock).toHaveBeenCalledWith({
+            dom: { serializeAttribute: ["data-testid", "data-tutorial-id"] }
+        });
+    });
+
+    it("drops the permissive default rather than shadowing it", async () => {
+        vi.stubEnv("VITE_SENTRY_DSN", DSN);
+        const breadcrumbsMock = Sentry.breadcrumbsIntegration as unknown as ReturnType<typeof vi.fn>;
+        breadcrumbsMock.mockImplementation((options: unknown) => ({ name: "Breadcrumbs", options }));
+
+        const { initTelemetry } = await loadTelemetry();
+        initTelemetry();
+
+        const { integrations } = initMock.mock.calls[0][0];
+        const resolved = integrations([{ name: "Breadcrumbs" }, { name: "HttpContext" }]);
+
+        // Exactly one Breadcrumbs entry, and the other defaults survive.
+        expect(resolved.filter((i: { name: string }) => i?.name === "Breadcrumbs")).toHaveLength(1);
+        expect(resolved).toContainEqual(expect.objectContaining({ name: "HttpContext" }));
+    });
 });

@@ -75,14 +75,47 @@ function isCancellation(event: ErrorEvent): boolean {
 }
 
 /**
+ * Removes the query string from a URL, keeping origin and path.
+ *
+ * `httpContextIntegration` is a default integration and it sets
+ * `event.request.url` to the full `location.href`. Two screens read a live
+ * single-use credential out of the query string — `/reset-password?token=` and
+ * `/auth/verify?token=` — so any error raised on either would ship that token
+ * to the collector and leave it there for the whole retention window.
+ * `sendDefaultPii: false` does not cover this: the URL is not classed as PII.
+ */
+function stripQuery(url: string): string {
+  const cut = url.search(/[?#]/);
+  return cut === -1 ? url : url.slice(0, cut);
+}
+
+/**
  * The send gate. Returning `null` drops the event before it leaves the browser,
  * so filtered noise costs nothing — no request, no collector storage, and no
  * spurious "new error" alert (R17).
+ *
+ * Also scrubs credential-bearing URLs off the event and its breadcrumbs, which
+ * is why this runs on every event rather than only the noisy ones.
  *
  * Exported for the test suite; wired in as `beforeSend` below.
  */
 export function dropNoisyEvents(event: ErrorEvent, _hint: EventHint): ErrorEvent | null {
   if (isExtensionInjected(event) || isCancellation(event)) return null;
+
+  if (event.request?.url) {
+    event.request.url = stripQuery(event.request.url);
+  }
+
+  // Navigation breadcrumbs carry from/to URLs, and a fetch/xhr crumb carries the
+  // requested URL — all of them reach the collector on the same event.
+  for (const crumb of event.breadcrumbs ?? []) {
+    if (!crumb.data) continue;
+    for (const key of ["from", "to", "url"] as const) {
+      const value = crumb.data[key];
+      if (typeof value === "string") crumb.data[key] = stripQuery(value);
+    }
+  }
+
   return event;
 }
 
@@ -129,6 +162,20 @@ export function initTelemetry(): boolean {
     // (cf. the redux-persist PII blacklist, and the backend's send-default-pii).
     // Default is already false; stated outright so it survives an SDK upgrade.
     sendDefaultPii: false,
+
+    // The default DOM breadcrumb serialiser appends `[aria-label="..."]` to the
+    // element description unconditionally, and this app labels check-in controls
+    // with the user's own habit and task names (see
+    // `components/dashboard/dayRoutine/routineSection.tsx`). Restricting it to
+    // test ids keeps the breadcrumb useful for locating the element without
+    // recording what the user wrote. `sendDefaultPii: false` does NOT gate
+    // breadcrumbs, so this cannot be left to the default.
+    integrations: (defaults) => [
+      ...defaults.filter((integration) => integration.name !== "Breadcrumbs"),
+      Sentry.breadcrumbsIntegration({
+        dom: { serializeAttribute: ["data-testid", "data-tutorial-id"] }
+      })
+    ],
 
     beforeSend: dropNoisyEvents
   });
