@@ -99,17 +99,18 @@ function Feedback() {
         const chosen = Array.from(event.target.files ?? []);
         if (chosen.length === 0) return;
 
+        // Strip HTML metacharacters from filenames before anything touches
+        // them — alt text, aria-label and i18n error messages all inherit the
+        // cleaned name. React would escape them either way, but the static
+        // scanner cannot see through i18next's t() interpolator.
+        for (const f of chosen) {
+            Object.defineProperty(f, "name", { value: f.name.replace(/[<>]/g, ""), writable: false });
+        }
         const { accepted, errors: rejections } = selectAttachments(chosen, attachments.length, t);
         setAttachmentErrors(rejections);
         setAttachments((current) => [
             ...current,
-            ...accepted.map((file) => {
-                // Sanitise the filename so CodeQL can prove it never reaches the DOM
-                // unescaped. React would escape it anyway, but the scanner can't see
-                // through i18next's t() interpolator.
-                const safe = new File([file], file.name.replace(/[<>]/g, ""), { type: file.type });
-                return { file: safe, previewUrl: URL.createObjectURL(file) };
-            })
+            ...accepted.map((file) => ({ file, previewUrl: URL.createObjectURL(file) }))
         ]);
 
         // Allow re-picking the same file after a removal.
