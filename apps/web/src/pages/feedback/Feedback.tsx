@@ -305,7 +305,7 @@ function Feedback() {
                                     <li key={previewUrl} className="relative">
                                         <img
                                             src={previewUrl}
-                                            alt={file.name}
+                                            alt={file.name.replace(/[<>&"]/g, "")}
                                             className="h-24 w-24 rounded-lg border border-primary object-cover"
                                         />
                                         <button
