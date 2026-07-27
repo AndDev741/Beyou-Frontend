@@ -100,7 +100,7 @@ function Feedback() {
         if (chosen.length === 0) return;
 
         const { accepted, errors: rejections } = selectAttachments(chosen, attachments.length, t);
-        setAttachmentErrors(rejections);
+        setAttachmentErrors(rejections.map((e) => e.replace(/[<>]/g, "")));
         setAttachments((current) => [
             ...current,
             ...accepted.map((file) => {
@@ -296,7 +296,7 @@ function Feedback() {
                             <ul className="mt-2 flex flex-col gap-1">
                                 {attachmentErrors.map((message) => (
                                     <li key={message} className="text-sm text-error">
-                                        {message.replace(/[<>]/g, "")}
+                                        {message}
                                     </li>
                                 ))}
                             </ul>
