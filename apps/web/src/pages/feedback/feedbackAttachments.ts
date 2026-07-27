@@ -12,6 +12,10 @@ export const ATTACHMENT_ACCEPT = ALLOWED_ATTACHMENT_TYPES.join(",");
 export type SelectedAttachment = {
     file: File;
     previewUrl: string;
+    /** Stripped of HTML metacharacters so the static analyser can prove it
+     *  never reaches the DOM as raw markup. Prefer this over file.name in
+     *  every rendered position (alt, aria-label, error messages). */
+    displayName: string;
 };
 
 export type AttachmentSelection = {

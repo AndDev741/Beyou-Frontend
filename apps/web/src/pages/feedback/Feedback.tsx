@@ -99,18 +99,14 @@ function Feedback() {
         const chosen = Array.from(event.target.files ?? []);
         if (chosen.length === 0) return;
 
-        // Strip HTML metacharacters from filenames before anything touches
-        // them — alt text, aria-label and i18n error messages all inherit the
-        // cleaned name. React would escape them either way, but the static
-        // scanner cannot see through i18next's t() interpolator.
-        for (const f of chosen) {
-            Object.defineProperty(f, "name", { value: f.name.replace(/[<>]/g, ""), writable: false });
-        }
         const { accepted, errors: rejections } = selectAttachments(chosen, attachments.length, t);
         setAttachmentErrors(rejections);
         setAttachments((current) => [
             ...current,
-            ...accepted.map((file) => ({ file, previewUrl: URL.createObjectURL(file) }))
+            ...accepted.map((file) => {
+                const displayName = file.name.replace(/[<>]/g, "");
+                return { file, displayName, previewUrl: URL.createObjectURL(file) };
+            })
         ]);
 
         // Allow re-picking the same file after a removal.
@@ -300,7 +296,7 @@ function Feedback() {
                             <ul className="mt-2 flex flex-col gap-1">
                                 {attachmentErrors.map((message) => (
                                     <li key={message} className="text-sm text-error">
-                                        {message}
+                                        {message.replace(/[<>]/g, "")}
                                     </li>
                                 ))}
                             </ul>
@@ -308,16 +304,16 @@ function Feedback() {
 
                         {attachments.length > 0 && (
                             <ul className="mt-3 flex flex-wrap gap-3">
-                                {attachments.map(({ file, previewUrl }, index) => (
+                                {attachments.map(({ file, previewUrl, displayName }, index) => (
                                     <li key={previewUrl} className="relative">
                                         <img
                                             src={previewUrl}
-                                            alt={file.name}
+                                            alt={displayName}
                                             className="h-24 w-24 rounded-lg border border-primary object-cover"
                                         />
                                         <button
                                             type="button"
-                                            aria-label={t("FeedbackRemoveImage", { name: file.name })}
+                                            aria-label={t("FeedbackRemoveImage", { name: displayName })}
                                             onClick={() => removeAttachment(index)}
                                             className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-primary bg-background text-secondary transition-colors duration-200 hover:bg-primary hover:text-background"
                                         >
