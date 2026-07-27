@@ -304,7 +304,7 @@ function Feedback() {
 
                         {attachments.length > 0 && (
                             <ul className="mt-3 flex flex-wrap gap-3">
-                                {attachments.map(({ file, previewUrl, displayName }, index) => (
+                                {attachments.map(({ previewUrl, displayName }, index) => (
                                     <li key={previewUrl} className="relative">
                                         <img
                                             src={previewUrl}
