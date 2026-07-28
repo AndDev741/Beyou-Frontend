@@ -382,6 +382,78 @@ describe("ui breadcrumb scrubbing", () => {
         }
     });
 
+    // The serialiser does not escape attribute values (@sentry/core
+    // utils/browser.js line 72: `out.push(`[${k}="${attr}"]`)`), so a habit name
+    // containing a quote, a bracket or the " > " path separator produces a
+    // message no attribute-matching regex can carve up correctly. Each of these
+    // is a name a user can actually type into the habit form.
+    it("leaks nothing when the label itself contains double quotes", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        // `[^"]*` stops at the first inner quote and leaves `Hamlet" hoje"]`.
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.click",
+            message: 'input[aria-label="Ler "Hamlet" hoje"]'
+        });
+
+        expect(crumb!.message).toBe("input");
+        expect(crumb!.message).not.toContain("Hamlet");
+        expect(crumb!.message).not.toContain("hoje");
+    });
+
+    it("leaks nothing when the label contains square brackets", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.click",
+            message: 'button[title="Terapia [confidencial] semanal"][alt="]["]'
+        });
+
+        expect(crumb!.message).toBe("button");
+        expect(crumb!.message).not.toContain("confidencial");
+        expect(crumb!.message).not.toContain("[");
+    });
+
+    it("leaks nothing when the label contains the DOM path separator", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        // htmlTreeAsString joins ancestors with " > ", so a value containing it
+        // is indistinguishable from a further element in the chain.
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.click",
+            message: 'div > button[aria-label="Ler > Hamlet > hoje"]'
+        });
+
+        expect(crumb!.message).toBe("div > button");
+        expect(crumb!.message).not.toContain("Hamlet");
+    });
+
+    it("keeps the ancestor chain and drops ids, classes and every value", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.click",
+            message:
+                'div#habit-list.grid.gap-2 > form > input[aria-label="Ler Hamlet"][type="checkbox"]'
+        });
+
+        expect(crumb!.message).toBe('div > form > input[type="checkbox"]');
+    });
+
+    it("drops a type value the label forged, keeping only real HTML tokens", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        // A habit named `x"][type="Segredo` serialises to exactly this, so a
+        // matcher that trusts the LOOK of a type attribute carries the name out.
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.click",
+            message: 'input[aria-label="x"][type="Segredo"]'
+        });
+
+        expect(crumb!.message).toBe("input");
+        expect(crumb!.message).not.toContain("Segredo");
+    });
+
     it("leaves a breadcrumb that is not a ui event alone", async () => {
         const { scrubUiBreadcrumb } = await loadTelemetry();
 

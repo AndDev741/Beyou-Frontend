@@ -89,15 +89,65 @@ function stripQuery(url: string): string {
   return cut === -1 ? url : url.slice(0, cut);
 }
 
-/**
- * Attributes the DOM breadcrumb serialiser appends that can carry text a user
- * wrote. `type` is deliberately absent — it is a fixed HTML token, and keeping
- * it preserves most of the breadcrumb's diagnostic value.
- */
-const CONTENT_BEARING_ATTRS = ["aria-label", "name", "title", "alt"];
+/** `htmlTreeAsString` joins the ancestor chain with this, target last. */
+const DOM_PATH_SEPARATOR = " > ";
 
 /**
- * Strips content-bearing attribute selectors out of `ui.*` breadcrumb messages.
+ * Element names the DOM serialiser can emit. Every tag it produces comes from
+ * `elem.tagName.toLowerCase()`, so the vocabulary is closed and lower-case; SVG
+ * names are included because most clickable icons in this app are react-icons
+ * `<svg><path>` and dropping them would gut the breadcrumb.
+ */
+const KNOWN_TAGS = new Set(
+  `a abbr address area article aside audio b base bdi bdo blockquote body br
+   button canvas caption cite code col colgroup data datalist dd del details dfn
+   dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4
+   h5 h6 head header hgroup hr html i iframe img input ins kbd label legend li
+   link main map mark menu meta meter nav noscript object ol optgroup option
+   output p picture pre progress q rp rt ruby s samp script search section select
+   slot small source span strong style sub summary sup table tbody td template
+   textarea tfoot th thead time title tr track u ul var video wbr
+   svg circle clippath defs ellipse foreignobject g image line lineargradient
+   marker mask path pattern polygon polyline radialgradient rect stop symbol text
+   tspan use`.split(/\s+/)
+);
+
+/**
+ * The only attribute values allowed to survive. `type` is worth keeping — it
+ * says whether a click landed on a checkbox or a submit button — and it is a
+ * fixed HTML token rather than anything a user wrote.
+ */
+const KNOWN_TYPE_VALUES = new Set(
+  `button checkbox color date datetime-local email file hidden image month number
+   password radio range reset search submit tel text time url week`.split(/\s+/)
+);
+
+/** Leading tag name of one serialised element. */
+const LEADING_TAG = /^[a-z][a-z0-9-]*/;
+
+/** A `type` attribute whose value cannot itself contain a quote or a bracket. */
+const TYPE_ATTR = /\[type="([a-z][a-z0-9-]*)"\]/g;
+
+/**
+ * Rebuilds one serialised element from vocabulary only: its tag, plus a `type`
+ * if the element carries a recognised one. Returns `null` for anything whose
+ * leading token is not a known tag — which is how text that leaked out of an
+ * attribute value and got mistaken for an element is discarded rather than
+ * emitted.
+ */
+function structureOf(element: string): string | null {
+  const tag = LEADING_TAG.exec(element)?.[0];
+  if (!tag || !KNOWN_TAGS.has(tag)) return null;
+
+  for (const [, value] of element.matchAll(TYPE_ATTR)) {
+    if (KNOWN_TYPE_VALUES.has(value)) return `${tag}[type="${value}"]`;
+  }
+  return tag;
+}
+
+/**
+ * Reduces a `ui.*` breadcrumb message to DOM structure, dropping every
+ * attribute value, id and class.
  *
  * This is NOT configurable away, which is why it is done here. In
  * `@sentry/core/utils/browser.js`, `serializeAttribute` only replaces the
@@ -112,6 +162,23 @@ const CONTENT_BEARING_ATTRS = ["aria-label", "name", "title", "alt"];
  * and attach it to the next event. `sendDefaultPii: false` does not gate
  * breadcrumbs at all.
  *
+ * ALLOWLIST, not blacklist, and that is the whole point. Matching the dangerous
+ * attributes cannot work: the serialiser interpolates values raw
+ * (`out.push(`[${k}="${attr}"]`)`), so a habit named `Ler "Hamlet"` produces
+ * `input[aria-label="Ler "Hamlet""]` and any `[^"]*` matcher stops at the first
+ * inner quote and leaves `Hamlet""]` behind — a partial leak of exactly what
+ * this exists to remove. A value may equally contain `[`, `]` or the ` > `
+ * separator, so the message is not reliably parseable at all. Emitting only
+ * tokens drawn from `KNOWN_TAGS`/`KNOWN_TYPE_VALUES` sidesteps that: whatever
+ * the value contains, nothing that is not already hard-coded here can come out,
+ * for any quoting and for any attribute a future SDK version adds.
+ *
+ * The cost is that unrecognised fragments vanish rather than being sanitised —
+ * the serialiser's `<unknown>` placeholder, and the component names
+ * `data-sentry-component` would inject if `reactComponentAnnotation` were ever
+ * enabled in `vite.config.ts`. Both are safe to keep in principle, but neither
+ * is distinguishable from value text by inspection, so they lose.
+ *
  * Exported for the test suite, which asserts on the produced message rather
  * than on the configuration — pinning the config is what let the previous
  * attempt pass while still leaking.
@@ -121,11 +188,11 @@ export function scrubUiBreadcrumb(breadcrumb: Breadcrumb): Breadcrumb | null {
     return breadcrumb;
   }
 
-  const attrs = CONTENT_BEARING_ATTRS.join("|");
-  breadcrumb.message = breadcrumb.message.replace(
-    new RegExp(`\\[(?:${attrs})="[^"]*"\\]`, "g"),
-    ""
-  );
+  breadcrumb.message = breadcrumb.message
+    .split(DOM_PATH_SEPARATOR)
+    .map(structureOf)
+    .filter((element): element is string => element !== null)
+    .join(DOM_PATH_SEPARATOR);
 
   return breadcrumb;
 }
