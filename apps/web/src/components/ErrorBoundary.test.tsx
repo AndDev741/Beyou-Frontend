@@ -159,6 +159,40 @@ describe("ErrorBoundary", () => {
     ).not.toBeInTheDocument();
   });
 
+  /**
+   * G4/#11. Reload unloads the page, so pressing it while the report is still
+   * in flight discards the submission silently — on the one screen that exists
+   * to capture crashes nobody would otherwise report. Send-then-Reload must not
+   * be a way to lose the report.
+   */
+  it("blocks reload while the crash report is still in flight", async () => {
+    let settleSubmit!: (value: unknown) => void;
+    mockSubmitFeedback.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          settleSubmit = resolve;
+        })
+    );
+
+    renderBoundary();
+
+    const reload = screen.getByRole("button", { name: "ErrorBoundaryReload" });
+    expect(reload).not.toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "FeedbackReportProblem" }));
+    fireEvent.click(screen.getByRole("button", { name: "FeedbackReportSend" }));
+
+    await waitFor(() => expect(mockSubmitFeedback).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "ErrorBoundaryReload" })).toBeDisabled()
+    );
+
+    settleSubmit({ success: { feedback: { id: "fb-1" }, attachments: [], failedAttachments: [] } });
+
+    await waitFor(() => expect(screen.getByTestId("error-report-success")).toBeInTheDocument());
+    expect(screen.getByRole("button", { name: "ErrorBoundaryReload" })).not.toBeDisabled();
+  });
+
   it("leaves the crash screen behaving as before when the user declines to report", () => {
     renderBoundary();
 

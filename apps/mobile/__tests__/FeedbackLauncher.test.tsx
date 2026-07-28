@@ -66,6 +66,40 @@ describe('FeedbackLauncher', () => {
     spy.mockRestore();
   });
 
+  /**
+   * #31. `disabled={capturing}` only bites after React commits the state, and
+   * `captureCurrentScreen()` is a native call — a window wide enough for a real
+   * double-tap. Two captures and two `router.push` calls is a visibly broken
+   * navigation stack, so the guard has to be synchronous.
+   */
+  it('captures once when the launcher is double-tapped', async () => {
+    let settle!: (uri: string) => void;
+    (captureScreen as jest.Mock).mockImplementation(
+      () =>
+        new Promise<string>((resolve) => {
+          settle = resolve;
+        }),
+    );
+
+    await renderLauncher(true);
+    const fab = screen.getByTestId('feedback-fab');
+
+    // Two touch events delivered before React can re-render — what the native
+    // layer does on a fast double-tap.
+    await act(async () => {
+      fireEvent.press(fab);
+      fireEvent.press(fab);
+    });
+
+    expect(captureScreen).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      settle('file:///tmp/screen.jpg');
+    });
+
+    expect(mockPush).toHaveBeenCalledTimes(1);
+  });
+
   it('stays out of the way during onboarding and on the feedback screen itself', async () => {
     await renderLauncher(false);
     expect(screen.queryByTestId('feedback-fab')).toBeNull();

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import submitFeedback from '@beyou/api/feedback/submitFeedback';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -8,11 +8,19 @@ import Input from '../Input';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useFeedbackContext } from './useFeedbackContext';
 import { buildFeedbackMailtoHref } from './feedbackMailto';
+import { openFeedbackMail } from './openFeedbackMail';
 import { CRASH_REPORT_SCREEN, buildCrashReportBody } from './crashReportBody';
 
 interface Props {
   error: unknown;
   componentStack?: string;
+  /**
+   * Announced whenever a submission starts and stops. The crash boundary hosting
+   * this control offers Retry, which unmounts the whole fallback — so it needs
+   * to know when a report is in flight. Mirrors the web control's prop of the
+   * same name.
+   */
+  onSendingChange?: (isSending: boolean) => void;
 }
 
 type Outcome = { kind: 'sent' } | { kind: 'failed'; error: ApiErrorPayload };
@@ -26,7 +34,7 @@ type Outcome = { kind: 'sent' } | { kind: 'failed'; error: ApiErrorPayload };
  * been replaced by the fallback, so a screenshot would picture the fallback and
  * tell the maintainer nothing; the error text and component stack do the work.
  */
-export default function ErrorReport({ error, componentStack }: Props) {
+export default function ErrorReport({ error, componentStack, onSendingChange }: Props) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const context = useFeedbackContext(CRASH_REPORT_SCREEN);
@@ -41,22 +49,27 @@ export default function ErrorReport({ error, componentStack }: Props) {
   const send = async () => {
     setSending(true);
     setOutcome(null);
+    onSendingChange?.(true);
 
-    const result = await submitFeedback(
-      { category: 'BUG', body, ...(context ? { context } : {}) },
-      t,
-    );
+    try {
+      const result = await submitFeedback(
+        { category: 'BUG', body, ...(context ? { context } : {}) },
+        t,
+      );
 
-    setSending(false);
-    setOutcome(
-      result.success
-        ? { kind: 'sent' }
-        : { kind: 'failed', error: result.error ?? { message: t('UnexpectedError') } },
-    );
+      setSending(false);
+      setOutcome(
+        result.success
+          ? { kind: 'sent' }
+          : { kind: 'failed', error: result.error ?? { message: t('UnexpectedError') } },
+      );
+    } finally {
+      onSendingChange?.(false);
+    }
   };
 
   const openMail = () =>
-    Linking.openURL(buildFeedbackMailtoHref({ category: 'BUG', body, context, t }));
+    void openFeedbackMail(buildFeedbackMailtoHref({ category: 'BUG', body, context, t }), t);
 
   if (!open) {
     return (

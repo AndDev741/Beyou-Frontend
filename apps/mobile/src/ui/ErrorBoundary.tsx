@@ -11,6 +11,8 @@ interface State {
   hasError: boolean;
   error: unknown;
   componentStack?: string;
+  /** True while `ErrorReport` has a submission in flight. */
+  isReportSending: boolean;
 }
 
 /**
@@ -20,7 +22,7 @@ interface State {
  * copy reads from the already-initialised i18next instance.
  */
 export default class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, error: undefined };
+  state: State = { hasError: false, error: undefined, isReportSending: false };
 
   static getDerivedStateFromError(error: unknown): Partial<State> {
     return { hasError: true, error };
@@ -43,7 +45,19 @@ export default class ErrorBoundary extends Component<Props, State> {
     console.error('[ErrorBoundary]', error);
   }
 
-  reset = () => this.setState({ hasError: false, error: undefined, componentStack: undefined });
+  /**
+   * Clearing `hasError` unmounts this whole fallback — and `ErrorReport` with
+   * it. Doing that mid-send throws the user's crash report away silently, on
+   * the one screen that exists to capture crashes nobody would otherwise
+   * report. Retry keeps top billing; it just waits for the report to land.
+   * Same defect and same shape as the web boundary's Reload button.
+   */
+  reset = () => {
+    if (this.state.isReportSending) return;
+    this.setState({ hasError: false, error: undefined, componentStack: undefined });
+  };
+
+  onReportSendingChange = (isReportSending: boolean) => this.setState({ isReportSending });
 
   render() {
     if (!this.state.hasError) return this.props.children;
@@ -53,14 +67,22 @@ export default class ErrorBoundary extends Component<Props, State> {
         <Text className="text-secondary text-center text-lg font-bold">{i18next.t('SomethingWentWrong')}</Text>
         <Pressable
           onPress={this.reset}
+          disabled={this.state.isReportSending}
           accessibilityRole="button"
+          accessibilityState={{ disabled: this.state.isReportSending }}
           testID="error-retry"
-          className="rounded-full bg-primary px-5 py-2.5"
+          className={`rounded-full bg-primary px-5 py-2.5 ${
+            this.state.isReportSending ? 'opacity-60' : ''
+          }`}
         >
           <Text className="text-background font-semibold">{i18next.t('TryAgain')}</Text>
         </Pressable>
         {/* R8: reporting is offered, never demanded — retry keeps top billing. */}
-        <ErrorReport error={this.state.error} componentStack={this.state.componentStack} />
+        <ErrorReport
+          error={this.state.error}
+          componentStack={this.state.componentStack}
+          onSendingChange={this.onReportSendingChange}
+        />
       </View>
     );
   }

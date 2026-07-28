@@ -17,7 +17,12 @@ vi.mock("react-i18next", async () => {
         );
     const t = (key: string, options?: Record<string, unknown>) => {
         const table = resources[locale.current].translation as Record<string, unknown>;
-        const value = table[key];
+        // Mirror i18next's plural suffix resolution so count-bearing keys read right.
+        const pluralKey =
+            typeof options?.count === "number"
+                ? `${key}_${options.count === 1 ? "one" : "other"}`
+                : undefined;
+        const value = (pluralKey && table[pluralKey]) ?? table[key];
         return typeof value === "string" ? interpolate(value, options) : key;
     };
     return {
@@ -108,6 +113,60 @@ describe("Reporting from a non-fatal error surface", () => {
         const [input] = mockSubmitFeedback.mock.calls[0];
         expect(input.attachments).toEqual([{ blob: shot, name: "error-screen.png" }]);
         expect(await screen.findByText("Thanks — we got it.")).toBeInTheDocument();
+    });
+
+    /**
+     * G4/#20. The control tells the user the details "are attached
+     * automatically", then reports plain success even when the capture never
+     * stored. `failedAttachments` is returned by design and read by both full
+     * feedback screens — dropping it here is the one place the promise breaks.
+     */
+    test("a capture that never stored reads as partial, not as full success", async () => {
+        const shot = new File(["png-bytes"], "error-screen.png", { type: "image/png" });
+        mockCaptureScreenshot.mockResolvedValue(shot);
+        mockSubmitFeedback.mockResolvedValue({
+            success: {
+                feedback: { id: "fb-1", category: "BUG", body: "boom" },
+                attachments: [],
+                failedAttachments: [
+                    {
+                        index: 0,
+                        name: "error-screen.png",
+                        error: { errorKey: "FEEDBACK_ATTACHMENT_STORE_FAILED" }
+                    }
+                ]
+            }
+        });
+
+        renderNotice({ errorKey: "INTERNAL_ERROR" });
+        openReport();
+        sendReport();
+
+        const success = await screen.findByTestId("error-report-success");
+        expect(success).toHaveTextContent("Thanks — we got it.");
+        expect(success).toHaveTextContent(
+            "Your feedback was sent, but 1 image could not be attached."
+        );
+    });
+
+    test("a fully stored capture confirms without a partial-attachment warning", async () => {
+        const shot = new File(["png-bytes"], "error-screen.png", { type: "image/png" });
+        mockCaptureScreenshot.mockResolvedValue(shot);
+        mockSubmitFeedback.mockResolvedValue({
+            success: {
+                feedback: { id: "fb-1", category: "BUG", body: "boom" },
+                attachments: [{ id: "att-1" }],
+                failedAttachments: []
+            }
+        });
+
+        renderNotice({ errorKey: "INTERNAL_ERROR" });
+        openReport();
+        sendReport();
+
+        const success = await screen.findByTestId("error-report-success");
+        expect(success).toHaveTextContent("Thanks — we got it.");
+        expect(success).not.toHaveTextContent("could not be attached");
     });
 
     test("declining leaves the error message exactly as it was", async () => {

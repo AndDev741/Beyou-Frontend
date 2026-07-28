@@ -223,6 +223,24 @@ describe("Feedback screen", () => {
         expect(screen.queryByAltText("huge.png")).not.toBeInTheDocument();
     });
 
+    /**
+     * #15. `apiError.ts` calls `t(errorKey)` unconditionally, so a key the
+     * backend throws but the locales never define reaches the user verbatim.
+     * `FEEDBACK_CREATE_FAILED` is exactly that case.
+     */
+    test("a backend create failure reads as a sentence, not as a raw error key", async () => {
+        mockSubmitFeedback.mockResolvedValue({ error: { errorKey: "FEEDBACK_CREATE_FAILED" } });
+
+        renderFeedback();
+        fireEvent.click(screen.getByRole("radio", { name: "Bug" }));
+        fillBody("It broke");
+        submit();
+
+        const failure = await screen.findByTestId("feedback-failure");
+        expect(failure).not.toHaveTextContent("FEEDBACK_CREATE_FAILED");
+        expect(failure).toHaveTextContent(/could not be saved/);
+    });
+
     test("a stored submission whose image failed reads as sent, not lost", async () => {
         mockSubmitFeedback.mockResolvedValue({
             success: {

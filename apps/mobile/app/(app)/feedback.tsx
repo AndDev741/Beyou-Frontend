@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
@@ -12,6 +12,7 @@ import Input from '../../src/ui/Input';
 import AttachmentsField from '../../src/ui/feedback/AttachmentsField';
 import { useFeedbackContext } from '../../src/ui/feedback/useFeedbackContext';
 import { buildFeedbackMailtoHref, FEEDBACK_CATEGORY_LABEL_KEYS } from '../../src/ui/feedback/feedbackMailto';
+import { openFeedbackMail } from '../../src/ui/feedback/openFeedbackMail';
 import {
   CATEGORY_ORDER,
   FEEDBACK_BODY_MAX_LENGTH,
@@ -72,7 +73,7 @@ export default function FeedbackScreen() {
     context,
     t,
   });
-  const openMail = () => Linking.openURL(mailtoHref);
+  const openMail = () => void openFeedbackMail(mailtoHref, t);
 
   const onSubmit = async (values: FeedbackFormValues) => {
     setOutcome(null);

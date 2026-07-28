@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import axios from "../services/axiosConfig";
 import type { AuthBootState } from "../hooks/useSilentRefresh";
 import AgentWidget from "./agent/AgentWidget";
+import FeedbackLauncher from "./feedback/FeedbackLauncher";
 
 type Props = {
     authState: AuthBootState;
@@ -26,6 +27,10 @@ function ProtectedRoute({ authState }: Props) {
         <>
             <Outlet />
             <AgentWidget />
+            {/* R1: mounted here, not per page, so feedback is one click away
+                from every authenticated route rather than from the dashboard
+                only. Mirrors the mobile app's `(app)` layout. */}
+            <FeedbackLauncher />
         </>
     );
 }

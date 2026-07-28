@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import getFeedbackAdminItem from "@beyou/api/feedback/getFeedbackAdminItem";
@@ -49,8 +49,21 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
     const [hasSentReply, setHasSentReply] = useState(false);
     const [isSendingReply, setIsSendingReply] = useState(false);
 
+    /**
+     * The submission this instance is currently showing. Every async completion
+     * below checks it before writing state.
+     *
+     * The load effect's `isActive` flag is the same idea scoped to one fetch;
+     * the mutations need it too. Without it, a re-status or a reply that
+     * resolves after the admin clicked another row merges one submission's id,
+     * status, body and submitter into another submission's attachments and
+     * replies — and then reports that Frankenstein as saved.
+     */
+    const shownIdRef = useRef(feedbackId);
+
     useEffect(() => {
         let isActive = true;
+        shownIdRef.current = feedbackId;
 
         const load = async () => {
             setIsLoading(true);
@@ -62,12 +75,16 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
         };
 
         // A different submission is a clean slate — never carry one row's draft
-        // reply or error over to the next.
+        // reply, error or busy control over to the next. The busy flags matter
+        // as much as the copy: a mutation left in flight on the previous row
+        // would otherwise keep this row's select and send button disabled.
         setReplyBody("");
         setReplyValidation(null);
         setReplyError(null);
         setStatusError(null);
         setHasSentReply(false);
+        setIsSavingStatus(false);
+        setIsSendingReply(false);
 
         void load();
 
@@ -78,12 +95,26 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
 
     const onStatusSelected = useCallback(
         async (status: FeedbackStatus) => {
+            const requestedId = feedbackId;
             setIsSavingStatus(true);
             setStatusError(null);
 
-            const result = await updateFeedbackStatus(feedbackId, status, t);
+            const result = await updateFeedbackStatus(requestedId, status, t);
 
+            // Describes this panel's own control, so it clears either way —
+            // leaving it set would disable the select on whatever submission is
+            // showing now.
             setIsSavingStatus(false);
+
+            // The list still needs the outcome — the change did happen, and the
+            // parent matches it to the right row by id — but nothing that
+            // DESCRIBES the submission may touch this panel once it has moved
+            // on to a different one.
+            if (shownIdRef.current !== requestedId) {
+                if (result.success) onStatusChanged(result.success);
+                return;
+            }
+
             if (!result.success) {
                 setStatusError(result.error ?? { message: t("UnexpectedError") });
                 return;
@@ -97,6 +128,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
     );
 
     const onReplySubmit = async () => {
+        const requestedId = feedbackId;
         const body = replyBody.trim();
 
         if (body.length === 0) {
@@ -113,9 +145,15 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
         setHasSentReply(false);
         setIsSendingReply(true);
 
-        const result = await createFeedbackReply(feedbackId, body, t);
+        const result = await createFeedbackReply(requestedId, body, t);
 
         setIsSendingReply(false);
+
+        // The reply was emailed to the submitter of `requestedId`; appending it
+        // to whatever submission is on screen now would file it against the
+        // wrong person, and "Reply sent" would be claiming something about a
+        // conversation the admin is no longer looking at.
+        if (shownIdRef.current !== requestedId) return;
         if (!result.success) {
             setReplyError(result.error ?? { message: t("UnexpectedError") });
             return;

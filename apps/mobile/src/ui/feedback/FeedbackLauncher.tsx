@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,13 @@ export default function FeedbackLauncher() {
   const insets = useContext(SafeAreaInsetsContext);
   const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
   const [capturing, setCapturing] = useState(false);
+  // `disabled={capturing}` only takes effect once React has committed the state
+  // — and `captureCurrentScreen()` is a native call, so the gap is wide enough
+  // for a real double-tap to land twice. Two captures and two `router.push`
+  // calls leave a duplicated feedback screen on the navigation stack, so the
+  // guard that actually holds has to be synchronous. The `disabled` prop stays:
+  // it is what makes the button LOOK busy.
+  const opening = useRef(false);
 
   // Hidden during onboarding for the same reason the assistant FAB is: the
   // tutorial spotlight owns the screen, and a floating control outside the hole
@@ -32,13 +39,20 @@ export default function FeedbackLauncher() {
   if (pathname === '/feedback') return null;
 
   const open = async () => {
+    if (opening.current) return;
+    opening.current = true;
+
     setCapturing(true);
-    const capture = await captureCurrentScreen();
-    setCapturing(false);
-    router.push({
-      pathname: '/feedback',
-      params: { from: pathname, ...(capture ? { capture: capture.uri } : {}) },
-    });
+    try {
+      const capture = await captureCurrentScreen();
+      setCapturing(false);
+      router.push({
+        pathname: '/feedback',
+        params: { from: pathname, ...(capture ? { capture: capture.uri } : {}) },
+      });
+    } finally {
+      opening.current = false;
+    }
   };
 
   return (

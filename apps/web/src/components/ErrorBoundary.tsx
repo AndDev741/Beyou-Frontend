@@ -13,6 +13,8 @@ interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
   componentStack: string | null;
+  /** True while `ErrorReportControl` has a submission in flight. */
+  isReportSending: boolean;
 }
 
 const describeError = (error: Error | null): string => {
@@ -27,8 +29,24 @@ class ErrorBoundaryClass extends React.Component<
 > {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false, error: null, componentStack: null };
+    this.state = {
+      hasError: false,
+      error: null,
+      componentStack: null,
+      isReportSending: false
+    };
   }
+
+  /**
+   * Reload unloads the document, cancelling any request still in flight. Doing
+   * that while the user's crash report is being submitted throws the report
+   * away silently — on the one screen that exists to capture crashes nobody
+   * would otherwise report, and with no indication anything was lost. So the
+   * control tells us when it is sending and Reload waits.
+   */
+  private onReportSendingChange = (isReportSending: boolean): void => {
+    this.setState({ isReportSending });
+  };
 
   static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     return { hasError: true, error };
@@ -61,7 +79,8 @@ class ErrorBoundaryClass extends React.Component<
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="rounded-lg bg-primary px-6 py-2 text-white transition-opacity hover:opacity-90"
+              disabled={this.state.isReportSending}
+              className="rounded-lg bg-primary px-6 py-2 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {t("ErrorBoundaryReload")}
             </button>
@@ -77,6 +96,7 @@ class ErrorBoundaryClass extends React.Component<
                   errorText={describeError(this.state.error)}
                   componentStack={this.state.componentStack}
                   captureScreen={false}
+                  onSendingChange={this.onReportSendingChange}
                 />
               </div>
             </ReportControlGuard>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import listFeedbackAdminItems from "@beyou/api/feedback/listFeedbackAdminItems";
 import getFeedbackAdminCounts from "@beyou/api/feedback/getFeedbackAdminCounts";
@@ -64,6 +64,9 @@ function AdminFeedback() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
+    /** Monotonic id of the newest list request; older answers are discarded. */
+    const listRequestRef = useRef(0);
+
     const loadCounts = useCallback(async () => {
         // R12: the tiles describe the whole inbox. Counting the loaded page would
         // report "3 open" when 3 of 40 happen to be on screen, so the counters
@@ -74,6 +77,9 @@ function AdminFeedback() {
     }, [t]);
 
     const loadItems = useCallback(async () => {
+        const requestId = listRequestRef.current + 1;
+        listRequestRef.current = requestId;
+
         setIsLoading(true);
         const result = await listFeedbackAdminItems(
             {
@@ -84,6 +90,13 @@ function AdminFeedback() {
             },
             t
         );
+
+        // Nothing cancels an abandoned list call, so toggling a filter twice in
+        // quick succession leaves two in flight and the network decides which
+        // answers last. A stale answer landing last would repaint the list for a
+        // filter nobody has selected, with `isLoading` already false — no error,
+        // no spinner, just the wrong rows.
+        if (requestId !== listRequestRef.current) return;
 
         setIsLoading(false);
         if (!result.success) {
@@ -108,12 +121,20 @@ function AdminFeedback() {
 
     const onStatusChanged = useCallback(
         (updated: FeedbackAdminItem) => {
+            // Immediate feedback on the row the admin just acted on...
             setItems((current) =>
                 current.map((item) => (item.id === updated.id ? { ...item, ...updated } : item))
             );
+            // ...then re-read both views from the server. Refetching only the
+            // counters is what made the tiles and the list disagree: in the
+            // primary workflow — filter to Open, close items one by one — every
+            // closed item stayed in the Open list wearing a Closed badge, and
+            // only the tiles told the truth. Membership of a filtered set is the
+            // server's answer to give, not something a local patch can decide.
+            void loadItems();
             void loadCounts();
         },
-        [loadCounts]
+        [loadItems, loadCounts]
     );
 
     // A filter change invalidates the page cursor: page 3 of the old result set
@@ -285,6 +306,13 @@ function AdminFeedback() {
                 )}
 
                 {selectedId && (
+                    // Deliberately NOT keyed per submission. A `key` would also
+                    // stop one row's response landing on another — by throwing
+                    // the instance away — but it would do so by making the
+                    // panel's own request-identity guard unreachable, leaving
+                    // the correctness of a mutation dependent on a prop in a
+                    // different file. The guard is where the check belongs, and
+                    // it is what the test exercises.
                     <AdminFeedbackDetail
                         feedbackId={selectedId}
                         onStatusChanged={onStatusChanged}

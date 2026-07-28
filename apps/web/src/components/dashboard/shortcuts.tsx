@@ -56,8 +56,9 @@ function Shortcuts() {
 
                     {t('Config')}
                 </Link>
-                {/* The dashboard is the only authenticated page without the shared
-                    Header, so the feedback entry point lives here too. */}
+                {/* Kept as the labelled, discoverable entry on the landing page.
+                    Reachability from every OTHER authenticated route comes from
+                    the launcher mounted in ProtectedRoute, not from here. */}
                 <Link to={"/feedback"}
                     data-tutorial-id="shortcut-feedback"
                     className={linkStyle}>

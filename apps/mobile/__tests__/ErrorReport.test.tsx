@@ -11,7 +11,7 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({}),
 }));
 
-import { Linking } from 'react-native';
+import { Alert, Linking } from 'react-native';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import {
   setHttpClient,
@@ -91,5 +91,54 @@ describe('ErrorReport', () => {
       fireEvent.press(screen.getByTestId('error-report-mailto'));
     });
     expect(Linking.openURL).toHaveBeenCalledWith(expect.stringContaining('mailto:'));
+  });
+
+  /**
+   * #29. No mail app is the norm on an emulator and common on Android, and
+   * `Linking.openURL` REJECTS there. Unawaited and uncaught, the button does
+   * nothing and raises an unhandled rejection — on the one screen whose whole
+   * job is being the fallback. The address itself has to survive that.
+   */
+  it('shows the address instead of failing silently when no mail app exists', async () => {
+    setHttp(async () => {
+      throw new Error('offline');
+    });
+    // A rejecting implementation, not `mockRejectedValue` — the latter builds
+    // the rejected promise here, which is itself briefly unhandled and would
+    // pollute the unhandled-rejection assertion below.
+    (Linking.openURL as jest.Mock).mockImplementation(() =>
+      Promise.reject(new Error('No Activity found to handle Intent')),
+    );
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+    const unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => unhandled.push(reason);
+    process.on('unhandledRejection', onUnhandled);
+
+    try {
+      await renderReport();
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('error-report-open'));
+      });
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('error-report-submit'));
+      });
+      await waitFor(() => expect(screen.getByTestId('error-report-failure')).toBeTruthy());
+
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('error-report-mailto'));
+      });
+      // Let node's microtask checkpoint run so a dangling rejection would surface.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+    } finally {
+      process.off('unhandledRejection', onUnhandled);
+    }
+
+    expect(unhandled).toEqual([]);
+    // The raw address is the only thing left that still gets the report out.
+    expect(alert).toHaveBeenCalled();
+    expect(JSON.stringify(alert.mock.calls)).toContain('support@beyou.app');
   });
 });

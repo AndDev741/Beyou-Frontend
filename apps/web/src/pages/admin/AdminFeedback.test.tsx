@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { renderWithProviders } from "../../test/test-utils";
 
@@ -81,6 +81,30 @@ const ideaItem = {
 
 const pageOf = (items: unknown[]) => ({
     success: { items, page: 0, size: 20, totalItems: items.length, totalPages: 1 }
+});
+
+/** A promise the test decides when to settle — used to hold a call in flight. */
+const deferred = <T,>() => {
+    let settle!: (value: T) => void;
+    const promise = new Promise<T>((resolve) => {
+        settle = resolve;
+    });
+    return { promise, settle };
+};
+
+/** Lets every already-resolved continuation run before the next assertion. */
+const flush = async () => {
+    await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+};
+
+const replyOn = (id: string, body: string) => ({
+    id,
+    feedbackId: "irrelevant",
+    body,
+    authorName: "Owner",
+    createdAt: "2026-07-22T10:00:00"
 });
 
 const renderConsole = () => renderWithProviders(<AdminFeedback />, { route: "/admin/feedback" });
@@ -257,6 +281,149 @@ describe("Admin feedback console", () => {
         const image = await within(detail).findByTestId("admin-feedback-attachment-att-1");
         expect(image).toHaveAttribute("src", "blob:attachment-1");
         expect(mockFetchAttachment).toHaveBeenCalledWith("/feedback/fb-1/attachments/att-1");
+    });
+
+    /**
+     * G3/#14. The console reuses one detail instance across rows, so every
+     * in-flight mutation has to prove it still belongs to the row on screen.
+     * Without that, the response to "close the bug" merges into whatever
+     * submission the admin moved on to: one item's id, body and submitter
+     * wearing another's attachments and replies.
+     */
+    test("a re-status that answers after the admin switched rows never lands on the other submission", async () => {
+        mockGetItem.mockImplementation((id: string) =>
+            Promise.resolve({
+                success:
+                    id === "fb-1"
+                        ? { ...bugItem, attachments: [], replies: [replyOn("rep-a", "reply on the bug")] }
+                        : { ...ideaItem, attachments: [], replies: [replyOn("rep-b", "reply on the idea")] }
+            })
+        );
+
+        const pending = deferred<unknown>();
+        mockUpdateStatus.mockImplementation(() => pending.promise);
+
+        renderConsole();
+        const detail = await openFirstRow();
+
+        fireEvent.change(within(detail).getByTestId("admin-feedback-status-control"), {
+            target: { value: "CLOSED" }
+        });
+        await waitFor(() => expect(mockUpdateStatus).toHaveBeenCalledTimes(1));
+
+        // The admin moves on before the server answers.
+        fireEvent.click(screen.getByTestId("admin-feedback-row-fb-2"));
+        expect(await screen.findByText("reply on the idea")).toBeInTheDocument();
+
+        // fb-1's response arrives now, with fb-2 on screen.
+        pending.settle({ success: { ...bugItem, status: "CLOSED" } });
+        await flush();
+
+        const open = screen.getByTestId("admin-feedback-detail");
+        expect(within(open).getByText(ideaItem.body)).toBeInTheDocument();
+        expect(within(open).getByText("reply on the idea")).toBeInTheDocument();
+        expect(within(open).queryByText(bugItem.body)).not.toBeInTheDocument();
+        expect(within(open).queryByText("ana@example.com")).not.toBeInTheDocument();
+
+        // Discarding the answer must not strand the busy flags: the panel the
+        // admin is looking at now has to stay usable.
+        expect(within(open).getByTestId("admin-feedback-status-control")).toBeEnabled();
+        expect(within(open).getByTestId("admin-feedback-reply-send")).toBeEnabled();
+    });
+
+    /**
+     * G3/#32. The primary workflow is "filter to Open, then close items one by
+     * one". Patching only the local row and the counters leaves every closed
+     * item sitting in the Open list wearing a Closed badge — the tiles tell the
+     * truth and the list contradicts them.
+     */
+    test("a status change refetches the list, not only the counters", async () => {
+        renderConsole();
+        await screen.findByTestId("admin-feedback-row-fb-1");
+
+        fireEvent.change(screen.getByTestId("admin-feedback-filter-status"), {
+            target: { value: "OPEN" }
+        });
+        await waitFor(() => expect(mockListItems).toHaveBeenCalledTimes(2));
+
+        const detail = await openFirstRow();
+        const listCallsBefore = mockListItems.mock.calls.length;
+        const countCallsBefore = mockGetCounts.mock.calls.length;
+
+        fireEvent.change(within(detail).getByTestId("admin-feedback-status-control"), {
+            target: { value: "CLOSED" }
+        });
+
+        await waitFor(() =>
+            expect(mockGetCounts.mock.calls.length).toBeGreaterThan(countCallsBefore)
+        );
+        await waitFor(() =>
+            expect(mockListItems.mock.calls.length).toBeGreaterThan(listCallsBefore)
+        );
+        // Refetched under the SAME filter — a re-status must not silently reset it.
+        expect(mockListItems).toHaveBeenLastCalledWith(
+            expect.objectContaining({ status: "OPEN", page: 0 }),
+            expect.anything()
+        );
+    });
+
+    /**
+     * G3/#33. Two filter toggles in quick succession leave two list calls in
+     * flight with no cancellation, and the network decides which answers last.
+     * A stale answer landing last shows results for a filter nobody selected,
+     * with `isLoading` already false so nothing hints it is wrong.
+     */
+    test("a stale list response never overwrites a newer one", async () => {
+        const slow = deferred<unknown>();
+        mockListItems
+            .mockReset()
+            .mockImplementationOnce(() => Promise.resolve(pageOf([bugItem, ideaItem])))
+            .mockImplementationOnce(() => slow.promise)
+            .mockImplementationOnce(() => Promise.resolve(pageOf([ideaItem])));
+
+        renderConsole();
+        await screen.findByTestId("admin-feedback-row-fb-1");
+
+        fireEvent.change(screen.getByTestId("admin-feedback-filter-category"), {
+            target: { value: "BUG" }
+        });
+        await waitFor(() => expect(mockListItems).toHaveBeenCalledTimes(2));
+
+        fireEvent.change(screen.getByTestId("admin-feedback-filter-category"), {
+            target: { value: "FEATURE_REQUEST" }
+        });
+        await waitFor(() => expect(mockListItems).toHaveBeenCalledTimes(3));
+        await waitFor(() => expect(screen.queryByTestId("admin-feedback-row-fb-1")).toBeNull());
+
+        // The abandoned BUG call answers last.
+        slow.settle(pageOf([bugItem]));
+        await flush();
+
+        expect(screen.getByTestId("admin-feedback-row-fb-2")).toBeInTheDocument();
+        expect(screen.queryByTestId("admin-feedback-row-fb-1")).toBeNull();
+    });
+
+    /**
+     * #15. `apiError.ts` calls `t(errorKey)` unconditionally, so a key the
+     * backend throws but the locales never define surfaces to the admin as the
+     * raw `FEEDBACK_REPLY_FAILED`.
+     */
+    test("a backend reply failure reads as a sentence, not as a raw error key", async () => {
+        mockCreateReply.mockResolvedValue({ error: { errorKey: "FEEDBACK_REPLY_FAILED" } });
+
+        renderConsole();
+        const detail = await openFirstRow();
+
+        fireEvent.change(within(detail).getByTestId("admin-feedback-reply-body"), {
+            target: { value: "On it." }
+        });
+        fireEvent.click(within(detail).getByTestId("admin-feedback-reply-send"));
+
+        // Waits for the failure to render at all, whatever it ends up saying.
+        const failure = await within(detail).findByText(
+            /FEEDBACK_REPLY_FAILED|could not be saved/
+        );
+        expect(failure).not.toHaveTextContent("FEEDBACK_REPLY_FAILED");
     });
 
     test("surfaces a load failure instead of an empty list", async () => {

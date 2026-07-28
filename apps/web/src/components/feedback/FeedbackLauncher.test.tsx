@@ -1,0 +1,86 @@
+import { Route, Routes } from "react-router-dom";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { screen } from "@testing-library/react";
+import { tutorialCompletedEnter } from "@beyou/state/user/perfilSlice";
+import { renderWithProviders } from "../../test/test-utils";
+import store from "../../redux/store";
+import ProtectedRoute from "../ProtectedRoute";
+
+/**
+ * #10. Feedback was reachable from exactly one of the seven authenticated web
+ * pages — the dashboard, via its shortcut grid. On categories, habits, goals,
+ * tasks, routines or configuration the user had to navigate back to the
+ * dashboard first, because the shared `Header` those pages render is a title,
+ * an optional logout and a return-to-dashboard icon.
+ *
+ * The launcher is mounted once inside `ProtectedRoute`, so these tests exercise
+ * the real mount point rather than the component in isolation: the claim being
+ * pinned is "reachable from any authenticated page", not "this component
+ * renders a link".
+ */
+const AUTHENTICATED_ROUTES = [
+    "/dashboard",
+    "/categories",
+    "/habits",
+    "/goals",
+    "/tasks",
+    "/routines",
+    "/configuration"
+];
+
+const renderAt = (route: string) =>
+    renderWithProviders(
+        <Routes>
+            <Route element={<ProtectedRoute authState="authenticated" />}>
+                <Route path="/dashboard" element={<p>dashboard</p>} />
+                <Route path="/categories" element={<p>categories</p>} />
+                <Route path="/habits" element={<p>habits</p>} />
+                <Route path="/goals" element={<p>goals</p>} />
+                <Route path="/tasks" element={<p>tasks</p>} />
+                <Route path="/routines" element={<p>routines</p>} />
+                <Route path="/configuration" element={<p>configuration</p>} />
+                <Route path="/feedback" element={<p>feedback</p>} />
+            </Route>
+        </Routes>,
+        { route }
+    );
+
+beforeEach(() => {
+    store.dispatch(tutorialCompletedEnter(true));
+});
+
+afterEach(() => {
+    store.dispatch(tutorialCompletedEnter(false));
+});
+
+describe("Feedback launcher", () => {
+    test.each(AUTHENTICATED_ROUTES)("is reachable from %s", (route) => {
+        renderAt(route);
+
+        const launcher = screen.getByTestId("feedback-fab");
+        expect(launcher).toBeInTheDocument();
+        expect(launcher).toHaveAttribute("href", "/feedback");
+    });
+
+    test("stays out of the header — the shared Header keeps title and return only", () => {
+        renderAt("/habits");
+
+        // The launcher is a fixed overlay mounted by the route guard, not a
+        // child of any page's header.
+        expect(screen.getByTestId("feedback-fab").closest("header")).toBeNull();
+    });
+
+    test("steps aside on the feedback screen itself", () => {
+        renderAt("/feedback");
+
+        expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
+    });
+
+    test("stays hidden during onboarding, like the assistant", () => {
+        store.dispatch(tutorialCompletedEnter(false));
+
+        renderAt("/habits");
+
+        expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
+    });
+});

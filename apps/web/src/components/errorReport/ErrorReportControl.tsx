@@ -15,7 +15,7 @@ type Phase =
     | { kind: "idle" }
     | { kind: "composing" }
     | { kind: "sending" }
-    | { kind: "sent" }
+    | { kind: "sent"; failedAttachments: number }
     | { kind: "failed"; error: ApiErrorPayload };
 
 export type ErrorReportControlProps = {
@@ -31,6 +31,14 @@ export type ErrorReportControlProps = {
      * than the failure.
      */
     captureScreen?: boolean;
+    /**
+     * Announced whenever a submission starts and stops. The surfaces that host
+     * this control offer a recovery action — Reload on the crash boundary — that
+     * would destroy an in-flight report, so they need to know when one is in
+     * flight. Reporting it upward keeps the decision with the owner of that
+     * action rather than duplicating send state here.
+     */
+    onSendingChange?: (isSending: boolean) => void;
     className?: string;
 };
 
@@ -43,6 +51,7 @@ export default function ErrorReportControl({
     errorText,
     componentStack,
     captureScreen = true,
+    onSendingChange,
     className = ""
 }: ErrorReportControlProps) {
     const { t, i18n } = useTranslation();
@@ -78,37 +87,52 @@ export default function ErrorReportControl({
 
     const send = async () => {
         setPhase({ kind: "sending" });
+        onSendingChange?.(true);
 
-        // R9 / AE1: the capture is an optional extra. A capture that throws,
-        // hangs on a tainted canvas or returns nothing must cost the image and
-        // nothing else — the report still goes, and the user is told the same
-        // thing either way.
-        let attachments: FeedbackAttachmentInput[] | undefined;
-        if (captureScreen) {
-            try {
-                const shot = await captureScreenshot();
-                if (shot) attachments = [{ blob: shot, name: shot.name }];
-            } catch {
-                attachments = undefined;
+        try {
+            // R9 / AE1: the capture is an optional extra. A capture that throws,
+            // hangs on a tainted canvas or returns nothing must cost the image and
+            // nothing else — the report still goes, and the user is told the same
+            // thing either way.
+            let attachments: FeedbackAttachmentInput[] | undefined;
+            if (captureScreen) {
+                try {
+                    const shot = await captureScreenshot();
+                    if (shot) attachments = [{ blob: shot, name: shot.name }];
+                } catch {
+                    attachments = undefined;
+                }
             }
+
+            const result = await submitFeedback(
+                {
+                    category: "BUG",
+                    body,
+                    ...(context ? { context } : {}),
+                    ...(attachments ? { attachments } : {})
+                },
+                t
+            );
+
+            if (result.success) {
+                // A capture that was taken but never stored still counts. This
+                // control tells the user the details are "attached
+                // automatically"; confirming plain success when the image is
+                // missing makes that a lie, and leaves the maintainer holding a
+                // report they believe has a screenshot. Both full feedback
+                // screens already read `failedAttachments` — this is the third
+                // reader of the same field, not a new concept.
+                setPhase({
+                    kind: "sent",
+                    failedAttachments: result.success.failedAttachments.length
+                });
+                return;
+            }
+
+            setPhase({ kind: "failed", error: result.error ?? { message: t("UnexpectedError") } });
+        } finally {
+            onSendingChange?.(false);
         }
-
-        const result = await submitFeedback(
-            {
-                category: "BUG",
-                body,
-                ...(context ? { context } : {}),
-                ...(attachments ? { attachments } : {})
-            },
-            t
-        );
-
-        if (result.success) {
-            setPhase({ kind: "sent" });
-            return;
-        }
-
-        setPhase({ kind: "failed", error: result.error ?? { message: t("UnexpectedError") } });
     };
 
     if (phase.kind === "sent") {
@@ -120,6 +144,11 @@ export default function ErrorReportControl({
             >
                 <p className="text-sm font-semibold text-success">{t("FeedbackSuccessTitle")}</p>
                 <p className="mt-1 text-xs text-description">{t("FeedbackSuccessBody")}</p>
+                {phase.failedAttachments > 0 && (
+                    <p className="mt-2 text-xs font-medium text-error">
+                        {t("FeedbackPartialAttachmentWarning", { count: phase.failedAttachments })}
+                    </p>
+                )}
             </div>
         );
     }
