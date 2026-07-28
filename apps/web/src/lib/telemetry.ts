@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import type { ErrorEvent, EventHint } from "@sentry/react";
+import type { Breadcrumb, ErrorEvent, EventHint } from "@sentry/react";
 import { APP_VERSION } from "../appVersion";
 
 /**
@@ -90,6 +90,47 @@ function stripQuery(url: string): string {
 }
 
 /**
+ * Attributes the DOM breadcrumb serialiser appends that can carry text a user
+ * wrote. `type` is deliberately absent — it is a fixed HTML token, and keeping
+ * it preserves most of the breadcrumb's diagnostic value.
+ */
+const CONTENT_BEARING_ATTRS = ["aria-label", "name", "title", "alt"];
+
+/**
+ * Strips content-bearing attribute selectors out of `ui.*` breadcrumb messages.
+ *
+ * This is NOT configurable away, which is why it is done here. In
+ * `@sentry/core/utils/browser.js`, `serializeAttribute` only replaces the
+ * `#id`/`.class` branch; the loop over
+ * `["aria-label", "type", "name", "title", "alt"]` runs unconditionally
+ * afterwards. So a `dom.serializeAttribute` allowlist looks like a fix and
+ * changes nothing about `aria-label`.
+ *
+ * It matters here because the routine check-in control is labelled with the
+ * user's own habit name (`components/dashboard/dayRoutine/routineSection.tsx`),
+ * so every check-in would otherwise record `input[aria-label="<habit name>"]`
+ * and attach it to the next event. `sendDefaultPii: false` does not gate
+ * breadcrumbs at all.
+ *
+ * Exported for the test suite, which asserts on the produced message rather
+ * than on the configuration — pinning the config is what let the previous
+ * attempt pass while still leaking.
+ */
+export function scrubUiBreadcrumb(breadcrumb: Breadcrumb): Breadcrumb | null {
+  if (!breadcrumb.category?.startsWith("ui.") || typeof breadcrumb.message !== "string") {
+    return breadcrumb;
+  }
+
+  const attrs = CONTENT_BEARING_ATTRS.join("|");
+  breadcrumb.message = breadcrumb.message.replace(
+    new RegExp(`\\[(?:${attrs})="[^"]*"\\]`, "g"),
+    ""
+  );
+
+  return breadcrumb;
+}
+
+/**
  * The send gate. Returning `null` drops the event before it leaves the browser,
  * so filtered noise costs nothing — no request, no collector storage, and no
  * spurious "new error" alert (R17).
@@ -104,6 +145,15 @@ export function dropNoisyEvents(event: ErrorEvent, _hint: EventHint): ErrorEvent
 
   if (event.request?.url) {
     event.request.url = stripQuery(event.request.url);
+  }
+
+  // Same integration also writes headers.Referer from document.referrer, and the
+  // interceptor's own `window.location.href = "/"` on a failed refresh is a real
+  // navigation — so a failure on /reset-password?token=... makes that URL the
+  // NEXT page's referrer. Scrubbing only request.url left the token a hop away.
+  const referer = event.request?.headers?.Referer;
+  if (typeof referer === "string") {
+    event.request!.headers!.Referer = stripQuery(referer);
   }
 
   // Navigation breadcrumbs carry from/to URLs, and a fetch/xhr crumb carries the
@@ -163,19 +213,9 @@ export function initTelemetry(): boolean {
     // Default is already false; stated outright so it survives an SDK upgrade.
     sendDefaultPii: false,
 
-    // The default DOM breadcrumb serialiser appends `[aria-label="..."]` to the
-    // element description unconditionally, and this app labels check-in controls
-    // with the user's own habit and task names (see
-    // `components/dashboard/dayRoutine/routineSection.tsx`). Restricting it to
-    // test ids keeps the breadcrumb useful for locating the element without
-    // recording what the user wrote. `sendDefaultPii: false` does NOT gate
-    // breadcrumbs, so this cannot be left to the default.
-    integrations: (defaults) => [
-      ...defaults.filter((integration) => integration.name !== "Breadcrumbs"),
-      Sentry.breadcrumbsIntegration({
-        dom: { serializeAttribute: ["data-testid", "data-tutorial-id"] }
-      })
-    ],
+    // See `scrubUiBreadcrumb` — the DOM serialiser cannot be configured out of
+    // this, so the produced breadcrumb is rewritten instead.
+    beforeBreadcrumb: scrubUiBreadcrumb,
 
     beforeSend: dropNoisyEvents
   });

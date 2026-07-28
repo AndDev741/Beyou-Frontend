@@ -85,6 +85,15 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
         setHasSentReply(false);
         setIsSavingStatus(false);
         setIsSendingReply(false);
+        // The previously-loaded submission has to go too. Without this the panel
+        // shows the OLD body, submitter and replies for one round trip while
+        // feedbackId is already the new row and — because the busy flags above
+        // were just cleared — both controls are live. Clicking then re-statuses
+        // or emails the new row while the reader is looking at the old one.
+        // Before the busy flags were reset here, an in-flight mutation left the
+        // controls disabled and incidentally hid this.
+        setDetail(null);
+        setLoadError(null);
 
         void load();
 

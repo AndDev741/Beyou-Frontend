@@ -349,48 +349,79 @@ describe("credential scrubbing", () => {
     });
 });
 
-describe("DOM breadcrumb attribute allowlist", () => {
-    beforeEach(() => {
+describe("ui breadcrumb scrubbing", () => {
+    // The previous attempt configured dom.serializeAttribute and asserted the
+    // integration was CALLED with it. That passed while still leaking: in
+    // @sentry/core/utils/browser.js the allowlist only replaces the #id/.class
+    // branch, and the loop over ["aria-label", "type", "name", "title", "alt"]
+    // runs unconditionally afterwards. These tests therefore assert on the
+    // produced breadcrumb message.
+    it("strips a habit name carried in aria-label off a click breadcrumb", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.click",
+            message: 'input[aria-label="Ler Hamlet por 30 minutos"]'
+        });
+
+        expect(crumb!.message).not.toContain("Ler Hamlet");
+        expect(crumb!.message).toBe("input");
+    });
+
+    it("keeps type but drops every content-bearing attribute", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        const crumb = scrubUiBreadcrumb({
+            category: "ui.input",
+            message: 'input[aria-label="Meta secreta"][type="checkbox"][title="dica"][name="campo"][alt="imagem"]'
+        });
+
+        expect(crumb!.message).toBe('input[type="checkbox"]');
+        for (const leaked of ["Meta secreta", "dica", "campo", "imagem"]) {
+            expect(crumb!.message).not.toContain(leaked);
+        }
+    });
+
+    it("leaves a breadcrumb that is not a ui event alone", async () => {
+        const { scrubUiBreadcrumb } = await loadTelemetry();
+
+        const crumb = scrubUiBreadcrumb({
+            category: "navigation",
+            message: 'from /a to /b [name="keep me"]'
+        });
+
+        expect(crumb!.message).toBe('from /a to /b [name="keep me"]');
+    });
+
+    it("is the beforeBreadcrumb the SDK was configured with", async () => {
         vi.clearAllMocks();
         vi.unstubAllEnvs();
-    });
-
-    // The default DOM serialiser appends [aria-label="..."] to the element
-    // description unconditionally, and routineSection.tsx:132 labels the
-    // check-in control with the user's own habit name. sendDefaultPii: false
-    // does NOT gate breadcrumbs, so the default cannot be left in place.
-    it("asks for a breadcrumb serialiser restricted to test ids", async () => {
         vi.stubEnv("VITE_SENTRY_DSN", DSN);
-        const breadcrumbsMock = Sentry.breadcrumbsIntegration as unknown as ReturnType<typeof vi.fn>;
-        breadcrumbsMock.mockImplementation((options: unknown) => ({ name: "Breadcrumbs", options }));
 
-        const { initTelemetry } = await loadTelemetry();
+        const { initTelemetry, scrubUiBreadcrumb } = await loadTelemetry();
         expect(initTelemetry()).toBe(true);
 
-        const { integrations } = initMock.mock.calls[0][0];
-        expect(typeof integrations).toBe("function");
-
-        // Resolving is what triggers the SDK call we care about.
-        integrations([{ name: "Breadcrumbs" }, { name: "HttpContext" }]);
-
-        expect(breadcrumbsMock).toHaveBeenCalledWith({
-            dom: { serializeAttribute: ["data-testid", "data-tutorial-id"] }
-        });
+        expect(initMock.mock.calls[0][0].beforeBreadcrumb).toBe(scrubUiBreadcrumb);
     });
+});
 
-    it("drops the permissive default rather than shadowing it", async () => {
-        vi.stubEnv("VITE_SENTRY_DSN", DSN);
-        const breadcrumbsMock = Sentry.breadcrumbsIntegration as unknown as ReturnType<typeof vi.fn>;
-        breadcrumbsMock.mockImplementation((options: unknown) => ({ name: "Breadcrumbs", options }));
+describe("referer scrubbing", () => {
+    // httpContextIntegration writes headers.Referer from document.referrer, and
+    // the interceptor navigates on a failed refresh — so a token-bearing URL
+    // becomes the next page's referrer even after request.url is scrubbed.
+    it("strips the query string off the Referer header", async () => {
+        const { dropNoisyEvents } = await loadTelemetry();
 
-        const { initTelemetry } = await loadTelemetry();
-        initTelemetry();
+        const event = {
+            request: {
+                url: "https://beyou.app/",
+                headers: { Referer: "https://beyou.app/reset-password?token=leaked-token" }
+            }
+        } as unknown as ErrorEvent;
 
-        const { integrations } = initMock.mock.calls[0][0];
-        const resolved = integrations([{ name: "Breadcrumbs" }, { name: "HttpContext" }]);
+        const sent = dropNoisyEvents(event, {} as EventHint);
 
-        // Exactly one Breadcrumbs entry, and the other defaults survive.
-        expect(resolved.filter((i: { name: string }) => i?.name === "Breadcrumbs")).toHaveLength(1);
-        expect(resolved).toContainEqual(expect.objectContaining({ name: "HttpContext" }));
+        expect(JSON.stringify(sent)).not.toContain("leaked-token");
+        expect(sent!.request!.headers!.Referer).toBe("https://beyou.app/reset-password");
     });
 });
