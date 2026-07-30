@@ -8,13 +8,27 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../../store';
 import { captureCurrentScreen } from './captureScreen';
 
+/** The one screen that carries the bubble — see the note on the component. */
+const FEEDBACK_HOME_ROUTE = '/configuration';
+
 /**
- * R1: feedback is reachable from every authenticated screen. Mounted once in
- * the (app) layout, mirroring AgentWidget.
+ * R1: feedback is reachable from every authenticated screen — in two taps.
  *
- * KTD3/R9: this is the intact-screen path — the snapshot is taken HERE, before
- * navigating, because once the feedback form is on top there is nothing left of
- * the screen the user wanted to talk about.
+ * The bubble itself lives on the configuration screen only. `BottomNav` is
+ * mounted in the (app) layout now, so Config is one tap from anywhere and
+ * Config carries the bubble: feedback is two taps from any screen without
+ * spending a seventh slot in a six-item bar (a seventh item has been declined
+ * twice). A bubble floating over every screen buys one tap and costs permanent
+ * furniture on a small display.
+ *
+ * The web app applies the same table with one extra row: at desktop widths it
+ * keeps the bubble on the other sections, because there is no bottom bar there.
+ * Native has no desktop width, so the rule collapses to Config only.
+ *
+ * Still mounted in the layout rather than inside the configuration screen: this
+ * is the intact-screen capture path (KTD3/R9) and the snapshot is taken HERE,
+ * before navigating, because once the feedback form is on top there is nothing
+ * left of the screen the user wanted to talk about.
  */
 export default function FeedbackLauncher() {
   const { t } = useTranslation();
@@ -35,8 +49,9 @@ export default function FeedbackLauncher() {
   // tutorial spotlight owns the screen, and a floating control outside the hole
   // is noise the new user has to ignore.
   if (!isTutorialCompleted) return null;
-  // No point offering "give feedback" while the feedback form is open.
-  if (pathname === '/feedback') return null;
+  // Everywhere else — including the feedback form itself, where the offer would
+  // be pointless — the bar's Config entry is the way in.
+  if (pathname !== FEEDBACK_HOME_ROUTE) return null;
 
   const open = async () => {
     if (opening.current) return;

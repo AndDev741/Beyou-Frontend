@@ -4,7 +4,7 @@
  * BEFORE navigating, or the form covers the screen being reported.
  */
 var mockPush: jest.Mock;
-var mockPathname = '/routines';
+var mockPathname = '/configuration';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
@@ -34,7 +34,7 @@ const renderLauncher = (tutorialCompleted: boolean) => {
 
 beforeEach(() => {
   mockPush = jest.fn();
-  mockPathname = '/routines';
+  mockPathname = '/configuration';
   (captureScreen as jest.Mock).mockClear();
   (captureScreen as jest.Mock).mockResolvedValue('file:///tmp/screen.jpg');
 });
@@ -49,7 +49,7 @@ describe('FeedbackLauncher', () => {
     expect(captureScreen).toHaveBeenCalled();
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/feedback',
-      params: { from: '/routines', capture: 'file:///tmp/screen.jpg' },
+      params: { from: '/configuration', capture: 'file:///tmp/screen.jpg' },
     });
   });
 
@@ -62,7 +62,7 @@ describe('FeedbackLauncher', () => {
       fireEvent.press(screen.getByTestId('feedback-fab'));
     });
 
-    expect(mockPush).toHaveBeenCalledWith({ pathname: '/feedback', params: { from: '/routines' } });
+    expect(mockPush).toHaveBeenCalledWith({ pathname: '/feedback', params: { from: '/configuration' } });
     spy.mockRestore();
   });
 
@@ -100,12 +100,42 @@ describe('FeedbackLauncher', () => {
     expect(mockPush).toHaveBeenCalledTimes(1);
   });
 
-  it('stays out of the way during onboarding and on the feedback screen itself', async () => {
+  it('stays out of the way during onboarding', async () => {
     await renderLauncher(false);
     expect(screen.queryByTestId('feedback-fab')).toBeNull();
+  });
 
-    mockPathname = '/feedback';
+  /**
+   * The bubble narrowed to the configuration screen once BottomNav became
+   * global. The bar reaches Config in one tap from anywhere and Config carries
+   * the bubble, so feedback is two taps from any screen — without spending a
+   * seventh slot in a six-item bar (a seventh item has been declined twice).
+   * A bubble floating over every screen buys one tap and costs permanent
+   * furniture on a small display.
+   *
+   * The web app applies the same table, with one extra row: at desktop widths
+   * it keeps the bubble on the other sections, because there is no bottom bar
+   * there. Native has no desktop width, so the rule collapses to Config only.
+   */
+  const VISIBILITY = [
+    { route: '/feedback', visible: false },
+    { route: '/configuration', visible: true },
+    { route: '/', visible: false }, // dashboard
+    { route: '/categories', visible: false },
+    { route: '/tasks', visible: false },
+    { route: '/habits', visible: false },
+    { route: '/routines', visible: false },
+    { route: '/goals', visible: false },
+  ];
+
+  it.each(VISIBILITY)('$route -> visible: $visible', async ({ route, visible }) => {
+    mockPathname = route;
     await renderLauncher(true);
-    expect(screen.queryByTestId('feedback-fab')).toBeNull();
+
+    if (visible) {
+      expect(screen.getByTestId('feedback-fab')).toBeTruthy();
+    } else {
+      expect(screen.queryByTestId('feedback-fab')).toBeNull();
+    }
   });
 });

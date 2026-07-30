@@ -12,7 +12,7 @@ import RoutineSettingsSection from '../../src/ui/config/RoutineSettingsSection';
 import ConstanceSection from '../../src/ui/config/ConstanceSection';
 import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import TutorialSection from '../../src/ui/config/TutorialSection';
-import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useConfigTutorial } from '../../src/tutorial/hooks/useConfigTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { logout } from '../../src/auth/authSlice';
@@ -31,6 +31,9 @@ export default function ConfigurationScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
   const cfg = useConfigTutorial();
+  // Rendered by the (app) layout so the overlay spans the window — target
+  // rects come from measureInWindow, and the bottom bar is outside this screen.
+  useSpotlightSlot(cfg);
 
   const scrollRef = useRef<ScrollView>(null);
   const offsets = useRef<Record<string, number>>({});
@@ -141,17 +144,6 @@ export default function ConfigurationScreen() {
           </Text>
         </Pressable>
       </ScrollView>
-
-      {cfg.active ? (
-        <SpotlightOverlay
-          step={cfg.steps[cfg.stepIndex]}
-          stepIndex={cfg.stepIndex}
-          stepCount={cfg.steps.length}
-          onNext={cfg.next}
-          onPrev={cfg.prev}
-          onSkip={cfg.skip}
-        />
-      ) : null}
     </View>
   );
 }

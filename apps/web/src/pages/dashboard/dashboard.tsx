@@ -2,7 +2,6 @@ import { useSelector } from "react-redux";
 import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import Perfil from "../../components/dashboard/perfil";
 import Shortcuts from "../../components/dashboard/shortcuts";
-import BottomNav from "../../components/dashboard/BottomNav";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import { useEffect, useMemo, useState } from "react";
@@ -276,10 +275,9 @@ function Dashboard() {
                     <GoalsTab />
                 </div>
 
-                {/* Mobile: fixed bottom action bar (desktop keeps the Shortcuts sidebar) */}
-                <BottomNav />
-                {/* Spacer so the fixed bar never covers the last content on mobile */}
-                <div className="h-20 lg:hidden" aria-hidden="true" />
+                {/* The mobile bottom bar and its clearance spacer used to be
+                    rendered here. They moved to `ProtectedRoute` so every
+                    authenticated page gets them — see the comment there. */}
             </div>
             )}
         </>

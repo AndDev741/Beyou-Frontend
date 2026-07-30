@@ -1,53 +1,38 @@
-import { Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { screen } from "@testing-library/react";
 import { tutorialCompletedEnter } from "@beyou/state/user/perfilSlice";
-import { renderWithProviders } from "../../test/test-utils";
 import store from "../../redux/store";
-import ProtectedRoute from "../ProtectedRoute";
+import {
+    renderAuthenticatedRoute,
+    restoreViewport,
+    setViewport,
+} from "../../test/authenticatedRoutes";
 
 /**
- * #10. Feedback was reachable from exactly one of the seven authenticated web
- * pages — the dashboard, via its shortcut grid. On categories, habits, goals,
- * tasks, routines or configuration the user had to navigate back to the
- * dashboard first, because the shared `Header` those pages render is a title,
- * an optional logout and a return-to-dashboard icon.
+ * Where the feedback bubble is allowed to be, per route and per width.
  *
- * The launcher is mounted once inside `ProtectedRoute`, so these tests exercise
- * the real mount point rather than the component in isolation: the claim being
- * pinned is "reachable from any authenticated page", not "this component
- * renders a link".
+ * Mobile narrowed to the configuration page once the bottom bar became global:
+ * the bar reaches Config in one tap from anywhere, and Config carries the
+ * bubble, so feedback is two taps from any screen without spending a seventh
+ * slot in a six-item bar. Desktop has no bar and no header affordance, so the
+ * bubble stays the reach everywhere except the dashboard, whose `Shortcuts`
+ * sidebar already carries a labelled feedback link.
  *
- * The dashboard is deliberately NOT in this list: it already carries the
- * labelled shortcut in its sidebar, and that is the discoverable entry. Two
- * controls for one action on one screen is clutter, so the launcher steps aside
- * there — the same way it does on the feedback form itself.
+ * Every row below is asserted by whether the control RENDERS, not by which
+ * classes it carries — the width decision is made in JS precisely so it can be
+ * observed. (jsdom evaluates no media queries, so a responsive class is
+ * untestable; see the note on `setViewport`.)
  */
-const ROUTES_WITHOUT_THEIR_OWN_ENTRY = [
-    "/categories",
-    "/habits",
-    "/goals",
-    "/tasks",
-    "/routines",
-    "/configuration"
-];
-
-const renderAt = (route: string) =>
-    renderWithProviders(
-        <Routes>
-            <Route element={<ProtectedRoute authState="authenticated" />}>
-                <Route path="/dashboard" element={<p>dashboard</p>} />
-                <Route path="/categories" element={<p>categories</p>} />
-                <Route path="/habits" element={<p>habits</p>} />
-                <Route path="/goals" element={<p>goals</p>} />
-                <Route path="/tasks" element={<p>tasks</p>} />
-                <Route path="/routines" element={<p>routines</p>} />
-                <Route path="/configuration" element={<p>configuration</p>} />
-                <Route path="/feedback" element={<p>feedback</p>} />
-            </Route>
-        </Routes>,
-        { route }
-    );
+const VISIBILITY = [
+    { route: "/feedback", mobile: false, desktop: false },
+    { route: "/configuration", mobile: true, desktop: true },
+    { route: "/dashboard", mobile: false, desktop: false },
+    { route: "/categories", mobile: false, desktop: true },
+    { route: "/habits", mobile: false, desktop: true },
+    { route: "/goals", mobile: false, desktop: true },
+    { route: "/tasks", mobile: false, desktop: true },
+    { route: "/routines", mobile: false, desktop: true },
+] as const;
 
 beforeEach(() => {
     store.dispatch(tutorialCompletedEnter(true));
@@ -55,54 +40,71 @@ beforeEach(() => {
 
 afterEach(() => {
     store.dispatch(tutorialCompletedEnter(false));
+    restoreViewport();
 });
 
 describe("Feedback launcher", () => {
-    test.each(ROUTES_WITHOUT_THEIR_OWN_ENTRY)("is reachable from %s", (route) => {
-        renderAt(route);
+    test.each(VISIBILITY)("on mobile, $route -> $mobile", ({ route, mobile }) => {
+        setViewport("mobile");
+        renderAuthenticatedRoute(route);
 
-        const launcher = screen.getByTestId("feedback-fab");
-        expect(launcher).toBeInTheDocument();
-        expect(launcher).toHaveAttribute("href", "/feedback");
+        const launcher = screen.queryByTestId("feedback-fab");
+        if (mobile) {
+            expect(launcher).toBeInTheDocument();
+            expect(launcher).toHaveAttribute("href", "/feedback");
+        } else {
+            expect(launcher).not.toBeInTheDocument();
+        }
+    });
+
+    test.each(VISIBILITY)("on desktop, $route -> $desktop", ({ route, desktop }) => {
+        setViewport("desktop");
+        renderAuthenticatedRoute(route);
+
+        const launcher = screen.queryByTestId("feedback-fab");
+        if (desktop) {
+            expect(launcher).toBeInTheDocument();
+            expect(launcher).toHaveAttribute("href", "/feedback");
+        } else {
+            expect(launcher).not.toBeInTheDocument();
+        }
     });
 
     test("stays out of the header — the shared Header keeps title and return only", () => {
-        renderAt("/habits");
+        setViewport("desktop");
+        renderAuthenticatedRoute("/habits");
 
         // The launcher is a fixed overlay mounted by the route guard, not a
-        // child of any page's header.
+        // child of any page's header. One was tried in the shared Header and
+        // removed: that header has a fixed shape across every page.
         expect(screen.getByTestId("feedback-fab").closest("header")).toBeNull();
-    });
-
-    test("steps aside on the feedback screen itself", () => {
-        renderAt("/feedback");
-
-        expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
-    });
-
-    test("stays mounted on the dashboard, hidden only where the shortcut shows", () => {
-        renderAt("/dashboard");
-
-        // The Shortcuts sidebar that carries the labelled entry is `hidden
-        // lg:flex`, so on a narrow viewport it does not exist — and the
-        // dashboard has no shared Header and no feedback item in BottomNav.
-        // Removing the launcher by route left that width with no way in at all.
-        const launcher = screen.getByTestId("feedback-fab");
-        expect(launcher).toBeInTheDocument();
-        expect(launcher.className).toContain("lg:hidden");
-    });
-
-    test("carries no hide class on a route that has no shortcut of its own", () => {
-        renderAt("/habits");
-
-        expect(screen.getByTestId("feedback-fab").className).not.toContain("lg:hidden");
     });
 
     test("stays hidden during onboarding, like the assistant", () => {
         store.dispatch(tutorialCompletedEnter(false));
+        setViewport("desktop");
 
-        renderAt("/habits");
+        renderAuthenticatedRoute("/habits");
 
         expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
+    });
+
+    test("mobile still reaches feedback in two taps: bar -> Config -> bubble", () => {
+        setViewport("mobile");
+        const onRoutines = renderAuthenticatedRoute("/routines");
+
+        // Tap 1 is in the always-present bar...
+        const toConfig = screen.getByRole("link", { name: "Config" });
+        expect(toConfig).toHaveAttribute("href", "/configuration");
+        expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
+
+        // Unmount before the second render: two live `ProtectedRoute` trees in
+        // one document would turn a future regression into an ambiguous
+        // "found multiple elements" error instead of a failing assertion.
+        onRoutines.unmount();
+
+        // ...and tap 2 is the bubble, which only Config carries on mobile.
+        renderAuthenticatedRoute("/configuration");
+        expect(screen.getByTestId("feedback-fab")).toBeInTheDocument();
     });
 });

@@ -18,19 +18,28 @@ const ON_PRIMARY = '#FFFFFF';
 
 /**
  * Spotlight overlay. Rendered as an absolute-fill View (NOT a Modal) inside the
- * screen's own view tree, so taps in the hole pass through to the real UI behind
- * it (`pointerEvents="box-none"` only works within one hierarchy — a Modal is a
- * separate window and would swallow those taps). Measurements line up directly
- * with the screen because the overlay shares the window coordinate space.
+ * app's own view tree, so taps in the hole pass through to the real UI behind it
+ * (`pointerEvents="box-none"` only works within one hierarchy — a Modal is a
+ * separate window and would swallow those taps).
+ *
+ * Every rect here is WINDOW-absolute, because `measureInWindow` is. That holds
+ * only while this View spans the window, so it is mounted by the (app) layout —
+ * a sibling of `BottomNav`, above it — and never by a screen: a screen stops at
+ * the bar's top edge, and one target (`nav-categories`) lives inside the bar.
+ * Screens publish into that slot with `useSpotlightSlot`; see
+ * `src/tutorial/TutorialOverlaySlot.tsx`.
  */
 export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, onPrev, onSkip }: Props) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const { height: H } = useWindowDimensions();
   const { measure } = useTutorialRegistry();
-  // The overlay fills the screen root (physical top on edge-to-edge Android), but
-  // measureInWindow reports y from below the status bar — add the top inset so the
-  // hole lands on the target. Null-safe (0 without a SafeArea provider, e.g. tests).
+  // The overlay fills the (app) layout root, which starts at the physical top on
+  // edge-to-edge Android, but measureInWindow reports y from below the status bar
+  // — add the top inset so the hole lands on the target. Unchanged by the move out
+  // of the screens: that root has the same origin the screen roots did (it is
+  // their parent's parent, with no offset between them), it is just taller.
+  // Null-safe (0 without a SafeArea provider, e.g. tests).
   const insets = useContext(SafeAreaInsetsContext);
   const topInset = insets?.top ?? 0;
   const [rect, setRect] = useState<Rect | null>(null);
@@ -67,23 +76,24 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
     : { bottom: H - holeTop + 12 };
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none" testID="spotlight-overlay">
       {/* Dimmer (4 frames around the hole). Omitted entirely until measured. */}
       {rect ? (
         <>
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: holeTop, backgroundColor: DIM }} />
-          <View style={{ position: 'absolute', top: holeBottom, left: 0, right: 0, bottom: 0, backgroundColor: DIM }} />
-          <View style={{ position: 'absolute', top: holeTop, left: 0, width: holeLeft, height: holeBottom - holeTop, backgroundColor: DIM }} />
-          <View style={{ position: 'absolute', top: holeTop, left: holeRight, right: 0, height: holeBottom - holeTop, backgroundColor: DIM }} />
+          <View testID="spotlight-dim-top" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: holeTop, backgroundColor: DIM }} />
+          <View testID="spotlight-dim-bottom" style={{ position: 'absolute', top: holeBottom, left: 0, right: 0, bottom: 0, backgroundColor: DIM }} />
+          <View testID="spotlight-dim-left" style={{ position: 'absolute', top: holeTop, left: 0, width: holeLeft, height: holeBottom - holeTop, backgroundColor: DIM }} />
+          <View testID="spotlight-dim-right" style={{ position: 'absolute', top: holeTop, left: holeRight, right: 0, height: holeBottom - holeTop, backgroundColor: DIM }} />
           {/* highlight ring */}
-          <View pointerEvents="none" style={{ position: 'absolute', top: holeTop, left: holeLeft, width: holeRight - holeLeft, height: holeBottom - holeTop, borderWidth: 2, borderColor: theme.primary, borderRadius: 12 }} />
+          <View testID="spotlight-ring" pointerEvents="none" style={{ position: 'absolute', top: holeTop, left: holeLeft, width: holeRight - holeLeft, height: holeBottom - holeTop, borderWidth: 2, borderColor: theme.primary, borderRadius: 12 }} />
         </>
       ) : (
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: DIM }]} pointerEvents="none" />
+        <View testID="spotlight-dim-all" style={[StyleSheet.absoluteFill, { backgroundColor: DIM }]} pointerEvents="none" />
       )}
 
       {/* Tooltip card */}
       <View
+        testID="spotlight-tooltip"
         style={[{ position: 'absolute', left: 12, right: 12 }, tooltipPositionStyle]}
         className="rounded-2xl border border-primary/30 bg-background p-4"
       >

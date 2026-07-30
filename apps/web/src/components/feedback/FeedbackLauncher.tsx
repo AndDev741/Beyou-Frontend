@@ -3,30 +3,48 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { MessageSquareWarning } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
 
 /**
- * R1: feedback reachable from EVERY authenticated page.
+ * Where the floating feedback bubble belongs, by route and by width:
  *
- * It used to live in the dashboard's shortcut grid alone, which made it
- * reachable from one page of seven — the other six render the shared `Header`,
- * which is a title, an optional logout and a return-to-dashboard icon. A user
- * who hit a problem on habits or routines had to navigate away from the thing
- * they wanted to report before they could report it.
+ *   route            | mobile (< lg) | desktop (>= lg)
+ *   -----------------|---------------|----------------
+ *   /feedback        | hidden        | hidden
+ *   /configuration   | visible       | visible
+ *   /dashboard       | hidden        | hidden
+ *   everything else  | hidden        | visible
  *
- * Deliberately NOT a header icon: one was tried there and removed, because the
- * shared header has a fixed shape across every page and an extra control breaks
- * it. This is the mount the app already uses for exactly this problem —
- * `ProtectedRoute` renders it beside `AgentWidget`, the same way the mobile app
- * mounts its own `FeedbackLauncher` in the `(app)` layout — so it follows the
- * user across routes without any page knowing it exists.
+ * Mobile is narrow on purpose. `BottomNav` is on every authenticated page now,
+ * so Config is one tap from anywhere and Config carries the bubble — feedback
+ * is two taps from any screen without spending a seventh slot in a six-item
+ * bar (a seventh item has been declined twice). A bubble floating over every
+ * small screen buys one tap and costs permanent screen furniture.
  *
- * `z-30` on purpose: above page content (which tops out at `z-20`) and below
- * every modal and the assistant panel (`z-40`/`z-50`), so an open dialog covers
- * it instead of the launcher floating over it.
+ * Desktop has no bottom bar and the shared `Header` has no feedback affordance
+ * — one was tried there and removed, because that header has a fixed shape
+ * across every page — so the bubble stays the reach everywhere except the
+ * dashboard, whose `Shortcuts` sidebar already carries a labelled feedback link.
+ *
+ * The width half of the decision is JS rather than a `lg:` class so the whole
+ * rule reads in one place, and so tests can assert what renders instead of
+ * which classes it carries.
  */
+function shouldShow(pathname: string, isDesktop: boolean): boolean {
+    // No point offering "send feedback" on the feedback form.
+    if (pathname === "/feedback") return false;
+    // The one page that always carries it: the mobile bar's destination.
+    if (pathname === "/configuration") return true;
+    // The dashboard's labelled sidebar shortcut is the entry on desktop; on
+    // mobile the bar reaches Config from here like anywhere else.
+    if (pathname === "/dashboard") return false;
+    return isDesktop;
+}
+
 function FeedbackLauncher() {
     const { t } = useTranslation();
     const { pathname } = useLocation();
+    const isDesktop = useIsDesktop();
     const isTutorialCompleted = useSelector(
         (state: RootState) => state.perfil.isTutorialCompleted
     );
@@ -38,29 +56,24 @@ function FeedbackLauncher() {
         return null;
     }
 
-    // No point offering "send feedback" on the feedback form.
-    if (pathname === "/feedback") {
+    if (!shouldShow(pathname, isDesktop)) {
         return null;
     }
 
-    // The dashboard's labelled shortcut lives in the Shortcuts sidebar, which is
-    // `hidden lg:flex` — so it only exists from 1100px up. Hiding the launcher
-    // on the dashboard by ROUTE therefore leaves it unreachable on a narrow
-    // viewport: that page has no shared Header, and BottomNav carries no
-    // feedback entry. Hide it by the same breakpoint the shortcut appears at,
-    // so exactly one of the two is on screen at any width.
-    const hiddenWhereShortcutShows = pathname === "/dashboard" ? "lg:hidden" : "";
-
+    // `z-30` on purpose: above page content (which tops out at `z-20`) and below
+    // every modal and the assistant panel (`z-40`/`z-50`), so an open dialog
+    // covers it instead of the launcher floating over it. `bottom-36` clears
+    // both the assistant FAB (`bottom-20`) and the bottom bar beneath it.
     return (
         <Link
             to="/feedback"
             aria-label={t("FeedbackNavLabel")}
             data-testid="feedback-fab"
             data-tutorial-id="feedback-fab"
-            className={`fixed bottom-36 right-4 z-30 flex h-11 w-11 items-center justify-center
+            className="fixed bottom-36 right-4 z-30 flex h-11 w-11 items-center justify-center
             rounded-full border border-primary bg-background text-primary shadow-md
             transition-transform duration-200 hover:scale-105 active:scale-95
-            lg:bottom-24 lg:right-[1.375rem] ${hiddenWhereShortcutShows}`}
+            lg:bottom-24 lg:right-[1.375rem]"
         >
             <MessageSquareWarning size={20} aria-hidden="true" />
         </Link>

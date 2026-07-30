@@ -18,7 +18,7 @@ import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 import { useCategoriesTutorial } from '../../src/tutorial/hooks/useCategoriesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
-import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; category: category | null };
 const CLOSED: FormState = { visible: false, mode: 'create', category: null };
@@ -40,6 +40,9 @@ export default function CategoriesScreen() {
   const [form, setForm] = useState<FormState>(CLOSED);
 
   const cat = useCategoriesTutorial();
+  // Rendered by the (app) layout so the overlay spans the window — target
+  // rects come from measureInWindow, and the bottom bar is outside this screen.
+  useSpotlightSlot(cat);
   const createRef = useTutorialTarget('category-create');
   const firstCardRef = useTutorialTarget('category-first');
 
@@ -149,17 +152,6 @@ export default function CategoriesScreen() {
         onClose={() => setForm(CLOSED)}
         onSaved={load}
       />
-
-      {cat.active ? (
-        <SpotlightOverlay
-          step={cat.steps[cat.stepIndex]}
-          stepIndex={cat.stepIndex}
-          stepCount={cat.steps.length}
-          onNext={cat.next}
-          onPrev={cat.prev}
-          onSkip={cat.skip}
-        />
-      ) : null}
     </View>
   );
 }
