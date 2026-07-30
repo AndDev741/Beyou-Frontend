@@ -38,14 +38,18 @@ function FeedbackLauncher() {
         return null;
     }
 
-    // Routes that already carry their own entry point. The dashboard has the
-    // labelled shortcut in its sidebar, which is the discoverable one — a
-    // floating bubble beside it is two controls for one action on one screen.
-    // The launcher exists for the OTHER authenticated routes, whose shared
-    // header has no feedback affordance.
-    if (pathname === "/feedback" || pathname === "/dashboard") {
+    // No point offering "send feedback" on the feedback form.
+    if (pathname === "/feedback") {
         return null;
     }
+
+    // The dashboard's labelled shortcut lives in the Shortcuts sidebar, which is
+    // `hidden lg:flex` — so it only exists from 1100px up. Hiding the launcher
+    // on the dashboard by ROUTE therefore leaves it unreachable on a narrow
+    // viewport: that page has no shared Header, and BottomNav carries no
+    // feedback entry. Hide it by the same breakpoint the shortcut appears at,
+    // so exactly one of the two is on screen at any width.
+    const hiddenWhereShortcutShows = pathname === "/dashboard" ? "lg:hidden" : "";
 
     return (
         <Link
@@ -53,10 +57,10 @@ function FeedbackLauncher() {
             aria-label={t("FeedbackNavLabel")}
             data-testid="feedback-fab"
             data-tutorial-id="feedback-fab"
-            className="fixed bottom-36 right-4 z-30 flex h-11 w-11 items-center justify-center
+            className={`fixed bottom-36 right-4 z-30 flex h-11 w-11 items-center justify-center
             rounded-full border border-primary bg-background text-primary shadow-md
             transition-transform duration-200 hover:scale-105 active:scale-95
-            lg:bottom-24 lg:right-[1.375rem]"
+            lg:bottom-24 lg:right-[1.375rem] ${hiddenWhereShortcutShows}`}
         >
             <MessageSquareWarning size={20} aria-hidden="true" />
         </Link>

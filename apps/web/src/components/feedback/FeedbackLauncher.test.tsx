@@ -80,10 +80,22 @@ describe("Feedback launcher", () => {
         expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
     });
 
-    test("steps aside on the dashboard, which already has the labelled shortcut", () => {
+    test("stays mounted on the dashboard, hidden only where the shortcut shows", () => {
         renderAt("/dashboard");
 
-        expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
+        // The Shortcuts sidebar that carries the labelled entry is `hidden
+        // lg:flex`, so on a narrow viewport it does not exist — and the
+        // dashboard has no shared Header and no feedback item in BottomNav.
+        // Removing the launcher by route left that width with no way in at all.
+        const launcher = screen.getByTestId("feedback-fab");
+        expect(launcher).toBeInTheDocument();
+        expect(launcher.className).toContain("lg:hidden");
+    });
+
+    test("carries no hide class on a route that has no shortcut of its own", () => {
+        renderAt("/habits");
+
+        expect(screen.getByTestId("feedback-fab").className).not.toContain("lg:hidden");
     });
 
     test("stays hidden during onboarding, like the assistant", () => {
