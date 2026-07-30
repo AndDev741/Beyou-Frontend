@@ -17,9 +17,13 @@ import ProtectedRoute from "../ProtectedRoute";
  * the real mount point rather than the component in isolation: the claim being
  * pinned is "reachable from any authenticated page", not "this component
  * renders a link".
+ *
+ * The dashboard is deliberately NOT in this list: it already carries the
+ * labelled shortcut in its sidebar, and that is the discoverable entry. Two
+ * controls for one action on one screen is clutter, so the launcher steps aside
+ * there — the same way it does on the feedback form itself.
  */
-const AUTHENTICATED_ROUTES = [
-    "/dashboard",
+const ROUTES_WITHOUT_THEIR_OWN_ENTRY = [
     "/categories",
     "/habits",
     "/goals",
@@ -54,7 +58,7 @@ afterEach(() => {
 });
 
 describe("Feedback launcher", () => {
-    test.each(AUTHENTICATED_ROUTES)("is reachable from %s", (route) => {
+    test.each(ROUTES_WITHOUT_THEIR_OWN_ENTRY)("is reachable from %s", (route) => {
         renderAt(route);
 
         const launcher = screen.getByTestId("feedback-fab");
@@ -72,6 +76,12 @@ describe("Feedback launcher", () => {
 
     test("steps aside on the feedback screen itself", () => {
         renderAt("/feedback");
+
+        expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
+    });
+
+    test("steps aside on the dashboard, which already has the labelled shortcut", () => {
+        renderAt("/dashboard");
 
         expect(screen.queryByTestId("feedback-fab")).not.toBeInTheDocument();
     });

@@ -38,8 +38,12 @@ function FeedbackLauncher() {
         return null;
     }
 
-    // No point offering "send feedback" on the feedback form.
-    if (pathname === "/feedback") {
+    // Routes that already carry their own entry point. The dashboard has the
+    // labelled shortcut in its sidebar, which is the discoverable one — a
+    // floating bubble beside it is two controls for one action on one screen.
+    // The launcher exists for the OTHER authenticated routes, whose shared
+    // header has no feedback affordance.
+    if (pathname === "/feedback" || pathname === "/dashboard") {
         return null;
     }
 
