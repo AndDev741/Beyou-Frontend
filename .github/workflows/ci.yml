@@ -184,6 +184,14 @@ jobs:
             VITE_API_URL=${{ vars.PROD_API_URL }}
             VITE_APP_URL=${{ vars.APP_URL }}
             VITE_GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}
+            # Vite inlines VITE_* at BUILD time, so this cannot be supplied by the
+            # server's .env at deploy time — the image is already built. Omitting
+            # it ships a web bundle with telemetry permanently off: initTelemetry
+            # treats a missing DSN as "stay dormant" and never calls Sentry.init(),
+            # so no web error reaches the collector and the web alert rule can
+            # never fire, silently. A `vars` and not a `secret`: an ingest DSN is
+            # not one, and build args are readable in `docker history` anyway.
+            VITE_SENTRY_DSN=${{ vars.PROD_SENTRY_DSN }}
           tags: |
             ghcr.io/anddev741/beyou-web:latest
             ghcr.io/anddev741/beyou-web:sha-${{ env.SHORT_SHA }}
