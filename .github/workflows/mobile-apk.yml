@@ -11,6 +11,11 @@ name: Mobile APK
 #   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = <web-oauth-client-id>.apps.googleusercontent.com
 #     — the Web OAuth client id; without it signIn() returns a null idToken and
 #       "Continue with Google" silently fails. Variable OR Secret; build reads either.
+#   EXPO_PUBLIC_SENTRY_DSN = <DSN of the beyou-mobile GlitchTip project>
+#     — optional. Omit it and the APK simply ships with error reporting off
+#       (telemetry.ts no-ops without a DSN). Must point at a PUBLICLY reachable
+#       collector: the app runs on real phones outside your network, so a
+#       localhost or LAN address reports nowhere. Variable OR Secret.
 #   Secrets:  ANDROID_KEYSTORE_BASE64   (base64 of a keystore you generate once)
 #             ANDROID_KEYSTORE_PASSWORD
 #             ANDROID_KEY_ALIAS
@@ -75,6 +80,27 @@ jobs:
           # repo Variable OR a Secret (falls back to the secret if the var is unset).
           EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
           EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+          # Inlined into the bundle by Metro during this task, same as the two
+          # above. Without it the APK ships with error reporting off.
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN || secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          # Skips the source-map upload task that the @sentry/react-native/expo
+          # config plugin adds to release builds (sentry.gradle.kts:50).
+          #
+          # It is not a workaround for a misconfiguration — the upload has
+          # nowhere to go. sentry-cli would need an auth token plus a reachable
+          # collector URL, and GlitchTip publishes to 127.0.0.1 only
+          # (MONITORING_BIND), which a GitHub runner cannot reach at all.
+          #
+          # Leaving it on is what broke this build: with no android/sentry.properties
+          # the script does NOT fail loudly — flavorAware is false, so the missing
+          # file is only logged (sentry.gradle.kts:643) and sentry-cli then runs
+          # with a null token against sentry.io and exits 1.
+          #
+          # Cost is symbolication only: crashes still arrive, with minified frames.
+          # To turn it back on, put the collector behind a public HTTPS proxy,
+          # create android/sentry.properties (defaults.url/org/project) or set
+          # SENTRY_AUTH_TOKEN, and drop this line.
+          SENTRY_DISABLE_AUTO_UPLOAD: "true"
         run: |
           chmod +x ./gradlew
           ./gradlew assembleRelease \
