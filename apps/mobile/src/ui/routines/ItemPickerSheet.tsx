@@ -125,7 +125,20 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <Text className="text-secondary mb-3 text-lg font-bold">{t('AssignItems')}</Text>
-      <ScrollView className="flex-1" contentContainerClassName="gap-3" keyboardShouldPersistTaps="handled">
+      {/* flexShrink, NOT flex-1. The BottomSheet panel is capped with `max-h`, not
+          given a height, so it sizes to its content — and `flex-1` means
+          `flexBasis: 0`, which contributes zero height to that measurement. The
+          panel then closed around just the title and the footer and left this
+          list at 0px: the sheet opened empty. Shrink keeps it content-sized while
+          still letting it give way (and scroll) once the panel hits its cap.
+          Inline style because this is layout-critical — see the NativeWind margin
+          caveat in AGENTS.md. */}
+      <ScrollView
+        testID="item-picker-scroll"
+        style={{ flexShrink: 1 }}
+        contentContainerClassName="gap-3"
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Selected tray */}
         <Text className="text-description text-xs font-semibold uppercase">{t('Assigned')} ({assigned.length})</Text>
         {assigned.length === 0 ? (

@@ -87,3 +87,32 @@ test('sets a start time on a tray item', async () => {
     habitGroup: [expect.objectContaining({ habitId: 'h1', startTime: '06:30' })],
   }));
 });
+
+/**
+ * Regression guard for "the sheet opens empty": title and footer visible, the
+ * whole middle gone.
+ *
+ * The BottomSheet panel is capped with `max-h`, not given a height, so it sizes
+ * to its content. `flex: 1` on the scroll area means `flexBasis: 0`, so it
+ * contributed nothing to that measurement — the panel closed around the title
+ * and the footer, leaving the list at 0px.
+ *
+ * Be clear about what this can prove: jest runs no layout engine, so a
+ * zero-height view still renders its children into the tree and every query
+ * above keeps passing. That is exactly why the bug shipped with this file
+ * already covering the sheet. Asserting the layout prop is the only mechanical
+ * guard available here — the visual result needs a device.
+ */
+test('gives the scroll area a shrinkable height, not flexBasis 0', async () => {
+  const { StyleSheet } = require('react-native');
+  await wrap(
+    <ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={jest.fn()} onClose={jest.fn()} />
+  );
+
+  const style = StyleSheet.flatten(screen.getByTestId('item-picker-scroll').props.style) ?? {};
+
+  // flexBasis 0 is the defect: it hides the list from the panel's content-based
+  // measurement, which is what collapsed the sheet to title + footer.
+  expect(style.flexBasis).not.toBe(0);
+  expect(style.flexShrink).toBe(1);
+});
