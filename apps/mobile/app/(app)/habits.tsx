@@ -20,7 +20,7 @@ import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 import { useHabitsTutorial } from '../../src/tutorial/hooks/useHabitsTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
-import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; habit: habit | null };
 const CLOSED: FormState = { visible: false, mode: 'create', habit: null };
@@ -43,6 +43,9 @@ export default function HabitsScreen() {
   const [form, setForm] = useState<FormState>(CLOSED);
 
   const hab = useHabitsTutorial();
+  // Rendered by the (app) layout so the overlay spans the window — target
+  // rects come from measureInWindow, and the bottom bar is outside this screen.
+  useSpotlightSlot(hab);
   const createRef = useTutorialTarget('habit-create');
   const firstCardRef = useTutorialTarget('habit-first');
 
@@ -156,17 +159,6 @@ export default function HabitsScreen() {
         onClose={() => setForm(CLOSED)}
         onSaved={load}
       />
-
-      {hab.active ? (
-        <SpotlightOverlay
-          step={hab.steps[hab.stepIndex]}
-          stepIndex={hab.stepIndex}
-          stepCount={hab.steps.length}
-          onNext={hab.next}
-          onPrev={hab.prev}
-          onSkip={hab.skip}
-        />
-      ) : null}
     </View>
   );
 }

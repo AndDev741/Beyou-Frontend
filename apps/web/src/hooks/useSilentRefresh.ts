@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import axios from "../services/axiosConfig";
 import refreshTokenRequest from "../services/authentication/request/refreshTokenRequest";
+import reportRefreshFailure from "../services/authentication/reportRefreshFailure";
 import getProfile from "@beyou/api/user/getProfile";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
@@ -32,13 +33,24 @@ export function useSilentRefresh(): AuthBootState {
     let cancelled = false;
 
     const boot = async () => {
+      // Distinguishes a refresh outage from a profile hiccup in the catch below.
+      // Only the first is a refresh failure worth an issue.
+      let refreshSucceeded = false;
+
       try {
         const response = await refreshTokenRequest();
         const accessToken = response.headers["x-access-token"];
         if (!accessToken) {
+          // Not a normal state: the backend 401s when the cookie is missing, so
+          // a 200 carrying no token means the header was lost in transit
+          // (exposed-headers or proxy misconfiguration) — which breaks every
+          // session silently. Reported as an unrecognised fault, which is what
+          // it is: our own infrastructure answering something impossible.
+          reportRefreshFailure(new Error("Token refresh answered 200 without an access token"));
           if (!cancelled) setState("unauthenticated");
           return;
         }
+        refreshSucceeded = true;
         axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
         // Re-hydrate the non-persisted profile slice (theme, tutorial, etc.).
@@ -50,7 +62,17 @@ export function useSilentRefresh(): AuthBootState {
           hydratePerfil(dispatch, profile.data);
         }
         setState("authenticated");
-      } catch {
+      } catch (bootError) {
+        // The boot path never touches the interceptor, so this was the widest
+        // blast radius in the app and the only one reporting nothing: a 5xx from
+        // /auth/refresh logs out every signed-in user at once. A routine 401
+        // stays silent — that is just an absent or expired session.
+        //
+        // Scoped to the refresh itself. A profile re-fetch failure lands here
+        // too, but the API client's own logger already reports it — counting it
+        // again as a refresh outage would double-report and blame the wrong
+        // endpoint.
+        if (!refreshSucceeded) reportRefreshFailure(bootError);
         if (!cancelled) setState("unauthenticated");
       }
     };

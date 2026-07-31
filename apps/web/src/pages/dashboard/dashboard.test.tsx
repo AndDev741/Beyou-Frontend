@@ -78,3 +78,18 @@ test("mobile widget board renders after today's routine", async () => {
     expect(routine).toBeTruthy();
     expect(routine.compareDocumentPosition(widgets) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
+
+/**
+ * The bottom bar and its clearance spacer moved to the route guard so every
+ * authenticated page gets them. This page shipped both while it was the only
+ * host; leaving either behind would mount the bar twice and double the gap
+ * under the dashboard alone. The guard's own coverage lives in
+ * `components/dashboard/BottomNav.test.tsx`.
+ */
+test("no longer ships its own bottom bar or clearance spacer", async () => {
+    renderWithProviders(<Dashboard />, { storeOverride: buildStore() });
+    await screen.findByTestId("mobile-widget-board");
+
+    expect(screen.queryByRole("navigation", { name: "Shortcuts" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("bottom-nav-spacer")).not.toBeInTheDocument();
+});

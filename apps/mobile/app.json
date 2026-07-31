@@ -29,7 +29,8 @@
       "expo-localization",
       "expo-router",
       "@react-native-community/datetimepicker",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      "@sentry/react-native/expo"
     ]
   }
 }

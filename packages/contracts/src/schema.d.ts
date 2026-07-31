@@ -756,6 +756,186 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit user feedback
+         * @description Authenticated. Rate limited to 10 submissions per hour per user; over
+         *     budget the request is rejected with 429 and a Retry-After header.
+         *     The response deliberately omits `status` — triage state is internal.
+         */
+        post: operations["createFeedback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/{feedbackId}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Attach one image to a feedback submission
+         * @description Authenticated, owner only. One image per request, sent as
+         *     `multipart/form-data` in a part named `file`. Accepted upload types are
+         *     `image/jpeg`, `image/png`, `image/webp` and `image/gif`. Ceilings:
+         *     5 MB, 25 MP pre-decode, and 5 attachments per submission. Stored images
+         *     are always re-encoded to JPEG and capped at 1920 px on the longest edge,
+         *     so the returned `contentType` is always `image/jpeg` and
+         *     `width`/`height` are the stored, post-downscale dimensions.
+         *
+         *     Error keys: `FEEDBACK_ATTACHMENT_NO_FILE`,
+         *     `FEEDBACK_ATTACHMENT_INVALID_TYPE`, `FEEDBACK_ATTACHMENT_TOO_LARGE`,
+         *     `FEEDBACK_ATTACHMENT_CORRUPT`, `FEEDBACK_ATTACHMENT_STORE_FAILED`,
+         *     `FEEDBACK_ATTACHMENT_LIMIT_REACHED`, `FEEDBACK_ATTACHMENT_NOT_FOUND`,
+         *     `FEEDBACK_NOT_OWNED`, `FEEDBACK_NOT_FOUND`.
+         */
+        post: operations["uploadFeedbackAttachment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/{feedbackId}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a stored attachment
+         * @description Authenticated. Readable by the feedback owner or by an admin. The body
+         *     is the raw stored JPEG.
+         */
+        get: operations["getFeedbackAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/admin/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List feedback for triage
+         * @description ROLE_ADMIN only. Filters are AND-ed; results are sorted by `createdAt`
+         *     descending. Totals describe the filtered set. Rows carry no attachment
+         *     or reply counts — fetch the detail endpoint for those.
+         */
+        get: operations["getFeedbackItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/admin/counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Unfiltered triage counters
+         * @description ROLE_ADMIN only. Takes no parameters and ignores any filter.
+         */
+        get: operations["getFeedbackCounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/admin/items/{feedbackId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Full feedback detail
+         * @description ROLE_ADMIN only. Attachments and replies are both ordered oldest first.
+         *     An unknown id returns 400 with `errorKey` `FEEDBACK_NOT_FOUND`.
+         */
+        get: operations["getFeedbackItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/admin/items/{feedbackId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Move a feedback item through triage
+         * @description ROLE_ADMIN only. Sends no notification to the submitter.
+         */
+        put: operations["updateFeedbackStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feedback/admin/items/{feedbackId}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reply to a feedback item
+         * @description ROLE_ADMIN only. The author is always the authenticated admin — it is
+         *     never read from the request body. A storage failure returns 400 with
+         *     `errorKey` `FEEDBACK_REPLY_FAILED`.
+         */
+        post: operations["createFeedbackReply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1435,6 +1615,165 @@ export interface components {
             level?: number;
             /** Format: date-time */
             createdAt?: string;
+        };
+        /** @description Shape produced by the global exception handler. */
+        ApiErrorResponse: {
+            /** @description Stable machine-readable key the clients translate. */
+            errorKey?: string;
+            message?: string;
+            /** @description Optional per-field validation detail. */
+            errors?: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * @description Client-supplied capture context. Every field is optional on the way in
+         *     and null on the way out when it was not supplied.
+         */
+        FeedbackContext: {
+            screen?: string;
+            appVersion?: string;
+            platform?: string;
+            language?: string;
+            theme?: string;
+        };
+        CreateFeedbackRequest: {
+            /** @enum {string} */
+            category: "BUG" | "FEATURE_REQUEST" | "OTHER";
+            body: string;
+            context?: components["schemas"]["FeedbackContext"];
+        };
+        /**
+         * @description What the submitter gets back. `status` is deliberately absent — it is
+         *     internal triage state.
+         */
+        FeedbackResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            category?: "BUG" | "FEATURE_REQUEST" | "OTHER";
+            body?: string;
+            context?: components["schemas"]["FeedbackContext"];
+            /**
+             * Format: date-time
+             * @description Local date-time, no zone offset.
+             */
+            createdAt?: string;
+        };
+        FeedbackAttachmentUploadRequest: {
+            /**
+             * Format: binary
+             * @description One image, max 5 MB and 25 MP pre-decode. Accepted types are
+             *     image/jpeg, image/png, image/webp and image/gif.
+             */
+            file: string;
+        };
+        FeedbackAttachment: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            feedbackId?: string;
+            /** @description Always `/feedback/{feedbackId}/attachments/{id}`. */
+            url?: string;
+            /** @description Always `image/jpeg` — everything is re-encoded. */
+            contentType?: string;
+            /**
+             * Format: int32
+             * @description Stored, post-downscale width.
+             */
+            width?: number;
+            /**
+             * Format: int32
+             * @description Stored, post-downscale height.
+             */
+            height?: number;
+            /** Format: int64 */
+            sizeBytes?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        FeedbackReply: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            feedbackId?: string;
+            body?: string;
+            authorName?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        FeedbackSubmitter: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            email?: string;
+        };
+        FeedbackAdminItem: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            category?: "BUG" | "FEATURE_REQUEST" | "OTHER";
+            /** @enum {string} */
+            status?: "OPEN" | "TAKING_CARE" | "CLOSED";
+            body?: string;
+            context?: components["schemas"]["FeedbackContext"];
+            submitter?: components["schemas"]["FeedbackSubmitter"];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        /** @description Every FeedbackAdminItem field plus attachments and replies. */
+        FeedbackAdminDetail: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            category?: "BUG" | "FEATURE_REQUEST" | "OTHER";
+            /** @enum {string} */
+            status?: "OPEN" | "TAKING_CARE" | "CLOSED";
+            body?: string;
+            context?: components["schemas"]["FeedbackContext"];
+            submitter?: components["schemas"]["FeedbackSubmitter"];
+            /** @description Oldest first. */
+            attachments?: components["schemas"]["FeedbackAttachment"][];
+            /** @description Oldest first. */
+            replies?: components["schemas"]["FeedbackReply"][];
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        FeedbackAdminPage: {
+            items?: components["schemas"]["FeedbackAdminItem"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /**
+             * Format: int64
+             * @description Size of the filtered set, not of the whole table.
+             */
+            totalItems?: number;
+            /** Format: int32 */
+            totalPages?: number;
+        };
+        /** @description Unfiltered counters. Every field is present, `0` rather than absent. */
+        FeedbackCounts: {
+            /** Format: int64 */
+            open?: number;
+            /** Format: int64 */
+            takingCare?: number;
+            /** Format: int64 */
+            closed?: number;
+            /** Format: int64 */
+            total?: number;
+        };
+        UpdateFeedbackStatusRequest: {
+            /** @enum {string} */
+            status: "OPEN" | "TAKING_CARE" | "CLOSED";
+        };
+        CreateFeedbackReplyRequest: {
+            body: string;
         };
     };
     responses: never;
@@ -2880,6 +3219,356 @@ export interface operations {
                         [key: string]: string;
                     };
                 };
+            };
+        };
+    };
+    createFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Feedback stored. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackResponse"];
+                };
+            };
+            /** @description Validation failure. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Rate limit exceeded — `errorKey` is `RATE_LIMIT_EXCEEDED`. */
+            429: {
+                headers: {
+                    /** @description Seconds until the rate-limit window resets. */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+        };
+    };
+    uploadFeedbackAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedbackId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["FeedbackAttachmentUploadRequest"];
+            };
+        };
+        responses: {
+            /** @description Attachment stored. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackAttachment"];
+                };
+            };
+            /** @description Upload rejected — see `errorKey`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getFeedbackAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedbackId: string;
+                attachmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Stored JPEG bytes. */
+            200: {
+                headers: {
+                    /** @description Always `private, max-age=3600`. */
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                };
+            };
+            /** @description Unknown or non-owned attachment — see `errorKey`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getFeedbackItems: {
+        parameters: {
+            query?: {
+                status?: "OPEN" | "TAKING_CARE" | "CLOSED";
+                category?: "BUG" | "FEATURE_REQUEST" | "OTHER";
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackAdminPage"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated but not an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getFeedbackCounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackCounts"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated but not an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getFeedbackItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedbackId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackAdminDetail"];
+                };
+            };
+            /** @description Unknown feedback — `errorKey` is `FEEDBACK_NOT_FOUND`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated but not an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateFeedbackStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedbackId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFeedbackStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description The updated row. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackAdminItem"];
+                };
+            };
+            /** @description Validation failure or unknown feedback. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated but not an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    createFeedbackReply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedbackId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFeedbackReplyRequest"];
+            };
+        };
+        responses: {
+            /** @description Reply stored. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackReply"];
+                };
+            };
+            /** @description Validation failure, unknown feedback, or `FEEDBACK_REPLY_FAILED`. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
+            /** @description Not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authenticated but not an admin. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

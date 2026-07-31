@@ -24,7 +24,7 @@ import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 import { useRoutinesTutorial } from '../../src/tutorial/hooks/useRoutinesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
-import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
+import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -48,6 +48,9 @@ export default function RoutinesScreen() {
   // hasSection cannot be observed at screen level (it lives in the builder's working copy).
   // The save step's !hasRoutines gate still protects correctness for that step.
   const rt = useRoutinesTutorial();
+  // Rendered by the (app) layout so the overlay spans the window — target
+  // rects come from measureInWindow, and the bottom bar is outside this screen.
+  useSpotlightSlot(rt);
 
   const today = todayIso();
   const isPast = !!selectedDate && selectedDate < today;
@@ -125,17 +128,6 @@ export default function RoutinesScreen() {
       <RoutineBuilder visible={editTarget !== null} mode="edit" routine={editTarget ?? undefined} habits={habits} tasks={tasks} onClose={() => setEditTarget(null)} onSaved={load} />
       {scheduleTarget ? (
         <ScheduleSheet visible routine={scheduleTarget} onClose={() => setScheduleTarget(null)} onSaved={load} />
-      ) : null}
-
-      {rt.active ? (
-        <SpotlightOverlay
-          step={rt.steps[rt.stepIndex]}
-          stepIndex={rt.stepIndex}
-          stepCount={rt.steps.length}
-          onNext={rt.next}
-          onPrev={rt.prev}
-          onSkip={rt.skip}
-        />
       ) : null}
     </View>
   );

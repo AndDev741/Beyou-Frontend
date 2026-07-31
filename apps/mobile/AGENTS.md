@@ -203,8 +203,8 @@ for the first item).
 **SpotlightOverlay**
 
 `SpotlightOverlay` (`src/ui/tutorial/SpotlightOverlay.tsx`) is an **in-tree absolute-fill `View`**
-(NOT a Modal), rendered as the last child of each screen's root so `pointerEvents="box-none"` lets
-taps in the hole pass through to the real UI (Model A). A Modal is a separate window and would
+(NOT a Modal) so `pointerEvents="box-none"` lets taps in the hole pass through to the real UI
+(Model A). A Modal is a separate window and would
 swallow those taps (that broke "create category"), and it cannot draw over other Modals (builder /
 sheets), so those steps are avoided instead (see routines). The dimmer is **4 plain `View`s** framing
 the measured target rect (rgba(0,0,0,0.6) scrim + transparent hole) — NOT SVG — plus a highlight ring.
@@ -214,6 +214,21 @@ interval guarded by a rect-equality check (returns the prev reference when uncha
 The tooltip's primary Next auto-sizes (matches config Save buttons), is `disabled` until a step's data
 condition flips (showing a `disabledHintKey` hint), and the ScrollView content is keyed by step to
 avoid Android content-retain ghosting.
+
+**Overlay slot — the overlay is mounted by the LAYOUT, not by the screens**
+
+Every rect the overlay draws with is window-absolute (`measureInWindow`), so it is only correct while
+it spans the window. Once `BottomNav` moved into `app/(app)/_layout.tsx`, a screen no longer does —
+it ends where the bar begins — and `nav-categories` (dashboard step 2) lives *inside* the bar. So
+`src/tutorial/TutorialOverlaySlot.tsx` exports `TutorialOverlayHost` (wraps the layout's children and
+renders the overlay after them: full-window space, painted over the bar) and `useSpotlightSlot(ctrl)`,
+which each screen calls with its own tutorial hook's return value instead of rendering
+`<SpotlightOverlay/>` itself. The layout must NOT call the five hooks directly — each owns
+screen-specific behaviour (e.g. `useRoutinesTutorial` auto-advances once a routine exists) and would
+fire effects for unmounted screens. Ownership is last-writer-wins with owner-scoped clears, so the
+outgoing screen's cleanup cannot wipe an overlay the incoming screen already published; content-equal
+republishes are no-ops (`useRoutinesTutorial` rebuilds its `steps` array every render). Because the
+host's `children` element is stable, publishing re-renders only the overlay, never the screens.
 
 **Per-screen hooks**
 

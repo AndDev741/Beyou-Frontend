@@ -104,4 +104,23 @@ describe('AppHome (dashboard)', () => {
     await act(async () => { mockFocusCb?.(); });
     await waitFor(() => expect(todayCalls()).toBeGreaterThan(afterMount)); // refetched
   });
+
+  /**
+   * The bottom bar moved to the (app) layout so every authenticated screen has
+   * it. This screen was its only host; leaving the mount behind would render
+   * two bars stacked on the dashboard alone. The layout's own coverage lives in
+   * `app-layout-chrome.test.tsx`.
+   */
+  it('no longer mounts its own bottom bar — the (app) layout owns it', async () => {
+    await render(
+      <Provider store={makeStore()}>
+        <BeyouThemeProvider>
+          <AppHome />
+        </BeyouThemeProvider>
+      </Provider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId('dashboard-screen')).toBeTruthy());
+    expect(screen.queryByTestId('bottom-nav')).toBeNull();
+  });
 });

@@ -10,9 +10,10 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import '../src/i18n';
 import { fetch as expoFetch } from 'expo/fetch';
-import { setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
+import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
 import { store, type RootState, type AppDispatch } from '../src/store';
 import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
+import { registerFeedbackNativeUploader } from '../src/lib/feedbackUploader';
 import { refreshRequest } from '../src/auth/authApi';
 import * as secureStore from '../src/auth/secureStore';
 import { bootstrap, logout } from '../src/auth/authSlice';
@@ -24,9 +25,34 @@ import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
 import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
+import { initTelemetry, reportHandledFailure } from '../src/lib/telemetry';
+
+// Error reporting comes up before any app wiring so a crash *during* the setup
+// below is still captured. No-ops when EXPO_PUBLIC_SENTRY_DSN is unset.
+// NOTE: end-to-end delivery is unverified on a real device — see telemetry.ts.
+// Deliberately NOT the very first statement in the module (upstream #5508 saw
+// events dropped in that position), and deliberately NOT using `Sentry.wrap()`:
+// on RN 0.85 / React 19.2 the wrapper remounts the whole tree on every save and
+// breaks Fast Refresh (upstream #6514, still open). `wrap` only adds touch
+// breadcrumbs and profiling, both of which are off here anyway.
+initTelemetry();
 
 setHttpClient(nativeHttpClient);
-setLogger({ error: (...a: unknown[]) => console.error(...a) });
+// The shared API client handles every failure itself, so a 500 or an unreachable
+// host never reaches ErrorBoundary or the SDK's global handler. This keeps the
+// console output intact and additionally forwards the failures that indicate a
+// real defect — 5xx, transport failures, and anything that is not a recognisable
+// API error — to the collector. 4xx stay console-only: those are the server
+// rejecting a request on purpose. See @beyou/api's errorReporting.ts.
+setLogger(
+  createReportingLogger(
+    { error: (...a: unknown[]) => console.error(...a) },
+    reportHandledFailure,
+  ),
+);
+// Feedback images are `file://` uris — RN's FormData cannot carry them, so the
+// shared uploader needs the expo-file-system transport registered up front.
+registerFeedbackNativeUploader();
 // SSE streaming needs expo/fetch — RN's global fetch buffers the whole body.
 // Borrows the same base URL, fresh access token, and single-flight refresh.
 setAgentStreamConfig({

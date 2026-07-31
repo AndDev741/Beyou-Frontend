@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@beyou/contracts": "*",
     "@beyou/types": "*",
     "i18next": "^23.15.1"
   },

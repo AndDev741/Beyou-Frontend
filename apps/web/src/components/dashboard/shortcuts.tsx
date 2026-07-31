@@ -5,6 +5,7 @@ import { CiSquareCheck } from "react-icons/ci";
 import { CiMemoPad } from "react-icons/ci";
 import { CiMedal } from "react-icons/ci";
 import { CiSettings } from "react-icons/ci";
+import { CiChat1 } from "react-icons/ci";
 import { useTranslation } from "react-i18next";
 
 function Shortcuts() {
@@ -54,6 +55,15 @@ function Shortcuts() {
                     <CiSettings className="text-[25px] mr-2 text-icon" />
 
                     {t('Config')}
+                </Link>
+                {/* Kept as the labelled, discoverable entry on the landing page.
+                    Reachability from every OTHER authenticated route comes from
+                    the launcher mounted in ProtectedRoute, not from here. */}
+                <Link to={"/feedback"}
+                    data-tutorial-id="shortcut-feedback"
+                    className={linkStyle}>
+                    <CiChat1 className="text-[25px] mr-2 text-icon" />
+                    {t('FeedbackShortcutLabel')}
                 </Link>
             </nav>
         </div>

@@ -7,14 +7,13 @@ import { useDashboardData } from '../../src/dashboard/useDashboardData';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import ProfileHeader from '../../src/ui/dashboard/ProfileHeader';
 import RoutineDay from '../../src/ui/dashboard/RoutineDay';
-import BottomNav from '../../src/ui/dashboard/BottomNav';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import DashboardGoals from '../../src/ui/dashboard/DashboardGoals';
 import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
 import OnboardingTutorial from '../../src/ui/tutorial/OnboardingTutorial';
 import AiOnboardingWizard from '../../src/ui/aiOnboarding/AiOnboardingWizard';
-import SpotlightOverlay from '../../src/ui/tutorial/SpotlightOverlay';
 import TutorialFinale from '../../src/ui/tutorial/TutorialFinale';
+import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
 import { setPhase } from '../../src/tutorial/tutorialSlice';
 import { completeTutorial } from '../../src/tutorial/completeTutorial';
@@ -34,6 +33,11 @@ export default function AppHome() {
   const { t } = useTranslation();
   const phase = useSelector((s: RootState) => s.tutorial.phase);
   const dash = useDashboardTutorial();
+  // The spotlight is rendered by the (app) layout so it spans the window (the
+  // last dashboard step targets the bottom bar, which is outside this screen).
+  // Suppressed while the spinner is up: the targets are not mounted yet, and the
+  // overlay would flash a full-screen scrim over the loading state.
+  useSpotlightSlot({ ...dash, active: dash.active && !loading });
 
   // Refetch when returning to the dashboard (e.g. after editing a routine). The
   // screen stays mounted under the stack, so the mount-load goes stale otherwise.
@@ -69,7 +73,8 @@ export default function AppHome() {
         <DashboardWidgets />
         <DashboardGoals />
       </ScrollView>
-      <BottomNav />
+      {/* The bottom bar used to be rendered here. It moved to the (app) layout
+          so every authenticated screen gets it — see the comment there. */}
       <CelebrationOverlay />
       {phase === 'intro' ? (
         <OnboardingTutorial
@@ -85,9 +90,6 @@ export default function AppHome() {
           onTakeTour={() => dispatch(setPhase('dashboard'))}
           onClosed={reload}
         />
-      ) : null}
-      {dash.active ? (
-        <SpotlightOverlay step={dash.steps[dash.stepIndex]} stepIndex={dash.stepIndex} stepCount={dash.steps.length} onNext={dash.next} onPrev={dash.prev} onSkip={dash.skip} />
       ) : null}
       {phase === 'done' ? <TutorialFinale /> : null}
     </View>

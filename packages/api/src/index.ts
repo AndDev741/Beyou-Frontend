@@ -7,6 +7,9 @@ export * from './logger';
 // Error handling
 export * from './apiError';
 
+// Error reporting — which handled failures deserve a telemetry issue
+export * from './errorReporting';
+
 // Utilities
 export * from './utils/experienceToEnum';
 
@@ -19,6 +22,23 @@ export { default as createCategory } from './categories/createCategory';
 export { default as deleteCategory } from './categories/deleteCategory';
 export { default as editCategory } from './categories/editCategory';
 export { default as getCategories } from './categories/getCategories';
+
+// Feedback
+export { default as buildFeedbackContext } from './feedback/feedbackContext';
+export * from './feedback/feedbackContext';
+export { default as createFeedback } from './feedback/createFeedback';
+export * from './feedback/feedbackTypes';
+export * from './feedback/nativeUploader';
+export { default as submitFeedback } from './feedback/submitFeedback';
+export { default as uploadFeedbackAttachment } from './feedback/uploadFeedbackAttachment';
+
+// Feedback — admin triage (ROLE_ADMIN). The web admin console imports these by
+// deep path so they stay out of any bundle that only submits feedback.
+export { default as createFeedbackReply } from './feedback/createFeedbackReply';
+export { default as getFeedbackAdminCounts } from './feedback/getFeedbackAdminCounts';
+export { default as getFeedbackAdminItem } from './feedback/getFeedbackAdminItem';
+export { default as listFeedbackAdminItems } from './feedback/listFeedbackAdminItems';
+export { default as updateFeedbackStatus } from './feedback/updateFeedbackStatus';
 
 // Goals
 export { default as createGoal } from './goals/createGoal';
