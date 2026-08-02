@@ -2,11 +2,13 @@ import { useDispatch } from "react-redux";
 import { task } from "@beyou/types/tasks/taskType"
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import useColors from "../habits/utils/useColors";
-import increaseIcon from '../../assets/categories/increaseIcon.svg'
-import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
-import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
+import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { attributePhrase, attributeVariant } from "../habits/utils/attributeMeta";
 import BeyouIcon from "../../ui/BeyouIcon";
+import Card from "../../ui/Card";
+import Chip from "../../ui/Chip";
+import IconButton from "../../ui/IconButton";
+import IconTile from "../../ui/IconTile";
 import DeleteModal from "../DeleteModal";
 import getTasks from "@beyou/api/tasks/getTasks";
 import deleteTask from "@beyou/api/tasks/deleteTask";
@@ -31,22 +33,17 @@ type taskBoxProps = {
 
 function TaskBox({id, iconId, name, description, categories, importance, dificulty, oneTimeTask, markedToDelete, setTasks}: taskBoxProps){
     const dispatch = useDispatch();
-    
+
     const {t} = useTranslation();
     const [expanded, setExpanded] = useState(false);
-    const [expandendIcon, setExpandedIcon] = useState(increaseIcon)
-    const [dificultyColor, setDificultyColor] = useState("");
-    const [dificultyPhrase, setDificultyPhrase] = useState("");
-    const [importanceColor, setImportanceColor] = useState("");
-    const [importancePhrase, setImportancePhrase] = useState("");
-
     const [onDelete, setOnDelete] = useState(false);
 
-    useColors(dificulty!, importance!, setDificultyColor, setDificultyPhrase, setImportanceColor, setImportancePhrase, t);
+    const dificultyPhrase = attributePhrase("difficulty", dificulty, t);
+    const importancePhrase = attributePhrase("importance", importance, t);
+    const categoryEntries = Object.entries(categories ?? {});
 
     const handleExpanded = () => {
         setExpanded(!expanded);
-        expanded ? setExpandedIcon(increaseIcon) : setExpandedIcon(decreaseIcon);
     }
 
     function handleEditMode(){
@@ -60,91 +57,69 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
         dispatch(editCaegoriesIdEnter(categories));
         dispatch(editOneTimeTaskEnter(oneTimeTask));
     }
-    
+
     return(
-        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-border rounded-control p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-surface text-text`}>
-            <div className="flex justify-between items-start">
-                <div className="flex items-start">
-                    <p className="text-text-2 text-[34px]">
-                        <BeyouIcon id={iconId} />
-                    </p>
-                    <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
-                </div>
-                <button
-                    type="button"
-                    onClick={handleExpanded}
-                    aria-label={expanded ? t('Collapse') : t('Expand')}
+        <Card interactive className="flex h-full flex-col gap-3 break-words">
+            <div className="flex items-start gap-2.5">
+                <IconTile size={38}>
+                    <BeyouIcon id={iconId} size={20} />
+                </IconTile>
+                <h2 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h2>
+                <IconButton
+                    label={expanded ? t('Collapse') : t('Expand')}
                     aria-expanded={expanded}
-                    className="bg-transparent border-0 p-0 cursor-pointer hover:scale-105 transition-transform duration-150"
+                    onClick={handleExpanded}
                 >
-                    <img
-                        className="w-[30px]"
-                        alt=""
-                        aria-hidden="true"
-                        src={expandendIcon}
-                    />
-                </button>
+                    {expanded ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+                </IconButton>
             </div>
 
             {oneTimeTask && (
-                <>
-                    <span className="flex items-center text-text">
-                        <MdWarningAmber className="text-text-2 text-xl my-2 mr-2" />
-                        <p>{t('One Time Task')}</p>
-                    </span>
-                    {markedToDelete ? <p className="underline text-danger">{t('And Marked to Delete')}</p> : null}
-                </>
+                <div className="flex flex-wrap items-center gap-1.5">
+                    <Chip size="sm" icon={<MdWarningAmber aria-hidden="true" />}>{t('One Time Task')}</Chip>
+                    {markedToDelete ? <Chip size="sm" variant="danger">{t('And Marked to Delete')}</Chip> : null}
+                </div>
             )}
-            <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1`}>
-                <p className="text-text-2">{description}</p>
-            </div>
 
-            <div className={`${expanded && categories !== undefined && Object.entries(categories)?.length > 0 ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-lg text-text">{t('Categories')}:</h4>
-                <div className="flex flex-col">
-                    {/* {categories?.map((category, index) => (
-                    <CategoryNameAndIcon key={index}
-                    name={category.name} iconId={category.iconId}/>
-                    ))} */}
-                    {Object.entries(categories!).map(([categoryId, {name, iconId}], index) => (
-                        <span className="flex items-center" key={`${categoryId}-${index}`}>
-                        <CategoryNameAndIcon
-                            name={name} iconId={iconId} />
-                        <p className={`${index === Object.entries(categories!).length - 1 ? "invisible" : "mr-1 text-text"}`}>,</p>
-                        </span>
+            {/* A descrição fica no cartão em duas linhas — expandir só solta o clamp. */}
+            <p className={`text-sm leading-snug text-text-2 ${expanded ? "" : "line-clamp-2"}`}>{description}</p>
+
+            {categoryEntries.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                    {categoryEntries.map(([categoryId, {name: categoryName, iconId: categoryIconId}], index) => (
+                        <Chip key={`${categoryId}-${index}`} size="sm" icon={<BeyouIcon id={categoryIconId} size={12} />}>
+                            {categoryName}
+                        </Chip>
                     ))}
                 </div>
-            </div>
+            )}
 
-            <div className={`${expanded ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-lg text-text">{t('UsingIn')}:</h4>
-                <ul className="ml-6 text-text-2">
-                    <li className="list-disc">Study Routine</li>
-                    <li className="list-disc">Morning Routine</li>
-                </ul>
-            </div>
-
-            <div className={`${expanded && dificulty && importance ? "" : "hidden"} justify-evenly items-start`}>
-                <div className="flex items-center justify-evenly">
-                    <div className="flex flex-col items-center">
-                        <div className={`w-[35px] h-[35px] rounded-full mr-1`} style={{backgroundColor: `${dificultyColor}` }}></div>
-                        <p className="text-text-2">{dificultyPhrase}</p>
-                    </div>
-                    <div className="flex flex-col items-center">
-                        <div className={`w-[35px] h-[35px] rounded-full mr-1`} style={{backgroundColor: `${importanceColor}` }}></div>
-                        <p className="text-text-2">{importancePhrase}</p>
-                    </div>
+            {/* Tarefa não tem nível: o rodapé do cartão são importância e dificuldade. */}
+            {(importancePhrase || dificultyPhrase) && (
+                <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+                    {importancePhrase && (
+                        <Chip size="sm" variant={attributeVariant(importance)} title={t('Importance')}>
+                            {importancePhrase}
+                        </Chip>
+                    )}
+                    {dificultyPhrase && (
+                        <Chip size="sm" variant={attributeVariant(dificulty)} title={t('Difficulty')}>
+                            {dificultyPhrase}
+                        </Chip>
+                    )}
                 </div>
-            </div>
-            <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
-            <button onClick={handleEditMode}
-            className="mb-2 w-[100px] h-[28px] rounded-control bg-accent text-on-accent font-semibold hover:bg-accent/90 transition-colors duration-200">
-                {t('Edit')}
-            </button>
-            <button onClick={() => setOnDelete(true)}
-            className="w-[90px] h-[25px] rounded-control bg-danger hover:bg-danger/90 text-on-accent font-semibold transition-colors duration-200">
-                {t('Delete')}
-            </button>
+            )}
+
+            {expanded && (
+                <div className="flex justify-end gap-1 border-t border-border pt-2">
+                    <IconButton label={t('Edit')} onClick={handleEditMode}>
+                        <Pencil size={16} aria-hidden="true" />
+                    </IconButton>
+                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                        <Trash2 size={16} aria-hidden="true" />
+                    </IconButton>
+                </div>
+            )}
 
             <DeleteModal
             objectId={id}
@@ -158,8 +133,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
             deletePhrase={t('ConfirmDeleteOfTaskPhrase')}
             mode="task"
             />
-            </div>
-        </div>
+        </Card>
     )
 }
 

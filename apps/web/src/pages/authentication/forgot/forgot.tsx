@@ -1,9 +1,7 @@
 // Components
-import Header from "../../../components/authentication/header";
+import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
-import TranslationButton from "../../../components/translationButton";
-import Logo from "../../../components/authentication/logo";
 // Functions
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -51,27 +49,9 @@ function ForgotPassword() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-accent rounded-l-md">
-                <Logo />
-            </div>
+        <AuthShell title={t("ForgotPasswordTitle")} subtitle={t("ForgotPasswordSubtitle")}>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg">
-                <Header />
-
-                <main className="flex flex-col items-center mt-6 lg:mt-4 text-text">
-                    <h1 className="text-center text-[36px] font-bold">
-                        {t("ForgotPasswordTitle")}
-                    </h1>
-                    <p className="text-center text-xl mt-2 max-w-[80%]">
-                        {t("ForgotPasswordSubtitle")}
-                    </p>
-
-                    <div className="hidden lg:block my-2">
-                        <TranslationButton />
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="email"
@@ -103,13 +83,7 @@ function ForgotPassword() {
                     {successMessage && (
                         <p className="text-accent text-center text-xl mb-2">{successMessage}</p>
                     )}
-
-                    <div className="block lg:hidden my-8">
-                        <TranslationButton />
-                    </div>
-                </main>
-            </div>
-        </div>
+        </AuthShell>
     );
 }
 

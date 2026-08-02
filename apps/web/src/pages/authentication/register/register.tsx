@@ -1,11 +1,8 @@
 // Components
-import Header from "../../../components/authentication/header";
+import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
 import GoogleIcon from "../../../components/authentication/googleIcon";
-import TranslationButton from "../../../components/translationButton";
-import Logo from "../../../components/authentication/logo";
-import MobileBrand from "../../../components/authentication/MobileBrand";
 import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
 import { useTranslation } from "react-i18next";
@@ -72,26 +69,9 @@ function Register() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] min-h-[95vh] bg-accent rounded-l-md">
-                <Logo />
-            </div>
+        <AuthShell title={`${t("Welcome")} ${t("To")} beyou`} subtitle={t("RegisterSubtitle")} showTabs>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg">
-                <MobileBrand />
-                <Header />
-
-                <main className="flex flex-col items-center mt-6 lg:mt-2 text-text">
-                    <h1 className="text-center text-[40px] font-bold whitespace-pre-line">
-                        {t("Welcome")} {t("To")}
-                        <span className="text-accent"> {t("BeYou")} </span>
-                        
-                    </h1>
-                    <div className="hidden lg:block my-2">
-                            <TranslationButton />
-                        </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-2  mb-6 lg:mb-3">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="name"
@@ -163,13 +143,7 @@ function Register() {
                     </form>
 
                     <GoogleIcon />
-
-                    <div className="block lg:hidden py-8">
-                        <TranslationButton />
-                    </div>
-                </main>
-            </div>
-        </div>
+        </AuthShell>
     );
 }
 

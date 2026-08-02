@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import Logo from "../../../components/authentication/logo";
+import AuthShell from "../../../components/authentication/AuthShell";
 import OpenInAppButton from "../../../components/authentication/OpenInAppButton";
 import { isMobileDevice } from "../../../components/utils/openInApp";
 
@@ -51,13 +51,8 @@ function VerifyEmail() {
     }, [token, mobile, runVerify]);
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
-            <div className="hidden lg:flex flex-col items-center justify-center w-[45vw] min-h-[95vh] bg-accent rounded-l-md">
-                <Logo />
-            </div>
-
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg flex items-center justify-center">
-                <div className="flex flex-col items-center px-8 py-12 max-w-[420px] text-center">
+        <AuthShell title={t("VerifyEmailTitle")}>
+            <div className="flex flex-col items-center text-center">
                     {state === "loading" && mobile && token && (
                         <div className="flex flex-col items-center w-full" data-testid="verify-choose">
                             <h1 className="text-2xl font-bold mb-6">{t("VerifyEmailSuccessTitle")}</h1>
@@ -133,9 +128,8 @@ function VerifyEmail() {
                             </Link>
                         </>
                     )}
-                </div>
             </div>
-        </div>
+        </AuthShell>
     );
 }
 
