@@ -117,7 +117,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                                 className={cn(
                                     "group flex items-center gap-2 rounded-full px-4 py-2.5 text-sm md:text-base font-medium transition-all duration-200 border focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                                     active
-                                        ? "bg-accent text-white border-accent shadow-md scale-105"
+                                        ? "bg-accent text-on-accent border-accent shadow-md scale-105"
                                         : "text-text hover:-translate-y-0.5"
                                 )}
                             >
@@ -125,7 +125,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                                     <BeyouIcon
                                         id={chip.iconId}
                                         size={16}
-                                        className={active ? "text-white" : "text-accent"}
+                                        className={active ? "text-on-accent" : "text-accent"}
                                     />
                                 )}
                                 <span>{chip.name}</span>
@@ -168,7 +168,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                     onClick={() => onContinue(selected)}
                     disabled={!canContinue}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-on-accent transition-all",
                         canContinue
                             ? "bg-accent hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
                             : "bg-accent opacity-40 cursor-not-allowed"

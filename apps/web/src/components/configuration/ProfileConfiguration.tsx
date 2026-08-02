@@ -330,7 +330,7 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 bg-accent text-white rounded-control hover:opacity-90 transition"
+                        className="px-4 py-2 bg-accent text-on-accent rounded-control hover:opacity-90 transition"
                     >
                         {t('ChooseFile')}
                     </button>
@@ -352,7 +352,7 @@ function EditPhoto({
                         type="button"
                         onClick={handleUpload}
                         disabled={uploading || !selectedFile}
-                        className="px-4 py-2 bg-accent text-white rounded-control hover:opacity-90 transition disabled:opacity-50"
+                        className="px-4 py-2 bg-accent text-on-accent rounded-control hover:opacity-90 transition disabled:opacity-50"
                     >
                         {uploading ? t('PhotoUploading') : t('Save')}
                     </button>

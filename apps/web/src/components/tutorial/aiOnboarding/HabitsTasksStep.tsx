@@ -257,7 +257,7 @@ export default function HabitsTasksStep({
                     }
                     disabled={!canContinue}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-on-accent transition-all",
                         canContinue
                             ? "bg-accent hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
                             : "bg-accent opacity-40 cursor-not-allowed"

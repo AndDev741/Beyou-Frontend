@@ -61,7 +61,7 @@ export default function SuggestionCard({
             <span
                 aria-hidden="true"
                 className={cn(
-                    "absolute -top-1.5 -right-1.5 flex w-5 h-5 items-center justify-center rounded-full bg-accent text-white shadow-md transition-all duration-200",
+                    "absolute -top-1.5 -right-1.5 flex w-5 h-5 items-center justify-center rounded-full bg-accent text-on-accent shadow-md transition-all duration-200",
                     selected ? "scale-100 opacity-100" : "scale-50 opacity-0"
                 )}
             >

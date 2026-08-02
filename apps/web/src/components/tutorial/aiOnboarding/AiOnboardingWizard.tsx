@@ -362,7 +362,7 @@ export default function AiOnboardingWizard({
             {/* Header: step dots + escape hatch */}
             <header className="flex items-center justify-between gap-4 px-4 md:px-8 pt-5 pb-3 shrink-0">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-card bg-accent text-white shadow-md">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-card bg-accent text-on-accent shadow-md">
                         <Sparkles className="w-4 h-4" />
                     </div>
                     <div className="hidden sm:flex items-center gap-2" aria-hidden="true">
@@ -503,7 +503,7 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                 <button
                     type="button"
                     onClick={onRetry}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-card bg-accent px-5 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-card bg-accent px-5 py-2.5 font-semibold text-on-accent hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <RotateCcw className="w-4 h-4" />
                     {t("AiOnboardingRetry")}

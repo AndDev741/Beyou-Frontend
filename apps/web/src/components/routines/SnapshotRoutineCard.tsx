@@ -94,7 +94,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
 
     return (
         <div className="relative overflow-hidden rounded-card border border-border bg-surface shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-description/60 via-primary/40 to-description/60" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-border" />
             <div className="p-3 md:p-4 space-y-4">
                 <header className="flex items-start justify-between gap-3 md:gap-4">
                     <div className="space-y-2 w-full">

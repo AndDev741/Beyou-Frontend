@@ -79,7 +79,7 @@ export const RoutineCard = ({
 
     return (
         <div className="relative overflow-hidden rounded-card border border-border bg-surface shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-primary to-accent" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-accent" />
             <div className="p-3 md:p-4 space-y-4">
                 <header className="flex items-start justify-between gap-3 md:gap-4">
                     <div className="space-y-2 w-full">
@@ -121,7 +121,7 @@ export const RoutineCard = ({
                                         <div className="flex items-center gap-2">
                                             <button
                                                 type="button"
-                                                className="rounded-control bg-danger px-2 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-danger/90 hover:-translate-y-0.5"
+                                                className="rounded-control bg-danger px-2 py-1 text-xs font-semibold text-on-accent shadow-sm transition hover:bg-danger/90 hover:-translate-y-0.5"
                                                 onClick={confirmDelete}
                                             >
                                                 {t("Yes")}

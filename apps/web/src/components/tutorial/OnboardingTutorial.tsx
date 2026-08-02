@@ -218,9 +218,9 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                       className="w-12 h-12 flex items-center justify-center rounded-card shadow-lg"
                       style={{ background: "linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--background)))" }}
                     >
-                      <Sparkles className="w-6 h-6 text-white" />
+                      <Sparkles className="w-6 h-6 text-on-accent" />
                     </div>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-accent rounded-full px-3 py-1">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-on-accent bg-accent rounded-full px-3 py-1">
                       <Sparkles className="w-3 h-3" />
                       {t("TutorialPathAiBadge")}
                     </span>
@@ -311,7 +311,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                           className="p-2 md:w-16 md:h-16 flex items-center justify-center rounded-full"
                           style={{ background: step.gradient }}
                         >
-                          <step.icon className="w-8 h-8 text-white" />
+                          <step.icon className="w-8 h-8 text-on-accent" />
                         </div>
 
                         <div>
@@ -350,7 +350,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                     <div className="flex items-center justify-center">
                       <div className="w-full max-w-sm">
                         <div
-                          className="rounded-card p-6 text-white shadow-lg"
+                          className="rounded-card p-6 text-on-accent shadow-lg"
                           style={{ background: step.gradient }}
                         >
                           <div className="flex items-center gap-3 mb-6">

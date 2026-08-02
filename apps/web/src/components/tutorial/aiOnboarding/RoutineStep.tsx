@@ -374,7 +374,7 @@ export default function RoutineStep({
                                     "flex w-11 h-11 items-center justify-center rounded-full text-xs font-bold transition-all",
                                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                                     active
-                                        ? "bg-accent text-white shadow-md"
+                                        ? "bg-accent text-on-accent shadow-md"
                                         : "text-text hover:brightness-95"
                                 )}
                             >
@@ -430,7 +430,7 @@ export default function RoutineStep({
                     }
                     disabled={loading}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-on-accent transition-all",
                         loading
                             ? "bg-accent opacity-40 cursor-not-allowed"
                             : "bg-accent hover:opacity-90 hover:-translate-y-0.5 shadow-lg"

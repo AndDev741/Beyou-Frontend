@@ -181,7 +181,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                 <button
                     type="button"
                     onClick={onStart}
-                    className="flex items-center justify-center gap-2 rounded-card bg-accent px-6 py-3 font-semibold text-white shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex items-center justify-center gap-2 rounded-card bg-accent px-6 py-3 font-semibold text-on-accent shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <Sparkles className="w-4 h-4" />
                     {t("AiOnboardingStart")}

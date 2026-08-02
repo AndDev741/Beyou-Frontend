@@ -80,7 +80,7 @@ class ErrorBoundaryClass extends React.Component<
             <button
               onClick={() => window.location.reload()}
               disabled={this.state.isReportSending}
-              className="rounded-control bg-accent px-6 py-2 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-control bg-accent px-6 py-2 text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {t("ErrorBoundaryReload")}
             </button>

@@ -477,7 +477,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     type="button"
                     autoFocus
                     onClick={runConfirm}
-                    className="rounded-card bg-danger px-4 py-2 text-sm font-semibold text-white
+                    className="rounded-card bg-danger px-4 py-2 text-sm font-semibold text-on-accent
                     transition-transform duration-150 hover:scale-105"
                 >
                     {t("Delete")}
@@ -530,7 +530,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             type="button"
                                             onClick={startNewChat}
                                             className="flex items-center gap-1.5 rounded-card bg-accent px-3 py-2
-                                            text-sm font-semibold text-white transition-transform duration-200
+                                            text-sm font-semibold text-on-accent transition-transform duration-200
                                             hover:scale-105"
                                         >
                                             <Plus size={16} />
@@ -638,7 +638,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                         onClick={() => send(suggestion)}
                                                         className="rounded-full border border-border px-3.5 py-1.5
                                                         text-sm text-text transition-colors duration-200
-                                                        hover:bg-accent hover:text-white"
+                                                        hover:bg-accent hover:text-on-accent"
                                                     >
                                                         {suggestion}
                                                     </button>
@@ -656,7 +656,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     className={`max-w-[88%] rounded-card px-3.5 py-2.5 text-[15px]
                                                     leading-relaxed ${
                                                         message.role === "USER"
-                                                            ? "self-end whitespace-pre-wrap rounded-br-md bg-accent text-white shadow-sm"
+                                                            ? "self-end whitespace-pre-wrap rounded-br-md bg-accent text-on-accent shadow-sm"
                                                             : "self-start rounded-bl-md border border-border bg-accent/5"
                                                     }`}
                                                 >
@@ -722,7 +722,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             onClick={() => send()}
                                             disabled={!input.trim() || isSending}
                                             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
-                                            bg-accent text-white transition-all duration-200 hover:scale-105
+                                            bg-accent text-on-accent transition-all duration-200 hover:scale-105
                                             disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
                                         >
                                             <Send size={18} />
