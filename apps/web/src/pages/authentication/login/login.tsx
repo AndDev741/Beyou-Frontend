@@ -1,11 +1,8 @@
 // Components
-import Header from "../../../components/authentication/header";
+import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
-import TranslationButton from "../../../components/translationButton";
 import GoogleIcon from "../../../components/authentication/googleIcon";
-import Logo from "../../../components/authentication/logo";
-import MobileBrand from "../../../components/authentication/MobileBrand";
 // Functions
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -78,23 +75,7 @@ function Login() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-accent rounded-l-md">
-                <Logo />
-            </div>
-
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg">
-                <MobileBrand />
-                <Header />
-                <main className="flex flex-col items-center mt-6 lg:mt-4 text-text">
-                    <h1 className="text-center text-[40px] font-bold">
-                        {t("Welcome")}
-                        <span className="text-accent"> {t("Back!")} </span>
-                    </h1>
-
-                    <div className="hidden lg:block my-2">
-                        <TranslationButton />
-                    </div>
+        <AuthShell title={`${t("Welcome")} ${t("Back!")}`} subtitle={t("LoginSubtitle")} showTabs>
 
                     {needsVerification && (
                         <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-border bg-accent/10 max-w-[90vw] lg:max-w-[380px]">
@@ -118,7 +99,7 @@ function Login() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="email"
@@ -137,8 +118,6 @@ function Login() {
                                 />
                             )}
                         />
-
-                        <div className="my-6 lg:my-3"></div>
 
                         <Controller
                             control={control}
@@ -161,18 +140,23 @@ function Login() {
 
                         <Link
                             to="/forgot-password"
-                            className="mt-4 lg:mt-3 mb-6 lg:mb-4 text-xl text-accent underline font-medium cursor-pointer"
+                            className="self-end text-sm font-semibold text-accent hover:underline"
                         >
                             {t("ForgotPassword")}
                         </Link>
 
-                        <Button text={t("Enter")} mode="create" size="big" type="submit" testId="login-submit" />
+                        <Button
+                            text={t("Enter")}
+                            mode="primary"
+                            size="big"
+                            type="submit"
+                            testId="login-submit"
+                            className="w-full"
+                        />
                     </form>
 
-                    <GoogleIcon />
-                </main>
-            </div>
-        </div>
+            <GoogleIcon />
+        </AuthShell>
     );
 }
 

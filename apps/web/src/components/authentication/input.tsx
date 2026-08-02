@@ -48,7 +48,9 @@ function Input({
     return (
         <>
             <div
-                className={`flex items-center border-2 border-solid rounded-control w-[90vw] lg:w-[100%] h-[64px] bg-surface transition-colors duration-200 ${
+                // Largura vem do container (o cartão do AuthShell); 90vw fixo
+                // estourava para fora dele.
+                className={`flex h-12 w-full items-center rounded-control border bg-surface transition-colors duration-200 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20 ${
                     errorMessage ? "border-danger" : "border-border"
                 }`}
             >
@@ -56,7 +58,7 @@ function Input({
                     {placeholder}
                 </label>
                 <IconStart
-                    className="w-[35px] m-2 text-text-2"
+                    className="mx-3 w-[18px] shrink-0 text-text-3"
                     aria-hidden="true"
                     focusable="false"
                 />
@@ -69,7 +71,7 @@ function Input({
                     onChange={(e) => setData(e.target.value)}
                     data-testid={testId}
                     autoComplete={autoComplete}
-                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-control focus:outline-none bg-surface text-text placeholder:text-text-3"
+                    className="w-full min-w-0 bg-transparent text-base text-text placeholder:text-text-3 focus:outline-none"
                 />
 
                 {ShouldRenderToggle && (
@@ -77,21 +79,21 @@ function Input({
                         type="button"
                         onClick={handlePasswordType}
                         aria-label={seePasswordIconAlt}
-                        className="mx-4 flex items-center justify-center"
+                        className="mx-3 flex shrink-0 items-center justify-center text-text-3 hover:text-text-2"
                     >
                         {isPasswordVisible && IconToggleVisible ? (
-                            <IconToggleVisible className="w-[35px] h-[35px] text-text-2" aria-hidden="true" focusable="false" />
+                            <IconToggleVisible className="h-5 w-5" aria-hidden="true" focusable="false" />
                         ) : (
                             IconToggleHidden && (
-                                <IconToggleHidden className="w-[35px] h-[35px] text-text-2" aria-hidden="true" focusable="false" />
+                                <IconToggleHidden className="h-5 w-5" aria-hidden="true" focusable="false" />
                             )
                         )}
                     </button>
                 )}
             </div>
             {errorMessage && (
-                <div className="w-[90vw] lg:w-full max-w-[400px] mt-1">
-                    <p className="text-danger text-sm leading-snug whitespace-pre-line">
+                <div className="mt-1 w-full">
+                    <p className="whitespace-pre-line text-xs leading-snug text-danger">
                         {errorMessage}
                     </p>
                 </div>
