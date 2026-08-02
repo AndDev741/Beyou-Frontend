@@ -12,7 +12,7 @@ import { enterTasks } from "@beyou/state/task/tasksSlice";
 import getHabits from "@beyou/api/habits/getHabits";
 import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
-import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
+import GoalsHorizon from "../../components/dashboard/goalsView/GoalsHorizon";
 import getGoals from "@beyou/api/goals/getGoals";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
@@ -196,9 +196,10 @@ function Dashboard() {
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                 </div>
             ) : (
-            // Duas colunas como no mockup: a principal (saudação, rotina,
-            // metas) e o rail dos widgets, que começa no topo e desce por toda
-            // a altura da direita.
+            <>
+            {/* Duas colunas como no mockup: a principal (saudação, rotina) e o
+                rail dos widgets, que começa no topo e desce por toda a altura
+                da direita. */}
             <div className="w-full lg:flex lg:items-start lg:gap-6">
                 <div className="min-w-0 flex-1 px-4 py-6 lg:px-7">
                     <Perfil />
@@ -241,10 +242,6 @@ function Dashboard() {
                         )}
                     </div>
 
-                    {/* Metas fecham a coluna: são o porquê dos checks diários. */}
-                    <div className="mt-5">
-                        <GoalsTab />
-                    </div>
                 </div>
 
                 <aside className="hidden w-[320px] shrink-0 flex-col gap-3.5 py-6 pr-6 lg:flex">
@@ -274,11 +271,15 @@ function Dashboard() {
                         />
                     )}
                 </aside>
-
-                {/* The mobile bottom bar and its clearance spacer used to be
-                    rendered here. They moved to `ProtectedRoute` so every
-                    authenticated page gets them — see the comment there. */}
             </div>
+
+            {/* Metas fecham a tela em largura total, abaixo da rotina e do rail:
+                são o porquê dos checks do dia e estavam escondidas numa faixa
+                estreita. */}
+            <div className="px-4 pb-6 lg:px-7">
+                <GoalsHorizon />
+            </div>
+            </>
             )}
         </>
     )

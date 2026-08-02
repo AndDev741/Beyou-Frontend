@@ -979,5 +979,14 @@
     "StreakStripCaption": "Last 28 days · current streak highlighted",
     "StreakStripLabel": "Current streak: {{days}} of the last {{total}} days",
     "TipCounter": "tip {{index}} of {{total}}",
-    "ChangesDaily": "changes daily"
+    "ChangesDaily": "changes daily",
+    "GoalsHorizonSubtitle": "the why behind each check, in the horizon you choose",
+    "GoalsHorizonAllHidden": "No horizon selected — pick one above.",
+    "UntilSunday": "until Sunday",
+    "NoDeadline": "no deadline",
+    "Until": "until",
+    "Week": "Week",
+    "Month": "Month",
+    "Year": "Year",
+    "Future": "Future"
 }

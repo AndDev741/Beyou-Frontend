@@ -979,5 +979,14 @@
     "StreakStripCaption": "Últimos 28 dias · sequência atual em destaque",
     "StreakStripLabel": "Sequência atual: {{days}} dos últimos {{total}} dias",
     "TipCounter": "dica {{index}} de {{total}}",
-    "ChangesDaily": "muda todo dia"
+    "ChangesDaily": "muda todo dia",
+    "GoalsHorizonSubtitle": "o porquê de cada check, no horizonte que você escolher",
+    "GoalsHorizonAllHidden": "Nenhum horizonte selecionado — escolha um acima.",
+    "UntilSunday": "até domingo",
+    "NoDeadline": "sem prazo",
+    "Until": "até",
+    "Week": "Semana",
+    "Month": "Mês",
+    "Year": "Ano",
+    "Future": "Futuro"
 }

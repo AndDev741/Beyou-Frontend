@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { goal } from "@beyou/types/goals/goalType";
 import GoalBox from "./goalBox";
 import { useDispatch } from "react-redux";
@@ -13,16 +14,33 @@ type RenderGoalsProps = {
 function RenderGoals({ goals }: RenderGoalsProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  
+  // O dashboard linka para cá com ?goal=<id>: a lista rola até ela e destaca,
+  // senão o usuário cai numa grade e tem de procurar a meta que acabou de tocar.
+  const [searchParams] = useSearchParams();
+  const focusedId = searchParams.get("goal");
+
   //When open the page
   useEffect(() => {
       dispatch(editModeEnter(false));
-  }, []); 
+  }, []);
+
+  useEffect(() => {
+      if (!focusedId) return;
+      const node = document.getElementById(`goal-${focusedId}`);
+      node?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusedId, goals]);
+
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 text-text">
       {goals.length > 0 ? (
         goals.map((g) => (
-          <div key={g.id} className="lg:mx-1">
+          <div
+            key={g.id}
+            id={`goal-${g.id}`}
+            className={`rounded-card transition-shadow duration-500 lg:mx-1 ${
+              focusedId === g.id ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : ""
+            }`}
+          >
             <GoalBox
               id={g.id}
               title={g.name}
