@@ -77,11 +77,12 @@ Duas decisões concretas nos widgets, ambas comentadas no código:
 ### Não implementado nesta rodada
 
 - **Heatmap de constância** (PR 5.3 do plano): depende de endpoint de histórico.
-- **Layout das páginas de listagem** (Rotinas, Hábitos, Tarefas, Metas,
-  Categorias): os CARTÕES foram reconstruídos com os primitivos e a descrição
-  já aparece neles, mas a moldura da página — toolbar de busca/ordenar/filtrar
-  no lugar do cartão de filtros, grid de três colunas, tela estendida — ainda é
-  a antiga.
+- **Telas estendidas** (hábito, tarefa e meta abertos em detalhe, com stat
+  tiles e heatmap) não existem: o cartão expande no lugar, como antes.
+- **App Expo**: recebeu tokens, tipografia, marca, primitivos e a shell nova
+  (barra de 5 alvos, sheet do assistente), mas as TELAS em si (hábitos,
+  tarefas, metas, categorias, rotinas, configuração) ainda têm o layout
+  antigo. A revisão página a página desta rodada cobriu só a web.
 - **Onboarding e tutorial**: herdaram tokens e componentes, mas o reskin
   desenhado (scrim + anel do acento no spotlight, wizard com Ring de seleção)
   não foi feito.
