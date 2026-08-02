@@ -72,7 +72,7 @@ function ForgotPassword() {
                         />
 
                         <div className="mt-8 lg:mt-4">
-                            <Button text={t("SendResetLink")} mode="create" size="big" />
+                            <Button text={t("SendResetLink")} mode="primary" size="big" className="w-full" />
                         </div>
                     </form>
 

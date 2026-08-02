@@ -164,7 +164,7 @@ function ResetPassword() {
                             />
 
                             <div className="mt-8 lg:mt-4">
-                                <Button text={t("ResetPasswordTitle")} mode="create" size="big" type="submit" />
+                                <Button text={t("ResetPasswordTitle")} mode="primary" size="big" className="w-full" type="submit" />
                             </div>
                         </form>
                     )}

@@ -91,7 +91,6 @@ function Register() {
                             )}
                         />
 
-                        <div className="my-4 lg:mt-1"></div>
 
                         <Controller
                             control={control}
@@ -112,7 +111,6 @@ function Register() {
                             )}
                         />
 
-                        <div className="my-4 lg:mt-1"></div>
 
                         <Controller
                             control={control}
@@ -134,8 +132,15 @@ function Register() {
                         />
                         <PasswordHints password={passwordValue} />
 
-                        <div className="mt-8 lg:mt-4">
-                            <Button text={t("ToRegister")} mode="create" size="big" type="submit" testId="register-submit" />
+                        <div className="mt-2">
+                            <Button
+                                text={t("ToRegister")}
+                                mode="primary"
+                                size="big"
+                                type="submit"
+                                testId="register-submit"
+                                className="w-full"
+                            />
                         </div>
                         {errors.root?.message && (
                             <p className="block text-danger underline text-xl text-center">{errors.root?.message}</p>
