@@ -1,30 +1,38 @@
 import { useState } from "react"
 import { useDispatch } from "react-redux";
 import { useTranslation } from 'react-i18next';
+import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
 import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '@beyou/state/category/editCategorySlice'
 import deleteCategory from "@beyou/api/categories/deleteCategory";
 import getCategories from "@beyou/api/categories/getCategories";
 import BeyouIcon from "../../ui/BeyouIcon";
-import increaseIcon from '../../assets/categories/increaseIcon.svg';
-import decreaseIcon from '../../assets/categories/decreaseIcon.svg';
+import Card from "../../ui/Card";
+import Chip from "../../ui/Chip";
+import IconButton from "../../ui/IconButton";
+import IconTile from "../../ui/IconTile";
+import XpBar from "../../ui/XpBar";
 import DeleteModal from "../DeleteModal";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";
 
-type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number, 
-    nextLevelXp: number, actualLevelXp: number, 
+type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number,
+    nextLevelXp: number, actualLevelXp: number,
     habits?: Map<string, string>,
     tasks?: Map<string, string>,
     goals?: Map<string, string>
 
 }
 
-function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, actualLevelXp, habits, tasks, goals}: props){
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, habits, tasks, goals}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
-    const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
+    const usedIn: { label: string, names: string[] }[] = [
+        { label: t('Habits'), names: [...(habits?.values() ?? [])] },
+        { label: t('Tasks'), names: [...(tasks?.values() ?? [])] },
+        { label: t('Goals'), names: [...(goals?.values() ?? [])] },
+    ].filter((group) => group.names.length > 0);
 
     const handleEdit = () => {
         dispatch(editModeEnter(true));
@@ -32,7 +40,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
         dispatch(nameEnter(name));
         dispatch(descriptionEnter(description));
         dispatch(iconEnter(iconId));
-        
+
         //Scroll to bottom if mobile
         if(window.innerWidth <= 1100){
             window.scrollTo({
@@ -43,101 +51,63 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
     }
 
     return(
-        <div className={`flex flex-col justify-between border border-border rounded-control mb-5 transition-all duration-500 ease-in-out p-2 break-words bg-surface text-text shadow-sm
-        ${expanded ? "min-h-[300px]" : "h-[150px]"} 
-        transform ${expanded ? "lg:scale-105 shadow-md" : "scale-100"}
-        `}>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                    <p className="text-[35px] text-text-2">
-                        <BeyouIcon id={iconId} />
-                    </p>
-                    <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
-                </div>
-                <button
-                    type="button"
-                    onClick={() => setExpanded(!expanded)}
-                    aria-label={expanded ? t('Collapse') : t('Expand')}
+        <Card interactive className="flex h-full flex-col gap-3 break-words">
+            <div className="flex items-start gap-2.5">
+                <IconTile size={38}>
+                    <BeyouIcon id={iconId} size={20} />
+                </IconTile>
+                <h3 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h3>
+                <IconButton
+                    label={expanded ? t('Collapse') : t('Expand')}
                     aria-expanded={expanded}
-                    className="bg-transparent border-0 p-0 cursor-pointer hover:scale-105 transition-transform duration-150"
+                    onClick={() => setExpanded(!expanded)}
                 >
-                    <img
-                        alt=""
-                        aria-hidden="true"
-                        className="w-[25px] pb-3"
-                        src={expanded ? decreaseIcon : increaseIcon}
-                    />
-                </button>
+                    {expanded ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+                </IconButton>
             </div>
 
-            <p className={`text-[15px] leading-tight text-text-2 ${expanded ? "line-clamp-none my-2" : "line-clamp-2"}`}>{description}</p>
-
-            {expanded && (habits?.size || tasks?.size || goals?.size) ? (
-                <div className={`${expanded ? "block my-2" : "hidden"}`}>
-                    <h2 className="text-lg font-semibold">{t('Using in')}:</h2>
-                    <ul className="text-text-2">
-                        {habits && habits.size > 0 ? (
-                            <>
-                            <li className="font-semibold">{t('Habits')}:</li>
-                            {[...habits?.values()].map((name) => (
-                                <li className="ml-6 list-disc" key={name}>{name}</li>
-                            ))}
-                            </>
-                        ) : null}
-
-                        {tasks && tasks.size > 0 ? (
-                            <>
-                            <li className="font-semibold">{t('Tasks')}:</li>
-                            {[...tasks?.values()].map(name => (
-                                <li className="ml-6 list-disc" key={name}>{name}</li>
-                            ))}
-                            </>
-                        ) : null}
-
-                        {goals && goals.size > 0 ? (
-                            <>
-                            <li className="font-semibold">{t('Goals')}:</li>
-                            {[...goals?.values()].map(name => (
-                                <li className="ml-6 list-disc" key={name}>{name}</li>
-                            ))}
-                            </>
-                        ) : null}
-                    </ul>
-                </div>
-            ) : (
-                <p  className={`${expanded ? "block mb-2 text-sm text-text-2" : "hidden"}`}>
-                    {t('Add this category in a habit, task or goal!')}
-                </p>
-            )}
-           
-
-            <div className="flex flex-col mb-1">
-                <div className="flex justify-between">
-                    <p>Level {level}</p>
-                    <p><span className="text-accent">{xp}</span>/{nextLevelXp}</p>
-                </div>
-                <div className="flex w-[100%]">
-                    <div className={`border border-border bg-accent h-[15px] rounded-l-xl`}
-                    style={{width: `${actualProgress}%`}}></div>
-                    <div className={`border border-border bg-description/20 h-[15px] rounded-r-xl`}
-                    style={{width: `${100 - actualProgress}%`}}></div>
-                </div>
-            </div>
+            {/* A descrição fica no cartão em duas linhas — expandir só solta o clamp. */}
+            <p className={`text-sm leading-snug text-text-2 ${expanded ? "" : "line-clamp-2"}`}>{description}</p>
 
             {expanded && (
-                <>
-                <div className={`flex flex-col my-2 items-center justify-center`}>
-                    <button onClick={handleEdit}
-                    className="bg-accent mb-2 hover:bg-accent/90 text-white font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
-                        {t('Edit')}
-                    </button>
-                    <button onClick={() => setOnDelete(true)}
-                    className="bg-danger hover:bg-danger/90 text-white font-semibold w-[90px] h-[28px] rounded-control transition-colors duration-200">
-                        {t('Delete')}
-                    </button>
+                usedIn.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-text-3">{t('Using in')}</p>
+                        {usedIn.map((group) => (
+                            <div key={group.label}>
+                                <p className="mb-1 text-xs font-semibold text-text-2">{group.label}</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {group.names.map((usedName) => (
+                                        <Chip key={usedName} size="sm">{usedName}</Chip>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-text-3">
+                        {t('Add this category in a habit, task or goal!')}
+                    </p>
+                )
+            )}
+
+            {/* Categoria acumula o XP dos hábitos: nível e progresso, sem streak. */}
+            <XpBar className="mt-auto pt-1" current={xp} target={nextLevelXp} level={level} />
+
+            {expanded && (
+                <div className="flex justify-end gap-1 border-t border-border pt-2">
+                    <IconButton label={t('Edit')} onClick={handleEdit}>
+                        <Pencil size={16} aria-hidden="true" />
+                    </IconButton>
+                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                        <Trash2 size={16} aria-hidden="true" />
+                    </IconButton>
                 </div>
+            )}
+
+            {expanded && (
                 <DeleteModal objectId={id}
-                onDelete={onDelete} 
+                onDelete={onDelete}
                 setOnDelete={setOnDelete}
                 t={t} name={name}
                 setObjects={null}
@@ -147,9 +117,8 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                 mode="category"
                 dispatchFunction={enterCategories}
                 />
-            </>
             )}
-        </div>
+        </Card>
     )
 }
 

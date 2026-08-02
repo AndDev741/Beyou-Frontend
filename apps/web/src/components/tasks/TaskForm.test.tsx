@@ -57,8 +57,8 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
     });
 
     // Set importance and difficulty (min 1 required, matching backend @Min(1) @Max(5))
-    fireEvent.click(screen.getByLabelText("Low"));
-    fireEvent.click(screen.getByLabelText("Easy"));
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
 
     // Click an icon from the icon grid (rendered as <button> tiles with cursor-pointer class)
     await waitFor(() => {

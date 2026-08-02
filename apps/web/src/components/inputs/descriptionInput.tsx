@@ -1,5 +1,6 @@
 import { TFunction } from "i18next";
 import { useEffect, useState } from "react";
+import { FIELD_ERROR, FIELD_LABEL, FIELD_WIDTH, fieldControl } from "./fieldStyles";
 
 type descriptionInputProps = {
     description: string,
@@ -21,36 +22,33 @@ function DescriptionInput({description, setDescription, placeholder, description
         .addEventListener('change', e => setMatches( e.matches ));
     }, []);
 
-    const borderCss = `border border-border rounded-control w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
-    const labelCss = "text-lg md:text-2xl md:text-xl text-text";
-    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+    const errorId = "description-error";
     return(
-        <>
-            <div className="flex flex-col">
-                <label htmlFor='description' 
-                className={`${labelCss} mt-2`}>
-                    {t('Description')}
-                </label>
-                {descriptionError ? <p className={errorCss} title={descriptionError}>{descriptionError}</p> : null}
-                <textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    name="description"
-                    placeholder={t(`${placeholder}`)}
-                    className={`${borderCss} ${descriptionError ? "border-danger" : ""} outline-none text-lg p-1 bg-surface text-text placeholder:text-text-3 transition-colors duration-200`}
-                    style={{
-                        minHeight: minH ? `${minH}px` : undefined,
-                        height: minH ? `${minH}px` : undefined,
-                        ...(minHSmallScreen && !matches && {
-                        minHeight: `${minHSmallScreen}px`,
-                        height: `${minHSmallScreen}px`,
-                        
-                        })
-                    }}
-                />
-            </div>
-        </>
+        <div className="flex flex-col">
+            <label htmlFor='description' className={FIELD_LABEL}>
+                {t('Description')}
+            </label>
+            <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                name="description"
+                placeholder={t(`${placeholder}`)}
+                aria-invalid={descriptionError ? true : undefined}
+                aria-describedby={descriptionError ? errorId : undefined}
+                className={`${fieldControl(!!descriptionError)} ${FIELD_WIDTH} p-3`}
+                style={{
+                    minHeight: minH ? `${minH}px` : undefined,
+                    height: minH ? `${minH}px` : undefined,
+                    ...(minHSmallScreen && !matches && {
+                    minHeight: `${minHSmallScreen}px`,
+                    height: `${minHSmallScreen}px`,
+
+                    })
+                }}
+            />
+            {descriptionError ? <p id={errorId} className={`${FIELD_ERROR} ${FIELD_WIDTH}`} title={descriptionError}>{descriptionError}</p> : null}
+        </div>
     )
 }
 

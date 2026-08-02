@@ -24,15 +24,15 @@ test('Render collapsed view', () => {
     render(<CategoryBox {...defaultProps} />);
     expect(screen.getByText('Dance')).toBeInTheDocument();
     expect(screen.getByText('Dance with me')).toBeInTheDocument();
-    expect(screen.queryByText(/Edit/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Delete/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Delete/i })).not.toBeInTheDocument();
 });
 
 test('Expand the card when clicked', () => {
     render(<CategoryBox {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    expect(screen.getByText(/Edit/i)).toBeInTheDocument();
-    expect(screen.getByText(/Delete/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
 });
 
 test('renders using-in lists', () => {
@@ -51,7 +51,7 @@ test('shows fallback when no references', () => {
 test('dispatches edit actions and scrolls', () => {
     render(<CategoryBox {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    fireEvent.click(screen.getByText(/Edit/i));
+    fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
     //expect(dispatch).toHaveBeenCalled();
     expect((window as any).scrollTo).toHaveBeenCalled();
 });
@@ -59,6 +59,6 @@ test('dispatches edit actions and scrolls', () => {
 test('sets delete modal on', () => {
     render(<CategoryBox {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    fireEvent.click(screen.getByText(/Delete/i));
+    fireEvent.click(screen.getByRole('button', { name: /Delete/i }));
     expect(DeleteModal).toHaveBeenCalledWith(expect.objectContaining({ onDelete: true }), expect.anything());
 });

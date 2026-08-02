@@ -55,9 +55,9 @@ test("does not double-submit while a create request is in flight", async () => {
     fireEvent.change(screen.getByPlaceholderText("CategoryNamePlaceholder"), {
         target: { value: "My Habit" }
     });
-    fireEvent.click(screen.getByLabelText("Low"));
-    fireEvent.click(screen.getByLabelText("Easy"));
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
     const categoryEl = await screen.findByText("Health");
     fireEvent.click(categoryEl);
     await waitFor(() => {
@@ -99,15 +99,13 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
     });
 
     // Select importance (click "Low" radio = value 1)
-    fireEvent.click(screen.getByLabelText("Low"));
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
 
     // Select difficulty (click "Easy" radio = value 1)
-    fireEvent.click(screen.getByLabelText("Easy"));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
 
-    // Select experience (select element)
-    fireEvent.change(screen.getByRole("combobox"), {
-        target: { value: "0" }
-    });
+    // Select experience (segmented control, "Beginner" = value 0)
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
 
     // Wait for categories to load, then select one
     const categoryEl = await screen.findByText("Health");

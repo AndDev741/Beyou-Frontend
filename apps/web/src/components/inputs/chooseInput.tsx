@@ -1,5 +1,6 @@
 import { TFunction } from "i18next";
-import { useRef } from "react";
+import SegmentedControl from "../../ui/SegmentedControl";
+import { FIELD_ERROR, FIELD_LABEL } from "./fieldStyles";
 
 type chooseInputProps = {
     choosedLevel: number,
@@ -12,48 +13,31 @@ type chooseInputProps = {
 }
 
 function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: chooseInputProps){
-    const labelCss = "text-2xl md:text-xl text-text";
-    const radioRef = useRef<HTMLInputElement>(null);
-    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal max-w-[45vw] md:max-w-[320px] lg:max-w-[15rem] mt-1 underline";
+    const label = t(`${title}`);
+    const errorId = `${name}-error`;
 
-    const handleClick = (value: number) => {
+    // Clicar no nível já escolhido desmarca — comportamento do rádio antigo.
+    const handleChange = (value: number) => {
         if (choosedLevel === value) {
             setLevel(0);
         } else {
             setLevel(value);
         }
     };
-    
-    return(
-        <>
-            <div className="flex flex-col items-center mt-3 text-text">
-                <label htmlFor={levels[0]} 
-                className={labelCss}>{t(`${title}`)}</label>
-                {error ? <p className={errorCss} title={error}>{error}</p> : null}
-                <div className="flex flex-row items-center justify-evenly w-[80vw] md:w-[300px] lg:w-[250px] mt-2">
-                    {levels.map((level, index) => (
-                        <div key={level}
-                        className="flex flex-col items-center justify-center cursor-pointer w-[60px] min-h-[48px]">
-                            <input
-                            type="radio"
-                            ref={radioRef}
-                            checked={choosedLevel === (index + 1)}
-                            onChange=
-                            {() => {}}
-                            name={name}
-                            id={level}
-                            value={index + 1}
-                            onClick={() => handleClick(index + 1)}
-                            className="border-0 w-full h-10 md:h-[35px] outline-none accent-primary bg-surface cursor-pointer" />
-                            <label htmlFor={level}
 
-                            className={`cursor-pointer py-1 ${choosedLevel === (index + 1) ? "text-accent" : "text-text"}`}>{level}</label>
-                        </div>
-                    ))}
-                    
-                </div>
-            </div>
-        </>
+    return(
+        <div className="mt-3 flex w-[80vw] flex-col md:w-[300px] lg:w-[250px]">
+            <span className={FIELD_LABEL}>{label}</span>
+            <SegmentedControl
+                options={levels.map((level, index) => ({ value: index + 1, label: level }))}
+                value={choosedLevel}
+                onChange={handleChange}
+                label={label}
+                size="sm"
+                className={`w-full ${error ? "ring-1 ring-danger" : ""}`}
+            />
+            {error ? <p id={errorId} className={FIELD_ERROR} title={error}>{error}</p> : null}
+        </div>
     )
 }
 
