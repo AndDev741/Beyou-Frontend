@@ -9,7 +9,6 @@ import type {
     FeedbackStatus
 } from "@beyou/api/feedback/feedbackTypes";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import ErrorNotice from "../../components/ErrorNotice";
 import AdminFeedbackDetail from "./AdminFeedbackDetail";
@@ -24,6 +23,7 @@ import {
     formatFeedbackTimestamp
 } from "./feedbackAdminLabels";
 
+import PageHeader from "../../ui/PageHeader";
 const PAGE_SIZE = 20;
 
 /** `""` is "no filter", which the client omits from the query entirely. */
@@ -153,7 +153,7 @@ function AdminFeedback() {
 
     return (
         <div className="min-h-screen w-full bg-background text-secondary">
-            <Header pageName="AdminFeedbackPageTitle" />
+            <PageHeader title={t("AdminFeedbackPageTitle")} />
 
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-3 py-6">
                 <p className="text-sm text-description">{t("AdminFeedbackIntro")}</p>

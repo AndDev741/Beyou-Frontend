@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import Perfil from "../../components/dashboard/perfil";
-import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import { useEffect, useMemo, useState } from "react";
@@ -206,7 +205,6 @@ function Dashboard() {
 
                         {/* Desktop */}
                         <div className="hidden lg:flex justify-between">
-                            <Shortcuts />
 
                             <div className="hidden lg:flex flex-wrap justify-evenly items-center py-3 mt-7 w-full mr-3 gap-4">
                                 {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (

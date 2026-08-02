@@ -7,13 +7,13 @@ import ThemeSelector from "../../components/configuration/ThemeSelector";
 import TutorialConfiguration from "../../components/configuration/TutorialConfiguration";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import ConfigSection from "../../components/configuration/ConfigSection";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
 import { CgProfile } from "react-icons/cg";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FiSettings, FiGrid } from "react-icons/fi";
+import PageHeader from "../../ui/PageHeader";
 
 export default function Configuration() {
     useAuthGuard();
@@ -22,7 +22,7 @@ export default function Configuration() {
 
     return (
         <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">
-            <Header pageName={"Configuration"} showLogout={true} />
+            <PageHeader title={t("Configuration")} />
             {showConfigSpotlight && (
                 <SpotlightTutorial
                     steps={configSteps}

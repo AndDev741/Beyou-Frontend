@@ -1,9 +1,10 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
+import { onAgentPanelOpen } from "./agentPanelBus";
 
 // Lazy: react-markdown and the whole chat surface stay out of the boot
 // bundle until the first FAB click.
@@ -28,6 +29,10 @@ function AgentWidget() {
         setOpen(true);
     };
 
+    // O botão central da barra inferior é o gatilho do mobile; ele pede a
+    // abertura por evento porque o estado vive aqui.
+    useEffect(() => onAgentPanelOpen(openPanel), []);
+
     // Hidden until onboarding finishes: the tutorial (manual or AI) should own
     // the user's attention, and the AI wizard already covers assisted setup.
     if (!isTutorialCompleted) {
@@ -49,15 +54,15 @@ function AgentWidget() {
                     aria-label={t("OpenAssistant")}
                     onClick={openPanel}
                     data-tutorial-id="agent-fab"
-                    className="fixed bottom-20 right-4 z-[60] flex h-14 w-14 items-center
-                    justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/40
+                    className="fixed bottom-20 right-4 z-[60] hidden h-14 w-14 items-center
+                    justify-center rounded-full bg-accent text-on-accent shadow-lg shadow-accent/40
                     transition-transform duration-200 hover:scale-105 active:scale-95
-                    lg:bottom-6 lg:right-6"
+                    lg:bottom-6 lg:right-6 lg:flex"
                 >
                     {!reducedMotion && (
                         <span
                             aria-hidden
-                            className="absolute inset-0 animate-agent-breathe rounded-full bg-primary"
+                            className="absolute inset-0 animate-agent-breathe rounded-full bg-accent"
                         />
                     )}
                     <span className="relative">

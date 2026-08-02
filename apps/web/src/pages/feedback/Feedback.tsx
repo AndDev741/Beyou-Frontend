@@ -11,7 +11,6 @@ import type {
     FeedbackContext
 } from "@beyou/api/feedback/feedbackTypes";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import ErrorNotice from "../../components/ErrorNotice";
 import Button from "../../components/Button";
@@ -25,6 +24,7 @@ import {
 } from "./feedbackAttachments";
 import { FEEDBACK_CATEGORY_LABEL_KEYS, buildFeedbackMailtoHref } from "./feedbackMailto";
 import { FEEDBACK_BODY_MAX_LENGTH, FeedbackFormValues, NO_CATEGORY, feedbackSchema } from "./feedbackSchema";
+import PageHeader from "../../ui/PageHeader";
 
 const CATEGORY_ORDER: FeedbackFormValues["category"][] = ["BUG", "FEATURE_REQUEST", "OTHER"];
 
@@ -155,7 +155,7 @@ function Feedback() {
 
     return (
         <div className="min-h-screen w-full bg-background text-secondary">
-            <Header pageName="FeedbackPageTitle" />
+            <PageHeader title={t("FeedbackPageTitle")} />
 
             <div className="mx-auto w-full max-w-2xl px-3 py-6">
                 <p className="text-sm text-description">{t("FeedbackIntro")}</p>

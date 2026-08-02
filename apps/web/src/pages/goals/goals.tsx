@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from "react";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import RenderGoals from "../../components/goals/renderGoals";
 import getGoals from "@beyou/api/goals/getGoals";
@@ -18,6 +17,7 @@ import {
 } from "../../components/utils/sortHelpers";
 import { goal } from "@beyou/types/goals/goalType";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
+import PageHeader from "../../ui/PageHeader";
 
 function Goals() {
   useAuthGuard();
@@ -100,7 +100,7 @@ function Goals() {
 
   return (
     <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
-      <Header pageName="YourGoals" />
+            <PageHeader title={t("YourGoals")} />
       <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] mt-4 lg:px-6">
         <div className="w-full px-2">
           <SortFilterBar

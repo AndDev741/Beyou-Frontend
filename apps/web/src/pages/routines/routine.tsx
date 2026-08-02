@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import Header from "../../components/header";
 import AddRoutineButton from "../../components/routines/addRoutineButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
@@ -34,6 +33,7 @@ import {
     setSnapshotLoading,
 } from "@beyou/state/routine/snapshotSlice";
 
+import PageHeader from "../../ui/PageHeader";
 const Routine = () => {
     useAuthGuard();
     const { t } = useTranslation();
@@ -168,7 +168,7 @@ const Routine = () => {
                     onSkip={onSkip}
                 />
             )}
-            <Header pageName="Your Routines" />
+            <PageHeader title={t("Your Routines")} />
             <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
                 <RoutineSummary
                     routines={routines}

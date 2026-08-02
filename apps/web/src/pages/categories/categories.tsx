@@ -2,7 +2,6 @@ import CreateCategory from "../../components/categories/createCategory";
 import RenderCategories from "../../components/categories/renderCategories";
 import EditCategory from "../../components/categories/editCategory";
 import { useDispatch, useSelector } from "react-redux";
-import Header from "../../components/header";
 import { useEffect, useMemo } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
@@ -21,6 +20,7 @@ import {
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useCategoriesTutorial } from "../../components/tutorial/hooks/useCategoriesTutorial";
+import PageHeader from "../../ui/PageHeader";
 // import categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 
 function Categories(){
@@ -116,7 +116,7 @@ function Categories(){
                     onSkip={onSkip}
                 />
             )}
-            <Header pageName={"YourCategories"}/>
+            <PageHeader title={t("YourCategories")} />
             <main className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
                 <div className="w-[100%]">
                     <SortFilterBar

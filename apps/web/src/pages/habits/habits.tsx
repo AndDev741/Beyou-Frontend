@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from "react-redux";
 import CreateHabit from "../../components/habits/createHabit";
 import EditHabit from "../../components/habits/editHabit";
 import RenderHabits from "../../components/habits/renderHabits";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import { useMemo, useState } from "react";
@@ -18,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useHabitsTutorial } from "../../components/tutorial/hooks/useHabitsTutorial";
+import PageHeader from "../../ui/PageHeader";
 
 function Habits(){
     useAuthGuard();
@@ -105,7 +105,7 @@ function Habits(){
                     onSkip={onSkip}
                 />
             )}
-            <Header pageName={"YourHabits"} />
+            <PageHeader title={t("YourHabits")} />
             <div className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
                 <div className="w-[100%]">
                     <SortFilterBar

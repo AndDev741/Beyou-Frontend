@@ -949,5 +949,8 @@
     "AccentForest": "Forest",
     "AccentCyber": "Cyber",
     "ThemeHint": "Two bases done properly; the accent swaps the brand colour.",
-    "LoginBrandHeadline": "Build your best self, one day at a time."
+    "LoginBrandHeadline": "Build your best self, one day at a time.",
+    "Today": "Today",
+    "SidebarToggle": "Collapse or expand the menu",
+    "More": "More"
 }

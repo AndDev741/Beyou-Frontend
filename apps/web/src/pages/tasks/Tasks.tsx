@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import { task } from "@beyou/types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
@@ -17,6 +16,7 @@ import {
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
+import PageHeader from "../../ui/PageHeader";
 
 
 function Tasks() {
@@ -83,7 +83,7 @@ function Tasks() {
 
     return (
         <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
-            <Header pageName="YourTasks" />
+            <PageHeader title={t("YourTasks")} />
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
                 <div className="w-full">
                     <SortFilterBar
