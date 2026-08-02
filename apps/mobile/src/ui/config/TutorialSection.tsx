@@ -10,12 +10,11 @@ import { setPhase } from '../../tutorial/tutorialSlice';
 import { saveTutorialPhase } from '../../lib/tutorialStore';
 import { notify } from '../../notify';
 import type { RootState, AppDispatch } from '../../store';
+import { useBeyouTheme } from '../../theme/ThemeProvider';
 
-// White text on the primary button — matches the other config Save buttons
-// (ProfileSection/Constance/RoutineSettings use the same local constant).
-const ON_PRIMARY = '#FFFFFF';
 
 export default function TutorialSection() {
+  const { theme } = useBeyouTheme();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -49,7 +48,7 @@ export default function TutorialSection() {
         testID="tutorial-replay"
         className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
-        <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
+        <Text style={{ color: theme.onAccent }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('TutorialRestart')}
         </Text>
       </Pressable>

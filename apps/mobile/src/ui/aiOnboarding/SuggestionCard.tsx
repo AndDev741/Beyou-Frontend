@@ -4,7 +4,6 @@ import { Check } from 'lucide-react-native';
 import BeyouIcon from '../BeyouIcon';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
-const ON_PRIMARY = '#FFFFFF';
 
 interface SuggestionCardProps {
   iconId: string;
@@ -43,7 +42,7 @@ export default function SuggestionCard({
       {/* Check badge */}
       {selected ? (
         <View className="absolute -right-1.5 -top-1.5 h-5 w-5 items-center justify-center rounded-full bg-accent">
-          <Check size={12} color={ON_PRIMARY} strokeWidth={3} />
+          <Check size={12} color={theme.onAccent} strokeWidth={3} />
         </View>
       ) : null}
 

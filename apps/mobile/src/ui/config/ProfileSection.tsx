@@ -22,7 +22,6 @@ import { resolvePhotoUrl } from '../../lib/photoUrl';
 import { uploadPhoto } from '../../lib/uploadPhoto';
 import type { RootState, AppDispatch } from '../../store';
 
-const ON_PRIMARY = '#FFFFFF';
 
 function Avatar({ photo, name }: { photo: string; name: string }) {
   const { theme } = useBeyouTheme();
@@ -215,7 +214,7 @@ export default function ProfileSection() {
         testID="save-profile"
         className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
       >
-        <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
+        <Text style={{ color: theme.onAccent }} className="text-base font-semibold">
           {t('Save')}
         </Text>
       </Pressable>

@@ -7,7 +7,6 @@ import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
-const ON_PRIMARY = '#FFFFFF';
 
 type Step = {
   id: string;
@@ -116,11 +115,11 @@ export default function OnboardingTutorial({
               >
                 <View className="mb-3 flex-row items-center justify-between">
                   <View className="h-12 w-12 items-center justify-center rounded-card bg-accent">
-                    <Sparkles size={24} color={ON_PRIMARY} />
+                    <Sparkles size={24} color={theme.onAccent} />
                   </View>
                   <View className="flex-row items-center gap-1 rounded-full bg-accent px-3 py-1">
-                    <Sparkles size={12} color={ON_PRIMARY} />
-                    <Text className="text-xs font-semibold" style={{ color: ON_PRIMARY }}>
+                    <Sparkles size={12} color={theme.onAccent} />
+                    <Text className="text-xs font-semibold" style={{ color: theme.onAccent }}>
                       {t('TutorialPathAiBadge')}
                     </Text>
                   </View>

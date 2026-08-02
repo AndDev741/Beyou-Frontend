@@ -7,7 +7,7 @@ import { calculateLevelProgress } from '@beyou/state';
 import type { habit } from '@beyou/types/habit/habitType';
 import BeyouIcon from '../BeyouIcon';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { scaleColor, importanceKey, difficultyKey } from './levelLabels';
+import { scaleClass, importanceKey, difficultyKey } from './levelLabels';
 
 interface HabitCardProps {
   habit: habit;
@@ -43,7 +43,7 @@ function ScaleRow({ label, value, phraseKey }: { label: string; value: number; p
   return (
     <View className="flex-row items-center gap-2">
       <Text className="text-text text-sm font-semibold">{label}:</Text>
-      <View className="h-3 w-3 rounded-full" style={{ backgroundColor: scaleColor(value) }} />
+      <View className={`h-3 w-3 rounded-full ${scaleClass(value)}`} />
       <Text className="text-text-2 text-sm">{t(phraseKey)}</Text>
     </View>
   );

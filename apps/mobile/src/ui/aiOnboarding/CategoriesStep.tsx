@@ -46,7 +46,6 @@ function FloatingChip({ index, children }: { index: number; children: ReactNode 
   return <Animated.View style={style}>{children}</Animated.View>;
 }
 
-const ON_PRIMARY = '#FFFFFF';
 
 interface CategoriesStepProps {
   onContinue: (names: string[]) => void;
@@ -124,12 +123,12 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                 <BeyouIcon
                   id={chip.iconId}
                   size={16}
-                  color={active ? ON_PRIMARY : theme.primary}
+                  color={active ? theme.onAccent : theme.primary}
                 />
               ) : null}
               <Text
                 className="text-sm font-medium"
-                style={{ color: active ? ON_PRIMARY : theme.secondary }}
+                style={{ color: active ? theme.onAccent : theme.secondary }}
               >
                 {chip.name}
               </Text>

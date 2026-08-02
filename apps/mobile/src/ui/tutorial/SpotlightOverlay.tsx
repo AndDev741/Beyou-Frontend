@@ -14,7 +14,6 @@ interface Props {
 const DIM = 'rgba(0,0,0,0.6)';
 const PAD = 8;
 // White label on the primary button — matches the config Save buttons.
-const ON_PRIMARY = '#FFFFFF';
 
 /**
  * Spotlight overlay. Rendered as an absolute-fill View (NOT a Modal) inside the
@@ -119,7 +118,7 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
             testID="spotlight-next"
             className={`items-center rounded-control bg-accent px-5 py-2.5 ${step.disabled ? 'opacity-50' : ''}`}
           >
-            <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold" numberOfLines={1}>
+            <Text style={{ color: theme.onAccent }} className="text-base font-semibold" numberOfLines={1}>
               {t(step.nextLabelKey ?? 'TutorialNext')}
             </Text>
           </Pressable>

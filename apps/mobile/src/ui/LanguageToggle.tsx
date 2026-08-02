@@ -1,7 +1,7 @@
 import { View, Pressable, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useBeyouTheme } from '../theme/ThemeProvider';
 
-const ON_PRIMARY = '#FFFFFF';
 const LANGS = ['en', 'pt'] as const;
 
 /**
@@ -16,6 +16,7 @@ export default function LanguageToggle({
   onSelect?: (lng: 'en' | 'pt') => void;
 } = {}) {
   const { i18n } = useTranslation();
+  const { theme } = useBeyouTheme();
   const current = i18n.language?.startsWith('pt') ? 'pt' : 'en';
 
   return (
@@ -36,7 +37,7 @@ export default function LanguageToggle({
           >
             <Text
               className={`text-base font-bold ${active ? '' : 'text-text'}`}
-              style={active ? { color: ON_PRIMARY } : undefined}
+              style={active ? { color: theme.onAccent } : undefined}
             >
               {lng.toUpperCase()}
             </Text>

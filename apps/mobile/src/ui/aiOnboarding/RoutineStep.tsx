@@ -24,7 +24,6 @@ import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import Input from '../Input';
 
-const ON_PRIMARY = '#FFFFFF';
 
 type ItemKind = 'habits' | 'tasks';
 
@@ -319,7 +318,7 @@ export default function RoutineStep({
               >
                 <Text
                   className={`text-xs font-bold ${active ? '' : 'text-text'}`}
-                  style={active ? { color: ON_PRIMARY } : undefined}
+                  style={active ? { color: theme.onAccent } : undefined}
                 >
                   {t(day.key)}
                 </Text>

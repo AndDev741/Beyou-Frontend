@@ -6,7 +6,6 @@ import { completeTutorial } from '../../tutorial/completeTutorial';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../store';
 
-const ON_PRIMARY = '#FFFFFF';
 
 /**
  * Closing message shown on the dashboard when the tutorial reaches the 'done'
@@ -38,7 +37,7 @@ export default function TutorialFinale() {
           testID="tutorial-finale-done"
           className="mt-5 items-center rounded-control bg-accent px-6 py-3"
         >
-          <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">{t('TutorialGetStarted')}</Text>
+          <Text style={{ color: theme.onAccent }} className="text-base font-semibold">{t('TutorialGetStarted')}</Text>
         </Pressable>
       </View>
     </View>

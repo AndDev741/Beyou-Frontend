@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import type { task } from '@beyou/types/tasks/taskType';
 import BeyouIcon from '../BeyouIcon';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { scaleColor, importanceKey, difficultyKey } from '../habits/levelLabels';
+import { scaleClass, importanceKey, difficultyKey } from '../habits/levelLabels';
 
 interface TaskCardProps {
   task: task;
@@ -19,7 +19,7 @@ function ScaleRow({ label, value, phraseKey }: { label: string; value: number; p
   return (
     <View className="flex-row items-center gap-2">
       <Text className="text-text text-sm font-semibold">{label}:</Text>
-      <View className="h-3 w-3 rounded-full" style={{ backgroundColor: scaleColor(value) }} />
+      <View className={`h-3 w-3 rounded-full ${scaleClass(value)}`} />
       <Text className="text-text-2 text-sm">{t(phraseKey)}</Text>
     </View>
   );

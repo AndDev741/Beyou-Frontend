@@ -34,7 +34,6 @@ import GoalsStep, { type GoalsSelection } from './GoalsStep';
 import SummaryStep from './SummaryStep';
 import BusyOverlay from './BusyOverlay';
 
-const ON_PRIMARY = '#FFFFFF';
 
 export type WizardData = StoredWizardProgress['data'];
 
@@ -375,7 +374,7 @@ export default function AiOnboardingWizard({
             <View className="flex-row items-center justify-between gap-3 px-4 pb-3 pt-2">
               <View className="flex-row items-center gap-2">
                 <View className="h-8 w-8 items-center justify-center rounded-card bg-accent">
-                  <Sparkles size={16} color={ON_PRIMARY} />
+                  <Sparkles size={16} color={theme.onAccent} />
                 </View>
                 <View className="flex-row items-center gap-1.5">
                   {STEP_ORDER.map((s, index) => (
@@ -486,8 +485,8 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
           testID="ai-onboarding-retry"
           className="w-full flex-row items-center justify-center gap-2 rounded-card bg-accent px-5 py-3"
         >
-          <RotateCcw size={16} color={ON_PRIMARY} />
-          <Text className="text-base font-semibold" style={{ color: ON_PRIMARY }}>
+          <RotateCcw size={16} color={theme.onAccent} />
+          <Text className="text-base font-semibold" style={{ color: theme.onAccent }}>
             {t('AiOnboardingRetry')}
           </Text>
         </Pressable>
