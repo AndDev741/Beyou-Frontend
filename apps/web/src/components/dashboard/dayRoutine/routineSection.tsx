@@ -186,7 +186,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                         line-through name and the undo button — no extra label. */}
                     <div className="flex min-w-0 flex-1 flex-col-reverse gap-1 lg:flex-row lg:items-center lg:gap-3">
                         <span
-                            className={`truncate text-[13.5px] font-medium ${
+                            className={`line-clamp-2 text-[13.5px] font-medium lg:line-clamp-1 ${
                                 checked || skipped ? "text-text-3" : "text-text"
                             } ${skipped ? "line-through" : ""}`}
                         >
