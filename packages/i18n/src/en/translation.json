@@ -983,10 +983,11 @@
     "GoalsHorizonSubtitle": "the why behind each check, in the horizon you choose",
     "GoalsHorizonAllHidden": "No horizon selected — pick one above.",
     "UntilSunday": "until Sunday",
-    "NoDeadline": "no deadline",
+    "NoDeadline": "future years",
     "Until": "until",
     "Week": "Week",
     "Month": "Month",
     "Year": "Year",
-    "Future": "Future"
+    "Future": "Future",
+    "Filter": "filter"
 }

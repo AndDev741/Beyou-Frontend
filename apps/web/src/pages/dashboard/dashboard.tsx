@@ -13,6 +13,7 @@ import getHabits from "@beyou/api/habits/getHabits";
 import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import GoalsHorizon from "../../components/dashboard/goalsView/GoalsHorizon";
+import WidgetCarousel from "../../components/dashboard/WidgetCarousel";
 import getGoals from "@beyou/api/goals/getGoals";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
@@ -208,37 +209,39 @@ function Dashboard() {
                         <RoutineDay routine={routine ? routine : null} />
                     </div>
 
-                    {/* Mobile: carrossel de altura fixa entre a rotina e as metas,
-                        para a rotina nunca descer conforme se adiciona widget. */}
-                    <div
-                        className="mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 lg:hidden"
-                        data-testid="mobile-widget-board"
-                    >
-                        {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
-                            <div key={id} className="min-w-[78%] snap-center">
-                                <WidgetsFabric
-                                    widgetId={id as keyof WidgetProps}
-                                    categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
-                                    categories={categories}
-                                    constance={constance}
-                                    checked={checkedItemsInScheduledRoutine}
-                                    total={totalItemsInScheduledRoutine}
-                                    xp={xp}
-                                    level={level}
-                                    nextLevelXp={nextLevelXp}
-                                    actualLevelXp={actualLevelXp}
-                                    draggable
+                    {/* Mobile: carrossel de altura fixa entre a rotina e as
+                        metas, com pontos de página. */}
+                    <div className="mt-5" data-testid="mobile-widget-board">
+                        {widgetsIdsInUse?.length > 0 ? (
+                            <WidgetCarousel>
+                                {widgetsIdsInUse.map((id: string) => (
+                                    <WidgetsFabric
+                                        key={id}
+                                        widgetId={id as keyof WidgetProps}
+                                        categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                        categories={categories}
+                                        constance={constance}
+                                        checked={checkedItemsInScheduledRoutine}
+                                        total={totalItemsInScheduledRoutine}
+                                        xp={xp}
+                                        level={level}
+                                        nextLevelXp={nextLevelXp}
+                                        actualLevelXp={actualLevelXp}
+                                        draggable
+                                    />
+                                ))}
+                            </WidgetCarousel>
+                        ) : (
+                            <div className="lg:hidden">
+                                <EmptyState
+                                    emoji="🧩"
+                                    title={t('NoWidgetsTitle')}
+                                    description={t('NoWidgetsDescription')}
+                                    actionLabel={t('AddWidgets')}
+                                    actionTo="/configuration"
+                                    testId="no-widgets-empty-state-mobile"
                                 />
                             </div>
-                        )) : (
-                            <EmptyState
-                                emoji="🧩"
-                                title={t('NoWidgetsTitle')}
-                                description={t('NoWidgetsDescription')}
-                                actionLabel={t('AddWidgets')}
-                                actionTo="/configuration"
-                                testId="no-widgets-empty-state-mobile"
-                            />
                         )}
                     </div>
 

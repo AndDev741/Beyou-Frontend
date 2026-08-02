@@ -47,8 +47,9 @@ test("hides a horizon when its chip is toggled off, and remembers the choice", (
     const { unmount } = renderWithProviders(<GoalsHorizon />, { storeOverride: store });
 
     // Em que horizonte "amanhã" cai depende do dia da semana, então o teste
-    // desliga o chip que existir em vez de fixar o rótulo.
-    fireEvent.click(screen.getAllByRole("button")[0]);
+    // desliga o chip ligado que existir em vez de fixar o rótulo. Os chips são
+    // os únicos botões com aria-pressed (o dropdown do mobile usa aria-expanded).
+    fireEvent.click(screen.getAllByRole("button", { pressed: true })[0]);
     expect(screen.queryByText("Goal a")).not.toBeInTheDocument();
 
     // A escolha sobrevive à remontagem: quem só olha a semana não refiltra todo dia.
