@@ -34,11 +34,11 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
             <aside className="relative hidden overflow-hidden border-r border-border bg-surface p-9 lg:flex lg:flex-col lg:justify-end">
                 <BrandMark
                     fluid
-                    className="pointer-events-none absolute -right-[19%] -top-[14%] block w-[92%] text-accent opacity-[0.07]"
+                    className="pointer-events-none absolute -right-[19%] -top-[14%] block w-[82%] text-accent opacity-[0.07]"
                 />
                 <div className="relative">
-                    <BrandMark size={26} withWordmark className="text-accent" />
-                    <h2 className="mt-[18px] max-w-[300px] text-[26px] font-semibold leading-[1.2] tracking-[-0.02em] text-text">
+                    <BrandMark size={32} withWordmark className="text-accent" />
+                    <h2 className="mt-[18px] max-w-[300px] text-[32px] font-semibold leading-[1.2] tracking-[-0.02em] text-text">
                         {t("LoginBrandHeadline")}
                     </h2>
                     <p className="mt-2.5 max-w-[300px] text-[13.5px] text-text-2">
