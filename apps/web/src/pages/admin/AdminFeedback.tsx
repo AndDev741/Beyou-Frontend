@@ -152,10 +152,10 @@ function AdminFeedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-bg text-text">
+        <div className="min-h-screen w-full bg-bg px-3 py-5 text-text lg:px-7 lg:py-6">
             <PageHeader title={t("AdminFeedbackPageTitle")} />
 
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-3 py-6">
+            <div className="flex w-full flex-col gap-5">
                 <p className="text-sm text-text-2">{t("AdminFeedbackIntro")}</p>
 
                 <dl
@@ -165,14 +165,14 @@ function AdminFeedback() {
                     {COUNT_TILES.map(({ key, labelKey }) => (
                         <div
                             key={key}
-                            className="rounded-card border border-border p-3 transition-colors duration-200 hover:border-border"
+                            className="rounded-control border border-border bg-surface px-3 py-2.5"
                         >
-                            <dt className="text-xs uppercase tracking-wide text-text-2">
+                            <dt className="text-[11px] font-semibold uppercase tracking-wide text-text-3">
                                 {t(labelKey)}
                             </dt>
                             <dd
                                 data-testid={`admin-feedback-count-${key}`}
-                                className="text-3xl font-semibold text-accent"
+                                className="mt-0.5 font-mono text-lg font-semibold text-text"
                             >
                                 {counts?.[key] ?? "—"}
                             </dd>

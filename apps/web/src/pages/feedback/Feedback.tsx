@@ -154,19 +154,19 @@ function Feedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-bg text-text">
+        <div className="min-h-screen w-full bg-bg px-3 py-5 text-text lg:px-7 lg:py-6">
             <PageHeader title={t("FeedbackPageTitle")} />
 
-            <div className="mx-auto w-full max-w-2xl px-3 py-6">
+            <div className="w-full max-w-2xl">
                 <p className="text-sm text-text-2">{t("FeedbackIntro")}</p>
 
                 {outcome?.kind === "sent" && (
                     <div
                         data-testid="feedback-success"
                         role="status"
-                        className="mt-4 rounded-card border-2 border-success bg-bg p-4"
+                        className="mt-4 rounded-control border border-success/30 bg-success/10 p-3"
                     >
-                        <p className="text-base font-semibold text-success">{t("FeedbackSuccessTitle")}</p>
+                        <p className="text-[13px] font-semibold text-text">{t("FeedbackSuccessTitle")}</p>
                         <p className="mt-1 text-sm text-text-2">{t("FeedbackSuccessBody")}</p>
                         {outcome.failedAttachments > 0 && (
                             <p className="mt-2 text-sm font-medium text-danger">
@@ -180,7 +180,7 @@ function Feedback() {
                     <div
                         data-testid="feedback-failure"
                         role="alert"
-                        className="mt-4 rounded-card border-2 border-danger bg-bg p-4"
+                        className="mt-4 rounded-control border border-danger/30 bg-danger/10 p-3"
                     >
                         <p className="text-base font-semibold text-danger">{t("FeedbackFailedTitle")}</p>
                         <p className="mt-1 text-sm text-text-2">{t("FeedbackFailedBody")}</p>
