@@ -106,6 +106,25 @@ Duas decisões concretas nos widgets, ambas comentadas no código:
 
 ---
 
+### O que o e2e precisa adaptar (repo Beyou-e2e-tests, fora deste PR)
+
+O formulário de criação saiu de junto dos cartões e virou modal nas quatro
+listagens. Isso muda o caminho, não os nomes:
+
+1. `HabitFormPage.expectCreateFormVisible()` depois de `habits.goto()` falha —
+   o formulário só existe depois de abrir o modal. Basta clicar antes:
+   `authedPage.getByTestId("create-habit").click()`. Título, campos, rádios e o
+   botão de submit continuam com os mesmos nomes.
+2. `submitCreate()` agora fecha o modal ao salvar (antes deixava o formulário
+   vazio na tela).
+3. `HabitsPage.cardOf()` já estava quebrado antes desta rodada: procura
+   `ancestor::div[contains(@class,'border-primary')]` e o cartão novo usa
+   `border-border`. Sugestão: `ancestor::div[contains(@class,'rounded-card')][1]`.
+4. `profile-persistence.spec.ts`: "Sunset" agora resolve para `#E45A0B` (ver
+   acima).
+5. `tutorial.spec.ts` passa sem mudança — os âncoras migraram para os botões de
+   criar e os passos seguem válidos.
+
 ### Dúvidas que quero revisadas
 
 1. **O painel de marca do login no tema escuro** usa `bg-accent`, que no escuro
