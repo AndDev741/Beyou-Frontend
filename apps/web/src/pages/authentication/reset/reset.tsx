@@ -122,7 +122,7 @@ function ResetPassword() {
                     )}
 
                     {showForm && (
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                             <Controller
                                 key={"password"}
                                 control={control}

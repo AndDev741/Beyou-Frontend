@@ -5,6 +5,7 @@ import Button from "../../../components/Button";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -69,9 +70,20 @@ function Register() {
     };
 
     return (
-        <AuthShell title={`${t("Welcome")} ${t("To")} beyou`} subtitle={t("RegisterSubtitle")} showTabs>
+        <AuthShell
+            title={`${t("Welcome")} ${t("To")} beyou`}
+            subtitle={t("RegisterSubtitle")}
+            footer={
+                <>
+                    {t("AlreadyHaveAccountShort")}{" "}
+                    <Link to="/" className="font-semibold text-accent hover:underline">
+                        {t("Login")}
+                    </Link>
+                </>
+            }
+        >
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="name"
@@ -81,6 +93,7 @@ function Register() {
                                     icon2={null}
                                     icon3={null}
                                     seePasswordIconAlt={""}
+                                    label={t("Name")}
                                     placeholder={t("NamePlaceholder")}
                                     inputType={"text"}
                                     data={field.value}

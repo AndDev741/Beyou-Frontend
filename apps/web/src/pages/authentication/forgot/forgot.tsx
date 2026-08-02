@@ -51,7 +51,7 @@ function ForgotPassword() {
     return (
         <AuthShell title={t("ForgotPasswordTitle")} subtitle={t("ForgotPasswordSubtitle")}>
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="email"

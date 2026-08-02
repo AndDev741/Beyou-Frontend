@@ -959,5 +959,8 @@
     "Or": "or",
     "VerifyEmailTitle": "Check your email",
     "Increase": "Increase",
-    "Decrease": "Decrease"
+    "Decrease": "Decrease",
+    "NewHere": "New here?",
+    "AlreadyHaveAccountShort": "Already have an account?",
+    "Password": "Password"
 }

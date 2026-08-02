@@ -75,7 +75,18 @@ function Login() {
     };
 
     return (
-        <AuthShell title={`${t("Welcome")} ${t("Back!")}`} subtitle={t("LoginSubtitle")} showTabs>
+        <AuthShell
+            title={`${t("Welcome")} ${t("Back!")}`}
+            subtitle={t("LoginSubtitle")}
+            footer={
+                <>
+                    {t("NewHere")}{" "}
+                    <Link to="/register" className="font-semibold text-accent hover:underline">
+                        {t("ToRegister")}
+                    </Link>
+                </>
+            }
+        >
 
                     {needsVerification && (
                         <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-border bg-accent/10 max-w-[90vw] lg:max-w-[380px]">
@@ -99,7 +110,7 @@ function Login() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="email"
@@ -108,6 +119,7 @@ function Login() {
                                     icon1={EmailIcon}
                                     icon2={null}
                                     icon3={null}
+                                    label={t("Email")}
                                     placeholder={"email@gmail.com"}
                                     inputType={"text"}
                                     seePasswordIconAlt={""}
@@ -125,6 +137,7 @@ function Login() {
                             render={({ field }) => (
                                 <Input
                                     icon1={PasswordIcon}
+                                    label={t("Password")}
                                     placeholder={"xxxxxxxx"}
                                     inputType={"password"}
                                     icon2={EyeClosedIcon}
@@ -140,7 +153,7 @@ function Login() {
 
                         <Link
                             to="/forgot-password"
-                            className="self-end text-sm font-semibold text-accent hover:underline"
+                            className="-mt-1 self-end text-xs text-text-2 hover:text-accent"
                         >
                             {t("ForgotPassword")}
                         </Link>

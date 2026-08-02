@@ -1,6 +1,8 @@
 type BrandMarkProps = {
-    /** Lado do símbolo em px. */
+    /** Lado do símbolo em px. Ignorado quando `fluid`. */
     size?: number;
+    /** O símbolo acompanha a largura do container em vez de um lado fixo. */
+    fluid?: boolean;
     /** Mostra o wordmark "beyou" ao lado do símbolo. */
     withWordmark?: boolean;
     className?: string;
@@ -14,7 +16,7 @@ type BrandMarkProps = {
  * os dois divergirem, a assinatura visual quebra. Abaixo de 20px o traço de 8
  * some, então a variante pequena engrossa o traço e reduz o raio.
  */
-export default function BrandMark({ size = 32, withWordmark = false, className = "" }: BrandMarkProps) {
+export default function BrandMark({ size = 32, fluid = false, withWordmark = false, className = "" }: BrandMarkProps) {
     const isSmall = size < 20;
     const stroke = isSmall ? 11 : 8;
     const radius = isSmall ? 23 : 24;
@@ -24,12 +26,12 @@ export default function BrandMark({ size = 32, withWordmark = false, className =
     return (
         <span className={`inline-flex items-center gap-2.5 ${className}`}>
             <svg
-                width={size}
-                height={size}
+                width={fluid ? undefined : size}
+                height={fluid ? undefined : size}
                 viewBox="0 0 64 64"
                 role="img"
                 aria-label="beyou"
-                className="shrink-0"
+                className={fluid ? "h-auto w-full" : "shrink-0"}
             >
                 <circle
                     cx="32"
