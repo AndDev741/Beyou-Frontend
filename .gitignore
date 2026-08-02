@@ -55,3 +55,7 @@ apps/mobile/.metro-health-check*
 # Signing keystores — NEVER commit (public repo). CI decodes from a secret at build time.
 *.keystore
 *.jks
+
+# screenshots de revisão local
+shot-*.png
+check-*.png
