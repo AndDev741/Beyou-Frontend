@@ -24,6 +24,18 @@ como `var(--x)` puro, então `bg-accent/10` no app nativo provavelmente também 
 funciona. Não mexi porque o NativeWind resolve variáveis por conta própria e a
 troca precisa de teste em device.
 
+### 1b. Texto branco fixo sobre o acento
+
+No tema escuro o acento é claro (`#5C9DFF`), então todo `text-white` sobre ele
+ficava ilegível. Eram 20 ocorrências na web e seis constantes
+`ON_PRIMARY = '#FFFFFF'` no mobile; todas passaram a usar `on-accent`, que é o
+par correto por tema.
+
+**Atenção no mobile:** `style={{ color: 'var(--x)' }}` NÃO funciona no React
+Native — só o `className` passa pelo NativeWind. A escala de
+importância/dificuldade, que era hex cru num style inline, virou classe
+(`bg-accent`, `bg-flame`, …) por causa disso.
+
 ### 2. `userInterfaceStyle` do Expo estava fixo em `light`
 
 Com isso `useColorScheme()` responderia claro para sempre e o modo "sistema"
@@ -56,15 +68,19 @@ API. Os componentes que os exibiriam foram escritos para **degradar sem o dado**
 ### Não implementado nesta rodada
 
 - **Heatmap de constância** (PR 5.3 do plano): depende de endpoint de histórico.
-- **Páginas de Rotinas, Hábitos, Tarefas, Metas e Categorias**: receberam os
-  tokens, o raio e as bordas novas, mas o **layout** dessas páginas ainda é o
-  antigo — a reorganização em grid escaneável com toolbar, descrição no cartão e
-  tela estendida não entrou.
+- **Layout das páginas de listagem** (Rotinas, Hábitos, Tarefas, Metas,
+  Categorias): os CARTÕES foram reconstruídos com os primitivos e a descrição
+  já aparece neles, mas a moldura da página — toolbar de busca/ordenar/filtrar
+  no lugar do cartão de filtros, grid de três colunas, tela estendida — ainda é
+  a antiga.
 - **Onboarding e tutorial**: herdaram tokens e componentes, mas o reskin
   desenhado (scrim + anel do acento no spotlight, wizard com Ring de seleção)
   não foi feito.
 - **Admin de feedback**: só tokens; os StatTiles e o split lista/detalhe do
   mockup não entraram.
+- **Modo snapshot da página Rotinas e o seletor de hábito/tarefa**: herdaram
+  tokens, mas a faixa de contexto, o estado vazio próprio e o modal de busca
+  com seleção múltipla desenhados na v1.19 não foram implementados.
 
 ### Dívida deixada de propósito
 
@@ -79,6 +95,23 @@ API. Os componentes que os exibiriam foram escritos para **degradar sem o dado**
   `npm run build` + servidor estático. Precisa de um `sudo rm -rf` fora daqui.
 
 ---
+
+### Dúvidas que quero revisadas
+
+1. **O painel de marca do login no tema escuro** usa `bg-accent`, que no escuro
+   é o azul claro — vira uma área muito luminosa ao lado de um cartão escuro. O
+   contraste do texto está correto (`on-accent` é o navy), mas talvez o desenho
+   peça um acento profundo nesse painel específico. Precisa de olho de designer.
+2. **Sweep de borda por heurística.** A regra "linha com ternário = seleção"
+   acertou na maioria, e eu revisei cartões e inputs à mão, mas vale passar o
+   olho em telas menos óbvias (agendar rotina, seletor de ícones, wizard de IA).
+3. **`CategoryForm` ficou com `<select>` na experiência** enquanto o formulário
+   de hábito virou segmented. Trocar é mudança de lógica (o select devolve
+   string, o segmented devolve número), então parei — é um follow-up de uma
+   linha se quiser igualar.
+4. **Geometria do botão central da barra no Android.** O disco é posicionado
+   absoluto e sobra 14px para fora do pai; comportamento de toque fora do pai
+   no Android merece um teste em device.
 
 ## Verificação feita
 
