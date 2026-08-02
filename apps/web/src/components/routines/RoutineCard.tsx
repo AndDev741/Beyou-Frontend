@@ -1,6 +1,6 @@
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle, FiLayers } from "react-icons/fi";
+import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle } from "react-icons/fi";
 import { Routine } from "@beyou/types/routine/routine";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { resolveIcon } from "@beyou/icons";
@@ -77,137 +77,158 @@ export const RoutineCard = ({
         }
     };
 
+    const weekDays = [
+        { key: "SUNDAY", short: "D" },
+        { key: "MONDAY", short: "S" },
+        { key: "TUESDAY", short: "T" },
+        { key: "WEDNESDAY", short: "Q" },
+        { key: "THURSDAY", short: "Q" },
+        { key: "FRIDAY", short: "S" },
+        { key: "SATURDAY", short: "S" },
+    ];
+    const levelWindow = Math.max((routine.nextLevelXp ?? 0) - (routine.actualLevelXp ?? 0), 1);
+    const levelProgress = Math.min(
+        100,
+        Math.max(0, Math.round((((routine.xp ?? 0) - (routine.actualLevelXp ?? 0)) / levelWindow) * 100)),
+    );
+
     return (
-        <div className="relative overflow-hidden rounded-card border border-border bg-surface shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
-            <div className="absolute inset-x-0 top-0 h-1 bg-accent" />
-            <div className="p-3 md:p-4 space-y-4">
-                <header className="flex items-start justify-between gap-3 md:gap-4">
-                    <div className="space-y-2 w-full">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1 md:gap-2">
-                                <button
-                                    type="button"
-                                    className="p-1 rounded-control border border-border text-text hover:border-border transition-transform duration-150 hover:-translate-y-0.5"
-                                    onClick={() => setExpanded((prev) => !prev)}
-                                    aria-label={expanded ? t("Collapse") : t("Expand")}
-                                >
-                                    <FiChevronDown className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
-                                </button>
-                                <span className="text-lg font-semibold text-text">
-                                    {routine.name}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                                <button
-                                    type="button"
-                                    data-tutorial-id="routine-schedule-button"
-                                    className="rounded-control border border-border px-3 py-2 text-sm font-medium text-text hover:bg-accent/10 transition-transform duration-150 hover:-translate-y-0.5"
-                                    onClick={() => onSchedule(routine)}
-                                >
-                                    <FiCalendar className="inline mr-2" />
-                                    {t("Schedule")}
-                                </button>
-                                <button
-                                    type="button"
-                                    className="rounded-control border border-border p-2 text-text hover:bg-accent/10 transition-transform duration-150 hover:-translate-y-0.5"
-                                    onClick={() => onEdit(routine)}
-                                    aria-label={t("Edit")}
-                                >
-                                    <FiEdit2 />
-                                </button>
-                                {isConfirmingDelete ? (
-                                    <div className="flex flex-col md:flex-row items-center gap-2 rounded-control border border-danger/30 bg-danger/5 px-2 py-1">
-                                        <span className="text-sm font-semibold text-danger">{t("Confirm Deletion")}</span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                type="button"
-                                                className="rounded-control bg-danger px-2 py-1 text-xs font-semibold text-on-accent shadow-sm transition hover:bg-danger/90 hover:-translate-y-0.5"
-                                                onClick={confirmDelete}
-                                            >
-                                                {t("Yes")}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="rounded-control border border-border px-2 py-1 text-xs font-semibold text-accent transition hover:bg-accent/10 hover:-translate-y-0.5"
-                                                onClick={onCancelDelete}
-                                            >
-                                                {t("No")}
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        className="rounded-control border border-danger/30 p-2 text-danger hover:bg-danger/10 transition-transform duration-150 hover:-translate-y-0.5"
-                                        onClick={handleDeleteClick}
-                                        aria-label={t("Delete")}
-                                    >
-                                        <FiTrash2 />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
+        <div className="rounded-card border border-border bg-surface p-4 lg:px-5 lg:py-[18px]">
+            <header className="flex items-start gap-3">
+                <div className="min-w-0">
+                    <b className="block truncate text-base font-semibold tracking-[-0.01em] text-text">
+                        {routine.name}
+                    </b>
+                    <span className="text-xs text-text-3">
+                        {t("SectionsCount", { count: totalSections })} · {t("ItemsCount", { count: totalItems })}
+                        {scheduleDays.length === 7 && ` · ${t("EveryDay")}`}
+                    </span>
+                </div>
 
-                        <div className="flex flex-wrap gap-2 w-full">
-                            <Badge
-                            key={1}>
-                                <FiLayers className="mr-1" /> {totalSections} {t("Sections")}
-                            </Badge>
-                            <Badge
-                            key={2}>
-                                <FiCheckCircle className="mr-1" /> {stats.completedItems}/{stats.totalItems || totalItems} {t("Done")}
-                            </Badge>
-                            <Badge
-                            key={3}>
-                                <FiClock className="mr-1" /> {completion}% {t("Progress")}
-                            </Badge>
+                <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                    <button
+                        type="button"
+                        data-tutorial-id="routine-schedule-button"
+                        className="flex items-center gap-1.5 rounded-control bg-accent-soft px-3.5 py-[7px] text-[12.5px] font-semibold text-accent transition-colors duration-200 hover:bg-accent/15"
+                        onClick={() => onSchedule(routine)}
+                    >
+                        <FiCalendar aria-hidden="true" />
+                        {t("Schedule")}
+                    </button>
+                    <button
+                        type="button"
+                        className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                        onClick={() => onEdit(routine)}
+                        aria-label={t("Edit")}
+                    >
+                        <FiEdit2 />
+                    </button>
+                    {isConfirmingDelete ? (
+                        <div className="flex items-center gap-1.5 rounded-control border border-danger/30 bg-danger/5 px-2 py-1">
+                            <span className="text-xs font-semibold text-danger">{t("Confirm Deletion")}</span>
+                            <button
+                                type="button"
+                                className="rounded-lg bg-danger px-2 py-0.5 text-xs font-semibold text-on-accent"
+                                onClick={confirmDelete}
+                            >
+                                {t("Yes")}
+                            </button>
+                            <button
+                                type="button"
+                                className="rounded-lg px-2 py-0.5 text-xs font-semibold text-text-2"
+                                onClick={onCancelDelete}
+                            >
+                                {t("No")}
+                            </button>
                         </div>
-                        <div className="flex flex-wrap text-xs text-text-2 w-full pl-1">
-                            {scheduleDays.length > 0 ? (
-                                scheduleDays.map((day) => (
-                                    <span
-                                        key={day}
-                                        className="rounded-full bg-accent/10 pr-3 py-1 font-medium text-accent"
-                                    >
-                                        {t(day)}
-                                    </span>
-                                ))
-                            ) : (
-                                <span className="text-text-2">{t("No schedule set")}</span>
-                            )}
-                        </div>
-                    </div>
-                </header>
+                    ) : (
+                        <button
+                            type="button"
+                            className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-danger/10 hover:text-danger"
+                            onClick={handleDeleteClick}
+                            aria-label={t("Delete")}
+                        >
+                            <FiTrash2 />
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                        onClick={() => setExpanded((prev) => !prev)}
+                        aria-label={expanded ? t("Collapse") : t("Expand")}
+                        aria-expanded={expanded}
+                    >
+                        <FiChevronDown className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
+                    </button>
+                </div>
+            </header>
 
-                <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                        <div className="h-2 w-full overflow-hidden rounded-full bg-ligthGray/40">
-                            <div
-                                className="h-full rounded-full bg-accent transition-all duration-500"
-                                style={{ width: `${completion}%` }}
-                            />
-                        </div>
-                        <span className="text-sm font-semibold text-text w-14 text-right">{completion}%</span>
-                    </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-text">
-                        {stats.xpEarned > 0 ? (
-                            <p className="text-success flex-1 min-w-[140px]">
-                                +{stats.xpEarned} XP {t("earned on")} {formatDate(selectedDate)}
-                            </p>
-                        ) : (
-                            <span className="flex-1 min-w-[140px]" />
-                        )}
-                        <div className="flex items-center gap-2 text-right">
-                            <span className="text-text font-semibold whitespace-nowrap">LV {routine.level ?? 0}</span>
-                            <span className="text-text-2 whitespace-nowrap">
-                                {routine.xp ?? 0}/{routine.nextLevelXp ?? 0} XP
-                            </span>
-                        </div>
+            {/* A identidade da rotina em três blocos: quando ela roda, o nível
+                dela e como está hoje. Os quatro cartões de estatística que
+                existiam aqui eram mais interface que informação. */}
+            <div className="mt-4 flex flex-wrap items-start gap-x-6 gap-y-4">
+                <div>
+                    <span className="mb-1.5 block text-[11px] font-semibold text-text-3">{t("Days")}</span>
+                    <div className="flex gap-1">
+                        {weekDays.map((day, index) => {
+                            const isOn = scheduleDays.includes(day.key);
+                            return (
+                                <i
+                                    key={`${day.key}-${index}`}
+                                    title={t(day.key)}
+                                    className={`h-[22px] w-[22px] rounded-[7px] text-center font-mono text-[10px] font-semibold not-italic leading-[22px] ${
+                                        isOn ? "bg-accent-soft text-accent" : "bg-surface-2 text-text-3"
+                                    }`}
+                                >
+                                    {day.short}
+                                </i>
+                            );
+                        })}
                     </div>
                 </div>
 
-                {expanded && (
-                    <div className="space-y-3">
+                <div>
+                    <span className="mb-1.5 block text-[11px] font-semibold text-text-3">
+                        {t("Level")} {routine.level ?? 0}
+                    </span>
+                    <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-text-3">
+                        <div className="h-1.5 w-[110px] overflow-hidden rounded-full bg-surface-2">
+                            <div
+                                className="h-full rounded-full bg-accent transition-[width] duration-500"
+                                style={{ width: `${levelProgress}%` }}
+                            />
+                        </div>
+                        {routine.xp ?? 0}/{routine.nextLevelXp ?? 0} XP
+                    </div>
+                </div>
+
+                <div>
+                    <span className="mb-1.5 block text-[11px] font-semibold text-text-3">{t("Today")}</span>
+                    <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-text-3">
+                        <div className="h-1.5 w-[110px] overflow-hidden rounded-full bg-surface-2">
+                            <div
+                                className="h-full rounded-full bg-accent transition-[width] duration-500"
+                                style={{ width: `${completion}%` }}
+                            />
+                        </div>
+                        {stats.completedItems}/{stats.totalItems || totalItems}
+                    </div>
+                </div>
+
+                {stats.xpEarned > 0 && (
+                    <div>
+                        <span className="mb-1.5 block text-[11px] font-semibold text-text-3">
+                            {formatDate(selectedDate)}
+                        </span>
+                        <span className="rounded-full bg-xp-soft px-2.5 py-1 font-mono text-[11px] font-semibold text-xp">
+                            +{stats.xpEarned} XP
+                        </span>
+                    </div>
+                )}
+            </div>
+
+            {expanded && (
+                <div className="mt-4 border-t border-border pt-2">
                         {routine.routineSections?.map((section) => (
                             <SectionRow
                                 key={section.id}
@@ -219,9 +240,8 @@ export const RoutineCard = ({
                                 onCheckItem={onCheckItem}
                             />
                         ))}
-                    </div>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -392,13 +412,3 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
         </div>
     );
 };
-
-type BadgeProps = {
-    children: ReactNode;
-};
-
-const Badge = ({ children }: BadgeProps) => (
-    <span className="inline-flex items-center rounded-full border border-border bg-accent/5 px-2.5 py-1 text-xs font-semibold text-text">
-        {children}
-    </span>
-);

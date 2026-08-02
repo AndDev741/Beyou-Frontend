@@ -989,5 +989,14 @@
     "Month": "Mês",
     "Year": "Ano",
     "Future": "Futuro",
-    "Filter": "filtrar"
+    "Filter": "filtrar",
+    "ItemsCount": "{{count}} itens",
+    "ItemsCount_one": "{{count}} item",
+    "ItemsCount_other": "{{count}} itens",
+    "EveryDay": "roda todos os dias",
+    "RoutinesCount_one": "{{count}} rotina",
+    "RoutinesCount_other": "{{count}} rotinas",
+    "ActiveDaysThisWeek": "{{count}} dias ativos nesta semana",
+    "ActiveDaysThisWeek_one": "{{count}} dia ativo nesta semana",
+    "ActiveDaysThisWeek_other": "{{count}} dias ativos nesta semana"
 }

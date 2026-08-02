@@ -15,13 +15,11 @@ import { RootState } from "@beyou/state/rootReducer";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
 import { CgAddR } from "react-icons/cg";
 import { RoutineSummary } from "../../components/routines/RoutineSummary";
-import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
     compareNumbers,
     compareStrings,
     sortItems
 } from "../../components/utils/sortHelpers";
-import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
@@ -34,6 +32,8 @@ import {
 } from "@beyou/state/routine/snapshotSlice";
 
 import PageHeader from "../../ui/PageHeader";
+import Button from "../../components/Button";
+import { FiPlus } from "react-icons/fi";
 const Routine = () => {
     useAuthGuard();
     const { t } = useTranslation();
@@ -60,16 +60,6 @@ const Routine = () => {
         routine.schedule?.days?.includes(todayName)
     );
 
-    const sortOptions: SortOption[] = [
-        { value: "default", label: t("Default order") },
-        { value: "name-asc", label: t("Name (A-Z)") },
-        { value: "name-desc", label: t("Name (Z-A)") },
-        { value: "level-desc", label: t("Level (High to Low)") },
-        { value: "level-asc", label: t("Level (Low to High)") },
-        { value: "xp-desc", label: t("XP (High to Low)") },
-        { value: "xp-asc", label: t("XP (Low to High)") }
-    ];
-
     const sortedRoutines = useMemo(() => {
         switch (sortBy) {
             case "name-asc":
@@ -88,10 +78,6 @@ const Routine = () => {
                 return routines;
         }
     }, [routines, sortBy]);
-
-    const handleSortChange = (value: string) => {
-        dispatch(setViewSort({ view: "routines", sortBy: value }));
-    };
 
     const handleDateChange = useCallback(async (newDate: string) => {
         setSelectedDateLocal(newDate);
@@ -168,7 +154,21 @@ const Routine = () => {
                     onSkip={onSkip}
                 />
             )}
-            <PageHeader title={t("Your Routines")} />
+            <PageHeader
+                title={t("Your Routines")}
+                action={
+                    !isSnapshotMode && !onCreateRoutine ? (
+                        <Button
+                            text={t("Create routine")}
+                            mode="primary"
+                            size="medium"
+                            icon={<FiPlus aria-hidden="true" />}
+                            onClick={() => setOnCreateRoutine(true)}
+                            testId="create-routine"
+                        />
+                    ) : undefined
+                }
+            />
             <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
                 <RoutineSummary
                     routines={routines}
@@ -178,17 +178,6 @@ const Routine = () => {
 
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                     <div className="w-full lg:w-[50%]">
-                        {!isSnapshotMode && (
-                            <SortFilterBar
-                                title={t("Routines list")}
-                                description={t("Sort results")}
-                                options={sortOptions}
-                                value={sortBy}
-                                onChange={handleSortChange}
-                                quickValues={["name-asc", "level-desc", "xp-desc"]}
-                                className="mb-4"
-                            />
-                        )}
                         {snapshotLoading ? (
                             <div className="flex items-center justify-center py-16">
                                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
