@@ -1,18 +1,20 @@
 import { useTranslation } from "react-i18next"
-import LogoIcon from '../../assets/authentication/Logo.png';
+import BrandMark from "../brand/BrandMark";
 import ThemeSelectorInline from "./ThemeSelectorInline";
-function Logo(){
-    const {t} = useTranslation();
-    return(
+
+/** Painel de marca do login (coluna esquerda, só em telas grandes). */
+function Logo() {
+    const { t } = useTranslation();
+    return (
         <>
-        <img className="w-[300px] h-[]"
-        src={LogoIcon}
-        alt={t('LogoAlt')}/>
-        <h2 className="text-5xl font-bold text-white">{t('BeYou')}</h2>
-        <h3 className="text-3xl font-medium text-white mt-3">{t('YourFavoriteHT')}</h3>
-        <div className="flex flex-col items-center justify-between gap-4 px-6 pt-6">
-            <ThemeSelectorInline />
-        </div>
+            <BrandMark size={96} className="text-on-accent" />
+            <h2 className="mt-6 text-4xl font-semibold tracking-[-0.02em] text-on-accent">
+                {t('LoginBrandHeadline')}
+            </h2>
+            <h3 className="mt-3 text-lg font-normal text-on-accent/80">{t('YourFavoriteHT')}</h3>
+            <div className="flex flex-col items-center justify-between gap-4 px-6 pt-8">
+                <ThemeSelectorInline />
+            </div>
         </>
     )
 }
