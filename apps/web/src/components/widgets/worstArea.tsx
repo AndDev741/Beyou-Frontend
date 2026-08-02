@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 import BaseDiv from "./baseDiv";
 import category from "@beyou/types/category/categoryType";
 import BeyouIcon from "../../ui/BeyouIcon";
+import { Gauge } from "lucide-react";
 
 export type worstAreaProps = {
     categoriePassed: category | null;
@@ -22,24 +23,35 @@ const categoryExample: category = {
 export default function WorstArea({categoriePassed}: worstAreaProps){
     const {t} = useTranslation();
     const categoryToUse = categoriePassed ?? categoryExample;
-
-    const actualProgress = Math.round(((categoryToUse.xp - categoryToUse.actualLevelXp) / (categoryToUse.nextLevelXp - categoryToUse.actualLevelXp)) * 100);
+    const window = Math.max(categoryToUse.nextLevelXp - categoryToUse.actualLevelXp, 1);
+    const progress = Math.min(
+        100,
+        Math.max(0, Math.round(((categoryToUse.xp - categoryToUse.actualLevelXp) / window) * 100)),
+    );
 
     return (
-        <BaseDiv title={t('Worst Area')}>
-            <div className="flex items-center justify-center w-full">
-                <p className="text-[25px] text-accent">
+        <BaseDiv title={t('Worst Area')} icon={<Gauge size={14.5} aria-hidden="true" />}>
+            {/* O mockup traz barras da semana aqui, mas a API não devolve XP por
+                categoria por dia — o cartão mostra o que existe (nível e XP) em
+                vez de inventar série. Ver docs/redesign/implementation-notes.md. */}
+            <div className="mt-3 flex items-center gap-2.5">
+                <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-flame-soft text-flame">
                     <BeyouIcon id={categoryToUse.iconId} />
-                </p>
-                <h3 className={`text-lg text-accent md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{categoryToUse.name}</h3>
+                </span>
+                <div className="min-w-0">
+                    <b className="block truncate text-sm font-semibold text-text">{categoryToUse.name}</b>
+                    <span className="font-mono text-[10.5px] text-text-3">
+                        LV {categoryToUse.level} · {categoryToUse.xp}/{categoryToUse.nextLevelXp} XP
+                    </span>
+                </div>
             </div>
-            <div className="flex w-full">
-                <div className="border border-danger bg-danger h-[15px] rounded-l-xl transition-all duration-700 ease-out"
-                style={{width: `${actualProgress}%`}}></div>
-                <div className="border border-danger bg-danger/10 h-[15px] rounded-r-xl transition-all duration-700 ease-out"
-                style={{width: `${100 - actualProgress}%`}}></div>
+
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                <div
+                    className="h-full rounded-full bg-flame transition-[width] duration-700 ease-out"
+                    style={{ width: `${progress}%` }}
+                />
             </div>
-            <h3 className="text-text">LV {categoryToUse.level}</h3>
         </BaseDiv>
     )
 }

@@ -196,34 +196,39 @@ function Dashboard() {
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                 </div>
             ) : (
-            <div className="w-full max-w-[1400px] px-4 py-6 lg:px-7">
-                <Perfil />
+            // Duas colunas como no mockup: a principal (saudação, rotina,
+            // metas) e o rail dos widgets, que começa no topo e desce por toda
+            // a altura da direita.
+            <div className="w-full max-w-[1400px] lg:flex lg:items-start lg:gap-6">
+                <div className="min-w-0 flex-1 px-4 py-6 lg:px-7">
+                    <Perfil />
 
-                {/* A rotina do dia é o centro da tela; os widgets vivem num rail
-                    à direita no desktop e num carrossel de altura fixa no
-                    mobile, para a rotina nunca descer conforme se adiciona
-                    widget. */}
-                <div className="mt-5 lg:flex lg:items-start lg:gap-5">
-                    <div className="min-w-0 lg:flex-1">
+                    <div className="mt-5">
                         <RoutineDay routine={routine ? routine : null} />
                     </div>
 
-                    <aside className="mt-5 hidden w-[300px] shrink-0 flex-col gap-4 lg:mt-0 lg:flex">
+                    {/* Mobile: carrossel de altura fixa entre a rotina e as metas,
+                        para a rotina nunca descer conforme se adiciona widget. */}
+                    <div
+                        className="mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 lg:hidden"
+                        data-testid="mobile-widget-board"
+                    >
                         {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
-                            <WidgetsFabric
-                                key={id}
-                                widgetId={id as keyof WidgetProps}
-                                categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
-                                categories={categories}
-                                constance={constance}
-                                checked={checkedItemsInScheduledRoutine}
-                                total={totalItemsInScheduledRoutine}
-                                xp={xp}
-                                level={level}
-                                nextLevelXp={nextLevelXp}
-                                actualLevelXp={actualLevelXp}
-                                draggable
-                            />
+                            <div key={id} className="min-w-[78%] snap-center">
+                                <WidgetsFabric
+                                    widgetId={id as keyof WidgetProps}
+                                    categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                    categories={categories}
+                                    constance={constance}
+                                    checked={checkedItemsInScheduledRoutine}
+                                    total={totalItemsInScheduledRoutine}
+                                    xp={xp}
+                                    level={level}
+                                    nextLevelXp={nextLevelXp}
+                                    actualLevelXp={actualLevelXp}
+                                    draggable
+                                />
+                            </div>
                         )) : (
                             <EmptyState
                                 emoji="🧩"
@@ -231,32 +236,33 @@ function Dashboard() {
                                 description={t('NoWidgetsDescription')}
                                 actionLabel={t('AddWidgets')}
                                 actionTo="/configuration"
-                                testId="no-widgets-empty-state-desktop"
+                                testId="no-widgets-empty-state-mobile"
                             />
                         )}
-                    </aside>
+                    </div>
+
+                    {/* Metas fecham a coluna: são o porquê dos checks diários. */}
+                    <div className="mt-5">
+                        <GoalsTab />
+                    </div>
                 </div>
 
-                <div
-                    className="mt-5 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 lg:hidden"
-                    data-testid="mobile-widget-board"
-                >
+                <aside className="hidden w-[320px] shrink-0 flex-col gap-3.5 py-6 pr-6 lg:flex">
                     {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
-                        <div key={id} className="min-w-[78%] snap-center">
-                            <WidgetsFabric
-                                widgetId={id as keyof WidgetProps}
-                                categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
-                                categories={categories}
-                                constance={constance}
-                                checked={checkedItemsInScheduledRoutine}
-                                total={totalItemsInScheduledRoutine}
-                                xp={xp}
-                                level={level}
-                                nextLevelXp={nextLevelXp}
-                                actualLevelXp={actualLevelXp}
-                                draggable
-                            />
-                        </div>
+                        <WidgetsFabric
+                                    key={id}
+                                    widgetId={id as keyof WidgetProps}
+                                    categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                    categories={categories}
+                                    constance={constance}
+                                    checked={checkedItemsInScheduledRoutine}
+                                    total={totalItemsInScheduledRoutine}
+                                    xp={xp}
+                                    level={level}
+                                    nextLevelXp={nextLevelXp}
+                                    actualLevelXp={actualLevelXp}
+                                    draggable
+                                />
                     )) : (
                         <EmptyState
                             emoji="🧩"
@@ -264,15 +270,10 @@ function Dashboard() {
                             description={t('NoWidgetsDescription')}
                             actionLabel={t('AddWidgets')}
                             actionTo="/configuration"
-                            testId="no-widgets-empty-state-mobile"
+                            testId="no-widgets-empty-state-desktop"
                         />
                     )}
-                </div>
-
-                {/* Metas fecham a tela: são o porquê dos checks diários. */}
-                <div className="mt-8">
-                    <GoalsTab />
-                </div>
+                </aside>
 
                 {/* The mobile bottom bar and its clearance spacer used to be
                     rendered here. They moved to `ProtectedRoute` so every

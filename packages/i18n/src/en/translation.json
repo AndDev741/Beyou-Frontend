@@ -971,5 +971,13 @@
     "SectionsCount_one": "{{count}} section",
     "SectionsCount_other": "{{count}} sections",
     "Of": "of",
-    "SectionsCount": "{{count}} sections"
+    "SectionsCount": "{{count}} sections",
+    "OfTheDay": "of the day",
+    "EarnedToday": "earned today",
+    "DaysInARow": "days in a row",
+    "Best": "best",
+    "StreakStripCaption": "Last 28 days · current streak highlighted",
+    "StreakStripLabel": "Current streak: {{days}} of the last {{total}} days",
+    "TipCounter": "tip {{index}} of {{total}}",
+    "ChangesDaily": "changes daily"
 }

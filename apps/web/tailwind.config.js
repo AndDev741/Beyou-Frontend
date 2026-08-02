@@ -51,6 +51,10 @@ module.exports = {
         placeholder: "rgb(var(--placeholder-rgb) / <alpha-value>)",
         error: "rgb(var(--error-rgb) / <alpha-value>)",
       },
+      gridTemplateColumns: {
+        // faixa de constância: 14 colunas x 2 linhas = 28 dias
+        14: "repeat(14, minmax(0, 1fr))",
+      },
       borderRadius: {
         // Uma família de raio por camada.
         frame: "24px",

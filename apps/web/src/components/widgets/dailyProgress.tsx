@@ -1,101 +1,68 @@
 import { useTranslation } from "react-i18next"
+import { useSelector } from "react-redux"
+import { Target } from "lucide-react"
+import type { RootState } from "@beyou/state/rootReducer"
 import BaseDiv from "./baseDiv"
-import {
-    Chart,
-    ArcElement,
-    Tooltip,
-    Legend,
-    DoughnutController
-} from "chart.js"
-import { useEffect, useRef } from "react"
-import { ProgressRing } from "../progressRing"
-import { toHex6 } from "./utils/chartColors"
-import { useTheme } from "../../context/ThemeContext"
-
-Chart.register(ArcElement, Tooltip, Legend, DoughnutController)
 
 export type dailyProgressProps = {
     checked: number
     total: number
 }
 
+const SIZE = 108;
+const RADIUS = 30;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+/**
+ * O widget "Hoje": anel grande com a porcentagem do dia e, ao lado, o que ela
+ * significa em números — itens concluídos e XP ganho hoje.
+ *
+ * O anel é SVG e não canvas: canvas não resolve CSS var, o que obrigava a ler
+ * cor do objeto de tema e ainda assim errava no primeiro paint.
+ */
 export default function DailyProgress({ checked, total }: dailyProgressProps) {
     const { t } = useTranslation()
-    const { theme } = useTheme()
-    const chartRef = useRef<HTMLCanvasElement>(null)
-    const chartInstanceRef = useRef<Chart | null>(null)
-
-    useEffect(() => {
-        if (!chartRef.current) return
-
-        // Destroi gráfico antigo se existir
-        if (chartInstanceRef.current) {
-            chartInstanceRef.current.destroy()
-        }
-
-        // Canvas can't resolve CSS variables, and the provider's CSS-var effect
-        // runs after this child effect — so read straight off the theme object.
-        const primary = toHex6(theme.primary)
-        const secondary = toHex6(theme.secondary)
-
-        chartInstanceRef.current = new Chart(chartRef.current, {
-            type: 'doughnut',
-            data: {
-                labels: ['Checked', 'Remaining'],
-                datasets: [{
-                    label: 'Daily Progress',
-                    data: [checked, total - checked],
-                    backgroundColor: [primary, 'transparent'],
-                    borderColor: [primary, primary],
-                    borderWidth: 1,
-                }],
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: secondary,
-                        },
-                    },
-                },
-            },
-        })
-
-        return () => {
-            if (chartInstanceRef.current) {
-                chartInstanceRef.current.destroy()
-            }
-        }
-    }, [checked, total, theme])
+    const xpToday = useSelector((s: RootState) => s.perfil.xp)
+    const percent = total > 0 ? Math.round((checked / total) * 100) : 0
 
     return (
-        <BaseDiv title={t('Daily Progress')} bigSize={true}>
-            {/* Mobile: full-width row — phrase on the left, ring on the right */}
-            <div className="md:hidden flex w-full items-center justify-between gap-3 px-2 py-2">
-                <div className="flex flex-col text-left">
-                    <p className="text-accent text-sm font-semibold">
-                        {t('Daily progress phrase')}
-                    </p>
-                    <p className="text-text text-lg font-semibold mt-1">
-                        {t('Tasks')}: {checked}/{total}
-                    </p>
+        <BaseDiv title={t("Today")} icon={<Target size={14.5} aria-hidden="true" />}>
+            <div className="mt-3 flex items-center gap-[18px]">
+                <div className="relative h-[108px] w-[108px] shrink-0" data-testid="daily-progress-ring">
+                    <svg width={SIZE} height={SIZE} viewBox="0 0 72 72" className="-rotate-90" aria-hidden="true">
+                        <circle cx="36" cy="36" r={RADIUS} fill="none" strokeWidth="7" className="stroke-surface-2" />
+                        <circle
+                            cx="36"
+                            cy="36"
+                            r={RADIUS}
+                            fill="none"
+                            strokeWidth="7"
+                            strokeLinecap="round"
+                            className="stroke-accent transition-[stroke-dashoffset] duration-700 ease-out"
+                            strokeDasharray={CIRCUMFERENCE}
+                            strokeDashoffset={CIRCUMFERENCE * (1 - percent / 100)}
+                        />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <b className="font-mono text-[22px] font-semibold tracking-[-0.03em] text-text">
+                            {percent}%
+                        </b>
+                        <span className="text-[10.5px] text-text-3">{t("OfTheDay")}</span>
+                    </div>
                 </div>
-                <div className="shrink-0" data-testid="daily-progress-ring">
-                    <ProgressRing progress={total > 0 ? (checked / total) * 100 : 0} size="lg" />
-                </div>
-            </div>
 
-            {/* Desktop: phrase + doughnut, unchanged */}
-            <p className="hidden md:block text-accent text-lg font-semibold whitespace-pre-line lg:whitespace-nowrap text-center">
-                {t('Daily progress phrase')}
-            </p>
-            <p className="hidden md:block text-accent text-lg font-semibold">{t('Tasks')}</p>
-            <div className="hidden md:block">
-                <canvas ref={chartRef} className="w-full h-[200px]"></canvas>
+                <div className="flex flex-col gap-[7px] text-[12.5px] text-text-2">
+                    <div>
+                        <b className="font-semibold text-text">
+                            {checked} {t("Of")} {total}
+                        </b>{" "}
+                        {t("Completed")}
+                    </div>
+                    <div>
+                        <b className="font-mono font-semibold text-xp">+{xpToday} XP</b> {t("EarnedToday")}
+                    </div>
+                </div>
             </div>
-            <p className="hidden md:block text-text text-lg font-semibold">{checked}/{total}</p>
         </BaseDiv>
     )
 }

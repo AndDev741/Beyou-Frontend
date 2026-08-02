@@ -971,5 +971,13 @@
     "SectionsCount_one": "{{count}} seção",
     "SectionsCount_other": "{{count}} seções",
     "Of": "de",
-    "SectionsCount": "{{count}} seções"
+    "SectionsCount": "{{count}} seções",
+    "OfTheDay": "do dia",
+    "EarnedToday": "ganhos hoje",
+    "DaysInARow": "dias seguidos",
+    "Best": "melhor",
+    "StreakStripCaption": "Últimos 28 dias · sequência atual em destaque",
+    "StreakStripLabel": "Sequência atual: {{days}} dos últimos {{total}} dias",
+    "TipCounter": "dica {{index}} de {{total}}",
+    "ChangesDaily": "muda todo dia"
 }
