@@ -145,7 +145,7 @@ export default function RenderRoutines({
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-primary/20 bg-background p-8 text-center shadow-sm">
+                <div className="flex flex-col items-center justify-center rounded-card border border-border bg-background p-8 text-center shadow-sm">
                     <p className="text-lg font-semibold">{t("No routines available, start create some to track you tasks!")}</p>
                     <p className="mt-2 text-sm text-description">{t("Create your first routine to see it here")}</p>
                 </div>

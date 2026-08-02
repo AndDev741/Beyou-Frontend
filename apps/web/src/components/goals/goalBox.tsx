@@ -173,7 +173,7 @@ function GoalBox({
   }
 
   return (
-    <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
+    <div className={`flex relative flex-col justify-between border border-border rounded-control p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <div className="flex items-start">
@@ -225,7 +225,7 @@ function GoalBox({
               size="sm"
               onClick={() => decreaseTask(id)}
               disabled={currentValue === 0}
-              className="h-8 w-10 p-0 border-primary"
+              className="h-8 w-10 p-0 border-border"
             >
               <p className="text-xl text-secondary" >-</p>
             </Button>
@@ -233,7 +233,7 @@ function GoalBox({
               variant="outline"
               size="sm"
               onClick={() => increaseTask(id)}
-              className="h-8 w-10 p-0 border-primary"
+              className="h-8 w-10 p-0 border-border"
             >
               <p className="text-lg text-secondary" >+</p>
             </Button>
@@ -252,7 +252,7 @@ function GoalBox({
               size="sm"
               onClick={() => completeTask(id)}
               disabled={currentValue === 0}
-              className="border-primary"
+              className="border-border"
             >
               <p className="text-md text-secondary">{status === "COMPLETED" ? t("Remove Complete") : t("Mark Complete")}</p>
             </Button>
@@ -270,11 +270,11 @@ function GoalBox({
       </div>
       <div className={`${readonly ? "hidden" : ""} flex justify-between items-center my-2`}>
 
-        <button onClick={handleEditMode} className="px-4 py-1 rounded cursor-pointer bg-primary text-background dark:text-secondary transition-colors duration-200 hover:bg-primary/90">
+        <button onClick={handleEditMode} className="px-4 py-1 rounded cursor-pointer bg-primary text-background transition-colors duration-200 hover:bg-primary/90">
           {t("Edit")}
         </button>
         <div className="my-1"></div>
-        <button onClick={() => setOnDelete(true)} className="px-4 py-1 rounded cursor-pointer bg-error text-background dark:text-secondary transition-colors duration-200 hover:bg-error/90">
+        <button onClick={() => setOnDelete(true)} className="px-4 py-1 rounded cursor-pointer bg-error text-background transition-colors duration-200 hover:bg-error/90">
           {t("Delete")}
         </button>
         <DeleteModal

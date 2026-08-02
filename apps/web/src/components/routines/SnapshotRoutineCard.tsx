@@ -93,7 +93,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
     };
 
     return (
-        <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-background shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
+        <div className="relative overflow-hidden rounded-card border border-border bg-background shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-description/60 via-primary/40 to-description/60" />
             <div className="p-3 md:p-4 space-y-4">
                 <header className="flex items-start justify-between gap-3 md:gap-4">
@@ -102,7 +102,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
                             <div className="flex items-center gap-1 md:gap-2">
                                 <button
                                     type="button"
-                                    className="p-1 rounded-md border border-primary/20 text-secondary hover:border-primary/40 transition-transform duration-150 hover:-translate-y-0.5"
+                                    className="p-1 rounded-control border border-border text-secondary hover:border-border transition-transform duration-150 hover:-translate-y-0.5"
                                     onClick={() => setExpanded((prev) => !prev)}
                                     aria-label={expanded ? t("Collapse") : t("Expand")}
                                 >
@@ -206,11 +206,11 @@ const SnapshotSectionRow = ({ section, checks, onCheck, onSkip }: SnapshotSectio
     }, [checks, section.items]);
 
     return (
-        <div className="rounded-lg border border-primary/15 bg-background/80 p-3">
+        <div className="rounded-control border border-border bg-background/80 p-3">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 w-full">
                     <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-lg ${timeOfDayClasses[timeOfDay]} text-base`}
+                        className={`flex h-9 w-9 items-center justify-center rounded-control ${timeOfDayClasses[timeOfDay]} text-base`}
                     >
                         {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                     </div>
@@ -268,12 +268,12 @@ const SnapshotCheckItem = ({ check, startTime, endTime, onCheck, onSkip }: Snaps
 
     return (
         <div
-            className={`group flex items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors ${
+            className={`group flex items-center gap-3 rounded-control border px-3 py-2 text-sm transition-colors ${
                 check.skipped
                     ? "border-description/20 bg-description/5 text-description opacity-60"
                     : check.checked
                     ? "border-success/30 bg-success/10 text-secondary"
-                    : "border-primary/10 bg-background text-secondary"
+                    : "border-border bg-background text-secondary"
             }`}
         >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -319,7 +319,7 @@ const SnapshotCheckItem = ({ check, startTime, endTime, onCheck, onSkip }: Snaps
 };
 
 const Badge = ({ children }: { children: React.ReactNode }) => (
-    <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-secondary">
+    <span className="inline-flex items-center rounded-full border border-border bg-primary/5 px-2.5 py-1 text-xs font-semibold text-secondary">
         {children}
     </span>
 );

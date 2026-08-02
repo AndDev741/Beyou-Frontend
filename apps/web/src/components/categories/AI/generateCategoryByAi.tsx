@@ -37,7 +37,7 @@ export default function GenerateCategoryByAi({setGeneratedCategory}: prop){
                 {t("Generating")}...
             </p>
             <div onClick={() => fetchSuggestion()}
-            className="flex items-center justify-center border border-primary rounded-xl p-2 md:w-[450px] h-[60px] mb-8 mx-8 cursor-pointer hover:scale-105 transition-transform duration-200 bg-primary/10 hover:bg-primary/20">
+            className="flex items-center justify-center border border-border rounded-card p-2 md:w-[450px] h-[60px] mb-8 mx-8 cursor-pointer hover:scale-105 transition-transform duration-200 bg-primary/10 hover:bg-primary/20">
                 <img src={IAImg}
                 alt="ia icon"
                 className="w-[60px] md:w-[70px]"/>

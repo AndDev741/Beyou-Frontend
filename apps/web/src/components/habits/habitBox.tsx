@@ -53,7 +53,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
     }
 
     return(
-        <div className={`w-full relative flex flex-col justify-between ${expanded ? "min-h-[300px]" : "min-h-[176px]"} border border-primary rounded-md p-3 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary shadow-sm`}>
+        <div className={`w-full relative flex flex-col justify-between ${expanded ? "min-h-[300px]" : "min-h-[176px]"} border border-border rounded-control p-3 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary shadow-sm`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
                     <p className="text-icon text-[30px] md:text-[34px]">
@@ -133,9 +133,9 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
                     <p><span className="text-primary">{xp}</span>/{nextLevelXp}</p>
                 </div>
                 <div className="flex w-[100%]">
-                    <div className="border border-primary bg-primary h-[15px] rounded-l-xl"
+                    <div className="border border-border bg-primary h-[15px] rounded-l-xl"
                     style={{width: `${actualProgress}%`}}></div>
-                    <div className="border border-primary/40 bg-description/20 h-[15px] rounded-r-xl"
+                    <div className="border border-border bg-description/20 h-[15px] rounded-r-xl"
                     style={{width: `${100 - actualProgress}%`}}></div>
                 </div>
             </div>
@@ -167,12 +167,12 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
             <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
                 <button
                 onClick={handleEditMode}
-                className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[110px] h-[32px] rounded-md transition-colors duration-200">
+                className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[110px] h-[32px] rounded-control transition-colors duration-200">
                     {t('Edit')}
                 </button>
                 <button
                 onClick={() => setOnDelete(true)}
-                className="bg-error hover:bg-error/90 text-white font-semibold w-[110px] h-[32px] rounded-md transition-colors duration-200">
+                className="bg-error hover:bg-error/90 text-white font-semibold w-[110px] h-[32px] rounded-control transition-colors duration-200">
                     {t('Delete')}
                 </button>
                 <DeleteModal

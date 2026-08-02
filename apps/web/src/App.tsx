@@ -34,7 +34,7 @@ function FullScreenSpinner() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center text-secondary">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ type genericInputProps = {
     placeholder: string
 }
 function GenericInput({t, dataError, name, setData, data, placeholder, type = "text"}: genericInputProps){
-    const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
+    const borderCss = "border border-border rounded-control w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
     const labelCss = "text-lg md:text-2xl md:text-xl mt-2 text-secondary";
     const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
     return(

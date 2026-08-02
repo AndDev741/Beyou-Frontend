@@ -32,7 +32,7 @@ export default function LanguageToggle({
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
             testID={`lang-${lng}`}
-            className={`border-2 border-primary px-4 py-1.5 ${active ? 'bg-primary' : ''}`}
+            className={`border-2 border-border px-4 py-1.5 ${active ? 'bg-primary' : ''}`}
           >
             <Text
               className={`text-base font-bold ${active ? '' : 'text-secondary'}`}

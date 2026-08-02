@@ -14,7 +14,7 @@ interface Props extends Omit<PressableProps, 'children'> {
 
 const MODE: Record<Mode, string> = {
   create: 'bg-primary',
-  cancel: 'bg-secondary/10 border border-primary',
+  cancel: 'bg-secondary/10 border border-border',
   default: 'bg-background border border-description',
 };
 

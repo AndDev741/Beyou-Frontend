@@ -137,7 +137,7 @@ export default function ConfigurationScreen() {
           onPress={() => dispatch(logout())}
           accessibilityRole="button"
           testID="logout-button"
-          className="mt-2 items-center rounded-md bg-error px-8 py-3"
+          className="mt-2 items-center rounded-control bg-error px-8 py-3"
         >
           <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
             {t('Logout')}

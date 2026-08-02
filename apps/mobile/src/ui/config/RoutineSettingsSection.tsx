@@ -117,7 +117,7 @@ export default function RoutineSettingsSection() {
           accessibilityRole="button"
           accessibilityLabel={t('TimezoneLabel')}
           testID="timezone-trigger"
-          className="flex-row items-center justify-between rounded-md border border-primary px-3 py-3"
+          className="flex-row items-center justify-between rounded-control border border-border px-3 py-3"
         >
           <Text className="text-secondary">{selectedTimezone}</Text>
           <Text className="text-description">{'▼'}</Text>
@@ -160,7 +160,7 @@ export default function RoutineSettingsSection() {
         disabled={saving}
         accessibilityRole="button"
         testID="save-routine-settings"
-        className={`mt-2 items-center rounded-md bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: theme.background }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('Save')}
@@ -175,7 +175,7 @@ export default function RoutineSettingsSection() {
       >
         <View className="flex-1 items-center justify-center bg-black/50 px-6">
           <View
-            className="max-h-[70%] w-full rounded-2xl border-2 border-primary bg-background p-4"
+            className="max-h-[70%] w-full rounded-card border-2 border-border bg-background p-4"
             testID="timezone-modal"
           >
             <Text className="text-secondary mb-3 text-lg font-bold">{t('TimezoneLabel')}</Text>
@@ -187,7 +187,7 @@ export default function RoutineSettingsSection() {
               autoCapitalize="none"
               autoCorrect={false}
               testID="timezone-search"
-              className="mb-3 rounded-md border-2 border-primary px-3 py-2 text-secondary"
+              className="mb-3 rounded-control border-2 border-border px-3 py-2 text-secondary"
             />
             <ScrollView keyboardShouldPersistTaps="handled">
               {filteredTimezones.length === 0 ? (
@@ -204,7 +204,7 @@ export default function RoutineSettingsSection() {
                       accessibilityRole="button"
                       accessibilityState={{ selected: active }}
                       testID={`timezone-option-${tz}`}
-                      className={`rounded-md px-3 py-2.5 ${active ? 'bg-primary/10' : ''}`}
+                      className={`rounded-control px-3 py-2.5 ${active ? 'bg-primary/10' : ''}`}
                     >
                       <Text className={active ? 'text-primary font-medium' : 'text-secondary'}>
                         {tz}

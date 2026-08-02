@@ -233,14 +233,14 @@ export default function RoutineStep({
           {t('AiOnboardingRoutineTitle')}
         </Text>
         <View className="flex-row items-center gap-2">
-          <View className="h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+          <View className="h-8 w-8 items-center justify-center rounded-card bg-primary/10">
             <BeyouIcon id={draft.iconId} size={18} color={theme.primary} showFallback />
           </View>
           <Text className="text-secondary text-lg font-semibold" numberOfLines={1}>
             {draft.name}
           </Text>
         </View>
-        <View className="w-full flex-row items-start gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2.5">
+        <View className="w-full flex-row items-start gap-2 rounded-card border border-border bg-primary/10 px-4 py-2.5">
           <View className="pt-0.5">
             <Lightbulb size={16} color={theme.primary} />
           </View>
@@ -255,10 +255,10 @@ export default function RoutineStep({
         {draft.sections.map((section, sectionIndex) => (
           <View
             key={`${section.name}-${section.startTime}`}
-            className="rounded-3xl border border-primary/20 bg-secondary/5 p-4"
+            className="rounded-frame border border-border bg-secondary/5 p-4"
           >
             <View className="flex-row items-center gap-2.5">
-              <View className="h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+              <View className="h-9 w-9 items-center justify-center rounded-card bg-primary/10">
                 <BeyouIcon id={section.iconId} size={18} color={theme.primary} showFallback />
               </View>
               <Text className="text-secondary min-w-0 flex-1 font-semibold" numberOfLines={1}>
@@ -353,7 +353,7 @@ export default function RoutineStep({
             disabled={loading}
             onPress={() => onRegenerate(feedback.trim())}
             testID="ai-onboarding-regenerate"
-            className={`h-[48px] flex-row items-center justify-center gap-1.5 rounded-xl bg-secondary/10 px-4 ${
+            className={`h-[48px] flex-row items-center justify-center gap-1.5 rounded-card bg-secondary/10 px-4 ${
               loading ? 'opacity-60' : ''
             }`}
           >
@@ -404,7 +404,7 @@ export default function RoutineStep({
                   }
                   setMoveTarget(null);
                 }}
-                className={`flex-row items-center gap-2.5 rounded-xl px-3 py-3 ${
+                className={`flex-row items-center gap-2.5 rounded-card px-3 py-3 ${
                   current ? 'bg-primary/10' : ''
                 }`}
               >
@@ -465,11 +465,11 @@ function ItemCard({
   const idSuffix = `${kind}-${sectionIndex}-${itemIndex}`;
 
   return (
-    <View className="gap-2 rounded-xl bg-background/60 px-2.5 py-2">
+    <View className="gap-2 rounded-card bg-background/60 px-2.5 py-2">
       {/* Tier 1: kind glyph + name + remove */}
       <View className="flex-row items-center gap-2">
         <View
-          className={`h-7 w-7 items-center justify-center rounded-lg ${
+          className={`h-7 w-7 items-center justify-center rounded-control ${
             kind === 'habits' ? 'bg-primary/10' : 'bg-secondary/10'
           }`}
         >
@@ -483,7 +483,7 @@ function ItemCard({
           accessibilityLabel={t('AiOnboardingRemoveItem')}
           onPress={() => onRemove(kind, sectionIndex, itemIndex)}
           testID={`ai-onboarding-item-remove-${idSuffix}`}
-          className="h-7 w-7 items-center justify-center rounded-lg"
+          className="h-7 w-7 items-center justify-center rounded-control"
         >
           <X size={16} color={theme.description} />
         </Pressable>
@@ -512,7 +512,7 @@ function ItemCard({
             accessibilityLabel={t('AiOnboardingMoveEarlier')}
             disabled={!canMoveEarlier}
             onPress={() => onReorder(kind, sectionIndex, itemIndex, -1)}
-            className={`h-7 w-7 items-center justify-center rounded-lg ${
+            className={`h-7 w-7 items-center justify-center rounded-control ${
               canMoveEarlier ? '' : 'opacity-30'
             }`}
           >
@@ -523,7 +523,7 @@ function ItemCard({
             accessibilityLabel={t('AiOnboardingMoveLater')}
             disabled={!canMoveLater}
             onPress={() => onReorder(kind, sectionIndex, itemIndex, 1)}
-            className={`h-7 w-7 items-center justify-center rounded-lg ${
+            className={`h-7 w-7 items-center justify-center rounded-control ${
               canMoveLater ? '' : 'opacity-30'
             }`}
           >
@@ -535,7 +535,7 @@ function ItemCard({
           accessibilityLabel={t('AiOnboardingMoveToSection')}
           onPress={() => onOpenMove({ kind, sectionIndex, itemIndex })}
           testID={`ai-onboarding-move-section-${idSuffix}`}
-          className="max-w-[45%] rounded-lg border border-primary/20 px-2 py-1"
+          className="max-w-[45%] rounded-control border border-border px-2 py-1"
         >
           <Text className="text-secondary text-xs" numberOfLines={1}>
             {sectionName}

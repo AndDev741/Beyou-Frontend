@@ -149,7 +149,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
               const remove = item.type === 'habit' ? removeHabit : removeTask;
               const setField = item.type === 'habit' ? setHabitField : setTaskField;
               return (
-                <View key={item.key} className="rounded-lg border border-primary/30 bg-primary/5 p-2">
+                <View key={item.key} className="rounded-control border border-border bg-primary/5 p-2">
                   <View className="flex-row items-center gap-2">
                     <BeyouIcon id={item.iconId} size={18} />
                     <Text className="text-secondary flex-1 text-sm font-semibold" numberOfLines={1}>{item.name}</Text>
@@ -168,7 +168,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         )}
 
         {/* Tabs */}
-        <View className="mt-1 flex-row rounded-full border border-primary/30 p-1">
+        <View className="mt-1 flex-row rounded-full border border-border p-1">
           {(['habit', 'task'] as const).map((tk) => (
             <Pressable
               key={tk}
@@ -196,7 +196,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
                 onPress={() => (tab === 'habit' ? addHabit(it.id) : addTask(it.id))}
                 accessibilityRole="button"
                 testID={`item-${tab}-${it.id}`}
-                className="flex-row items-center gap-2 rounded-lg border border-primary/30 p-2"
+                className="flex-row items-center gap-2 rounded-control border border-border p-2"
               >
                 <BeyouIcon id={it.iconId} size={18} />
                 <Text className="text-secondary flex-1 text-sm" numberOfLines={1}>{it.name}</Text>
@@ -211,7 +211,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           onPress={() => openQuickCreate(tab)}
           accessibilityRole="button"
           testID={`quick-create-${tab}`}
-          className="mt-1 flex-row items-center justify-center gap-1.5 rounded-lg border border-dashed border-primary/50 py-2.5"
+          className="mt-1 flex-row items-center justify-center gap-1.5 rounded-control border border-dashed border-border py-2.5"
         >
           <Ionicons name="add" size={16} color={theme.primary} />
           <Text className="text-primary text-sm font-semibold">{tab === 'habit' ? t('CreateHabit') : t('CreateTask')}</Text>
@@ -240,7 +240,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
       ) : null}
 
       {/* Fixed footer — actions stay visible regardless of scroll. */}
-      <View className="mt-2 flex-row justify-end gap-3 border-t border-primary/10 pt-3">
+      <View className="mt-2 flex-row justify-end gap-3 border-t border-border pt-3">
         <Pressable onPress={onClose} accessibilityRole="button" className="px-4 py-2"><Text className="text-description font-semibold">{t('Cancel')}</Text></Pressable>
         <Button text={t('Save')} mode="create" size="small" onPress={save} testID="items-save" />
       </View>

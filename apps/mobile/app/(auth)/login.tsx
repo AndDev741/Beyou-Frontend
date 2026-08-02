@@ -75,7 +75,7 @@ export default function LoginRoute() {
 
         {emailNotVerified ? (
           <View
-            className="border-2 border-error rounded-xl bg-error/10 p-4 mb-6"
+            className="border-2 border-error rounded-card bg-error/10 p-4 mb-6"
             testID="login-email-not-verified"
           >
             <Text className="text-error font-semibold mb-1">{t('EmailNotVerifiedTitle')}</Text>

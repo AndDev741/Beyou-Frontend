@@ -117,7 +117,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
               accessibilityState={{ selected: active }}
               onPress={() => toggle(chip.name)}
               className={`flex-row items-center gap-2 rounded-full border px-4 py-2.5 ${
-                active ? 'border-primary bg-primary' : 'border-primary/20 bg-primary/10'
+                active ? 'border-accent bg-primary' : 'border-border bg-primary/10'
               }`}
             >
               {chip.iconId ? (

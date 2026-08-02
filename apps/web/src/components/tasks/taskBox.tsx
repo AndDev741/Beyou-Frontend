@@ -62,7 +62,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     }
     
     return(
-        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-primary rounded-md p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary`}>
+        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-border rounded-control p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
                     <p className="text-icon text-[34px]">
@@ -138,11 +138,11 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
             </div>
             <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
             <button onClick={handleEditMode}
-            className="mb-2 w-[100px] h-[28px] rounded-md bg-primary text-background dark:text-secondary font-semibold hover:bg-primary/90 transition-colors duration-200">
+            className="mb-2 w-[100px] h-[28px] rounded-control bg-primary text-background font-semibold hover:bg-primary/90 transition-colors duration-200">
                 {t('Edit')}
             </button>
             <button onClick={() => setOnDelete(true)}
-            className="w-[90px] h-[25px] rounded-md bg-error hover:bg-error/90 text-background dark:text-secondary font-semibold transition-colors duration-200">
+            className="w-[90px] h-[25px] rounded-control bg-error hover:bg-error/90 text-background font-semibold transition-colors duration-200">
                 {t('Delete')}
             </button>
 

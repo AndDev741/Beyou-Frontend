@@ -374,7 +374,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 {chats.map((chat) => (
                     <div
                         key={chat.id}
-                        className={`group flex items-center rounded-xl transition-colors duration-150 ${
+                        className={`group flex items-center rounded-card transition-colors duration-150 ${
                             chat.id === activeChatId
                                 ? "bg-primary/10 shadow-[inset_3px_0_0_0_var(--primary)]"
                                 : "hover:bg-primary/5"
@@ -391,8 +391,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     if (e.key === "Escape") setEditingChatId(null);
                                 }}
                                 onBlur={() => saveRename(chat.id)}
-                                className="min-w-0 flex-1 rounded-lg border border-primary/30 bg-background
-                                px-3 py-2 text-sm text-secondary outline-none focus:border-primary"
+                                className="min-w-0 flex-1 rounded-control border border-border bg-background
+                                px-3 py-2 text-sm text-secondary outline-none focus:border-border"
                             />
                         ) : (
                             <button
@@ -414,7 +414,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     e.preventDefault();
                                     saveRename(chat.id);
                                 }}
-                                className="mr-1 rounded-lg p-2 text-primary hover:bg-primary/10"
+                                className="mr-1 rounded-control p-2 text-primary hover:bg-primary/10"
                             >
                                 <Check size={16} />
                             </button>
@@ -424,7 +424,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 aria-label={t("RenameChat")}
                                 title={t("RenameChat")}
                                 onClick={() => startRename(chat)}
-                                className="rounded-lg p-2 text-description transition-colors duration-150 hover:text-primary"
+                                className="rounded-control p-2 text-description transition-colors duration-150 hover:text-primary"
                             >
                                 <Pencil size={15} />
                             </button>
@@ -434,7 +434,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                             aria-label={t("DeleteChat")}
                             title={t("DeleteChat")}
                             onClick={() => setConfirm({ kind: "chat", chat })}
-                            className="mr-2 rounded-lg p-2 text-description transition-colors duration-150 hover:text-error"
+                            className="mr-2 rounded-control p-2 text-description transition-colors duration-150 hover:text-error"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -445,7 +445,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 <button
                     type="button"
                     onClick={() => setConfirm({ kind: "all" })}
-                    className="m-2 flex items-center justify-center gap-2 rounded-xl border border-primary/15
+                    className="m-2 flex items-center justify-center gap-2 rounded-card border border-border
                     px-3 py-2 text-sm text-description transition-colors duration-150 hover:text-error"
                 >
                     <Trash2 size={15} />
@@ -469,7 +469,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 <button
                     type="button"
                     onClick={() => setConfirm(null)}
-                    className="rounded-xl px-4 py-2 text-sm font-medium text-secondary hover:bg-primary/10"
+                    className="rounded-card px-4 py-2 text-sm font-medium text-secondary hover:bg-primary/10"
                 >
                     {t("Cancel")}
                 </button>
@@ -477,7 +477,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     type="button"
                     autoFocus
                     onClick={runConfirm}
-                    className="rounded-xl bg-error px-4 py-2 text-sm font-semibold text-white
+                    className="rounded-card bg-error px-4 py-2 text-sm font-semibold text-white
                     transition-transform duration-150 hover:scale-105"
                 >
                     {t("Delete")}
@@ -486,7 +486,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         </Modal>
     );
 
-    const headerButton = "rounded-lg p-2 text-secondary transition-colors duration-150 hover:bg-primary/10";
+    const headerButton = "rounded-control p-2 text-secondary transition-colors duration-150 hover:bg-primary/10";
 
     return (
         <AnimatePresence>
@@ -513,8 +513,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         transition={{ duration: 0.18, ease: "easeOut" }}
                         style={{ transformOrigin: expanded ? "center" : "bottom right" }}
                         className={`fixed inset-0 z-50 flex flex-col overflow-hidden bg-background
-                        text-secondary shadow-2xl shadow-black/20 lg:rounded-2xl lg:border
-                        lg:border-primary/15 ${
+                        text-secondary shadow-2xl shadow-black/20 lg:rounded-card lg:border
+                        lg:border-border ${
                             expanded
                                 ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)]"
                                 : "lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[min(720px,calc(100vh-48px))] lg:w-[440px]"
@@ -523,13 +523,13 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         <div className="flex min-h-0 flex-1">
                             {/* Persistent history column — expanded desktop only */}
                             {expanded && (
-                                <aside className="hidden w-72 flex-col border-r border-primary/15 lg:flex">
+                                <aside className="hidden w-72 flex-col border-r border-border lg:flex">
                                     <div className="flex items-center justify-between p-4 pb-2">
                                         <h2 className="text-lg font-semibold">{t("AgentChats")}</h2>
                                         <button
                                             type="button"
                                             onClick={startNewChat}
-                                            className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2
+                                            className="flex items-center gap-1.5 rounded-card bg-primary px-3 py-2
                                             text-sm font-semibold text-white transition-transform duration-200
                                             hover:scale-105"
                                         >
@@ -544,7 +544,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                             {/* Thread column */}
                             <div className="relative flex min-w-0 flex-1 flex-col">
                                 {/* Header */}
-                                <div className="flex items-center gap-2 border-b border-primary/10 px-3 py-2.5">
+                                <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
                                         <Sparkles size={16} className="text-primary" />
                                     </span>
@@ -599,7 +599,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             exit={{ x: reducedMotion ? 0 : -320, opacity: reducedMotion ? 0 : 1 }}
                                             transition={{ duration: 0.2, ease: "easeOut" }}
                                             className={`absolute bottom-0 left-0 top-[53px] z-10 flex w-72 max-w-[85%]
-                                            flex-col border-r border-primary/15 bg-background shadow-xl
+                                            flex-col border-r border-border bg-background shadow-xl
                                             ${expanded ? "lg:hidden" : ""}`}
                                         >
                                             <div className="flex items-center justify-between p-3 pb-1">
@@ -636,7 +636,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                         key={suggestion}
                                                         type="button"
                                                         onClick={() => send(suggestion)}
-                                                        className="rounded-full border border-primary/30 px-3.5 py-1.5
+                                                        className="rounded-full border border-border px-3.5 py-1.5
                                                         text-sm text-secondary transition-colors duration-200
                                                         hover:bg-primary hover:text-white"
                                                     >
@@ -653,11 +653,11 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[15px]
+                                                    className={`max-w-[88%] rounded-card px-3.5 py-2.5 text-[15px]
                                                     leading-relaxed ${
                                                         message.role === "USER"
                                                             ? "self-end whitespace-pre-wrap rounded-br-md bg-primary text-white shadow-sm"
-                                                            : "self-start rounded-bl-md border border-primary/10 bg-primary/5"
+                                                            : "self-start rounded-bl-md border border-border bg-primary/5"
                                                     }`}
                                                 >
                                                     {message.role === "USER"
@@ -666,8 +666,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                 </motion.div>
                                             ))}
                                             {isSending && (
-                                                <div className={`self-start rounded-2xl rounded-bl-md border
-                                                border-primary/10 bg-primary/5 ${
+                                                <div className={`self-start rounded-card rounded-bl-md border
+                                                border-border bg-primary/5 ${
                                                     streamSegments.length > 0 ? "max-w-[88%] px-3.5 py-2.5 text-[15px] leading-relaxed" : "max-w-[75%]"
                                                 }`}
                                                     aria-label={t("AgentThinking")}
@@ -693,7 +693,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 </div>
 
                                 {/* Composer */}
-                                <div className="border-t border-primary/10 p-2.5">
+                                <div className="border-t border-border p-2.5">
                                     <div className="mx-auto flex w-full max-w-3xl items-end gap-2">
                                         <textarea
                                             ref={inputRef}
@@ -711,10 +711,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             onKeyDown={onInputKeyDown}
                                             placeholder={t("AgentInputPlaceholder")}
                                             maxLength={4000}
-                                            className="max-h-32 flex-1 resize-none overflow-y-hidden rounded-2xl
-                                            border border-primary/25 bg-background px-4 py-2.5 text-[15px]
+                                            className="max-h-32 flex-1 resize-none overflow-y-hidden rounded-card
+                                            border border-border bg-background px-4 py-2.5 text-[15px]
                                             text-secondary outline-none placeholder:text-placeholder
-                                            focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                            focus:border-border focus:ring-2 focus:ring-primary/20"
                                         />
                                         <button
                                             type="button"

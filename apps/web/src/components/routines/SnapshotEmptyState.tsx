@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 export const SnapshotEmptyState = () => {
     const { t } = useTranslation();
     return (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-primary/20 bg-background p-16 text-center shadow-sm">
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-background p-16 text-center shadow-sm">
             <p className="text-5xl mb-4" role="img" aria-label={t("Calendar")}>
                 {String.fromCodePoint(0x1F4C5)}
             </p>

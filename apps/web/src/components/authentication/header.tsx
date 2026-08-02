@@ -23,7 +23,7 @@ function Header(){
             </nav>
             {/* Border */}
             <div className={`${currentPath === "/register" ? "flex items-end justify-end" : ""}`}>
-                <div className={`border-b-2 border-solid border-primary 
+                <div className={`border-b-2 border-solid border-border 
                 ${currentPath === "/" ? "w-[50%]" : ""} 
                 ${currentPath === "/register" ? "w-[50%]" : ""}`}></div>
             </div>

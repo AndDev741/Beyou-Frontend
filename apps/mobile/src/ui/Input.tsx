@@ -38,9 +38,9 @@ export default function Input({
   return (
     <View className="w-full">
       <View
-        className={`flex-row border-2 rounded-md ${multiline ? 'min-h-[100px] items-start py-1' : 'h-[56px] items-center'} ${
+        className={`flex-row border-2 rounded-control ${multiline ? 'min-h-[100px] items-start py-1' : 'h-[56px] items-center'} ${
           disabled ? 'bg-description/10' : 'bg-background'
-        } ${error ? 'border-error' : disabled ? 'border-description/40' : 'border-primary'}`}
+        } ${error ? 'border-error' : disabled ? 'border-description/40' : 'border-border'}`}
       >
         {iconStart ? <View className="mx-3">{iconStart}</View> : null}
         <TextInput

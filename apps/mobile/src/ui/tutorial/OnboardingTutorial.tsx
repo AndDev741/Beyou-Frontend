@@ -88,7 +88,7 @@ export default function OnboardingTutorial({
     return (
       <Modal visible animationType="fade" transparent onRequestClose={onSkip}>
         <View className="flex-1 items-center justify-center bg-black/60 p-4">
-          <View className="w-full max-w-xl rounded-3xl border border-primary/20 bg-background p-5">
+          <View className="w-full max-w-xl rounded-frame border border-border bg-background p-5">
             <View className="mb-3 flex-row items-center justify-end">
               <Pressable
                 onPress={onSkip}
@@ -112,10 +112,10 @@ export default function OnboardingTutorial({
                 accessibilityRole="button"
                 accessibilityLabel={t('TutorialPathAiTitle')}
                 testID="tutorial-path-ai"
-                className="rounded-2xl border border-primary bg-primary/10 p-5 active:opacity-80"
+                className="rounded-card border border-border bg-primary/10 p-5 active:opacity-80"
               >
                 <View className="mb-3 flex-row items-center justify-between">
-                  <View className="h-12 w-12 items-center justify-center rounded-xl bg-primary">
+                  <View className="h-12 w-12 items-center justify-center rounded-card bg-primary">
                     <Sparkles size={24} color={ON_PRIMARY} />
                   </View>
                   <View className="flex-row items-center gap-1 rounded-full bg-primary px-3 py-1">
@@ -138,9 +138,9 @@ export default function OnboardingTutorial({
                 accessibilityRole="button"
                 accessibilityLabel={t('TutorialPathManualTitle')}
                 testID="tutorial-path-manual"
-                className="rounded-2xl border border-primary/20 bg-background p-5 active:opacity-80"
+                className="rounded-card border border-border bg-background p-5 active:opacity-80"
               >
-                <View className="mb-3 h-12 w-12 items-center justify-center rounded-xl bg-primary/15">
+                <View className="mb-3 h-12 w-12 items-center justify-center rounded-card bg-primary/15">
                   <Compass size={24} color={theme.secondary} />
                 </View>
                 <Text className="text-secondary mb-1 text-xl font-bold">
@@ -160,7 +160,7 @@ export default function OnboardingTutorial({
   return (
     <Modal visible animationType="fade" transparent onRequestClose={onSkip}>
       <View className="flex-1 items-center justify-center bg-black/60 p-4">
-        <View className="w-full max-w-xl rounded-3xl border border-primary/20 bg-background p-5">
+        <View className="w-full max-w-xl rounded-frame border border-border bg-background p-5">
           <View className="mb-3 flex-row items-center justify-between">
             <Text className="text-primary text-sm font-semibold">
               {t('TutorialStepOf', { current: i + 1, total: STEPS.length })}
@@ -198,23 +198,23 @@ export default function OnboardingTutorial({
             </View>
             <Text className="text-description text-base leading-relaxed">{t(step.descKey)}</Text>
 
-            <View className="rounded-2xl bg-primary/10 p-4">
+            <View className="rounded-card bg-primary/10 p-4">
               <Text className="text-secondary mb-3 font-semibold">{t(step.exampleTitleKey)}</Text>
               <View className="gap-2">
                 {step.itemKeys.map((k) => (
-                  <View key={k} className="flex-row items-center gap-2 rounded-lg bg-background/60 p-2">
+                  <View key={k} className="flex-row items-center gap-2 rounded-control bg-background/60 p-2">
                     <Ionicons name="checkmark-circle" size={18} color={theme.primary} />
                     <Text className="text-secondary text-sm">{t(k)}</Text>
                   </View>
                 ))}
               </View>
-              <View className="mt-3 flex-row items-center justify-between border-t border-primary/15 pt-3">
+              <View className="mt-3 flex-row items-center justify-between border-t border-border pt-3">
                 <Text className="text-description text-xs">{t('TutorialCompleteForXp')}</Text>
                 <Text className="text-primary text-sm font-bold">+{(i + 1) * 50} XP</Text>
               </View>
             </View>
 
-            <View className="flex-row items-start gap-2 rounded-xl border border-primary/20 p-3">
+            <View className="flex-row items-start gap-2 rounded-card border border-border p-3">
               <Ionicons name="sparkles" size={16} color={theme.primary} />
               <View className="flex-1">
                 <Text className="text-secondary text-sm font-semibold">{t('TutorialProTip')}</Text>

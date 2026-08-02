@@ -194,7 +194,7 @@ function Dashboard() {
                     className="flex min-h-screen items-center justify-center"
                     data-testid="dashboard-loading"
                 >
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                 </div>
             ) : (
             <div>

@@ -66,7 +66,7 @@ export default function ProfileConfiguration() {
 
     const labelStyle = "mb-1 font-medium text-lg self-start text-secondary";
     const inputStyle =
-        "border border-primary rounded-md pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
+        "border border-border rounded-control pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
@@ -113,7 +113,7 @@ export default function ProfileConfiguration() {
     const currentPhoto = resolvePhotoUrl(photo);
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
+        <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-control shadow-sm">
             <form className="w-full flex items-center" onSubmit={handleSubmit(onSubmit)}>
                 <div
                     className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
@@ -122,7 +122,7 @@ export default function ProfileConfiguration() {
                     <img
                         src={currentPhoto}
                         alt={t("Profile")}
-                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-primary shadow-lg"
+                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-border shadow-lg"
                     />
 
                     <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
@@ -306,7 +306,7 @@ function EditPhoto({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-background rounded-2xl p-6 w-[90%] max-w-md shadow-2xl">
+            <div className="bg-background rounded-card p-6 w-[90%] max-w-md shadow-2xl">
                 <h3 className="text-lg font-semibold text-secondary mb-4">{t('ChangePhoto')}</h3>
 
                 <div className="flex flex-col items-center gap-4">
@@ -316,7 +316,7 @@ function EditPhoto({
                         onError={(e) => {
                             e.currentTarget.src = 'https://placehold.co/128x128/ccc/333?text=No+Image';
                         }}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-border shadow-lg"
                     />
 
                     <input
@@ -330,7 +330,7 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
+                        className="px-4 py-2 bg-primary text-white rounded-control hover:opacity-90 transition"
                     >
                         {t('ChooseFile')}
                     </button>
@@ -344,7 +344,7 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-secondary hover:bg-surface rounded-lg transition"
+                        className="px-4 py-2 text-secondary hover:bg-surface rounded-control transition"
                     >
                         {t('Cancel')}
                     </button>
@@ -352,7 +352,7 @@ function EditPhoto({
                         type="button"
                         onClick={handleUpload}
                         disabled={uploading || !selectedFile}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
+                        className="px-4 py-2 bg-primary text-white rounded-control hover:opacity-90 transition disabled:opacity-50"
                     >
                         {uploading ? t('PhotoUploading') : t('Save')}
                     </button>

@@ -44,7 +44,7 @@ function EmptyRoutine() {
   const router = useRouter();
   const { theme } = useBeyouTheme();
   return (
-    <View className="items-center rounded-2xl border border-primary bg-background p-6" testID="routine-empty">
+    <View className="items-center rounded-card border border-border bg-background p-6" testID="routine-empty">
       <Ionicons name="calendar-outline" size={36} color={theme.icon} />
       <Text className="text-description mt-3 text-center text-base font-semibold">
         {t('No Routines Scheduled for today')}
@@ -53,7 +53,7 @@ function EmptyRoutine() {
         onPress={() => router.push('/routines')}
         accessibilityRole="button"
         testID="routine-empty-cta"
-        className="mt-4 rounded-md border border-primary px-5 py-2"
+        className="mt-4 rounded-control border border-border px-5 py-2"
       >
         <Text className="text-primary font-semibold">{t('Routines')}</Text>
       </Pressable>
@@ -82,7 +82,7 @@ export default function RoutineDay() {
   const today = new Date().toJSON().slice(0, 10);
 
   return (
-    <View className="rounded-2xl border border-primary bg-background p-4" testID="routine-day">
+    <View className="rounded-card border border-border bg-background p-4" testID="routine-day">
       <Text className="text-secondary mb-3 text-center text-2xl font-semibold">{routine.name}</Text>
 
       {routine.routineSections?.map((section, sIdx) => {

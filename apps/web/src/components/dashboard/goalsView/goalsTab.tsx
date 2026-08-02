@@ -62,7 +62,7 @@ export default function GoalsTab() {
                             key={tag.key}
                             type="button"
                             onClick={() => toggleTag(tag.key)}
-                            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-200 ${isActive ? "border-primary bg-primary/10 text-primary" : "border-primary/20 text-secondary hover:border-primary/50 hover:text-primary"}`}
+                            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-200 ${isActive ? "border-accent bg-primary/10 text-primary" : "border-border text-secondary hover:border-border hover:text-primary"}`}
                         >
                             {tag.label}
                         </button>

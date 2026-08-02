@@ -4,7 +4,7 @@ import TranslationButton from "../translationButton";
 export default function LanguageSelector() {
     const {t} = useTranslation();
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
+        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary transition-colors duration-200 rounded-control shadow-sm">
             <h1 className="text-base font-semibold mb-4">{t('Language')}</h1>
             <div className="flex flex-col items-center justify-center w-full">
                 <TranslationButton updateUser={true}/>

@@ -374,7 +374,7 @@ export default function AiOnboardingWizard({
             {/* Header: sparkle badge + step dots + step label + tour escape hatch */}
             <View className="flex-row items-center justify-between gap-3 px-4 pb-3 pt-2">
               <View className="flex-row items-center gap-2">
-                <View className="h-8 w-8 items-center justify-center rounded-xl bg-primary">
+                <View className="h-8 w-8 items-center justify-center rounded-card bg-primary">
                   <Sparkles size={16} color={ON_PRIMARY} />
                 </View>
                 <View className="flex-row items-center gap-1.5">
@@ -400,7 +400,7 @@ export default function AiOnboardingWizard({
                   accessibilityLabel={t('AiOnboardingTakeTour')}
                   onPress={exitToTour}
                   testID="ai-onboarding-take-tour"
-                  className="rounded-lg p-1"
+                  className="rounded-control p-1"
                 >
                   <Compass size={20} color={theme.secondary} />
                 </Pressable>
@@ -469,8 +469,8 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   return (
-    <View className="w-full items-center rounded-3xl border border-primary/20 bg-background p-6">
-      <View className="mb-4 h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+    <View className="w-full items-center rounded-frame border border-border bg-background p-6">
+      <View className="mb-4 h-14 w-14 items-center justify-center rounded-card bg-primary/10">
         <AlertTriangle size={28} color={theme.primary} />
       </View>
       <Text className="text-secondary mb-2 text-center text-xl font-semibold">
@@ -484,7 +484,7 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
           accessibilityRole="button"
           onPress={onRetry}
           testID="ai-onboarding-retry"
-          className="w-full flex-row items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3"
+          className="w-full flex-row items-center justify-center gap-2 rounded-card bg-primary px-5 py-3"
         >
           <RotateCcw size={16} color={ON_PRIMARY} />
           <Text className="text-base font-semibold" style={{ color: ON_PRIMARY }}>
@@ -495,7 +495,7 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
           accessibilityRole="button"
           onPress={onFallback}
           testID="ai-onboarding-take-tour-fallback"
-          className="w-full flex-row items-center justify-center gap-2 rounded-xl border border-primary/20 bg-secondary/10 px-5 py-3"
+          className="w-full flex-row items-center justify-center gap-2 rounded-card border border-border bg-secondary/10 px-5 py-3"
         >
           <Compass size={16} color={theme.secondary} />
           <Text className="text-secondary text-base font-semibold">

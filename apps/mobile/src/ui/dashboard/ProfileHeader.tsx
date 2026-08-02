@@ -16,14 +16,14 @@ function Avatar({ photo, name }: { photo: string; name: string }) {
       <Image
         source={{ uri: resolvePhotoUrl(photo) }}
         accessibilityRole="image"
-        className="h-16 w-16 rounded-full border-2 border-primary"
+        className="h-16 w-16 rounded-full border-2 border-border"
       />
     );
   }
   const initial = (name.trim()[0] ?? '?').toUpperCase();
   return (
     <View
-      className="h-16 w-16 items-center justify-center rounded-full border-2 border-primary"
+      className="h-16 w-16 items-center justify-center rounded-full border-2 border-border"
       style={{ backgroundColor: theme.primary }}
     >
       <Text className="text-2xl font-bold" style={{ color: theme.background }}>
@@ -57,7 +57,7 @@ export default function ProfileHeader() {
   const levelProgress = calculateLevelProgress(xp, actualLevelXp, nextLevelXp);
 
   return (
-    <View ref={profileRef} className="rounded-2xl border border-primary bg-background p-4" testID="profile-header">
+    <View ref={profileRef} className="rounded-card border border-border bg-background p-4" testID="profile-header">
       <View className="flex-row items-center">
         <Avatar photo={photo} name={name} />
         <View className="ml-3 flex-1">

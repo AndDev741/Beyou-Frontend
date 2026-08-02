@@ -71,7 +71,7 @@ function FeedbackLauncher() {
             data-testid="feedback-fab"
             data-tutorial-id="feedback-fab"
             className="fixed bottom-36 right-4 z-30 flex h-11 w-11 items-center justify-center
-            rounded-full border border-primary bg-background text-primary shadow-md
+            rounded-full border border-border bg-background text-primary shadow-md
             transition-transform duration-200 hover:scale-105 active:scale-95
             lg:bottom-24 lg:right-[1.375rem]"
         >

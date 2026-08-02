@@ -200,7 +200,7 @@ function GoalForm({ mode }: GoalFormProps) {
     };
 
     return (
-        <div className="bg-background text-secondary transition-colors duration-200 rounded-lg p-4 lg:p-6">
+        <div className="bg-background text-secondary transition-colors duration-200 rounded-control p-4 lg:p-6">
             <div className="flex items-center justify-center text-3xl font-semibold">
                 <h2>{t(mode === "edit" ? "Edit Goal" : "Create Goal")}</h2>
             </div>

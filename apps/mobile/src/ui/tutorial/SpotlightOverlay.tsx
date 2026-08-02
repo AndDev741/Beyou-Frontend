@@ -95,7 +95,7 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
       <View
         testID="spotlight-tooltip"
         style={[{ position: 'absolute', left: 12, right: 12 }, tooltipPositionStyle]}
-        className="rounded-2xl border border-primary/30 bg-background p-4"
+        className="rounded-card border border-border bg-background p-4"
       >
         <View className="mb-1 flex-row items-center justify-between">
           <Text className="text-primary text-xs font-semibold">{t('TutorialStepOf', { current: stepIndex + 1, total: stepCount })}</Text>
@@ -117,7 +117,7 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
             disabled={step.disabled}
             accessibilityRole="button"
             testID="spotlight-next"
-            className={`items-center rounded-md bg-primary px-5 py-2.5 ${step.disabled ? 'opacity-50' : ''}`}
+            className={`items-center rounded-control bg-primary px-5 py-2.5 ${step.disabled ? 'opacity-50' : ''}`}
           >
             <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold" numberOfLines={1}>
               {t(step.nextLabelKey ?? 'TutorialNext')}

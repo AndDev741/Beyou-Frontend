@@ -86,8 +86,8 @@ export default function ConstanceConfiguration({
                             type="button"
                             onClick={() => handleSelect(option.id)}
                             className={`
-                                relative text-left rounded-lg border p-4 transition-all duration-200 h-full
-                                ${isActive ? "border-primary bg-primary/10 shadow-md" : "border-primary/20 hover:border-primary/60"}
+                                relative text-left rounded-control border p-4 transition-all duration-200 h-full
+                                ${isActive ? "border-accent bg-primary/10 shadow-md" : "border-border hover:border-border"}
                             `}
                         >
                             <div className="flex items-center justify-between mb-2">
@@ -97,7 +97,7 @@ export default function ConstanceConfiguration({
                                 </div>
                                 <div
                                     className={`absolute right-3 top-3 h-5 w-5 rounded-full border-2 ${
-                                        isActive ? "border-primary bg-primary" : "border-description"
+                                        isActive ? "border-accent bg-primary" : "border-description"
                                     }`}
                                     aria-label={option.title}
                                 />

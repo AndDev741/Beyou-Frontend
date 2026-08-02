@@ -32,7 +32,7 @@ function GoalRow({ goal, onPress }: { goal: goal; onPress: () => void }) {
       accessibilityRole="button"
       accessibilityLabel={goal.name}
       testID={`dash-goal-${goal.id}`}
-      className="flex-row items-center gap-3 rounded-xl border border-primary/15 bg-background p-3 active:opacity-80"
+      className="flex-row items-center gap-3 rounded-card border border-border bg-background p-3 active:opacity-80"
     >
       <BeyouIcon id={goal.iconId} size={20} showFallback />
       <View className="flex-1 gap-1">
@@ -104,7 +104,7 @@ export default function DashboardGoals() {
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               testID={`dash-goals-tag-${tag.key}`}
-              className={`rounded-full border px-3 py-1 ${active ? 'border-primary bg-primary/10' : 'border-primary/20'}`}
+              className={`rounded-full border px-3 py-1 ${active ? 'border-accent bg-primary/10' : 'border-border'}`}
             >
               <Text className={`text-xs font-semibold ${active ? 'text-primary' : 'text-secondary'}`}>{t(tag.title)}</Text>
             </Pressable>

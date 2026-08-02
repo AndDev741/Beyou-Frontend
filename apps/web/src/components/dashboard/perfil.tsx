@@ -15,13 +15,13 @@ function Avatar({ photo, name, alt }: { photo: string; name: string; alt: string
                 src={resolvePhotoUrl(photo)}
                 alt={alt}
                 aria-label={alt}
-                className="w-14 h-14 rounded-full object-cover border-2 border-primary bg-white/20"
+                className="w-14 h-14 rounded-full object-cover border-2 border-border bg-white/20"
             />
         );
     }
     const initial = (name.trim()[0] ?? "?").toUpperCase();
     return (
-        <div className="w-14 h-14 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
+        <div className="w-14 h-14 rounded-full border-2 border-border bg-primary flex items-center justify-center">
             <span className="text-xl font-bold text-background">{initial}</span>
         </div>
     );
@@ -51,7 +51,7 @@ function Perfil() {
     return (
         <div
             data-tutorial-id="dashboard-profile"
-            className="w-full md:m-3 md:max-w-md lg:max-w-none rounded-2xl border border-primary bg-background p-4 shadow-sm"
+            className="w-full md:m-3 md:max-w-md lg:max-w-none rounded-card border border-border bg-background p-4 shadow-sm"
         >
             <div className="flex items-center gap-3">
                 <Avatar photo={photo} name={name} alt={t('PerfilPhotoAlt')} />

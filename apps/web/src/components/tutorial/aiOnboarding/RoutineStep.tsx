@@ -249,7 +249,7 @@ export default function RoutineStep({
                 </h2>
                 <div className="flex items-center justify-center gap-2">
                     <span
-                        className="flex w-8 h-8 items-center justify-center rounded-xl"
+                        className="flex w-8 h-8 items-center justify-center rounded-card"
                         style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
                     >
                         <BeyouIcon id={draft.iconId} size={18} className="text-primary" showFallback />
@@ -257,7 +257,7 @@ export default function RoutineStep({
                     <span className="text-lg font-semibold text-secondary">{draft.name}</span>
                 </div>
                 <p
-                    className="inline-flex items-start sm:items-center gap-2 text-left text-sm md:text-base text-secondary rounded-2xl px-4 py-2.5 max-w-xl mx-auto"
+                    className="inline-flex items-start sm:items-center gap-2 text-left text-sm md:text-base text-secondary rounded-card px-4 py-2.5 max-w-xl mx-auto"
                     style={{
                         backgroundColor: "color-mix(in srgb, var(--primary) 8%, var(--background))",
                         border: "1px solid color-mix(in srgb, var(--primary) 18%, var(--background))"
@@ -296,7 +296,7 @@ export default function RoutineStep({
                             />
 
                             <section
-                                className="rounded-2xl border p-4 shadow-sm"
+                                className="rounded-card border p-4 shadow-sm"
                                 style={{
                                     backgroundColor: "color-mix(in srgb, var(--secondary) 5%, var(--background))",
                                     borderColor: "color-mix(in srgb, var(--primary) 16%, var(--background))"
@@ -304,7 +304,7 @@ export default function RoutineStep({
                             >
                                 <header className="flex items-center gap-2.5">
                                     <span
-                                        className="flex w-9 h-9 shrink-0 items-center justify-center rounded-xl"
+                                        className="flex w-9 h-9 shrink-0 items-center justify-center rounded-card"
                                         style={{ backgroundColor: "color-mix(in srgb, var(--primary) 10%, var(--background))" }}
                                     >
                                         <BeyouIcon id={section.iconId} size={18} className="text-primary" showFallback />
@@ -400,7 +400,7 @@ export default function RoutineStep({
                         }}
                         placeholder={t("AiOnboardingRoutineFeedbackPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="flex-1 min-w-0 rounded-xl border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="flex-1 min-w-0 rounded-card border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
                     />
                     <button
                         type="button"
@@ -408,7 +408,7 @@ export default function RoutineStep({
                         disabled={loading}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
                         className={cn(
-                            "flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                             loading ? "opacity-60 cursor-wait" : "hover:brightness-95"
                         )}
                     >
@@ -430,7 +430,7 @@ export default function RoutineStep({
                     }
                     disabled={loading}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
                         loading
                             ? "bg-primary opacity-40 cursor-not-allowed"
                             : "bg-primary hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
@@ -484,11 +484,11 @@ function ItemRow({
     const Glyph = kind === "habits" ? Repeat : ListChecks;
     const arrowClass = (enabled: boolean) =>
         cn(
-            "flex w-7 h-7 shrink-0 items-center justify-center rounded-lg text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            "flex w-7 h-7 shrink-0 items-center justify-center rounded-control text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
             enabled ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
         );
     const timeInputClass =
-        "shrink-0 rounded-lg border bg-background px-1.5 py-1 text-xs text-secondary tabular-nums focus:outline-none focus:ring-2 focus:ring-primary";
+        "shrink-0 rounded-control border bg-background px-1.5 py-1 text-xs text-secondary tabular-nums focus:outline-none focus:ring-2 focus:ring-primary";
     const timeInputStyle = { borderColor: "color-mix(in srgb, var(--primary) 18%, var(--background))" };
     return (
         // Mobile: three tiers — name + remove on top, times in the middle,
@@ -496,12 +496,12 @@ function ItemRow({
         // the head wrapper dissolves (md:contents) and md:order-* re-slots its
         // children so the remove button lands at the row's end.
         <li
-            className="flex flex-col gap-1.5 rounded-xl px-2.5 py-2 md:flex-row md:items-center md:gap-2"
+            className="flex flex-col gap-1.5 rounded-card px-2.5 py-2 md:flex-row md:items-center md:gap-2"
             style={{ backgroundColor: "color-mix(in srgb, var(--background) 60%, transparent)" }}
         >
             <span className="flex items-center gap-2 md:contents">
                 <span
-                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-lg md:order-1"
+                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-control md:order-1"
                     style={{
                         backgroundColor: `color-mix(in srgb, var(${
                             kind === "habits" ? "--primary" : "--secondary"
@@ -520,7 +520,7 @@ function ItemRow({
                     type="button"
                     aria-label={t("AiOnboardingRemoveItem")}
                     onClick={() => onRemove(kind, sectionIndex, itemIndex)}
-                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-lg text-description hover:text-primary hover:bg-background transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary md:order-5"
+                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-control text-description hover:text-primary hover:bg-background transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary md:order-5"
                 >
                     <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -572,7 +572,7 @@ function ItemRow({
                     value={sectionIndex}
                     onChange={(e) => onMove(kind, sectionIndex, itemIndex, Number(e.target.value))}
                     style={timeInputStyle}
-                    className="max-w-28 shrink-0 truncate rounded-lg border bg-background px-1.5 py-1 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="max-w-28 shrink-0 truncate rounded-control border bg-background px-1.5 py-1 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                     {sections.map((section, index) => (
                         <option key={`${section.name}-${index}`} value={index}>

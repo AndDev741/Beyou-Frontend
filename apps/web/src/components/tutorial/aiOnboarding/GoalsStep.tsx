@@ -106,7 +106,7 @@ export default function GoalsStep({
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                             <span
-                                className="flex w-7 h-7 items-center justify-center rounded-lg"
+                                className="flex w-7 h-7 items-center justify-center rounded-control"
                                 style={{
                                     backgroundColor:
                                         "color-mix(in srgb, var(--primary) 12%, var(--background))"
@@ -124,7 +124,7 @@ export default function GoalsStep({
                         <button
                             type="button"
                             onClick={toggleAll}
-                            className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-primary hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            className="flex items-center gap-1.5 rounded-control px-2 py-1 text-sm font-semibold text-primary hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         >
                             <CheckCheck className="w-4 h-4" aria-hidden="true" />
                             {t("AiOnboardingSelectAll")}
@@ -180,7 +180,7 @@ export default function GoalsStep({
                         }}
                         placeholder={t("AiOnboardingFreeInputPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="min-w-0 flex-1 rounded-xl border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="min-w-0 flex-1 rounded-card border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
                     />
                     <button
                         type="button"
@@ -189,7 +189,7 @@ export default function GoalsStep({
                         aria-label={t("AiOnboardingAdd")}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
                         className={cn(
-                            "flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                             adding ? "opacity-60 cursor-wait" : "hover:brightness-95"
                         )}
                     >
@@ -207,7 +207,7 @@ export default function GoalsStep({
                     onClick={() => onContinue(goals.filter((g) => selected.has(g.name)))}
                     disabled={!canContinue}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
                         canContinue
                             ? "bg-primary hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
                             : "bg-primary opacity-40 cursor-not-allowed"

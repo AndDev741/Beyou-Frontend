@@ -179,7 +179,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
           <X className="w-4 h-4" />
         </button>
 
-        <div className="bg-background text-secondary rounded-3xl border border-primary/20 shadow-lg overflow-hidden max-h-[92vh] md:max-h-[85vh] md:min-h-[650px] flex flex-col">
+        <div className="bg-background text-secondary rounded-frame border border-border shadow-lg overflow-hidden max-h-[92vh] md:max-h-[85vh] md:min-h-[650px] flex flex-col">
           <div className="h-1 bg-description/20">
             <motion.div
               className="h-full bg-primary"
@@ -204,7 +204,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                   aria-label={t("TutorialPathAiTitle")}
                   whileHover={prefersReducedMotion ? undefined : { y: -4 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative flex-1 text-left rounded-2xl p-6 md:p-7 overflow-hidden border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="group relative flex-1 text-left rounded-card p-6 md:p-7 overflow-hidden border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   style={{
                     background:
                       "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--background)), var(--background))",
@@ -215,7 +215,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
 
                   <div className="flex items-center justify-between mb-4">
                     <div
-                      className="w-12 h-12 flex items-center justify-center rounded-xl shadow-lg"
+                      className="w-12 h-12 flex items-center justify-center rounded-card shadow-lg"
                       style={{ background: "linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--background)))" }}
                     >
                       <Sparkles className="w-6 h-6 text-white" />
@@ -249,10 +249,10 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                     backgroundColor: "color-mix(in srgb, var(--secondary) 5%, var(--background))",
                     borderColor: "color-mix(in srgb, var(--primary) 15%, var(--background))"
                   }}
-                  className="group flex-1 text-left rounded-2xl p-6 md:p-7 border focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="group flex-1 text-left rounded-card p-6 md:p-7 border focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <div
-                    className="w-12 h-12 flex items-center justify-center rounded-xl mb-4"
+                    className="w-12 h-12 flex items-center justify-center rounded-card mb-4"
                     style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
                   >
                     <Compass className="w-6 h-6 text-secondary" />
@@ -281,7 +281,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                   type="button"
                   onClick={() => goToStep(index)}
                   className={cn(
-                    "w-3 h-3 rounded-full transition-all duration-200 border border-primary/20",
+                    "w-3 h-3 rounded-full transition-all duration-200 border border-border",
                     index === currentStep
                       ? "bg-primary scale-125"
                       : index < currentStep
@@ -332,7 +332,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                         {t(step.descriptionKey)}
                       </p>
                       
-                      <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
+                      <div className="bg-primary/10 rounded-card p-4 border border-border">
                         <div className="flex items-start gap-3">
                           <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                           <div>
@@ -350,11 +350,11 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                     <div className="flex items-center justify-center">
                       <div className="w-full max-w-sm">
                         <div
-                          className="rounded-2xl p-6 text-white shadow-lg"
+                          className="rounded-card p-6 text-white shadow-lg"
                           style={{ background: step.gradient }}
                         >
                           <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                            <div className="w-10 h-10 bg-white/20 rounded-card flex items-center justify-center">
                               <step.icon className="w-5 h-5" />
                             </div>
                             <h3 className="font-semibold text-lg">
@@ -369,7 +369,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.2 + index * 0.1 }}
-                                className="flex items-center gap-3 bg-white/10 rounded-lg p-3"
+                                className="flex items-center gap-3 bg-white/10 rounded-control p-3"
                               >
                                 <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                                   <Check className="w-3 h-3" />
@@ -413,13 +413,13 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
               </AnimatePresence>
             </div>
 
-            <div className="flex items-center justify-between pt-6 border-t border-primary/20">
+            <div className="flex items-center justify-between pt-6 border-t border-border">
               <button
                 type="button"
                 onClick={goPrev}
                 disabled={isFirst}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors",
+                  "flex items-center gap-2 px-4 py-2 rounded-control font-semibold transition-colors",
                   isFirst
                     ? "text-description cursor-not-allowed"
                     : "text-secondary hover:text-primary"
@@ -433,7 +433,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                 type="button"
                 onClick={goNext}
                 className={cn(
-                  "flex items-center gap-2 min-w-[150px] justify-center rounded-lg px-5 py-2 font-semibold text-background transition-all",
+                  "flex items-center gap-2 min-w-[150px] justify-center rounded-control px-5 py-2 font-semibold text-background transition-all",
                   isLast
                     ? "bg-success hover:opacity-90"
                     : "bg-primary hover:bg-primary/90"

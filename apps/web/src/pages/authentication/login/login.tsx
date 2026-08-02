@@ -83,7 +83,7 @@ function Login() {
                 <Logo />
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-background">
                 <MobileBrand />
                 <Header />
                 <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">
@@ -97,7 +97,7 @@ function Login() {
                     </div>
 
                     {needsVerification && (
-                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-xl border-2 border-primary bg-primary/10 max-w-[90vw] lg:max-w-[380px]">
+                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-border bg-primary/10 max-w-[90vw] lg:max-w-[380px]">
                             <p className="text-lg font-semibold text-primary mb-1">
                                 {t("EmailVerificationSentTitle")}
                             </p>
@@ -108,7 +108,7 @@ function Login() {
                     )}
 
                     {emailNotVerified && (
-                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-xl border-2 border-error bg-error/10 max-w-[90vw] lg:max-w-[380px]">
+                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-error bg-error/10 max-w-[90vw] lg:max-w-[380px]">
                             <p className="text-lg font-semibold text-error mb-1">
                                 {t("EmailNotVerifiedTitle")}
                             </p>

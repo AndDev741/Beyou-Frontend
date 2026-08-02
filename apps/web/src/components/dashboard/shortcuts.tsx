@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 
 function Shortcuts() {
     const { t } = useTranslation();
-    const linkStyle = "flex items-center border-solid border-[1px] border-primary p-3 mt-5 mx-1 md:mx-0 rounded-md text-xl text-secondary font-semibold bg-background hover:bg-primary hover:text-secondary transition-all duration-300 ease-in-out transform hover:scale-105 min-w-[168px]"
+    const linkStyle = "flex items-center border-solid border-[1px] border-border p-3 mt-5 mx-1 md:mx-0 rounded-control text-xl text-secondary font-semibold bg-background hover:bg-primary hover:text-secondary transition-all duration-300 ease-in-out transform hover:scale-105 min-w-[168px]"
 
     return (
         <div className="mt-6 lg:mt-2" data-tutorial-id="dashboard-shortcuts">

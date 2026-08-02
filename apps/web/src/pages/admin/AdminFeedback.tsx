@@ -42,7 +42,7 @@ const COUNT_TILES: CountTile[] = [
 ];
 
 const FILTER_CONTROL_CLASSES =
-    "rounded-xl border-2 border-primary bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary";
+    "rounded-card border-2 border-border bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary";
 
 /**
  * The single feedback inbox (KD5): read, filter, re-status and reply, all here.
@@ -165,7 +165,7 @@ function AdminFeedback() {
                     {COUNT_TILES.map(({ key, labelKey }) => (
                         <div
                             key={key}
-                            className="rounded-2xl border border-description p-3 transition-colors duration-200 hover:border-primary"
+                            className="rounded-card border border-description p-3 transition-colors duration-200 hover:border-border"
                         >
                             <dt className="text-xs uppercase tracking-wide text-description">
                                 {t(labelKey)}
@@ -246,10 +246,10 @@ function AdminFeedback() {
                                         data-testid={`admin-feedback-row-${item.id}`}
                                         aria-pressed={isSelected}
                                         onClick={() => setSelectedId(item.id ?? null)}
-                                        className={`flex w-full flex-col gap-2 rounded-2xl border-2 p-3 text-left transition-colors duration-200 ${
+                                        className={`flex w-full flex-col gap-2 rounded-card border-2 p-3 text-left transition-colors duration-200 ${
                                             isSelected
-                                                ? "border-primary bg-primary/5"
-                                                : "border-description hover:border-primary"
+                                                ? "border-accent bg-primary/5"
+                                                : "border-description hover:border-border"
                                         }`}
                                     >
                                         <span className="flex flex-wrap items-center gap-2">
@@ -286,7 +286,7 @@ function AdminFeedback() {
                             data-testid="admin-feedback-prev-page"
                             disabled={page === 0}
                             onClick={() => setPage((current) => Math.max(0, current - 1))}
-                            className="rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
+                            className="rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
                         >
                             {t("AdminFeedbackPrevPage")}
                         </button>
@@ -298,7 +298,7 @@ function AdminFeedback() {
                             data-testid="admin-feedback-next-page"
                             disabled={page + 1 >= totalPages}
                             onClick={() => setPage((current) => current + 1)}
-                            className="rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
+                            className="rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
                         >
                             {t("AdminFeedbackNextPage")}
                         </button>

@@ -36,7 +36,7 @@ export default function ThemeSelector({ onSelect }: { onSelect?: (mode: string) 
               accessibilityRole="radio"
               accessibilityState={{ selected: isActive }}
               testID={`theme-mode-${value}`}
-              className={`flex-1 items-center rounded-lg py-2 ${isActive ? 'bg-surface' : ''}`}
+              className={`flex-1 items-center rounded-control py-2 ${isActive ? 'bg-surface' : ''}`}
             >
               <Text className={`text-sm font-semibold ${isActive ? 'text-text' : 'text-text-2'}`}>
                 {t(labelKey)}

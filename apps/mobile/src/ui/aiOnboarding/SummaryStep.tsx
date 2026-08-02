@@ -58,7 +58,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
   return (
     <View className="w-full items-center gap-6">
       {/* Celebration badge */}
-      <View className="h-20 w-20 items-center justify-center rounded-3xl border border-primary/30 bg-primary/10">
+      <View className="h-20 w-20 items-center justify-center rounded-frame border border-border bg-primary/10">
         <PartyPopper size={40} color={theme.primary} />
       </View>
 
@@ -73,11 +73,11 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
       </View>
 
       {/* Everything created, grouped (empty groups omitted) */}
-      <View className="w-full gap-5 rounded-3xl border border-primary/20 bg-secondary/5 p-5">
+      <View className="w-full gap-5 rounded-frame border border-border bg-secondary/5 p-5">
         {groups.map((group) => (
           <View key={group.labelKey} className="gap-2">
             <View className="flex-row items-center gap-2">
-              <View className="h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+              <View className="h-7 w-7 items-center justify-center rounded-control bg-primary/10">
                 {group.icon}
               </View>
               <Text className="text-description text-sm font-semibold uppercase">
@@ -89,7 +89,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
               {group.items.map((item) => (
                 <View
                   key={item.id}
-                  className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1"
+                  className="rounded-full border border-border bg-primary/10 px-3 py-1"
                 >
                   <Text className="text-secondary text-sm font-medium">{item.name}</Text>
                 </View>

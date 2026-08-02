@@ -61,7 +61,7 @@ export default function CategorySelector({ categories, value, onChange, error }:
           accessibilityRole="button"
           accessibilityLabel={t('AddCategory')}
           testID="category-add-new"
-          className="flex-row items-center gap-1 rounded-full border border-primary/40 px-2.5 py-1"
+          className="flex-row items-center gap-1 rounded-full border border-border px-2.5 py-1"
         >
           <Ionicons name="add" size={14} color={theme.primary} />
           <Text className="text-primary text-xs font-semibold">{t('AddCategory')}</Text>
@@ -83,7 +83,7 @@ export default function CategorySelector({ categories, value, onChange, error }:
                 accessibilityLabel={cat.name}
                 testID={`category-${cat.id}`}
                 className={`flex-row items-center gap-1.5 rounded-full border px-3 py-1.5 ${
-                  selected ? 'border-primary bg-primary/10' : 'border-primary/30'
+                  selected ? 'border-accent bg-primary/10' : 'border-border'
                 }`}
               >
                 <BeyouIcon id={cat.iconId} size={16} />

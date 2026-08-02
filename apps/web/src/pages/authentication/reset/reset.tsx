@@ -111,7 +111,7 @@ function ResetPassword() {
                 <Logo />
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-background">
                 <Header />
 
                 <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">

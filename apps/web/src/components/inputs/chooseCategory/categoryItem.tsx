@@ -52,7 +52,7 @@ function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategories
     }, [categoriesIdList])
 
     const isChosen = alreadyChosen;
-    const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-primary rounded-md bg-background text-secondary transition-colors duration-200
+    const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-border rounded-control bg-background text-secondary transition-colors duration-200
         ${isChosen ? "bg-primary text-white" : ""} 
         ${alreadyChosen ? "bg-primary text-white" : ""}`;
     

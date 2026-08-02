@@ -12,7 +12,7 @@ interface OptionCardProps {
 
 /**
  * Reusable selectable card (mirrors the web RoutineSettings / ConstanceConfiguration
- * option buttons): bordered, highlighted (border-primary + bg-primary/10) when
+ * option buttons): bordered, highlighted (border-border + bg-primary/10) when
  * selected, with a small radio dot on the right. Used by the xp-decay and
  * constance pickers.
  */
@@ -30,8 +30,8 @@ export default function OptionCard({
       accessibilityRole="button"
       accessibilityState={{ selected }}
       testID={testID}
-      className={`rounded-lg border p-4 ${
-        selected ? 'border-primary bg-primary/10' : 'border-primary/30'
+      className={`rounded-control border p-4 ${
+        selected ? 'border-accent bg-primary/10' : 'border-border'
       }`}
     >
       <View className="flex-row items-start justify-between">
@@ -43,7 +43,7 @@ export default function OptionCard({
         </View>
         <View
           className={`mt-0.5 h-5 w-5 rounded-full border-2 ${
-            selected ? 'border-primary bg-primary' : 'border-description'
+            selected ? 'border-accent bg-primary' : 'border-description'
           }`}
         />
       </View>

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 const TodoRoutineExample = () => {
     const { t } = useTranslation();
     return (
-        <div className="border-2 border-primary rounded-lg p-2 w-full max-w-md bg-background text-placeholder shadow-sm cursor-not-allowed">
+        <div className="border-2 border-border rounded-control p-2 w-full max-w-md bg-background text-placeholder shadow-sm cursor-not-allowed">
             <div className="flex items-center gap-3 mb-4">
                 <span className="font-semibold text-center text-lg flex-1 text-placeholder">{t('Routine')}</span>
             </div>

@@ -53,7 +53,7 @@ function NavItemButton({
       accessibilityLabel={t(item.key)}
       accessibilityState={{ selected: active }}
       testID={`nav-${item.key.toLowerCase()}`}
-      className={`items-center justify-center rounded-2xl px-2 py-1.5 ${active ? 'bg-primary' : ''}`}
+      className={`items-center justify-center rounded-card px-2 py-1.5 ${active ? 'bg-primary' : ''}`}
     >
       {/* Size stays fixed. Growing the active icon would resize two items on
           every navigation and shift their neighbours — very visible across six
@@ -79,7 +79,7 @@ export default function BottomNav() {
   return (
     <View
       testID="bottom-nav"
-      className="flex-row items-end justify-around border-t border-primary/15 bg-background px-1 pt-2"
+      className="flex-row items-end justify-around border-t border-border bg-background px-1 pt-2"
       style={{ paddingBottom: Math.max(insets.bottom, 8) }}
     >
       {ITEMS.map((item) => (

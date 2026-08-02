@@ -362,7 +362,7 @@ export default function AiOnboardingWizard({
             {/* Header: step dots + escape hatch */}
             <header className="flex items-center justify-between gap-4 px-4 md:px-8 pt-5 pb-3 shrink-0">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-white shadow-md">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-card bg-primary text-white shadow-md">
                         <Sparkles className="w-4 h-4" />
                     </div>
                     <div className="hidden sm:flex items-center gap-2" aria-hidden="true">
@@ -391,7 +391,7 @@ export default function AiOnboardingWizard({
                         onClick={exitToTour}
                         aria-label={t("AiOnboardingTakeTour")}
                         title={t("AiOnboardingTakeTour")}
-                        className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-2 py-1"
+                        className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-control px-2 py-1"
                     >
                         <Compass className="w-5 h-5 md:w-4 md:h-4" />
                         {/* Icon-only below md (712px): the label wraps badly next to the step name on phones */}
@@ -483,14 +483,14 @@ interface ErrorBannerProps {
 function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
     return (
         <div
-            className="w-full max-w-md rounded-3xl border p-8 text-center shadow-lg"
+            className="w-full max-w-md rounded-frame border p-8 text-center shadow-lg"
             style={{
                 backgroundColor: "color-mix(in srgb, var(--secondary) 6%, var(--background))",
                 borderColor: "color-mix(in srgb, var(--primary) 20%, var(--background))"
             }}
         >
             <div
-                className="mx-auto mb-5 flex w-14 h-14 items-center justify-center rounded-2xl"
+                className="mx-auto mb-5 flex w-14 h-14 items-center justify-center rounded-card"
                 style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
             >
                 <AlertTriangle className="w-7 h-7 text-primary" />
@@ -503,7 +503,7 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                 <button
                     type="button"
                     onClick={onRetry}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-card bg-primary px-5 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <RotateCcw className="w-4 h-4" />
                     {t("AiOnboardingRetry")}
@@ -512,7 +512,7 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                     type="button"
                     onClick={onTakeTour}
                     style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-card px-5 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                     <Compass className="w-4 h-4" />
                     {t("AiOnboardingTakeTour")}
@@ -562,7 +562,7 @@ export function BusyOverlay({ label, spin, t }: { label: string; spin: boolean; 
             <div className="relative flex items-center justify-center">
                 <div
                     className={cn(
-                        "h-14 w-14 rounded-full border-4 border-primary border-t-transparent",
+                        "h-14 w-14 rounded-full border-4 border-border border-t-transparent",
                         spin && "animate-spin"
                     )}
                 />

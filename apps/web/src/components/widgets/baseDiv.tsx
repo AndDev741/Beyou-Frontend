@@ -8,7 +8,7 @@ type baseDivProps = {
 
 export default function BaseDiv({title, children, bigSize}: baseDivProps){
     return (
-        <div className={`flex flex-col items-center justify-center border-solid border-2 border-primary p-1 sm:px-3 md:px-6 min-w-[160px] lg:min-w-[200px] min-h-[110px] ${bigSize ? "w-[90%]" : "max-w-[35vw] md:max-w-[100vh]"} rounded-md`}>
+        <div className={`flex flex-col items-center justify-center border-solid border-2 border-border p-1 sm:px-3 md:px-6 min-w-[160px] lg:min-w-[200px] min-h-[110px] ${bigSize ? "w-[90%]" : "max-w-[35vw] md:max-w-[100vh]"} rounded-control`}>
             <div className=" relative flex items-center justify-center">
                 <h2 className="font-semibold text-center md:text-xl text-secondary">{title}</h2>
             </div>

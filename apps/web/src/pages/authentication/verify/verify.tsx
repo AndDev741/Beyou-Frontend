@@ -56,7 +56,7 @@ function VerifyEmail() {
                 <Logo />
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background flex items-center justify-center">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center px-8 py-12 max-w-[420px] text-center">
                     {state === "loading" && mobile && token && (
                         <div className="flex flex-col items-center w-full" data-testid="verify-choose">
@@ -75,7 +75,7 @@ function VerifyEmail() {
 
                     {state === "loading" && !(mobile && token) && (
                         <>
-                            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6" />
+                            <div className="w-12 h-12 border-4 border-border border-t-transparent rounded-full animate-spin mb-6" />
                             <p className="text-xl text-secondary/70">{t("VerifyEmailLoading")}</p>
                         </>
                     )}
@@ -91,7 +91,7 @@ function VerifyEmail() {
                             <p className="text-base text-secondary/70 mb-8">{t("VerifyEmailSuccessMessage")}</p>
                             <Link
                                 to="/"
-                                className="px-8 py-3 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-primary text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("Enter")}
                             </Link>
@@ -109,7 +109,7 @@ function VerifyEmail() {
                             <p className="text-base text-secondary/70 mb-8">{t("VerifyEmailErrorMessage")}</p>
                             <Link
                                 to="/"
-                                className="px-8 py-3 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-primary text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("Enter")}
                             </Link>
@@ -127,7 +127,7 @@ function VerifyEmail() {
                             <p className="text-base text-secondary/70 mb-8">{t("VerifyEmailExpiredMessage")}</p>
                             <Link
                                 to="/register"
-                                className="px-8 py-3 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-primary text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("ToRegister")}
                             </Link>

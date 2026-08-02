@@ -25,7 +25,7 @@ export default function RoutineCompleteSummary() {
   return (
     <Animated.View
       entering={FadeInDown.duration(280)}
-      className="mt-3 w-full rounded-xl border border-primary/30 bg-primary/10 p-4"
+      className="mt-3 w-full rounded-card border border-border bg-primary/10 p-4"
       testID="routine-complete-summary"
     >
       <Text className="text-primary text-center text-lg font-bold">{t('RoutineCompleteTitle')}</Text>

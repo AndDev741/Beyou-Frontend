@@ -41,7 +41,7 @@ export default function TimeField({ label, value, onChange, testID }: TimeFieldP
         onPress={() => setShow(true)}
         accessibilityRole="button"
         testID={testID}
-        className="h-[44px] justify-center rounded-md border-2 border-primary bg-background px-3"
+        className="h-[44px] justify-center rounded-control border-2 border-border bg-background px-3"
       >
         <Text className={value ? 'text-secondary' : 'text-placeholder'}>{value || '--:--'}</Text>
       </Pressable>

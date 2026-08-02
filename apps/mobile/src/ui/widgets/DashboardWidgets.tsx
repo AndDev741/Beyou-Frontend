@@ -31,7 +31,7 @@ function NoWidgets() {
   const { theme } = useBeyouTheme();
   return (
     <View
-      className="w-full items-center justify-center rounded-xl border-2 border-primary bg-background p-8"
+      className="w-full items-center justify-center rounded-card border-2 border-border bg-background p-8"
       testID="no-widgets-empty-state"
     >
       <Text className="mb-3 text-5xl" accessibilityElementsHidden>

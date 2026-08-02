@@ -103,7 +103,7 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
               accessibilityRole="button"
               accessibilityState={{ selected: category === opt.id }}
               className={`rounded-full border px-3 py-1 ${
-                category === opt.id ? 'border-primary bg-primary' : 'border-primary/30'
+                category === opt.id ? 'border-accent bg-primary' : 'border-border'
               }`}
             >
               <Text className={`text-xs ${category === opt.id ? 'text-background' : 'text-secondary'}`}>
@@ -129,8 +129,8 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
                 accessibilityLabel={`${t('Icon')}: ${item.label}`}
                 accessibilityState={{ selected: item.id === selectedCanonical }}
                 style={{ width: `${100 / NUM_COLUMNS}%` }}
-                className={`items-center justify-center rounded-md py-3 ${
-                  item.id === selectedCanonical ? 'border-2 border-primary' : ''
+                className={`items-center justify-center rounded-control py-3 ${
+                  item.id === selectedCanonical ? 'border-2 border-accent' : ''
                 }`}
               >
                 <BeyouIcon id={item.id} size={28} />

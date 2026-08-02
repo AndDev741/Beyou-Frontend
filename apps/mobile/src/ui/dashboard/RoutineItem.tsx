@@ -125,7 +125,7 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
             disabled={pending}
             accessibilityRole="button"
             testID={`routine-skip-${item.groupId}`}
-            className="flex-row items-center gap-1 rounded-md border border-description/40 px-2 py-1.5"
+            className="flex-row items-center gap-1 rounded-control border border-description/40 px-2 py-1.5"
           >
             <Ionicons name="ban-outline" size={14} color={theme.description} />
             <Text className="text-description text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>

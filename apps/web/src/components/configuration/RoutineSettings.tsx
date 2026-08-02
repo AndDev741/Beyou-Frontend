@@ -159,7 +159,7 @@ export default function RoutineSettings() {
                 </label>
 
                 {showTimezoneSuggestion && (
-                    <div className="mb-3 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                    <div className="mb-3 p-3 rounded-control border border-border bg-primary/5">
                         <p className="text-sm text-description mb-2">
                             {t("TimezoneSuggestion", {
                                 timezone: detectedTimezone,
@@ -181,7 +181,7 @@ export default function RoutineSettings() {
                     <button
                         type="button"
                         onClick={() => setIsTimezoneOpen(!isTimezoneOpen)}
-                        className="w-full border border-primary rounded-md pl-3 pr-8 py-2 text-left bg-background text-secondary hover:border-primary/80 transition-colors duration-200"
+                        className="w-full border border-border rounded-control pl-3 pr-8 py-2 text-left bg-background text-secondary hover:border-border transition-colors duration-200"
                         aria-haspopup="listbox"
                         aria-expanded={isTimezoneOpen}
                         aria-label={t("TimezoneLabel")}
@@ -193,8 +193,8 @@ export default function RoutineSettings() {
                     </button>
 
                     {isTimezoneOpen && (
-                        <div className="absolute z-10 w-full mt-1 border border-primary/30 rounded-md bg-background shadow-lg max-h-60 overflow-hidden">
-                            <div className="p-2 border-b border-primary/20">
+                        <div className="absolute z-10 w-full mt-1 border border-border rounded-control bg-background shadow-lg max-h-60 overflow-hidden">
+                            <div className="p-2 border-b border-border">
                                 <input
                                     type="text"
                                     value={timezoneSearch}
@@ -204,7 +204,7 @@ export default function RoutineSettings() {
                                     placeholder={t(
                                         "TimezoneSearchPlaceholder"
                                     )}
-                                    className="w-full border border-primary/30 rounded-md pl-2 py-1 outline-none bg-background text-secondary placeholder:text-placeholder text-sm"
+                                    className="w-full border border-border rounded-control pl-2 py-1 outline-none bg-background text-secondary placeholder:text-placeholder text-sm"
                                     autoFocus
                                 />
                             </div>
@@ -265,11 +265,11 @@ export default function RoutineSettings() {
                                     handleXpDecaySelect(option.id)
                                 }
                                 className={`
-                                    relative text-left rounded-lg border p-4 transition-all duration-200 h-full
+                                    relative text-left rounded-control border p-4 transition-all duration-200 h-full
                                     ${
                                         isActive
-                                            ? "border-primary bg-primary/10 shadow-md"
-                                            : "border-primary/20 hover:border-primary/60"
+                                            ? "border-accent bg-primary/10 shadow-md"
+                                            : "border-border hover:border-border"
                                     }
                                 `}
                                 aria-pressed={isActive}
@@ -281,7 +281,7 @@ export default function RoutineSettings() {
                                     <div
                                         className={`h-5 w-5 rounded-full border-2 flex-shrink-0 ${
                                             isActive
-                                                ? "border-primary bg-primary"
+                                                ? "border-accent bg-primary"
                                                 : "border-description"
                                         }`}
                                         aria-hidden="true"

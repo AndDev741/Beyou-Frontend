@@ -32,7 +32,7 @@ export default function RoutineCompleteSummary() {
         <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full mt-3 rounded-xl border border-primary/30 bg-primary/10 p-4 text-center"
+            className="w-full mt-3 rounded-card border border-border bg-primary/10 p-4 text-center"
             data-testid="routine-complete-summary"
         >
             <p className="text-lg font-bold text-primary">{t("RoutineCompleteTitle")}</p>

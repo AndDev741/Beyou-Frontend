@@ -12,10 +12,10 @@ function ToolRow({ segment }: { segment: agentSegment }) {
 
     return (
         <div
-            className={`flex w-fit items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm ${
+            className={`flex w-fit items-center gap-2 rounded-control border px-2.5 py-1.5 text-sm ${
                 failed
                     ? "border-error/30 bg-error/10 text-error"
-                    : "border-primary/20 bg-primary/5 text-secondary"
+                    : "border-border bg-primary/5 text-secondary"
             }`}
         >
             {running ? (

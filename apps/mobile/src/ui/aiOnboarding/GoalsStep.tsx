@@ -101,7 +101,7 @@ export default function GoalsStep({
         <View className="w-full gap-3">
           <View className="flex-row items-center justify-between gap-3">
             <View className="flex-row items-center gap-2">
-              <View className="h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+              <View className="h-7 w-7 items-center justify-center rounded-control bg-primary/10">
                 <Target size={16} color={theme.primary} />
               </View>
               <Text className="text-secondary text-lg font-semibold">
@@ -116,7 +116,7 @@ export default function GoalsStep({
               accessibilityLabel={t('AiOnboardingSelectAll')}
               onPress={toggleAll}
               testID="ai-onboarding-select-all-goals"
-              className="flex-row items-center gap-1.5 rounded-lg px-2 py-1"
+              className="flex-row items-center gap-1.5 rounded-control px-2 py-1"
             >
               <CheckCheck size={16} color={theme.primary} />
               <Text className="text-primary text-sm font-semibold">

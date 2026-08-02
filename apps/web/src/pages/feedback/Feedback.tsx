@@ -164,7 +164,7 @@ function Feedback() {
                     <div
                         data-testid="feedback-success"
                         role="status"
-                        className="mt-4 rounded-xl border-2 border-success bg-background p-4"
+                        className="mt-4 rounded-card border-2 border-success bg-background p-4"
                     >
                         <p className="text-base font-semibold text-success">{t("FeedbackSuccessTitle")}</p>
                         <p className="mt-1 text-sm text-description">{t("FeedbackSuccessBody")}</p>
@@ -180,7 +180,7 @@ function Feedback() {
                     <div
                         data-testid="feedback-failure"
                         role="alert"
-                        className="mt-4 rounded-xl border-2 border-error bg-background p-4"
+                        className="mt-4 rounded-card border-2 border-error bg-background p-4"
                     >
                         <p className="text-base font-semibold text-error">{t("FeedbackFailedTitle")}</p>
                         <p className="mt-1 text-sm text-description">{t("FeedbackFailedBody")}</p>
@@ -191,7 +191,7 @@ function Feedback() {
                         <a
                             data-testid="feedback-mailto-fallback"
                             href={mailtoHref}
-                            className="mt-3 inline-flex items-center gap-2 rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                            className="mt-3 inline-flex items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
                         >
                             <Mail size={16} aria-hidden="true" />
                             {t("FeedbackEmailLink")}
@@ -216,8 +216,8 @@ function Feedback() {
                                                 key={category}
                                                 className={`flex cursor-pointer items-center gap-2 rounded-[20px] border px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
                                                     isChosen
-                                                        ? "border-primary bg-primary text-background"
-                                                        : "border-description text-secondary hover:border-primary hover:text-primary"
+                                                        ? "border-accent bg-primary text-background"
+                                                        : "border-description text-secondary hover:border-border hover:text-primary"
                                                 }`}
                                             >
                                                 <input
@@ -260,7 +260,7 @@ function Feedback() {
                                     value={field.value}
                                     onChange={field.onChange}
                                     onBlur={field.onBlur}
-                                    className="w-full rounded-xl border-2 border-primary bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-card border-2 border-border bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 {errors.body?.message && (
                                     <p className="mt-2 text-sm text-error">{errors.body.message}</p>
@@ -277,7 +277,7 @@ function Feedback() {
 
                         <label
                             htmlFor="feedback-images"
-                            className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                            className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
                         >
                             <Paperclip size={16} aria-hidden="true" />
                             {t("FeedbackAddImages")}
@@ -309,13 +309,13 @@ function Feedback() {
                                         <img
                                             src={previewUrl}
                                             alt={displayName}
-                                            className="h-24 w-24 rounded-lg border border-primary object-cover"
+                                            className="h-24 w-24 rounded-control border border-border object-cover"
                                         />
                                         <button
                                             type="button"
                                             aria-label={t("FeedbackRemoveImage", { name: displayName })}
                                             onClick={() => removeAttachment(index)}
-                                            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-primary bg-background text-secondary transition-colors duration-200 hover:bg-primary hover:text-background"
+                                            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-secondary transition-colors duration-200 hover:bg-primary hover:text-background"
                                         >
                                             <X size={14} aria-hidden="true" />
                                         </button>

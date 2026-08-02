@@ -50,7 +50,7 @@ export default function CelebrationOverlay() {
             data-testid="celebration-overlay"
         >
             <motion.div
-                className="flex flex-col items-center rounded-2xl border-2 border-primary bg-background px-10 py-8 text-center shadow-2xl"
+                className="flex flex-col items-center rounded-card border-2 border-border bg-background px-10 py-8 text-center shadow-2xl"
                 initial={{ scale: reduceMotion ? 1 : 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 260, damping: 18 }}

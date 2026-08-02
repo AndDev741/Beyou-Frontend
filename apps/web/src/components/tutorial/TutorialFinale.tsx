@@ -18,7 +18,7 @@ export default function TutorialFinale({ onDone }: TutorialFinaleProps) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="w-full max-w-sm rounded-3xl border border-primary/20 bg-background p-6 text-center text-secondary shadow-lg">
+            <div className="w-full max-w-sm rounded-frame border border-border bg-background p-6 text-center text-secondary shadow-lg">
                 <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
                     {hasTodayRoutine ? (
                         <Sparkles className="h-7 w-7 text-primary" />
@@ -34,7 +34,7 @@ export default function TutorialFinale({ onDone }: TutorialFinaleProps) {
                     type="button"
                     onClick={onDone}
                     data-testid="tutorial-finale-done"
-                    className="mt-5 rounded-md bg-primary px-6 py-3 text-base font-semibold text-background transition-opacity hover:opacity-90"
+                    className="mt-5 rounded-control bg-primary px-6 py-3 text-base font-semibold text-background transition-opacity hover:opacity-90"
                 >
                     {t("TutorialGetStarted")}
                 </button>

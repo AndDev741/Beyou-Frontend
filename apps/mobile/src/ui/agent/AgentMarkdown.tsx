@@ -176,9 +176,9 @@ function InlineText({
  * inline parser so **bold** etc. render instead of showing markers.
  */
 function TableBlock({ header, rows }: { header: string[]; rows: string[][] }) {
-  const cellClass = (col: number) => `flex-1 px-2 py-1.5 ${col > 0 ? 'border-l border-primary/15' : ''}`;
+  const cellClass = (col: number) => `flex-1 px-2 py-1.5 ${col > 0 ? 'border-l border-border' : ''}`;
   return (
-    <View className="overflow-hidden rounded-lg border border-primary/15">
+    <View className="overflow-hidden rounded-control border border-border">
       <View className="flex-row bg-primary/10">
         {header.map((cell, i) => (
           <View key={i} className={cellClass(i)}>
@@ -191,7 +191,7 @@ function TableBlock({ header, rows }: { header: string[]; rows: string[][] }) {
         ))}
       </View>
       {rows.map((row, r) => (
-        <View key={r} className="flex-row border-t border-primary/15">
+        <View key={r} className="flex-row border-t border-border">
           {header.map((_, c) => (
             <View key={c} className={cellClass(c)}>
               <InlineText text={row[c] ?? ''} small />

@@ -305,7 +305,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                             id="oneTimeTask"
                             type="checkbox"
                             {...register("oneTimeTask")}
-                            className="accent-primary border border-primary w-8 h-8 rounded-xl cursor-pointer bg-background transition-colors duration-200"
+                            className="accent-primary border border-border w-8 h-8 rounded-card cursor-pointer bg-background transition-colors duration-200"
                         />
                         <label htmlFor="oneTimeTask" className="ml-2 text-xl text-secondary">
                             {t(mode === "edit" ? "One-time Task" : "One Time Task")}

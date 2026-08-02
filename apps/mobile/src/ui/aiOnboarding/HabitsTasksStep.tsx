@@ -98,7 +98,7 @@ export default function HabitsTasksStep({
         <Text className="text-secondary text-center text-2xl font-bold">
           {t('AiOnboardingHabitsTasksTitle')}
         </Text>
-        <View className="w-full flex-row items-start gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2.5">
+        <View className="w-full flex-row items-start gap-2 rounded-card border border-border bg-primary/10 px-4 py-2.5">
           <View className="pt-0.5">
             <Lightbulb size={16} color={theme.primary} />
           </View>
@@ -241,7 +241,7 @@ function SuggestionGroup({
     <View className="w-full gap-3">
       <View className="flex-row items-center justify-between gap-3">
         <View className="flex-row items-center gap-2">
-          <View className="h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+          <View className="h-7 w-7 items-center justify-center rounded-control bg-primary/10">
             {icon}
           </View>
           <Text className="text-secondary text-lg font-semibold">{label}</Text>
@@ -254,7 +254,7 @@ function SuggestionGroup({
           accessibilityLabel={t('AiOnboardingSelectAll')}
           onPress={onToggleAll}
           testID={toggleAllTestID}
-          className="flex-row items-center gap-1.5 rounded-lg px-2 py-1"
+          className="flex-row items-center gap-1.5 rounded-control px-2 py-1"
         >
           <CheckCheck size={16} color={theme.primary} />
           <Text className="text-primary text-sm font-semibold">{t('AiOnboardingSelectAll')}</Text>

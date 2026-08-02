@@ -298,7 +298,7 @@ export default function SpotlightTutorial({
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="absolute rounded-xl"
+                                    className="absolute rounded-card"
                                     style={{
                                         top: targetRect.top - 8,
                                         left: targetRect.left - 8,
@@ -322,8 +322,8 @@ export default function SpotlightTutorial({
                                 left: tooltipPosition.left
                             }}
                         >
-                            <div className="bg-background border border-primary/20 rounded-2xl shadow-2xl overflow-hidden text-secondary">
-                                <div className="bg-primary/10 px-5 py-1 md:py-3 border-b border-primary/20 flex items-center justify-between">
+                            <div className="bg-background border border-border rounded-card shadow-2xl overflow-hidden text-secondary">
+                                <div className="bg-primary/10 px-5 py-1 md:py-3 border-b border-border flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Sparkles className="w-4 h-4 text-primary" />
                                         <span className="text-sm font-semibold text-primary">
@@ -360,7 +360,7 @@ export default function SpotlightTutorial({
                                             onClick={goNext}
                                             disabled={step.disableNext}
                                             className={cn(
-                                                "flex items-center gap-1 px-3 md:py-2 rounded-md text-sm font-semibold transition-all",
+                                                "flex items-center gap-1 px-3 md:py-2 rounded-control text-sm font-semibold transition-all",
                                                 step.disableNext
                                                     ? "bg-description/30 text-description cursor-not-allowed"
                                                     : "bg-primary text-background hover:bg-primary/90"
@@ -377,7 +377,7 @@ export default function SpotlightTutorial({
                                         <div
                                             key={index}
                                             className={cn(
-                                                "w-1.5 h-1.5 rounded-full transition-all border border-primary/20",
+                                                "w-1.5 h-1.5 rounded-full transition-all border border-border",
                                                 index === stepIndex
                                                     ? "bg-primary w-4"
                                                     : index < stepIndex
@@ -390,16 +390,16 @@ export default function SpotlightTutorial({
                             </div>
 
                             {tooltipPosition.arrow === "top" && (
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-l border-t border-primary/20 rotate-45" />
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-l border-t border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "bottom" && (
-                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-r border-b border-primary/20 rotate-45" />
+                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-r border-b border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "left" && (
-                                <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-background border-l border-b border-primary/20 rotate-45" />
+                                <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-background border-l border-b border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "right" && (
-                                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-background border-r border-t border-primary/20 rotate-45" />
+                                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-background border-r border-t border-border rotate-45" />
                             )}
                         </motion.div>
                     )}

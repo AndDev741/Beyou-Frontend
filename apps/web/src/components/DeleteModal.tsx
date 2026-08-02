@@ -111,11 +111,11 @@ function DeleteModal<T>({objectId, onDelete, setOnDelete, t, name, setObjects, d
                 <h2 className="underline my-3 text-description">{name}</h2>
                 <div className="flex lg:flex-row flex-col items-center">
                     <button onClick={handleDelete}
-                    className="bg-error hover:bg-error/90 lg:mr-1 text-white font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
+                    className="bg-error hover:bg-error/90 lg:mr-1 text-white font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
                         {t('Delete')}
                     </button>
                     <button onClick={handleClose}
-                    className="bg-secondary/10 hover:bg-secondary/20 mt-1 lg:mt-0 lg:ml-1 text-secondary font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
+                    className="bg-secondary/10 hover:bg-secondary/20 mt-1 lg:mt-0 lg:ml-1 text-secondary font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
                         {t('Cancel')}
                     </button>
                 </div>

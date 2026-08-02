@@ -43,7 +43,7 @@ export default function AuthTabs({ active }: Props) {
 
       {/* Active-tab underline: left half under Login, right half under Register. */}
       <View className={isLogin ? 'items-start' : 'items-end'}>
-        <View className="w-1/2 border-b-2 border-primary" />
+        <View className="w-1/2 border-b-2 border-border" />
       </View>
     </View>
   );

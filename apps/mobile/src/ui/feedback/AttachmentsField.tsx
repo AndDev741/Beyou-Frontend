@@ -63,7 +63,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
         accessibilityRole="button"
         accessibilityLabel={t('FeedbackAddImages')}
         testID="feedback-add-images"
-        className={`flex-row items-center gap-2 self-start rounded-full border border-primary px-4 py-2 ${
+        className={`flex-row items-center gap-2 self-start rounded-full border border-border px-4 py-2 ${
           full ? 'opacity-60' : ''
         }`}
       >
@@ -87,7 +87,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
             <View key={`${image.uri}-${index}`} testID={`feedback-attachment-${index}`}>
               <Image
                 source={{ uri: image.uri }}
-                className="h-24 w-24 rounded-lg border border-primary"
+                className="h-24 w-24 rounded-control border border-border"
                 accessibilityLabel={image.name}
               />
               <Pressable
@@ -95,7 +95,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
                 accessibilityRole="button"
                 accessibilityLabel={t('FeedbackRemoveImage', { name: image.name })}
                 testID={`feedback-remove-image-${index}`}
-                className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-primary bg-background"
+                className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-border bg-background"
               >
                 <Ionicons name="close" size={16} color={theme.primary} />
               </Pressable>

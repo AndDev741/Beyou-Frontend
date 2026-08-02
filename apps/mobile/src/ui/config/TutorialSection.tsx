@@ -47,7 +47,7 @@ export default function TutorialSection() {
         disabled={saving}
         accessibilityRole="button"
         testID="tutorial-replay"
-        className={`mt-2 items-center rounded-md bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('TutorialRestart')}

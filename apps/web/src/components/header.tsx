@@ -31,7 +31,7 @@ function Header({pageName, showLogout}: {pageName: string, showLogout?: boolean}
     
     return(
         <header className="flex items-center justify-between w-[100%] h-[60px] bg-primary px-3 
-        text-background dark:text-secondary text-2xl font-semibold transition-colors duration-200">
+        text-background text-2xl font-semibold transition-colors duration-200">
             <h1>{t(`${pageName}`)}</h1>
 
 

@@ -21,7 +21,7 @@ function DescriptionInput({description, setDescription, placeholder, description
         .addEventListener('change', e => setMatches( e.matches ));
     }, []);
 
-    const borderCss = `border border-primary rounded-md w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
+    const borderCss = `border border-border rounded-control w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
     const labelCss = "text-lg md:text-2xl md:text-xl text-secondary";
     const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
     return(

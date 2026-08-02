@@ -24,7 +24,7 @@ export default function TutorialFinale() {
 
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.6)' }]} className="items-center justify-center p-6">
-      <View className="w-full max-w-sm items-center rounded-3xl border border-primary/20 bg-background p-6">
+      <View className="w-full max-w-sm items-center rounded-frame border border-border bg-background p-6">
         <View className="mb-3 h-14 w-14 items-center justify-center rounded-full bg-primary/15">
           <Ionicons name={hasTodayRoutine ? 'sparkles' : 'rocket-outline'} size={28} color={theme.primary} />
         </View>
@@ -36,7 +36,7 @@ export default function TutorialFinale() {
           onPress={finish}
           accessibilityRole="button"
           testID="tutorial-finale-done"
-          className="mt-5 items-center rounded-md bg-primary px-6 py-3"
+          className="mt-5 items-center rounded-control bg-primary px-6 py-3"
         >
           <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">{t('TutorialGetStarted')}</Text>
         </Pressable>

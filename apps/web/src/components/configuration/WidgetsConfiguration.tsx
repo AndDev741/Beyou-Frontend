@@ -118,7 +118,7 @@ export default function WidgetsConfiguration() {
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start lg:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
+        <div className="w-full h-full flex flex-col justify-start items-start lg:p-4 bg-background text-secondary transition-colors duration-200 rounded-control shadow-sm">
             {/* Section title + description come from the ConfigSection wrapper */}
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <DroppableList
@@ -199,8 +199,8 @@ function DroppableList({
                         // justify-evenly + gap-4) so the configured layout is a
                         // faithful preview. The dashed border is the only extra:
                         // it marks the drop zone while editing.
-                        className={`flex flex-wrap items-center justify-evenly gap-4 p-1 md:p-4 rounded-xl border-2 border-dashed transition-all md:min-h-[150px]
-                        ${snapshot.isDraggingOver ? "border-primary bg-primary/10 min-h-[200px]" : "border-primary/20 bg-background"}`}
+                        className={`flex flex-wrap items-center justify-evenly gap-4 p-1 md:p-4 rounded-card border-2 border-dashed transition-all md:min-h-[150px]
+                        ${snapshot.isDraggingOver ? "border-accent bg-primary/10 min-h-[200px]" : "border-border bg-background"}`}
                     >
                         {widgets?.length === 0 && (
                             <p className="text-sm text-description italic ">

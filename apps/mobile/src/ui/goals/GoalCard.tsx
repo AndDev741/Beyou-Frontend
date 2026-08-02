@@ -42,7 +42,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
   };
 
   return (
-    <View className="rounded-2xl border border-primary/20 bg-background p-4">
+    <View className="rounded-card border border-border bg-background p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"
@@ -51,7 +51,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
         testID={`goal-card-${goal.id}`}
         className="flex-row items-center gap-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+        <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
           <BeyouIcon id={goal.iconId} size={24} showFallback />
         </View>
         <View className="flex-1">
@@ -84,7 +84,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
           accessibilityRole="button"
           accessibilityLabel={t('Decrease') || 'Decrease'}
           testID={`goal-decrease-${goal.id}`}
-          className={`h-9 w-9 items-center justify-center rounded-full border border-primary/40 ${done ? 'opacity-40' : ''}`}
+          className={`h-9 w-9 items-center justify-center rounded-full border border-border ${done ? 'opacity-40' : ''}`}
         >
           <Ionicons name="remove" size={20} color={theme.primary} />
         </Pressable>
@@ -94,7 +94,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
           accessibilityRole="button"
           accessibilityLabel={t('Increase') || 'Increase'}
           testID={`goal-increase-${goal.id}`}
-          className={`h-9 w-9 items-center justify-center rounded-full border border-primary/40 ${done ? 'opacity-40' : ''}`}
+          className={`h-9 w-9 items-center justify-center rounded-full border border-border ${done ? 'opacity-40' : ''}`}
         >
           <Ionicons name="add" size={20} color={theme.primary} />
         </Pressable>
@@ -119,7 +119,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
       </View>
 
       {expanded ? (
-        <View className="mt-4 gap-3 border-t border-primary/10 pt-3">
+        <View className="mt-4 gap-3 border-t border-border pt-3">
           {goal.description ? <Text className="text-description text-sm">{goal.description}</Text> : null}
           {goal.motivation ? (
             <View className="gap-0.5">
@@ -141,10 +141,10 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
           ) : null}
 
           <View className="flex-row gap-3">
-            <Pressable onPress={() => onEdit(goal)} accessibilityRole="button" testID={`goal-edit-${goal.id}`} className="flex-1 items-center rounded-lg bg-primary py-2.5">
+            <Pressable onPress={() => onEdit(goal)} accessibilityRole="button" testID={`goal-edit-${goal.id}`} className="flex-1 items-center rounded-control bg-primary py-2.5">
               <Text style={{ color: theme.background }} className="font-semibold">{t('Edit')}</Text>
             </Pressable>
-            <Pressable onPress={() => onDelete(goal)} accessibilityRole="button" testID={`goal-delete-${goal.id}`} className="flex-1 items-center rounded-lg border border-error py-2.5">
+            <Pressable onPress={() => onDelete(goal)} accessibilityRole="button" testID={`goal-delete-${goal.id}`} className="flex-1 items-center rounded-control border border-error py-2.5">
               <Text className="text-error font-semibold">{t('Delete')}</Text>
             </Pressable>
           </View>

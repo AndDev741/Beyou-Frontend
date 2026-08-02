@@ -75,7 +75,7 @@ export default function RegisterRoute() {
         {registered ? (
           <>
             <View
-              className="border-2 border-primary rounded-xl bg-primary/10 p-5 mb-6 mt-4"
+              className="border-2 border-border rounded-card bg-primary/10 p-5 mb-6 mt-4"
               testID="register-success"
             >
               <Text className="text-primary font-semibold mb-1">{t('EmailVerificationSentTitle')}</Text>

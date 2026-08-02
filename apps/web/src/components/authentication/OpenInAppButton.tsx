@@ -20,7 +20,7 @@ function OpenInAppButton({ path, token }: OpenInAppButtonProps) {
         <a
             href={buildAppLink(path, token)}
             data-testid="open-in-app"
-            className="flex items-center justify-center gap-2 px-8 py-3 my-4 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 px-8 py-3 my-4 bg-primary text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
         >
             {t("OpenInBeyouApp")}
         </a>

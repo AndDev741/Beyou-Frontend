@@ -117,7 +117,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                                 className={cn(
                                     "group flex items-center gap-2 rounded-full px-4 py-2.5 text-sm md:text-base font-medium transition-all duration-200 border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                                     active
-                                        ? "bg-primary text-white border-primary shadow-md scale-105"
+                                        ? "bg-primary text-white border-accent shadow-md scale-105"
                                         : "text-secondary hover:-translate-y-0.5"
                                 )}
                             >
@@ -149,14 +149,14 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                         }}
                         placeholder={t("AiOnboardingCategoriesPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="min-w-0 flex-1 rounded-xl border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="min-w-0 flex-1 rounded-card border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
                     />
                     <button
                         type="button"
                         onClick={addCustom}
                         aria-label={t("AiOnboardingAdd")}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
-                        className="flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
                         <Plus className="w-4 h-4" />
                         <span className="hidden sm:inline">{t("AiOnboardingAdd")}</span>
@@ -168,7 +168,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
                     onClick={() => onContinue(selected)}
                     disabled={!canContinue}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
                         canContinue
                             ? "bg-primary hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
                             : "bg-primary opacity-40 cursor-not-allowed"

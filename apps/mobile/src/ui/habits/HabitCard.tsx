@@ -61,7 +61,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View ref={viewRef} className="rounded-2xl border border-primary/20 bg-background p-4">
+    <View ref={viewRef} className="rounded-card border border-border bg-background p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"
@@ -70,7 +70,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         testID={`habit-card-${habit.id}`}
         className="flex-row items-center gap-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+        <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
           <BeyouIcon id={habit.iconId} size={24} showFallback />
         </View>
         <View className="flex-1">
@@ -108,7 +108,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
       </View>
 
       {expanded ? (
-        <View className="mt-4 gap-3 border-t border-primary/10 pt-3">
+        <View className="mt-4 gap-3 border-t border-border pt-3">
           {habit.categories?.length ? (
             <View className="gap-1">
               <Text className="text-secondary text-sm font-semibold">{t('Categories')}</Text>
@@ -151,7 +151,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
               onPress={() => onEdit(habit)}
               accessibilityRole="button"
               testID={`habit-edit-${habit.id}`}
-              className="flex-1 items-center rounded-lg bg-primary py-2.5"
+              className="flex-1 items-center rounded-control bg-primary py-2.5"
             >
               <Text style={{ color: theme.background }} className="font-semibold">
                 {t('Edit')}
@@ -161,7 +161,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
               onPress={() => onDelete(habit)}
               accessibilityRole="button"
               testID={`habit-delete-${habit.id}`}
-              className="flex-1 items-center rounded-lg border border-error py-2.5"
+              className="flex-1 items-center rounded-control border border-error py-2.5"
             >
               <Text className="text-error font-semibold">{t('Delete')}</Text>
             </Pressable>

@@ -68,8 +68,8 @@ function Segmented({
             onPress={() => onChange(opt.value)}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            className={`min-w-[44px] items-center rounded-lg border px-3 py-2 ${
-              selected ? 'border-primary bg-primary/10' : 'border-primary/30'
+            className={`min-w-[44px] items-center rounded-control border px-3 py-2 ${
+              selected ? 'border-accent bg-primary/10' : 'border-border'
             }`}
           >
             <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>
@@ -167,7 +167,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
-        <View className="flex-row items-center justify-between border-b border-primary/15 px-4 py-3">
+        <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="habit-form-cancel">
             <Text className="text-description text-base">{t('Cancel')}</Text>
           </Pressable>

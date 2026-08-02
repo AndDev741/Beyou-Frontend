@@ -36,8 +36,8 @@ export default function SuggestionCard({
       accessibilityState={{ selected }}
       onPress={onPress}
       testID={testID}
-      className={`relative w-full flex-row items-start gap-3 rounded-2xl border p-3 ${
-        selected ? 'border-primary bg-primary/10' : 'border-primary/20 bg-secondary/5'
+      className={`relative w-full flex-row items-start gap-3 rounded-card border p-3 ${
+        selected ? 'border-accent bg-primary/10' : 'border-border bg-secondary/5'
       }`}
     >
       {/* Check badge */}
@@ -48,7 +48,7 @@ export default function SuggestionCard({
       ) : null}
 
       <View
-        className={`h-10 w-10 items-center justify-center rounded-xl ${
+        className={`h-10 w-10 items-center justify-center rounded-card ${
           selected ? 'bg-primary/20' : 'bg-primary/10'
         }`}
       >

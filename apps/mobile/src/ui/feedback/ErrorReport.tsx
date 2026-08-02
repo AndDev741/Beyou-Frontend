@@ -77,7 +77,7 @@ export default function ErrorReport({ error, componentStack, onSendingChange }: 
         onPress={() => setOpen(true)}
         accessibilityRole="button"
         testID="error-report-open"
-        className="rounded-full border border-primary px-5 py-2.5"
+        className="rounded-full border border-border px-5 py-2.5"
       >
         <Text className="text-primary font-semibold">{t('FeedbackNavLabel')}</Text>
       </Pressable>
@@ -116,7 +116,7 @@ export default function ErrorReport({ error, componentStack, onSendingChange }: 
             onPress={openMail}
             accessibilityRole="button"
             testID="error-report-mailto"
-            className="mt-1 self-start rounded-full border border-primary px-4 py-2"
+            className="mt-1 self-start rounded-full border border-border px-4 py-2"
           >
             <Text className="text-primary font-semibold">{t('FeedbackEmailLink')}</Text>
           </Pressable>

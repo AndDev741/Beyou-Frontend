@@ -176,7 +176,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             return (
                 <div key={`${item.type}-${item.id}-${originalIndex}`} className="w-full flex items-center my-1 bg-background transition-colors duration-200 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 w-full min-w-0">
-                        <input type="checkbox" className="accent-primary w-6 h-6 rounded-lg border border-primary/30 bg-background transition-colors duration-200" />
+                        <input type="checkbox" className="accent-primary w-6 h-6 rounded-control border border-border bg-background transition-colors duration-200" />
                         <span className="text-sm md:text-md text-secondary ml-2 min-w-0">
                             {itemObj.name}
                         </span>
@@ -201,7 +201,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                             }
                                             : null
                                     )}
-                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-primary"}`}
+                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-border"}`}
                                 />
                                 <input
                                     type="time"
@@ -211,7 +211,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                     onChange={(e) => setEditingItem(prev =>
                                         prev ? { ...prev, endTime: e.target.value } : null
                                     )}
-                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-primary"}`}
+                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-border"}`}
                                 />
                                 <button
                                     onClick={() => handleSaveEditItem(editingItem.startTime, editingItem.endTime)}

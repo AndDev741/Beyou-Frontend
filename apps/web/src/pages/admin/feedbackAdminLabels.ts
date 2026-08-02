@@ -15,7 +15,7 @@ export const FEEDBACK_CATEGORY_ORDER: FeedbackCategory[] = ["BUG", "FEATURE_REQU
  * on 7 of the 9 themes.
  */
 export const FEEDBACK_STATUS_BADGE_CLASSES: Record<FeedbackStatus, string> = {
-    OPEN: "border-primary text-primary",
+    OPEN: "border-accent text-primary",
     TAKING_CARE: "border-success text-success",
     CLOSED: "border-description text-description"
 };

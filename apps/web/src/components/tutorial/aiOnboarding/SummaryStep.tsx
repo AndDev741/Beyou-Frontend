@@ -72,7 +72,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                     initial={prefersReducedMotion ? false : { scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                    className="flex w-20 h-20 items-center justify-center rounded-3xl shadow-lg"
+                    className="flex w-20 h-20 items-center justify-center rounded-frame shadow-lg"
                     style={{
                         backgroundColor: "color-mix(in srgb, var(--primary) 14%, var(--background))",
                         border: "1px solid color-mix(in srgb, var(--primary) 30%, var(--background))"
@@ -132,7 +132,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                 initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: prefersReducedMotion ? 0 : 0.15 }}
-                className="w-full rounded-3xl border p-5 md:p-6 text-left shadow-lg space-y-5"
+                className="w-full rounded-frame border p-5 md:p-6 text-left shadow-lg space-y-5"
                 style={{
                     backgroundColor: "color-mix(in srgb, var(--secondary) 5%, var(--background))",
                     borderColor: "color-mix(in srgb, var(--primary) 18%, var(--background))"
@@ -142,7 +142,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                     <section key={group.labelKey} className="space-y-2">
                         <div className="flex items-center gap-2">
                             <span
-                                className="flex w-7 h-7 items-center justify-center rounded-lg"
+                                className="flex w-7 h-7 items-center justify-center rounded-control"
                                 style={{
                                     backgroundColor:
                                         "color-mix(in srgb, var(--primary) 12%, var(--background))"
@@ -181,7 +181,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                 <button
                     type="button"
                     onClick={onStart}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex items-center justify-center gap-2 rounded-card bg-primary px-6 py-3 font-semibold text-white shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <Sparkles className="w-4 h-4" />
                     {t("AiOnboardingStart")}
@@ -191,7 +191,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                     type="button"
                     onClick={onTour}
                     style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
-                    className="flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="flex items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                     <Compass className="w-4 h-4" />
                     {t("AiOnboardingTour")}

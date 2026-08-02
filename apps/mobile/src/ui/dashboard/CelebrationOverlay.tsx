@@ -60,7 +60,7 @@ export default function CelebrationOverlay() {
     >
       <Animated.View
         style={cardStyle}
-        className="items-center rounded-2xl border-2 border-primary bg-background px-10 py-8"
+        className="items-center rounded-card border-2 border-border bg-background px-10 py-8"
       >
         <View
           className="h-24 w-24 items-center justify-center rounded-full"

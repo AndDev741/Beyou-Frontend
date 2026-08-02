@@ -26,7 +26,7 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
 
   return (
     <View className="gap-4" testID="snapshot-card">
-      <View className="flex-row justify-between rounded-xl bg-primary/10 p-3">
+      <View className="flex-row justify-between rounded-card bg-primary/10 p-3">
         <Text className="text-secondary text-sm">{t('Completed')}: {completed}</Text>
         <Text className="text-secondary text-sm">{t('Skipped')}: {skipped}</Text>
         <Text className="text-primary text-sm font-semibold">{xp} {t('XpEarned')}</Text>
@@ -35,7 +35,7 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
       {[...snapshot.structure.sections]
         .sort((a, b) => a.orderIndex - b.orderIndex)
         .map((section, i) => (
-        <View key={`${section.name}-${i}`} className="rounded-2xl border border-primary/20 bg-background p-4">
+        <View key={`${section.name}-${i}`} className="rounded-card border border-border bg-background p-4">
           <View className="flex-row items-center gap-1.5">
             <BeyouIcon id={section.iconId} size={18} />
             <Text className="text-primary shrink text-lg font-bold">{section.name}</Text>

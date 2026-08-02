@@ -112,7 +112,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
-        <View className="flex-row items-center justify-between border-b border-primary/15 px-4 py-3">
+        <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="routine-form-cancel"><Text className="text-description text-base">{t('Cancel')}</Text></Pressable>
           <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'Edit Routine' : 'Create routine')}</Text>
           <View className="w-12" />

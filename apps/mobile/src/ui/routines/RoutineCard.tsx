@@ -58,7 +58,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const donePct = stats.totalItems > 0 ? Math.round((stats.completedItems / stats.totalItems) * 100) : 0;
 
   return (
-    <View className="rounded-2xl border border-primary/20 bg-background p-4">
+    <View className="rounded-card border border-border bg-background p-4">
       {/* Header row: icon + name/stats + schedule button */}
       <View className="flex-row items-center gap-3">
         <Pressable
@@ -69,7 +69,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           testID={`routine-card-${routine.id}`}
           className="flex-1 flex-row items-center gap-3"
         >
-          <View className="h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+          <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
             <BeyouIcon id={routine.iconId} size={24} showFallback />
           </View>
           <View className="flex-1">
@@ -134,7 +134,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
 
       {/* Expanded: interactive sections + Edit/Delete */}
       {expanded ? (
-        <View className="mt-4 gap-4 border-t border-primary/10 pt-3">
+        <View className="mt-4 gap-4 border-t border-border pt-3">
           {routine.routineSections?.map((section, i) => (
             <View key={section.id ?? i}>
               <View className="flex-row flex-wrap items-center gap-1.5">

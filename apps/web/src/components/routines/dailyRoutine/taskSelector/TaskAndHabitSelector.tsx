@@ -108,7 +108,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     };
 
     return (
-        <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-primary rounded-lg p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
+        <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-border rounded-control p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
 
                 <div className="w-full max-w-full min-w-0 flex flex-col items-start justify-evenly">
                 <div className="flex flex-col items-center justify-start w-full my-1 px-2">
@@ -117,7 +117,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     <div className="flex flex-wrap items-center justify-center gap-3">
                         <input
                             type="time"
-                            className={`border-2 rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-primary"}`}
+                            className={`border-2 rounded-control p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-border"}`}
                             min={minStart}
                             max={maxEnd}
                             value={startTime}
@@ -131,7 +131,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         />
                         <input
                             type="time"
-                            className={`border-2 rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-primary"}`}
+                            className={`border-2 rounded-control p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-border"}`}
                             min={!isOvernight ? startTime || minStart : undefined}
                             max={maxEnd}
                             value={endTime}
@@ -151,7 +151,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     <button
                         type="button"
                         onClick={() => setShowQuickHabit(true)}
-                        className="text-primary font-semibold text-sm px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
+                        className="text-primary font-semibold text-sm px-2 py-1 rounded-control hover:bg-primary/10 transition-colors duration-200"
                     >
                         + {t("NewHabit")}
                     </button>
@@ -186,7 +186,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     <button
                         type="button"
                         onClick={() => setShowQuickTask(true)}
-                        className="text-primary font-semibold text-sm px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
+                        className="text-primary font-semibold text-sm px-2 py-1 rounded-control hover:bg-primary/10 transition-colors duration-200"
                     >
                         + {t("NewTask")}
                     </button>

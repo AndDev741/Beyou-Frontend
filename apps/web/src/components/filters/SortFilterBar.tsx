@@ -34,11 +34,11 @@ const SortFilterBar = ({
 
   return (
     <section
-      className={`w-full rounded-xl border border-primary/20 bg-background/80 p-3 shadow-sm backdrop-blur ${className}`}
+      className={`w-full rounded-card border border-border bg-background/80 p-3 shadow-sm backdrop-blur ${className}`}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-card bg-primary/10 text-primary">
             <FiFilter className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
@@ -56,7 +56,7 @@ const SortFilterBar = ({
             id={selectId}
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="w-full max-w-[160px] md:max-w-[230px] rounded-lg border border-primary/30 bg-background px-3 py-2 text-sm text-secondary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
+            className="w-full max-w-[160px] md:max-w-[230px] rounded-control border border-border bg-background px-3 py-2 text-sm text-secondary shadow-sm focus:border-border focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
           >
             {options.map((option) => (
               <option key={option.value} value={option.value}>
@@ -77,8 +77,8 @@ const SortFilterBar = ({
                 onClick={() => onChange(option.value)}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                   isActive
-                    ? "border-primary bg-primary text-background"
-                    : "border-primary/30 bg-primary/10 text-primary hover:border-primary/60"
+                    ? "border-accent bg-primary text-background"
+                    : "border-border bg-primary/10 text-primary hover:border-border"
                 }`}
               >
                 {option.label}

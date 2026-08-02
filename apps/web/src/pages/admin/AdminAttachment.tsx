@@ -56,7 +56,7 @@ function AdminAttachment({ attachment, index }: Props) {
         return (
             <li
                 aria-hidden="true"
-                className="h-28 w-28 animate-pulse rounded-lg border border-description bg-secondary/10"
+                className="h-28 w-28 animate-pulse rounded-control border border-description bg-secondary/10"
             />
         );
     }
@@ -70,7 +70,7 @@ function AdminAttachment({ attachment, index }: Props) {
                     alt={t("AdminFeedbackAttachmentAlt", { index: index + 1 })}
                     width={attachment.width}
                     height={attachment.height}
-                    className="h-28 w-28 rounded-lg border border-primary object-cover"
+                    className="h-28 w-28 rounded-control border border-border object-cover"
                 />
             </a>
         </li>

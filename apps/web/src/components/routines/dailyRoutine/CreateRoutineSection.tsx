@@ -136,7 +136,7 @@ const CreateRoutineSection = ({
                                     placeholder={t("Cozy Morning")}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
+                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
                                 />
                             )}
                         />
@@ -155,7 +155,7 @@ const CreateRoutineSection = ({
                                     placeholder={"06:00"}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
                                 />
                             )}
                         />
@@ -174,7 +174,7 @@ const CreateRoutineSection = ({
                                     placeholder={"12:00"}
                                     value={field.value || ""}
                                     onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-primary rounded-md px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
                                 />
                             )}
                         />
@@ -198,7 +198,7 @@ const CreateRoutineSection = ({
                     {editSection ? (
                         <button
                             type="button"
-                            className="mt-6 px-6 py-2 bg-primary text-background dark:text-secondary rounded-md font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
+                            className="mt-6 px-6 py-2 bg-primary text-background rounded-control font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
                             onClick={handleSubmit(handleUpdate)}
                         >
                             {t("Edit")}
@@ -206,7 +206,7 @@ const CreateRoutineSection = ({
                     ) : (
                         <button
                             type="button"
-                            className="mt-6 px-6 py-2 bg-primary text-background dark:text-secondary rounded-md font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
+                            className="mt-6 px-6 py-2 bg-primary text-background rounded-control font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
                             onClick={handleSubmit(handleCreate)}
                         >
                             {t("Create")}
@@ -242,7 +242,7 @@ const CreateRoutineSection = ({
                                 </div>
 
                                 <button
-                                    className="text-xs md:text-md hover:text-primary hover:scale-105 border border-primary rounded-md px-2 py-1 transition-all duration-200"
+                                    className="text-xs md:text-md hover:text-primary hover:scale-105 border border-border rounded-control px-2 py-1 transition-all duration-200"
                                     onClick={() => handleUseFavorite(section)}
                                 >
                                     {t("Use")}

@@ -70,7 +70,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                 <button
                     type="button"
                     onClick={() => setShowCreateModal(true)}
-                    className="flex shrink-0 items-center gap-1 text-primary font-semibold px-2 py-1 rounded-md hover:bg-primary/10 active:scale-95 transition-all duration-200"
+                    className="flex shrink-0 items-center gap-1 text-primary font-semibold px-2 py-1 rounded-control hover:bg-primary/10 active:scale-95 transition-all duration-200"
                     aria-label={t("AddCategory")}
                 >
                     <CgAddR className="text-lg" />

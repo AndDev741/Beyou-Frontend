@@ -100,13 +100,13 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
     <BottomSheet visible={visible} onClose={onClose}>
         <Text className="text-secondary mb-3 text-lg font-bold">{t('Schedule')}</Text>
         <View className="mb-3 flex-row flex-wrap gap-2">
-          <Pressable onPress={() => toggleGroup(WEEKDAYS)} accessibilityRole="button" testID="group-weekdays" className="rounded-full border border-primary/40 px-3 py-1.5">
+          <Pressable onPress={() => toggleGroup(WEEKDAYS)} accessibilityRole="button" testID="group-weekdays" className="rounded-full border border-border px-3 py-1.5">
             <Text className="text-secondary text-xs">{t('Weekdays')}</Text>
           </Pressable>
-          <Pressable onPress={() => toggleGroup(WEEKEND)} accessibilityRole="button" testID="group-weekend" className="rounded-full border border-primary/40 px-3 py-1.5">
+          <Pressable onPress={() => toggleGroup(WEEKEND)} accessibilityRole="button" testID="group-weekend" className="rounded-full border border-border px-3 py-1.5">
             <Text className="text-secondary text-xs">{t('Weekend')}</Text>
           </Pressable>
-          <Pressable onPress={() => toggleGroup(ALL)} accessibilityRole="button" testID="group-all" className="rounded-full border border-primary/40 px-3 py-1.5">
+          <Pressable onPress={() => toggleGroup(ALL)} accessibilityRole="button" testID="group-all" className="rounded-full border border-border px-3 py-1.5">
             <Text className="text-secondary text-xs">{t('AllDays')}</Text>
           </Pressable>
         </View>
@@ -123,8 +123,8 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 testID={`day-${d.wire}`}
-                className={`flex-row items-center justify-between rounded-lg border-2 p-3 ${
-                  blocked ? 'border-error' : selected ? 'border-primary bg-primary/10' : 'border-primary/30'
+                className={`flex-row items-center justify-between rounded-control border-2 p-3 ${
+                  blocked ? 'border-error' : selected ? 'border-accent bg-primary/10' : 'border-border'
                 }`}
               >
                 <View className="flex-row items-center gap-2">

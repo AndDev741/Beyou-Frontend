@@ -30,8 +30,8 @@ export default function IconPickerField({ label, value, onChange, error, testID 
         accessibilityRole="button"
         accessibilityLabel={label}
         testID={testID}
-        className={`h-[56px] flex-row items-center gap-3 rounded-md border-2 bg-background px-3 ${
-          error ? 'border-error' : 'border-primary'
+        className={`h-[56px] flex-row items-center gap-3 rounded-control border-2 bg-background px-3 ${
+          error ? 'border-error' : 'border-accent'
         }`}
       >
         <View className="h-8 w-8 items-center justify-center">

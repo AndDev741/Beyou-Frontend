@@ -84,7 +84,7 @@ export default function WidgetsSection() {
             {current.map((id, index) => (
               <View
                 key={id}
-                className="flex-row items-center justify-between rounded-md border border-primary px-3 py-2"
+                className="flex-row items-center justify-between rounded-control border border-border px-3 py-2"
                 testID={`widget-current-${id}`}
               >
                 <Text className="text-secondary flex-1" numberOfLines={1}>
@@ -137,7 +137,7 @@ export default function WidgetsSection() {
               accessibilityRole="button"
               accessibilityLabel={`Add ${t(WIDGET_LABEL_KEY[id])}`}
               testID={`widget-add-${id}`}
-              className="flex-row items-center justify-between rounded-md border border-primary/40 px-3 py-2"
+              className="flex-row items-center justify-between rounded-control border border-border px-3 py-2"
             >
               <Text className="text-secondary flex-1" numberOfLines={1}>
                 {t(WIDGET_LABEL_KEY[id])}
@@ -153,7 +153,7 @@ export default function WidgetsSection() {
         disabled={saving}
         accessibilityRole="button"
         testID="save-widgets"
-        className={`mt-4 items-center rounded-md bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-4 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: theme.background }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('Save')}

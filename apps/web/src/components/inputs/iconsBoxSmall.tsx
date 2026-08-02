@@ -83,7 +83,7 @@ function IconsBoxSmall({
         setSelectedIcon(canonical);
     };
 
-    const borderCss = "border border-primary rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-background";
+    const borderCss = "border border-border rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-background";
     const labelCss = "text-base md:text-lg text-secondary";
     const errorCss = "text-error text-xs leading-snug break-words whitespace-normal w-[45vw] md:w-[160px] lg:w-[12rem] mt-1";
     return (
@@ -97,7 +97,7 @@ function IconsBoxSmall({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     name='icon-small'
-                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-primary rounded outline-none text-xs bg-background text-secondary placeholder:text-placeholder transition-colors duration-200'
+                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-border rounded outline-none text-xs bg-background text-secondary placeholder:text-placeholder transition-colors duration-200'
                     placeholder={t('IconPlaceholder')}
                 />
             </div>
@@ -110,8 +110,8 @@ function IconsBoxSmall({
                         onClick={() => setCategory(option.id)}
                         className={`px-2 py-1 text-[10px] rounded-full border transition-colors duration-150 ${
                             category === option.id
-                                ? "bg-primary text-background border-primary"
-                                : "border-primary/30 text-secondary hover:bg-primary/10"
+                                ? "bg-primary text-background border-accent"
+                                : "border-border text-secondary hover:bg-primary/10"
                         }`}
                     >
                         {option.label}
@@ -134,7 +134,7 @@ function IconsBoxSmall({
                             aria-label={`${t("Icon")}: ${entry.label}`}
                             aria-pressed={entry.id === selectedCanonical}
                             className={`${entry.id === selectedCanonical
-                                ? "scale-110 text-primary border border-primary rounded"
+                                ? "scale-110 text-primary border border-accent rounded"
                                 : "text-description"
                                 } text-3xl m-1 bg-transparent border-0 p-0 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
                         >

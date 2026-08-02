@@ -77,7 +77,7 @@ export default function FeedbackLauncher() {
       onPress={open}
       disabled={capturing}
       testID="feedback-fab"
-      className="absolute right-5 h-11 w-11 items-center justify-center rounded-full border border-primary bg-background active:scale-95"
+      className="absolute right-5 h-11 w-11 items-center justify-center rounded-full border border-border bg-background active:scale-95"
       style={{
         // Sits directly above the assistant FAB's slot.
         bottom: (insets?.bottom ?? 0) + 134,

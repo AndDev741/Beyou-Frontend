@@ -185,7 +185,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
         <section
             data-testid="admin-feedback-detail"
             aria-labelledby="admin-feedback-detail-heading"
-            className="flex flex-col gap-5 rounded-2xl border-2 border-primary bg-background p-4"
+            className="flex flex-col gap-5 rounded-card border-2 border-border bg-background p-4"
         >
             <div className="flex items-start justify-between gap-3">
                 <h2
@@ -198,7 +198,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                     type="button"
                     onClick={onClose}
                     aria-label={t("AdminFeedbackCloseDetail")}
-                    className="rounded-full border border-description p-1 text-secondary transition-colors duration-200 hover:border-primary hover:text-primary"
+                    className="rounded-full border border-description p-1 text-secondary transition-colors duration-200 hover:border-border hover:text-primary"
                 >
                     <X size={16} aria-hidden="true" />
                 </button>
@@ -270,7 +270,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                             value={detail.status ?? "OPEN"}
                             disabled={isSavingStatus}
                             onChange={(event) => void onStatusSelected(event.target.value as FeedbackStatus)}
-                            className="w-fit rounded-xl border-2 border-primary bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-fit rounded-card border-2 border-border bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
                         >
                             {FEEDBACK_STATUS_ORDER.map((status) => (
                                 <option key={status} value={status}>
@@ -293,7 +293,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                                 {(detail.replies ?? []).map((reply, index) => (
                                     <li
                                         key={reply.id ?? index}
-                                        className="rounded-xl border border-description p-3"
+                                        className="rounded-card border border-description p-3"
                                     >
                                         <p className="whitespace-pre-wrap text-sm text-secondary">
                                             {reply.body}
@@ -324,7 +324,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                             placeholder={t("AdminFeedbackReplyPlaceholder")}
                             value={replyBody}
                             onChange={(event) => setReplyBody(event.target.value)}
-                            className="w-full rounded-xl border-2 border-primary bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-card border-2 border-border bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                         {replyValidation && <p className="text-sm text-error">{replyValidation}</p>}
                         {replyError && <ErrorNotice error={replyError} canReport={false} />}

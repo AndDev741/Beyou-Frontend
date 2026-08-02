@@ -43,7 +43,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
     }
 
     return(
-        <div className={`flex flex-col justify-between border border-primary rounded-md mb-5 transition-all duration-500 ease-in-out p-2 break-words bg-background text-secondary shadow-sm
+        <div className={`flex flex-col justify-between border border-border rounded-control mb-5 transition-all duration-500 ease-in-out p-2 break-words bg-background text-secondary shadow-sm
         ${expanded ? "min-h-[300px]" : "h-[150px]"} 
         transform ${expanded ? "lg:scale-105 shadow-md" : "scale-100"}
         `}>
@@ -117,9 +117,9 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                     <p><span className="text-primary">{xp}</span>/{nextLevelXp}</p>
                 </div>
                 <div className="flex w-[100%]">
-                    <div className={`border border-primary bg-primary h-[15px] rounded-l-xl`}
+                    <div className={`border border-border bg-primary h-[15px] rounded-l-xl`}
                     style={{width: `${actualProgress}%`}}></div>
-                    <div className={`border border-primary/40 bg-description/20 h-[15px] rounded-r-xl`}
+                    <div className={`border border-border bg-description/20 h-[15px] rounded-r-xl`}
                     style={{width: `${100 - actualProgress}%`}}></div>
                 </div>
             </div>
@@ -128,11 +128,11 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                 <>
                 <div className={`flex flex-col my-2 items-center justify-center`}>
                     <button onClick={handleEdit}
-                    className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[100px] h-[32px] rounded-md transition-colors duration-200">
+                    className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
                         {t('Edit')}
                     </button>
                     <button onClick={() => setOnDelete(true)}
-                    className="bg-error hover:bg-error/90 text-white font-semibold w-[90px] h-[28px] rounded-md transition-colors duration-200">
+                    className="bg-error hover:bg-error/90 text-white font-semibold w-[90px] h-[28px] rounded-control transition-colors duration-200">
                         {t('Delete')}
                     </button>
                 </div>

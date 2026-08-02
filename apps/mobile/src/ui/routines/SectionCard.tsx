@@ -27,7 +27,7 @@ export default function SectionCard({ section, index, count, habits, tasks, onEd
   const { theme } = useBeyouTheme();
   const items = mergeSectionItems(section, habits, tasks);
   return (
-    <View className="rounded-2xl border border-primary/20 bg-background p-3">
+    <View className="rounded-card border border-border bg-background p-3">
       <View className="flex-row items-center gap-2">
         <BeyouIcon id={section.iconId} size={18} />
         <Text className="text-secondary flex-1 text-base font-bold" numberOfLines={1}>{section.name}</Text>
@@ -42,7 +42,7 @@ export default function SectionCard({ section, index, count, habits, tasks, onEd
 
       {/* Assigned items preview — shows how the routine will look. */}
       {items.length > 0 ? (
-        <View className="mt-2 gap-1.5 border-t border-primary/10 pt-2">
+        <View className="mt-2 gap-1.5 border-t border-border pt-2">
           {items.map((item) => {
             const range = formatItemRange(item.startTime, item.endTime);
             return (

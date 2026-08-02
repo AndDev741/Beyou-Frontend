@@ -17,8 +17,8 @@ function ToolRow({ segment }: { segment: agentSegment }) {
 
   return (
     <View
-      className={`flex-row items-center gap-2 self-start rounded-lg border px-2.5 py-1.5 ${
-        failed ? 'border-error/30 bg-error/10' : 'border-primary/20 bg-primary/5'
+      className={`flex-row items-center gap-2 self-start rounded-control border px-2.5 py-1.5 ${
+        failed ? 'border-error/30 bg-error/10' : 'border-border bg-primary/5'
       }`}
     >
       {running ? (

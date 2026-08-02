@@ -50,7 +50,7 @@ export default function SuggestionCard({
                       }
             }
             className={cn(
-                "relative flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition-all duration-200",
+                "relative flex w-full items-start gap-3 rounded-card border p-3 text-left transition-all duration-200",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 selected
                     ? "border-[var(--primary)] shadow-md"
@@ -69,7 +69,7 @@ export default function SuggestionCard({
             </span>
 
             <span
-                className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl"
+                className="flex w-10 h-10 shrink-0 items-center justify-center rounded-card"
                 style={{
                     backgroundColor: selected
                         ? "color-mix(in srgb, var(--primary) 18%, var(--background))"

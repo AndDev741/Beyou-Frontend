@@ -130,7 +130,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                         <input
                             type="checkbox"
                             aria-label={itemObj.name}
-                            className="accent-primary border-primary w-6 h-6 rounded-xl cursor-pointer"
+                            className="accent-primary border-border w-6 h-6 rounded-card cursor-pointer"
                             checked={checked}
                             onChange={() => {
                                 const groupToCheck: itemGroupToCheck = {
@@ -171,7 +171,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                     </div>
                     {!checked && (
                         <button
-                            className="flex items-center gap-1 rounded-md border border-description/30 px-2 py-1.5 text-xs font-semibold text-description hover:text-primary hover:border-primary/40 active:scale-95 transition-all duration-200"
+                            className="flex items-center gap-1 rounded-control border border-description/30 px-2 py-1.5 text-xs font-semibold text-description hover:text-primary hover:border-border active:scale-95 transition-all duration-200"
                             onClick={() => {
                                 const groupToSkip: itemGroupToSkip = {
                                     routineId: routineId,

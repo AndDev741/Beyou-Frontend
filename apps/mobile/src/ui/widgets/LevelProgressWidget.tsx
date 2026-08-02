@@ -25,7 +25,7 @@ export default function LevelProgressWidget({
       <Text className="text-primary text-2xl font-bold">LV {level}</Text>
 
       <View
-        className="bg-primary/10 mt-1 h-4 w-full overflow-hidden rounded-full border border-primary/30"
+        className="bg-primary/10 mt-1 h-4 w-full overflow-hidden rounded-full border border-border"
         testID="level-progress-track"
       >
         <View

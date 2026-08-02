@@ -36,7 +36,7 @@ function AreaWidget({ category, title, variant, testID }: InnerProps) {
 
   const fillClass = variant === 'error' ? 'bg-error' : 'bg-primary';
   const trackClass = variant === 'error' ? 'bg-error/10' : 'bg-primary/10';
-  const borderClass = variant === 'error' ? 'border-error/30' : 'border-primary/30';
+  const borderClass = variant === 'error' ? 'border-error/30' : 'border-border';
 
   return (
     <WidgetCard title={title} testID={testID}>

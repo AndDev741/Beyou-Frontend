@@ -37,7 +37,7 @@ export default function RoutinesSortSheet() {
         accessibilityRole="button"
         accessibilityLabel={t('Sort results')}
         testID="routines-sort"
-        className="flex-row items-center gap-1.5 self-start rounded-full border border-primary/30 px-3 py-1.5"
+        className="flex-row items-center gap-1.5 self-start rounded-full border border-border px-3 py-1.5"
       >
         <Ionicons name="swap-vertical" size={16} color={theme.primary} />
         <Text className="text-secondary text-sm">{t(current.key)}</Text>

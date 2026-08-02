@@ -48,8 +48,8 @@ function Input({
     return (
         <>
             <div
-                className={`flex items-center border-2 border-solid rounded-md w-[90vw] lg:w-[100%] h-[64px] bg-background transition-colors duration-200 ${
-                    errorMessage ? "border-error" : "border-primary"
+                className={`flex items-center border-2 border-solid rounded-control w-[90vw] lg:w-[100%] h-[64px] bg-background transition-colors duration-200 ${
+                    errorMessage ? "border-error" : "border-border"
                 }`}
             >
                 <label htmlFor={inputId} className="sr-only">
@@ -69,7 +69,7 @@ function Input({
                     onChange={(e) => setData(e.target.value)}
                     data-testid={testId}
                     autoComplete={autoComplete}
-                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none bg-background text-secondary placeholder:text-placeholder"
+                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-control focus:outline-none bg-background text-secondary placeholder:text-placeholder"
                 />
 
                 {ShouldRenderToggle && (

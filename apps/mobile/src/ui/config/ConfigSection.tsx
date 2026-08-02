@@ -29,7 +29,7 @@ export default function ConfigSection({ iconId, title, description, children, te
       {/* Primary divider to visually separate sections. Margin via inline style
           (RN-native, always applies — the NativeWind mt-* util wasn't taking
           effect on refresh); border via className (renders fine). */}
-      <View style={{ marginTop: 28, marginBottom: 4 }} className="border-b-2 border-primary" />
+      <View style={{ marginTop: 28, marginBottom: 4 }} className="border-b-2 border-border" />
     </View>
   );
 }

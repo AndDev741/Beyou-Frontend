@@ -125,7 +125,7 @@ export default function FeedbackScreen() {
           <View
             testID="feedback-success"
             accessibilityRole="alert"
-            className="gap-1 rounded-xl border-2 border-success p-4"
+            className="gap-1 rounded-card border-2 border-success p-4"
           >
             <Text className="text-success text-base font-semibold">{t('FeedbackSuccessTitle')}</Text>
             <Text className="text-description text-sm">{t('FeedbackSuccessBody')}</Text>
@@ -141,7 +141,7 @@ export default function FeedbackScreen() {
           <View
             testID="feedback-failure"
             accessibilityRole="alert"
-            className="gap-1 rounded-xl border-2 border-error p-4"
+            className="gap-1 rounded-card border-2 border-error p-4"
           >
             <Text className="text-error text-base font-semibold">{t('FeedbackFailedTitle')}</Text>
             <Text className="text-description text-sm">{t('FeedbackFailedBody')}</Text>
@@ -152,7 +152,7 @@ export default function FeedbackScreen() {
               onPress={openMail}
               accessibilityRole="button"
               testID="feedback-mailto-fallback"
-              className="mt-2 flex-row items-center gap-2 self-start rounded-full border border-primary px-4 py-2"
+              className="mt-2 flex-row items-center gap-2 self-start rounded-full border border-border px-4 py-2"
             >
               <Ionicons name="mail-outline" size={16} color={theme.primary} />
               <Text className="text-primary text-sm font-semibold">{t('FeedbackEmailLink')}</Text>
@@ -180,7 +180,7 @@ export default function FeedbackScreen() {
                       accessibilityLabel={t(FEEDBACK_CATEGORY_LABEL_KEYS[category])}
                       testID={`feedback-category-${category}`}
                       className={`rounded-full border px-4 py-2 ${
-                        chosen ? 'border-primary bg-primary' : 'border-description'
+                        chosen ? 'border-accent bg-primary' : 'border-description'
                       }`}
                     >
                       <Text

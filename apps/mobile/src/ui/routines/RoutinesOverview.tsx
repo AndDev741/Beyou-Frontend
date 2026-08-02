@@ -33,7 +33,7 @@ const dateAtNoon = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
 
 function Insight({ label, value }: { label: string; value: string | number }) {
   return (
-    <View className="flex-1 items-center rounded-xl bg-primary/10 py-3">
+    <View className="flex-1 items-center rounded-card bg-primary/10 py-3">
       <Text className="text-primary text-lg font-bold">{value}</Text>
       <Text className="text-description text-xs">{label}</Text>
     </View>
@@ -100,7 +100,7 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
           const has = dates.includes(date);
           return (
             <Pressable key={date} onPress={() => load(date)} accessibilityRole="button" accessibilityState={{ selected: sel }} testID={`rov-day-${i}`}
-              className={`h-14 w-12 items-center justify-center rounded-2xl border-2 ${sel ? 'border-primary bg-primary' : 'border-primary/20'}`}>
+              className={`h-14 w-12 items-center justify-center rounded-card border-2 ${sel ? 'border-accent bg-primary' : 'border-border'}`}>
               <Text className={`text-[10px] font-bold tracking-wide ${sel ? 'text-background' : 'text-description'}`}>
                 {t(WEEKDAY_KEYS[dateAtNoon(date).getDay()]).toUpperCase()}
               </Text>
@@ -110,7 +110,7 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
           );
         })}
         <Pressable onPress={() => setShowPicker(true)} accessibilityRole="button" testID="routines-date-more"
-          className="items-center justify-center rounded-lg border border-primary/30 px-3 py-2">
+          className="items-center justify-center rounded-control border border-border px-3 py-2">
           <Ionicons name="calendar-outline" size={18} color={theme.primary} />
         </Pressable>
       </View>

@@ -27,12 +27,12 @@ const ON_PRIMARY = '#FFFFFF';
 function Avatar({ photo, name }: { photo: string; name: string }) {
   const { theme } = useBeyouTheme();
   if (photo) {
-    return <Image source={{ uri: resolvePhotoUrl(photo) }} className="h-16 w-16 rounded-full border-2 border-primary" />;
+    return <Image source={{ uri: resolvePhotoUrl(photo) }} className="h-16 w-16 rounded-full border-2 border-border" />;
   }
   const initial = (name.trim()[0] ?? '?').toUpperCase();
   return (
     <View
-      className="h-16 w-16 items-center justify-center rounded-full border-2 border-primary"
+      className="h-16 w-16 items-center justify-center rounded-full border-2 border-border"
       style={{ backgroundColor: theme.primary }}
     >
       <Text className="text-2xl font-bold" style={{ color: theme.background }}>
@@ -149,7 +149,7 @@ export default function ProfileSection() {
           }}
           accessibilityRole="button"
           testID="change-photo"
-          className="rounded-md border border-primary px-3 py-2"
+          className="rounded-control border border-border px-3 py-2"
         >
           <Text className="text-primary font-semibold">{t('ChangeProfilePhoto')}</Text>
         </Pressable>
@@ -213,7 +213,7 @@ export default function ProfileSection() {
         disabled={isSubmitting}
         accessibilityRole="button"
         testID="save-profile"
-        className={`mt-2 items-center rounded-md bg-primary px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
           {t('Save')}
@@ -222,18 +222,18 @@ export default function ProfileSection() {
 
       <Modal visible={photoModal} transparent animationType="fade">
         <View className="flex-1 items-center justify-center bg-black/50 px-4">
-          <View className="w-full max-w-sm rounded-2xl bg-background p-6 shadow-2xl" testID="photo-modal">
+          <View className="w-full max-w-sm rounded-card bg-background p-6 shadow-2xl" testID="photo-modal">
             <Text className="mb-4 text-lg font-semibold text-secondary">{t('ChangePhoto')}</Text>
 
             <View className="items-center gap-4">
               <Image
                 source={{ uri: resolvePhotoUrl(photoPreview) }}
-                className="h-32 w-32 rounded-full border-4 border-primary"
+                className="h-32 w-32 rounded-full border-4 border-border"
               />
 
               <Pressable
                 onPress={pickPhoto}
-                className="rounded-lg bg-primary px-4 py-2 active:opacity-80"
+                className="rounded-control bg-primary px-4 py-2 active:opacity-80"
               >
                 <Text className="font-medium text-white">
                   {photoAsset ? t('PhotoSelected') : t('ChooseFile')}
@@ -253,14 +253,14 @@ export default function ProfileSection() {
                   setPhotoError(undefined);
                   setPhotoPreview(photo);
                 }}
-                className="rounded-lg px-4 py-2 active:opacity-80"
+                className="rounded-control px-4 py-2 active:opacity-80"
               >
                 <Text className="text-secondary">{t('Cancel')}</Text>
               </Pressable>
               <Pressable
                 onPress={confirmUpload}
                 disabled={photoUploading || !photoAsset}
-                className="rounded-lg bg-primary px-4 py-2 active:opacity-80 disabled:opacity-50"
+                className="rounded-control bg-primary px-4 py-2 active:opacity-80 disabled:opacity-50"
               >
                 <Text className="font-medium text-white">
                   {photoUploading ? t('PhotoUploading') : t('Save')}
