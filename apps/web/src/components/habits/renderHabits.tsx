@@ -10,10 +10,12 @@ import EmptyState from "../EmptyState";
 
 type renderHabitsProps = {
     habits: habit[],
-    setHabits: React.Dispatch<React.SetStateAction<habit[]>>
+    setHabits: React.Dispatch<React.SetStateAction<habit[]>>,
+    /** Sobrescreve o vazio quando a lista sumiu pela busca/filtro, não por falta de hábitos. */
+    emptyTitle?: string
 }
 
-function RenderHabits({habits, setHabits}: renderHabitsProps){
+function RenderHabits({habits, setHabits, emptyTitle}: renderHabitsProps){
     const dispatch = useDispatch();
     const { t: tRhf } = useTranslation();
 
@@ -32,12 +34,16 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
         returnHabits();
     }, [])
 
+    const hasHabits = habits.length > 0;
+
     return(
+        // Grid escaneável: 3 colunas no desktop, 1 no mobile. Vazio ocupa a
+        // largura toda em vez de virar uma coluna espremida.
         <div
-            className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3 text-text"
+            className={`text-text ${hasHabits ? "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}
             data-tutorial-id="habits-grid"
         >
-            {habits.length > 0 ? (
+            {hasHabits ? (
                 habits.map((habit, index) => (
                     <div key={habit.id} data-tutorial-id={index === 0 ? "habit-card" : undefined}>
                         <HabitBox
@@ -61,6 +67,8 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
                         />
                     </div>
                 ))
+            ) : emptyTitle ? (
+                <EmptyState emoji="🔍" title={emptyTitle} />
             ) : (
                 <EmptyState
                     emoji="🌱"

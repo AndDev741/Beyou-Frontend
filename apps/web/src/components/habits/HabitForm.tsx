@@ -10,7 +10,8 @@ import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import ExperienceInput from "../inputs/experienceInput";
 import Button from "../Button";
-import { CgAddR } from "react-icons/cg";
+import IconButton from "../../ui/IconButton";
+import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -37,7 +38,12 @@ export type HabitFormMode = "create" | "edit";
 type HabitFormProps = {
     mode: HabitFormMode;
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>;
+    /** O formulário vive num modal: fechar é responsabilidade de quem abriu. */
+    onClose?: () => void;
 };
+
+/** id do título — o modal aponta o aria-labelledby para ele. */
+export const HABIT_FORM_TITLE_ID = "habit-form-title";
 
 type HabitFormValues = {
     name: string;
@@ -61,7 +67,7 @@ const defaultValues: HabitFormValues = {
     categoriesId: []
 };
 
-function HabitForm({ mode, setHabits }: HabitFormProps) {
+function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
@@ -135,6 +141,7 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
         dispatch(editImportanceEnter(""));
         dispatch(editDificultyEnter(""));
         dispatch(editCaegoriesIdEnter(""));
+        onClose?.();
     };
 
     const onSubmit = async (values: HabitFormValues) => {
@@ -178,6 +185,7 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
                 reset(defaultValues);
                 setSearch("");
                 toast.success(t("created successfully"));
+                onClose?.();
             }
             return;
         }
@@ -195,13 +203,18 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
     };
 
     return (
-        <div
-            className="bg-surface"
-            data-tutorial-id={mode === "create" ? "habit-create-form" : undefined}
-        >
-            <div className="flex text-3xl items-center justify-center mt-3 mb-3">
-                <CgAddR className="w-[40px] h-[40px] mr-1" />
-                <h1>{t(mode === "edit" ? "EditHabit" : "CreateHabit")}</h1>
+        <div className="text-text">
+            {/* Cabeçalho do modal: título + fechar. O ícone decorativo saiu — o
+                título já é o contexto. */}
+            <div className="mb-4 flex items-start justify-between gap-3">
+                <h2 id={HABIT_FORM_TITLE_ID} className="text-lg font-semibold tracking-[-0.01em] text-text">
+                    {t(mode === "edit" ? "EditHabit" : "CreateHabit")}
+                </h2>
+                {onClose && (
+                    <IconButton label={t("Close")} onClick={onClose} className="-mr-1 -mt-1">
+                        <X size={18} aria-hidden="true" />
+                    </IconButton>
+                )}
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center px-2">
                 <div className="flex md:items-start md:flex-row justify-center">
@@ -342,16 +355,24 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
                 )}
                 <ErrorNotice error={apiError} className="text-center" />
 
-                {mode === "edit" ? (
-                    <div className="flex w-full items-center justify-evenly my-6">
-                        <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
-                    </div>
-                ) : (
-                    <div className="mb-3">
-                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
-                    </div>
-                )}
+                {/* Rodapé do modal: cancelar à esquerda, ação primária à direita. */}
+                <div className="mt-6 flex w-full items-center justify-end gap-3 border-t border-border pt-4">
+                    {(mode === "edit" || onClose) && (
+                        <Button
+                            text={t("Cancel")}
+                            mode="cancel"
+                            size="medium"
+                            type="button"
+                            onClick={mode === "edit" ? handleCancel : onClose}
+                        />
+                    )}
+                    <Button
+                        text={t(mode === "edit" ? "Edit" : "Create")}
+                        mode="create"
+                        size="medium"
+                        disabled={isSubmitting}
+                    />
+                </div>
             </form>
         </div>
     );

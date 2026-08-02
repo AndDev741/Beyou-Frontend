@@ -8,20 +8,26 @@ import EmptyState from "../EmptyState";
 
 type renderTasksProps = {
     tasks: task[],
-    setTasks: React.Dispatch<React.SetStateAction<task[]>>
+    setTasks: React.Dispatch<React.SetStateAction<task[]>>,
+    /** Sobrescreve o vazio quando a lista sumiu pela busca/filtro, não por falta de tarefas. */
+    emptyTitle?: string
 }
 
-function RenderTasks({tasks, setTasks}: renderTasksProps){
+function RenderTasks({tasks, setTasks, emptyTitle}: renderTasksProps){
     const {t} = useTranslation();
     const dispatch = useDispatch();
-  
+
     //When open the page
     useEffect(() => {
         dispatch(editModeEnter(false));
-    }, []); 
+    }, []);
+
+    const hasTasks = tasks.length > 0;
+
     return(
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-text">
-           {tasks.length > 0 ? (
+        // Grid escaneável: 3 colunas no desktop, 1 no mobile.
+        <div className={`text-text ${hasTasks ? "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}>
+           {hasTasks ? (
                 tasks.map(task => (
                     <div key={task.id}>
                         <TaskBox
@@ -40,6 +46,8 @@ function RenderTasks({tasks, setTasks}: renderTasksProps){
                         />
                     </div>
                 ))
+            ) : emptyTitle ? (
+                <EmptyState emoji="🔍" title={emptyTitle} />
             ) : (
                 <EmptyState emoji="✅" title={t('Start creating amazing tasks to organize your day!')} />
             )}

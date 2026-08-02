@@ -9,7 +9,8 @@ import GenericInput from "../inputs/genericInput";
 import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import Button from "../Button";
-import { CgAddR } from "react-icons/cg";
+import IconButton from "../../ui/IconButton";
+import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -36,7 +37,12 @@ export type TaskFormMode = "create" | "edit";
 type TaskFormProps = {
     mode: TaskFormMode;
     setTasks: React.Dispatch<React.SetStateAction<task[]>>;
+    /** O formulário vive num modal: fechar é responsabilidade de quem abriu. */
+    onClose?: () => void;
 };
+
+/** id do título — o modal aponta o aria-labelledby para ele. */
+export const TASK_FORM_TITLE_ID = "task-form-title";
 
 type TaskFormValues = {
     name: string;
@@ -58,7 +64,7 @@ const defaultValues: TaskFormValues = {
     oneTimeTask: false
 };
 
-function TaskForm({ mode, setTasks }: TaskFormProps) {
+function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
@@ -133,6 +139,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
         dispatch(editDificultyEnter(""));
         dispatch(editCaegoriesIdEnter(""));
         dispatch(editOneTimeTaskEnter(false));
+        onClose?.();
     };
 
     const onSubmit = async (values: TaskFormValues) => {
@@ -175,6 +182,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                 reset(defaultValues);
                 setSearch("");
                 toast.success(t("created successfully"));
+                onClose?.();
             }
             return;
         }
@@ -192,10 +200,17 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
     };
 
     return (
-        <div className="w-full bg-surface text-text">
-            <div className="flex items-center justify-center mt-5 mb-3 text-3xl">
-                <CgAddR className="w-[40px] h-[40px] mr-1" />
-                <h1>{t(mode === "edit" ? "Edit Task" : "Create Task")}</h1>
+        <div className="w-full text-text">
+            {/* Cabeçalho do modal: título + fechar. */}
+            <div className="mb-4 flex items-start justify-between gap-3">
+                <h2 id={TASK_FORM_TITLE_ID} className="text-lg font-semibold tracking-[-0.01em] text-text">
+                    {t(mode === "edit" ? "Edit Task" : "Create Task")}
+                </h2>
+                {onClose && (
+                    <IconButton label={t("Close")} onClick={onClose} className="-mr-1 -mt-1">
+                        <X size={18} aria-hidden="true" />
+                    </IconButton>
+                )}
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center">
                 <div className="flex md:items-start md:flex-row justify-center">
@@ -300,14 +315,14 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                             />
                         )}
                     />
-                    <div className="flex items-center justify-center mt-2">
+                    <div className="mt-3 flex items-center justify-center">
                         <input
                             id="oneTimeTask"
                             type="checkbox"
                             {...register("oneTimeTask")}
-                            className="accent-primary border border-border w-8 h-8 rounded-card cursor-pointer bg-surface transition-colors duration-200"
+                            className="h-5 w-5 cursor-pointer rounded-control border border-border bg-surface accent-accent transition-colors duration-200"
                         />
-                        <label htmlFor="oneTimeTask" className="ml-2 text-xl text-text">
+                        <label htmlFor="oneTimeTask" className="ml-2 text-sm text-text">
                             {t(mode === "edit" ? "One-time Task" : "One Time Task")}
                         </label>
                     </div>
@@ -318,16 +333,24 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                 )}
                 <ErrorNotice error={apiError} className="text-center" />
 
-                {mode === "edit" ? (
-                    <div className="flex w-full items-center justify-evenly mt-6">
-                        <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
-                    </div>
-                ) : (
-                    <div className="mb-3 mt-3">
-                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
-                    </div>
-                )}
+                {/* Rodapé do modal: cancelar à esquerda, ação primária à direita. */}
+                <div className="mt-6 flex w-full items-center justify-end gap-3 border-t border-border pt-4">
+                    {(mode === "edit" || onClose) && (
+                        <Button
+                            text={t("Cancel")}
+                            mode="cancel"
+                            size="medium"
+                            type="button"
+                            onClick={mode === "edit" ? handleCancel : onClose}
+                        />
+                    )}
+                    <Button
+                        text={t(mode === "edit" ? "Edit" : "Create")}
+                        mode="create"
+                        size="medium"
+                        disabled={isSubmitting}
+                    />
+                </div>
             </form>
         </div>
     );
