@@ -64,13 +64,13 @@ function Modal({ isOpen, onClose, children, className, dataTutorialId, labelledB
 
     const content = (
         <div
-            className="fixed inset-0 bg-black/40 flex items-center justify-center z-[110]"
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4"
             onClick={onClose}
         >
             <div
                 ref={dialogRef}
                 tabIndex={-1}
-                className={`bg-surface text-text border border-border rounded-control shadow-lg p-5 md:p-8 w-[95vw] max-w-xl max-h-[90vh] overflow-y-auto relative transition-colors duration-200 ${className ?? ""}`}
+                className={`relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-card border border-border bg-surface p-5 text-text shadow-surface transition-colors duration-200 md:p-7 ${className ?? ""}`}
                 data-tutorial-id={dataTutorialId}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleKeyDown}
