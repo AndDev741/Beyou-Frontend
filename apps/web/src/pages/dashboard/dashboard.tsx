@@ -202,7 +202,7 @@ function Dashboard() {
                 rail dos widgets, que começa no topo e desce por toda a altura
                 da direita. */}
             <div className="w-full lg:flex lg:items-start lg:gap-6">
-                <div className="min-w-0 flex-1 px-4 py-6 lg:px-7">
+                <div className="min-w-0 flex-1 px-3 py-5 lg:px-7 lg:py-6">
                     <Perfil />
 
                     <div className="mt-5">
@@ -279,7 +279,7 @@ function Dashboard() {
             {/* Metas fecham a tela em largura total, abaixo da rotina e do rail:
                 são o porquê dos checks do dia e estavam escondidas numa faixa
                 estreita. */}
-            <div className="px-4 pb-6 lg:px-7">
+            <div className="px-3 pb-6 lg:px-7">
                 <GoalsHorizon />
             </div>
             </>

@@ -126,8 +126,8 @@ export default function RoutineSection({ section, routineId}: { section: section
             const toastPosition = window.matchMedia("(min-width: 712px)").matches ? "top-left" : "bottom-center";
 
             return (
-                <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between gap-2 rounded-control px-2 py-1.5 mt-1 transition-colors duration-200 hover:bg-surface-2 ${skipped ? "opacity-60" : ""}`}>
-                    <div className="relative flex items-center">
+                <div key={`${item.type}-${item.id}-${index}`} className={`group mt-1 flex w-full items-center gap-2.5 rounded-control px-1.5 py-1.5 transition-colors duration-200 hover:bg-surface-2 lg:px-2 ${skipped ? "opacity-60" : ""}`}>
+                    <div className="relative flex shrink-0 items-center">
                         {xpFloats[itemObj.item.groupId] !== undefined && (
                             <XpFloat xp={xpFloats[itemObj.item.groupId]} />
                         )}
@@ -170,22 +170,30 @@ export default function RoutineSection({ section, routineId}: { section: section
                             className="transition-transform duration-200 group-hover:scale-105 peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface rounded-full"
                         />
                         </label>
-                        <span className="ml-3 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
-                            <BeyouIcon id={itemObj.iconId} />
-                        </span>
+                    </div>
+
+                    <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
+                        <BeyouIcon id={itemObj.iconId} />
+                    </span>
+
+                    {/* No mobile a linha quebra em duas: metadados em cima, nome
+                        embaixo em largura cheia. Numa linha só, nome + XP + hora
+                        + pular não cabem em 390px e a coluna da direita saía da
+                        tela. `flex-col-reverse` inverte só o VISUAL — o nome
+                        continua vindo antes no DOM, que é o que o leitor de tela
+                        e o e2e leem.
+                        The skipped state is conveyed by the dimmed row, the
+                        line-through name and the undo button — no extra label. */}
+                    <div className="flex min-w-0 flex-1 flex-col-reverse gap-1 lg:flex-row lg:items-center lg:gap-3">
                         <span
-                            className={`ml-3 truncate text-[13.5px] font-medium ${
+                            className={`truncate text-[13.5px] font-medium ${
                                 checked || skipped ? "text-text-3" : "text-text"
                             } ${skipped ? "line-through" : ""}`}
                         >
                             {itemObj.name}
                         </span>
 
-                        {/* The skipped state is already conveyed by the dimmed row,
-                            the line-through name and the "Undo skip" button — no
-                            extra "Skipped" label needed (saves mobile space). */}
-                    </div>
-                    <div className="ml-auto flex shrink-0 items-center gap-2">
+                        <div className="flex shrink-0 items-center gap-1.5 lg:ml-auto lg:gap-2">
                         {xpEarned > 0 && (
                             <span className="rounded-full bg-xp-soft px-2.5 py-0.5 font-mono text-xs font-semibold text-xp">
                                 +{xpEarned} XP
@@ -225,6 +233,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                             {skipped ? t("Undo skip") : t("Skip")}
                         </button>
                     )}
+                        </div>
                     </div>
                 </div>
             );

@@ -31,10 +31,10 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
 
     return (
         <section
-            className="rounded-card border border-border bg-surface px-5 pb-3 pt-5"
+            className="rounded-card border border-border bg-surface px-3 pb-3 pt-4 lg:px-5 lg:pt-5"
             data-tutorial-id="dashboard-routine-today"
         >
-            <header className="flex items-center gap-4 pb-3.5">
+            <header className="flex items-center gap-3 pb-3 lg:gap-4 lg:pb-3.5">
                 <div className="min-w-0">
                     <b className="block truncate text-base font-semibold tracking-[-0.01em] text-text">
                         {routine.name}
@@ -51,7 +51,7 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                         <span className="font-mono text-[12.5px] font-medium text-text-2">
                             {checked} {t("Of")} {total}
                         </span>
-                        <div className="mt-1.5 h-1.5 w-[148px] overflow-hidden rounded-full bg-surface-2">
+                        <div className="mt-1.5 h-1.5 w-[92px] overflow-hidden rounded-full bg-surface-2 lg:w-[148px]">
                             <div
                                 className="h-full rounded-full bg-accent transition-[width] duration-500 ease-out"
                                 style={{ width: `${progress}%` }}
