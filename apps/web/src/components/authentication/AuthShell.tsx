@@ -49,12 +49,24 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
 
             <main className="flex flex-col items-center justify-center px-5 py-10">
                 <div className="w-full max-w-[360px]">
-                    <div className="mb-8 flex justify-center lg:hidden">
-                        <BrandMark size={30} withWordmark className="text-accent" />
+                    {/* No mobile a marca é o cabeçalho: símbolo em cima,
+                        wordmark embaixo em cor de texto. O painel de marca não
+                        existe nessa largura. */}
+                    <div className="mb-8 flex flex-col items-center gap-2 lg:hidden">
+                        <BrandMark size={44} className="text-accent" />
+                        <span className="text-xl font-semibold tracking-[-0.02em] text-text">beyou</span>
                     </div>
 
-                    <h1 className="text-xl font-semibold tracking-[-0.015em] text-text">{title}</h1>
-                    {subtitle && <p className="mt-1.5 text-[13px] text-text-3">{subtitle}</p>}
+                    {/* A saudação é do desktop: no mobile a marca já ocupa o
+                        topo e repetir "Bem-vindo de volta" ali empurrava o
+                        formulário para baixo da dobra. Fica no DOM (a página
+                        precisa de um h1) apenas invisível. */}
+                    <h1 className="sr-only text-xl font-semibold tracking-[-0.015em] text-text lg:not-sr-only">
+                        {title}
+                    </h1>
+                    {subtitle && (
+                        <p className="hidden text-[13px] text-text-3 lg:mt-1.5 lg:block">{subtitle}</p>
+                    )}
 
                     {children}
 
