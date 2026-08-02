@@ -34,9 +34,9 @@ export default function Configuration() {
                 />
             )}
 
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] px-2 lg:px-6 gap-6">
-                <div className="flex flex-col items-center w-full lg:w-[50%] lg:border-r lg:border-border">
-                    <div className="w-full lg:pr-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="flex w-full flex-col gap-4">
+                    <div className="w-full">
                         <ConfigSection
                             icon={<CgProfile />}
                             title={t("ConfigSectionProfile")}
@@ -47,9 +47,8 @@ export default function Configuration() {
                         </ConfigSection>
                     </div>
 
-                    <div className="border-b w-full border-border mt-2"></div>
-
-                    <div className="w-full lg:pr-4">
+                    
+                    <div className="w-full">
                         <ConfigSection
                             icon={<IoColorPaletteOutline />}
                             title={t("ConfigSectionAppearance")}
@@ -60,9 +59,8 @@ export default function Configuration() {
                         </ConfigSection>
                     </div>
 
-                    <div className="border-b w-full border-border mt-2"></div>
-
-                    <div className="w-full lg:pr-4">
+                    
+                    <div className="w-full">
                         <ConfigSection
                             icon={<FiSettings />}
                             title={t("ConfigSectionPreferences")}
@@ -77,7 +75,6 @@ export default function Configuration() {
                     </div>
 
                     {/* Horizontal divider for mobile screens */}
-                    <div className="border-b w-full border-border mt-2 lg:hidden"></div>
                 </div>
 
                 <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%] h-full lg:pl-4">
@@ -93,7 +90,6 @@ export default function Configuration() {
                     </div>
 
                     {/* Divider horizontal só aparece em mobile */}
-                    <div className="border-b w-full border-border mt-2 lg:hidden"></div>
                 </div>
             </div>
 
