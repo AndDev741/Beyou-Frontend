@@ -142,7 +142,7 @@ describe('BottomNav assistant button', () => {
   });
 
   it('stays hidden until onboarding is finished', async () => {
-    // Same gate as AgentWidget and FeedbackLauncher: while the tutorial owns
+    // Same gate as AgentWidget: while the tutorial owns
     // the screen the button would open nothing, so it must not be there.
     await renderNav('/', { isTutorialCompleted: false });
     expect(screen.queryByTestId('nav-agent')).toBeNull();

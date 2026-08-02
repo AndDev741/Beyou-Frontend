@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { TutorialOverlayHost } from '../../src/tutorial/TutorialOverlaySlot';
 import AgentWidget from '../../src/ui/agent/AgentWidget';
 import BottomNav from '../../src/ui/dashboard/BottomNav';
-import FeedbackLauncher from '../../src/ui/feedback/FeedbackLauncher';
 
 // Anchor the (app) group on the dashboard so deep-linking / reloading onto a
 // section screen (e.g. /goals) still has the dashboard beneath it — back returns
@@ -33,7 +32,6 @@ export default function AppLayout() {
             screen can move sideways in one tap, instead of routing back through
             the dashboard first. */}
         <BottomNav />
-        <FeedbackLauncher />
         {/* Sem balão flutuante: a barra acima já carrega o botão central do
             assistente, e ela existe em TODA tela deste grupo. Dois gatilhos
             para o mesmo painel seriam mobília permanente numa tela pequena —

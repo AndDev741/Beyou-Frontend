@@ -137,7 +137,7 @@ export default function BottomNav() {
   // Um hook aqui em vez de um por item — o pathname é o mesmo para todos.
   const pathname = usePathname() ?? '';
   const [sheetOpen, setSheetOpen] = useState(false);
-  // Mesmo portão do AgentWidget e do FeedbackLauncher: durante o onboarding o
+  // Mesmo portão do AgentWidget: durante o onboarding o
   // spotlight é dono da tela, e um botão que não abre nada seria só ruído.
   const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
 
