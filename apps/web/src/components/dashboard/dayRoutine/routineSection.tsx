@@ -15,6 +15,7 @@ import { FiSlash } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import XpFloat from "./XpFloat";
+import Ring from "../../../ui/Ring";
 
 const XP_FLOAT_DURATION_MS = 1200;
 
@@ -121,16 +122,18 @@ export default function RoutineSection({ section, routineId}: { section: section
             const toastPosition = window.matchMedia("(min-width: 712px)").matches ? "top-left" : "bottom-center";
 
             return (
-                <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between p-1 mt-1 ${skipped ? "opacity-60" : ""}`}>
+                <div key={`${item.type}-${item.id}-${index}`} className={`group w-full flex items-center justify-between gap-2 rounded-control px-2 py-1.5 mt-1 transition-colors duration-200 hover:bg-surface-2 ${skipped ? "opacity-60" : ""}`}>
                     <div className="relative flex items-center">
                         {xpFloats[itemObj.item.groupId] !== undefined && (
                             <XpFloat xp={xpFloats[itemObj.item.groupId]} />
                         )}
                         <label className="flex items-center justify-center min-w-[44px] min-h-[44px] -my-2 -ml-2 cursor-pointer">
+                        {/* O input continua sendo o alvo real (teclado, leitor de
+                            tela, e2e); o anel é o desenho por cima dele. */}
                         <input
                             type="checkbox"
                             aria-label={itemObj.name}
-                            className="accent-primary border-border w-6 h-6 rounded-card cursor-pointer"
+                            className="peer sr-only"
                             checked={checked}
                             onChange={() => {
                                 const groupToCheck: itemGroupToCheck = {
@@ -157,12 +160,16 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 }
                             }}
                         />
+                        <Ring
+                            size={26}
+                            state={checked ? "done" : skipped ? "skipped" : "todo"}
+                            className="transition-transform duration-200 group-hover:scale-105 peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface rounded-full"
+                        />
                         </label>
                         <span className={`text-sm md:text-base ml-2 ${skipped ? "text-text-2 line-through" : "text-text"}`}>
                             {itemObj.name}
                         </span>
-                        <span className="mx-1 md:mx-2 text-text">-</span>
-                        <span className="text-center text-accent text-xs md:text-base">
+                        <span className="ml-2 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-text-3">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>
                         {/* The skipped state is already conveyed by the dimmed row,
