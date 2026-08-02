@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import AddRoutineButton from "../../components/routines/addRoutineButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
 import getHabits from "@beyou/api/habits/getHabits";
@@ -13,7 +12,6 @@ import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import RenderRoutines from "../../components/routines/renderRoutines";
 import { RootState } from "@beyou/state/rootReducer";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
-import { CgAddR } from "react-icons/cg";
 import { RoutineSummary } from "../../components/routines/RoutineSummary";
 import {
     compareNumbers,
@@ -32,6 +30,8 @@ import {
 } from "@beyou/state/routine/snapshotSlice";
 
 import PageHeader from "../../ui/PageHeader";
+import { editModeEnter } from "@beyou/state/routine/editRoutineSlice";
+import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
 import { FiPlus } from "react-icons/fi";
 const Routine = () => {
@@ -165,6 +165,7 @@ const Routine = () => {
                             icon={<FiPlus aria-hidden="true" />}
                             onClick={() => setOnCreateRoutine(true)}
                             testId="create-routine"
+                            tutorialId="routine-add-button"
                         />
                     ) : undefined
                 }
@@ -176,55 +177,49 @@ const Routine = () => {
                     onDateChange={handleDateChange}
                 />
 
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="w-full lg:w-[50%]">
-                        {snapshotLoading ? (
-                            <div className="flex items-center justify-center py-16">
-                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
-                            </div>
-                        ) : (
-                            <RenderRoutines
-                                selectedDate={selectedDateLocal}
-                                routines={sortedRoutines}
-                                onScheduleModalChange={setIsScheduleModalOpen}
-                            />
-                        )}
+                {snapshotLoading ? (
+                    <div className="flex items-center justify-center py-16">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                     </div>
+                ) : (
+                    <RenderRoutines
+                        selectedDate={selectedDateLocal}
+                        routines={sortedRoutines}
+                        onScheduleModalChange={setIsScheduleModalOpen}
+                    />
+                )}
 
-                    {!isSnapshotMode && (
-                        <div className="flex w-full flex-col lg:w-[50%]">
-                            {editMode === false ? (
-                                <>
-                                    <AddRoutineButton
-                                        setOnCreateRoutine={setOnCreateRoutine}
-                                        setRoutineType={setRoutineType}
-                                    />
-
-                                    {onCreateRoutine && (
-                                        <div className='flex items-center mt-6'>
-                                            <CgAddR className='w-[30px] h-[30px] mr-1' />
-                                            <h1 className='text-3xl font-semibold text-text'>{t("Create routine")}</h1>
-                                        </div>
-                                    )}
-
-                                    {onCreateRoutine && (
-                                        <div className="mt-4 w-full">
-                                            <CreateRoutine
-                                                setRoutineType={setRoutineType}
-                                                onDailySectionChange={setHasDailySection}
-                                                onSectionModalChange={setIsSectionModalOpen}
-                                                routineType={routineType} />
-                                        </div>
-                                    )}
-                                </>
+                {/* Criar e editar acontecem em modal: a lista fica com a largura
+                    toda, em vez de dividir a tela com um formulário que só é
+                    usado de vez em quando. */}
+                {!isSnapshotMode && (onCreateRoutine || editMode) && (
+                    <Modal
+                        isOpen
+                        onClose={() => {
+                            setOnCreateRoutine(false);
+                            dispatch(editModeEnter(false));
+                        }}
+                        labelledBy="routine-form-title"
+                        dataTutorialId="routine-create-area"
+                        className="max-w-3xl"
+                    >
+                        <h2 id="routine-form-title" className="text-lg font-semibold text-text">
+                            {editMode ? t("Edit routine") : t("Create routine")}
+                        </h2>
+                        <div className="mt-4">
+                            {editMode ? (
+                                <EditDailyRoutine />
                             ) : (
-                                <>
-                                    <EditDailyRoutine />
-                                </>
+                                <CreateRoutine
+                                    setRoutineType={setRoutineType}
+                                    onDailySectionChange={setHasDailySection}
+                                    onSectionModalChange={setIsSectionModalOpen}
+                                    routineType={routineType}
+                                />
                             )}
                         </div>
-                    )}
-                </div>
+                    </Modal>
+                )}
             </main>
         </div>
     );

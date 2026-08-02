@@ -998,5 +998,6 @@
     "RoutinesCount_other": "{{count}} rotinas",
     "ActiveDaysThisWeek": "{{count}} dias ativos nesta semana",
     "ActiveDaysThisWeek_one": "{{count}} dia ativo nesta semana",
-    "ActiveDaysThisWeek_other": "{{count}} dias ativos nesta semana"
+    "ActiveDaysThisWeek_other": "{{count}} dias ativos nesta semana",
+    "Edit routine": "Editar rotina"
 }

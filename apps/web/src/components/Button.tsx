@@ -10,6 +10,8 @@ type buttonProps = {
     testId?: string;
     disabled?: boolean;
     className?: string;
+    /** Âncora do tutorial (data-tutorial-id). */
+    tutorialId?: string;
 }
 
 /**
@@ -40,13 +42,14 @@ const SIZES: Record<buttonProps["size"], string> = {
     auto: "h-10 px-5 text-sm",
 };
 
-function Button({ text, size, mode, onClick, type, icon, testId, disabled, className = "" }: buttonProps) {
+function Button({ text, size, mode, onClick, type, icon, testId, disabled, className = "", tutorialId }: buttonProps) {
     return (
         <button
             className={`inline-flex items-center justify-center gap-2 rounded-control font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 ${MODES[mode]} ${SIZES[size]} ${className}`}
             onClick={onClick}
             type={type}
             data-testid={testId}
+            data-tutorial-id={tutorialId}
             disabled={disabled}
         >
             {icon && <span aria-hidden="true">{icon}</span>}
