@@ -962,5 +962,9 @@
     "Decrease": "Diminuir",
     "NewHere": "Novo por aqui?",
     "AlreadyHaveAccountShort": "Já tem conta?",
-    "Password": "Senha"
+    "Password": "Senha",
+    "Sending": "Enviando…",
+    "PasswordResetRequestSentTitle": "Confira sua caixa de entrada",
+    "NewPassword": "Nova senha",
+    "ConfirmPassword": "Confirmar senha"
 }

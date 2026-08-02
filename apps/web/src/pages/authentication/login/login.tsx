@@ -2,6 +2,7 @@
 import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
+import FormNotice from "../../../components/authentication/FormNotice";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 // Functions
 import { useTranslation } from "react-i18next";
@@ -89,25 +90,21 @@ function Login() {
         >
 
                     {needsVerification && (
-                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-border bg-accent/10 max-w-[90vw] lg:max-w-[380px]">
-                            <p className="text-lg font-semibold text-accent mb-1">
-                                {t("EmailVerificationSentTitle")}
-                            </p>
-                            <p className="text-base text-text/80">
-                                {t("EmailVerificationSentMessage")}
-                            </p>
-                        </div>
+                        <FormNotice
+                            tone="success"
+                            title={t("EmailVerificationSentTitle")}
+                            message={t("EmailVerificationSentMessage")}
+                            className="mt-4"
+                        />
                     )}
 
                     {emailNotVerified && (
-                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-danger bg-danger/10 max-w-[90vw] lg:max-w-[380px]">
-                            <p className="text-lg font-semibold text-danger mb-1">
-                                {t("EmailNotVerifiedTitle")}
-                            </p>
-                            <p className="text-base text-text/80">
-                                {t("EmailNotVerifiedMessage")}
-                            </p>
-                        </div>
+                        <FormNotice
+                            tone="error"
+                            title={t("EmailNotVerifiedTitle")}
+                            message={t("EmailNotVerifiedMessage")}
+                            className="mt-4"
+                        />
                     )}
 
                     <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">

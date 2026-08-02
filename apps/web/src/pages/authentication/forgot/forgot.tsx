@@ -2,7 +2,9 @@
 import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
+import FormNotice from "../../../components/authentication/FormNotice";
 // Functions
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -13,6 +15,7 @@ import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { forgotPasswordSchema } from "@beyou/validation/forms/authSchemas";
 // Assets
 import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";
+import { Loader } from "lucide-react";
 
 type ForgotPasswordFormValues = {
     email: string;
@@ -27,7 +30,7 @@ function ForgotPassword() {
         handleSubmit,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<ForgotPasswordFormValues>({
         resolver: zodResolver(forgotPasswordSchema(t)),
         mode: "onBlur",
@@ -49,7 +52,15 @@ function ForgotPassword() {
     };
 
     return (
-        <AuthShell title={t("ForgotPasswordTitle")} subtitle={t("ForgotPasswordSubtitle")}>
+        <AuthShell
+            title={t("ForgotPasswordTitle")}
+            subtitle={t("ForgotPasswordSubtitle")}
+            footer={
+                <Link to="/" className="font-semibold text-accent hover:underline">
+                    {t("BackToLogin")}
+                </Link>
+            }
+        >
 
                     <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                         <Controller
@@ -60,6 +71,7 @@ function ForgotPassword() {
                                     icon1={EmailIcon}
                                     icon2={null}
                                     icon3={null}
+                                    label={t("Email")}
                                     placeholder={t("EmailPlaceholder")}
                                     inputType={"email"}
                                     seePasswordIconAlt={""}
@@ -71,18 +83,30 @@ function ForgotPassword() {
                             )}
                         />
 
-                        <div className="mt-8 lg:mt-4">
-                            <Button text={t("SendResetLink")} mode="primary" size="big" className="w-full" />
-                        </div>
+                        {/* O botão some do estado "clicável" enquanto a
+                            requisição corre: sem isso dava para disparar o
+                            e-mail várias vezes sem nenhum sinal de que algo
+                            estava acontecendo. */}
+                        <Button
+                            text={isSubmitting ? t("Sending") : t("SendResetLink")}
+                            mode="primary"
+                            size="big"
+                            type="submit"
+                            className="mt-2 w-full"
+                            disabled={isSubmitting}
+                            icon={isSubmitting ? <Loader size={15} className="animate-spin" /> : undefined}
+                        />
+
+                        {errors.root?.message && <FormNotice tone="error" message={errors.root.message} />}
+
+                        {successMessage && (
+                            <FormNotice
+                                tone="success"
+                                title={t("PasswordResetRequestSentTitle")}
+                                message={successMessage}
+                            />
+                        )}
                     </form>
-
-                    {errors.root?.message && (
-                        <p className="text-danger text-center underline text-xl mb-2">{errors.root?.message}</p>
-                    )}
-
-                    {successMessage && (
-                        <p className="text-accent text-center text-xl mb-2">{successMessage}</p>
-                    )}
         </AuthShell>
     );
 }

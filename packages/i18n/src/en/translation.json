@@ -962,5 +962,9 @@
     "Decrease": "Decrease",
     "NewHere": "New here?",
     "AlreadyHaveAccountShort": "Already have an account?",
-    "Password": "Password"
+    "Password": "Password",
+    "Sending": "Sending…",
+    "PasswordResetRequestSentTitle": "Check your inbox",
+    "NewPassword": "New password",
+    "ConfirmPassword": "Confirm password"
 }
