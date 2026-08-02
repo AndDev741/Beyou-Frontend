@@ -2,6 +2,8 @@
 import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
+import FormNotice from "../../../components/authentication/FormNotice";
+import { Loader } from "lucide-react";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
@@ -38,7 +40,7 @@ function Register() {
         setError,
         clearErrors,
         watch,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema(t)),
         mode: "onBlur",
@@ -62,10 +64,14 @@ function Register() {
             navigate
         );
         if (errorMessage) {
-            setError("root", { message: errorMessage });
+            // Erro que pertence a um campo fica NO campo. O aviso geral existe
+            // só para falha sem dono (rede, 500), senão a mesma frase aparece
+            // duas vezes na mesma tela.
             if (errorMessage === t("EmailInUseError")) {
                 setError("email", { message: errorMessage });
+                return;
             }
+            setError("root", { message: errorMessage });
         }
     };
 
@@ -114,6 +120,7 @@ function Register() {
                                     icon2={null}
                                     icon3={null}
                                     seePasswordIconAlt=""
+                                    label={t("Email")}
                                     placeholder={t("EmailPlaceholder")}
                                     inputType="text"
                                     data={field.value}
@@ -131,6 +138,7 @@ function Register() {
                             render={({ field }) => (
                                 <Input
                                     icon1={PasswordIcon}
+                                    label={t("Password")}
                                     placeholder={t("PasswordPlaceholder")}
                                     inputType="password"
                                     icon2={EyeClosedIcon}
@@ -147,16 +155,18 @@ function Register() {
 
                         <div className="mt-2">
                             <Button
-                                text={t("ToRegister")}
+                                text={isSubmitting ? t("Sending") : t("ToRegister")}
                                 mode="primary"
                                 size="big"
                                 type="submit"
                                 testId="register-submit"
                                 className="w-full"
+                                disabled={isSubmitting}
+                                icon={isSubmitting ? <Loader size={15} className="animate-spin" /> : undefined}
                             />
                         </div>
                         {errors.root?.message && (
-                            <p className="block text-danger underline text-xl text-center">{errors.root?.message}</p>
+                            <FormNotice tone="error" message={errors.root.message} />
                         )}
                     </form>
 
