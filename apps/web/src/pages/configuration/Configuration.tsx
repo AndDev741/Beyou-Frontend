@@ -21,7 +21,7 @@ export default function Configuration() {
     const { t } = useTranslation();
 
     return (
-        <div className="lg:flex flex-col items-center lg:items-start w-full bg-bg text-text min-h-screen">
+        <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 text-text lg:px-7">
             <PageHeader title={t("Configuration")} />
             {showConfigSpotlight && (
                 <SpotlightTutorial
@@ -77,7 +77,7 @@ export default function Configuration() {
                     {/* Horizontal divider for mobile screens */}
                 </div>
 
-                <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%] h-full lg:pl-4">
+                <div className="flex w-full flex-col gap-4">
                     <div className="w-full">
                         <ConfigSection
                             icon={<FiGrid />}

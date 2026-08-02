@@ -99,9 +99,9 @@ function Goals() {
   }, [dispatch, t]);
 
   return (
-    <div className="lg:flex flex-col items-center w-full bg-bg text-text min-h-screen">
+    <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 text-text lg:px-7">
             <PageHeader title={t("YourGoals")} />
-      <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] mt-4 lg:px-6">
+      <div className="mt-4 lg:flex lg:items-start lg:justify-between lg:gap-6">
         <div className="w-full px-2">
           <SortFilterBar
             title={t("Goals overview")}

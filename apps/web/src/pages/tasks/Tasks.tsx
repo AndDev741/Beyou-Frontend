@@ -82,9 +82,9 @@ function Tasks() {
     }, [t])
 
     return (
-        <div className="lg:flex flex-col items-center w-full bg-bg text-text min-h-screen">
+        <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 text-text lg:px-7">
             <PageHeader title={t("YourTasks")} />
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
+            <div className="lg:flex lg:items-start lg:justify-between lg:gap-6">
                 <div className="w-full">
                     <SortFilterBar
                         title={t("Tasks workspace")}

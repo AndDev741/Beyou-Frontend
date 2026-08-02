@@ -105,7 +105,7 @@ function Categories(){
     } = useCategoriesTutorial({ hasCategories });
     
     return(
-        <div className="bg-bg min-h-screen text-text">
+        <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 text-text lg:px-7">
             {showCategorySpotlight && (
                 <SpotlightTutorial
                     steps={categorySteps}
@@ -117,7 +117,7 @@ function Categories(){
                 />
             )}
             <PageHeader title={t("YourCategories")} />
-            <main className="flex flex-col lg:flex-row lg:justify-start lg:items-start pb-4 lg:mb-0 mt-4 px-3 lg:px-6">
+            <main className="mt-4 flex flex-col gap-6 pb-4 lg:flex-row lg:items-start lg:justify-start">
                 <div className="w-[100%]">
                     <SortFilterBar
                         title={t("Categories view")}

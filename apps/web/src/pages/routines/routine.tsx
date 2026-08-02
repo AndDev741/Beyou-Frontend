@@ -157,7 +157,7 @@ const Routine = () => {
     });
 
     return (
-        <div className="bg-bg text-text min-h-screen pb-4">
+        <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 pb-4 text-text lg:px-7">
             {showRoutineSpotlight && (
                 <SpotlightTutorial
                     steps={routineSteps}
@@ -176,7 +176,7 @@ const Routine = () => {
                     onDateChange={handleDateChange}
                 />
 
-                <div className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between gap-6">
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                     <div className="w-full lg:w-[50%]">
                         {!isSnapshotMode && (
                             <SortFilterBar
@@ -203,7 +203,7 @@ const Routine = () => {
                     </div>
 
                     {!isSnapshotMode && (
-                        <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">
+                        <div className="flex w-full flex-col lg:w-[50%]">
                             {editMode === false ? (
                                 <>
                                     <AddRoutineButton

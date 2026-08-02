@@ -196,7 +196,7 @@ function Dashboard() {
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                 </div>
             ) : (
-            <div className="mx-auto w-full max-w-[1180px] px-4 py-6 lg:px-8">
+            <div className="w-full max-w-[1400px] px-4 py-6 lg:px-7">
                 <Perfil />
 
                 {/* A rotina do dia é o centro da tela; os widgets vivem num rail
