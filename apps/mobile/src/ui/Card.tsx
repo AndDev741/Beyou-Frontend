@@ -14,7 +14,7 @@ interface CardProps extends ViewProps {
 }
 
 /**
- * A superfície do sistema. Substitui o par `bg-background + border-primary`
+ * A superfície do sistema. Substitui o par `bg-surface + border-primary`
  * copiado em cada cartão — o redesign troca contorno azul por superfície.
  */
 export default function Card({

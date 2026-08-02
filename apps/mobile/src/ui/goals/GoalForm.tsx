@@ -74,9 +74,9 @@ function Segmented({
             onPress={() => onChange(opt.value)}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            className={`items-center rounded-control border px-3 py-2 ${selected ? 'border-accent bg-primary/10' : 'border-border'}`}
+            className={`items-center rounded-control border px-3 py-2 ${selected ? 'border-accent bg-accent/10' : 'border-border'}`}
           >
-            <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{opt.label}</Text>
+            <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-text'}`}>{opt.label}</Text>
           </Pressable>
         );
       })}
@@ -140,18 +140,18 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
         <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="goal-form-cancel">
-            <Text className="text-description text-base">{t('Cancel')}</Text>
+            <Text className="text-text-2 text-base">{t('Cancel')}</Text>
           </Pressable>
-          <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'EditGoal' : 'CreateGoal')}</Text>
+          <Text className="text-text text-lg font-bold">{t(isEdit ? 'EditGoal' : 'CreateGoal')}</Text>
           <View className="w-12" />
         </View>
 
         <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Name')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Name')}</Text>
             <Controller control={control} name="title" render={({ field }) => (
               <Input value={field.value} onChangeText={field.onChange} placeholder={t('GoalTitlePlaceholder')} error={errors.title?.message} accessibilityLabel={t('Name')} testID="goal-title" />
             )} />
@@ -162,7 +162,7 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
           )} />
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Description')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Description')}</Text>
             <Controller control={control} name="description" render={({ field }) => (
               <Input value={field.value} onChangeText={field.onChange} placeholder={t('DescriptionPlaceholder')} error={errors.description?.message} accessibilityLabel={t('Description')} multiline testID="goal-description" />
             )} />
@@ -170,13 +170,13 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
 
           <View className="flex-row gap-3">
             <View className="flex-1">
-              <Text className="text-secondary mb-1 text-base font-semibold">{t('TargetValue')}</Text>
+              <Text className="text-text mb-1 text-base font-semibold">{t('TargetValue')}</Text>
               <Controller control={control} name="targetValue" render={({ field }) => (
                 <Input value={field.value} onChangeText={(txt) => field.onChange(numText(txt))} keyboardType="numeric" error={errors.targetValue?.message} accessibilityLabel={t('TargetValue')} testID="goal-target" />
               )} />
             </View>
             <View className="flex-1">
-              <Text className="text-secondary mb-1 text-base font-semibold">{t('CurrentValue')}</Text>
+              <Text className="text-text mb-1 text-base font-semibold">{t('CurrentValue')}</Text>
               <Controller control={control} name="currentValue" render={({ field }) => (
                 <Input value={field.value} onChangeText={(txt) => field.onChange(numText(txt))} keyboardType="numeric" error={errors.currentValue?.message} accessibilityLabel={t('CurrentValue')} testID="goal-current" />
               )} />
@@ -184,7 +184,7 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Unit')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Unit')}</Text>
             <Controller control={control} name="unit" render={({ field }) => (
               <Input value={field.value} onChangeText={field.onChange} placeholder={t('UnitPlaceholder')} error={errors.unit?.message} accessibilityLabel={t('Unit')} testID="goal-unit" />
             )} />
@@ -200,21 +200,21 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Status')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Status')}</Text>
             <Controller control={control} name="status" render={({ field }) => (
               <Segmented value={field.value} onChange={field.onChange} options={STATUS.map((s) => ({ value: s.value, label: t(s.key) }))} testID="goal-status" />
             )} />
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Term')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Term')}</Text>
             <Controller control={control} name="term" render={({ field }) => (
               <Segmented value={field.value} onChange={field.onChange} options={TERM.map((s) => ({ value: s.value, label: t(s.key) }))} testID="goal-term" />
             )} />
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Motivation')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Motivation')}</Text>
             <Controller control={control} name="motivation" render={({ field }) => (
               <Input value={field.value} onChangeText={field.onChange} placeholder={t('GoalMotivationPlaceholder')} error={errors.motivation?.message} accessibilityLabel={t('Motivation')} multiline testID="goal-motivation" />
             )} />

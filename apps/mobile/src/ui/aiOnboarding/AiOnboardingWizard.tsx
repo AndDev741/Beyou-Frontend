@@ -362,7 +362,7 @@ export default function AiOnboardingWizard({
   return (
     <Modal visible animationType="slide" onRequestClose={exitToTour}>
       <View
-        className="flex-1 bg-background"
+        className="flex-1 bg-surface"
         style={{ paddingTop: (insets?.top ?? 0) + 8, paddingBottom: insets?.bottom ?? 0 }}
       >
         {!hydrated ? (
@@ -374,7 +374,7 @@ export default function AiOnboardingWizard({
             {/* Header: sparkle badge + step dots + step label + tour escape hatch */}
             <View className="flex-row items-center justify-between gap-3 px-4 pb-3 pt-2">
               <View className="flex-row items-center gap-2">
-                <View className="h-8 w-8 items-center justify-center rounded-card bg-primary">
+                <View className="h-8 w-8 items-center justify-center rounded-card bg-accent">
                   <Sparkles size={16} color={ON_PRIMARY} />
                 </View>
                 <View className="flex-row items-center gap-1.5">
@@ -383,7 +383,7 @@ export default function AiOnboardingWizard({
                       key={s}
                       className={`h-1.5 rounded-full ${
                         index === currentIndex
-                          ? 'w-6 bg-primary'
+                          ? 'w-6 bg-accent'
                           : 'w-3 bg-description opacity-40'
                       }`}
                     />
@@ -392,7 +392,7 @@ export default function AiOnboardingWizard({
               </View>
 
               <View className="flex-row items-center gap-3">
-                <Text className="text-description text-sm font-medium">
+                <Text className="text-text-2 text-sm font-medium">
                   {t(STEP_LABEL_KEYS[step])}
                 </Text>
                 <Pressable
@@ -469,14 +469,14 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   return (
-    <View className="w-full items-center rounded-frame border border-border bg-background p-6">
-      <View className="mb-4 h-14 w-14 items-center justify-center rounded-card bg-primary/10">
+    <View className="w-full items-center rounded-frame border border-border bg-surface p-6">
+      <View className="mb-4 h-14 w-14 items-center justify-center rounded-card bg-accent/10">
         <AlertTriangle size={28} color={theme.primary} />
       </View>
-      <Text className="text-secondary mb-2 text-center text-xl font-semibold">
+      <Text className="text-text mb-2 text-center text-xl font-semibold">
         {t('AiOnboardingErrorTitle')}
       </Text>
-      <Text className="text-description mb-6 text-center text-base">
+      <Text className="text-text-2 mb-6 text-center text-base">
         {t('AiOnboardingErrorDescription')}
       </Text>
       <View className="w-full gap-3">
@@ -484,7 +484,7 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
           accessibilityRole="button"
           onPress={onRetry}
           testID="ai-onboarding-retry"
-          className="w-full flex-row items-center justify-center gap-2 rounded-card bg-primary px-5 py-3"
+          className="w-full flex-row items-center justify-center gap-2 rounded-card bg-accent px-5 py-3"
         >
           <RotateCcw size={16} color={ON_PRIMARY} />
           <Text className="text-base font-semibold" style={{ color: ON_PRIMARY }}>
@@ -495,10 +495,10 @@ function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
           accessibilityRole="button"
           onPress={onFallback}
           testID="ai-onboarding-take-tour-fallback"
-          className="w-full flex-row items-center justify-center gap-2 rounded-card border border-border bg-secondary/10 px-5 py-3"
+          className="w-full flex-row items-center justify-center gap-2 rounded-card border border-border bg-surface-2/10 px-5 py-3"
         >
           <Compass size={16} color={theme.secondary} />
-          <Text className="text-secondary text-base font-semibold">
+          <Text className="text-text text-base font-semibold">
             {t('AiOnboardingTakeTour')}
           </Text>
         </Pressable>

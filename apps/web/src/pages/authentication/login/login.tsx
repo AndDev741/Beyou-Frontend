@@ -78,18 +78,18 @@ function Login() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-primary rounded-l-md">
+        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
+            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-accent rounded-l-md">
                 <Logo />
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-background">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg">
                 <MobileBrand />
                 <Header />
-                <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">
+                <main className="flex flex-col items-center mt-6 lg:mt-4 text-text">
                     <h1 className="text-center text-[40px] font-bold">
                         {t("Welcome")}
-                        <span className="text-primary"> {t("Back!")} </span>
+                        <span className="text-accent"> {t("Back!")} </span>
                     </h1>
 
                     <div className="hidden lg:block my-2">
@@ -97,22 +97,22 @@ function Login() {
                     </div>
 
                     {needsVerification && (
-                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-border bg-primary/10 max-w-[90vw] lg:max-w-[380px]">
-                            <p className="text-lg font-semibold text-primary mb-1">
+                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-border bg-accent/10 max-w-[90vw] lg:max-w-[380px]">
+                            <p className="text-lg font-semibold text-accent mb-1">
                                 {t("EmailVerificationSentTitle")}
                             </p>
-                            <p className="text-base text-secondary/80">
+                            <p className="text-base text-text/80">
                                 {t("EmailVerificationSentMessage")}
                             </p>
                         </div>
                     )}
 
                     {emailNotVerified && (
-                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-error bg-error/10 max-w-[90vw] lg:max-w-[380px]">
-                            <p className="text-lg font-semibold text-error mb-1">
+                        <div className="mx-4 mt-4 mb-2 px-5 py-4 rounded-card border-2 border-danger bg-danger/10 max-w-[90vw] lg:max-w-[380px]">
+                            <p className="text-lg font-semibold text-danger mb-1">
                                 {t("EmailNotVerifiedTitle")}
                             </p>
-                            <p className="text-base text-secondary/80">
+                            <p className="text-base text-text/80">
                                 {t("EmailNotVerifiedMessage")}
                             </p>
                         </div>
@@ -161,7 +161,7 @@ function Login() {
 
                         <Link
                             to="/forgot-password"
-                            className="mt-4 lg:mt-3 mb-6 lg:mb-4 text-xl text-primary underline font-medium cursor-pointer"
+                            className="mt-4 lg:mt-3 mb-6 lg:mb-4 text-xl text-accent underline font-medium cursor-pointer"
                         >
                             {t("ForgotPassword")}
                         </Link>

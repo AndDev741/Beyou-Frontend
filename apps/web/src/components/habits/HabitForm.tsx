@@ -196,7 +196,7 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
 
     return (
         <div
-            className="bg-background"
+            className="bg-surface"
             data-tutorial-id={mode === "create" ? "habit-create-form" : undefined}
         >
             <div className="flex text-3xl items-center justify-center mt-3 mb-3">
@@ -338,7 +338,7 @@ function HabitForm({ mode, setHabits }: HabitFormProps) {
                 </div>
 
                 {errors.root?.message && (
-                    <p className="text-error text-center mt-2">{errors.root?.message}</p>
+                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center" />
 

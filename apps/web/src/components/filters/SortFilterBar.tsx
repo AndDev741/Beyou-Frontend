@@ -34,29 +34,29 @@ const SortFilterBar = ({
 
   return (
     <section
-      className={`w-full rounded-card border border-border bg-background/80 p-3 shadow-sm backdrop-blur ${className}`}
+      className={`w-full rounded-card border border-border bg-surface/80 p-3 shadow-sm backdrop-blur ${className}`}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-card bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-card bg-accent/10 text-accent">
             <FiFilter className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-description">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-text-2">
               {description || t("Sort results")}
             </span>
-            <h2 className="text-lg font-semibold text-secondary">{title}</h2>
+            <h2 className="text-lg font-semibold text-text">{title}</h2>
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor={selectId} className="text-sm font-medium text-description">
+          <label htmlFor={selectId} className="text-sm font-medium text-text-2">
             {t("Sort by")}
           </label>
           <select
             id={selectId}
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="w-full max-w-[160px] md:max-w-[230px] rounded-control border border-border bg-background px-3 py-2 text-sm text-secondary shadow-sm focus:border-border focus:outline-none focus:ring-1 focus:ring-primary sm:w-auto"
+            className="w-full max-w-[160px] md:max-w-[230px] rounded-control border border-border bg-surface px-3 py-2 text-sm text-text shadow-sm focus:border-border focus:outline-none focus:ring-1 focus:ring-accent sm:w-auto"
           >
             {options.map((option) => (
               <option key={option.value} value={option.value}>
@@ -77,8 +77,8 @@ const SortFilterBar = ({
                 onClick={() => onChange(option.value)}
                 className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                   isActive
-                    ? "border-accent bg-primary text-background"
-                    : "border-border bg-primary/10 text-primary hover:border-border"
+                    ? "border-accent bg-accent text-on-accent"
+                    : "border-border bg-accent/10 text-accent hover:border-border"
                 }`}
               >
                 {option.label}

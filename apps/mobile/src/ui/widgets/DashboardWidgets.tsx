@@ -31,19 +31,19 @@ function NoWidgets() {
   const { theme } = useBeyouTheme();
   return (
     <View
-      className="w-full items-center justify-center rounded-card border-2 border-border bg-background p-8"
+      className="w-full items-center justify-center rounded-card border-2 border-border bg-surface p-8"
       testID="no-widgets-empty-state"
     >
       <Text className="mb-3 text-5xl" accessibilityElementsHidden>
         🧩
       </Text>
-      <Text className="text-secondary text-lg font-semibold">{t('NoWidgetsTitle')}</Text>
-      <Text className="text-description mt-2 text-center text-sm">{t('NoWidgetsDescription')}</Text>
+      <Text className="text-text text-lg font-semibold">{t('NoWidgetsTitle')}</Text>
+      <Text className="text-text-2 mt-2 text-center text-sm">{t('NoWidgetsDescription')}</Text>
       <Pressable
         onPress={() => router.push('/configuration')}
         accessibilityRole="button"
         testID="add-widgets-cta"
-        className="mt-4 rounded-[20px] bg-primary px-6 py-2"
+        className="mt-4 rounded-[20px] bg-accent px-6 py-2"
       >
         <Text style={{ color: theme.background }} className="font-semibold">
           {t('AddWidgets')}

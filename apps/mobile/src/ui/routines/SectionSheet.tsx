@@ -52,7 +52,7 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-        <Text className="text-secondary mb-3 text-lg font-bold">
+        <Text className="text-text mb-3 text-lg font-bold">
           {t(section ? 'Edit Routine Section' : 'Creating Routine Section')}
         </Text>
         <ScrollView contentContainerClassName="gap-4" keyboardShouldPersistTaps="handled">
@@ -68,10 +68,10 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
             <TimeField label={t('StartTime')} value={startTime} onChange={setStartTime} testID="section-start" />
             <TimeField label={t('EndTime')} value={endTime} onChange={setEndTime} testID="section-end" />
           </View>
-          {error ? <Text className="text-error text-sm">{error}</Text> : null}
+          {error ? <Text className="text-danger text-sm">{error}</Text> : null}
           <View className="mt-2 flex-row justify-end gap-3">
             <Pressable onPress={onClose} accessibilityRole="button" className="px-4 py-2">
-              <Text className="text-description font-semibold">{t('Cancel')}</Text>
+              <Text className="text-text-2 font-semibold">{t('Cancel')}</Text>
             </Pressable>
             <Button text={t('Save')} mode="create" size="small" onPress={save} testID="section-save" />
           </View>

@@ -33,9 +33,9 @@ const dateAtNoon = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
 
 function Insight({ label, value }: { label: string; value: string | number }) {
   return (
-    <View className="flex-1 items-center rounded-card bg-primary/10 py-3">
-      <Text className="text-primary text-lg font-bold">{value}</Text>
-      <Text className="text-description text-xs">{label}</Text>
+    <View className="flex-1 items-center rounded-card bg-accent/10 py-3">
+      <Text className="text-accent text-lg font-bold">{value}</Text>
+      <Text className="text-text-2 text-xs">{label}</Text>
     </View>
   );
 }
@@ -100,12 +100,12 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
           const has = dates.includes(date);
           return (
             <Pressable key={date} onPress={() => load(date)} accessibilityRole="button" accessibilityState={{ selected: sel }} testID={`rov-day-${i}`}
-              className={`h-14 w-12 items-center justify-center rounded-card border-2 ${sel ? 'border-accent bg-primary' : 'border-border'}`}>
-              <Text className={`text-[10px] font-bold tracking-wide ${sel ? 'text-background' : 'text-description'}`}>
+              className={`h-14 w-12 items-center justify-center rounded-card border-2 ${sel ? 'border-accent bg-accent' : 'border-border'}`}>
+              <Text className={`text-[10px] font-bold tracking-wide ${sel ? 'text-on-accent' : 'text-text-2'}`}>
                 {t(WEEKDAY_KEYS[dateAtNoon(date).getDay()]).toUpperCase()}
               </Text>
-              <Text className={`text-sm font-bold ${sel ? 'text-background' : 'text-secondary'}`}>{dateAtNoon(date).getDate()}</Text>
-              {has && !sel ? <View className="mt-0.5 h-1 w-1 rounded-full bg-primary" /> : null}
+              <Text className={`text-sm font-bold ${sel ? 'text-on-accent' : 'text-text'}`}>{dateAtNoon(date).getDate()}</Text>
+              {has && !sel ? <View className="mt-0.5 h-1 w-1 rounded-full bg-accent" /> : null}
             </Pressable>
           );
         })}
@@ -136,7 +136,7 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
         </View>
       ) : null}
       {isPast && snapshotPairs.length === 0 ? (
-        <Text className="text-description text-center text-sm">{t('NoSnapshotForDay')}</Text>
+        <Text className="text-text-2 text-center text-sm">{t('NoSnapshotForDay')}</Text>
       ) : null}
     </View>
   );

@@ -111,24 +111,24 @@ export default function HabitsTasksStep({
             {/* Header */}
             <div className="space-y-3 text-center">
                 <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary rounded-full px-3 py-1"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent rounded-full px-3 py-1"
                     style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
                 >
                     <Sparkles className="w-3.5 h-3.5" />
                     {t("AiOnboardingStepHabitsTasks")}
                 </span>
-                <h2 className="text-2xl md:text-4xl font-semibold text-secondary leading-tight px-2">
+                <h2 className="text-2xl md:text-4xl font-semibold text-text leading-tight px-2">
                     {t("AiOnboardingHabitsTasksTitle")}
                 </h2>
                 {/* Teaching moment: what makes a habit different from a task */}
                 <p
-                    className="inline-flex items-start sm:items-center gap-2 text-left text-sm md:text-base text-secondary rounded-card px-4 py-2.5 max-w-xl mx-auto"
+                    className="inline-flex items-start sm:items-center gap-2 text-left text-sm md:text-base text-text rounded-card px-4 py-2.5 max-w-xl mx-auto"
                     style={{
                         backgroundColor: "color-mix(in srgb, var(--primary) 8%, var(--background))",
                         border: "1px solid color-mix(in srgb, var(--primary) 18%, var(--background))"
                     }}
                 >
-                    <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 sm:mt-0 text-primary" />
+                    <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 sm:mt-0 text-accent" />
                     <span>{t("AiOnboardingHabitsTasksHint")}</span>
                 </p>
             </div>
@@ -137,7 +137,7 @@ export default function HabitsTasksStep({
             {habits.length > 0 && (
                 <SuggestionGroup
                     labelKey="AiOnboardingHabitsLabel"
-                    icon={<Repeat className="w-4 h-4 text-primary" />}
+                    icon={<Repeat className="w-4 h-4 text-accent" />}
                     tintVar="--primary"
                     selectedCount={selectedHabits.size}
                     total={habits.length}
@@ -175,7 +175,7 @@ export default function HabitsTasksStep({
             {tasks.length > 0 && (
                 <SuggestionGroup
                     labelKey="AiOnboardingTasksLabel"
-                    icon={<ListChecks className="w-4 h-4 text-secondary" />}
+                    icon={<ListChecks className="w-4 h-4 text-text" />}
                     tintVar="--secondary"
                     selectedCount={selectedTasks.size}
                     total={tasks.length}
@@ -224,7 +224,7 @@ export default function HabitsTasksStep({
                         }}
                         placeholder={t("AiOnboardingFreeInputPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="min-w-0 flex-1 rounded-card border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="min-w-0 flex-1 rounded-card border bg-surface px-4 py-2.5 text-text placeholder:text-text-2 focus:outline-none focus:ring-2 focus:ring-accent transition-shadow"
                     />
                     <button
                         type="button"
@@ -233,7 +233,7 @@ export default function HabitsTasksStep({
                         aria-label={t("AiOnboardingAdd")}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
                         className={cn(
-                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-text transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                             adding ? "opacity-60 cursor-wait" : "hover:brightness-95"
                         )}
                     >
@@ -259,14 +259,14 @@ export default function HabitsTasksStep({
                     className={cn(
                         "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
                         canContinue
-                            ? "bg-primary hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
-                            : "bg-primary opacity-40 cursor-not-allowed"
+                            ? "bg-accent hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
+                            : "bg-accent opacity-40 cursor-not-allowed"
                     )}
                 >
                     {t("AiOnboardingContinue")}
                     {selectedCount > 0 && (
                         <span
-                            className="flex min-w-5 h-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-primary bg-white"
+                            className="flex min-w-5 h-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-accent bg-white"
                             aria-hidden="true"
                         >
                             {selectedCount}
@@ -312,15 +312,15 @@ function SuggestionGroup({
                     >
                         {icon}
                     </span>
-                    <h3 className="text-lg font-semibold text-secondary">{t(labelKey)}</h3>
-                    <span className="text-xs font-medium text-description tabular-nums">
+                    <h3 className="text-lg font-semibold text-text">{t(labelKey)}</h3>
+                    <span className="text-xs font-medium text-text-2 tabular-nums">
                         {selectedCount}/{total}
                     </span>
                 </div>
                 <button
                     type="button"
                     onClick={onToggleAll}
-                    className="flex items-center gap-1.5 rounded-control px-2 py-1 text-sm font-semibold text-primary hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="flex items-center gap-1.5 rounded-control px-2 py-1 text-sm font-semibold text-accent hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                     <CheckCheck className="w-4 h-4" aria-hidden="true" />
                     {t("AiOnboardingSelectAll")}
@@ -368,11 +368,11 @@ function CardMeta({
 }) {
     return (
         <span className="flex flex-col items-end gap-1" aria-hidden="true">
-            <span className="max-w-24 truncate text-[10px] font-semibold uppercase tracking-wide text-primary">
+            <span className="max-w-24 truncate text-[10px] font-semibold uppercase tracking-wide text-accent">
                 {category}
             </span>
-            <DotRow icon={<Star className="w-3 h-3 text-primary" />} count={importance} filledClass="bg-primary" />
-            <DotRow icon={<Zap className="w-3 h-3 text-secondary" />} count={difficulty} filledClass="bg-secondary" />
+            <DotRow icon={<Star className="w-3 h-3 text-accent" />} count={importance} filledClass="bg-accent" />
+            <DotRow icon={<Zap className="w-3 h-3 text-text" />} count={difficulty} filledClass="bg-surface-2" />
         </span>
     );
 }

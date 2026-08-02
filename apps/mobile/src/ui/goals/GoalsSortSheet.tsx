@@ -43,11 +43,11 @@ export default function GoalsSortSheet() {
         className="flex-row items-center gap-1.5 self-start rounded-full border border-border px-3 py-1.5"
       >
         <Ionicons name="swap-vertical" size={16} color={theme.primary} />
-        <Text className="text-secondary text-sm">{t(current.key)}</Text>
+        <Text className="text-text text-sm">{t(current.key)}</Text>
       </Pressable>
 
       <BottomSheet visible={open} onClose={() => setOpen(false)} closeLabel="Close" maxHeight="max-h-[70%]">
-          <Text className="text-secondary mb-2 text-lg font-bold">{t('Sort results')}</Text>
+          <Text className="text-text mb-2 text-lg font-bold">{t('Sort results')}</Text>
           <ScrollView>
             {OPTIONS.map((o) => {
               const selected = o.value === sortBy;
@@ -63,7 +63,7 @@ export default function GoalsSortSheet() {
                   testID={`sort-${o.value}`}
                   className="flex-row items-center justify-between py-3"
                 >
-                  <Text className={selected ? 'text-primary font-semibold' : 'text-secondary'}>{t(o.key)}</Text>
+                  <Text className={selected ? 'text-accent font-semibold' : 'text-text'}>{t(o.key)}</Text>
                   {selected ? <Ionicons name="checkmark" size={18} color={theme.primary} /> : null}
                 </Pressable>
               );

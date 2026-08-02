@@ -60,7 +60,7 @@ export default function LoginRoute() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-bg">
       <ScrollView
         testID="login-screen"
         keyboardShouldPersistTaps="handled"
@@ -68,18 +68,18 @@ export default function LoginRoute() {
       >
         <AuthTabs active="login" />
 
-        <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-8">
+        <Text className="text-3xl font-bold text-text text-center mt-6 mb-8">
           {t('Welcome')}
-          <Text className="text-primary"> {t('Back!')} </Text>
+          <Text className="text-accent"> {t('Back!')} </Text>
         </Text>
 
         {emailNotVerified ? (
           <View
-            className="border-2 border-error rounded-card bg-error/10 p-4 mb-6"
+            className="border-2 border-danger rounded-card bg-danger/10 p-4 mb-6"
             testID="login-email-not-verified"
           >
-            <Text className="text-error font-semibold mb-1">{t('EmailNotVerifiedTitle')}</Text>
-            <Text className="text-secondary/80">{t('EmailNotVerifiedMessage')}</Text>
+            <Text className="text-danger font-semibold mb-1">{t('EmailNotVerifiedTitle')}</Text>
+            <Text className="text-text/80">{t('EmailNotVerifiedMessage')}</Text>
           </View>
         ) : null}
 
@@ -133,7 +133,7 @@ export default function LoginRoute() {
           className="self-end mt-3 mb-6"
           testID="login-forgot-link"
         >
-          <Text className="text-primary underline font-medium">{t('ForgotPassword')}</Text>
+          <Text className="text-accent underline font-medium">{t('ForgotPassword')}</Text>
         </Pressable>
 
         <View className="items-center">

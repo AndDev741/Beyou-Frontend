@@ -51,8 +51,8 @@ export default function ProgressRing({
       </Svg>
       {(centerLabel || sublabel) && (
         <View style={{ position: 'absolute', alignItems: 'center' }}>
-          {centerLabel ? <Text className="text-secondary text-lg font-bold">{centerLabel}</Text> : null}
-          {sublabel ? <Text className="text-description text-[10px] font-semibold uppercase">{sublabel}</Text> : null}
+          {centerLabel ? <Text className="text-text text-lg font-bold">{centerLabel}</Text> : null}
+          {sublabel ? <Text className="text-text-2 text-[10px] font-semibold uppercase">{sublabel}</Text> : null}
         </View>
       )}
     </View>

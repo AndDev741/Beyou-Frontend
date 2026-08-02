@@ -14,7 +14,7 @@ function MarkdownLink({ href, children, ...rest }: React.AnchorHTMLAttributes<HT
             <a
                 {...rest}
                 href={href}
-                className="font-medium text-primary underline"
+                className="font-medium text-accent underline"
                 onClick={(e) => {
                     e.preventDefault();
                     navigate(href);
@@ -25,7 +25,7 @@ function MarkdownLink({ href, children, ...rest }: React.AnchorHTMLAttributes<HT
         );
     }
     return (
-        <a {...rest} href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
+        <a {...rest} href={href} className="text-accent underline" target="_blank" rel="noopener noreferrer">
             {children}
         </a>
     );
@@ -39,16 +39,16 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>["components
     ol: (props) => <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0" {...props} />,
     a: (props) => <MarkdownLink {...props} />,
     code: (props) => (
-        <code className="rounded bg-primary/10 px-1 py-0.5 font-mono text-[13px]" {...props} />
+        <code className="rounded bg-accent/10 px-1 py-0.5 font-mono text-[13px]" {...props} />
     ),
     pre: (props) => (
-        <pre className="mb-2 overflow-x-auto rounded-control bg-primary/10 p-3 text-[13px] last:mb-0" {...props} />
+        <pre className="mb-2 overflow-x-auto rounded-control bg-accent/10 p-3 text-[13px] last:mb-0" {...props} />
     ),
     h1: (props) => <p className="mb-1 font-semibold" {...props} />,
     h2: (props) => <p className="mb-1 font-semibold" {...props} />,
     h3: (props) => <p className="mb-1 font-semibold" {...props} />,
     blockquote: (props) => (
-        <blockquote className="mb-2 border-l-2 border-border pl-3 text-description last:mb-0" {...props} />
+        <blockquote className="mb-2 border-l-2 border-border pl-3 text-text-2 last:mb-0" {...props} />
     ),
     // GFM tables (remark-gfm). The wrapper scrolls so wide tables never
     // stretch the chat bubble.
@@ -58,7 +58,7 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>["components
         </div>
     ),
     th: (props) => (
-        <th className="border border-border bg-primary/10 px-2 py-1 text-left font-semibold" {...props} />
+        <th className="border border-border bg-accent/10 px-2 py-1 text-left font-semibold" {...props} />
     ),
     td: (props) => <td className="border border-border px-2 py-1 align-top" {...props} />,
 };

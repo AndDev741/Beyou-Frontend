@@ -174,13 +174,13 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             const disableSave = itemTimeErrors.length > 0;
 
             return (
-                <div key={`${item.type}-${item.id}-${originalIndex}`} className="w-full flex items-center my-1 bg-background transition-colors duration-200 min-w-0">
+                <div key={`${item.type}-${item.id}-${originalIndex}`} className="w-full flex items-center my-1 bg-surface transition-colors duration-200 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 w-full min-w-0">
-                        <input type="checkbox" className="accent-primary w-6 h-6 rounded-control border border-border bg-background transition-colors duration-200" />
-                        <span className="text-sm md:text-md text-secondary ml-2 min-w-0">
+                        <input type="checkbox" className="accent-primary w-6 h-6 rounded-control border border-border bg-surface transition-colors duration-200" />
+                        <span className="text-sm md:text-md text-text ml-2 min-w-0">
                             {itemObj.name}
                         </span>
-                        <span className="mx-1 md:mx-2 text-description">-</span>
+                        <span className="mx-1 md:mx-2 text-text-2">-</span>
 
                         {isEditing ? (
                             <div className="flex flex-wrap items-center gap-2 min-w-0">
@@ -201,7 +201,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                             }
                                             : null
                                     )}
-                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-border"}`}
+                                    className={`border rounded p-1 bg-surface text-text ${disableSave ? "border-danger" : "border-border"}`}
                                 />
                                 <input
                                     type="time"
@@ -211,7 +211,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                     onChange={(e) => setEditingItem(prev =>
                                         prev ? { ...prev, endTime: e.target.value } : null
                                     )}
-                                    className={`border rounded p-1 bg-background text-secondary ${disableSave ? "border-error" : "border-border"}`}
+                                    className={`border rounded p-1 bg-surface text-text ${disableSave ? "border-danger" : "border-border"}`}
                                 />
                                 <button
                                     onClick={() => handleSaveEditItem(editingItem.startTime, editingItem.endTime)}
@@ -222,33 +222,33 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                                 </button>
                                 <button
                                     onClick={handleCancelEdit}
-                                    className="text-error hover:bg-error/10 p-1 rounded transition-colors duration-200"
+                                    className="text-danger hover:bg-danger/10 p-1 rounded transition-colors duration-200"
                                 >
                                     Cancelar
                                 </button>
                                 {itemTimeErrorMessage && (
-                                    <span className="text-error text-xs break-words w-full mt-1">{itemTimeErrorMessage}</span>
+                                    <span className="text-danger text-xs break-words w-full mt-1">{itemTimeErrorMessage}</span>
                                 )}
                             </div>
                         ) : (
                             <>
-                                <span className="text-center text-primary text-sm md:text-lg">
+                                <span className="text-center text-accent text-sm md:text-lg">
                                     {formatTimeRange(item.startTime, item.endTime)}
                                 </span>
                                 <div className="flex items-center gap-2 ml-2">
                                     <button
-                                        className="p-1 rounded hover:bg-primary/10 transition-colors duration-200"
+                                        className="p-1 rounded hover:bg-accent/10 transition-colors duration-200"
                                         title={t("Edit")}
                                         onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime)}
                                     >
-                                        <FiEdit2 className="text-primary text-lg" />
+                                        <FiEdit2 className="text-accent text-lg" />
                                     </button>
                                     <button
-                                        className="p-1 rounded hover:bg-error/10 transition-colors duration-200"
+                                        className="p-1 rounded hover:bg-danger/10 transition-colors duration-200"
                                         title={t("Delete")}
                                         onClick={() => handleDeleteItem(item.type, originalIndex)}
                                     >
-                                        <FiTrash2 className="text-error text-lg" />
+                                        <FiTrash2 className="text-danger text-lg" />
                                     </button>
                                 </div>
                             </>
@@ -264,36 +264,36 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
             {/* Section  Header */}
             <div className="w-full flex items-center justify-between py-2">
                 <div className="flex items-center gap-2 w-full">
-                    {hasIcon && <span className="text-[30px] text-icon"><BeyouIcon id={section.iconId} /></span>}
-                    <span className="text-md md:text-xl font-semibold text-primary line-clamp-1">{section.name}</span>
+                    {hasIcon && <span className="text-[30px] text-text-2"><BeyouIcon id={section.iconId} /></span>}
+                    <span className="text-md md:text-xl font-semibold text-accent line-clamp-1">{section.name}</span>
                 </div>
                 {/* I ALREADY SPEND TOO MUCH TIME TRYING TO UNDERSTAND WHY WHEN I OPEN THE TASK SELECTOR THE HEADER JUST GO TO THE RIGHT... THIS WILL FIX ****  */}
                 <div className={`${openTaskSelector ? "mr-3" : ""} flex items-center gap-2`}>
-                    <div className="flex items-center gap-1 text-description whitespace-nowrap">
+                    <div className="flex items-center gap-1 text-text-2 whitespace-nowrap">
                         <span className="text-sm md:text-lg">
                             {formatTimeRange(section.startTime, section.endTime)}
                         </span>
                     </div>
                     <button
-                        className="rounded hover:bg-primary/10 transition-colors duration-200"
+                        className="rounded hover:bg-accent/10 transition-colors duration-200"
                         title={t("Edit")}
                         onClick={onEdit}
                     >
-                        <FiEdit2 className="text-primary text-lg" />
+                        <FiEdit2 className="text-accent text-lg" />
                     </button>
                     <button
-                        className="rounded hover:bg-error/10 transition-colors duration-200"
+                        className="rounded hover:bg-danger/10 transition-colors duration-200"
                         title={t("Delete")}
                         onClick={onDelete}
                     >
-                        <FiTrash2 className="text-error text-lg" />
+                        <FiTrash2 className="text-danger text-lg" />
                     </button>
                      <button
-                        className="rounded hover:bg-error/10 transition-colors duration-200"
+                        className="rounded hover:bg-danger/10 transition-colors duration-200"
                         //title={t("Delete")}
                         onClick={() => handleFavorite()}
                     >
-                        <AiFillStar className={`${section.favorite ? "text-yellow-500" : "text-secondary"} text-lg`} />
+                        <AiFillStar className={`${section.favorite ? "text-yellow-500" : "text-text"} text-lg`} />
                     </button>
                 </div>
             </div>
@@ -314,7 +314,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index }: Se
                 // onClick={() => { setShowModal(true); setEditIndex(null); }}
                 >
                     <CgAddR className='w-[30px] h-[30px] mr-1 '/>    
-                    <span className='text-sm text-center font-medium ml-1 text-secondary'>
+                    <span className='text-sm text-center font-medium ml-1 text-text'>
                         {!openTaskSelector ? t("Add Habit or task") : t("Cancel Habit or task")}
                     </span>
                 </button>

@@ -63,10 +63,10 @@ function Segmented({
             accessibilityRole="button"
             accessibilityState={{ selected }}
             className={`min-w-[44px] items-center rounded-control border px-3 py-2 ${
-              selected ? 'border-accent bg-primary/10' : 'border-border'
+              selected ? 'border-accent bg-accent/10' : 'border-border'
             }`}
           >
-            <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>
+            <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-text'}`}>
               {opt.label}
             </Text>
           </Pressable>
@@ -131,18 +131,18 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
         <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="task-form-cancel">
-            <Text className="text-description text-base">{t('Cancel')}</Text>
+            <Text className="text-text-2 text-base">{t('Cancel')}</Text>
           </Pressable>
-          <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'EditTask' : 'CreateTask')}</Text>
+          <Text className="text-text text-lg font-bold">{t(isEdit ? 'EditTask' : 'CreateTask')}</Text>
           <View className="w-12" />
         </View>
 
         <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Name')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Name')}</Text>
             <Controller
               control={control}
               name="name"
@@ -153,7 +153,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Description')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Description')}</Text>
             <Controller
               control={control}
               name="description"
@@ -172,7 +172,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
           />
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Importance')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Importance')}</Text>
             <Controller
               control={control}
               name="importance"
@@ -180,11 +180,11 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
                 <Segmented value={field.value} onChange={field.onChange} options={labelOptions(IMPORTANCE_KEYS, t)} testID="task-importance" />
               )}
             />
-            {errors.importance?.message ? <Text className="text-error mt-1 text-sm">{errors.importance.message}</Text> : null}
+            {errors.importance?.message ? <Text className="text-danger mt-1 text-sm">{errors.importance.message}</Text> : null}
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Difficulty')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Difficulty')}</Text>
             <Controller
               control={control}
               name="difficulty"
@@ -192,7 +192,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
                 <Segmented value={field.value} onChange={field.onChange} options={labelOptions(DIFFICULTY_KEYS, t)} testID="task-difficulty" />
               )}
             />
-            {errors.difficulty?.message ? <Text className="text-error mt-1 text-sm">{errors.difficulty.message}</Text> : null}
+            {errors.difficulty?.message ? <Text className="text-danger mt-1 text-sm">{errors.difficulty.message}</Text> : null}
           </View>
 
           <Controller
@@ -204,7 +204,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
           />
 
           <View className="flex-row items-center justify-between rounded-control border border-border px-3 py-2">
-            <Text className="text-secondary text-base font-semibold">{t('One Time Task')}</Text>
+            <Text className="text-text text-base font-semibold">{t('One Time Task')}</Text>
             <Controller
               control={control}
               name="oneTimeTask"

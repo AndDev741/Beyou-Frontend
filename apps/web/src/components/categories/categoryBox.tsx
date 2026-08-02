@@ -43,13 +43,13 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
     }
 
     return(
-        <div className={`flex flex-col justify-between border border-border rounded-control mb-5 transition-all duration-500 ease-in-out p-2 break-words bg-background text-secondary shadow-sm
+        <div className={`flex flex-col justify-between border border-border rounded-control mb-5 transition-all duration-500 ease-in-out p-2 break-words bg-surface text-text shadow-sm
         ${expanded ? "min-h-[300px]" : "h-[150px]"} 
         transform ${expanded ? "lg:scale-105 shadow-md" : "scale-100"}
         `}>
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                    <p className="text-[35px] text-icon">
+                    <p className="text-[35px] text-text-2">
                         <BeyouIcon id={iconId} />
                     </p>
                     <h3 className={`text-lg md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] ${expanded ? "line-clamp-none" : " line-clamp-1"}`}>{name}</h3>
@@ -70,12 +70,12 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                 </button>
             </div>
 
-            <p className={`text-[15px] leading-tight text-description ${expanded ? "line-clamp-none my-2" : "line-clamp-2"}`}>{description}</p>
+            <p className={`text-[15px] leading-tight text-text-2 ${expanded ? "line-clamp-none my-2" : "line-clamp-2"}`}>{description}</p>
 
             {expanded && (habits?.size || tasks?.size || goals?.size) ? (
                 <div className={`${expanded ? "block my-2" : "hidden"}`}>
                     <h2 className="text-lg font-semibold">{t('Using in')}:</h2>
-                    <ul className="text-description">
+                    <ul className="text-text-2">
                         {habits && habits.size > 0 ? (
                             <>
                             <li className="font-semibold">{t('Habits')}:</li>
@@ -105,7 +105,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                     </ul>
                 </div>
             ) : (
-                <p  className={`${expanded ? "block mb-2 text-sm text-description" : "hidden"}`}>
+                <p  className={`${expanded ? "block mb-2 text-sm text-text-2" : "hidden"}`}>
                     {t('Add this category in a habit, task or goal!')}
                 </p>
             )}
@@ -114,10 +114,10 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
             <div className="flex flex-col mb-1">
                 <div className="flex justify-between">
                     <p>Level {level}</p>
-                    <p><span className="text-primary">{xp}</span>/{nextLevelXp}</p>
+                    <p><span className="text-accent">{xp}</span>/{nextLevelXp}</p>
                 </div>
                 <div className="flex w-[100%]">
-                    <div className={`border border-border bg-primary h-[15px] rounded-l-xl`}
+                    <div className={`border border-border bg-accent h-[15px] rounded-l-xl`}
                     style={{width: `${actualProgress}%`}}></div>
                     <div className={`border border-border bg-description/20 h-[15px] rounded-r-xl`}
                     style={{width: `${100 - actualProgress}%`}}></div>
@@ -128,11 +128,11 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, act
                 <>
                 <div className={`flex flex-col my-2 items-center justify-center`}>
                     <button onClick={handleEdit}
-                    className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
+                    className="bg-accent mb-2 hover:bg-accent/90 text-white font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
                         {t('Edit')}
                     </button>
                     <button onClick={() => setOnDelete(true)}
-                    className="bg-error hover:bg-error/90 text-white font-semibold w-[90px] h-[28px] rounded-control transition-colors duration-200">
+                    className="bg-danger hover:bg-danger/90 text-white font-semibold w-[90px] h-[28px] rounded-control transition-colors duration-200">
                         {t('Delete')}
                     </button>
                 </div>

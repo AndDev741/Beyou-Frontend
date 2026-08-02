@@ -217,7 +217,7 @@ function QuickCreateTaskModal({ isOpen, onClose, onCreated }: QuickCreateTaskMod
                 </div>
 
                 {errors.root?.message && (
-                    <p className="text-error text-center mt-2">{errors.root?.message}</p>
+                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center" />
 

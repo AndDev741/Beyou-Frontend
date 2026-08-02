@@ -23,15 +23,15 @@ function LevelBar({ habit }: { habit: habit }) {
   return (
     <View>
       <View className="mb-1 flex-row justify-between">
-        <Text className="text-description text-xs">
+        <Text className="text-text-2 text-xs">
           {t('Level')} {habit.level}
         </Text>
-        <Text className="text-description text-xs">
+        <Text className="text-text-2 text-xs">
           {habit.xp}/{habit.nextLevelXp} xp
         </Text>
       </View>
-      <View className="h-2 overflow-hidden rounded-full bg-primary/15">
-        <View className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+      <View className="h-2 overflow-hidden rounded-full bg-accent/15">
+        <View className="h-full rounded-full bg-accent" style={{ width: `${progress}%` }} />
       </View>
     </View>
   );
@@ -42,9 +42,9 @@ function ScaleRow({ label, value, phraseKey }: { label: string; value: number; p
   if (!phraseKey) return null;
   return (
     <View className="flex-row items-center gap-2">
-      <Text className="text-secondary text-sm font-semibold">{label}:</Text>
+      <Text className="text-text text-sm font-semibold">{label}:</Text>
       <View className="h-3 w-3 rounded-full" style={{ backgroundColor: scaleColor(value) }} />
-      <Text className="text-description text-sm">{t(phraseKey)}</Text>
+      <Text className="text-text-2 text-sm">{t(phraseKey)}</Text>
     </View>
   );
 }
@@ -61,7 +61,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View ref={viewRef} className="rounded-card border border-border bg-background p-4">
+    <View ref={viewRef} className="rounded-card border border-border bg-surface p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"
@@ -70,15 +70,15 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         testID={`habit-card-${habit.id}`}
         className="flex-row items-center gap-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
+        <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
           <BeyouIcon id={habit.iconId} size={24} showFallback />
         </View>
         <View className="flex-1">
-          <Text className="text-secondary text-base font-bold" numberOfLines={expanded ? undefined : 1}>
+          <Text className="text-text text-base font-bold" numberOfLines={expanded ? undefined : 1}>
             {habit.name}
           </Text>
           {habit.description ? (
-            <Text className="text-description text-sm" numberOfLines={expanded ? undefined : 2}>
+            <Text className="text-text-2 text-sm" numberOfLines={expanded ? undefined : 2}>
               {habit.description}
             </Text>
           ) : null}
@@ -86,7 +86,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         {habit.constance > 0 ? (
           <View className="flex-row items-center gap-1">
             <Text className="text-base">🔥</Text>
-            <Text className="text-secondary text-sm font-semibold">{habit.constance}</Text>
+            <Text className="text-text text-sm font-semibold">{habit.constance}</Text>
           </View>
         ) : null}
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
@@ -95,9 +95,9 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
       {!expanded && habit.categories?.length ? (
         <View className="mt-3 flex-row flex-wrap gap-1.5">
           {habit.categories.map((cat) => (
-            <View key={cat.id} className="flex-row items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5">
+            <View key={cat.id} className="flex-row items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5">
               <BeyouIcon id={cat.iconId} size={12} />
-              <Text className="text-primary text-xs">{cat.name}</Text>
+              <Text className="text-accent text-xs">{cat.name}</Text>
             </View>
           ))}
         </View>
@@ -111,12 +111,12 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         <View className="mt-4 gap-3 border-t border-border pt-3">
           {habit.categories?.length ? (
             <View className="gap-1">
-              <Text className="text-secondary text-sm font-semibold">{t('Categories')}</Text>
+              <Text className="text-text text-sm font-semibold">{t('Categories')}</Text>
               <View className="flex-row flex-wrap gap-1.5">
                 {habit.categories.map((cat) => (
-                  <View key={cat.id} className="flex-row items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5">
+                  <View key={cat.id} className="flex-row items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5">
                     <BeyouIcon id={cat.iconId} size={12} />
-                    <Text className="text-primary text-xs">{cat.name}</Text>
+                    <Text className="text-accent text-xs">{cat.name}</Text>
                   </View>
                 ))}
               </View>
@@ -125,8 +125,8 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
 
           {habit.motivationalPhrase ? (
             <View className="gap-0.5">
-              <Text className="text-secondary text-sm font-semibold">{t('MotivationPhrase')}</Text>
-              <Text className="text-description text-sm italic">"{habit.motivationalPhrase}"</Text>
+              <Text className="text-text text-sm font-semibold">{t('MotivationPhrase')}</Text>
+              <Text className="text-text-2 text-sm italic">"{habit.motivationalPhrase}"</Text>
             </View>
           ) : null}
 
@@ -135,11 +135,11 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
 
           {habit.routines && Object.keys(habit.routines).length ? (
             <View className="gap-1">
-              <Text className="text-secondary text-sm font-semibold">{t('UsingIn')}</Text>
+              <Text className="text-text text-sm font-semibold">{t('UsingIn')}</Text>
               <View className="flex-row flex-wrap gap-1.5">
                 {Object.entries(habit.routines).map(([id, name]) => (
-                  <View key={id} className="rounded-full bg-primary/10 px-2 py-0.5">
-                    <Text className="text-primary text-xs">{name}</Text>
+                  <View key={id} className="rounded-full bg-accent/10 px-2 py-0.5">
+                    <Text className="text-accent text-xs">{name}</Text>
                   </View>
                 ))}
               </View>
@@ -151,7 +151,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
               onPress={() => onEdit(habit)}
               accessibilityRole="button"
               testID={`habit-edit-${habit.id}`}
-              className="flex-1 items-center rounded-control bg-primary py-2.5"
+              className="flex-1 items-center rounded-control bg-accent py-2.5"
             >
               <Text style={{ color: theme.background }} className="font-semibold">
                 {t('Edit')}
@@ -161,9 +161,9 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
               onPress={() => onDelete(habit)}
               accessibilityRole="button"
               testID={`habit-delete-${habit.id}`}
-              className="flex-1 items-center rounded-control border border-error py-2.5"
+              className="flex-1 items-center rounded-control border border-danger py-2.5"
             >
-              <Text className="text-error font-semibold">{t('Delete')}</Text>
+              <Text className="text-danger font-semibold">{t('Delete')}</Text>
             </Pressable>
           </View>
         </View>

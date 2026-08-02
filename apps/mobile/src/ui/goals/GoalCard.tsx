@@ -42,7 +42,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
   };
 
   return (
-    <View className="rounded-card border border-border bg-background p-4">
+    <View className="rounded-card border border-border bg-surface p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"
@@ -51,15 +51,15 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
         testID={`goal-card-${goal.id}`}
         className="flex-row items-center gap-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
+        <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
           <BeyouIcon id={goal.iconId} size={24} showFallback />
         </View>
         <View className="flex-1">
-          <Text className="text-secondary text-base font-bold" numberOfLines={expanded ? undefined : 1}>{goal.name}</Text>
+          <Text className="text-text text-base font-bold" numberOfLines={expanded ? undefined : 1}>{goal.name}</Text>
           <View className="mt-0.5 flex-row flex-wrap items-center gap-1.5">
-            <Text className="text-description text-xs">{t(TERM_KEY[goal.term] ?? goal.term)}</Text>
-            <Text className="text-description text-xs">·</Text>
-            <Text className={`text-xs ${done ? 'text-primary font-semibold' : 'text-description'}`}>{t(STATUS_KEY[goal.status] ?? goal.status)}</Text>
+            <Text className="text-text-2 text-xs">{t(TERM_KEY[goal.term] ?? goal.term)}</Text>
+            <Text className="text-text-2 text-xs">·</Text>
+            <Text className={`text-xs ${done ? 'text-accent font-semibold' : 'text-text-2'}`}>{t(STATUS_KEY[goal.status] ?? goal.status)}</Text>
           </View>
         </View>
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
@@ -68,11 +68,11 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
       {/* Progress */}
       <View className="mt-3">
         <View className="mb-1 flex-row justify-between">
-          <Text className="text-description text-xs">{goal.currentValue}/{goal.targetValue} {goal.unit}</Text>
-          <Text className="text-description text-xs">{pct}%</Text>
+          <Text className="text-text-2 text-xs">{goal.currentValue}/{goal.targetValue} {goal.unit}</Text>
+          <Text className="text-text-2 text-xs">{pct}%</Text>
         </View>
-        <View className="h-2 overflow-hidden rounded-full bg-primary/15">
-          <View className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+        <View className="h-2 overflow-hidden rounded-full bg-accent/15">
+          <View className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
         </View>
       </View>
 
@@ -102,7 +102,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
         {done ? (
           <View className="ml-auto flex-row items-center gap-1">
             <Ionicons name="checkmark-circle" size={20} color={theme.primary} />
-            <Text className="text-primary text-sm font-semibold">{t('Completed')}</Text>
+            <Text className="text-accent text-sm font-semibold">{t('Completed')}</Text>
           </View>
         ) : (
           <Pressable
@@ -110,7 +110,7 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
             disabled={pending}
             accessibilityRole="button"
             testID={`goal-complete-${goal.id}`}
-            className="ml-auto flex-row items-center gap-1 rounded-full bg-primary px-3 py-1.5"
+            className="ml-auto flex-row items-center gap-1 rounded-full bg-accent px-3 py-1.5"
           >
             <Ionicons name="checkmark" size={16} color={theme.background} />
             <Text style={{ color: theme.background }} className="text-sm font-semibold">{t('MarkAsComplete')}</Text>
@@ -120,32 +120,32 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
 
       {expanded ? (
         <View className="mt-4 gap-3 border-t border-border pt-3">
-          {goal.description ? <Text className="text-description text-sm">{goal.description}</Text> : null}
+          {goal.description ? <Text className="text-text-2 text-sm">{goal.description}</Text> : null}
           {goal.motivation ? (
             <View className="gap-0.5">
-              <Text className="text-secondary text-sm font-semibold">{t('Motivation')}</Text>
-              <Text className="text-description text-sm italic">"{goal.motivation}"</Text>
+              <Text className="text-text text-sm font-semibold">{t('Motivation')}</Text>
+              <Text className="text-text-2 text-sm italic">"{goal.motivation}"</Text>
             </View>
           ) : null}
-          {dateRange ? <Text className="text-description text-xs">{dateRange}</Text> : null}
-          <Text className="text-description text-xs">+{goal.xpReward} XP</Text>
+          {dateRange ? <Text className="text-text-2 text-xs">{dateRange}</Text> : null}
+          <Text className="text-text-2 text-xs">+{goal.xpReward} XP</Text>
           {categoryEntries.length ? (
             <View className="flex-row flex-wrap gap-1.5">
               {categoryEntries.map(([id, cat]) => (
-                <View key={id} className="flex-row items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5">
+                <View key={id} className="flex-row items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5">
                   <BeyouIcon id={cat.iconId} size={12} />
-                  <Text className="text-primary text-xs">{cat.name}</Text>
+                  <Text className="text-accent text-xs">{cat.name}</Text>
                 </View>
               ))}
             </View>
           ) : null}
 
           <View className="flex-row gap-3">
-            <Pressable onPress={() => onEdit(goal)} accessibilityRole="button" testID={`goal-edit-${goal.id}`} className="flex-1 items-center rounded-control bg-primary py-2.5">
+            <Pressable onPress={() => onEdit(goal)} accessibilityRole="button" testID={`goal-edit-${goal.id}`} className="flex-1 items-center rounded-control bg-accent py-2.5">
               <Text style={{ color: theme.background }} className="font-semibold">{t('Edit')}</Text>
             </Pressable>
-            <Pressable onPress={() => onDelete(goal)} accessibilityRole="button" testID={`goal-delete-${goal.id}`} className="flex-1 items-center rounded-control border border-error py-2.5">
-              <Text className="text-error font-semibold">{t('Delete')}</Text>
+            <Pressable onPress={() => onDelete(goal)} accessibilityRole="button" testID={`goal-delete-${goal.id}`} className="flex-1 items-center rounded-control border border-danger py-2.5">
+              <Text className="text-danger font-semibold">{t('Delete')}</Text>
             </Pressable>
           </View>
         </View>

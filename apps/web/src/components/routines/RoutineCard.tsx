@@ -32,10 +32,10 @@ type RoutineCardProps = {
 };
 
 const timeOfDayClasses: Record<string, string> = {
-    morning: "bg-primary/10 text-primary",
+    morning: "bg-accent/10 text-accent",
     afternoon: "bg-success/10 text-success",
-    evening: "bg-secondary/10 text-secondary",
-    night: "bg-description/20 text-secondary",
+    evening: "bg-surface-2/10 text-text",
+    night: "bg-description/20 text-text",
 };
 
 export const RoutineCard = ({
@@ -78,8 +78,8 @@ export const RoutineCard = ({
     };
 
     return (
-        <div className="relative overflow-hidden rounded-card border border-border bg-background shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-primary" />
+        <div className="relative overflow-hidden rounded-card border border-border bg-surface shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-primary to-accent" />
             <div className="p-3 md:p-4 space-y-4">
                 <header className="flex items-start justify-between gap-3 md:gap-4">
                     <div className="space-y-2 w-full">
@@ -87,13 +87,13 @@ export const RoutineCard = ({
                             <div className="flex items-center gap-1 md:gap-2">
                                 <button
                                     type="button"
-                                    className="p-1 rounded-control border border-border text-secondary hover:border-border transition-transform duration-150 hover:-translate-y-0.5"
+                                    className="p-1 rounded-control border border-border text-text hover:border-border transition-transform duration-150 hover:-translate-y-0.5"
                                     onClick={() => setExpanded((prev) => !prev)}
                                     aria-label={expanded ? t("Collapse") : t("Expand")}
                                 >
                                     <FiChevronDown className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
                                 </button>
-                                <span className="text-lg font-semibold text-secondary">
+                                <span className="text-lg font-semibold text-text">
                                     {routine.name}
                                 </span>
                             </div>
@@ -101,7 +101,7 @@ export const RoutineCard = ({
                                 <button
                                     type="button"
                                     data-tutorial-id="routine-schedule-button"
-                                    className="rounded-control border border-border px-3 py-2 text-sm font-medium text-secondary hover:bg-primary/10 transition-transform duration-150 hover:-translate-y-0.5"
+                                    className="rounded-control border border-border px-3 py-2 text-sm font-medium text-text hover:bg-accent/10 transition-transform duration-150 hover:-translate-y-0.5"
                                     onClick={() => onSchedule(routine)}
                                 >
                                     <FiCalendar className="inline mr-2" />
@@ -109,26 +109,26 @@ export const RoutineCard = ({
                                 </button>
                                 <button
                                     type="button"
-                                    className="rounded-control border border-border p-2 text-secondary hover:bg-primary/10 transition-transform duration-150 hover:-translate-y-0.5"
+                                    className="rounded-control border border-border p-2 text-text hover:bg-accent/10 transition-transform duration-150 hover:-translate-y-0.5"
                                     onClick={() => onEdit(routine)}
                                     aria-label={t("Edit")}
                                 >
                                     <FiEdit2 />
                                 </button>
                                 {isConfirmingDelete ? (
-                                    <div className="flex flex-col md:flex-row items-center gap-2 rounded-control border border-error/30 bg-error/5 px-2 py-1">
-                                        <span className="text-sm font-semibold text-error">{t("Confirm Deletion")}</span>
+                                    <div className="flex flex-col md:flex-row items-center gap-2 rounded-control border border-danger/30 bg-danger/5 px-2 py-1">
+                                        <span className="text-sm font-semibold text-danger">{t("Confirm Deletion")}</span>
                                         <div className="flex items-center gap-2">
                                             <button
                                                 type="button"
-                                                className="rounded-control bg-error px-2 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-error/90 hover:-translate-y-0.5"
+                                                className="rounded-control bg-danger px-2 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-danger/90 hover:-translate-y-0.5"
                                                 onClick={confirmDelete}
                                             >
                                                 {t("Yes")}
                                             </button>
                                             <button
                                                 type="button"
-                                                className="rounded-control border border-border px-2 py-1 text-xs font-semibold text-primary transition hover:bg-primary/10 hover:-translate-y-0.5"
+                                                className="rounded-control border border-border px-2 py-1 text-xs font-semibold text-accent transition hover:bg-accent/10 hover:-translate-y-0.5"
                                                 onClick={onCancelDelete}
                                             >
                                                 {t("No")}
@@ -138,7 +138,7 @@ export const RoutineCard = ({
                                 ) : (
                                     <button
                                         type="button"
-                                        className="rounded-control border border-error/30 p-2 text-error hover:bg-error/10 transition-transform duration-150 hover:-translate-y-0.5"
+                                        className="rounded-control border border-danger/30 p-2 text-danger hover:bg-danger/10 transition-transform duration-150 hover:-translate-y-0.5"
                                         onClick={handleDeleteClick}
                                         aria-label={t("Delete")}
                                     >
@@ -162,18 +162,18 @@ export const RoutineCard = ({
                                 <FiClock className="mr-1" /> {completion}% {t("Progress")}
                             </Badge>
                         </div>
-                        <div className="flex flex-wrap text-xs text-description w-full pl-1">
+                        <div className="flex flex-wrap text-xs text-text-2 w-full pl-1">
                             {scheduleDays.length > 0 ? (
                                 scheduleDays.map((day) => (
                                     <span
                                         key={day}
-                                        className="rounded-full bg-primary/10 pr-3 py-1 font-medium text-primary"
+                                        className="rounded-full bg-accent/10 pr-3 py-1 font-medium text-accent"
                                     >
                                         {t(day)}
                                     </span>
                                 ))
                             ) : (
-                                <span className="text-description">{t("No schedule set")}</span>
+                                <span className="text-text-2">{t("No schedule set")}</span>
                             )}
                         </div>
                     </div>
@@ -183,13 +183,13 @@ export const RoutineCard = ({
                     <div className="flex items-center gap-3">
                         <div className="h-2 w-full overflow-hidden rounded-full bg-ligthGray/40">
                             <div
-                                className="h-full rounded-full bg-primary transition-all duration-500"
+                                className="h-full rounded-full bg-accent transition-all duration-500"
                                 style={{ width: `${completion}%` }}
                             />
                         </div>
-                        <span className="text-sm font-semibold text-secondary w-14 text-right">{completion}%</span>
+                        <span className="text-sm font-semibold text-text w-14 text-right">{completion}%</span>
                     </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-secondary">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-text">
                         {stats.xpEarned > 0 ? (
                             <p className="text-success flex-1 min-w-[140px]">
                                 +{stats.xpEarned} XP {t("earned on")} {formatDate(selectedDate)}
@@ -198,8 +198,8 @@ export const RoutineCard = ({
                             <span className="flex-1 min-w-[140px]" />
                         )}
                         <div className="flex items-center gap-2 text-right">
-                            <span className="text-secondary font-semibold whitespace-nowrap">LV {routine.level ?? 0}</span>
-                            <span className="text-description whitespace-nowrap">
+                            <span className="text-text font-semibold whitespace-nowrap">LV {routine.level ?? 0}</span>
+                            <span className="text-text-2 whitespace-nowrap">
                                 {routine.xp ?? 0}/{routine.nextLevelXp ?? 0} XP
                             </span>
                         </div>
@@ -297,7 +297,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
     }, [section, selectedDate, taskLookup, habitLookup, t]);
 
     return (
-        <div className="rounded-control border border-border bg-background/80 p-3">
+        <div className="rounded-control border border-border bg-surface/80 p-3">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 w-full">
                     <div
@@ -307,17 +307,17 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
-                            <p className="text-base font-semibold text-secondary">{section.name}</p>
-                            {section.favorite && <AiFillStar className="text-primary" />}
+                            <p className="text-base font-semibold text-text">{section.name}</p>
+                            {section.favorite && <AiFillStar className="text-accent" />}
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-description">
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-text-2">
                             <span className="flex items-center gap-1">
                                 <FiClock /> {formatTimeRange(section.startTime, section.endTime)}
                             </span>
-                            <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+                            <span className="rounded-full bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
                                 {t(timeOfDay)}
                             </span>
-                            <span className="text-xs font-medium text-secondary">
+                            <span className="text-xs font-medium text-text">
                                 {sectionStats.completedItems}/{sectionStats.totalItems} {t("Done")}
                             </span>
                             {sectionStats.xpEarned > 0 && (
@@ -357,24 +357,24 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                             <div
                                 key={`${item.type}-${item.id}-${idx}`}
                                 className={`flex items-center gap-3 rounded-control border px-3 py-2 text-sm transition-colors ${item.completed
-                                    ? "border-success/30 bg-success/10 text-secondary"
-                                    : "border-border bg-background text-secondary"
+                                    ? "border-success/30 bg-success/10 text-text"
+                                    : "border-border bg-surface text-text"
                                     }`}
                             >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-accent">
                                     {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate">{item.label}</p>
-                                    <div className="flex flex-wrap items-center gap-3 text-xs text-description">
+                                    <div className="flex flex-wrap items-center gap-3 text-xs text-text-2">
                                         <span className="flex items-center gap-1">
                                             <FiClock /> {formatTimeRange(item.startTime, item.endTime)}
                                         </span>
-                                        <span className="rounded-full bg-ligthGray/40 px-2 py-0.5 font-semibold text-secondary/80">
+                                        <span className="rounded-full bg-ligthGray/40 px-2 py-0.5 font-semibold text-text/80">
                                             {item.type === "task" ? t("Task") : t("Habit")}
                                         </span>
                                         {item.completed && <span className="text-success font-semibold">{t("Completed")}</span>}
-                                        {item.xp ? <span className="text-primary font-semibold">+{item.xp} XP</span> : null}
+                                        {item.xp ? <span className="text-accent font-semibold">+{item.xp} XP</span> : null}
                                     </div>
 
                                 </div>
@@ -398,7 +398,7 @@ type BadgeProps = {
 };
 
 const Badge = ({ children }: BadgeProps) => (
-    <span className="inline-flex items-center rounded-full border border-border bg-primary/5 px-2.5 py-1 text-xs font-semibold text-secondary">
+    <span className="inline-flex items-center rounded-full border border-border bg-accent/5 px-2.5 py-1 text-xs font-semibold text-text">
         {children}
     </span>
 );

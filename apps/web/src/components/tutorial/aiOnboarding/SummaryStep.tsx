@@ -39,27 +39,27 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
     const groups: Array<{ labelKey: string; icon: ReactNode; items: CreatedRef[] }> = [
         {
             labelKey: "AiOnboardingSummaryCategories",
-            icon: <FolderOpen className="w-4 h-4 text-primary" />,
+            icon: <FolderOpen className="w-4 h-4 text-accent" />,
             items: data.categories
         },
         {
             labelKey: "AiOnboardingSummaryHabits",
-            icon: <Repeat className="w-4 h-4 text-primary" />,
+            icon: <Repeat className="w-4 h-4 text-accent" />,
             items: data.habits
         },
         {
             labelKey: "AiOnboardingSummaryTasks",
-            icon: <ListChecks className="w-4 h-4 text-primary" />,
+            icon: <ListChecks className="w-4 h-4 text-accent" />,
             items: data.tasks
         },
         {
             labelKey: "AiOnboardingSummaryRoutine",
-            icon: <CalendarClock className="w-4 h-4 text-primary" />,
+            icon: <CalendarClock className="w-4 h-4 text-accent" />,
             items: data.routineName ? [{ id: "routine", name: data.routineName }] : []
         },
         {
             labelKey: "AiOnboardingSummaryGoals",
-            icon: <Target className="w-4 h-4 text-primary" />,
+            icon: <Target className="w-4 h-4 text-accent" />,
             items: data.goals
         }
     ].filter((group) => group.items.length > 0);
@@ -78,14 +78,14 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                         border: "1px solid color-mix(in srgb, var(--primary) 30%, var(--background))"
                     }}
                 >
-                    <PartyPopper className="w-10 h-10 text-primary" />
+                    <PartyPopper className="w-10 h-10 text-accent" />
                 </motion.div>
                 {!prefersReducedMotion &&
                     SPARKLES.map((s, index) => (
                         <motion.span
                             key={index}
                             aria-hidden="true"
-                            className="absolute text-primary"
+                            className="absolute text-accent"
                             style={{ top: s.top, left: s.left }}
                             initial={{ opacity: 0, scale: 0, rotate: -30 }}
                             animate={{
@@ -122,7 +122,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                 >
                     {t("AiOnboardingSummaryTitle")}
                 </h2>
-                <p className="text-description max-w-md mx-auto md:text-lg">
+                <p className="text-text-2 max-w-md mx-auto md:text-lg">
                     {t("AiOnboardingSummaryDescription")}
                 </p>
             </div>
@@ -150,10 +150,10 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                             >
                                 {group.icon}
                             </span>
-                            <h3 className="text-sm font-semibold uppercase tracking-wide text-description">
+                            <h3 className="text-sm font-semibold uppercase tracking-wide text-text-2">
                                 {t(group.labelKey)}
                             </h3>
-                            <span className="text-xs font-medium text-description tabular-nums">
+                            <span className="text-xs font-medium text-text-2 tabular-nums">
                                 {group.items.length}
                             </span>
                         </div>
@@ -161,7 +161,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                             {group.items.map((item) => (
                                 <li
                                     key={item.id}
-                                    className="rounded-full px-3 py-1 text-sm font-medium text-secondary"
+                                    className="rounded-full px-3 py-1 text-sm font-medium text-text"
                                     style={{
                                         backgroundColor:
                                             "color-mix(in srgb, var(--primary) 8%, var(--background))",
@@ -181,7 +181,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                 <button
                     type="button"
                     onClick={onStart}
-                    className="flex items-center justify-center gap-2 rounded-card bg-primary px-6 py-3 font-semibold text-white shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex items-center justify-center gap-2 rounded-card bg-accent px-6 py-3 font-semibold text-white shadow-lg hover:opacity-90 hover:-translate-y-0.5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <Sparkles className="w-4 h-4" />
                     {t("AiOnboardingStart")}
@@ -191,7 +191,7 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
                     type="button"
                     onClick={onTour}
                     style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
-                    className="flex items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="flex items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-text hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                     <Compass className="w-4 h-4" />
                     {t("AiOnboardingTour")}

@@ -36,9 +36,9 @@ export default function TutorialSection() {
 
   return (
     <View className="gap-2">
-      <Text className="text-description text-sm">
+      <Text className="text-text-2 text-sm">
         {t('TutorialStatus')}:{' '}
-        <Text className={isCompleted ? 'text-success' : 'text-description'}>
+        <Text className={isCompleted ? 'text-success' : 'text-text-2'}>
           {isCompleted ? t('TutorialStatusCompleted') : t('TutorialStatusPending')}
         </Text>
       </Text>
@@ -47,7 +47,7 @@ export default function TutorialSection() {
         disabled={saving}
         accessibilityRole="button"
         testID="tutorial-replay"
-        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('TutorialRestart')}

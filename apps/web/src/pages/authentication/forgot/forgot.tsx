@@ -51,15 +51,15 @@ function ForgotPassword() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-primary rounded-l-md">
+        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
+            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-accent rounded-l-md">
                 <Logo />
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-background">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg">
                 <Header />
 
-                <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">
+                <main className="flex flex-col items-center mt-6 lg:mt-4 text-text">
                     <h1 className="text-center text-[36px] font-bold">
                         {t("ForgotPasswordTitle")}
                     </h1>
@@ -97,11 +97,11 @@ function ForgotPassword() {
                     </form>
 
                     {errors.root?.message && (
-                        <p className="text-error text-center underline text-xl mb-2">{errors.root?.message}</p>
+                        <p className="text-danger text-center underline text-xl mb-2">{errors.root?.message}</p>
                     )}
 
                     {successMessage && (
-                        <p className="text-primary text-center text-xl mb-2">{successMessage}</p>
+                        <p className="text-accent text-center text-xl mb-2">{successMessage}</p>
                     )}
 
                     <div className="block lg:hidden my-8">

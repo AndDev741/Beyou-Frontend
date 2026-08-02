@@ -22,8 +22,8 @@ function DescriptionInput({description, setDescription, placeholder, description
     }, []);
 
     const borderCss = `border border-border rounded-control w-[45vw] ${minHSmallScreen ? `min-h-[${minHSmallScreen}px] h-[${minHSmallScreen}px]` : ""} md:w-[320px] lg:w-[15rem]`;
-    const labelCss = "text-lg md:text-2xl md:text-xl text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+    const labelCss = "text-lg md:text-2xl md:text-xl text-text";
+    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
     return(
         <>
             <div className="flex flex-col">
@@ -38,7 +38,7 @@ function DescriptionInput({description, setDescription, placeholder, description
                     onChange={(e) => setDescription(e.target.value)}
                     name="description"
                     placeholder={t(`${placeholder}`)}
-                    className={`${borderCss} ${descriptionError ? "border-error" : ""} outline-none text-lg p-1 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200`}
+                    className={`${borderCss} ${descriptionError ? "border-danger" : ""} outline-none text-lg p-1 bg-surface text-text placeholder:text-text-3 transition-colors duration-200`}
                     style={{
                         minHeight: minH ? `${minH}px` : undefined,
                         height: minH ? `${minH}px` : undefined,

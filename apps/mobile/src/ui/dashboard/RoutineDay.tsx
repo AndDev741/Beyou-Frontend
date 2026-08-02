@@ -44,9 +44,9 @@ function EmptyRoutine() {
   const router = useRouter();
   const { theme } = useBeyouTheme();
   return (
-    <View className="items-center rounded-card border border-border bg-background p-6" testID="routine-empty">
+    <View className="items-center rounded-card border border-border bg-surface p-6" testID="routine-empty">
       <Ionicons name="calendar-outline" size={36} color={theme.icon} />
-      <Text className="text-description mt-3 text-center text-base font-semibold">
+      <Text className="text-text-2 mt-3 text-center text-base font-semibold">
         {t('No Routines Scheduled for today')}
       </Text>
       <Pressable
@@ -55,7 +55,7 @@ function EmptyRoutine() {
         testID="routine-empty-cta"
         className="mt-4 rounded-control border border-border px-5 py-2"
       >
-        <Text className="text-primary font-semibold">{t('Routines')}</Text>
+        <Text className="text-accent font-semibold">{t('Routines')}</Text>
       </Pressable>
     </View>
   );
@@ -82,8 +82,8 @@ export default function RoutineDay() {
   const today = new Date().toJSON().slice(0, 10);
 
   return (
-    <View className="rounded-card border border-border bg-background p-4" testID="routine-day">
-      <Text className="text-secondary mb-3 text-center text-2xl font-semibold">{routine.name}</Text>
+    <View className="rounded-card border border-border bg-surface p-4" testID="routine-day">
+      <Text className="text-text mb-3 text-center text-2xl font-semibold">{routine.name}</Text>
 
       {routine.routineSections?.map((section, sIdx) => {
         const items = mergeItems(section);
@@ -93,8 +93,8 @@ export default function RoutineDay() {
                 spaces only the rendered children, so a null icon adds no gap. */}
             <View className="flex-row flex-wrap items-center gap-1.5">
               <BeyouIcon id={section.iconId} size={18} />
-              <Text className="text-primary shrink text-lg font-bold">{section.name}</Text>
-              <Text className="text-description shrink-0 text-sm">
+              <Text className="text-accent shrink text-lg font-bold">{section.name}</Text>
+              <Text className="text-text-2 shrink-0 text-sm">
                 {[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}
               </Text>
             </View>

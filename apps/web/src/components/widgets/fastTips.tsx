@@ -26,12 +26,12 @@ export default function FastTips() {
 
     return (
         <BaseDiv title={t('Fast Tips')} bigSize={true}>
-            <p className="md:hidden text-primary font-medium text-center line-clamp-2" data-testid="fast-tip">{t(tip.smallPhrase)}</p>
-            <p className="hidden md:block text-xl text-primary font-medium text-center line-clamp-2">{t(tip.phrase)}</p>
+            <p className="md:hidden text-accent font-medium text-center line-clamp-2" data-testid="fast-tip">{t(tip.smallPhrase)}</p>
+            <p className="hidden md:block text-xl text-accent font-medium text-center line-clamp-2">{t(tip.phrase)}</p>
             {url && tip.phraseURL && (
                 <a
                     href={url}
-                    className="text-secondary underline font-bold text-center md:text-lg"
+                    className="text-text underline font-bold text-center md:text-lg"
                     target="_blank"
                     rel="noopener noreferrer"
                 >

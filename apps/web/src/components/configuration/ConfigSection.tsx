@@ -13,10 +13,10 @@ export default function ConfigSection({ icon, title, description, children, tuto
     return (
         <section className="w-full py-4" data-tutorial-id={tutorialId}>
             <header className="flex items-center gap-2 px-2">
-                <span className="text-xl text-primary">{icon}</span>
+                <span className="text-xl text-accent">{icon}</span>
                 <div>
-                    <h2 className="text-lg font-bold text-secondary">{title}</h2>
-                    <p className="text-xs text-description">{description}</p>
+                    <h2 className="text-lg font-bold text-text">{title}</h2>
+                    <p className="text-xs text-text-2">{description}</p>
                 </div>
             </header>
             <div className="mt-2 flex w-full flex-col items-center">{children}</div>

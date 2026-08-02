@@ -22,22 +22,22 @@ export default function LevelProgressWidget({
 
   return (
     <WidgetCard title={t('Your life progress')} testID="widget-level-progress">
-      <Text className="text-primary text-2xl font-bold">LV {level}</Text>
+      <Text className="text-accent text-2xl font-bold">LV {level}</Text>
 
       <View
-        className="bg-primary/10 mt-1 h-4 w-full overflow-hidden rounded-full border border-border"
+        className="bg-accent/10 mt-1 h-4 w-full overflow-hidden rounded-full border border-border"
         testID="level-progress-track"
       >
         <View
-          className="h-full rounded-full bg-primary"
+          className="h-full rounded-full bg-accent"
           style={{ width: `${progress}%` }}
           testID="level-progress-fill"
         />
       </View>
 
       <View className="mt-1 w-full flex-row items-center justify-between">
-        <Text className="text-description text-xs">{xp} XP</Text>
-        <Text className="text-description text-xs">{nextLevelXp} XP</Text>
+        <Text className="text-text-2 text-xs">{xp} XP</Text>
+        <Text className="text-text-2 text-xs">{nextLevelXp} XP</Text>
       </View>
     </WidgetCard>
   );

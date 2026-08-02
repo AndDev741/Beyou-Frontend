@@ -73,14 +73,14 @@ export default function GoogleSignInButton() {
       disabled={busy}
       accessibilityRole="button"
       testID="google-signin-button"
-      className={`w-[250px] h-[52px] flex-row items-center justify-center gap-2 rounded-[20px] border border-description bg-background ${busy ? 'opacity-60' : ''}`}
+      className={`w-[250px] h-[52px] flex-row items-center justify-center gap-2 rounded-[20px] border border-border bg-surface ${busy ? 'opacity-60' : ''}`}
     >
       {busy ? (
         <ActivityIndicator color={theme.primary} />
       ) : (
         <>
           <Ionicons name="logo-google" size={20} color={theme.primary} />
-          <Text className="text-secondary text-lg font-semibold">{t('ContinueWithGoogle')}</Text>
+          <Text className="text-text text-lg font-semibold">{t('ContinueWithGoogle')}</Text>
         </>
       )}
     </Pressable>

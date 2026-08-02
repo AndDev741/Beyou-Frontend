@@ -21,7 +21,7 @@ export default function Configuration() {
     const { t } = useTranslation();
 
     return (
-        <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">
+        <div className="lg:flex flex-col items-center lg:items-start w-full bg-bg text-text min-h-screen">
             <PageHeader title={t("Configuration")} />
             {showConfigSpotlight && (
                 <SpotlightTutorial

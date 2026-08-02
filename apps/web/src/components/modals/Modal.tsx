@@ -70,7 +70,7 @@ function Modal({ isOpen, onClose, children, className, dataTutorialId, labelledB
             <div
                 ref={dialogRef}
                 tabIndex={-1}
-                className={`bg-background text-secondary border border-border rounded-control shadow-lg p-5 md:p-8 w-[95vw] max-w-xl max-h-[90vh] overflow-y-auto relative transition-colors duration-200 ${className ?? ""}`}
+                className={`bg-surface text-text border border-border rounded-control shadow-lg p-5 md:p-8 w-[95vw] max-w-xl max-h-[90vh] overflow-y-auto relative transition-colors duration-200 ${className ?? ""}`}
                 data-tutorial-id={dataTutorialId}
                 onClick={(e) => e.stopPropagation()}
                 onKeyDown={handleKeyDown}

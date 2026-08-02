@@ -94,7 +94,7 @@ function Habits(){
     } = useHabitsTutorial({ hasHabits });
 
     return(
-        <div className="bg-background min-h-screen text-secondary flex flex-col">
+        <div className="bg-bg min-h-screen text-text flex flex-col">
             {showHabitSpotlight && (
                 <SpotlightTutorial
                     steps={habitSteps}

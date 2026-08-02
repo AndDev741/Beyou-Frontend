@@ -58,40 +58,40 @@ export default function SummaryStep({ data, onStart, onTour }: SummaryStepProps)
   return (
     <View className="w-full items-center gap-6">
       {/* Celebration badge */}
-      <View className="h-20 w-20 items-center justify-center rounded-frame border border-border bg-primary/10">
+      <View className="h-20 w-20 items-center justify-center rounded-frame border border-border bg-accent/10">
         <PartyPopper size={40} color={theme.primary} />
       </View>
 
       {/* Celebratory header */}
       <View className="items-center gap-2 px-2">
-        <Text className="text-primary text-center text-3xl font-bold leading-tight">
+        <Text className="text-accent text-center text-3xl font-bold leading-tight">
           {t('AiOnboardingSummaryTitle')}
         </Text>
-        <Text className="text-description text-center text-base">
+        <Text className="text-text-2 text-center text-base">
           {t('AiOnboardingSummaryDescription')}
         </Text>
       </View>
 
       {/* Everything created, grouped (empty groups omitted) */}
-      <View className="w-full gap-5 rounded-frame border border-border bg-secondary/5 p-5">
+      <View className="w-full gap-5 rounded-frame border border-border bg-surface-2/5 p-5">
         {groups.map((group) => (
           <View key={group.labelKey} className="gap-2">
             <View className="flex-row items-center gap-2">
-              <View className="h-7 w-7 items-center justify-center rounded-control bg-primary/10">
+              <View className="h-7 w-7 items-center justify-center rounded-control bg-accent/10">
                 {group.icon}
               </View>
-              <Text className="text-description text-sm font-semibold uppercase">
+              <Text className="text-text-2 text-sm font-semibold uppercase">
                 {t(group.labelKey)}
               </Text>
-              <Text className="text-description text-xs font-medium">{group.items.length}</Text>
+              <Text className="text-text-2 text-xs font-medium">{group.items.length}</Text>
             </View>
             <View className="flex-row flex-wrap gap-2 pl-9">
               {group.items.map((item) => (
                 <View
                   key={item.id}
-                  className="rounded-full border border-border bg-primary/10 px-3 py-1"
+                  className="rounded-full border border-border bg-accent/10 px-3 py-1"
                 >
-                  <Text className="text-secondary text-sm font-medium">{item.name}</Text>
+                  <Text className="text-text text-sm font-medium">{item.name}</Text>
                 </View>
               ))}
             </View>

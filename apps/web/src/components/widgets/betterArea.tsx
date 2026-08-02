@@ -28,18 +28,18 @@ export default function BetterArea({categoriePassed}: betterAreaProps){
     return (
         <BaseDiv title={t('Better Area')}>
             <div className="flex items-center justify-center w-full">
-                <p className="text-[25px] text-primary">
+                <p className="text-[25px] text-accent">
                     <BeyouIcon id={categoryToUse.iconId} />
                 </p>
-                <h3 className={`text-lg text-primary md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{categoryToUse.name}</h3>
+                <h3 className={`text-lg text-accent md:text-xl font-semibold ml-1 max-w-[27vw] md:max-w-[220px] lg:max-w-[150px] line-clamp-1`}>{categoryToUse.name}</h3>
             </div>
             <div className="flex w-full">
-                <div className="border border-border bg-primary h-[15px] rounded-l-xl transition-all duration-700 ease-out"
+                <div className="border border-border bg-accent h-[15px] rounded-l-xl transition-all duration-700 ease-out"
                 style={{width: `${actualProgress}%`}}></div>
-                <div className="border border-border bg-primary/10 h-[15px] rounded-r-xl transition-all duration-700 ease-out"
+                <div className="border border-border bg-accent/10 h-[15px] rounded-r-xl transition-all duration-700 ease-out"
                 style={{width: `${100 - actualProgress}%`}}></div>
             </div>
-            <h3 className="text-secondary">LV {categoryToUse.level}</h3>
+            <h3 className="text-text">LV {categoryToUse.level}</h3>
         </BaseDiv>
     )
 }

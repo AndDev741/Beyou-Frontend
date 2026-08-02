@@ -75,10 +75,10 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
             {/* Mobile: full-width row — phrase on the left, ring on the right */}
             <div className="md:hidden flex w-full items-center justify-between gap-3 px-2 py-2">
                 <div className="flex flex-col text-left">
-                    <p className="text-primary text-sm font-semibold">
+                    <p className="text-accent text-sm font-semibold">
                         {t('Daily progress phrase')}
                     </p>
-                    <p className="text-secondary text-lg font-semibold mt-1">
+                    <p className="text-text text-lg font-semibold mt-1">
                         {t('Tasks')}: {checked}/{total}
                     </p>
                 </div>
@@ -88,14 +88,14 @@ export default function DailyProgress({ checked, total }: dailyProgressProps) {
             </div>
 
             {/* Desktop: phrase + doughnut, unchanged */}
-            <p className="hidden md:block text-primary text-lg font-semibold whitespace-pre-line lg:whitespace-nowrap text-center">
+            <p className="hidden md:block text-accent text-lg font-semibold whitespace-pre-line lg:whitespace-nowrap text-center">
                 {t('Daily progress phrase')}
             </p>
-            <p className="hidden md:block text-primary text-lg font-semibold">{t('Tasks')}</p>
+            <p className="hidden md:block text-accent text-lg font-semibold">{t('Tasks')}</p>
             <div className="hidden md:block">
                 <canvas ref={chartRef} className="w-full h-[200px]"></canvas>
             </div>
-            <p className="hidden md:block text-secondary text-lg font-semibold">{checked}/{total}</p>
+            <p className="hidden md:block text-text text-lg font-semibold">{checked}/{total}</p>
         </BaseDiv>
     )
 }

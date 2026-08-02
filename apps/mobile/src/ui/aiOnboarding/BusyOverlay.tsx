@@ -58,7 +58,7 @@ function BusyOverlayContent({ label }: { label: string }) {
   return (
     <View
       className="absolute inset-0 items-center justify-center gap-4 px-6"
-      // Imperative scrim: NativeWind alpha variants (bg-background/90) on the
+      // Imperative scrim: NativeWind alpha variants (bg-surface/90) on the
       // runtime vars() theme colors apply late/not at all — the overlay was
       // mounting see-through. slice(0,7) guards 8-digit hex themes; E6 ≈ 90%.
       style={{ backgroundColor: `${theme.background.slice(0, 7)}E6` }}
@@ -70,14 +70,14 @@ function BusyOverlayContent({ label }: { label: string }) {
           <Sparkles size={18} color={theme.primary} />
         </View>
       </View>
-      <Text className="text-secondary text-base font-medium">{label}</Text>
+      <Text className="text-text text-base font-medium">{label}</Text>
 
       <View className="mt-2 max-w-[340px] items-center">
-        <Text className="text-primary text-center text-xs font-semibold uppercase tracking-wide">
+        <Text className="text-accent text-center text-xs font-semibold uppercase tracking-wide">
           {t('AiOnboardingTipLabel')}
         </Text>
         <Text
-          className="text-description mt-1 text-center text-sm"
+          className="text-text-2 mt-1 text-center text-sm"
           testID="ai-onboarding-tip"
         >
           {t(BUSY_TIP_KEYS[tipIndex])}

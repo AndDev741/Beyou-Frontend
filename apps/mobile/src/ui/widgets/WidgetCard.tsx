@@ -22,7 +22,7 @@ export default function WidgetCard({ title, children, testID }: WidgetCardProps)
       className="w-full items-center justify-center rounded-control border-2 border-border p-3"
       testID={testID}
     >
-      <Text className="text-secondary mb-2 text-center text-lg font-semibold">{title}</Text>
+      <Text className="text-text mb-2 text-center text-lg font-semibold">{title}</Text>
       {children}
     </View>
   );

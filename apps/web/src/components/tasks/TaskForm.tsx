@@ -192,7 +192,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
     };
 
     return (
-        <div className="w-full bg-background text-secondary">
+        <div className="w-full bg-surface text-text">
             <div className="flex items-center justify-center mt-5 mb-3 text-3xl">
                 <CgAddR className="w-[40px] h-[40px] mr-1" />
                 <h1>{t(mode === "edit" ? "Edit Task" : "Create Task")}</h1>
@@ -305,16 +305,16 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                             id="oneTimeTask"
                             type="checkbox"
                             {...register("oneTimeTask")}
-                            className="accent-primary border border-border w-8 h-8 rounded-card cursor-pointer bg-background transition-colors duration-200"
+                            className="accent-primary border border-border w-8 h-8 rounded-card cursor-pointer bg-surface transition-colors duration-200"
                         />
-                        <label htmlFor="oneTimeTask" className="ml-2 text-xl text-secondary">
+                        <label htmlFor="oneTimeTask" className="ml-2 text-xl text-text">
                             {t(mode === "edit" ? "One-time Task" : "One Time Task")}
                         </label>
                     </div>
                 </div>
 
                 {errors.root?.message && (
-                    <p className="text-error text-center mt-2">{errors.root?.message}</p>
+                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center" />
 

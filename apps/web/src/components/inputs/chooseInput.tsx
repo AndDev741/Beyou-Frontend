@@ -12,9 +12,9 @@ type chooseInputProps = {
 }
 
 function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: chooseInputProps){
-    const labelCss = "text-2xl md:text-xl text-secondary";
+    const labelCss = "text-2xl md:text-xl text-text";
     const radioRef = useRef<HTMLInputElement>(null);
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-[45vw] md:max-w-[320px] lg:max-w-[15rem] mt-1 underline";
+    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal max-w-[45vw] md:max-w-[320px] lg:max-w-[15rem] mt-1 underline";
 
     const handleClick = (value: number) => {
         if (choosedLevel === value) {
@@ -26,7 +26,7 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
     
     return(
         <>
-            <div className="flex flex-col items-center mt-3 text-secondary">
+            <div className="flex flex-col items-center mt-3 text-text">
                 <label htmlFor={levels[0]} 
                 className={labelCss}>{t(`${title}`)}</label>
                 {error ? <p className={errorCss} title={error}>{error}</p> : null}
@@ -44,10 +44,10 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
                             id={level}
                             value={index + 1}
                             onClick={() => handleClick(index + 1)}
-                            className="border-0 w-full h-10 md:h-[35px] outline-none accent-primary bg-background cursor-pointer" />
+                            className="border-0 w-full h-10 md:h-[35px] outline-none accent-primary bg-surface cursor-pointer" />
                             <label htmlFor={level}
 
-                            className={`cursor-pointer py-1 ${choosedLevel === (index + 1) ? "text-primary" : "text-secondary"}`}>{level}</label>
+                            className={`cursor-pointer py-1 ${choosedLevel === (index + 1) ? "text-accent" : "text-text"}`}>{level}</label>
                         </div>
                     ))}
                     

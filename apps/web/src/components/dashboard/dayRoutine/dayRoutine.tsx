@@ -13,7 +13,7 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                 data-tutorial-id="dashboard-routine-today"
             >
                 <div className="flex flex-col items-center lg:items-start border border-border rounded-control p-4 w-[97%]">
-                    <h2 className="text-lg md:text-2xl font-semibold mb-2 lg:mb-4 text-secondary w-full text-center lg:text-left">
+                    <h2 className="text-lg md:text-2xl font-semibold mb-2 lg:mb-4 text-text w-full text-center lg:text-left">
                         {routine.name}
                     </h2>
 
@@ -27,7 +27,7 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
     } else {
         return (
             <h2
-                className="text-center mt-12 text-2xl text-description font-semibold"
+                className="text-center mt-12 text-2xl text-text-2 font-semibold"
                 data-tutorial-id="dashboard-routine-today"
             >
                 {t('No Routines Scheduled for today')}

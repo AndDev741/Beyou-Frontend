@@ -124,7 +124,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <Text className="text-secondary mb-3 text-lg font-bold">{t('AssignItems')}</Text>
+      <Text className="text-text mb-3 text-lg font-bold">{t('AssignItems')}</Text>
       {/* flexShrink, NOT flex-1. The BottomSheet panel is capped with `max-h`, not
           given a height, so it sizes to its content — and `flex-1` means
           `flexBasis: 0`, which contributes zero height to that measurement. The
@@ -140,19 +140,19 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         keyboardShouldPersistTaps="handled"
       >
         {/* Selected tray */}
-        <Text className="text-description text-xs font-semibold uppercase">{t('Assigned')} ({assigned.length})</Text>
+        <Text className="text-text-2 text-xs font-semibold uppercase">{t('Assigned')} ({assigned.length})</Text>
         {assigned.length === 0 ? (
-          <Text className="text-placeholder text-sm">{t('NothingAssignedYet')}</Text>
+          <Text className="text-text-3 text-sm">{t('NothingAssignedYet')}</Text>
         ) : (
           <View className="gap-2">
             {assigned.map((item) => {
               const remove = item.type === 'habit' ? removeHabit : removeTask;
               const setField = item.type === 'habit' ? setHabitField : setTaskField;
               return (
-                <View key={item.key} className="rounded-control border border-border bg-primary/5 p-2">
+                <View key={item.key} className="rounded-control border border-border bg-accent/5 p-2">
                   <View className="flex-row items-center gap-2">
                     <BeyouIcon id={item.iconId} size={18} />
-                    <Text className="text-secondary flex-1 text-sm font-semibold" numberOfLines={1}>{item.name}</Text>
+                    <Text className="text-text flex-1 text-sm font-semibold" numberOfLines={1}>{item.name}</Text>
                     <Pressable onPress={() => remove(item.refId)} accessibilityRole="button" accessibilityLabel={t('Remove')} testID={`remove-${item.type}-${item.refId}`} hitSlop={8}>
                       <Ionicons name="close-circle" size={22} color={theme.error} />
                     </Pressable>
@@ -176,9 +176,9 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
               accessibilityRole="button"
               accessibilityState={{ selected: tab === tk }}
               testID={`tab-${tk}`}
-              className={`flex-1 items-center rounded-full py-1.5 ${tab === tk ? 'bg-primary' : ''}`}
+              className={`flex-1 items-center rounded-full py-1.5 ${tab === tk ? 'bg-accent' : ''}`}
             >
-              <Text className={`text-sm font-semibold ${tab === tk ? 'text-background' : 'text-secondary'}`}>
+              <Text className={`text-sm font-semibold ${tab === tk ? 'text-on-accent' : 'text-text'}`}>
                 {tk === 'habit' ? t('Habits') : t('Tasks')}
               </Text>
             </Pressable>
@@ -187,7 +187,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
 
         {/* Available list for the active tab */}
         {available.length === 0 ? (
-          <Text className="text-placeholder text-sm">{t('NoItemsToAssign')}</Text>
+          <Text className="text-text-3 text-sm">{t('NoItemsToAssign')}</Text>
         ) : (
           <View className="gap-2">
             {available.map((it) => (
@@ -199,7 +199,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
                 className="flex-row items-center gap-2 rounded-control border border-border p-2"
               >
                 <BeyouIcon id={it.iconId} size={18} />
-                <Text className="text-secondary flex-1 text-sm" numberOfLines={1}>{it.name}</Text>
+                <Text className="text-text flex-1 text-sm" numberOfLines={1}>{it.name}</Text>
                 <Ionicons name="add-circle-outline" size={20} color={theme.primary} />
               </Pressable>
             ))}
@@ -214,7 +214,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           className="mt-1 flex-row items-center justify-center gap-1.5 rounded-control border border-dashed border-border py-2.5"
         >
           <Ionicons name="add" size={16} color={theme.primary} />
-          <Text className="text-primary text-sm font-semibold">{tab === 'habit' ? t('CreateHabit') : t('CreateTask')}</Text>
+          <Text className="text-accent text-sm font-semibold">{tab === 'habit' ? t('CreateHabit') : t('CreateTask')}</Text>
         </Pressable>
       </ScrollView>
 
@@ -241,7 +241,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
 
       {/* Fixed footer — actions stay visible regardless of scroll. */}
       <View className="mt-2 flex-row justify-end gap-3 border-t border-border pt-3">
-        <Pressable onPress={onClose} accessibilityRole="button" className="px-4 py-2"><Text className="text-description font-semibold">{t('Cancel')}</Text></Pressable>
+        <Pressable onPress={onClose} accessibilityRole="button" className="px-4 py-2"><Text className="text-text-2 font-semibold">{t('Cancel')}</Text></Pressable>
         <Button text={t('Save')} mode="create" size="small" onPress={save} testID="items-save" />
       </View>
     </BottomSheet>

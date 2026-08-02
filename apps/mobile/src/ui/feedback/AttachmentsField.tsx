@@ -55,8 +55,8 @@ export default function AttachmentsField({ images, onChange }: Props) {
 
   return (
     <View className="gap-2">
-      <Text className="text-secondary text-base font-semibold">{t('FeedbackImagesLabel')}</Text>
-      <Text className="text-description text-xs">{t('FeedbackImagesHint')}</Text>
+      <Text className="text-text text-base font-semibold">{t('FeedbackImagesLabel')}</Text>
+      <Text className="text-text-2 text-xs">{t('FeedbackImagesHint')}</Text>
 
       <Pressable
         onPress={pick}
@@ -68,13 +68,13 @@ export default function AttachmentsField({ images, onChange }: Props) {
         }`}
       >
         <Ionicons name="attach" size={16} color={theme.primary} />
-        <Text className="text-primary text-sm font-semibold">{t('FeedbackAddImages')}</Text>
+        <Text className="text-accent text-sm font-semibold">{t('FeedbackAddImages')}</Text>
       </Pressable>
 
       {errors.length > 0 ? (
         <View className="gap-0.5" testID="feedback-image-errors">
           {errors.map((message) => (
-            <Text key={message} className="text-error text-sm">
+            <Text key={message} className="text-danger text-sm">
               {message}
             </Text>
           ))}
@@ -95,7 +95,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
                 accessibilityRole="button"
                 accessibilityLabel={t('FeedbackRemoveImage', { name: image.name })}
                 testID={`feedback-remove-image-${index}`}
-                className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-border bg-background"
+                className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-border bg-surface"
               >
                 <Ionicons name="close" size={16} color={theme.primary} />
               </Pressable>

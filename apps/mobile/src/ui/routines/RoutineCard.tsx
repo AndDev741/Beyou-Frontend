@@ -58,7 +58,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const donePct = stats.totalItems > 0 ? Math.round((stats.completedItems / stats.totalItems) * 100) : 0;
 
   return (
-    <View className="rounded-card border border-border bg-background p-4">
+    <View className="rounded-card border border-border bg-surface p-4">
       {/* Header row: icon + name/stats + schedule button */}
       <View className="flex-row items-center gap-3">
         <Pressable
@@ -69,12 +69,12 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           testID={`routine-card-${routine.id}`}
           className="flex-1 flex-row items-center gap-3"
         >
-          <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
+          <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
             <BeyouIcon id={routine.iconId} size={24} showFallback />
           </View>
           <View className="flex-1">
-            <Text className="text-secondary text-base font-bold" numberOfLines={1}>{routine.name}</Text>
-            <Text className="text-description text-xs">
+            <Text className="text-text text-base font-bold" numberOfLines={1}>{routine.name}</Text>
+            <Text className="text-text-2 text-xs">
               {sections} {t('Sections')} · {stats.completedItems}/{stats.totalItems} · {donePct}%
             </Text>
           </View>
@@ -88,7 +88,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             accessibilityRole="button"
             accessibilityLabel={t('Edit')}
             testID={`edit-${routine.id}`}
-            className="h-9 w-9 items-center justify-center rounded-full bg-primary/10"
+            className="h-9 w-9 items-center justify-center rounded-full bg-accent/10"
           >
             <Ionicons name="create-outline" size={18} color={theme.primary} />
           </Pressable>
@@ -97,7 +97,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             accessibilityRole="button"
             accessibilityLabel={t('Delete')}
             testID={`delete-${routine.id}`}
-            className="h-9 w-9 items-center justify-center rounded-full bg-error/10"
+            className="h-9 w-9 items-center justify-center rounded-full bg-danger/10"
           >
             <Ionicons name="trash-outline" size={18} color={theme.error} />
           </Pressable>
@@ -107,7 +107,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             accessibilityRole="button"
             accessibilityLabel={t('Schedule')}
             testID={scheduleRef ? 'schedule-routine' : `schedule-${routine.id}`}
-            className="h-9 w-9 items-center justify-center rounded-full bg-primary/10"
+            className="h-9 w-9 items-center justify-center rounded-full bg-accent/10"
           >
             <Ionicons name="calendar-outline" size={18} color={theme.primary} />
           </Pressable>
@@ -122,13 +122,13 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
       {/* Level / XP progress bar */}
       <View className="mt-2">
         <View className="mb-1 flex-row justify-between">
-          <Text className="text-description text-xs">
+          <Text className="text-text-2 text-xs">
             {t('Level')} {routine.level ?? 0} · {routine.xp ?? 0}/{routine.nextLevelXp ?? 0} XP
           </Text>
-          <Text className="text-description text-xs">{levelPct}%</Text>
+          <Text className="text-text-2 text-xs">{levelPct}%</Text>
         </View>
-        <View className="h-2 overflow-hidden rounded-full bg-primary/15">
-          <View className="h-full rounded-full bg-primary" style={{ width: `${levelPct}%` }} />
+        <View className="h-2 overflow-hidden rounded-full bg-accent/15">
+          <View className="h-full rounded-full bg-accent" style={{ width: `${levelPct}%` }} />
         </View>
       </View>
 
@@ -139,8 +139,8 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             <View key={section.id ?? i}>
               <View className="flex-row flex-wrap items-center gap-1.5">
                 <BeyouIcon id={section.iconId} size={16} />
-                <Text className="text-primary shrink text-base font-bold">{section.name}</Text>
-                <Text className="text-description shrink-0 text-xs">
+                <Text className="text-accent shrink text-base font-bold">{section.name}</Text>
+                <Text className="text-text-2 shrink-0 text-xs">
                   {[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}
                 </Text>
               </View>

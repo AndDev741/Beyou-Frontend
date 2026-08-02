@@ -22,9 +22,9 @@ export default function ConfigSection({ iconId, title, description, children, te
     <View className="w-full" testID={testID} ref={viewRef} onLayout={onLayout}>
       <View className="flex-row items-center gap-2">
         {iconId ? <BeyouIcon id={iconId} size={20} /> : null}
-        <Text className="text-secondary text-xl font-bold">{title}</Text>
+        <Text className="text-text text-xl font-bold">{title}</Text>
       </View>
-      {description ? <Text className="text-description mt-0.5 text-sm">{description}</Text> : null}
+      {description ? <Text className="text-text-2 mt-0.5 text-sm">{description}</Text> : null}
       <View className="mt-3">{children}</View>
       {/* Primary divider to visually separate sections. Margin via inline style
           (RN-native, always applies — the NativeWind mt-* util wasn't taking

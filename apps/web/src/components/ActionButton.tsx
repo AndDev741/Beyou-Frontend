@@ -12,15 +12,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-control text-sm font-medium ring-offset-background transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:scale-105 hover:shadow-md"
 
     const variantStyles: Record<string, string> = {
-      default: "bg-primary text-primary-foreground hover:bg-primary/90",
+      default: "bg-accent text-primary-foreground hover:bg-accent/90",
       destructive:
         "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       outline:
-        "border-2 border-border bg-background text-secondary hover:bg-primary hover:text-background",
+        "border-2 border-border bg-surface text-text hover:bg-accent hover:text-on-accent",
       secondary:
-        "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        "bg-surface-2 text-secondary-foreground hover:bg-surface-2/80",
       ghost: "hover:bg-accent hover:text-accent-foreground",
-      link: "text-primary underline-offset-4 hover:underline",
+      link: "text-accent underline-offset-4 hover:underline",
     }
 
     const sizeStyles: Record<string, string> = {

@@ -56,10 +56,10 @@ export default function ConfigurationScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-bg">
       <ScrollView
         ref={scrollRef}
-        className="flex-1 bg-background"
+        className="flex-1 bg-bg"
         contentContainerStyle={{ padding: 16, paddingTop: 48, paddingBottom: 40, gap: 28 }}
         testID="config-screen"
       >
@@ -71,7 +71,7 @@ export default function ConfigurationScreen() {
           >
             <Ionicons name="chevron-back" size={26} color={theme.primary} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Config')}</Text>
+          <Text className="text-accent text-2xl font-bold">{t('Config')}</Text>
         </View>
 
         <ConfigSection
@@ -137,7 +137,7 @@ export default function ConfigurationScreen() {
           onPress={() => dispatch(logout())}
           accessibilityRole="button"
           testID="logout-button"
-          className="mt-2 items-center rounded-control bg-error px-8 py-3"
+          className="mt-2 items-center rounded-control bg-danger px-8 py-3"
         >
           <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
             {t('Logout')}

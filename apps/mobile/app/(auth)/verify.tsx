@@ -43,20 +43,20 @@ export default function VerifyRoute() {
   const goToRegister = () => router.replace('/(auth)/register');
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-bg">
       <View testID="verify-screen" className="flex-1 items-center justify-center px-8">
         {state === 'loading' ? (
           <View className="items-center gap-5" testID="verify-loading">
             <ActivityIndicator color={theme.primary} size="large" />
-            <Text className="text-description text-center text-lg">{t('VerifyEmailLoading')}</Text>
+            <Text className="text-text-2 text-center text-lg">{t('VerifyEmailLoading')}</Text>
           </View>
         ) : null}
 
         {state === 'success' ? (
           <View className="items-center gap-4" testID="verify-success">
             <Ionicons name="checkmark-circle" size={ICON_SIZE} color={theme.success} />
-            <Text className="text-secondary text-center text-2xl font-bold">{t('VerifyEmailSuccessTitle')}</Text>
-            <Text className="text-description text-center">{t('VerifyEmailSuccessMessage')}</Text>
+            <Text className="text-text text-center text-2xl font-bold">{t('VerifyEmailSuccessTitle')}</Text>
+            <Text className="text-text-2 text-center">{t('VerifyEmailSuccessMessage')}</Text>
             <Button text={t('Enter')} mode="create" size="big" onPress={goToLogin} testID="verify-login-button" />
           </View>
         ) : null}
@@ -64,8 +64,8 @@ export default function VerifyRoute() {
         {state === 'expired' ? (
           <View className="items-center gap-4" testID="verify-expired">
             <Ionicons name="time-outline" size={ICON_SIZE} color={theme.error} />
-            <Text className="text-secondary text-center text-2xl font-bold">{t('VerifyEmailExpiredTitle')}</Text>
-            <Text className="text-description text-center">{t('VerifyEmailExpiredMessage')}</Text>
+            <Text className="text-text text-center text-2xl font-bold">{t('VerifyEmailExpiredTitle')}</Text>
+            <Text className="text-text-2 text-center">{t('VerifyEmailExpiredMessage')}</Text>
             <Button text={t('ToRegister')} mode="create" size="big" onPress={goToRegister} testID="verify-register-button" />
           </View>
         ) : null}
@@ -73,8 +73,8 @@ export default function VerifyRoute() {
         {state === 'error' ? (
           <View className="items-center gap-4" testID="verify-error">
             <Ionicons name="close-circle" size={ICON_SIZE} color={theme.error} />
-            <Text className="text-secondary text-center text-2xl font-bold">{t('VerifyEmailErrorTitle')}</Text>
-            <Text className="text-description text-center">{t('VerifyEmailErrorMessage')}</Text>
+            <Text className="text-text text-center text-2xl font-bold">{t('VerifyEmailErrorTitle')}</Text>
+            <Text className="text-text-2 text-center">{t('VerifyEmailErrorMessage')}</Text>
             <Button text={t('Enter')} mode="create" size="big" onPress={goToLogin} testID="verify-login-button" />
           </View>
         ) : null}

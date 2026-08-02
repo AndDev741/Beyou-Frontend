@@ -49,14 +49,14 @@ function AdminAttachment({ attachment, index }: Props) {
     }, [url]);
 
     if (hasFailed) {
-        return <li className="text-sm text-error">{t("AdminFeedbackAttachmentFailed")}</li>;
+        return <li className="text-sm text-danger">{t("AdminFeedbackAttachmentFailed")}</li>;
     }
 
     if (!objectUrl) {
         return (
             <li
                 aria-hidden="true"
-                className="h-28 w-28 animate-pulse rounded-control border border-description bg-secondary/10"
+                className="h-28 w-28 animate-pulse rounded-control border border-border bg-surface-2/10"
             />
         );
     }

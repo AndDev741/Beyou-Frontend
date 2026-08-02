@@ -50,14 +50,14 @@ export default function CelebrationOverlay() {
             data-testid="celebration-overlay"
         >
             <motion.div
-                className="flex flex-col items-center rounded-card border-2 border-border bg-background px-10 py-8 text-center shadow-2xl"
+                className="flex flex-col items-center rounded-card border-2 border-border bg-surface px-10 py-8 text-center shadow-2xl"
                 initial={{ scale: reduceMotion ? 1 : 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 260, damping: 18 }}
                 onClick={(e) => e.stopPropagation()}
             >
                 <motion.div
-                    className="flex h-24 w-24 flex-col items-center justify-center rounded-full bg-primary text-background"
+                    className="flex h-24 w-24 flex-col items-center justify-center rounded-full bg-accent text-on-accent"
                     initial={reduceMotion ? {} : { rotate: -12, scale: 0.6 }}
                     animate={{ rotate: 0, scale: 1 }}
                     transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
@@ -65,8 +65,8 @@ export default function CelebrationOverlay() {
                     <span className="text-2xl font-black">{badge}</span>
                     {badgeCaption && <span className="text-xs font-semibold uppercase">{badgeCaption}</span>}
                 </motion.div>
-                <h1 className="mt-4 text-2xl font-bold text-primary">{title}</h1>
-                <p className="mt-2 max-w-xs text-sm text-secondary">{message}</p>
+                <h1 className="mt-4 text-2xl font-bold text-accent">{title}</h1>
+                <p className="mt-2 max-w-xs text-sm text-text">{message}</p>
             </motion.div>
         </motion.div>
     );

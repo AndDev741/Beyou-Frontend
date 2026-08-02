@@ -200,7 +200,7 @@ function GoalForm({ mode }: GoalFormProps) {
     };
 
     return (
-        <div className="bg-background text-secondary transition-colors duration-200 rounded-control p-4 lg:p-6">
+        <div className="bg-surface text-text transition-colors duration-200 rounded-control p-4 lg:p-6">
             <div className="flex items-center justify-center text-3xl font-semibold">
                 <h2>{t(mode === "edit" ? "Edit Goal" : "Create Goal")}</h2>
             </div>
@@ -401,7 +401,7 @@ function GoalForm({ mode }: GoalFormProps) {
                 />
 
                 {errors.root?.message && (
-                    <p className="text-error text-center mt-2">{errors.root?.message}</p>
+                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center mt-2" />
                 {mode === "edit" ? (

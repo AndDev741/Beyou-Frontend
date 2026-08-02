@@ -26,7 +26,7 @@ export default function LanguageSection() {
 
   return (
     <View testID="config-language">
-      <Text className="text-secondary text-base font-semibold">{t('Language')}</Text>
+      <Text className="text-text text-base font-semibold">{t('Language')}</Text>
       <LanguageToggle onSelect={persist} />
     </View>
   );

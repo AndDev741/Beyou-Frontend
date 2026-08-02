@@ -29,7 +29,7 @@ export default function XpFloat({ xp }: { xp: number }) {
       pointerEvents="none"
       testID="xp-float"
     >
-      <Text className="text-primary text-sm font-bold">+{xp} XP</Text>
+      <Text className="text-accent text-sm font-bold">+{xp} XP</Text>
     </Animated.View>
   );
 }

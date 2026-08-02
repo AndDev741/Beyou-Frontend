@@ -30,7 +30,7 @@ export default function FastTipsWidget() {
 
   return (
     <WidgetCard title={t('Fast Tips')} bigSize testID="widget-fast-tips">
-      <Text className="text-primary text-center font-medium" testID="fast-tip">
+      <Text className="text-accent text-center font-medium" testID="fast-tip">
         {t(tip.smallPhrase)}
       </Text>
       {url && tip.phraseURL ? (
@@ -40,7 +40,7 @@ export default function FastTipsWidget() {
           testID="fast-tip-link"
           className="mt-1"
         >
-          <Text className="text-secondary text-center font-bold underline">{t(tip.phraseURL)}</Text>
+          <Text className="text-text text-center font-bold underline">{t(tip.phraseURL)}</Text>
         </Pressable>
       ) : null}
     </WidgetCard>

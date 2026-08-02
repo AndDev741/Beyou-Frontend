@@ -32,8 +32,8 @@ const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
 /** Full-screen spinner shared by the auth boot check and lazy route loads. */
 function FullScreenSpinner() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center text-secondary">
+    <div className="flex min-h-screen items-center justify-center bg-bg">
+      <div className="text-center text-text">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
       </div>
     </div>

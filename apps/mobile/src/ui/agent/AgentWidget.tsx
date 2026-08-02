@@ -40,7 +40,7 @@ export default function AgentWidget() {
         accessibilityRole="button"
         onPress={openPanel}
         testID="agent-fab"
-        className="absolute right-5 h-14 w-14 items-center justify-center rounded-full bg-primary active:scale-95"
+        className="absolute right-5 h-14 w-14 items-center justify-center rounded-full bg-accent active:scale-95"
         style={{
           // High enough to clear the dashboard's bottom shortcuts row.
           bottom: (insets?.bottom ?? 0) + 70,

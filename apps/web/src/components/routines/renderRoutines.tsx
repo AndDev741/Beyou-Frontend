@@ -102,7 +102,7 @@ export default function RenderRoutines({
     if (isSnapshotMode) {
         if (snapshotList.length > 0) {
             return (
-                <div className="w-full text-secondary space-y-4">
+                <div className="w-full text-text space-y-4">
                     <div className="flex flex-col gap-4">
                         {snapshotList.map((snapshot) => (
                             <SnapshotRoutineCard
@@ -117,14 +117,14 @@ export default function RenderRoutines({
         }
 
         return (
-            <div className="w-full text-secondary space-y-4">
+            <div className="w-full text-text space-y-4">
                 <SnapshotEmptyState />
             </div>
         );
     }
 
     return (
-        <div className="w-full text-secondary space-y-4">
+        <div className="w-full text-text space-y-4">
             {routines.length > 0 ? (
                 <div className="flex flex-col gap-4">
                     {routines.map((routine: Routine) => (
@@ -145,9 +145,9 @@ export default function RenderRoutines({
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center rounded-card border border-border bg-background p-8 text-center shadow-sm">
+                <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-8 text-center shadow-sm">
                     <p className="text-lg font-semibold">{t("No routines available, start create some to track you tasks!")}</p>
-                    <p className="mt-2 text-sm text-description">{t("Create your first routine to see it here")}</p>
+                    <p className="mt-2 text-sm text-text-2">{t("Create your first routine to see it here")}</p>
                 </div>
             )}
 

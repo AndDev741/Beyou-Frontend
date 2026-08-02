@@ -20,7 +20,7 @@ function RenderTasks({tasks, setTasks}: renderTasksProps){
         dispatch(editModeEnter(false));
     }, []); 
     return(
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-secondary">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-text">
            {tasks.length > 0 ? (
                 tasks.map(task => (
                     <div key={task.id}>

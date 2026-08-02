@@ -89,7 +89,7 @@ export default function ResetRoute() {
   const goToForgot = () => router.replace('/(auth)/forgot');
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-bg">
       <ScrollView
         testID="reset-screen"
         keyboardShouldPersistTaps="handled"
@@ -103,23 +103,23 @@ export default function ResetRoute() {
           testID="reset-back-link"
         >
           <Ionicons name="chevron-back" size={ICON_SIZE} color={theme.primary} />
-          <Text className="text-primary font-medium">{t('BackToLogin')}</Text>
+          <Text className="text-accent font-medium">{t('BackToLogin')}</Text>
         </Pressable>
 
-        <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-2">{t('ResetPasswordTitle')}</Text>
-        <Text className="text-description text-center mb-8">{t('ResetPasswordSubtitle')}</Text>
+        <Text className="text-3xl font-bold text-text text-center mt-6 mb-2">{t('ResetPasswordTitle')}</Text>
+        <Text className="text-text-2 text-center mb-8">{t('ResetPasswordSubtitle')}</Text>
 
         {status === 'validating' ? (
           <View className="items-center gap-3" testID="reset-validating">
             <ActivityIndicator color={theme.primary} />
-            <Text className="text-description">{t('ValidatingToken')}</Text>
+            <Text className="text-text-2">{t('ValidatingToken')}</Text>
           </View>
         ) : null}
 
         {status === 'invalid' ? (
           <View className="items-center gap-4" testID="reset-invalid">
             <Ionicons name="alert-circle-outline" size={48} color={theme.error} />
-            <Text className="text-error text-center text-lg">{tokenError}</Text>
+            <Text className="text-danger text-center text-lg">{tokenError}</Text>
             <Button text={t('ForgotPassword')} mode="create" size="big" onPress={goToForgot} testID="reset-forgot-button" />
           </View>
         ) : null}
@@ -188,7 +188,7 @@ export default function ResetRoute() {
         {done ? (
           <View className="items-center gap-4" testID="reset-success">
             <Ionicons name="checkmark-circle-outline" size={48} color={theme.primary} />
-            <Text className="text-primary text-center text-lg">{t('PasswordResetSuccess')}</Text>
+            <Text className="text-accent text-center text-lg">{t('PasswordResetSuccess')}</Text>
             <Button text={t('Login')} mode="create" size="big" onPress={goToLogin} testID="reset-login-button" />
           </View>
         ) : null}

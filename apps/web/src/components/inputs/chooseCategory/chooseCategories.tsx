@@ -22,7 +22,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [pendingSelection, setPendingSelection] = useState<{ name: string; iconId: string } | null>(null);
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-[90vw] md:max-w-[660px] lg:max-w-[32rem] mt-1 text-center";
+    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal max-w-[90vw] md:max-w-[660px] lg:max-w-[32rem] mt-1 text-center";
 
     useEffect(() => {
         async function returnCategories(){
@@ -66,11 +66,11 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                 button overlap the title in narrow forms (habit/task) and drift
                 far away in wide ones (goal). */}
             <div className="flex items-center justify-center gap-3 w-full mt-2">
-                <h3 className="text-2xl text-center text-secondary">{t("Categories")}</h3>
+                <h3 className="text-2xl text-center text-text">{t("Categories")}</h3>
                 <button
                     type="button"
                     onClick={() => setShowCreateModal(true)}
-                    className="flex shrink-0 items-center gap-1 text-primary font-semibold px-2 py-1 rounded-control hover:bg-primary/10 active:scale-95 transition-all duration-200"
+                    className="flex shrink-0 items-center gap-1 text-accent font-semibold px-2 py-1 rounded-control hover:bg-accent/10 active:scale-95 transition-all duration-200"
                     aria-label={t("AddCategory")}
                 >
                     <CgAddR className="text-lg" />
@@ -78,7 +78,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                 </button>
             </div>
             {errorMessage ? <p className={errorCss} title={errorMessage}>{errorMessage}</p> : null}
-            <div className="flex flex-wrap flex-col items-center w-[95vw] max-h-[200px] md:w-[100%] overflow-x-auto mt-2 text-secondary">
+            <div className="flex flex-wrap flex-col items-center w-[95vw] max-h-[200px] md:w-[100%] overflow-x-auto mt-2 text-text">
                 <div className="flex flex-wrap items-center justify-evenly px-1 mb-2">
                     {categories.length > 0 ? categories.map((category) => (
                         
@@ -98,7 +98,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                     
                     )): (
 
-                    <h1 className="text-primary">{t("YouDontHaveCategories")}</h1>
+                    <h1 className="text-accent">{t("YouDontHaveCategories")}</h1>
                     )}
                 </div>
             </div>

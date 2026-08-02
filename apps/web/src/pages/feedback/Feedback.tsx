@@ -154,22 +154,22 @@ function Feedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-background text-secondary">
+        <div className="min-h-screen w-full bg-bg text-text">
             <PageHeader title={t("FeedbackPageTitle")} />
 
             <div className="mx-auto w-full max-w-2xl px-3 py-6">
-                <p className="text-sm text-description">{t("FeedbackIntro")}</p>
+                <p className="text-sm text-text-2">{t("FeedbackIntro")}</p>
 
                 {outcome?.kind === "sent" && (
                     <div
                         data-testid="feedback-success"
                         role="status"
-                        className="mt-4 rounded-card border-2 border-success bg-background p-4"
+                        className="mt-4 rounded-card border-2 border-success bg-bg p-4"
                     >
                         <p className="text-base font-semibold text-success">{t("FeedbackSuccessTitle")}</p>
-                        <p className="mt-1 text-sm text-description">{t("FeedbackSuccessBody")}</p>
+                        <p className="mt-1 text-sm text-text-2">{t("FeedbackSuccessBody")}</p>
                         {outcome.failedAttachments > 0 && (
-                            <p className="mt-2 text-sm font-medium text-error">
+                            <p className="mt-2 text-sm font-medium text-danger">
                                 {t("FeedbackPartialAttachmentWarning", { count: outcome.failedAttachments })}
                             </p>
                         )}
@@ -180,10 +180,10 @@ function Feedback() {
                     <div
                         data-testid="feedback-failure"
                         role="alert"
-                        className="mt-4 rounded-card border-2 border-error bg-background p-4"
+                        className="mt-4 rounded-card border-2 border-danger bg-bg p-4"
                     >
-                        <p className="text-base font-semibold text-error">{t("FeedbackFailedTitle")}</p>
-                        <p className="mt-1 text-sm text-description">{t("FeedbackFailedBody")}</p>
+                        <p className="text-base font-semibold text-danger">{t("FeedbackFailedTitle")}</p>
+                        <p className="mt-1 text-sm text-text-2">{t("FeedbackFailedBody")}</p>
                         {/* Already a feedback form: offering "report this problem"
                             here would just loop the user back to where they are.
                             The mailto below is the real way out. */}
@@ -191,7 +191,7 @@ function Feedback() {
                         <a
                             data-testid="feedback-mailto-fallback"
                             href={mailtoHref}
-                            className="mt-3 inline-flex items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                            className="mt-3 inline-flex items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent"
                         >
                             <Mail size={16} aria-hidden="true" />
                             {t("FeedbackEmailLink")}
@@ -205,7 +205,7 @@ function Feedback() {
                         name="category"
                         render={({ field }) => (
                             <fieldset className="border-0 p-0">
-                                <legend className="mb-2 text-base font-semibold text-secondary">
+                                <legend className="mb-2 text-base font-semibold text-text">
                                     {t("FeedbackCategoryLabel")}
                                 </legend>
                                 <div className="flex flex-wrap gap-2">
@@ -216,8 +216,8 @@ function Feedback() {
                                                 key={category}
                                                 className={`flex cursor-pointer items-center gap-2 rounded-[20px] border px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
                                                     isChosen
-                                                        ? "border-accent bg-primary text-background"
-                                                        : "border-description text-secondary hover:border-border hover:text-primary"
+                                                        ? "border-accent bg-accent text-on-accent"
+                                                        : "border-border text-text hover:border-border hover:text-accent"
                                                 }`}
                                             >
                                                 <input
@@ -235,7 +235,7 @@ function Feedback() {
                                     })}
                                 </div>
                                 {errors.category?.message && (
-                                    <p className="mt-2 text-sm text-error">{errors.category.message}</p>
+                                    <p className="mt-2 text-sm text-danger">{errors.category.message}</p>
                                 )}
                             </fieldset>
                         )}
@@ -248,7 +248,7 @@ function Feedback() {
                             <div className="flex flex-col">
                                 <label
                                     htmlFor="feedback-body"
-                                    className="mb-2 text-base font-semibold text-secondary"
+                                    className="mb-2 text-base font-semibold text-text"
                                 >
                                     {t("FeedbackBodyLabel")}
                                 </label>
@@ -260,24 +260,24 @@ function Feedback() {
                                     value={field.value}
                                     onChange={field.onChange}
                                     onBlur={field.onBlur}
-                                    className="w-full rounded-card border-2 border-border bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full rounded-card border-2 border-border bg-bg p-3 text-text placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent"
                                 />
                                 {errors.body?.message && (
-                                    <p className="mt-2 text-sm text-error">{errors.body.message}</p>
+                                    <p className="mt-2 text-sm text-danger">{errors.body.message}</p>
                                 )}
                             </div>
                         )}
                     />
 
                     <div className="flex flex-col">
-                        <span className="mb-1 text-base font-semibold text-secondary">
+                        <span className="mb-1 text-base font-semibold text-text">
                             {t("FeedbackImagesLabel")}
                         </span>
-                        <span className="mb-2 text-xs text-description">{t("FeedbackImagesHint")}</span>
+                        <span className="mb-2 text-xs text-text-2">{t("FeedbackImagesHint")}</span>
 
                         <label
                             htmlFor="feedback-images"
-                            className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                            className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent"
                         >
                             <Paperclip size={16} aria-hidden="true" />
                             {t("FeedbackAddImages")}
@@ -295,7 +295,7 @@ function Feedback() {
                         {attachmentErrors.length > 0 && (
                             <ul className="mt-2 flex flex-col gap-1">
                                 {attachmentErrors.map((message) => (
-                                    <li key={message} className="text-sm text-error">
+                                    <li key={message} className="text-sm text-danger">
                                         {message}
                                     </li>
                                 ))}
@@ -315,7 +315,7 @@ function Feedback() {
                                             type="button"
                                             aria-label={t("FeedbackRemoveImage", { name: displayName })}
                                             onClick={() => removeAttachment(index)}
-                                            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-secondary transition-colors duration-200 hover:bg-primary hover:text-background"
+                                            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-bg text-text transition-colors duration-200 hover:bg-accent hover:text-on-accent"
                                         >
                                             <X size={14} aria-hidden="true" />
                                         </button>
@@ -339,12 +339,12 @@ function Feedback() {
                 </form>
 
                 {/* R7: the mailto is a standing alternative, not only a failure hatch. */}
-                <p className="mt-6 text-sm text-description">
+                <p className="mt-6 text-sm text-text-2">
                     {t("FeedbackEmailPreference")}{" "}
                     <a
                         data-testid="feedback-mailto-preference"
                         href={mailtoHref}
-                        className="font-semibold text-primary underline underline-offset-2"
+                        className="font-semibold text-accent underline underline-offset-2"
                     >
                         {t("FeedbackEmailLink")}
                     </a>

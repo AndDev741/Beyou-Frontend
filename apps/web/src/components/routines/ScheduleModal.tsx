@@ -142,22 +142,22 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
             <div
-                className="relative z-10 w-full max-w-xl rounded-card border border-border bg-background p-2 md:p-6 shadow-2xl"
+                className="relative z-10 w-full max-w-xl rounded-card border border-border bg-surface p-2 md:p-6 shadow-2xl"
                 data-tutorial-id="routine-schedule-modal"
             >
                 <header className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                        <div className="rounded-full bg-primary/10 p-2 text-primary">
+                        <div className="rounded-full bg-accent/10 p-2 text-accent">
                             <FiCalendar />
                         </div>
                         <div>
-                            <p className="text-xs uppercase tracking-wide text-description">{t("Schedule")}</p>
-                            <h2 className="text-xl font-semibold text-secondary">{routine.name}</h2>
+                            <p className="text-xs uppercase tracking-wide text-text-2">{t("Schedule")}</p>
+                            <h2 className="text-xl font-semibold text-text">{routine.name}</h2>
                         </div>
                     </div>
                     <button
                         type="button"
-                        className="rounded-full p-2 text-description transition hover:bg-primary/10 hover:text-primary"
+                        className="rounded-full p-2 text-text-2 transition hover:bg-accent/10 hover:text-accent"
                         onClick={onClose}
                         aria-label={t("Close")}
                     >
@@ -166,8 +166,8 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                 </header>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-[2fr,1fr]">
-                    <div className="rounded-card border border-border bg-background/80 p-4">
-                        <p className="text-sm font-semibold text-secondary mb-3 text-center">{t("Pick your days")}</p>
+                    <div className="rounded-card border border-border bg-surface/80 p-4">
+                        <p className="text-sm font-semibold text-text mb-3 text-center">{t("Pick your days")}</p>
                         <div className="flex flex-wrap justify-center gap-3 md:grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 md:gap-3">
                             {ALL_DAYS.map((day) => {
                                 const isBlocked = blockedSet.has(day) && !overrides.has(day);
@@ -180,10 +180,10 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                             type="button"
                                             className={`flex w-full items-center justify-between rounded-control border p-2 text-sm font-medium transition
                                                 ${active
-                                                    ? "border-accent bg-primary/10 text-primary shadow-sm"
+                                                    ? "border-accent bg-accent/10 text-accent shadow-sm"
                                                     : isBlocked
-                                                        ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
-                                                        : "border-border bg-background text-secondary hover:border-border"
+                                                        ? "border-danger/30 bg-danger/5 text-danger cursor-not-allowed"
+                                                        : "border-border bg-surface text-text hover:border-border"
                                                 }
                                         `}
                                             onClick={() => toggleDay(day)}
@@ -199,7 +199,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                                         pointer-events-auto
                                                         absolute left-1/2 top-full z-20 w-56
                                                         -translate-x-1/2 translate-y-0
-                                                        rounded-control border border-error/30 bg-background
+                                                        rounded-control border border-danger/30 bg-surface
                                                         p-3 text-xs shadow-lg
 
                                                         invisible opacity-0
@@ -210,13 +210,13 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                                                         transition-opacity duration-150
                                                         "
                                             >
-                                                <p className="font-semibold text-error">{t("Already scheduled for")}</p>
+                                                <p className="font-semibold text-danger">{t("Already scheduled for")}</p>
 
-                                                <p className="mt-1 text-description">{names.join(", ")}</p>
+                                                <p className="mt-1 text-text-2">{names.join(", ")}</p>
 
                                                 <button
                                                     type="button"
-                                                    className="mt-2 w-full rounded-control bg-primary px-3 py-2 text-xs font-semibold text-background transition hover:bg-primary/90"
+                                                    className="mt-2 w-full rounded-control bg-accent px-3 py-2 text-xs font-semibold text-on-accent transition hover:bg-accent/90"
                                                     onClick={() => handleOverrideDay(day)}
                                                 >
                                                     {t("Override day")}
@@ -230,8 +230,8 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                     </div>
 
                     <div className="space-y-3">
-                        <div className="flex flex-col items-center rounded-card border border-border bg-background/80 p-4 space-y-3">
-                            <p className="text-sm font-semibold text-secondary text-center">{t("Quick select")}</p>
+                        <div className="flex flex-col items-center rounded-card border border-border bg-surface/80 p-4 space-y-3">
+                            <p className="text-sm font-semibold text-text text-center">{t("Quick select")}</p>
                             <GroupButton
                                 label={t("Mon - Fri")}
                                 active={WEEKDAY_GROUP.every((d) => selectedDays.includes(d))}
@@ -249,7 +249,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                             />
                             <button
                                 type="button"
-                                className="mt-3 flex items-center gap-2 text-xs text-description hover:text-primary"
+                                className="mt-3 flex items-center gap-2 text-xs text-text-2 hover:text-accent"
                                 onClick={resetSelection}
                             >
                                 {t("Reset")}
@@ -260,21 +260,21 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                 </div>
 
                 {errors.days?.message && (
-                    <p className="text-error text-sm mt-2">{errors.days?.message}</p>
+                    <p className="text-danger text-sm mt-2">{errors.days?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center mt-2" />
 
                 <div className="mt-6 flex items-center justify-end gap-3">
                     <button
                         type="button"
-                        className="rounded-control border border-border px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-primary/10"
+                        className="rounded-control border border-border px-4 py-2 text-sm font-semibold text-text transition hover:bg-accent/10"
                         onClick={onClose}
                     >
                         {t("Cancel")}
                     </button>
                     <button
                         type="button"
-                        className="rounded-control bg-primary px-4 py-2 text-sm font-semibold text-background transition hover:bg-primary/90 disabled:opacity-60"
+                        className="rounded-control bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition hover:bg-accent/90 disabled:opacity-60"
                         onClick={handleSubmit(handleSchedule)}
                         disabled={loading}
                     >
@@ -291,7 +291,7 @@ function GroupButton({ label, active, onClick }: { label: string; active: boolea
         <button
             type="button"
             className={`w-full rounded-control border px-3 py-2 text-xs font-semibold transition
-                ${active ? "border-accent bg-primary/10 text-primary" : "border-border text-secondary hover:border-border"}
+                ${active ? "border-accent bg-accent/10 text-accent" : "border-border text-text hover:border-border"}
             `}
             onClick={onClick}
         >

@@ -27,11 +27,11 @@ export default function SectionCard({ section, index, count, habits, tasks, onEd
   const { theme } = useBeyouTheme();
   const items = mergeSectionItems(section, habits, tasks);
   return (
-    <View className="rounded-card border border-border bg-background p-3">
+    <View className="rounded-card border border-border bg-surface p-3">
       <View className="flex-row items-center gap-2">
         <BeyouIcon id={section.iconId} size={18} />
-        <Text className="text-secondary flex-1 text-base font-bold" numberOfLines={1}>{section.name}</Text>
-        <Text className="text-description text-xs">{[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}</Text>
+        <Text className="text-text flex-1 text-base font-bold" numberOfLines={1}>{section.name}</Text>
+        <Text className="text-text-2 text-xs">{[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}</Text>
         <Pressable onPress={() => onMove(-1)} disabled={index === 0} accessibilityRole="button" testID="section-up" className={index === 0 ? 'opacity-30' : ''}>
           <Ionicons name="chevron-up" size={20} color={theme.primary} />
         </Pressable>
@@ -48,8 +48,8 @@ export default function SectionCard({ section, index, count, habits, tasks, onEd
             return (
               <View key={item.key} className="flex-row items-center gap-2">
                 <BeyouIcon id={item.iconId} size={15} />
-                <Text className="text-secondary flex-1 text-sm" numberOfLines={1}>{item.name}</Text>
-                {range ? <Text className="text-description text-xs">{range}</Text> : null}
+                <Text className="text-text flex-1 text-sm" numberOfLines={1}>{item.name}</Text>
+                {range ? <Text className="text-text-2 text-xs">{range}</Text> : null}
               </View>
             );
           })}
@@ -57,9 +57,9 @@ export default function SectionCard({ section, index, count, habits, tasks, onEd
       ) : null}
 
       <View className="mt-2 flex-row gap-3">
-        <Pressable onPress={onEdit} accessibilityRole="button" testID="section-edit"><Text className="text-primary text-sm font-semibold">{t('Edit')}</Text></Pressable>
-        <Pressable onPress={onAssign} accessibilityRole="button" testID="section-assign"><Text className="text-primary text-sm font-semibold">{t('AssignItems')} ({items.length})</Text></Pressable>
-        <Pressable onPress={onRemove} accessibilityRole="button" testID="section-remove" className="ml-auto"><Text className="text-error text-sm font-semibold">{t('Delete')}</Text></Pressable>
+        <Pressable onPress={onEdit} accessibilityRole="button" testID="section-edit"><Text className="text-accent text-sm font-semibold">{t('Edit')}</Text></Pressable>
+        <Pressable onPress={onAssign} accessibilityRole="button" testID="section-assign"><Text className="text-accent text-sm font-semibold">{t('AssignItems')} ({items.length})</Text></Pressable>
+        <Pressable onPress={onRemove} accessibilityRole="button" testID="section-remove" className="ml-auto"><Text className="text-danger text-sm font-semibold">{t('Delete')}</Text></Pressable>
       </View>
     </View>
   );

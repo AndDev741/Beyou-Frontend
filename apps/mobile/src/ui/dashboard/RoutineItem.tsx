@@ -111,24 +111,24 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
         <Ionicons name={checked ? 'checkbox' : 'square-outline'} size={24} color={theme.primary} />
-        <Text className={`ml-2 shrink text-base ${skipped ? 'text-description line-through' : 'text-secondary'}`}>
+        <Text className={`ml-2 shrink text-base ${skipped ? 'text-text-2 line-through' : 'text-text'}`}>
           {name}
         </Text>
       </Pressable>
 
       {/* Right: time + skip stay together, fixed — no overlap with the name. */}
       <View className="shrink-0 flex-row items-center gap-2">
-        {timeRange ? <Text className="text-primary text-xs">{timeRange}</Text> : null}
+        {timeRange ? <Text className="text-accent text-xs">{timeRange}</Text> : null}
         {!checked && (
           <Pressable
             onPress={onSkip}
             disabled={pending}
             accessibilityRole="button"
             testID={`routine-skip-${item.groupId}`}
-            className="flex-row items-center gap-1 rounded-control border border-description/40 px-2 py-1.5"
+            className="flex-row items-center gap-1 rounded-control border border-border/40 px-2 py-1.5"
           >
             <Ionicons name="ban-outline" size={14} color={theme.description} />
-            <Text className="text-description text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>
+            <Text className="text-text-2 text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>
           </Pressable>
         )}
       </View>

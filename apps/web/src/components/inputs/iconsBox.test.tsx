@@ -110,7 +110,7 @@ test("keeps icon list stable when selecting an icon", async () => {
     expect(searchIconsSpy.mock.calls.length).toBe(initialCalls);
 
     await waitFor(() => {
-        expect(screen.getByRole("button", { name: "Icon: Icon A" })).toHaveClass("text-primary");
+        expect(screen.getByRole("button", { name: "Icon: Icon A" })).toHaveClass("text-accent");
     });
 });
 

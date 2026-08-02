@@ -60,7 +60,7 @@ export default function CelebrationOverlay() {
     >
       <Animated.View
         style={cardStyle}
-        className="items-center rounded-card border-2 border-border bg-background px-10 py-8"
+        className="items-center rounded-card border-2 border-border bg-surface px-10 py-8"
       >
         <View
           className="h-24 w-24 items-center justify-center rounded-full"
@@ -75,8 +75,8 @@ export default function CelebrationOverlay() {
             </Text>
           ) : null}
         </View>
-        <Text className="text-primary mt-4 text-2xl font-bold">{title}</Text>
-        <Text className="text-secondary mt-2 max-w-xs text-center text-sm">{message}</Text>
+        <Text className="text-accent mt-4 text-2xl font-bold">{title}</Text>
+        <Text className="text-text mt-2 max-w-xs text-center text-sm">{message}</Text>
       </Animated.View>
     </Pressable>
   );

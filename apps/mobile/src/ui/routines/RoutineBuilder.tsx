@@ -111,10 +111,10 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   if (!visible) return null;
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
         <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-          <Pressable onPress={onClose} accessibilityRole="button" testID="routine-form-cancel"><Text className="text-description text-base">{t('Cancel')}</Text></Pressable>
-          <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'Edit Routine' : 'Create routine')}</Text>
+          <Pressable onPress={onClose} accessibilityRole="button" testID="routine-form-cancel"><Text className="text-text-2 text-base">{t('Cancel')}</Text></Pressable>
+          <Text className="text-text text-lg font-bold">{t(isEdit ? 'Edit Routine' : 'Create routine')}</Text>
           <View className="w-12" />
         </View>
         {!typeChosen ? (
@@ -124,20 +124,20 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
         ) : (
         <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: bottomPad }} keyboardShouldPersistTaps="handled">
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Routine name')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Routine name')}</Text>
             <Input value={working.name} onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))} placeholder={t('Routine name')} accessibilityLabel={t('Routine name')} testID="routine-name" />
           </View>
           <IconPickerField label={t('Icon')} value={working.iconId} onChange={(v) => setWorking((w) => ({ ...w, iconId: v }))} testID="routine-icon" />
 
           <View className="flex-row items-center justify-between">
-            <Text className="text-secondary text-base font-semibold">{t('Sections')}</Text>
-            <Pressable onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="items-center justify-center rounded-full bg-primary px-3 py-1.5">
-              <Text className="text-background text-center text-sm font-semibold">{t('add section')}</Text>
+            <Text className="text-text text-base font-semibold">{t('Sections')}</Text>
+            <Pressable onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="items-center justify-center rounded-full bg-accent px-3 py-1.5">
+              <Text className="text-on-accent text-center text-sm font-semibold">{t('add section')}</Text>
             </Pressable>
           </View>
 
           {working.routineSections.length === 0 ? (
-            <Text className="text-description text-sm">{t('No sections added')}</Text>
+            <Text className="text-text-2 text-sm">{t('No sections added')}</Text>
           ) : (
             <View className="gap-2">
               {working.routineSections.map((section, i) => (
@@ -158,7 +158,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           )}
 
           {formError ? (
-            <Text className="text-error text-center text-sm font-semibold" testID="routine-form-error">{formError}</Text>
+            <Text className="text-danger text-center text-sm font-semibold" testID="routine-form-error">{formError}</Text>
           ) : null}
           <View className="mt-2 items-center">
             <Button text={t(isEdit ? 'Edit' : 'Create')} mode="create" submitting={submitting} onPress={save} testID="routine-save" />

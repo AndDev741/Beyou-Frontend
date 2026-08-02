@@ -23,7 +23,7 @@ export default function ComingSoon({ titleKey, children }: ComingSoonProps) {
   const { theme } = useBeyouTheme();
 
   return (
-    <View className="flex-1 bg-background px-6 pt-14" testID={`screen-${titleKey}`}>
+    <View className="flex-1 bg-surface px-6 pt-14" testID={`screen-${titleKey}`}>
       <Pressable
         onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
         accessibilityRole="button"
@@ -31,12 +31,12 @@ export default function ComingSoon({ titleKey, children }: ComingSoonProps) {
         className="mb-6 flex-row items-center"
       >
         <Ionicons name="chevron-back" size={26} color={theme.primary} />
-        <Text className="text-primary text-lg font-semibold">{t(titleKey)}</Text>
+        <Text className="text-accent text-lg font-semibold">{t(titleKey)}</Text>
       </Pressable>
 
       <View className="flex-1 items-center justify-center">
-        <Text className="text-secondary text-2xl font-bold">{t(titleKey)}</Text>
-        <Text className="text-description mt-2 text-base">{t('ComingSoon')}</Text>
+        <Text className="text-text text-2xl font-bold">{t(titleKey)}</Text>
+        <Text className="text-text-2 mt-2 text-base">{t('ComingSoon')}</Text>
         {children}
       </View>
     </View>

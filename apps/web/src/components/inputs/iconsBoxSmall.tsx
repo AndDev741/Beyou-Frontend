@@ -83,12 +83,12 @@ function IconsBoxSmall({
         setSelectedIcon(canonical);
     };
 
-    const borderCss = "border border-border rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-background";
-    const labelCss = "text-base md:text-lg text-secondary";
-    const errorCss = "text-error text-xs leading-snug break-words whitespace-normal w-[45vw] md:w-[160px] lg:w-[12rem] mt-1";
+    const borderCss = "border border-border rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-surface";
+    const labelCss = "text-base md:text-lg text-text";
+    const errorCss = "text-danger text-xs leading-snug break-words whitespace-normal w-[45vw] md:w-[160px] lg:w-[12rem] mt-1";
     return (
         <>
-            <div className='flex items-center justify-start text-secondary'>
+            <div className='flex items-center justify-start text-text'>
                 <label htmlFor='icon-small' className={labelCss}>
                     {t('Icon')}
                 </label>
@@ -97,7 +97,7 @@ function IconsBoxSmall({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     name='icon-small'
-                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-border rounded outline-none text-xs bg-background text-secondary placeholder:text-placeholder transition-colors duration-200'
+                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-border rounded outline-none text-xs bg-surface text-text placeholder:text-text-3 transition-colors duration-200'
                     placeholder={t('IconPlaceholder')}
                 />
             </div>
@@ -110,8 +110,8 @@ function IconsBoxSmall({
                         onClick={() => setCategory(option.id)}
                         className={`px-2 py-1 text-[10px] rounded-full border transition-colors duration-150 ${
                             category === option.id
-                                ? "bg-primary text-background border-accent"
-                                : "border-border text-secondary hover:bg-primary/10"
+                                ? "bg-accent text-on-accent border-accent"
+                                : "border-border text-text hover:bg-accent/10"
                         }`}
                     >
                         {option.label}
@@ -119,10 +119,10 @@ function IconsBoxSmall({
                 ))}
             </div>
             <div
-                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-error" : ""} min-h-[180px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[100px]"} p-1`}
+                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-danger" : ""} min-h-[180px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[100px]"} p-1`}
             >
                 {iconsToDisplay.length === 0 ? (
-                    <div className="text-xs text-description p-2">
+                    <div className="text-xs text-text-2 p-2">
                         {t("IconNoResults")}
                     </div>
                 ) : (
@@ -134,9 +134,9 @@ function IconsBoxSmall({
                             aria-label={`${t("Icon")}: ${entry.label}`}
                             aria-pressed={entry.id === selectedCanonical}
                             className={`${entry.id === selectedCanonical
-                                ? "scale-110 text-primary border border-accent rounded"
-                                : "text-description"
-                                } text-3xl m-1 bg-transparent border-0 p-0 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
+                                ? "scale-110 text-accent border border-accent rounded"
+                                : "text-text-2"
+                                } text-3xl m-1 bg-transparent border-0 p-0 hover:text-accent hover:scale-105 cursor-pointer transition-all duration-150`}
                         >
                             <BeyouIcon id={entry.id} />
                         </button>

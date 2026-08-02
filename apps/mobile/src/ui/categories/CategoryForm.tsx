@@ -61,10 +61,10 @@ function Segmented({
             accessibilityRole="button"
             accessibilityState={{ selected }}
             className={`min-w-[44px] items-center rounded-control border px-3 py-2 ${
-              selected ? 'border-accent bg-primary/10' : 'border-border'
+              selected ? 'border-accent bg-accent/10' : 'border-border'
             }`}
           >
-            <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{opt.label}</Text>
+            <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-text'}`}>{opt.label}</Text>
           </Pressable>
         );
       })}
@@ -119,18 +119,18 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
         <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
           <Pressable onPress={onClose} accessibilityRole="button" testID="category-form-cancel">
-            <Text className="text-description text-base">{t('Cancel')}</Text>
+            <Text className="text-text-2 text-base">{t('Cancel')}</Text>
           </Pressable>
-          <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'EditCategory' : 'CreateCategory')}</Text>
+          <Text className="text-text text-lg font-bold">{t(isEdit ? 'EditCategory' : 'CreateCategory')}</Text>
           <View className="w-12" />
         </View>
 
         <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Name')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Name')}</Text>
             <Controller
               control={control}
               name="name"
@@ -141,7 +141,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
           </View>
 
           <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Description')}</Text>
+            <Text className="text-text mb-1 text-base font-semibold">{t('Description')}</Text>
             <Controller
               control={control}
               name="description"
@@ -161,7 +161,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
 
           {!isEdit ? (
             <View>
-              <Text className="text-secondary mb-1 text-base font-semibold">{t('YourExperience')}</Text>
+              <Text className="text-text mb-1 text-base font-semibold">{t('YourExperience')}</Text>
               <Controller
                 control={control}
                 name="experience"

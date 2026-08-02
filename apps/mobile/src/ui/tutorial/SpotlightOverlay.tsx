@@ -95,21 +95,21 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
       <View
         testID="spotlight-tooltip"
         style={[{ position: 'absolute', left: 12, right: 12 }, tooltipPositionStyle]}
-        className="rounded-card border border-border bg-background p-4"
+        className="rounded-card border border-border bg-surface p-4"
       >
         <View className="mb-1 flex-row items-center justify-between">
-          <Text className="text-primary text-xs font-semibold">{t('TutorialStepOf', { current: stepIndex + 1, total: stepCount })}</Text>
+          <Text className="text-accent text-xs font-semibold">{t('TutorialStepOf', { current: stepIndex + 1, total: stepCount })}</Text>
           <Pressable onPress={onSkip} accessibilityRole="button" testID="spotlight-skip" hitSlop={8}>
-            <Text className="text-description text-xs font-semibold">{t('TutorialSkip')}</Text>
+            <Text className="text-text-2 text-xs font-semibold">{t('TutorialSkip')}</Text>
           </Pressable>
         </View>
-        <Text className="text-secondary text-base font-bold">{t(step.titleKey)}</Text>
-        <Text className="text-description mt-1 text-sm leading-relaxed">{t(step.descKey)}</Text>
+        <Text className="text-text text-base font-bold">{t(step.titleKey)}</Text>
+        <Text className="text-text-2 mt-1 text-sm leading-relaxed">{t(step.descKey)}</Text>
 
         <View className="mt-3 flex-row items-center justify-between">
           {onPrev && stepIndex > 0 ? (
             <Pressable onPress={onPrev} accessibilityRole="button" testID="spotlight-prev" className="px-3 py-2">
-              <Text className="text-secondary font-semibold">{t('TutorialPrevious')}</Text>
+              <Text className="text-text font-semibold">{t('TutorialPrevious')}</Text>
             </Pressable>
           ) : <View />}
           <Pressable
@@ -117,7 +117,7 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
             disabled={step.disabled}
             accessibilityRole="button"
             testID="spotlight-next"
-            className={`items-center rounded-control bg-primary px-5 py-2.5 ${step.disabled ? 'opacity-50' : ''}`}
+            className={`items-center rounded-control bg-accent px-5 py-2.5 ${step.disabled ? 'opacity-50' : ''}`}
           >
             <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold" numberOfLines={1}>
               {t(step.nextLabelKey ?? 'TutorialNext')}
@@ -125,7 +125,7 @@ export default function SpotlightOverlay({ step, stepIndex, stepCount, onNext, o
           </Pressable>
         </View>
         {step.disabled && step.disabledHintKey ? (
-          <Text testID="spotlight-hint" className="text-placeholder mt-2 text-xs">{t(step.disabledHintKey)}</Text>
+          <Text testID="spotlight-hint" className="text-text-3 mt-2 text-xs">{t(step.disabledHintKey)}</Text>
         ) : null}
       </View>
     </View>

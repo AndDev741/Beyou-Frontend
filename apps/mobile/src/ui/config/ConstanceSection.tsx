@@ -56,8 +56,8 @@ export default function ConstanceSection({
   return (
     <View className="gap-3" testID="config-constance">
       <View>
-        <Text className="text-secondary text-base font-semibold">{t('ConstanceTitle')}</Text>
-        <Text className="text-description mt-0.5 text-sm">{t('ConstanceDescription')}</Text>
+        <Text className="text-text text-base font-semibold">{t('ConstanceTitle')}</Text>
+        <Text className="text-text-2 mt-0.5 text-sm">{t('ConstanceDescription')}</Text>
       </View>
 
       <View className="gap-2">
@@ -79,7 +79,7 @@ export default function ConstanceSection({
         disabled={saving}
         accessibilityRole="button"
         testID="save-constance"
-        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: theme.background }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('Save')}

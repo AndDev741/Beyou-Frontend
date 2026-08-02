@@ -7,17 +7,17 @@ function Header(){
     const location = useLocation();
     const currentPath = location.pathname;
     return(
-        <header className="bg-background">
+        <header className="bg-surface">
             <nav className="flex justify-evenly py-8 lg:my-7 lg:py-0 text-3xl">
                 <Link
                 to={"/"}
-                className={`transition-colors duration-200 ${currentPath === "/" ? "text-primary font-medium" : "text-secondary"}`}>
+                className={`transition-colors duration-200 ${currentPath === "/" ? "text-accent font-medium" : "text-text"}`}>
                     {t('Login')}
                 </Link>
 
                 <Link
                 to={"/register"}
-                className={`transition-colors duration-200 ${currentPath === "/register" ? "text-primary font-medium" : "text-secondary"}`}>
+                className={`transition-colors duration-200 ${currentPath === "/register" ? "text-accent font-medium" : "text-text"}`}>
                     {t('Register')}
                 </Link>
             </nav>

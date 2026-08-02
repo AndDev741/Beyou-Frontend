@@ -74,9 +74,9 @@ export default function WidgetsSection() {
     <View className="gap-3" testID="config-widgets-section">
       {/* Current */}
       <View>
-        <Text className="text-secondary mb-2 font-medium">{t('Current')}</Text>
+        <Text className="text-text mb-2 font-medium">{t('Current')}</Text>
         {current.length === 0 ? (
-          <Text className="text-description text-sm italic" testID="widgets-current-empty">
+          <Text className="text-text-2 text-sm italic" testID="widgets-current-empty">
             {t('No widgets added yet')}
           </Text>
         ) : (
@@ -87,7 +87,7 @@ export default function WidgetsSection() {
                 className="flex-row items-center justify-between rounded-control border border-border px-3 py-2"
                 testID={`widget-current-${id}`}
               >
-                <Text className="text-secondary flex-1" numberOfLines={1}>
+                <Text className="text-text flex-1" numberOfLines={1}>
                   {t(WIDGET_LABEL_KEY[id])}
                 </Text>
                 <View className="flex-row items-center gap-3">
@@ -99,7 +99,7 @@ export default function WidgetsSection() {
                     testID={`widget-up-${id}`}
                     className={index === 0 ? 'opacity-30' : ''}
                   >
-                    <Text className="text-primary text-lg font-bold">↑</Text>
+                    <Text className="text-accent text-lg font-bold">↑</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => move(index, 1)}
@@ -109,7 +109,7 @@ export default function WidgetsSection() {
                     testID={`widget-down-${id}`}
                     className={index === current.length - 1 ? 'opacity-30' : ''}
                   >
-                    <Text className="text-primary text-lg font-bold">↓</Text>
+                    <Text className="text-accent text-lg font-bold">↓</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => remove(id)}
@@ -117,7 +117,7 @@ export default function WidgetsSection() {
                     accessibilityLabel={`Remove ${t(WIDGET_LABEL_KEY[id])}`}
                     testID={`widget-remove-${id}`}
                   >
-                    <Text className="text-error font-semibold">✕</Text>
+                    <Text className="text-danger font-semibold">✕</Text>
                   </Pressable>
                 </View>
               </View>
@@ -128,7 +128,7 @@ export default function WidgetsSection() {
 
       {/* Available */}
       <View>
-        <Text className="text-secondary mb-2 font-medium">{t('Availables')}</Text>
+        <Text className="text-text mb-2 font-medium">{t('Availables')}</Text>
         <View className="gap-2">
           {available.map((id) => (
             <Pressable
@@ -139,10 +139,10 @@ export default function WidgetsSection() {
               testID={`widget-add-${id}`}
               className="flex-row items-center justify-between rounded-control border border-border px-3 py-2"
             >
-              <Text className="text-secondary flex-1" numberOfLines={1}>
+              <Text className="text-text flex-1" numberOfLines={1}>
                 {t(WIDGET_LABEL_KEY[id])}
               </Text>
-              <Text className="text-primary text-lg font-bold">＋</Text>
+              <Text className="text-accent text-lg font-bold">＋</Text>
             </Pressable>
           ))}
         </View>
@@ -153,7 +153,7 @@ export default function WidgetsSection() {
         disabled={saving}
         accessibilityRole="button"
         testID="save-widgets"
-        className={`mt-4 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-4 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: theme.background }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('Save')}

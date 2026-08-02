@@ -64,7 +64,7 @@ export default function RegisterRoute() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-bg">
       <ScrollView
         testID="register-screen"
         keyboardShouldPersistTaps="handled"
@@ -75,11 +75,11 @@ export default function RegisterRoute() {
         {registered ? (
           <>
             <View
-              className="border-2 border-border rounded-card bg-primary/10 p-5 mb-6 mt-4"
+              className="border-2 border-border rounded-card bg-accent/10 p-5 mb-6 mt-4"
               testID="register-success"
             >
-              <Text className="text-primary font-semibold mb-1">{t('EmailVerificationSentTitle')}</Text>
-              <Text className="text-description">{t('EmailVerificationSentMessage')}</Text>
+              <Text className="text-accent font-semibold mb-1">{t('EmailVerificationSentTitle')}</Text>
+              <Text className="text-text-2">{t('EmailVerificationSentMessage')}</Text>
             </View>
 
             <View className="items-center">
@@ -94,9 +94,9 @@ export default function RegisterRoute() {
           </>
         ) : (
           <>
-            <Text className="text-3xl font-bold text-secondary text-center mt-4 mb-8">
+            <Text className="text-3xl font-bold text-text text-center mt-4 mb-8">
               {t('Welcome')} {t('To')}
-              <Text className="text-primary"> {t('BeYou')} </Text>
+              <Text className="text-accent"> {t('BeYou')} </Text>
             </Text>
 
             <Controller

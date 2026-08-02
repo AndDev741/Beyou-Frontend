@@ -37,14 +37,14 @@ export default function TutorialConfiguration() {
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary">
+        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-surface text-text">
             <h2 className="text-base font-semibold mb-2">{t("Tutorial")}</h2>
-            <p className="text-sm text-description mb-4">{t("TutorialDescription")}</p>
+            <p className="text-sm text-text-2 mb-4">{t("TutorialDescription")}</p>
 
             <div className="flex items-center justify-between w-full mb-4">
-                <span className="text-sm text-description">
+                <span className="text-sm text-text-2">
                     {t("TutorialStatus")}:{" "}
-                    <span className={isTutorialCompleted ? "text-success" : "text-description"}>
+                    <span className={isTutorialCompleted ? "text-success" : "text-text-2"}>
                         {isTutorialCompleted ? t("TutorialStatusCompleted") : t("TutorialStatusPending")}
                     </span>
                 </span>
@@ -57,7 +57,7 @@ export default function TutorialConfiguration() {
                     onClick={handleRestart}
                 />
                 <span className="text-xs text-success mt-1">{success}</span>
-                <span className="text-xs text-error">{error}</span>
+                <span className="text-xs text-danger">{error}</span>
             </div>
         </div>
     );

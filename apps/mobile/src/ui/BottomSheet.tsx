@@ -42,7 +42,7 @@ export default function BottomSheet({
         />
         <KeyboardAvoidingView behavior="padding">
           <View
-            className={`${maxHeight} rounded-t-2xl bg-background px-4 pt-4`}
+            className={`${maxHeight} rounded-t-2xl bg-surface px-4 pt-4`}
             style={{ paddingBottom: (insets?.bottom ?? 0) + 16 }}
           >
             {children}

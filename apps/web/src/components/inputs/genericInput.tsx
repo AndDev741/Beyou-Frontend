@@ -10,9 +10,9 @@ type genericInputProps = {
     placeholder: string
 }
 function GenericInput({t, dataError, name, setData, data, placeholder, type = "text"}: genericInputProps){
-    const borderCss = "border border-border rounded-control w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
-    const labelCss = "text-lg md:text-2xl md:text-xl mt-2 text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+    const borderCss = "border border-border rounded-control w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-surface text-text placeholder:text-text-3 transition-colors duration-200";
+    const labelCss = "text-lg md:text-2xl md:text-xl mt-2 text-text";
+    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
     return(
         <>
             <div className="flex flex-col">
@@ -26,7 +26,7 @@ function GenericInput({t, dataError, name, setData, data, placeholder, type = "t
                 name={name} 
                 id={name} 
                 placeholder={t(`${placeholder}`)}
-                className={`${borderCss} ${dataError ? "border-error" : ""} h-[40px] outline-none pl-2 text-lg`}
+                className={`${borderCss} ${dataError ? "border-danger" : ""} h-[40px] outline-none pl-2 text-lg`}
                 />
             </div>
         </>

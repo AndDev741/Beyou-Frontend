@@ -57,14 +57,14 @@ export default function ProfileHeader() {
   const levelProgress = calculateLevelProgress(xp, actualLevelXp, nextLevelXp);
 
   return (
-    <View ref={profileRef} className="rounded-card border border-border bg-background p-4" testID="profile-header">
+    <View ref={profileRef} className="rounded-card border border-border bg-surface p-4" testID="profile-header">
       <View className="flex-row items-center">
         <Avatar photo={photo} name={name} />
         <View className="ml-3 flex-1">
-          <Text testID="dashboard-greeting" className="text-secondary text-xl font-bold">
+          <Text testID="dashboard-greeting" className="text-text text-xl font-bold">
             {greeting}, {name}
           </Text>
-          <Text className="text-primary text-sm font-medium">{t('BeYourBestVersion')}</Text>
+          <Text className="text-accent text-sm font-medium">{t('BeYourBestVersion')}</Text>
         </View>
         <ProgressRing
           progress={levelProgress}
@@ -76,17 +76,17 @@ export default function ProfileHeader() {
 
       {phrase ? (
         <View className="mt-3">
-          <Text className="text-secondary italic" numberOfLines={2}>
+          <Text className="text-text italic" numberOfLines={2}>
             &quot;{phrase}&quot;
           </Text>
-          {phraseAuthor ? <Text className="text-primary text-sm font-semibold">- {phraseAuthor}</Text> : null}
+          {phraseAuthor ? <Text className="text-accent text-sm font-semibold">- {phraseAuthor}</Text> : null}
         </View>
       ) : null}
 
       <View className="mt-3 flex-row items-center" testID="streak-badge">
         <Ionicons name="flame" size={18} color={theme.primary} />
-        <Text className="text-secondary ml-1 font-bold">{constance}</Text>
-        <Text className="text-description ml-1">
+        <Text className="text-text ml-1 font-bold">{constance}</Text>
+        <Text className="text-text-2 ml-1">
           {t('Days', { count: constance })} · {t('Constance')}
         </Text>
       </View>

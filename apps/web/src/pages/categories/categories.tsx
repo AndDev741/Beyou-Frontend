@@ -105,7 +105,7 @@ function Categories(){
     } = useCategoriesTutorial({ hasCategories });
     
     return(
-        <div className="bg-background min-h-screen text-secondary">
+        <div className="bg-bg min-h-screen text-text">
             {showCategorySpotlight && (
                 <SpotlightTutorial
                     steps={categorySteps}

@@ -6,14 +6,18 @@ type baseDivProps = {
     bigSize?: boolean
 }
 
-export default function BaseDiv({title, children, bigSize}: baseDivProps){
+/** A moldura de todo widget do dashboard: superfície, título discreto, conteúdo. */
+export default function BaseDiv({ title, children, bigSize }: baseDivProps) {
     return (
-        <div className={`flex flex-col items-center justify-center border-solid border-2 border-border p-1 sm:px-3 md:px-6 min-w-[160px] lg:min-w-[200px] min-h-[110px] ${bigSize ? "w-[90%]" : "max-w-[35vw] md:max-w-[100vh]"} rounded-control`}>
-            <div className=" relative flex items-center justify-center">
-                <h2 className="font-semibold text-center md:text-xl text-secondary">{title}</h2>
-            </div>
-           
-            {children}
+        <div
+            className={`flex min-h-[120px] min-w-[160px] flex-col rounded-card border border-border bg-surface p-4 lg:min-w-[220px] ${
+                bigSize ? "w-[90%]" : "max-w-[35vw] md:max-w-[100vh]"
+            }`}
+        >
+            <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-text-3">
+                {title}
+            </h2>
+            <div className="flex flex-1 flex-col items-center justify-center gap-1">{children}</div>
         </div>
     )
 }

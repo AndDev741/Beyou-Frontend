@@ -151,7 +151,7 @@ export default function ProfileSection() {
           testID="change-photo"
           className="rounded-control border border-border px-3 py-2"
         >
-          <Text className="text-primary font-semibold">{t('ChangeProfilePhoto')}</Text>
+          <Text className="text-accent font-semibold">{t('ChangeProfilePhoto')}</Text>
         </Pressable>
       </View>
 
@@ -213,7 +213,7 @@ export default function ProfileSection() {
         disabled={isSubmitting}
         accessibilityRole="button"
         testID="save-profile"
-        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
           {t('Save')}
@@ -222,8 +222,8 @@ export default function ProfileSection() {
 
       <Modal visible={photoModal} transparent animationType="fade">
         <View className="flex-1 items-center justify-center bg-black/50 px-4">
-          <View className="w-full max-w-sm rounded-card bg-background p-6 shadow-2xl" testID="photo-modal">
-            <Text className="mb-4 text-lg font-semibold text-secondary">{t('ChangePhoto')}</Text>
+          <View className="w-full max-w-sm rounded-card bg-surface p-6 shadow-2xl" testID="photo-modal">
+            <Text className="mb-4 text-lg font-semibold text-text">{t('ChangePhoto')}</Text>
 
             <View className="items-center gap-4">
               <Image
@@ -233,7 +233,7 @@ export default function ProfileSection() {
 
               <Pressable
                 onPress={pickPhoto}
-                className="rounded-control bg-primary px-4 py-2 active:opacity-80"
+                className="rounded-control bg-accent px-4 py-2 active:opacity-80"
               >
                 <Text className="font-medium text-white">
                   {photoAsset ? t('PhotoSelected') : t('ChooseFile')}
@@ -241,7 +241,7 @@ export default function ProfileSection() {
               </Pressable>
 
               {photoError && (
-                <Text className="text-center text-sm text-error">{photoError}</Text>
+                <Text className="text-center text-sm text-danger">{photoError}</Text>
               )}
             </View>
 
@@ -255,12 +255,12 @@ export default function ProfileSection() {
                 }}
                 className="rounded-control px-4 py-2 active:opacity-80"
               >
-                <Text className="text-secondary">{t('Cancel')}</Text>
+                <Text className="text-text">{t('Cancel')}</Text>
               </Pressable>
               <Pressable
                 onPress={confirmUpload}
                 disabled={photoUploading || !photoAsset}
-                className="rounded-control bg-primary px-4 py-2 active:opacity-80 disabled:opacity-50"
+                className="rounded-control bg-accent px-4 py-2 active:opacity-80 disabled:opacity-50"
               >
                 <Text className="font-medium text-white">
                   {photoUploading ? t('PhotoUploading') : t('Save')}

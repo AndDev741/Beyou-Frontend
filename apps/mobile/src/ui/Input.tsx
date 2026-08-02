@@ -39,12 +39,12 @@ export default function Input({
     <View className="w-full">
       <View
         className={`flex-row border-2 rounded-control ${multiline ? 'min-h-[100px] items-start py-1' : 'h-[56px] items-center'} ${
-          disabled ? 'bg-description/10' : 'bg-background'
-        } ${error ? 'border-error' : disabled ? 'border-description/40' : 'border-border'}`}
+          disabled ? 'bg-description/10' : 'bg-surface'
+        } ${error ? 'border-danger' : disabled ? 'border-border/40' : 'border-border'}`}
       >
         {iconStart ? <View className="mx-3">{iconStart}</View> : null}
         <TextInput
-          className={`flex-1 text-lg px-2 ${disabled ? 'text-description' : 'text-secondary'}`}
+          className={`flex-1 text-lg px-2 ${disabled ? 'text-text-2' : 'text-text'}`}
           value={value}
           onChangeText={onChangeText}
           editable={!disabled}
@@ -69,7 +69,7 @@ export default function Input({
       </View>
       {error ? (
         <Text
-          className="text-error text-sm mt-1"
+          className="text-danger text-sm mt-1"
           testID={testID ? `${testID}-error` : undefined}
         >
           {error}

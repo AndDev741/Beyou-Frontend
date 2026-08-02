@@ -82,7 +82,7 @@ function Tasks() {
     }, [t])
 
     return (
-        <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
+        <div className="lg:flex flex-col items-center w-full bg-bg text-text min-h-screen">
             <PageHeader title={t("YourTasks")} />
             <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
                 <div className="w-full">

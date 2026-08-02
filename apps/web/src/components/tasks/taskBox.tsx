@@ -62,10 +62,10 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     }
     
     return(
-        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-border rounded-control p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary`}>
+        <div className={`relative flex flex-col justify-between ${expanded ? "min-h-[220px]" : "min-h-[100px]"} border border-border rounded-control p-1 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-surface text-text`}>
             <div className="flex justify-between items-start">
                 <div className="flex items-start">
-                    <p className="text-icon text-[34px]">
+                    <p className="text-text-2 text-[34px]">
                         <BeyouIcon id={iconId} />
                     </p>
                     <h2 className={`text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
@@ -88,19 +88,19 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
 
             {oneTimeTask && (
                 <>
-                    <span className="flex items-center text-secondary">
-                        <MdWarningAmber className="text-icon text-xl my-2 mr-2" />
+                    <span className="flex items-center text-text">
+                        <MdWarningAmber className="text-text-2 text-xl my-2 mr-2" />
                         <p>{t('One Time Task')}</p>
                     </span>
-                    {markedToDelete ? <p className="underline text-error">{t('And Marked to Delete')}</p> : null}
+                    {markedToDelete ? <p className="underline text-danger">{t('And Marked to Delete')}</p> : null}
                 </>
             )}
             <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight my-1`}>
-                <p className="text-description">{description}</p>
+                <p className="text-text-2">{description}</p>
             </div>
 
             <div className={`${expanded && categories !== undefined && Object.entries(categories)?.length > 0 ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-lg text-secondary">{t('Categories')}:</h4>
+                <h4 className="font-semibold text-lg text-text">{t('Categories')}:</h4>
                 <div className="flex flex-col">
                     {/* {categories?.map((category, index) => (
                     <CategoryNameAndIcon key={index}
@@ -110,15 +110,15 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                         <span className="flex items-center" key={`${categoryId}-${index}`}>
                         <CategoryNameAndIcon
                             name={name} iconId={iconId} />
-                        <p className={`${index === Object.entries(categories!).length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
+                        <p className={`${index === Object.entries(categories!).length - 1 ? "invisible" : "mr-1 text-text"}`}>,</p>
                         </span>
                     ))}
                 </div>
             </div>
 
             <div className={`${expanded ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-lg text-secondary">{t('UsingIn')}:</h4>
-                <ul className="ml-6 text-description">
+                <h4 className="font-semibold text-lg text-text">{t('UsingIn')}:</h4>
+                <ul className="ml-6 text-text-2">
                     <li className="list-disc">Study Routine</li>
                     <li className="list-disc">Morning Routine</li>
                 </ul>
@@ -128,21 +128,21 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 <div className="flex items-center justify-evenly">
                     <div className="flex flex-col items-center">
                         <div className={`w-[35px] h-[35px] rounded-full mr-1`} style={{backgroundColor: `${dificultyColor}` }}></div>
-                        <p className="text-description">{dificultyPhrase}</p>
+                        <p className="text-text-2">{dificultyPhrase}</p>
                     </div>
                     <div className="flex flex-col items-center">
                         <div className={`w-[35px] h-[35px] rounded-full mr-1`} style={{backgroundColor: `${importanceColor}` }}></div>
-                        <p className="text-description">{importancePhrase}</p>
+                        <p className="text-text-2">{importancePhrase}</p>
                     </div>
                 </div>
             </div>
             <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
             <button onClick={handleEditMode}
-            className="mb-2 w-[100px] h-[28px] rounded-control bg-primary text-background font-semibold hover:bg-primary/90 transition-colors duration-200">
+            className="mb-2 w-[100px] h-[28px] rounded-control bg-accent text-on-accent font-semibold hover:bg-accent/90 transition-colors duration-200">
                 {t('Edit')}
             </button>
             <button onClick={() => setOnDelete(true)}
-            className="w-[90px] h-[25px] rounded-control bg-error hover:bg-error/90 text-background font-semibold transition-colors duration-200">
+            className="w-[90px] h-[25px] rounded-control bg-danger hover:bg-danger/90 text-on-accent font-semibold transition-colors duration-200">
                 {t('Delete')}
             </button>
 

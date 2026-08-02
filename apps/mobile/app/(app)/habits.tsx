@@ -90,7 +90,7 @@ export default function HabitsScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="flex-row items-center gap-2">
           <Pressable
@@ -100,7 +100,7 @@ export default function HabitsScreen() {
           >
             <Ionicons name="chevron-back" size={26} color={theme.primary} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Habits')}</Text>
+          <Text className="text-accent text-2xl font-bold">{t('Habits')}</Text>
         </View>
         <Pressable
           ref={createRef}
@@ -108,7 +108,7 @@ export default function HabitsScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('CreateHabit')}
           testID="create-habit"
-          className="h-10 w-10 items-center justify-center rounded-full bg-primary"
+          className="h-10 w-10 items-center justify-center rounded-full bg-accent"
         >
           <Ionicons name="add" size={26} color={theme.background} />
         </Pressable>
@@ -135,12 +135,12 @@ export default function HabitsScreen() {
           ListEmptyComponent={
             <View className="mt-20 items-center gap-3 px-8">
               <Text className="text-5xl">🌱</Text>
-              <Text className="text-description text-center text-base">{t('NoHabitsYet')}</Text>
+              <Text className="text-text-2 text-center text-base">{t('NoHabitsYet')}</Text>
               <Pressable
                 onPress={() => setForm({ visible: true, mode: 'create', habit: null })}
                 accessibilityRole="button"
                 testID="empty-create-habit"
-                className="rounded-full bg-primary px-5 py-2.5"
+                className="rounded-full bg-accent px-5 py-2.5"
               >
                 <Text style={{ color: theme.background }} className="font-semibold">
                   {t('CreateHabit')}

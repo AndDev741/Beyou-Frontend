@@ -55,16 +55,16 @@ export default function AppHome() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background" testID="dashboard-loading">
+      <View className="flex-1 items-center justify-center bg-bg" testID="dashboard-loading">
         <ActivityIndicator color={theme.primary} />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-bg">
       <ScrollView
-        className="flex-1 bg-background"
+        className="flex-1 bg-bg"
         contentContainerStyle={{ padding: 16, paddingTop: 56, gap: 20 }}
         testID="dashboard-screen"
       >

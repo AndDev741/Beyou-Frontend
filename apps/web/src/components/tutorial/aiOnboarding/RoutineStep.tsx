@@ -238,13 +238,13 @@ export default function RoutineStep({
             {/* Header */}
             <div className="space-y-3 text-center">
                 <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary rounded-full px-3 py-1"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent rounded-full px-3 py-1"
                     style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
                 >
                     <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
                     {t("AiOnboardingStepRoutine")}
                 </span>
-                <h2 className="text-2xl md:text-4xl font-semibold text-secondary leading-tight px-2">
+                <h2 className="text-2xl md:text-4xl font-semibold text-text leading-tight px-2">
                     {t("AiOnboardingRoutineTitle")}
                 </h2>
                 <div className="flex items-center justify-center gap-2">
@@ -252,18 +252,18 @@ export default function RoutineStep({
                         className="flex w-8 h-8 items-center justify-center rounded-card"
                         style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
                     >
-                        <BeyouIcon id={draft.iconId} size={18} className="text-primary" showFallback />
+                        <BeyouIcon id={draft.iconId} size={18} className="text-accent" showFallback />
                     </span>
-                    <span className="text-lg font-semibold text-secondary">{draft.name}</span>
+                    <span className="text-lg font-semibold text-text">{draft.name}</span>
                 </div>
                 <p
-                    className="inline-flex items-start sm:items-center gap-2 text-left text-sm md:text-base text-secondary rounded-card px-4 py-2.5 max-w-xl mx-auto"
+                    className="inline-flex items-start sm:items-center gap-2 text-left text-sm md:text-base text-text rounded-card px-4 py-2.5 max-w-xl mx-auto"
                     style={{
                         backgroundColor: "color-mix(in srgb, var(--primary) 8%, var(--background))",
                         border: "1px solid color-mix(in srgb, var(--primary) 18%, var(--background))"
                     }}
                 >
-                    <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 sm:mt-0 text-primary" aria-hidden="true" />
+                    <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 sm:mt-0 text-accent" aria-hidden="true" />
                     <span>{t("AiOnboardingRoutineHint")}</span>
                 </p>
             </div>
@@ -307,14 +307,14 @@ export default function RoutineStep({
                                         className="flex w-9 h-9 shrink-0 items-center justify-center rounded-card"
                                         style={{ backgroundColor: "color-mix(in srgb, var(--primary) 10%, var(--background))" }}
                                     >
-                                        <BeyouIcon id={section.iconId} size={18} className="text-primary" showFallback />
+                                        <BeyouIcon id={section.iconId} size={18} className="text-accent" showFallback />
                                     </span>
-                                    <h3 className="flex-1 min-w-0 truncate font-semibold text-secondary">
+                                    <h3 className="flex-1 min-w-0 truncate font-semibold text-text">
                                         {section.name}
                                     </h3>
-                                    <span className="shrink-0 text-sm font-semibold text-primary tabular-nums">
+                                    <span className="shrink-0 text-sm font-semibold text-accent tabular-nums">
                                         {section.startTime}
-                                        <span className="text-description font-normal mx-0.5">–</span>
+                                        <span className="text-text-2 font-normal mx-0.5">–</span>
                                         {section.endTime}
                                     </span>
                                 </header>
@@ -348,8 +348,8 @@ export default function RoutineStep({
 
             {/* Weekday schedule pills */}
             <div className="flex flex-col items-center gap-3">
-                <span className="flex items-center gap-1.5 text-sm font-semibold text-description">
-                    <CalendarDays className="w-4 h-4 text-primary" aria-hidden="true" />
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-text-2">
+                    <CalendarDays className="w-4 h-4 text-accent" aria-hidden="true" />
                     {t("AiOnboardingScheduleDays")}
                 </span>
                 <div className="flex flex-wrap justify-center gap-1.5">
@@ -372,10 +372,10 @@ export default function RoutineStep({
                                 }
                                 className={cn(
                                     "flex w-11 h-11 items-center justify-center rounded-full text-xs font-bold transition-all",
-                                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                                     active
-                                        ? "bg-primary text-white shadow-md"
-                                        : "text-secondary hover:brightness-95"
+                                        ? "bg-accent text-white shadow-md"
+                                        : "text-text hover:brightness-95"
                                 )}
                             >
                                 <span aria-hidden="true">{day.slice(0, 3)}</span>
@@ -400,7 +400,7 @@ export default function RoutineStep({
                         }}
                         placeholder={t("AiOnboardingRoutineFeedbackPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="flex-1 min-w-0 rounded-card border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="flex-1 min-w-0 rounded-card border bg-surface px-4 py-2.5 text-text placeholder:text-text-2 focus:outline-none focus:ring-2 focus:ring-accent transition-shadow"
                     />
                     <button
                         type="button"
@@ -408,7 +408,7 @@ export default function RoutineStep({
                         disabled={loading}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
                         className={cn(
-                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-text transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                             loading ? "opacity-60 cursor-wait" : "hover:brightness-95"
                         )}
                     >
@@ -432,8 +432,8 @@ export default function RoutineStep({
                     className={cn(
                         "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-white transition-all",
                         loading
-                            ? "bg-primary opacity-40 cursor-not-allowed"
-                            : "bg-primary hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
+                            ? "bg-accent opacity-40 cursor-not-allowed"
+                            : "bg-accent hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
                     )}
                 >
                     {t("AiOnboardingRoutineAccept")}
@@ -484,11 +484,11 @@ function ItemRow({
     const Glyph = kind === "habits" ? Repeat : ListChecks;
     const arrowClass = (enabled: boolean) =>
         cn(
-            "flex w-7 h-7 shrink-0 items-center justify-center rounded-control text-description transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-            enabled ? "hover:text-primary hover:bg-background" : "opacity-30 cursor-default"
+            "flex w-7 h-7 shrink-0 items-center justify-center rounded-control text-text-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+            enabled ? "hover:text-accent hover:bg-surface" : "opacity-30 cursor-default"
         );
     const timeInputClass =
-        "shrink-0 rounded-control border bg-background px-1.5 py-1 text-xs text-secondary tabular-nums focus:outline-none focus:ring-2 focus:ring-primary";
+        "shrink-0 rounded-control border bg-surface px-1.5 py-1 text-xs text-text tabular-nums focus:outline-none focus:ring-2 focus:ring-accent";
     const timeInputStyle = { borderColor: "color-mix(in srgb, var(--primary) 18%, var(--background))" };
     return (
         // Mobile: three tiers — name + remove on top, times in the middle,
@@ -509,18 +509,18 @@ function ItemRow({
                     }}
                 >
                     <Glyph
-                        className={cn("w-3.5 h-3.5", kind === "habits" ? "text-primary" : "text-secondary")}
+                        className={cn("w-3.5 h-3.5", kind === "habits" ? "text-accent" : "text-text")}
                         aria-hidden="true"
                     />
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm font-medium text-secondary md:order-2">
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-text md:order-2">
                     {item.name}
                 </span>
                 <button
                     type="button"
                     aria-label={t("AiOnboardingRemoveItem")}
                     onClick={() => onRemove(kind, sectionIndex, itemIndex)}
-                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-control text-description hover:text-primary hover:bg-background transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary md:order-5"
+                    className="flex w-7 h-7 shrink-0 items-center justify-center rounded-control text-text-2 hover:text-accent hover:bg-surface transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:order-5"
                 >
                     <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -535,7 +535,7 @@ function ItemRow({
                     style={timeInputStyle}
                     className={timeInputClass}
                 />
-                <span className="text-xs text-description" aria-hidden="true">–</span>
+                <span className="text-xs text-text-2" aria-hidden="true">–</span>
                 <input
                     type="time"
                     aria-label={t("End time")}
@@ -572,7 +572,7 @@ function ItemRow({
                     value={sectionIndex}
                     onChange={(e) => onMove(kind, sectionIndex, itemIndex, Number(e.target.value))}
                     style={timeInputStyle}
-                    className="max-w-28 shrink-0 truncate rounded-control border bg-background px-1.5 py-1 text-xs text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="max-w-28 shrink-0 truncate rounded-control border bg-surface px-1.5 py-1 text-xs text-text focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                     {sections.map((section, index) => (
                         <option key={`${section.name}-${index}`} value={index}>

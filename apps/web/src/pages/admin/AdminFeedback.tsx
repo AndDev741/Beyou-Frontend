@@ -42,7 +42,7 @@ const COUNT_TILES: CountTile[] = [
 ];
 
 const FILTER_CONTROL_CLASSES =
-    "rounded-card border-2 border-border bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary";
+    "rounded-card border-2 border-border bg-bg p-2 text-text focus:outline-none focus:ring-2 focus:ring-accent";
 
 /**
  * The single feedback inbox (KD5): read, filter, re-status and reply, all here.
@@ -152,11 +152,11 @@ function AdminFeedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-background text-secondary">
+        <div className="min-h-screen w-full bg-bg text-text">
             <PageHeader title={t("AdminFeedbackPageTitle")} />
 
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-3 py-6">
-                <p className="text-sm text-description">{t("AdminFeedbackIntro")}</p>
+                <p className="text-sm text-text-2">{t("AdminFeedbackIntro")}</p>
 
                 <dl
                     data-testid="admin-feedback-counts"
@@ -165,14 +165,14 @@ function AdminFeedback() {
                     {COUNT_TILES.map(({ key, labelKey }) => (
                         <div
                             key={key}
-                            className="rounded-card border border-description p-3 transition-colors duration-200 hover:border-border"
+                            className="rounded-card border border-border p-3 transition-colors duration-200 hover:border-border"
                         >
-                            <dt className="text-xs uppercase tracking-wide text-description">
+                            <dt className="text-xs uppercase tracking-wide text-text-2">
                                 {t(labelKey)}
                             </dt>
                             <dd
                                 data-testid={`admin-feedback-count-${key}`}
-                                className="text-3xl font-semibold text-primary"
+                                className="text-3xl font-semibold text-accent"
                             >
                                 {counts?.[key] ?? "—"}
                             </dd>
@@ -182,7 +182,7 @@ function AdminFeedback() {
 
                 <div className="flex flex-wrap items-end gap-4">
                     <div className="flex flex-col gap-1">
-                        <label htmlFor="admin-feedback-status-filter" className="text-sm text-description">
+                        <label htmlFor="admin-feedback-status-filter" className="text-sm text-text-2">
                             {t("AdminFeedbackFilterStatus")}
                         </label>
                         <select
@@ -202,7 +202,7 @@ function AdminFeedback() {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                        <label htmlFor="admin-feedback-category-filter" className="text-sm text-description">
+                        <label htmlFor="admin-feedback-category-filter" className="text-sm text-text-2">
                             {t("AdminFeedbackFilterCategory")}
                         </label>
                         <select
@@ -228,10 +228,10 @@ function AdminFeedback() {
                     </div>
                 )}
 
-                {isLoading && <p className="text-sm text-description">{t("AdminFeedbackLoading")}</p>}
+                {isLoading && <p className="text-sm text-text-2">{t("AdminFeedbackLoading")}</p>}
 
                 {!isLoading && !listError && items.length === 0 && (
-                    <p className="text-sm text-description">{t("AdminFeedbackEmpty")}</p>
+                    <p className="text-sm text-text-2">{t("AdminFeedbackEmpty")}</p>
                 )}
 
                 {items.length > 0 && (
@@ -248,8 +248,8 @@ function AdminFeedback() {
                                         onClick={() => setSelectedId(item.id ?? null)}
                                         className={`flex w-full flex-col gap-2 rounded-card border-2 p-3 text-left transition-colors duration-200 ${
                                             isSelected
-                                                ? "border-accent bg-primary/5"
-                                                : "border-description hover:border-border"
+                                                ? "border-accent bg-accent/5"
+                                                : "border-border hover:border-border"
                                         }`}
                                     >
                                         <span className="flex flex-wrap items-center gap-2">
@@ -259,16 +259,16 @@ function AdminFeedback() {
                                                 {t(FEEDBACK_STATUS_LABEL_KEYS[status])}
                                             </span>
                                             {item.category && (
-                                                <span className="rounded-full border border-secondary/30 px-2 py-0.5 text-xs text-secondary">
+                                                <span className="rounded-full border border-border/30 px-2 py-0.5 text-xs text-text">
                                                     {t(FEEDBACK_CATEGORY_LABEL_KEYS[item.category])}
                                                 </span>
                                             )}
-                                            <span className="text-xs text-description">
+                                            <span className="text-xs text-text-2">
                                                 {formatFeedbackTimestamp(item.createdAt, i18n.language)}
                                             </span>
                                         </span>
-                                        <span className="line-clamp-2 text-secondary">{item.body}</span>
-                                        <span className="flex flex-wrap gap-2 text-xs text-description">
+                                        <span className="line-clamp-2 text-text">{item.body}</span>
+                                        <span className="flex flex-wrap gap-2 text-xs text-text-2">
                                             <span>{item.submitter?.name}</span>
                                             <span>{item.submitter?.email}</span>
                                         </span>
@@ -286,11 +286,11 @@ function AdminFeedback() {
                             data-testid="admin-feedback-prev-page"
                             disabled={page === 0}
                             onClick={() => setPage((current) => Math.max(0, current - 1))}
-                            className="rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
+                            className="rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-accent"
                         >
                             {t("AdminFeedbackPrevPage")}
                         </button>
-                        <span className="text-sm text-description">
+                        <span className="text-sm text-text-2">
                             {t("AdminFeedbackPagePosition", { page: page + 1, total: totalPages })}
                         </span>
                         <button
@@ -298,7 +298,7 @@ function AdminFeedback() {
                             data-testid="admin-feedback-next-page"
                             disabled={page + 1 >= totalPages}
                             onClick={() => setPage((current) => current + 1)}
-                            className="rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
+                            className="rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-accent"
                         >
                             {t("AdminFeedbackNextPage")}
                         </button>

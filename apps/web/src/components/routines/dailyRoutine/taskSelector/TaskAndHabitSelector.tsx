@@ -108,16 +108,16 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     };
 
     return (
-        <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-border rounded-control p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
+        <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-border rounded-control p-2 mt-2 bg-surface text-text shadow-sm transition-colors duration-200">
 
                 <div className="w-full max-w-full min-w-0 flex flex-col items-start justify-evenly">
                 <div className="flex flex-col items-center justify-start w-full my-1 px-2">
-                    <h2 className="font-medium text-secondary">{t("Put the start and end time of this item")}</h2>
-                    <p className="text-sm text-center text-description">{t('Need to fit between the section time')}</p>
+                    <h2 className="font-medium text-text">{t("Put the start and end time of this item")}</h2>
+                    <p className="text-sm text-center text-text-2">{t('Need to fit between the section time')}</p>
                     <div className="flex flex-wrap items-center justify-center gap-3">
                         <input
                             type="time"
-                            className={`border-2 rounded-control p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-border"}`}
+                            className={`border-2 rounded-control p-1 mt-1 font-medium bg-surface text-text transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-danger" : "border-border"}`}
                             min={minStart}
                             max={maxEnd}
                             value={startTime}
@@ -131,7 +131,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         />
                         <input
                             type="time"
-                            className={`border-2 rounded-control p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-border"}`}
+                            className={`border-2 rounded-control p-1 mt-1 font-medium bg-surface text-text transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-danger" : "border-border"}`}
                             min={!isOvernight ? startTime || minStart : undefined}
                             max={maxEnd}
                             value={endTime}
@@ -142,16 +142,16 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         />
                     </div>
                     {errorMessage && (
-                        <p className="text-error text-sm mt-1 text-center">{errorMessage}</p>
+                        <p className="text-danger text-sm mt-1 text-center">{errorMessage}</p>
                     )}
                 </div>
 
                 <div className="flex items-center justify-between w-full px-2 mt-1">
-                    <h3 className="text-lg font-semibold text-secondary">{t("Habits")}</h3>
+                    <h3 className="text-lg font-semibold text-text">{t("Habits")}</h3>
                     <button
                         type="button"
                         onClick={() => setShowQuickHabit(true)}
-                        className="text-primary font-semibold text-sm px-2 py-1 rounded-control hover:bg-primary/10 transition-colors duration-200"
+                        className="text-accent font-semibold text-sm px-2 py-1 rounded-control hover:bg-accent/10 transition-colors duration-200"
                     >
                         + {t("NewHabit")}
                     </button>
@@ -182,11 +182,11 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                 </div>
 
                 <div className="flex items-center justify-between w-full px-2 mt-3">
-                    <h3 className="text-lg font-semibold text-secondary">{t("Tasks")}</h3>
+                    <h3 className="text-lg font-semibold text-text">{t("Tasks")}</h3>
                     <button
                         type="button"
                         onClick={() => setShowQuickTask(true)}
-                        className="text-primary font-semibold text-sm px-2 py-1 rounded-control hover:bg-primary/10 transition-colors duration-200"
+                        className="text-accent font-semibold text-sm px-2 py-1 rounded-control hover:bg-accent/10 transition-colors duration-200"
                     >
                         + {t("NewTask")}
                     </button>
@@ -217,7 +217,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                 </div>
 
                 {habits.length === 0 && tasks.length === 0 && (
-                    <span className="text-description">{t("No habits or task available, create one")}</span>
+                    <span className="text-text-2">{t("No habits or task available, create one")}</span>
                 )}
 
             </div>

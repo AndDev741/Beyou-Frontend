@@ -14,8 +14,8 @@ type selectorInputProps= {
 
 function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase}: selectorInputProps){ 
     const borderCss = "border border-border rounded-control w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-xl text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+    const labelCss = "text-xl text-text";
+    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
     return(
         <>
             <label htmlFor='value' 
@@ -25,7 +25,7 @@ function SelectorInput({value, setValue, valuesToSelect, title, errorPhrase}: se
             name='value'
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className={`${borderCss} ${errorPhrase ? "border-error" : ""} h-[50px] text-xl pl-1 outline-none bg-background text-secondary transition-colors duration-200`}>
+            className={`${borderCss} ${errorPhrase ? "border-danger" : ""} h-[50px] text-xl pl-1 outline-none bg-surface text-text transition-colors duration-200`}>
                 {valuesToSelect.map(option => (
                     <option key={option.value} value={option.value}>{option.title}</option>
                 ))}

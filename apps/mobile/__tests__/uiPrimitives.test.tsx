@@ -11,17 +11,26 @@ const wrap = async (ui: React.ReactElement) =>
 
 describe('Ring', () => {
   it('renders the done state with the check and a full arc', async () => {
-    const { getByTestId } = await wrap(<Ring state="done" testID="ring" />);
+    const { getByTestId } = await wrap(<Ring state="done" progress={0.2} testID="ring" />);
     expect(getByTestId('ring')).toBeTruthy();
-    expect(getByTestId('ring-check')).toBeTruthy();
-    // Arco cheio: offset 0 é o que prova que "done" ignora `progress`.
-    expect(getByTestId('ring-arc').props.strokeDashoffset).toBe(0);
+    // Mesmo traçado do BrandMark — se divergir, a assinatura da marca quebra.
+    expect(getByTestId('ring-check').props.d).toBe('M22 33l7 7 14-14');
+    // Arco cheio (offset 0, que o react-native-svg normaliza para null) prova
+    // que "done" ignora o `progress` recebido.
+    expect(getByTestId('ring-arc').props.strokeDashoffset ?? 0).toBe(0);
   });
 
   it('does not render the check when todo', async () => {
     const { queryByTestId } = await wrap(<Ring state="todo" testID="ring" />);
     expect(queryByTestId('ring-check')).toBeNull();
     expect(queryByTestId('ring-arc')).toBeNull();
+  });
+
+  it('leaves half the arc empty at progress 0.5', async () => {
+    const { getByTestId } = await wrap(<Ring state="progress" progress={0.5} testID="ring" />);
+    const arc = getByTestId('ring-arc');
+    const [circumference] = arc.props.strokeDasharray as number[];
+    expect(arc.props.strokeDashoffset).toBeCloseTo(circumference / 2, 5);
   });
 });
 

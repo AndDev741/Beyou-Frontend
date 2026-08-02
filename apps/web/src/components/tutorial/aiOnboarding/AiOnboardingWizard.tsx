@@ -356,13 +356,13 @@ export default function AiOnboardingWizard({
         // would otherwise force page scrollbars; the step body scrolls on its own.
         <div className="fixed inset-0 z-50 flex flex-col bg-[var(--background)] overflow-hidden">
             {/* Ambient glow */}
-            <div className="pointer-events-none absolute -z-10 -top-24 -left-24 w-72 h-72 bg-primary opacity-[0.15] rounded-full blur-3xl" />
-            <div className="pointer-events-none absolute -z-10 -bottom-24 -right-24 w-72 h-72 bg-primary opacity-[0.1] rounded-full blur-3xl" />
+            <div className="pointer-events-none absolute -z-10 -top-24 -left-24 w-72 h-72 bg-accent opacity-[0.15] rounded-full blur-3xl" />
+            <div className="pointer-events-none absolute -z-10 -bottom-24 -right-24 w-72 h-72 bg-accent opacity-[0.1] rounded-full blur-3xl" />
 
             {/* Header: step dots + escape hatch */}
             <header className="flex items-center justify-between gap-4 px-4 md:px-8 pt-5 pb-3 shrink-0">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-card bg-primary text-white shadow-md">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-card bg-accent text-white shadow-md">
                         <Sparkles className="w-4 h-4" />
                     </div>
                     <div className="hidden sm:flex items-center gap-2" aria-hidden="true">
@@ -372,9 +372,9 @@ export default function AiOnboardingWizard({
                                 className={cn(
                                     "h-1.5 rounded-full transition-all duration-300",
                                     index === currentIndex
-                                        ? "w-8 bg-primary"
+                                        ? "w-8 bg-accent"
                                         : index < currentIndex
-                                          ? "w-4 bg-primary opacity-50"
+                                          ? "w-4 bg-accent opacity-50"
                                           : "w-4 bg-description opacity-30"
                                 )}
                             />
@@ -383,7 +383,7 @@ export default function AiOnboardingWizard({
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-description">
+                    <span className="text-sm font-medium text-text-2">
                         {t(STEP_LABEL_KEYS[step])}
                     </span>
                     <button
@@ -391,7 +391,7 @@ export default function AiOnboardingWizard({
                         onClick={exitToTour}
                         aria-label={t("AiOnboardingTakeTour")}
                         title={t("AiOnboardingTakeTour")}
-                        className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-secondary hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-control px-2 py-1"
+                        className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-text hover:text-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-control px-2 py-1"
                     >
                         <Compass className="w-5 h-5 md:w-4 md:h-4" />
                         {/* Icon-only below md (712px): the label wraps badly next to the step name on phones */}
@@ -493,17 +493,17 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                 className="mx-auto mb-5 flex w-14 h-14 items-center justify-center rounded-card"
                 style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
             >
-                <AlertTriangle className="w-7 h-7 text-primary" />
+                <AlertTriangle className="w-7 h-7 text-accent" />
             </div>
-            <h2 className="text-xl font-semibold text-secondary mb-2">
+            <h2 className="text-xl font-semibold text-text mb-2">
                 {t("AiOnboardingErrorTitle")}
             </h2>
-            <p className="text-description mb-6">{t("AiOnboardingErrorDescription")}</p>
+            <p className="text-text-2 mb-6">{t("AiOnboardingErrorDescription")}</p>
             <div className="flex flex-col sm:flex-row gap-3">
                 <button
                     type="button"
                     onClick={onRetry}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-card bg-primary px-5 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-card bg-accent px-5 py-2.5 font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                     <RotateCcw className="w-4 h-4" />
                     {t("AiOnboardingRetry")}
@@ -512,7 +512,7 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
                     type="button"
                     onClick={onTakeTour}
                     style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-card px-5 py-2.5 font-semibold text-secondary hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-card px-5 py-2.5 font-semibold text-text hover:brightness-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
                 >
                     <Compass className="w-4 h-4" />
                     {t("AiOnboardingTakeTour")}
@@ -566,12 +566,12 @@ export function BusyOverlay({ label, spin, t }: { label: string; spin: boolean; 
                         spin && "animate-spin"
                     )}
                 />
-                <Sparkles className="absolute w-6 h-6 text-primary" />
+                <Sparkles className="absolute w-6 h-6 text-accent" />
             </div>
-            <p className="text-secondary font-medium">{label}</p>
+            <p className="text-text font-medium">{label}</p>
 
             <div className="mt-2 max-w-md text-center">
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                <p className="text-xs font-semibold uppercase tracking-wide text-accent">
                     {t("AiOnboardingTipLabel")}
                 </p>
                 <AnimatePresence mode="wait">
@@ -581,7 +581,7 @@ export function BusyOverlay({ label, spin, t }: { label: string; spin: boolean; 
                         animate={{ opacity: 1, y: 0 }}
                         exit={spin ? { opacity: 0, y: -6 } : undefined}
                         transition={{ duration: 0.25 }}
-                        className="mt-1 text-sm text-description"
+                        className="mt-1 text-sm text-text-2"
                         data-testid="busy-tip"
                     >
                         {t(BUSY_TIP_KEYS[tipIndex])}

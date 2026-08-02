@@ -157,7 +157,7 @@ const Routine = () => {
     });
 
     return (
-        <div className="bg-background text-secondary min-h-screen pb-4">
+        <div className="bg-bg text-text min-h-screen pb-4">
             {showRoutineSpotlight && (
                 <SpotlightTutorial
                     steps={routineSteps}
@@ -214,7 +214,7 @@ const Routine = () => {
                                     {onCreateRoutine && (
                                         <div className='flex items-center mt-6'>
                                             <CgAddR className='w-[30px] h-[30px] mr-1' />
-                                            <h1 className='text-3xl font-semibold text-secondary'>{t("Create routine")}</h1>
+                                            <h1 className='text-3xl font-semibold text-text'>{t("Create routine")}</h1>
                                         </div>
                                     )}
 

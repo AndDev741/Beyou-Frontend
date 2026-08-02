@@ -83,7 +83,7 @@ export default function GoalsScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="flex-row items-center gap-2">
           <Pressable
@@ -93,14 +93,14 @@ export default function GoalsScreen() {
           >
             <Ionicons name="chevron-back" size={26} color={theme.primary} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Goals')}</Text>
+          <Text className="text-accent text-2xl font-bold">{t('Goals')}</Text>
         </View>
         <Pressable
           onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
           accessibilityRole="button"
           accessibilityLabel={t('CreateGoal')}
           testID="create-goal"
-          className="h-10 w-10 items-center justify-center rounded-full bg-primary"
+          className="h-10 w-10 items-center justify-center rounded-full bg-accent"
         >
           <Ionicons name="add" size={26} color={theme.background} />
         </Pressable>
@@ -128,12 +128,12 @@ export default function GoalsScreen() {
           ListEmptyComponent={
             <View className="mt-20 items-center gap-3 px-8">
               <Text className="text-5xl">🎯</Text>
-              <Text className="text-description text-center text-base">{t('NoGoalsYet')}</Text>
+              <Text className="text-text-2 text-center text-base">{t('NoGoalsYet')}</Text>
               <Pressable
                 onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
                 accessibilityRole="button"
                 testID="empty-create-goal"
-                className="rounded-full bg-primary px-5 py-2.5"
+                className="rounded-full bg-accent px-5 py-2.5"
               >
                 <Text style={{ color: theme.background }} className="font-semibold">{t('CreateGoal')}</Text>
               </Pressable>

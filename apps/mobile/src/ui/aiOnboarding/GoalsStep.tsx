@@ -91,23 +91,23 @@ export default function GoalsStep({
     <View className="w-full gap-6">
       {/* Header */}
       <View className="items-center gap-2 px-2">
-        <Text className="text-secondary text-center text-2xl font-bold">
+        <Text className="text-text text-center text-2xl font-bold">
           {t('AiOnboardingGoalsTitle')}
         </Text>
-        <Text className="text-description text-center text-sm">{t('AiOnboardingGoalsHint')}</Text>
+        <Text className="text-text-2 text-center text-sm">{t('AiOnboardingGoalsHint')}</Text>
       </View>
 
       {goals.length > 0 ? (
         <View className="w-full gap-3">
           <View className="flex-row items-center justify-between gap-3">
             <View className="flex-row items-center gap-2">
-              <View className="h-7 w-7 items-center justify-center rounded-control bg-primary/10">
+              <View className="h-7 w-7 items-center justify-center rounded-control bg-accent/10">
                 <Target size={16} color={theme.primary} />
               </View>
-              <Text className="text-secondary text-lg font-semibold">
+              <Text className="text-text text-lg font-semibold">
                 {t('AiOnboardingSummaryGoals')}
               </Text>
-              <Text className="text-description text-xs font-medium">
+              <Text className="text-text-2 text-xs font-medium">
                 {selected.size}/{goals.length}
               </Text>
             </View>
@@ -119,7 +119,7 @@ export default function GoalsStep({
               className="flex-row items-center gap-1.5 rounded-control px-2 py-1"
             >
               <CheckCheck size={16} color={theme.primary} />
-              <Text className="text-primary text-sm font-semibold">
+              <Text className="text-accent text-sm font-semibold">
                 {t('AiOnboardingSelectAll')}
               </Text>
             </Pressable>
@@ -209,17 +209,17 @@ function GoalMeta({
   const { theme } = useBeyouTheme();
   return (
     <View className="items-end gap-1">
-      <Text className="text-primary max-w-24 text-[10px] font-semibold uppercase" numberOfLines={1}>
+      <Text className="text-accent max-w-24 text-[10px] font-semibold uppercase" numberOfLines={1}>
         {category}
       </Text>
       <View className="flex-row items-center gap-1">
         <Target size={12} color={theme.primary} />
-        <Text className="text-secondary text-xs font-semibold">
+        <Text className="text-text text-xs font-semibold">
           {targetValue} {unit}
         </Text>
       </View>
-      <View className="rounded-full bg-secondary/10 px-2 py-0.5">
-        <Text className="text-secondary text-[10px] font-semibold">{termLabel}</Text>
+      <View className="rounded-full bg-surface-2/10 px-2 py-0.5">
+        <Text className="text-text text-[10px] font-semibold">{termLabel}</Text>
       </View>
     </View>
   );

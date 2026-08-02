@@ -26,20 +26,20 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
 
   return (
     <View className="gap-4" testID="snapshot-card">
-      <View className="flex-row justify-between rounded-card bg-primary/10 p-3">
-        <Text className="text-secondary text-sm">{t('Completed')}: {completed}</Text>
-        <Text className="text-secondary text-sm">{t('Skipped')}: {skipped}</Text>
-        <Text className="text-primary text-sm font-semibold">{xp} {t('XpEarned')}</Text>
+      <View className="flex-row justify-between rounded-card bg-accent/10 p-3">
+        <Text className="text-text text-sm">{t('Completed')}: {completed}</Text>
+        <Text className="text-text text-sm">{t('Skipped')}: {skipped}</Text>
+        <Text className="text-accent text-sm font-semibold">{xp} {t('XpEarned')}</Text>
       </View>
 
       {[...snapshot.structure.sections]
         .sort((a, b) => a.orderIndex - b.orderIndex)
         .map((section, i) => (
-        <View key={`${section.name}-${i}`} className="rounded-card border border-border bg-background p-4">
+        <View key={`${section.name}-${i}`} className="rounded-card border border-border bg-surface p-4">
           <View className="flex-row items-center gap-1.5">
             <BeyouIcon id={section.iconId} size={18} />
-            <Text className="text-primary shrink text-lg font-bold">{section.name}</Text>
-            <Text className="text-description shrink-0 text-sm">{range(section.startTime, section.endTime)}</Text>
+            <Text className="text-accent shrink text-lg font-bold">{section.name}</Text>
+            <Text className="text-text-2 shrink-0 text-sm">{range(section.startTime, section.endTime)}</Text>
           </View>
           {[...section.items].sort(byStart).map((item) => {
             const check = snapshot.checks.find((c) => c.originalGroupId === item.groupId);
@@ -47,8 +47,8 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
             return (
               <View key={item.groupId} className="mt-2 flex-row items-center gap-2">
                 <BeyouIcon id={item.iconId} size={16} />
-                <Text className={`flex-1 text-sm ${check?.checked ? 'text-description line-through' : 'text-secondary'}`}>{item.name}</Text>
-                {itemRange ? <Text className="text-description text-xs">{itemRange}</Text> : null}
+                <Text className={`flex-1 text-sm ${check?.checked ? 'text-text-2 line-through' : 'text-text'}`}>{item.name}</Text>
+                {itemRange ? <Text className="text-text-2 text-xs">{itemRange}</Text> : null}
                 {check ? (
                   <View className="flex-row gap-2">
                     <Pressable onPress={() => onCheck(check.id)} accessibilityRole="button" testID={`snap-check-${check.id}`}>

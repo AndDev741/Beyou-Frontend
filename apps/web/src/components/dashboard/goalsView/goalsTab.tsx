@@ -53,7 +53,7 @@ export default function GoalsTab() {
 
     return (
         <div className="lg:p-4 space-y-4">
-            <h2 className="text-center text-3xl font-semibold lg:text-start text-secondary">{t('Goals')}</h2>
+            <h2 className="text-center text-3xl font-semibold lg:text-start text-text">{t('Goals')}</h2>
             <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
                 {[{ key: "all", label: t("All") }, ...sections.map(section => ({ key: section.key, label: section.title }))].map(tag => {
                     const isActive = visibleTags.includes(tag.key);
@@ -62,7 +62,7 @@ export default function GoalsTab() {
                             key={tag.key}
                             type="button"
                             onClick={() => toggleTag(tag.key)}
-                            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-200 ${isActive ? "border-accent bg-primary/10 text-primary" : "border-border text-secondary hover:border-border hover:text-primary"}`}
+                            className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-200 ${isActive ? "border-accent bg-accent/10 text-accent" : "border-border text-text hover:border-border hover:text-accent"}`}
                         >
                             {tag.label}
                         </button>
@@ -75,7 +75,7 @@ export default function GoalsTab() {
                     <>
                         <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background via-background/70 to-transparent" />
                         <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background via-background/70 to-transparent" />
-                        <div className="md:hidden absolute -top-3 right-2 flex items-center gap-1 rounded-full bg-background/80 px-3 py-1 text-xs font-semibold text-description shadow-sm backdrop-blur">
+                        <div className="md:hidden absolute -top-3 right-2 flex items-center gap-1 rounded-full bg-surface/80 px-3 py-1 text-xs font-semibold text-text-2 shadow-sm backdrop-blur">
                             <FiArrowRight className="text-sm" />
                             {t("Swipe to scroll")}
                         </div>
@@ -109,7 +109,7 @@ function GoalSection({ title, goals }: { title: string, goals: goal[] }) {
 
     return (
         <div className="flex-shrink-0 p-2">
-            <h3 className="text-2xl font-semibold mb-2 text-secondary">{title}</h3>
+            <h3 className="text-2xl font-semibold mb-2 text-text">{title}</h3>
             <ul className="space-y-2">
                 {goals.map(goal => (
                     <GoalBox key={goal.id}

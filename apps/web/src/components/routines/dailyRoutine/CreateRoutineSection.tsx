@@ -125,7 +125,7 @@ const CreateRoutineSection = ({
             </h2>
             <div className="flex gap-3 md:gap-4">
                 <div className="flex-1 flex flex-col gap-4">
-                    <label className="font-medium text-secondary">
+                    <label className="font-medium text-text">
                         {t("name")}
                         <Controller
                             control={control}
@@ -136,15 +136,15 @@ const CreateRoutineSection = ({
                                     placeholder={t("Cozy Morning")}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-sm placeholder:text-placeholder bg-background text-secondary transition-colors duration-200"
+                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40 placeholder:text-sm placeholder:text-text-3 bg-surface text-text transition-colors duration-200"
                                 />
                             )}
                         />
                         {errors.name?.message && (
-                            <p className="text-error text-xs mt-1">{errors.name?.message}</p>
+                            <p className="text-danger text-xs mt-1">{errors.name?.message}</p>
                         )}
                     </label>
-                    <label className="font-medium text-secondary">
+                    <label className="font-medium text-text">
                         {t("Start time")}
                         <Controller
                             control={control}
@@ -155,15 +155,15 @@ const CreateRoutineSection = ({
                                     placeholder={"06:00"}
                                     value={field.value}
                                     onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40 bg-surface text-text transition-colors duration-200"
                                 />
                             )}
                         />
                         {errors.startTime?.message && (
-                            <p className="text-error text-xs mt-1">{errors.startTime?.message}</p>
+                            <p className="text-danger text-xs mt-1">{errors.startTime?.message}</p>
                         )}
                     </label>
-                    <label className="font-medium text-secondary">
+                    <label className="font-medium text-text">
                         {t("End time")}
                         <Controller
                             control={control}
@@ -174,7 +174,7 @@ const CreateRoutineSection = ({
                                     placeholder={"12:00"}
                                     value={field.value || ""}
                                     onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-primary/40 bg-background text-secondary transition-colors duration-200"
+                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40 bg-surface text-text transition-colors duration-200"
                                 />
                             )}
                         />
@@ -198,7 +198,7 @@ const CreateRoutineSection = ({
                     {editSection ? (
                         <button
                             type="button"
-                            className="mt-6 px-6 py-2 bg-primary text-background rounded-control font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
+                            className="mt-6 px-6 py-2 bg-accent text-on-accent rounded-control font-semibold shadow transition-colors duration-200 hover:bg-accent/90"
                             onClick={handleSubmit(handleUpdate)}
                         >
                             {t("Edit")}
@@ -206,7 +206,7 @@ const CreateRoutineSection = ({
                     ) : (
                         <button
                             type="button"
-                            className="mt-6 px-6 py-2 bg-primary text-background rounded-control font-semibold shadow transition-colors duration-200 hover:bg-primary/90"
+                            className="mt-6 px-6 py-2 bg-accent text-on-accent rounded-control font-semibold shadow transition-colors duration-200 hover:bg-accent/90"
                             onClick={handleSubmit(handleCreate)}
                         >
                             {t("Create")}
@@ -218,7 +218,7 @@ const CreateRoutineSection = ({
             <h1
                 className={`${
                     editSection == null && favoritedSections?.length > 0 ? "" : "hidden"
-                } text-center mt-2 text-secondary font-semibold text-lg`}
+                } text-center mt-2 text-text font-semibold text-lg`}
             >
                 {t("Your favorite sections")}
             </h1>
@@ -231,18 +231,18 @@ const CreateRoutineSection = ({
                             <div key={section.id} className="w-full flex items-center justify-between py-2">
                                 <div className="flex items-center gap-2 w-full">
                                     {hasIcon && (
-                                        <span className="text-[25px] md:text-[30px] text-icon">
+                                        <span className="text-[25px] md:text-[30px] text-text-2">
                                             <BeyouIcon id={section.iconId} />
                                         </span>
                                     )}
-                                    <span className="text-md md:text-xl font-semibold text-primary line-clamp-1">
+                                    <span className="text-md md:text-xl font-semibold text-accent line-clamp-1">
                                         {section.name}
                                     </span>
                                     <span className="text-xs md:text-md">{formatTimeRange(section.startTime, section.endTime)}</span>
                                 </div>
 
                                 <button
-                                    className="text-xs md:text-md hover:text-primary hover:scale-105 border border-border rounded-control px-2 py-1 transition-all duration-200"
+                                    className="text-xs md:text-md hover:text-accent hover:scale-105 border border-border rounded-control px-2 py-1 transition-all duration-200"
                                     onClick={() => handleUseFavorite(section)}
                                 >
                                     {t("Use")}

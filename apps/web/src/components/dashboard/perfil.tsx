@@ -21,8 +21,8 @@ function Avatar({ photo, name, alt }: { photo: string; name: string; alt: string
     }
     const initial = (name.trim()[0] ?? "?").toUpperCase();
     return (
-        <div className="w-14 h-14 rounded-full border-2 border-border bg-primary flex items-center justify-center">
-            <span className="text-xl font-bold text-background">{initial}</span>
+        <div className="w-14 h-14 rounded-full border-2 border-border bg-accent flex items-center justify-center">
+            <span className="text-xl font-bold text-on-accent">{initial}</span>
         </div>
     );
 }
@@ -51,7 +51,7 @@ function Perfil() {
     return (
         <div
             data-tutorial-id="dashboard-profile"
-            className="w-full md:m-3 md:max-w-md lg:max-w-none rounded-card border border-border bg-background p-4 shadow-sm"
+            className="w-full rounded-card border border-border bg-surface p-4 md:m-3 md:max-w-md lg:max-w-none"
         >
             <div className="flex items-center gap-3">
                 <Avatar photo={photo} name={name} alt={t('PerfilPhotoAlt')} />
@@ -59,34 +59,34 @@ function Perfil() {
                 <div className="flex flex-1 flex-col min-w-0">
                     <h2
                         data-testid="dashboard-greeting"
-                        className="text-lg font-bold leading-tight text-secondary truncate"
+                        className="truncate text-xl font-semibold leading-tight tracking-[-0.02em] text-text"
                     >
                         {t(greetingKey)}, {name}
                     </h2>
-                    <h3 className="text-xs font-medium text-primary">{t('BeYourBestVersion')}</h3>
+                    <h3 className="text-xs font-medium text-text-3">{t('BeYourBestVersion')}</h3>
                 </div>
 
                 {/* Level / XP ring */}
                 <div className="relative shrink-0 flex items-center justify-center" title={t('Level')}>
                     <ProgressRing progress={levelProgress} size="md" showText={false} />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-base font-bold leading-none text-secondary">{level}</span>
-                        <span className="text-[9px] font-semibold uppercase text-description">{t('Level')}</span>
+                        <span className="font-mono text-base font-semibold leading-none text-text">{level}</span>
+                        <span className="text-[9px] font-semibold uppercase text-text-3">{t('Level')}</span>
                     </div>
                 </div>
             </div>
 
             {phrase && (
                 <div className="mt-2">
-                    <p className="text-sm italic leading-snug text-secondary line-clamp-1">"{phrase}"</p>
-                    <p className="text-xs font-semibold text-primary">- {phrase_author}</p>
+                    <p className="line-clamp-1 text-sm italic leading-snug text-text-2">"{phrase}"</p>
+                    <p className="text-xs font-semibold text-text-3">— {phrase_author}</p>
                 </div>
             )}
 
             <div className="mt-2 flex items-center gap-1.5" title={t('StreakExplanation')}>
-                <Flame size={16} className="text-primary" />
-                <span className="text-sm font-bold text-secondary">{constance}</span>
-                <span className="text-xs text-description">
+                <Flame size={16} className="text-flame" />
+                <span className="font-mono text-sm font-semibold text-flame">{constance}</span>
+                <span className="text-xs text-text-3">
                     {t('Days', { count: constance })} · {t('Constance')}
                 </span>
             </div>

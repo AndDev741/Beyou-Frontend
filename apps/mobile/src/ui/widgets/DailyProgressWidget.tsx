@@ -22,8 +22,8 @@ export default function DailyProgressWidget({ checked, total }: DailyProgressWid
     <WidgetCard title={t('Daily Progress')} bigSize testID="widget-daily-progress">
       <View className="w-full flex-row items-center justify-between gap-3 px-1 py-1">
         <View className="flex-1">
-          <Text className="text-primary text-sm font-semibold">{t('Daily progress phrase')}</Text>
-          <Text className="text-secondary mt-1 text-lg font-semibold">
+          <Text className="text-accent text-sm font-semibold">{t('Daily progress phrase')}</Text>
+          <Text className="text-text mt-1 text-lg font-semibold">
             {t('Tasks')}: {checked}/{total}
           </Text>
         </View>

@@ -15,8 +15,8 @@ describe('MobileBrand', () => {
 
   it('renders BeYou brand name', async () => {
     const { getByText } = await wrap(<MobileBrand />);
-    // i18n key 'BeYou' resolves to "Be you"
-    expect(getByText('Be you')).toBeTruthy();
+    // O wordmark vem do BrandMark e é literal (não passa por i18n).
+    expect(getByText('beyou')).toBeTruthy();
   });
 
   it('renders tagline text', async () => {
@@ -25,8 +25,8 @@ describe('MobileBrand', () => {
     expect(getByText('Your favorite habit tracker')).toBeTruthy();
   });
 
-  it('renders Logo image with accessibility label', async () => {
+  it('renders the brand mark with an accessibility label', async () => {
     const { getByLabelText } = await wrap(<MobileBrand />);
-    expect(getByLabelText('BeYou — habit tracker logo')).toBeTruthy();
+    expect(getByLabelText('beyou')).toBeTruthy();
   });
 });

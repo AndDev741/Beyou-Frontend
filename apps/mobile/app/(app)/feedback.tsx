@@ -102,7 +102,7 @@ export default function FeedbackScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center gap-2 px-4 pb-2">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
@@ -111,7 +111,7 @@ export default function FeedbackScreen() {
         >
           <Ionicons name="chevron-back" size={26} color={theme.primary} />
         </Pressable>
-        <Text className="text-primary text-2xl font-bold">{t('FeedbackPageTitle')}</Text>
+        <Text className="text-accent text-2xl font-bold">{t('FeedbackPageTitle')}</Text>
       </View>
 
       <ScrollView
@@ -119,7 +119,7 @@ export default function FeedbackScreen() {
         contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 48, gap: 20 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text className="text-description text-sm">{t('FeedbackIntro')}</Text>
+        <Text className="text-text-2 text-sm">{t('FeedbackIntro')}</Text>
 
         {outcome?.kind === 'sent' ? (
           <View
@@ -128,9 +128,9 @@ export default function FeedbackScreen() {
             className="gap-1 rounded-card border-2 border-success p-4"
           >
             <Text className="text-success text-base font-semibold">{t('FeedbackSuccessTitle')}</Text>
-            <Text className="text-description text-sm">{t('FeedbackSuccessBody')}</Text>
+            <Text className="text-text-2 text-sm">{t('FeedbackSuccessBody')}</Text>
             {outcome.failedAttachments > 0 ? (
-              <Text className="text-error text-sm font-medium">
+              <Text className="text-danger text-sm font-medium">
                 {t('FeedbackPartialAttachmentWarning', { count: outcome.failedAttachments })}
               </Text>
             ) : null}
@@ -141,11 +141,11 @@ export default function FeedbackScreen() {
           <View
             testID="feedback-failure"
             accessibilityRole="alert"
-            className="gap-1 rounded-card border-2 border-error p-4"
+            className="gap-1 rounded-card border-2 border-danger p-4"
           >
-            <Text className="text-error text-base font-semibold">{t('FeedbackFailedTitle')}</Text>
-            <Text className="text-description text-sm">{t('FeedbackFailedBody')}</Text>
-            <Text className="text-description text-sm">
+            <Text className="text-danger text-base font-semibold">{t('FeedbackFailedTitle')}</Text>
+            <Text className="text-text-2 text-sm">{t('FeedbackFailedBody')}</Text>
+            <Text className="text-text-2 text-sm">
               {getFriendlyErrorMessage(t, outcome.error)}
             </Text>
             <Pressable
@@ -155,7 +155,7 @@ export default function FeedbackScreen() {
               className="mt-2 flex-row items-center gap-2 self-start rounded-full border border-border px-4 py-2"
             >
               <Ionicons name="mail-outline" size={16} color={theme.primary} />
-              <Text className="text-primary text-sm font-semibold">{t('FeedbackEmailLink')}</Text>
+              <Text className="text-accent text-sm font-semibold">{t('FeedbackEmailLink')}</Text>
             </Pressable>
           </View>
         ) : null}
@@ -165,7 +165,7 @@ export default function FeedbackScreen() {
           name="category"
           render={({ field }) => (
             <View className="gap-2">
-              <Text className="text-secondary text-base font-semibold">
+              <Text className="text-text text-base font-semibold">
                 {t('FeedbackCategoryLabel')}
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -180,7 +180,7 @@ export default function FeedbackScreen() {
                       accessibilityLabel={t(FEEDBACK_CATEGORY_LABEL_KEYS[category])}
                       testID={`feedback-category-${category}`}
                       className={`rounded-full border px-4 py-2 ${
-                        chosen ? 'border-accent bg-primary' : 'border-description'
+                        chosen ? 'border-accent bg-accent' : 'border-border'
                       }`}
                     >
                       <Text
@@ -194,7 +194,7 @@ export default function FeedbackScreen() {
                 })}
               </View>
               {errors.category?.message ? (
-                <Text className="text-error text-sm" testID="feedback-category-error">
+                <Text className="text-danger text-sm" testID="feedback-category-error">
                   {errors.category.message}
                 </Text>
               ) : null}
@@ -207,7 +207,7 @@ export default function FeedbackScreen() {
           name="body"
           render={({ field }) => (
             <View className="gap-2">
-              <Text className="text-secondary text-base font-semibold">
+              <Text className="text-text text-base font-semibold">
                 {t('FeedbackBodyLabel')}
               </Text>
               <Input
@@ -231,7 +231,7 @@ export default function FeedbackScreen() {
           disabled={isSubmitting}
           accessibilityRole="button"
           testID="feedback-submit"
-          className={`flex-row items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 ${
+          className={`flex-row items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 ${
             isSubmitting ? 'opacity-60' : ''
           }`}
         >
@@ -243,13 +243,13 @@ export default function FeedbackScreen() {
 
         {/* R7: the mailto is a standing alternative, not only a failure hatch. */}
         <View className="flex-row flex-wrap items-center gap-2">
-          <Text className="text-description text-sm">{t('FeedbackEmailPreference')}</Text>
+          <Text className="text-text-2 text-sm">{t('FeedbackEmailPreference')}</Text>
           <Pressable
             onPress={openMail}
             accessibilityRole="button"
             testID="feedback-mailto-preference"
           >
-            <Text className="text-primary text-sm font-semibold underline">
+            <Text className="text-accent text-sm font-semibold underline">
               {t('FeedbackEmailLink')}
             </Text>
           </Pressable>

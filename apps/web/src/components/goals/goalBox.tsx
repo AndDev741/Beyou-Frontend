@@ -173,19 +173,19 @@ function GoalBox({
   }
 
   return (
-    <div className={`flex relative flex-col justify-between border border-border rounded-control p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
+    <div className={`flex relative flex-col justify-between border border-border rounded-control p-2 m-1 bg-surface text-text transition-colors duration-200 ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <div className="flex items-start">
-            <p className="text-icon text-[34px]">
+            <p className="text-text-2 text-[34px]">
               <BeyouIcon id={iconId} />
             </p>
             <h2 className="text-xl ml-1 font-semibold line-clamp-1">{title}</h2>
           </div>
-          <div className="line-clamp-2 leading-tight my-1 text-description">
+          <div className="line-clamp-2 leading-tight my-1 text-text-2">
             <p>{description}</p>
           </div>
-          <p className="text-description text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
+          <p className="text-text-2 text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
         </div>
         <div className="flex items-center space-x-2">
           <ProgressRing progress={targetValue > 0 ? (currentValue / targetValue * 100) : 0} size="md" className="flex-shrink-0" />
@@ -198,14 +198,14 @@ function GoalBox({
             <span className="flex items-center" key={`${category.id}-${index}`}>
               <CategoryNameAndIcon
                 name={category.name} iconId={category.iconId} />
-              <p className={`${index === categories.length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
+              <p className={`${index === categories.length - 1 ? "invisible" : "mr-1 text-text"}`}>,</p>
             </span>
           ))} */}
           {Object.entries(categories).map(([categoryId, {name, iconId}], index) => (
             <span className="flex items-center" key={`${categoryId}-${index}`}>
               <CategoryNameAndIcon
                 name={name} iconId={iconId} />
-              <p className={`${index === Object.entries(categories).length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
+              <p className={`${index === Object.entries(categories).length - 1 ? "invisible" : "mr-1 text-text"}`}>,</p>
             </span>
           ))}
         </div>
@@ -213,8 +213,8 @@ function GoalBox({
 
       <div className="flex justify-between">
         <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-1 text-description">
-            <MdOutlineAlbum className="text-icon"/>
+          <div className="flex items-center gap-1 text-text-2">
+            <MdOutlineAlbum className="text-text-2"/>
             <p>{currentValue}</p>
             <p> / </p>
             <p>{targetValue} {unit}</p>
@@ -227,7 +227,7 @@ function GoalBox({
               disabled={currentValue === 0}
               className="h-8 w-10 p-0 border-border"
             >
-              <p className="text-xl text-secondary" >-</p>
+              <p className="text-xl text-text" >-</p>
             </Button>
             <Button
               variant="outline"
@@ -235,13 +235,13 @@ function GoalBox({
               onClick={() => increaseTask(id)}
               className="h-8 w-10 p-0 border-border"
             >
-              <p className="text-lg text-secondary" >+</p>
+              <p className="text-lg text-text" >+</p>
             </Button>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1 text-description">
-            <MdCalendarMonth className="text-icon"/>
+          <div className="flex items-center gap-1 text-text-2">
+            <MdCalendarMonth className="text-text-2"/>
             <p>{formatDate(startDate.toString())}</p>
             <p>-</p>
             <p>{formatDate(endDate.toString())}</p>
@@ -254,7 +254,7 @@ function GoalBox({
               disabled={currentValue === 0}
               className="border-border"
             >
-              <p className="text-md text-secondary">{status === "COMPLETED" ? t("Remove Complete") : t("Mark Complete")}</p>
+              <p className="text-md text-text">{status === "COMPLETED" ? t("Remove Complete") : t("Mark Complete")}</p>
             </Button>
           </div>
         </div>
@@ -262,19 +262,19 @@ function GoalBox({
       </div>
 
       <div className="flex justify-between items-center mt-2">
-        <p className="text-lg font-medium text-secondary">{termPhrase}</p>
+        <p className="text-lg font-medium text-text">{termPhrase}</p>
         <div className="flex items-center font-medium">
           <img className="w-[30px] mr-1" alt={t('InProgressImgAlt')} src={statusIcon} />
-          <p className="text-lg font-medium text-secondary">{statusPhrase}</p>
+          <p className="text-lg font-medium text-text">{statusPhrase}</p>
         </div>
       </div>
       <div className={`${readonly ? "hidden" : ""} flex justify-between items-center my-2`}>
 
-        <button onClick={handleEditMode} className="px-4 py-1 rounded cursor-pointer bg-primary text-background transition-colors duration-200 hover:bg-primary/90">
+        <button onClick={handleEditMode} className="px-4 py-1 rounded cursor-pointer bg-accent text-on-accent transition-colors duration-200 hover:bg-accent/90">
           {t("Edit")}
         </button>
         <div className="my-1"></div>
-        <button onClick={() => setOnDelete(true)} className="px-4 py-1 rounded cursor-pointer bg-error text-background transition-colors duration-200 hover:bg-error/90">
+        <button onClick={() => setOnDelete(true)} className="px-4 py-1 rounded cursor-pointer bg-danger text-on-accent transition-colors duration-200 hover:bg-danger/90">
           {t("Delete")}
         </button>
         <DeleteModal

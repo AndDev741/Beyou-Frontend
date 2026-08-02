@@ -28,7 +28,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
   const progress = calculateLevelProgress(category.xp, category.actualLevelXp, category.nextLevelXp);
 
   return (
-    <View ref={viewRef} className="rounded-card border border-border bg-background p-4">
+    <View ref={viewRef} className="rounded-card border border-border bg-surface p-4">
       <Pressable
         onPress={() => setExpanded((e) => !e)}
         accessibilityRole="button"
@@ -37,15 +37,15 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
         testID={`category-card-${category.id}`}
         className="flex-row items-center gap-3"
       >
-        <View className="h-11 w-11 items-center justify-center rounded-card bg-primary/10">
+        <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
           <BeyouIcon id={category.iconId} size={24} showFallback />
         </View>
         <View className="flex-1">
-          <Text className="text-secondary text-base font-bold" numberOfLines={expanded ? undefined : 1}>
+          <Text className="text-text text-base font-bold" numberOfLines={expanded ? undefined : 1}>
             {category.name}
           </Text>
           {category.description ? (
-            <Text className="text-description text-sm" numberOfLines={expanded ? undefined : 2}>
+            <Text className="text-text-2 text-sm" numberOfLines={expanded ? undefined : 2}>
               {category.description}
             </Text>
           ) : null}
@@ -55,11 +55,11 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
 
       <View className="mt-3">
         <View className="mb-1 flex-row justify-between">
-          <Text className="text-description text-xs">{t('Level')} {category.level}</Text>
-          <Text className="text-description text-xs">{category.xp}/{category.nextLevelXp} xp</Text>
+          <Text className="text-text-2 text-xs">{t('Level')} {category.level}</Text>
+          <Text className="text-text-2 text-xs">{category.xp}/{category.nextLevelXp} xp</Text>
         </View>
-        <View className="h-2 overflow-hidden rounded-full bg-primary/15">
-          <View className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
+        <View className="h-2 overflow-hidden rounded-full bg-accent/15">
+          <View className="h-full rounded-full bg-accent" style={{ width: `${progress}%` }} />
         </View>
       </View>
 
@@ -69,7 +69,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
             onPress={() => onEdit(category)}
             accessibilityRole="button"
             testID={`category-edit-${category.id}`}
-            className="flex-1 items-center rounded-control bg-primary py-2.5"
+            className="flex-1 items-center rounded-control bg-accent py-2.5"
           >
             <Text style={{ color: theme.background }} className="font-semibold">{t('Edit')}</Text>
           </Pressable>
@@ -77,9 +77,9 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
             onPress={() => onDelete(category)}
             accessibilityRole="button"
             testID={`category-delete-${category.id}`}
-            className="flex-1 items-center rounded-control border border-error py-2.5"
+            className="flex-1 items-center rounded-control border border-danger py-2.5"
           >
-            <Text className="text-error font-semibold">{t('Delete')}</Text>
+            <Text className="text-danger font-semibold">{t('Delete')}</Text>
           </Pressable>
         </View>
       ) : null}

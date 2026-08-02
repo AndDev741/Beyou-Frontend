@@ -21,27 +21,27 @@ export default function RoutineTypePicker({ onChoose }: RoutineTypePickerProps) 
 
   return (
     <View className="gap-5">
-      <Text className="text-secondary text-center text-xl">{t('Do you want a')}</Text>
+      <Text className="text-text text-center text-xl">{t('Do you want a')}</Text>
 
       {/* Daily — active */}
       <View className="gap-2">
-        <Text className="text-secondary text-center text-base">{t('Daily Routine')}</Text>
+        <Text className="text-text text-center text-base">{t('Daily Routine')}</Text>
         <Pressable
           onPress={() => onChoose('daily')}
           accessibilityRole="button"
           testID="routine-type-daily"
-          className="rounded-control border-2 border-border bg-background p-3 active:opacity-80"
+          className="rounded-control border-2 border-border bg-surface p-3 active:opacity-80"
         >
           <View className="mb-3 flex-row items-center gap-2">
             <Ionicons name="sunny-outline" size={22} color={theme.primary} />
-            <Text className="text-secondary flex-1 text-base font-semibold">{t('Morning')}</Text>
-            <Text className="text-primary text-xs">06:00 - 08:00</Text>
+            <Text className="text-text flex-1 text-base font-semibold">{t('Morning')}</Text>
+            <Text className="text-accent text-xs">06:00 - 08:00</Text>
           </View>
           {DAILY_ITEMS.map((item) => (
             <View key={item.name} className="flex-row items-center gap-2 py-0.5">
               <Ionicons name="square-outline" size={18} color={theme.primary} />
-              <Text className="text-secondary flex-1 text-sm">{t(item.name)}</Text>
-              <Text className="text-description text-xs">{item.start} - {item.end}</Text>
+              <Text className="text-text flex-1 text-sm">{t(item.name)}</Text>
+              <Text className="text-text-2 text-xs">{item.start} - {item.end}</Text>
             </View>
           ))}
         </Pressable>
@@ -49,14 +49,14 @@ export default function RoutineTypePicker({ onChoose }: RoutineTypePickerProps) 
 
       {/* Todo — disabled */}
       <View className="gap-1 mt-4">
-        <Text className="text-placeholder text-center text-base">{t('Todo Routine')}</Text>
-        <Text className="text-placeholder text-center text-xs">{t('Not available yet')}</Text>
-        <View className="rounded-control border-2 border-placeholder/40 bg-background p-3 opacity-60">
-          <Text className="text-placeholder mb-3 text-center text-base font-semibold">{t('Routine')}</Text>
+        <Text className="text-text-3 text-center text-base">{t('Todo Routine')}</Text>
+        <Text className="text-text-3 text-center text-xs">{t('Not available yet')}</Text>
+        <View className="rounded-control border-2 border-placeholder/40 bg-surface p-3 opacity-60">
+          <Text className="text-text-3 mb-3 text-center text-base font-semibold">{t('Routine')}</Text>
           {TODO_ITEMS.map((item) => (
             <View key={item} className="flex-row items-center gap-2 py-0.5">
               <Ionicons name="square-outline" size={18} color={theme.placeholder} />
-              <Text className="text-placeholder flex-1 text-sm">{t(item)}</Text>
+              <Text className="text-text-3 flex-1 text-sm">{t(item)}</Text>
             </View>
           ))}
         </View>

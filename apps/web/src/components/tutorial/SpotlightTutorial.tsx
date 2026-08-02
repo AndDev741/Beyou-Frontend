@@ -322,28 +322,28 @@ export default function SpotlightTutorial({
                                 left: tooltipPosition.left
                             }}
                         >
-                            <div className="bg-background border border-border rounded-card shadow-2xl overflow-hidden text-secondary">
-                                <div className="bg-primary/10 px-5 py-1 md:py-3 border-b border-border flex items-center justify-between">
+                            <div className="bg-surface border border-border rounded-card shadow-2xl overflow-hidden text-text">
+                                <div className="bg-accent/10 px-5 py-1 md:py-3 border-b border-border flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-primary" />
-                                        <span className="text-sm font-semibold text-primary">
+                                        <Sparkles className="w-4 h-4 text-accent" />
+                                        <span className="text-sm font-semibold text-accent">
                                             {t("TutorialStepOf", { current: stepIndex + 1, total: steps.length })}
                                         </span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={onSkip}
-                                        className="text-description hover:text-secondary transition-colors"
+                                        className="text-text-2 hover:text-text transition-colors"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
                                 </div>
 
                                 <div className="p-3 md:p-5">
-                                    <h3 className="text-lg font-semibold text-secondary mb-1 md:mb-2">
+                                    <h3 className="text-lg font-semibold text-text mb-1 md:mb-2">
                                         {t(step.titleKey)}
                                     </h3>
-                                    <p className="text-sm text-description leading-relaxed mb-2 md:mb-4">
+                                    <p className="text-sm text-text-2 leading-relaxed mb-2 md:mb-4">
                                         {t(step.descriptionKey)}
                                     </p>
 
@@ -351,7 +351,7 @@ export default function SpotlightTutorial({
                                         <button
                                             type="button"
                                             onClick={onSkip}
-                                            className="text-sm text-description hover:text-secondary transition-colors"
+                                            className="text-sm text-text-2 hover:text-text transition-colors"
                                         >
                                             {t("TutorialSkip")}
                                         </button>
@@ -362,8 +362,8 @@ export default function SpotlightTutorial({
                                             className={cn(
                                                 "flex items-center gap-1 px-3 md:py-2 rounded-control text-sm font-semibold transition-all",
                                                 step.disableNext
-                                                    ? "bg-description/30 text-description cursor-not-allowed"
-                                                    : "bg-primary text-background hover:bg-primary/90"
+                                                    ? "bg-description/30 text-text-2 cursor-not-allowed"
+                                                    : "bg-accent text-on-accent hover:bg-accent/90"
                                             )}
                                         >
                                             {showFinishLabel ? t("TutorialFinish") : t("TutorialNext")}
@@ -379,9 +379,9 @@ export default function SpotlightTutorial({
                                             className={cn(
                                                 "w-1.5 h-1.5 rounded-full transition-all border border-border",
                                                 index === stepIndex
-                                                    ? "bg-primary w-4"
+                                                    ? "bg-accent w-4"
                                                     : index < stepIndex
-                                                    ? "bg-primary/50"
+                                                    ? "bg-accent/50"
                                                     : "bg-description/40"
                                             )}
                                         />
@@ -390,16 +390,16 @@ export default function SpotlightTutorial({
                             </div>
 
                             {tooltipPosition.arrow === "top" && (
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-l border-t border-border rotate-45" />
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-surface border-l border-t border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "bottom" && (
-                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-r border-b border-border rotate-45" />
+                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-surface border-r border-b border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "left" && (
-                                <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-background border-l border-b border-border rotate-45" />
+                                <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-surface border-l border-b border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "right" && (
-                                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-background border-r border-t border-border rotate-45" />
+                                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-surface border-r border-t border-border rotate-45" />
                             )}
                         </motion.div>
                     )}

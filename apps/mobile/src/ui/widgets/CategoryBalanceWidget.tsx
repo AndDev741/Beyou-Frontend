@@ -48,7 +48,7 @@ export default function CategoryBalanceWidget({ categories }: CategoryBalanceWid
     return (
       <WidgetCard title={t('LifeBalance')} bigSize testID="widget-category-balance">
         <Text
-          className="text-description text-center text-sm"
+          className="text-text-2 text-center text-sm"
           testID="category-balance-fallback"
         >
           {t('LifeBalanceFallback')}

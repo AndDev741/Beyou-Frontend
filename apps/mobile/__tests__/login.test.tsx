@@ -108,8 +108,8 @@ describe('LoginRoute (branded)', () => {
     expect(screen.getByTestId('login-email-input')).toBeTruthy();
     expect(screen.getByTestId('login-password-input')).toBeTruthy();
     expect(screen.getByTestId('login-submit-button')).toBeTruthy();
-    // MobileBrand brand name (i18n 'BeYou' -> "Be you")
-    expect(screen.getByText('Be you')).toBeTruthy();
+    // Wordmark do BrandMark dentro do MobileBrand (literal, não passa por i18n).
+    expect(screen.getByText('beyou')).toBeTruthy();
   });
 
   it('surfaces zod validation errors when submitting empty fields', async () => {

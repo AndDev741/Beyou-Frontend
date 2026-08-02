@@ -49,13 +49,13 @@ function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick
 
     const baseClasses =
         "relative flex flex-col items-center justify-center rounded-full border-2 w-10 h-10 md:w-12 md:h-12 " +
-        "transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer";
+        "transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 cursor-pointer";
 
     const stateClasses = isSelected
         ? isSnapshotMode
-            ? "bg-description/15 border-description text-description shadow-sm scale-110 ring-2 ring-description ring-offset-2 ring-offset-background"
-            : "bg-primary border-border text-background shadow-sm scale-110 ring-2 ring-primary ring-offset-2 ring-offset-background"
-        : "border-border hover:border-border hover:bg-primary/5 hover:scale-105";
+            ? "bg-description/15 border-border text-text-2 shadow-sm scale-110 ring-2 ring-description ring-offset-2 ring-offset-background"
+            : "bg-accent border-border text-on-accent shadow-sm scale-110 ring-2 ring-accent ring-offset-2 ring-offset-background"
+        : "border-border hover:border-border hover:bg-accent/5 hover:scale-105";
 
     return (
         <button
@@ -66,19 +66,19 @@ function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick
         >
             <span
                 className={`text-[9px] md:text-[10px] font-bold leading-none tracking-wide
-                    ${isSelected ? "" : "text-description"}`}
+                    ${isSelected ? "" : "text-text-2"}`}
             >
                 {shortDay}
             </span>
             <span
                 className={`text-xs md:text-sm font-bold leading-none mt-0.5
-                    ${isSelected ? "" : "text-secondary"}`}
+                    ${isSelected ? "" : "text-text"}`}
             >
                 {dayNum}
             </span>
             {/* Today indicator dot (only when not selected) */}
             {isToday && !isSelected && (
-                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
+                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-accent" />
             )}
         </button>
     );
@@ -176,23 +176,23 @@ function CalendarPopover({
     };
 
     return (
-        <div className="w-[17rem] rounded-card border border-border bg-background p-4 shadow-2xl">
+        <div className="w-[17rem] rounded-card border border-border bg-surface p-4 shadow-2xl">
             {/* Month navigation header */}
             <div className="flex items-center justify-between mb-3">
                 <button
                     type="button"
                     onClick={goToPrev}
-                    className="rounded-control p-1.5 text-secondary hover:bg-primary/10 hover:text-primary transition"
+                    className="rounded-control p-1.5 text-text hover:bg-accent/10 hover:text-accent transition"
                     aria-label="Previous month"
                 >
                     <FiChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm font-semibold text-secondary">{monthLabel}</span>
+                <span className="text-sm font-semibold text-text">{monthLabel}</span>
                 <button
                     type="button"
                     onClick={goToNext}
                     disabled={!canGoNext}
-                    className="rounded-control p-1.5 text-secondary hover:bg-primary/10 hover:text-primary transition disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="rounded-control p-1.5 text-text hover:bg-accent/10 hover:text-accent transition disabled:opacity-30 disabled:cursor-not-allowed"
                     aria-label="Next month"
                 >
                     <FiChevronRight className="w-4 h-4" />
@@ -204,7 +204,7 @@ function CalendarPopover({
                 {dayHeaders.map((h, i) => (
                     <div
                         key={i}
-                        className="flex items-center justify-center h-7 text-[10px] font-semibold text-description uppercase"
+                        className="flex items-center justify-center h-7 text-[10px] font-semibold text-text-2 uppercase"
                     >
                         {h}
                     </div>
@@ -229,15 +229,15 @@ function CalendarPopover({
                             disabled={isFuture}
                             className={[
                                 "flex items-center justify-center rounded-full w-8 h-8 mx-auto text-xs font-medium transition-all duration-150",
-                                isFuture ? "text-description/30 cursor-not-allowed" : "cursor-pointer",
+                                isFuture ? "text-text-2/30 cursor-not-allowed" : "cursor-pointer",
                                 isSelected
                                     ? isSnapshotMode
-                                        ? "bg-description/20 text-secondary font-bold ring-2 ring-description/30"
-                                        : "bg-primary text-background font-bold shadow-sm"
+                                        ? "bg-description/20 text-text font-bold ring-2 ring-description/30"
+                                        : "bg-accent text-on-accent font-bold shadow-sm"
                                     : isTodayCell
-                                    ? "ring-2 ring-primary/40 text-primary font-bold"
+                                    ? "ring-2 ring-accent/40 text-accent font-bold"
                                     : !isFuture
-                                    ? "hover:bg-primary/10 text-secondary"
+                                    ? "hover:bg-accent/10 text-text"
                                     : "",
                             ]
                                 .filter(Boolean)
@@ -337,12 +337,12 @@ function DatePickerBar({
                         aria-label={t("More dates")}
                         className={[
                             "flex items-center gap-1.5 rounded-card border px-2.5 py-1.5 text-xs font-medium transition-all duration-200",
-                            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                            "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                             calendarBtnActive
                                 ? isSnapshotMode
-                                    ? "border-description/50 bg-description/10 text-description"
-                                    : "border-border bg-primary/10 text-primary"
-                                : "border-border text-secondary hover:border-border hover:bg-primary/5",
+                                    ? "border-border/50 bg-description/10 text-text-2"
+                                    : "border-border bg-accent/10 text-accent"
+                                : "border-border text-text hover:border-border hover:bg-accent/5",
                         ].join(" ")}
                     >
                         <FiCalendar className="w-3.5 h-3.5 flex-shrink-0" />
@@ -449,8 +449,8 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
 
     return (
         <div
-            className={`w-full rounded-card border bg-background p-4 shadow-sm ${
-                isSnapshotMode ? "border-description/40" : "border-border"
+            className={`w-full rounded-card border bg-surface p-4 shadow-sm ${
+                isSnapshotMode ? "border-border/40" : "border-border"
             }`}
         >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -461,12 +461,12 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
                             {t("Routines overview")}
                         </p>
                         {isSnapshotMode && (
-                            <span className="inline-flex items-center rounded-full border border-description/30 bg-description/10 px-2.5 py-0.5 text-xs font-semibold text-description">
+                            <span className="inline-flex items-center rounded-full border border-border/30 bg-description/10 px-2.5 py-0.5 text-xs font-semibold text-text-2">
                                 {t("Historical view")}
                             </span>
                         )}
                     </div>
-                    <p className="text-sm text-description">
+                    <p className="text-sm text-text-2">
                         {isSnapshotMode
                             ? t("Viewing snapshot data for the selected date")
                             : t("Stay on track with your daily sections and checks")}
@@ -517,10 +517,10 @@ type SummaryCardProps = {
 };
 
 const SummaryCard = ({ title, value, accent = "primary" }: SummaryCardProps) => {
-    const accentClass = accent === "success" ? "text-success" : "text-primary";
+    const accentClass = accent === "success" ? "text-success" : "text-accent";
     return (
-        <div className="rounded-control border border-border bg-background p-3 shadow-sm">
-            <p className="text-sm text-description">{title}</p>
+        <div className="rounded-control border border-border bg-surface p-3 shadow-sm">
+            <p className="text-sm text-text-2">{title}</p>
             <p className={`text-xl font-semibold ${accentClass}`}>{value}</p>
         </div>
     );

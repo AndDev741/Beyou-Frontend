@@ -24,14 +24,14 @@ export default function IconPickerField({ label, value, onChange, error, testID 
 
   return (
     <View className="w-full">
-      <Text className="text-secondary mb-1 text-base font-semibold">{label}</Text>
+      <Text className="text-text mb-1 text-base font-semibold">{label}</Text>
       <Pressable
         onPress={() => setOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={label}
         testID={testID}
-        className={`h-[56px] flex-row items-center gap-3 rounded-control border-2 bg-background px-3 ${
-          error ? 'border-error' : 'border-accent'
+        className={`h-[56px] flex-row items-center gap-3 rounded-control border-2 bg-surface px-3 ${
+          error ? 'border-danger' : 'border-accent'
         }`}
       >
         <View className="h-8 w-8 items-center justify-center">
@@ -41,9 +41,9 @@ export default function IconPickerField({ label, value, onChange, error, testID 
             <BeyouIcon id="lucide:image" size={22} />
           )}
         </View>
-        <Text className="text-description text-sm">{entry?.label ?? t('Icon')}</Text>
+        <Text className="text-text-2 text-sm">{entry?.label ?? t('Icon')}</Text>
       </Pressable>
-      {error ? <Text className="text-error mt-1 text-sm">{error}</Text> : null}
+      {error ? <Text className="text-danger mt-1 text-sm">{error}</Text> : null}
       <IconPicker
         visible={open}
         selectedIcon={value}

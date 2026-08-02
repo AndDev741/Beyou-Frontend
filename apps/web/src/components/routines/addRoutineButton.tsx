@@ -21,12 +21,12 @@ const AddRoutineButton = ({setOnCreateRoutine, setRoutineType}: addRoutineButton
             type="button"
             className="
                 group flex items-center gap-2 px-4 py-2
-                bg-background border-2 border-border rounded-control
-                cursor-pointer text-xl font-medium text-secondary
+                bg-surface border-2 border-border rounded-control
+                cursor-pointer text-xl font-medium text-text
                 transition-all duration-200
-                hover:bg-primary/10 hover:scale-105
+                hover:bg-accent/10 hover:scale-105
                 hover:shadow-lg
-                active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/40
+                active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent/40
             "
         >
            <CgAddR className='w-[30px] h-[30px] mr-1'/>    

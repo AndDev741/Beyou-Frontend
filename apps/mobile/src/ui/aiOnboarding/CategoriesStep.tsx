@@ -99,10 +99,10 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
   return (
     <View className="w-full items-center gap-6">
       <View className="items-center gap-2 px-2">
-        <Text className="text-secondary text-center text-2xl font-bold">
+        <Text className="text-text text-center text-2xl font-bold">
           {t('AiOnboardingCategoriesQuestion')}
         </Text>
-        <Text className="text-description text-center text-base">
+        <Text className="text-text-2 text-center text-base">
           {t('AiOnboardingCategoriesHint')}
         </Text>
       </View>
@@ -117,7 +117,7 @@ export default function CategoriesStep({ onContinue, loading }: CategoriesStepPr
               accessibilityState={{ selected: active }}
               onPress={() => toggle(chip.name)}
               className={`flex-row items-center gap-2 rounded-full border px-4 py-2.5 ${
-                active ? 'border-accent bg-primary' : 'border-border bg-primary/10'
+                active ? 'border-accent bg-accent' : 'border-border bg-accent/10'
               }`}
             >
               {chip.iconId ? (

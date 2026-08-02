@@ -105,13 +105,13 @@ export default function RoutineSettingsSection() {
   return (
     <View className="gap-3" testID="config-routine-settings">
       <View>
-        <Text className="text-secondary text-base font-semibold">{t('RoutineSettingsTitle')}</Text>
-        <Text className="text-description mt-0.5 text-sm">{t('RoutineSettingsDescription')}</Text>
+        <Text className="text-text text-base font-semibold">{t('RoutineSettingsTitle')}</Text>
+        <Text className="text-text-2 mt-0.5 text-sm">{t('RoutineSettingsDescription')}</Text>
       </View>
 
       {/* Timezone */}
       <View>
-        <Text className="text-secondary mb-1 font-medium">{t('TimezoneLabel')}</Text>
+        <Text className="text-text mb-1 font-medium">{t('TimezoneLabel')}</Text>
         <Pressable
           onPress={() => setTzModalOpen(true)}
           accessibilityRole="button"
@@ -119,8 +119,8 @@ export default function RoutineSettingsSection() {
           testID="timezone-trigger"
           className="flex-row items-center justify-between rounded-control border border-border px-3 py-3"
         >
-          <Text className="text-secondary">{selectedTimezone}</Text>
-          <Text className="text-description">{'▼'}</Text>
+          <Text className="text-text">{selectedTimezone}</Text>
+          <Text className="text-text-2">{'▼'}</Text>
         </Pressable>
 
         {showDetected ? (
@@ -130,7 +130,7 @@ export default function RoutineSettingsSection() {
             testID="use-detected-timezone"
             className="mt-2"
           >
-            <Text className="text-primary text-sm font-medium underline">
+            <Text className="text-accent text-sm font-medium underline">
               {t('UseDetectedTimezone', { timezone: detectedTimezone })}
             </Text>
           </Pressable>
@@ -140,8 +140,8 @@ export default function RoutineSettingsSection() {
       {/* XP decay strategy */}
       <View className="gap-2">
         <View>
-          <Text className="text-secondary font-medium">{t('XpDecayLabel')}</Text>
-          <Text className="text-description mt-0.5 text-sm">{t('XpDecayDescription')}</Text>
+          <Text className="text-text font-medium">{t('XpDecayLabel')}</Text>
+          <Text className="text-text-2 mt-0.5 text-sm">{t('XpDecayDescription')}</Text>
         </View>
         {XP_DECAY_OPTIONS.map((opt) => (
           <OptionCard
@@ -160,7 +160,7 @@ export default function RoutineSettingsSection() {
         disabled={saving}
         accessibilityRole="button"
         testID="save-routine-settings"
-        className={`mt-2 items-center rounded-control bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
+        className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
       >
         <Text style={{ color: theme.background }} className="text-base font-semibold">
           {saving ? t('Saving...') : t('Save')}
@@ -175,10 +175,10 @@ export default function RoutineSettingsSection() {
       >
         <View className="flex-1 items-center justify-center bg-black/50 px-6">
           <View
-            className="max-h-[70%] w-full rounded-card border-2 border-border bg-background p-4"
+            className="max-h-[70%] w-full rounded-card border-2 border-border bg-surface p-4"
             testID="timezone-modal"
           >
-            <Text className="text-secondary mb-3 text-lg font-bold">{t('TimezoneLabel')}</Text>
+            <Text className="text-text mb-3 text-lg font-bold">{t('TimezoneLabel')}</Text>
             <TextInput
               value={tzSearch}
               onChangeText={setTzSearch}
@@ -187,11 +187,11 @@ export default function RoutineSettingsSection() {
               autoCapitalize="none"
               autoCorrect={false}
               testID="timezone-search"
-              className="mb-3 rounded-control border-2 border-border px-3 py-2 text-secondary"
+              className="mb-3 rounded-control border-2 border-border px-3 py-2 text-text"
             />
             <ScrollView keyboardShouldPersistTaps="handled">
               {filteredTimezones.length === 0 ? (
-                <Text className="text-description px-1 py-2 text-sm italic">
+                <Text className="text-text-2 px-1 py-2 text-sm italic">
                   {t('No timezones found')}
                 </Text>
               ) : (
@@ -204,9 +204,9 @@ export default function RoutineSettingsSection() {
                       accessibilityRole="button"
                       accessibilityState={{ selected: active }}
                       testID={`timezone-option-${tz}`}
-                      className={`rounded-control px-3 py-2.5 ${active ? 'bg-primary/10' : ''}`}
+                      className={`rounded-control px-3 py-2.5 ${active ? 'bg-accent/10' : ''}`}
                     >
-                      <Text className={active ? 'text-primary font-medium' : 'text-secondary'}>
+                      <Text className={active ? 'text-accent font-medium' : 'text-text'}>
                         {tz}
                       </Text>
                     </Pressable>
@@ -219,7 +219,7 @@ export default function RoutineSettingsSection() {
               accessibilityRole="button"
               className="mt-3 items-end px-2 py-1"
             >
-              <Text className="text-description font-semibold">{t('Cancel')}</Text>
+              <Text className="text-text-2 font-semibold">{t('Cancel')}</Text>
             </Pressable>
           </View>
         </View>

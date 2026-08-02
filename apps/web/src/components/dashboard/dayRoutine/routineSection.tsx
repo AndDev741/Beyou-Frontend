@@ -158,11 +158,11 @@ export default function RoutineSection({ section, routineId}: { section: section
                             }}
                         />
                         </label>
-                        <span className={`text-sm md:text-base ml-2 ${skipped ? "text-description line-through" : "text-secondary"}`}>
+                        <span className={`text-sm md:text-base ml-2 ${skipped ? "text-text-2 line-through" : "text-text"}`}>
                             {itemObj.name}
                         </span>
-                        <span className="mx-1 md:mx-2 text-secondary">-</span>
-                        <span className="text-center text-primary text-xs md:text-base">
+                        <span className="mx-1 md:mx-2 text-text">-</span>
+                        <span className="text-center text-accent text-xs md:text-base">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>
                         {/* The skipped state is already conveyed by the dimmed row,
@@ -171,7 +171,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                     </div>
                     {!checked && (
                         <button
-                            className="flex items-center gap-1 rounded-control border border-description/30 px-2 py-1.5 text-xs font-semibold text-description hover:text-primary hover:border-border active:scale-95 transition-all duration-200"
+                            className="flex items-center gap-1 rounded-control border border-border/30 px-2 py-1.5 text-xs font-semibold text-text-2 hover:text-accent hover:border-border active:scale-95 transition-all duration-200"
                             onClick={() => {
                                 const groupToSkip: itemGroupToSkip = {
                                     routineId: routineId,
@@ -206,9 +206,9 @@ export default function RoutineSection({ section, routineId}: { section: section
     return (
         <div className="flex flex-col items-start justify-center w-full h-full">
             <div className="flex items-center gap-2">
-                <span className="text-[22px] md:text-[30px] text-icon"><BeyouIcon id={section.iconId} /></span>
-                <span className="text-base md:text-xl font-bold text-primary line-clamp-1">{section.name}
-                <span className="ml-2 md:ml-4 text-xs md:text-base text-description">
+                <span className="text-[22px] md:text-[30px] text-text-2"><BeyouIcon id={section.iconId} /></span>
+                <span className="text-base md:text-xl font-bold text-accent line-clamp-1">{section.name}
+                <span className="ml-2 md:ml-4 text-xs md:text-base text-text-2">
                         {formatTimeRange(section.startTime, section.endTime)}
                 </span>
             </span>

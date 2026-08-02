@@ -99,7 +99,7 @@ function Goals() {
   }, [dispatch, t]);
 
   return (
-    <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
+    <div className="lg:flex flex-col items-center w-full bg-bg text-text min-h-screen">
             <PageHeader title={t("YourGoals")} />
       <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] mt-4 lg:px-6">
         <div className="w-full px-2">

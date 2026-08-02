@@ -23,10 +23,10 @@ type SnapshotRoutineCardProps = {
 };
 
 const timeOfDayClasses: Record<string, string> = {
-    morning: "bg-primary/10 text-primary",
+    morning: "bg-accent/10 text-accent",
     afternoon: "bg-success/10 text-success",
-    evening: "bg-secondary/10 text-secondary",
-    night: "bg-description/20 text-secondary",
+    evening: "bg-surface-2/10 text-text",
+    night: "bg-description/20 text-text",
 };
 
 export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCardProps) => {
@@ -93,7 +93,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
     };
 
     return (
-        <div className="relative overflow-hidden rounded-card border border-border bg-background shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
+        <div className="relative overflow-hidden rounded-card border border-border bg-surface shadow-sm transition-transform duration-200 hover:translate-y-[-1px] hover:shadow-md">
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-description/60 via-primary/40 to-description/60" />
             <div className="p-3 md:p-4 space-y-4">
                 <header className="flex items-start justify-between gap-3 md:gap-4">
@@ -102,17 +102,17 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
                             <div className="flex items-center gap-1 md:gap-2">
                                 <button
                                     type="button"
-                                    className="p-1 rounded-control border border-border text-secondary hover:border-border transition-transform duration-150 hover:-translate-y-0.5"
+                                    className="p-1 rounded-control border border-border text-text hover:border-border transition-transform duration-150 hover:-translate-y-0.5"
                                     onClick={() => setExpanded((prev) => !prev)}
                                     aria-label={expanded ? t("Collapse") : t("Expand")}
                                 >
                                     <FiChevronDown className={`transition-transform ${expanded ? "rotate-180" : ""}`} />
                                 </button>
-                                <span className="text-lg font-semibold text-secondary">
+                                <span className="text-lg font-semibold text-text">
                                     {snapshot.routineName}
                                 </span>
                             </div>
-                            <span className="inline-flex items-center rounded-full border border-description/30 bg-description/10 px-3 py-1 text-xs font-semibold text-description">
+                            <span className="inline-flex items-center rounded-full border border-border/30 bg-description/10 px-3 py-1 text-xs font-semibold text-text-2">
                                 {t("Historical view")}
                             </span>
                         </div>
@@ -128,8 +128,8 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
                                 <FiClock className="mr-1" /> {completion}% {t("Progress")}
                             </Badge>
                         </div>
-                        <div className="flex flex-wrap text-xs text-description w-full pl-1">
-                            <span className="rounded-full bg-description/10 px-3 py-1 font-medium text-description">
+                        <div className="flex flex-wrap text-xs text-text-2 w-full pl-1">
+                            <span className="rounded-full bg-description/10 px-3 py-1 font-medium text-text-2">
                                 {new Date(snapshot.snapshotDate).toLocaleDateString()}
                             </span>
                         </div>
@@ -140,13 +140,13 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
                     <div className="flex items-center gap-3">
                         <div className="h-2 w-full overflow-hidden rounded-full bg-ligthGray/40">
                             <div
-                                className="h-full rounded-full bg-primary transition-all duration-500"
+                                className="h-full rounded-full bg-accent transition-all duration-500"
                                 style={{ width: `${completion}%` }}
                             />
                         </div>
-                        <span className="text-sm font-semibold text-secondary w-14 text-right">{completion}%</span>
+                        <span className="text-sm font-semibold text-text w-14 text-right">{completion}%</span>
                     </div>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-secondary">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-text">
                         {stats.xpEarned > 0 ? (
                             <p className="text-success flex-1 min-w-[140px]">
                                 +{stats.xpEarned} XP {t("earned on")} {new Date(snapshot.snapshotDate).toLocaleDateString()}
@@ -206,7 +206,7 @@ const SnapshotSectionRow = ({ section, checks, onCheck, onSkip }: SnapshotSectio
     }, [checks, section.items]);
 
     return (
-        <div className="rounded-control border border-border bg-background/80 p-3">
+        <div className="rounded-control border border-border bg-surface/80 p-3">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 w-full">
                     <div
@@ -216,16 +216,16 @@ const SnapshotSectionRow = ({ section, checks, onCheck, onSkip }: SnapshotSectio
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
-                            <p className="text-base font-semibold text-secondary">{section.name}</p>
+                            <p className="text-base font-semibold text-text">{section.name}</p>
                         </div>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-description">
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-text-2">
                             <span className="flex items-center gap-1">
                                 <FiClock /> {formatTimeRange(section.startTime || undefined, section.endTime || undefined)}
                             </span>
-                            <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+                            <span className="rounded-full bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
                                 {t(timeOfDay)}
                             </span>
-                            <span className="text-xs font-medium text-secondary">
+                            <span className="text-xs font-medium text-text">
                                 {sectionStats.completedItems}/{sectionStats.totalItems} {t("Done")}
                             </span>
                             {sectionStats.xpEarned > 0 && (
@@ -270,36 +270,36 @@ const SnapshotCheckItem = ({ check, startTime, endTime, onCheck, onSkip }: Snaps
         <div
             className={`group flex items-center gap-3 rounded-control border px-3 py-2 text-sm transition-colors ${
                 check.skipped
-                    ? "border-description/20 bg-description/5 text-description opacity-60"
+                    ? "border-border/20 bg-description/5 text-text-2 opacity-60"
                     : check.checked
-                    ? "border-success/30 bg-success/10 text-secondary"
-                    : "border-border bg-background text-secondary"
+                    ? "border-success/30 bg-success/10 text-text"
+                    : "border-border bg-surface text-text"
             }`}
         >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-accent">
                 {hasItemIcon ? <BeyouIcon id={check.itemIconId} /> : <FiCheckCircle />}
             </div>
             <div className="flex-1 min-w-0">
                 <p className={`font-medium truncate ${check.skipped ? "line-through" : ""}`}>{check.itemName}</p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-description">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-text-2">
                     {(startTime || endTime) && (
                         <span className="flex items-center gap-1">
                             <FiClock /> {formatTimeRange(startTime || undefined, endTime || undefined)}
                         </span>
                     )}
-                    <span className="rounded-full bg-ligthGray/40 px-2 py-0.5 font-semibold text-secondary/80">
+                    <span className="rounded-full bg-ligthGray/40 px-2 py-0.5 font-semibold text-text/80">
                         {check.itemType === "TASK" ? t("Task") : t("Habit")}
                     </span>
                     {check.checked && <span className="text-success font-semibold">{t("Completed")}</span>}
-                    {check.skipped && <span className="text-description font-semibold">{t("Skipped")}</span>}
-                    {check.xpGenerated > 0 && <span className="text-primary font-semibold">+{check.xpGenerated} XP</span>}
+                    {check.skipped && <span className="text-text-2 font-semibold">{t("Skipped")}</span>}
+                    {check.xpGenerated > 0 && <span className="text-accent font-semibold">+{check.xpGenerated} XP</span>}
                 </div>
             </div>
             <div className="flex items-center gap-2">
                 {!check.checked && (
                     <button
                         type="button"
-                        className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs font-semibold text-description hover:text-primary transition-colors duration-200"
+                        className="opacity-0 group-hover:opacity-100 flex items-center gap-1 text-xs font-semibold text-text-2 hover:text-accent transition-colors duration-200"
                         onClick={() => onSkip(check)}
                         aria-label={check.skipped ? t("Undo skip") : t("Skip")}
                     >
@@ -319,7 +319,7 @@ const SnapshotCheckItem = ({ check, startTime, endTime, onCheck, onSkip }: Snaps
 };
 
 const Badge = ({ children }: { children: React.ReactNode }) => (
-    <span className="inline-flex items-center rounded-full border border-border bg-primary/5 px-2.5 py-1 text-xs font-semibold text-secondary">
+    <span className="inline-flex items-center rounded-full border border-border bg-accent/5 px-2.5 py-1 text-xs font-semibold text-text">
         {children}
     </span>
 );

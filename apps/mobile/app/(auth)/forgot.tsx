@@ -50,7 +50,7 @@ export default function ForgotRoute() {
   const goToLogin = () => router.replace('/(auth)/login');
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-bg">
       <ScrollView
         testID="forgot-screen"
         keyboardShouldPersistTaps="handled"
@@ -64,18 +64,18 @@ export default function ForgotRoute() {
           testID="forgot-back-link"
         >
           <Ionicons name="chevron-back" size={ICON_SIZE} color={theme.primary} />
-          <Text className="text-primary font-medium">{t('BackToLogin')}</Text>
+          <Text className="text-accent font-medium">{t('BackToLogin')}</Text>
         </Pressable>
 
-        <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-2">
+        <Text className="text-3xl font-bold text-text text-center mt-6 mb-2">
           {t('ForgotPasswordTitle')}
         </Text>
-        <Text className="text-description text-center mb-8">{t('ForgotPasswordSubtitle')}</Text>
+        <Text className="text-text-2 text-center mb-8">{t('ForgotPasswordSubtitle')}</Text>
 
         {sent ? (
           <View className="items-center gap-4" testID="forgot-success">
             <Ionicons name="mail-unread-outline" size={48} color={theme.primary} />
-            <Text className="text-primary text-center text-lg">{t('PasswordResetRequestSuccess')}</Text>
+            <Text className="text-accent text-center text-lg">{t('PasswordResetRequestSuccess')}</Text>
             <Button text={t('BackToLogin')} mode="create" size="big" onPress={goToLogin} testID="forgot-back-button" />
           </View>
         ) : (

@@ -69,18 +69,18 @@ class ErrorBoundaryClass extends React.Component<
     if (this.state.hasError) {
       const { t } = this.props;
       return (
-        <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex min-h-screen items-center justify-center bg-surface">
           <div className="text-center">
-            <h1 className="mb-4 text-2xl font-bold text-secondary">
+            <h1 className="mb-4 text-2xl font-bold text-text">
               {t("ErrorBoundaryTitle")}
             </h1>
-            <p className="mb-6 text-secondary">
+            <p className="mb-6 text-text">
               {t("ErrorBoundaryMessage")}
             </p>
             <button
               onClick={() => window.location.reload()}
               disabled={this.state.isReportSending}
-              className="rounded-control bg-primary px-6 py-2 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-control bg-accent px-6 py-2 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {t("ErrorBoundaryReload")}
             </button>

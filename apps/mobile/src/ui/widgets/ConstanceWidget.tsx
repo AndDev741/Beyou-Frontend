@@ -11,8 +11,8 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
   const { t } = useTranslation();
   return (
     <WidgetCard title={t('Constance')} testID="widget-constance">
-      <Text className="text-primary text-2xl font-semibold">{constance}</Text>
-      <Text className="text-secondary text-lg font-semibold">{t('Days', { count: constance })}</Text>
+      <Text className="text-accent text-2xl font-semibold">{constance}</Text>
+      <Text className="text-text text-lg font-semibold">{t('Days', { count: constance })}</Text>
     </WidgetCard>
   );
 }

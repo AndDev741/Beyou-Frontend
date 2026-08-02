@@ -24,7 +24,7 @@ export default function AuthTabs({ active }: Props) {
           accessibilityState={{ selected: isLogin }}
           testID="auth-tab-login"
         >
-          <Text className={`text-2xl ${isLogin ? 'text-primary font-semibold' : 'text-secondary'}`}>
+          <Text className={`text-2xl ${isLogin ? 'text-accent font-semibold' : 'text-text'}`}>
             {t('Login')}
           </Text>
         </Pressable>
@@ -35,7 +35,7 @@ export default function AuthTabs({ active }: Props) {
           accessibilityState={{ selected: !isLogin }}
           testID="auth-tab-register"
         >
-          <Text className={`text-2xl ${!isLogin ? 'text-primary font-semibold' : 'text-secondary'}`}>
+          <Text className={`text-2xl ${!isLogin ? 'text-accent font-semibold' : 'text-text'}`}>
             {t('Register')}
           </Text>
         </Pressable>

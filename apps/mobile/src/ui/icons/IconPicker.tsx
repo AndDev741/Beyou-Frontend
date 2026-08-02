@@ -76,7 +76,7 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
   return (
     <BottomSheet visible={visible} onClose={onClose} closeLabel="Close" maxHeight="max-h-[80%]">
         <View className="mb-3 flex-row items-center justify-between">
-          <Text className="text-secondary text-lg font-semibold">{t('Icon')}</Text>
+          <Text className="text-text text-lg font-semibold">{t('Icon')}</Text>
           <Pressable
             onPress={onClose}
             accessibilityRole="button"
@@ -103,10 +103,10 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
               accessibilityRole="button"
               accessibilityState={{ selected: category === opt.id }}
               className={`rounded-full border px-3 py-1 ${
-                category === opt.id ? 'border-accent bg-primary' : 'border-border'
+                category === opt.id ? 'border-accent bg-accent' : 'border-border'
               }`}
             >
-              <Text className={`text-xs ${category === opt.id ? 'text-background' : 'text-secondary'}`}>
+              <Text className={`text-xs ${category === opt.id ? 'text-on-accent' : 'text-text'}`}>
                 {opt.label}
               </Text>
             </Pressable>
@@ -114,7 +114,7 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
         </View>
 
         {icons.length === 0 ? (
-          <Text className="text-description p-4 text-center text-sm">{t('IconNoResults')}</Text>
+          <Text className="text-text-2 p-4 text-center text-sm">{t('IconNoResults')}</Text>
         ) : (
           <FlatList
             key={NUM_COLUMNS}

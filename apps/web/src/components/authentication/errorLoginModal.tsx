@@ -16,10 +16,10 @@ function ErrorLoginModal(){
     }, [errorMessage, dispatch])
     
     return(
-        <div className={`${errorMessage !== "" ? "flex items-center justify-center absolute w-[100vw] lg:w-[450px] h-[110px] lg:h-[100px] lg:rounded-control border-2 border-solid border-error bg-background top-0 lg:top-10 lg:left-[100px]" 
+        <div className={`${errorMessage !== "" ? "flex items-center justify-center absolute w-[100vw] lg:w-[450px] h-[110px] lg:h-[100px] lg:rounded-control border-2 border-solid border-danger bg-surface top-0 lg:top-10 lg:left-[100px]" 
         : "hidden"}`}>
-            <ErrorIcon className="w-[50px] mx-3 animate-pulse text-error" aria-hidden="true" focusable="false" />
-            <p className="text-2xl font-semibold m-2 text-error">{errorMessage}</p>
+            <ErrorIcon className="w-[50px] mx-3 animate-pulse text-danger" aria-hidden="true" focusable="false" />
+            <p className="text-2xl font-semibold m-2 text-danger">{errorMessage}</p>
         </div>
     )
 }

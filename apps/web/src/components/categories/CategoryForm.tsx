@@ -153,7 +153,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
 
     return (
         <div
-            className="bg-background"
+            className="bg-surface"
             data-tutorial-id={mode === "create" ? "category-create-form" : undefined}
         >
             <div className="flex items-center justify-center text-3xl font-semibold">
@@ -242,7 +242,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
                 </div>
 
                 {errors.root?.message && (
-                    <p className="text-error text-center mt-2">{errors.root?.message}</p>
+                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center" />
 

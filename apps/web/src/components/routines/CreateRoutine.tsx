@@ -21,23 +21,23 @@ const CreateRoutine = ({
 
     return (
         <div
-            className='w-full flex flex-col items-center justify-center text-secondary'
+            className='w-full flex flex-col items-center justify-center text-text'
             data-tutorial-id="routine-create-area"
         >
             {!routineType && (
                 <div className='w-full flex flex-col items-center justify-center'>
-                    <h2 className='text-2xl text-secondary'>{t('Do you want a')}</h2>
+                    <h2 className='text-2xl text-text'>{t('Do you want a')}</h2>
 
                     <div className='w-full flex items-center justify-evenly mt-5 gap-2'>
                         <div className='flex flex-col items-center justify-center'>
-                            <h3 className='text-lg mb-2 text-secondary'>{t('Daily Routine')}</h3>
+                            <h3 className='text-lg mb-2 text-text'>{t('Daily Routine')}</h3>
                             <div>
                                 <DailyRoutineExample setRoutineType={setRoutineType} />
                             </div>
                         </div>
                         <div className='flex flex-col items-center justify-center'>
-                            <h3 className='text-lg mb-2 text-secondary'>{t('Todo Routine')}</h3>
-                            <p className='text-sm text-placeholder'>{t('Not available yet')}</p>
+                            <h3 className='text-lg mb-2 text-text'>{t('Todo Routine')}</h3>
+                            <p className='text-sm text-text-3'>{t('Not available yet')}</p>
                             <div>
                                 <TodoRoutineExample />
                             </div>

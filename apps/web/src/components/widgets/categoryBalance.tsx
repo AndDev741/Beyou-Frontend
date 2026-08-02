@@ -75,7 +75,7 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
             {hasEnough ? (
                 <canvas ref={chartRef} className="w-[90%] max-h-[220px]" data-testid="category-balance-chart" />
             ) : (
-                <p className="text-center text-sm text-description" data-testid="category-balance-fallback">
+                <p className="text-center text-sm text-text-2" data-testid="category-balance-fallback">
                     {t("LifeBalanceFallback")}
                 </p>
             )}

@@ -82,15 +82,15 @@ export default function RoutinesScreen() {
   }, [t, load]);
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="flex-row items-center gap-2">
           <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" testID="back-button">
             <Ionicons name="chevron-back" size={26} color={theme.primary} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Routines')}</Text>
+          <Text className="text-accent text-2xl font-bold">{t('Routines')}</Text>
         </View>
-        <Pressable ref={createRoutineRef} onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
+        <Pressable ref={createRoutineRef} onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-accent">
           <Ionicons name="add" size={26} color={theme.background} />
         </Pressable>
       </View>
@@ -117,7 +117,7 @@ export default function RoutinesScreen() {
             !isPast ? (
               <View className="mt-12 items-center gap-3 px-8">
                 <Text className="text-5xl">🗓️</Text>
-                <Text className="text-description text-center text-base">{t('NoRoutinesYet')}</Text>
+                <Text className="text-text-2 text-center text-base">{t('NoRoutinesYet')}</Text>
               </View>
             ) : null
           }

@@ -32,23 +32,23 @@ function GoalRow({ goal, onPress }: { goal: goal; onPress: () => void }) {
       accessibilityRole="button"
       accessibilityLabel={goal.name}
       testID={`dash-goal-${goal.id}`}
-      className="flex-row items-center gap-3 rounded-card border border-border bg-background p-3 active:opacity-80"
+      className="flex-row items-center gap-3 rounded-card border border-border bg-surface p-3 active:opacity-80"
     >
       <BeyouIcon id={goal.iconId} size={20} showFallback />
       <View className="flex-1 gap-1">
         <View className="flex-row items-center justify-between gap-2">
-          <Text className="text-secondary flex-1 text-sm font-semibold" numberOfLines={1}>{goal.name}</Text>
-          <Text className="text-description text-xs">{steps}</Text>
+          <Text className="text-text flex-1 text-sm font-semibold" numberOfLines={1}>{goal.name}</Text>
+          <Text className="text-text-2 text-xs">{steps}</Text>
         </View>
-        <View className="h-1.5 overflow-hidden rounded-full bg-primary/15">
-          <View className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+        <View className="h-1.5 overflow-hidden rounded-full bg-accent/15">
+          <View className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
         </View>
-        {dateRange ? <Text className="text-description text-[11px]">{dateRange}</Text> : null}
+        {dateRange ? <Text className="text-text-2 text-[11px]">{dateRange}</Text> : null}
       </View>
       {goal.complete ? (
         <Ionicons name="checkmark-circle" size={18} color={theme.primary} />
       ) : (
-        <Text className="text-description text-xs">{pct}%</Text>
+        <Text className="text-text-2 text-xs">{pct}%</Text>
       )}
     </Pressable>
   );
@@ -90,7 +90,7 @@ export default function DashboardGoals() {
   return (
     <View className="gap-3">
       <Pressable onPress={goToGoals} accessibilityRole="button" testID="dash-goals-header" className="flex-row items-center justify-between">
-        <Text className="text-secondary text-xl font-bold">{t('Goals')}</Text>
+        <Text className="text-text text-xl font-bold">{t('Goals')}</Text>
         <Ionicons name="chevron-forward" size={20} color={theme.primary} />
       </Pressable>
 
@@ -104,9 +104,9 @@ export default function DashboardGoals() {
               accessibilityRole="button"
               accessibilityState={{ selected: active }}
               testID={`dash-goals-tag-${tag.key}`}
-              className={`rounded-full border px-3 py-1 ${active ? 'border-accent bg-primary/10' : 'border-border'}`}
+              className={`rounded-full border px-3 py-1 ${active ? 'border-accent bg-accent/10' : 'border-border'}`}
             >
-              <Text className={`text-xs font-semibold ${active ? 'text-primary' : 'text-secondary'}`}>{t(tag.title)}</Text>
+              <Text className={`text-xs font-semibold ${active ? 'text-accent' : 'text-text'}`}>{t(tag.title)}</Text>
             </Pressable>
           );
         })}
@@ -114,7 +114,7 @@ export default function DashboardGoals() {
 
       {visible.map((section) => (
         <View key={section.key} className="gap-2">
-          <Text className="text-description text-sm font-semibold">{t(section.title)}</Text>
+          <Text className="text-text-2 text-sm font-semibold">{t(section.title)}</Text>
           {section.goals.map((g) => (
             <GoalRow key={g.id} goal={g} onPress={() => openGoal(g.id)} />
           ))}

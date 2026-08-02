@@ -98,16 +98,16 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-        <Text className="text-secondary mb-3 text-lg font-bold">{t('Schedule')}</Text>
+        <Text className="text-text mb-3 text-lg font-bold">{t('Schedule')}</Text>
         <View className="mb-3 flex-row flex-wrap gap-2">
           <Pressable onPress={() => toggleGroup(WEEKDAYS)} accessibilityRole="button" testID="group-weekdays" className="rounded-full border border-border px-3 py-1.5">
-            <Text className="text-secondary text-xs">{t('Weekdays')}</Text>
+            <Text className="text-text text-xs">{t('Weekdays')}</Text>
           </Pressable>
           <Pressable onPress={() => toggleGroup(WEEKEND)} accessibilityRole="button" testID="group-weekend" className="rounded-full border border-border px-3 py-1.5">
-            <Text className="text-secondary text-xs">{t('Weekend')}</Text>
+            <Text className="text-text text-xs">{t('Weekend')}</Text>
           </Pressable>
           <Pressable onPress={() => toggleGroup(ALL)} accessibilityRole="button" testID="group-all" className="rounded-full border border-border px-3 py-1.5">
-            <Text className="text-secondary text-xs">{t('AllDays')}</Text>
+            <Text className="text-text text-xs">{t('AllDays')}</Text>
           </Pressable>
         </View>
         <ScrollView contentContainerClassName="gap-2" keyboardShouldPersistTaps="handled">
@@ -124,14 +124,14 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
                 accessibilityState={{ selected }}
                 testID={`day-${d.wire}`}
                 className={`flex-row items-center justify-between rounded-control border-2 p-3 ${
-                  blocked ? 'border-error' : selected ? 'border-accent bg-primary/10' : 'border-border'
+                  blocked ? 'border-danger' : selected ? 'border-accent bg-accent/10' : 'border-border'
                 }`}
               >
                 <View className="flex-row items-center gap-2">
-                  <Text className={`text-base ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>{t(d.key)}</Text>
-                  {overridden ? <Text className="text-primary text-[10px] font-semibold uppercase">{t('Override')}</Text> : null}
+                  <Text className={`text-base ${selected ? 'text-accent font-semibold' : 'text-text'}`}>{t(d.key)}</Text>
+                  {overridden ? <Text className="text-accent text-[10px] font-semibold uppercase">{t('Override')}</Text> : null}
                 </View>
-                {conflict ? <Text className={`text-xs ${blocked ? 'text-error' : 'text-description'}`}>{t('ScheduledIn', { name: conflict })}</Text> : null}
+                {conflict ? <Text className={`text-xs ${blocked ? 'text-danger' : 'text-text-2'}`}>{t('ScheduledIn', { name: conflict })}</Text> : null}
               </Pressable>
             );
           })}

@@ -85,7 +85,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
   };
 
   const suggestions = [t('AgentSuggestion1'), t('AgentSuggestion2'), t('AgentSuggestion3')];
-  const headerButton = 'h-9 w-9 items-center justify-center rounded-control active:bg-primary/10';
+  const headerButton = 'h-9 w-9 items-center justify-center rounded-control active:bg-accent/10';
 
   return (
     <Modal visible transparent={false} animationType="slide" onRequestClose={onClose}>
@@ -95,7 +95,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
           the composer. */}
       <KeyboardAvoidingView
         behavior="padding"
-        className="flex-1 bg-background"
+        className="flex-1 bg-surface"
         style={{ paddingTop: insets?.top ?? 0, paddingBottom: insets?.bottom ?? 0 }}
       >
         {/* Header */}
@@ -110,11 +110,11 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
               <ArrowLeft size={20} color={theme.secondary} />
             </Pressable>
           ) : (
-            <View className="h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-accent/10">
               <Sparkles size={16} color={theme.primary} />
             </View>
           )}
-          <Text numberOfLines={1} className="min-w-0 flex-1 font-semibold text-secondary">
+          <Text numberOfLines={1} className="min-w-0 flex-1 font-semibold text-text">
             {pane === 'history' ? t('AgentChats') : activeChat ? activeChat.title : t('AiAssistant')}
           </Text>
 
@@ -153,7 +153,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
           <View className="flex-1">
             <ScrollView className="flex-1 p-2">
               {chats.length === 0 && (
-                <Text className="px-3 py-6 text-center text-sm text-description">
+                <Text className="px-3 py-6 text-center text-sm text-text-2">
                   {t('NoChatsYet')}
                 </Text>
               )}
@@ -161,7 +161,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                 <View
                   key={item.id}
                   className={`flex-row items-center rounded-card ${
-                    item.id === activeChatId ? 'bg-primary/10' : ''
+                    item.id === activeChatId ? 'bg-accent/10' : ''
                   }`}
                 >
                   {editingChatId === item.id ? (
@@ -172,7 +172,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                       maxLength={255}
                       onSubmitEditing={() => submitRename(item.id)}
                       onBlur={() => submitRename(item.id)}
-                      className="min-w-0 flex-1 rounded-control border border-border bg-background px-3 py-2 text-sm text-secondary"
+                      className="min-w-0 flex-1 rounded-control border border-border bg-surface px-3 py-2 text-sm text-text"
                       testID={`agent-rename-input-${item.id}`}
                     />
                   ) : (
@@ -183,10 +183,10 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                       }}
                       className="min-w-0 flex-1 px-3 py-3"
                     >
-                      <Text numberOfLines={1} className="text-sm font-medium text-secondary">
+                      <Text numberOfLines={1} className="text-sm font-medium text-text">
                         {item.title}
                       </Text>
-                      <Text className="text-xs text-description">{formatDay(item.updatedAt)}</Text>
+                      <Text className="text-xs text-text-2">{formatDay(item.updatedAt)}</Text>
                     </Pressable>
                   )}
                   {editingChatId === item.id ? (
@@ -225,11 +225,11 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
               <Pressable
                 accessibilityLabel={t('ClearAllChats')}
                 onPress={confirmClearAll}
-                className="m-2 flex-row items-center justify-center gap-2 rounded-card border border-border px-3 py-2.5 active:bg-error/10"
+                className="m-2 flex-row items-center justify-center gap-2 rounded-card border border-border px-3 py-2.5 active:bg-danger/10"
                 testID="agent-clear-all"
               >
                 <Trash2 size={15} color={theme.error} />
-                <Text className="text-sm text-error">{t('ClearAllChats')}</Text>
+                <Text className="text-sm text-danger">{t('ClearAllChats')}</Text>
               </Pressable>
             )}
           </View>
@@ -238,13 +238,13 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
             {/* Messages / empty state */}
             {messages.length === 0 && !isSending ? (
               <View className="flex-1 items-center justify-center gap-3 px-6">
-                <View className="h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                <View className="h-14 w-14 items-center justify-center rounded-full bg-accent/10">
                   <Sparkles size={24} color={theme.primary} />
                 </View>
-                <Text className="text-center text-xl font-semibold text-secondary">
+                <Text className="text-center text-xl font-semibold text-text">
                   {t('AgentEmptyTitle')}
                 </Text>
-                <Text className="text-center text-sm text-description">
+                <Text className="text-center text-sm text-text-2">
                   {t('AgentEmptySubtitle')}
                 </Text>
                 <View className="mt-1 flex-row flex-wrap justify-center gap-2">
@@ -252,9 +252,9 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                     <Pressable
                       key={suggestion}
                       onPress={() => send(suggestion)}
-                      className="rounded-full border border-border px-3.5 py-1.5 active:bg-primary/10"
+                      className="rounded-full border border-border px-3.5 py-1.5 active:bg-accent/10"
                     >
-                      <Text className="text-sm text-secondary">{suggestion}</Text>
+                      <Text className="text-sm text-text">{suggestion}</Text>
                     </Pressable>
                   ))}
                 </View>
@@ -270,7 +270,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                   message.role === 'USER' ? (
                     <View
                       key={`${index}-u`}
-                      className="max-w-[88%] self-end rounded-card rounded-br-md bg-primary px-3.5 py-2.5"
+                      className="max-w-[88%] self-end rounded-card rounded-br-md bg-accent px-3.5 py-2.5"
                     >
                       <Text className="text-[15px] leading-[22px] text-white">
                         {message.segments[0]?.text}
@@ -279,7 +279,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                   ) : (
                     <View
                       key={`${index}-a`}
-                      className="max-w-[88%] self-start rounded-card rounded-bl-md border border-border bg-primary/5 px-3.5 py-2.5"
+                      className="max-w-[88%] self-start rounded-card rounded-bl-md border border-border bg-accent/5 px-3.5 py-2.5"
                     >
                       <AgentSegments segments={message.segments} onInternalLink={goToPage} />
                     </View>
@@ -288,7 +288,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                 {isSending && (
                   <View
                     accessibilityLabel={t('AgentThinking')}
-                    className={`max-w-[88%] self-start rounded-card rounded-bl-md border border-border bg-primary/5 ${
+                    className={`max-w-[88%] self-start rounded-card rounded-bl-md border border-border bg-accent/5 ${
                       streamSegments.length > 0 ? 'px-3.5 py-2.5' : 'px-4 py-3'
                     }`}
                   >
@@ -319,14 +319,14 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                 placeholderTextColor={theme.placeholder}
                 multiline
                 maxLength={4000}
-                className="max-h-32 flex-1 rounded-card border border-border bg-background px-4 py-2.5 text-[15px] text-secondary"
+                className="max-h-32 flex-1 rounded-card border border-border bg-surface px-4 py-2.5 text-[15px] text-text"
                 testID="agent-input"
               />
               <Pressable
                 accessibilityLabel={t('AgentSend')}
                 onPress={() => send()}
                 disabled={!input.trim() || isSending}
-                className={`h-11 w-11 items-center justify-center rounded-full bg-primary ${
+                className={`h-11 w-11 items-center justify-center rounded-full bg-accent ${
                   !input.trim() || isSending ? 'opacity-40' : 'active:opacity-80'
                 }`}
                 testID="agent-send"

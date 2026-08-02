@@ -55,7 +55,7 @@ export default function CategorySelector({ categories, value, onChange, error }:
   return (
     <View className="w-full">
       <View className="mb-1 flex-row items-center justify-between">
-        <Text className="text-secondary text-base font-semibold">{t('Categories')}</Text>
+        <Text className="text-text text-base font-semibold">{t('Categories')}</Text>
         <Pressable
           onPress={() => setCreateOpen(true)}
           accessibilityRole="button"
@@ -64,12 +64,12 @@ export default function CategorySelector({ categories, value, onChange, error }:
           className="flex-row items-center gap-1 rounded-full border border-border px-2.5 py-1"
         >
           <Ionicons name="add" size={14} color={theme.primary} />
-          <Text className="text-primary text-xs font-semibold">{t('AddCategory')}</Text>
+          <Text className="text-accent text-xs font-semibold">{t('AddCategory')}</Text>
         </Pressable>
       </View>
 
       {list.length === 0 ? (
-        <Text className="text-description text-sm">{t('NoCategories')}</Text>
+        <Text className="text-text-2 text-sm">{t('NoCategories')}</Text>
       ) : (
         <View className="flex-row flex-wrap gap-2">
           {list.map((cat) => {
@@ -83,11 +83,11 @@ export default function CategorySelector({ categories, value, onChange, error }:
                 accessibilityLabel={cat.name}
                 testID={`category-${cat.id}`}
                 className={`flex-row items-center gap-1.5 rounded-full border px-3 py-1.5 ${
-                  selected ? 'border-accent bg-primary/10' : 'border-border'
+                  selected ? 'border-accent bg-accent/10' : 'border-border'
                 }`}
               >
                 <BeyouIcon id={cat.iconId} size={16} />
-                <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>
+                <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-text'}`}>
                   {cat.name}
                 </Text>
               </Pressable>
@@ -95,7 +95,7 @@ export default function CategorySelector({ categories, value, onChange, error }:
           })}
         </View>
       )}
-      {error ? <Text className="text-error mt-1 text-sm">{error}</Text> : null}
+      {error ? <Text className="text-danger mt-1 text-sm">{error}</Text> : null}
 
       {createOpen ? (
         <CategoryForm

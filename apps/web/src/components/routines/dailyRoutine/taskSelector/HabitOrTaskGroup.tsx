@@ -63,23 +63,23 @@ const HabitOrTaskGroup = ({ habit, task, setRoutineSection, index, setOpenTaskSe
 
     return (
         <div
-            className={`flex-shrink-0 w-[180px] max-w-[180px] flex flex-col items-start justify-start p-2 mt-2 border-[2px] border-accent rounded-control mb-2 mx-1 transition-colors duration-200 ${isSelected ? "bg-primary text-background" : "hover:bg-primary/10"} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`flex-shrink-0 w-[180px] max-w-[180px] flex flex-col items-start justify-start p-2 mt-2 border-[2px] border-accent rounded-control mb-2 mx-1 transition-colors duration-200 ${isSelected ? "bg-accent text-on-accent" : "hover:bg-accent/10"} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
             onClick={handleAdd}
             aria-disabled={disabled}
         >
             {/* Habit or Task Name and Icon */}
             <div key={habit?.id || task?.id}
                 className="w-full flex items-center">
-                {hasIcon && <span className={`text-[30px] ${isSelected ? "text-background" : "text-icon"}`}><BeyouIcon id={itemIconId} /></span>}
+                {hasIcon && <span className={`text-[30px] ${isSelected ? "text-on-accent" : "text-text-2"}`}><BeyouIcon id={itemIconId} /></span>}
 
-                <span className={`text-md line-clamp-1 ml-1 ${isSelected ? "text-background" : "text-secondary"}`}>{habit?.name || task?.name}</span>
+                <span className={`text-md line-clamp-1 ml-1 ${isSelected ? "text-on-accent" : "text-text"}`}>{habit?.name || task?.name}</span>
             </div>
             <div className="w-full flex items-center justify-between mt-3">
-                <p className={`text-sm line-clamp-1 ${isSelected ? "text-background" : "text-description"}`}>
+                <p className={`text-sm line-clamp-1 ${isSelected ? "text-on-accent" : "text-text-2"}`}>
                     {habit?.level || habit?.level === 0 ? `Level ${habit?.level}` : task?.description || ""}
                 </p>
 
-                <p className={`text-sm ${isSelected ? "text-background" : "text-primary"}`}>{habit ? "habit" : "task"}</p>
+                <p className={`text-sm ${isSelected ? "text-on-accent" : "text-accent"}`}>{habit ? "habit" : "task"}</p>
             </div>
         </div>
     );

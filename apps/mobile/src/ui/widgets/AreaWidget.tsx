@@ -34,16 +34,16 @@ function AreaWidget({ category, title, variant, testID }: InnerProps) {
   const cat = category ?? categoryExample;
   const progress = calculateLevelProgress(cat.xp, cat.actualLevelXp, cat.nextLevelXp);
 
-  const fillClass = variant === 'error' ? 'bg-error' : 'bg-primary';
-  const trackClass = variant === 'error' ? 'bg-error/10' : 'bg-primary/10';
-  const borderClass = variant === 'error' ? 'border-error/30' : 'border-border';
+  const fillClass = variant === 'error' ? 'bg-danger' : 'bg-accent';
+  const trackClass = variant === 'error' ? 'bg-danger/10' : 'bg-accent/10';
+  const borderClass = variant === 'error' ? 'border-danger/30' : 'border-border';
 
   return (
     <WidgetCard title={title} testID={testID}>
       <View className="w-full flex-row items-center justify-center">
         <BeyouIcon id={cat.iconId} size={24} />
         <Text
-          className="text-primary ml-1 text-lg font-semibold"
+          className="text-accent ml-1 text-lg font-semibold"
           numberOfLines={1}
           testID={`${testID}-name`}
         >
@@ -55,7 +55,7 @@ function AreaWidget({ category, title, variant, testID }: InnerProps) {
         <View className={`h-full rounded-full ${fillClass}`} style={{ width: `${progress}%` }} />
       </View>
 
-      <Text className="text-secondary mt-1">LV {cat.level}</Text>
+      <Text className="text-text mt-1">LV {cat.level}</Text>
     </WidgetCard>
   );
 }

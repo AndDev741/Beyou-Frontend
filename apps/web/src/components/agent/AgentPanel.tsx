@@ -34,9 +34,9 @@ function TypingDots() {
                 <span
                     key={delay}
                     // Theme colors are plain CSS-var strings, so Tailwind opacity
-                    // modifiers (bg-primary/60) silently compile to NOTHING —
+                    // modifiers (bg-accent/60) silently compile to NOTHING —
                     // use the solid color + opacity utility instead.
-                    className="h-2 w-2 animate-bounce rounded-full bg-primary opacity-70"
+                    className="h-2 w-2 animate-bounce rounded-full bg-accent opacity-70"
                     style={{ animationDelay: `${delay}ms` }}
                 />
             ))}
@@ -369,15 +369,15 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         <div className="flex min-h-0 flex-1 flex-col">
             <div className="flex-1 space-y-1 overflow-y-auto p-2">
                 {chats.length === 0 && (
-                    <p className="px-3 py-6 text-center text-sm text-description">{t("NoChatsYet")}</p>
+                    <p className="px-3 py-6 text-center text-sm text-text-2">{t("NoChatsYet")}</p>
                 )}
                 {chats.map((chat) => (
                     <div
                         key={chat.id}
                         className={`group flex items-center rounded-card transition-colors duration-150 ${
                             chat.id === activeChatId
-                                ? "bg-primary/10 shadow-[inset_3px_0_0_0_var(--primary)]"
-                                : "hover:bg-primary/5"
+                                ? "bg-accent/10 shadow-[inset_3px_0_0_0_var(--primary)]"
+                                : "hover:bg-accent/5"
                         }`}
                     >
                         {editingChatId === chat.id ? (
@@ -391,8 +391,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     if (e.key === "Escape") setEditingChatId(null);
                                 }}
                                 onBlur={() => saveRename(chat.id)}
-                                className="min-w-0 flex-1 rounded-control border border-border bg-background
-                                px-3 py-2 text-sm text-secondary outline-none focus:border-border"
+                                className="min-w-0 flex-1 rounded-control border border-border bg-surface
+                                px-3 py-2 text-sm text-text outline-none focus:border-border"
                             />
                         ) : (
                             <button
@@ -401,7 +401,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-3 py-2.5 text-left"
                             >
                                 <span className="w-full truncate text-sm font-medium">{chat.title}</span>
-                                <span className="text-xs text-description">{formatDay(chat.updatedAt)}</span>
+                                <span className="text-xs text-text-2">{formatDay(chat.updatedAt)}</span>
                             </button>
                         )}
                         {editingChatId === chat.id ? (
@@ -414,7 +414,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     e.preventDefault();
                                     saveRename(chat.id);
                                 }}
-                                className="mr-1 rounded-control p-2 text-primary hover:bg-primary/10"
+                                className="mr-1 rounded-control p-2 text-accent hover:bg-accent/10"
                             >
                                 <Check size={16} />
                             </button>
@@ -424,7 +424,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 aria-label={t("RenameChat")}
                                 title={t("RenameChat")}
                                 onClick={() => startRename(chat)}
-                                className="rounded-control p-2 text-description transition-colors duration-150 hover:text-primary"
+                                className="rounded-control p-2 text-text-2 transition-colors duration-150 hover:text-accent"
                             >
                                 <Pencil size={15} />
                             </button>
@@ -434,7 +434,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                             aria-label={t("DeleteChat")}
                             title={t("DeleteChat")}
                             onClick={() => setConfirm({ kind: "chat", chat })}
-                            className="mr-2 rounded-control p-2 text-description transition-colors duration-150 hover:text-error"
+                            className="mr-2 rounded-control p-2 text-text-2 transition-colors duration-150 hover:text-danger"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -446,7 +446,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     type="button"
                     onClick={() => setConfirm({ kind: "all" })}
                     className="m-2 flex items-center justify-center gap-2 rounded-card border border-border
-                    px-3 py-2 text-sm text-description transition-colors duration-150 hover:text-error"
+                    px-3 py-2 text-sm text-text-2 transition-colors duration-150 hover:text-danger"
                 >
                     <Trash2 size={15} />
                     {t("ClearAllChats")}
@@ -460,7 +460,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
             <h2 id="agent-confirm-title" className="text-lg font-semibold">
                 {confirm.kind === "all" ? t("ClearAllChats") : t("DeleteChat")}
             </h2>
-            <p className="mt-2 text-sm text-description">
+            <p className="mt-2 text-sm text-text-2">
                 {confirm.kind === "all"
                     ? t("ClearAllChatsConfirm")
                     : t("DeleteChatConfirm", { title: confirm.chat.title })}
@@ -469,7 +469,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 <button
                     type="button"
                     onClick={() => setConfirm(null)}
-                    className="rounded-card px-4 py-2 text-sm font-medium text-secondary hover:bg-primary/10"
+                    className="rounded-card px-4 py-2 text-sm font-medium text-text hover:bg-accent/10"
                 >
                     {t("Cancel")}
                 </button>
@@ -477,7 +477,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     type="button"
                     autoFocus
                     onClick={runConfirm}
-                    className="rounded-card bg-error px-4 py-2 text-sm font-semibold text-white
+                    className="rounded-card bg-danger px-4 py-2 text-sm font-semibold text-white
                     transition-transform duration-150 hover:scale-105"
                 >
                     {t("Delete")}
@@ -486,7 +486,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         </Modal>
     );
 
-    const headerButton = "rounded-control p-2 text-secondary transition-colors duration-150 hover:bg-primary/10";
+    const headerButton = "rounded-control p-2 text-text transition-colors duration-150 hover:bg-accent/10";
 
     return (
         <AnimatePresence>
@@ -512,8 +512,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.92, y: reducedMotion ? 0 : 12 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
                         style={{ transformOrigin: expanded ? "center" : "bottom right" }}
-                        className={`fixed inset-0 z-50 flex flex-col overflow-hidden bg-background
-                        text-secondary shadow-2xl shadow-black/20 lg:rounded-card lg:border
+                        className={`fixed inset-0 z-50 flex flex-col overflow-hidden bg-surface
+                        text-text shadow-2xl shadow-black/20 lg:rounded-card lg:border
                         lg:border-border ${
                             expanded
                                 ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)]"
@@ -529,7 +529,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                         <button
                                             type="button"
                                             onClick={startNewChat}
-                                            className="flex items-center gap-1.5 rounded-card bg-primary px-3 py-2
+                                            className="flex items-center gap-1.5 rounded-card bg-accent px-3 py-2
                                             text-sm font-semibold text-white transition-transform duration-200
                                             hover:scale-105"
                                         >
@@ -545,8 +545,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                             <div className="relative flex min-w-0 flex-1 flex-col">
                                 {/* Header */}
                                 <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
-                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                                        <Sparkles size={16} className="text-primary" />
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
+                                        <Sparkles size={16} className="text-accent" />
                                     </span>
                                     <h2 className="min-w-0 flex-1 truncate font-semibold">
                                         {activeChat ? activeChat.title : t("AiAssistant")}
@@ -599,7 +599,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             exit={{ x: reducedMotion ? 0 : -320, opacity: reducedMotion ? 0 : 1 }}
                                             transition={{ duration: 0.2, ease: "easeOut" }}
                                             className={`absolute bottom-0 left-0 top-[53px] z-10 flex w-72 max-w-[85%]
-                                            flex-col border-r border-border bg-background shadow-xl
+                                            flex-col border-r border-border bg-surface shadow-xl
                                             ${expanded ? "lg:hidden" : ""}`}
                                         >
                                             <div className="flex items-center justify-between p-3 pb-1">
@@ -623,12 +623,12 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     {messages.length === 0 && !isSending ? (
                                         <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
                                             <div className="flex h-14 w-14 items-center justify-center rounded-full
-                                            bg-primary/10 ring-8 ring-primary/5">
-                                                <Sparkles size={24} className="text-primary" />
+                                            bg-accent/10 ring-8 ring-accent/5">
+                                                <Sparkles size={24} className="text-accent" />
                                             </div>
                                             <div>
                                                 <h3 className="text-xl font-semibold">{t("AgentEmptyTitle")}</h3>
-                                                <p className="mt-1 max-w-md text-sm text-description">{t("AgentEmptySubtitle")}</p>
+                                                <p className="mt-1 max-w-md text-sm text-text-2">{t("AgentEmptySubtitle")}</p>
                                             </div>
                                             <div className="mt-1 flex flex-wrap justify-center gap-2">
                                                 {suggestions.map((suggestion) => (
@@ -637,8 +637,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                         type="button"
                                                         onClick={() => send(suggestion)}
                                                         className="rounded-full border border-border px-3.5 py-1.5
-                                                        text-sm text-secondary transition-colors duration-200
-                                                        hover:bg-primary hover:text-white"
+                                                        text-sm text-text transition-colors duration-200
+                                                        hover:bg-accent hover:text-white"
                                                     >
                                                         {suggestion}
                                                     </button>
@@ -656,8 +656,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     className={`max-w-[88%] rounded-card px-3.5 py-2.5 text-[15px]
                                                     leading-relaxed ${
                                                         message.role === "USER"
-                                                            ? "self-end whitespace-pre-wrap rounded-br-md bg-primary text-white shadow-sm"
-                                                            : "self-start rounded-bl-md border border-border bg-primary/5"
+                                                            ? "self-end whitespace-pre-wrap rounded-br-md bg-accent text-white shadow-sm"
+                                                            : "self-start rounded-bl-md border border-border bg-accent/5"
                                                     }`}
                                                 >
                                                     {message.role === "USER"
@@ -667,7 +667,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             ))}
                                             {isSending && (
                                                 <div className={`self-start rounded-card rounded-bl-md border
-                                                border-border bg-primary/5 ${
+                                                border-border bg-accent/5 ${
                                                     streamSegments.length > 0 ? "max-w-[88%] px-3.5 py-2.5 text-[15px] leading-relaxed" : "max-w-[75%]"
                                                 }`}
                                                     aria-label={t("AgentThinking")}
@@ -680,7 +680,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                                 <span
                                                                     aria-hidden="true"
                                                                     className="mt-1.5 inline-block h-4 w-2
-                                                                    animate-pulse rounded-sm bg-primary"
+                                                                    animate-pulse rounded-sm bg-accent"
                                                                 />
                                                             </>
                                                         )
@@ -712,9 +712,9 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             placeholder={t("AgentInputPlaceholder")}
                                             maxLength={4000}
                                             className="max-h-32 flex-1 resize-none overflow-y-hidden rounded-card
-                                            border border-border bg-background px-4 py-2.5 text-[15px]
-                                            text-secondary outline-none placeholder:text-placeholder
-                                            focus:border-border focus:ring-2 focus:ring-primary/20"
+                                            border border-border bg-surface px-4 py-2.5 text-[15px]
+                                            text-text outline-none placeholder:text-text-3
+                                            focus:border-border focus:ring-2 focus:ring-accent/20"
                                         />
                                         <button
                                             type="button"
@@ -722,7 +722,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             onClick={() => send()}
                                             disabled={!input.trim() || isSending}
                                             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
-                                            bg-primary text-white transition-all duration-200 hover:scale-105
+                                            bg-accent text-white transition-all duration-200 hover:scale-105
                                             disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
                                         >
                                             <Send size={18} />

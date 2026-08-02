@@ -72,19 +72,19 @@ function Register() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] min-h-[95vh] bg-primary rounded-l-md">
+        <div className="min-h-[100vh] lg:flex items-center justify-center bg-bg text-text">
+            <div className="hidden lg:flex flex-col items-center justify-center -4 w-[45vw] min-h-[95vh] bg-accent rounded-l-md">
                 <Logo />
             </div>
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-background">
+            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-border lg:rounded-r-md bg-bg">
                 <MobileBrand />
                 <Header />
 
-                <main className="flex flex-col items-center mt-6 lg:mt-2 text-secondary">
+                <main className="flex flex-col items-center mt-6 lg:mt-2 text-text">
                     <h1 className="text-center text-[40px] font-bold whitespace-pre-line">
                         {t("Welcome")} {t("To")}
-                        <span className="text-primary"> {t("BeYou")} </span>
+                        <span className="text-accent"> {t("BeYou")} </span>
                         
                     </h1>
                     <div className="hidden lg:block my-2">
@@ -158,7 +158,7 @@ function Register() {
                             <Button text={t("ToRegister")} mode="create" size="big" type="submit" testId="register-submit" />
                         </div>
                         {errors.root?.message && (
-                            <p className="block text-error underline text-xl text-center">{errors.root?.message}</p>
+                            <p className="block text-danger underline text-xl text-center">{errors.root?.message}</p>
                         )}
                     </form>
 

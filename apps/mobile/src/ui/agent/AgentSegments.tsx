@@ -18,7 +18,7 @@ function ToolRow({ segment }: { segment: agentSegment }) {
   return (
     <View
       className={`flex-row items-center gap-2 self-start rounded-control border px-2.5 py-1.5 ${
-        failed ? 'border-error/30 bg-error/10' : 'border-border bg-primary/5'
+        failed ? 'border-danger/30 bg-danger/10' : 'border-border bg-accent/5'
       }`}
     >
       {running ? (
@@ -28,7 +28,7 @@ function ToolRow({ segment }: { segment: agentSegment }) {
       ) : (
         <Check size={14} color={theme.primary} />
       )}
-      <Text className={`text-sm font-medium ${failed ? 'text-error' : 'text-secondary'}`}>
+      <Text className={`text-sm font-medium ${failed ? 'text-danger' : 'text-text'}`}>
         {label}
         {failed ? ` · ${t('AgentToolFailed')}` : ''}
       </Text>

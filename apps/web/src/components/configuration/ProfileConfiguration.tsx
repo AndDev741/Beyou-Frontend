@@ -64,9 +64,9 @@ export default function ProfileConfiguration() {
         });
     }, [name, phrase, phrase_author, reset]);
 
-    const labelStyle = "mb-1 font-medium text-lg self-start text-secondary";
+    const labelStyle = "mb-1 font-medium text-lg self-start text-text";
     const inputStyle =
-        "border border-border rounded-control pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
+        "border border-border rounded-control pl-2 outline-none w-full mb-2 bg-surface text-text placeholder:text-text-3 transition-colors duration-200";
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
@@ -113,7 +113,7 @@ export default function ProfileConfiguration() {
     const currentPhoto = resolvePhotoUrl(photo);
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-control shadow-sm">
+        <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-surface text-text transition-colors duration-200 rounded-control shadow-sm">
             <form className="w-full flex items-center" onSubmit={handleSubmit(onSubmit)}>
                 <div
                     className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
@@ -125,7 +125,7 @@ export default function ProfileConfiguration() {
                         className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-border shadow-lg"
                     />
 
-                    <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
+                    <label className="font-medium text-center text-accent flex items-center gap-1 cursor-pointer underline">
                         Change Photo <MdCreate />
                     </label>
                 </div>
@@ -149,7 +149,7 @@ export default function ProfileConfiguration() {
                         )}
                     />
                     {errors.name?.message && (
-                        <p className="text-xs text-error self-start mb-2">{errors.name?.message}</p>
+                        <p className="text-xs text-danger self-start mb-2">{errors.name?.message}</p>
                     )}
 
                     <label className={labelStyle} htmlFor="email">
@@ -162,7 +162,7 @@ export default function ProfileConfiguration() {
                         disabled
                         onChange={() => {}}
                         id="email"
-                        className={`${inputStyle} text-description cursor-not-allowed`}
+                        className={`${inputStyle} text-text-2 cursor-not-allowed`}
                     />
 
                     <label className={labelStyle} htmlFor="phrase">
@@ -182,7 +182,7 @@ export default function ProfileConfiguration() {
                         )}
                     />
                     {errors.phrase?.message && (
-                        <p className="text-xs text-error self-start mb-2">{errors.phrase?.message}</p>
+                        <p className="text-xs text-danger self-start mb-2">{errors.phrase?.message}</p>
                     )}
 
                     <label className={labelStyle} htmlFor="author">
@@ -203,14 +203,14 @@ export default function ProfileConfiguration() {
                         )}
                     />
                     {errors.phrase_author?.message && (
-                        <p className="text-xs text-error self-start mb-2">{errors.phrase_author?.message}</p>
+                        <p className="text-xs text-danger self-start mb-2">{errors.phrase_author?.message}</p>
                     )}
                 </div>
             </form>
             <div className="flex flex-col items-center justify-center w-full pt-2">
                 <SmallButton text={t("Save")} disabled={hasErrors} onClick={handleSubmit(onSubmit)} />
                 <p className="text-success">{successPhrase}</p>
-                {errorMessage && <p className="text-error text-xs">{errorMessage}</p>}
+                {errorMessage && <p className="text-danger text-xs">{errorMessage}</p>}
             </div>
             {editPhotoModal && (
                 <EditPhoto
@@ -306,8 +306,8 @@ function EditPhoto({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-background rounded-card p-6 w-[90%] max-w-md shadow-2xl">
-                <h3 className="text-lg font-semibold text-secondary mb-4">{t('ChangePhoto')}</h3>
+            <div className="bg-surface rounded-card p-6 w-[90%] max-w-md shadow-2xl">
+                <h3 className="text-lg font-semibold text-text mb-4">{t('ChangePhoto')}</h3>
 
                 <div className="flex flex-col items-center gap-4">
                     <img
@@ -330,13 +330,13 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 bg-primary text-white rounded-control hover:opacity-90 transition"
+                        className="px-4 py-2 bg-accent text-white rounded-control hover:opacity-90 transition"
                     >
                         {t('ChooseFile')}
                     </button>
 
                     {error && (
-                        <p className="text-error text-sm text-center">{error}</p>
+                        <p className="text-danger text-sm text-center">{error}</p>
                     )}
                 </div>
 
@@ -344,7 +344,7 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-secondary hover:bg-surface rounded-control transition"
+                        className="px-4 py-2 text-text hover:bg-surface rounded-control transition"
                     >
                         {t('Cancel')}
                     </button>
@@ -352,7 +352,7 @@ function EditPhoto({
                         type="button"
                         onClick={handleUpload}
                         disabled={uploading || !selectedFile}
-                        className="px-4 py-2 bg-primary text-white rounded-control hover:opacity-90 transition disabled:opacity-50"
+                        className="px-4 py-2 bg-accent text-white rounded-control hover:opacity-90 transition disabled:opacity-50"
                     >
                         {uploading ? t('PhotoUploading') : t('Save')}
                     </button>

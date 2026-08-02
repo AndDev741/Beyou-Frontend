@@ -48,15 +48,15 @@ function Input({
     return (
         <>
             <div
-                className={`flex items-center border-2 border-solid rounded-control w-[90vw] lg:w-[100%] h-[64px] bg-background transition-colors duration-200 ${
-                    errorMessage ? "border-error" : "border-border"
+                className={`flex items-center border-2 border-solid rounded-control w-[90vw] lg:w-[100%] h-[64px] bg-surface transition-colors duration-200 ${
+                    errorMessage ? "border-danger" : "border-border"
                 }`}
             >
                 <label htmlFor={inputId} className="sr-only">
                     {placeholder}
                 </label>
                 <IconStart
-                    className="w-[35px] m-2 text-icon"
+                    className="w-[35px] m-2 text-text-2"
                     aria-hidden="true"
                     focusable="false"
                 />
@@ -69,7 +69,7 @@ function Input({
                     onChange={(e) => setData(e.target.value)}
                     data-testid={testId}
                     autoComplete={autoComplete}
-                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-control focus:outline-none bg-background text-secondary placeholder:text-placeholder"
+                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-control focus:outline-none bg-surface text-text placeholder:text-text-3"
                 />
 
                 {ShouldRenderToggle && (
@@ -80,10 +80,10 @@ function Input({
                         className="mx-4 flex items-center justify-center"
                     >
                         {isPasswordVisible && IconToggleVisible ? (
-                            <IconToggleVisible className="w-[35px] h-[35px] text-icon" aria-hidden="true" focusable="false" />
+                            <IconToggleVisible className="w-[35px] h-[35px] text-text-2" aria-hidden="true" focusable="false" />
                         ) : (
                             IconToggleHidden && (
-                                <IconToggleHidden className="w-[35px] h-[35px] text-icon" aria-hidden="true" focusable="false" />
+                                <IconToggleHidden className="w-[35px] h-[35px] text-text-2" aria-hidden="true" focusable="false" />
                             )
                         )}
                     </button>
@@ -91,7 +91,7 @@ function Input({
             </div>
             {errorMessage && (
                 <div className="w-[90vw] lg:w-full max-w-[400px] mt-1">
-                    <p className="text-error text-sm leading-snug whitespace-pre-line">
+                    <p className="text-danger text-sm leading-snug whitespace-pre-line">
                         {errorMessage}
                     </p>
                 </div>

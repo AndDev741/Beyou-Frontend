@@ -35,15 +35,15 @@ export default function TimeField({ label, value, onChange, testID }: TimeFieldP
   return (
     <View className="flex-1">
       {label ? (
-        <Text className="text-secondary mb-1 text-sm font-semibold">{label}</Text>
+        <Text className="text-text mb-1 text-sm font-semibold">{label}</Text>
       ) : null}
       <Pressable
         onPress={() => setShow(true)}
         accessibilityRole="button"
         testID={testID}
-        className="h-[44px] justify-center rounded-control border-2 border-border bg-background px-3"
+        className="h-[44px] justify-center rounded-control border-2 border-border bg-surface px-3"
       >
-        <Text className={value ? 'text-secondary' : 'text-placeholder'}>{value || '--:--'}</Text>
+        <Text className={value ? 'text-text' : 'text-text-3'}>{value || '--:--'}</Text>
       </Pressable>
       {show ? (
         <DateTimePicker

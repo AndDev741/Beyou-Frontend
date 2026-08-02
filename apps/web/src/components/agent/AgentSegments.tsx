@@ -14,16 +14,16 @@ function ToolRow({ segment }: { segment: agentSegment }) {
         <div
             className={`flex w-fit items-center gap-2 rounded-control border px-2.5 py-1.5 text-sm ${
                 failed
-                    ? "border-error/30 bg-error/10 text-error"
-                    : "border-border bg-primary/5 text-secondary"
+                    ? "border-danger/30 bg-danger/10 text-danger"
+                    : "border-border bg-accent/5 text-text"
             }`}
         >
             {running ? (
-                <Loader2 size={14} className="shrink-0 animate-spin text-primary" />
+                <Loader2 size={14} className="shrink-0 animate-spin text-accent" />
             ) : failed ? (
                 <X size={14} className="shrink-0" />
             ) : (
-                <Check size={14} className="shrink-0 text-primary" />
+                <Check size={14} className="shrink-0 text-accent" />
             )}
             <span className="font-medium">
                 {label}

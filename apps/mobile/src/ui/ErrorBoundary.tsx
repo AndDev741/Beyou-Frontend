@@ -62,20 +62,20 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.hasError) return this.props.children;
     return (
-      <View className="flex-1 items-center justify-center gap-3 bg-background px-8" testID="error-boundary">
+      <View className="flex-1 items-center justify-center gap-3 bg-surface px-8" testID="error-boundary">
         <Text className="text-5xl">😵</Text>
-        <Text className="text-secondary text-center text-lg font-bold">{i18next.t('SomethingWentWrong')}</Text>
+        <Text className="text-text text-center text-lg font-bold">{i18next.t('SomethingWentWrong')}</Text>
         <Pressable
           onPress={this.reset}
           disabled={this.state.isReportSending}
           accessibilityRole="button"
           accessibilityState={{ disabled: this.state.isReportSending }}
           testID="error-retry"
-          className={`rounded-full bg-primary px-5 py-2.5 ${
+          className={`rounded-full bg-accent px-5 py-2.5 ${
             this.state.isReportSending ? 'opacity-60' : ''
           }`}
         >
-          <Text className="text-background font-semibold">{i18next.t('TryAgain')}</Text>
+          <Text className="text-on-accent font-semibold">{i18next.t('TryAgain')}</Text>
         </Pressable>
         {/* R8: reporting is offered, never demanded — retry keeps top billing. */}
         <ErrorReport

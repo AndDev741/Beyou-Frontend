@@ -142,12 +142,12 @@ const CreateDailyRoutine = ({
 
     return (
         <div
-            className="w-full flex flex-col items-center justify-center text-secondary overflow-x-hidden"
+            className="w-full flex flex-col items-center justify-center text-text overflow-x-hidden"
             data-tutorial-id="routine-daily-form"
         >
-            <h2 className="text-2xl text-secondary">{t("Creating daily routine")}</h2>
+            <h2 className="text-2xl text-text">{t("Creating daily routine")}</h2>
 
-            <div className="relative w-full md:w-[95%] max-w-full flex flex-col items-center justify-start border-2 border-border rounded-control p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
+            <div className="relative w-full md:w-[95%] max-w-full flex flex-col items-center justify-start border-2 border-border rounded-control p-3 mt-4 bg-surface shadow-sm min-h-[400px] transition-colors duration-200">
                 <Controller
                     control={control}
                     name="routineName"
@@ -156,13 +156,13 @@ const CreateDailyRoutine = ({
                             type="text"
                             value={field.value}
                             onChange={field.onChange}
-                            className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
+                            className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-surface text-text placeholder:text-text-3 transition-colors duration-200"
                             placeholder={t("Routine name")}
                         />
                     )}
                 />
                 {errors.routineName?.message && (
-                    <p className="text-error text-center mt-2">{errors.routineName?.message}</p>
+                    <p className="text-danger text-center mt-2">{errors.routineName?.message}</p>
                 )}
 
                 <button
@@ -184,7 +184,7 @@ const CreateDailyRoutine = ({
                     <Droppable droppableId="sections">
                         {(provided) => (
                             <div
-                                className="w-full flex flex-col items-stretch justify-start mt-5 text-secondary"
+                                className="w-full flex flex-col items-stretch justify-start mt-5 text-text"
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >
@@ -204,7 +204,7 @@ const CreateDailyRoutine = ({
                                                 >
                                                     <div
                                                         {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 text-icon"
+                                                        className="cursor-grab mt-3 text-text-2"
                                                     >
                                                         ⠿
                                                     </div>
@@ -222,7 +222,7 @@ const CreateDailyRoutine = ({
                                         </Draggable>
                                     ))
                                 ) : (
-                                    <p className="text-description text-center">{t("No sections added")}</p>
+                                    <p className="text-text-2 text-center">{t("No sections added")}</p>
                                 )}
                                 {provided.placeholder}
                             </div>
@@ -237,7 +237,7 @@ const CreateDailyRoutine = ({
                     onClick={handleOverlayClick}
                 >
                     <div
-                        className="bg-background text-secondary border border-border rounded-control shadow-lg p-5 md:p-8 min-w-[350px] max-w-lg w-[99%] relative transition-colors duration-200"
+                        className="bg-surface text-text border border-border rounded-control shadow-lg p-5 md:p-8 min-w-[350px] max-w-lg w-[99%] relative transition-colors duration-200"
                         data-tutorial-id="routine-section-modal"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -269,10 +269,10 @@ const CreateDailyRoutine = ({
             <div className="my-2 mb-6 flex flex-col items-center">
                 <Button text={t("Create")} mode="create" size="big" onClick={handleSubmit(onSubmit)} type="submit" />
                 {errors.routineSections?.message && (
-                    <p className="text-center text-error mt-2">{errors.routineSections?.message}</p>
+                    <p className="text-center text-danger mt-2">{errors.routineSections?.message}</p>
                 )}
                 {errors.root?.message && (
-                    <p className="text-center text-error mt-2">{errors.root?.message}</p>
+                    <p className="text-center text-danger mt-2">{errors.root?.message}</p>
                 )}
                 <ErrorNotice error={apiError} className="text-center mt-2" />
             </div>

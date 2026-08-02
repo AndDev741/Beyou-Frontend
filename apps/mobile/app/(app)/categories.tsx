@@ -86,7 +86,7 @@ export default function CategoriesScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="flex-row items-center gap-2">
           <Pressable
@@ -96,7 +96,7 @@ export default function CategoriesScreen() {
           >
             <Ionicons name="chevron-back" size={26} color={theme.primary} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Categories')}</Text>
+          <Text className="text-accent text-2xl font-bold">{t('Categories')}</Text>
         </View>
         <Pressable
           ref={createRef}
@@ -104,7 +104,7 @@ export default function CategoriesScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('CreateCategory')}
           testID="create-category"
-          className="h-10 w-10 items-center justify-center rounded-full bg-primary"
+          className="h-10 w-10 items-center justify-center rounded-full bg-accent"
         >
           <Ionicons name="add" size={26} color={theme.background} />
         </Pressable>
@@ -131,12 +131,12 @@ export default function CategoriesScreen() {
           ListEmptyComponent={
             <View className="mt-20 items-center gap-3 px-8">
               <Text className="text-5xl">🗂️</Text>
-              <Text className="text-description text-center text-base">{t('NoCategories')}</Text>
+              <Text className="text-text-2 text-center text-base">{t('NoCategories')}</Text>
               <Pressable
                 onPress={() => setForm({ visible: true, mode: 'create', category: null })}
                 accessibilityRole="button"
                 testID="empty-create-category"
-                className="rounded-full bg-primary px-5 py-2.5"
+                className="rounded-full bg-accent px-5 py-2.5"
               >
                 <Text style={{ color: theme.background }} className="font-semibold">{t('CreateCategory')}</Text>
               </Pressable>

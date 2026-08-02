@@ -57,7 +57,7 @@ export function ProgressRing({
       </svg>
       {showText && (
         <div className={cn(
-          "absolute inset-0 flex items-center justify-center font-semibold text-foreground text-center text-secondary",
+          "absolute inset-0 flex items-center justify-center font-semibold text-foreground text-center text-text",
           text
         )}>
           {Math.round(normalizedProgress)}%
