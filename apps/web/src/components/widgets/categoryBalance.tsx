@@ -14,7 +14,9 @@ export type categoryBalanceProps = {
 const MIN_CATEGORIES = 3;
 const MAX_AXES = 6;
 const CENTER = 60;
-const RADIUS = 46;
+const RADIUS = 42;
+/** Onde o rótulo fica, em múltiplos do raio. */
+const LABEL_RATIO = 1.3;
 
 /** Ponto do eixo `index` (de `count`) a uma fração `ratio` do raio. */
 function point(index: number, count: number, ratio: number) {
@@ -65,10 +67,13 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
     return (
         <BaseDiv title={t("LifeBalance")} icon={<ChartPie size={14.5} aria-hidden="true" />}>
             <div className="mt-1.5 flex justify-center">
+                {/* O viewBox tem folga negativa nas laterais e no topo: o
+                    polígono ocupa 0..120, mas os rótulos crescem para fora dele
+                    e eram cortados pela borda. */}
                 <svg
-                    width="164"
+                    width="196"
                     height="150"
-                    viewBox="0 0 120 120"
+                    viewBox="-34 -14 188 148"
                     role="img"
                     aria-label={t("LifeBalance")}
                     data-testid="category-balance-chart"
@@ -81,17 +86,22 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
                         strokeWidth={1.5}
                     />
                     {axes.map((c, i) => {
-                        const label = point(i, axes.length, 1.28);
+                        const label = point(i, axes.length, LABEL_RATIO);
+                        // O texto cresce PARA FORA do polígono: à direita começa
+                        // no ponto, à esquerda termina nele. Com "middle" fixo,
+                        // os rótulos laterais entravam por cima do gráfico.
+                        const dx = label.x - CENTER;
+                        const anchor = Math.abs(dx) < 6 ? "middle" : dx > 0 ? "start" : "end";
                         return (
                             <text
                                 key={c.id}
                                 x={label.x}
                                 y={label.y}
-                                textAnchor="middle"
+                                textAnchor={anchor}
                                 dominantBaseline="middle"
                                 className="fill-text-3 font-mono text-[8.5px] font-medium"
                             >
-                                {c.name.length > 10 ? `${c.name.slice(0, 9)}…` : c.name}
+                                {c.name.length > 12 ? `${c.name.slice(0, 11)}…` : c.name}
                             </text>
                         );
                     })}

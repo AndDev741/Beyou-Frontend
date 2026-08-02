@@ -99,7 +99,7 @@ function Goals() {
   }, [dispatch, t]);
 
   return (
-    <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 text-text lg:px-7">
+    <div className="min-h-screen w-full bg-bg px-4 py-6 text-text lg:px-7">
             <PageHeader title={t("YourGoals")} />
       <div className="mt-4 lg:flex lg:items-start lg:justify-between lg:gap-6">
         <div className="w-full px-2">

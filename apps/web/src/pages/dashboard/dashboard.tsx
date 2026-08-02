@@ -199,7 +199,7 @@ function Dashboard() {
             // Duas colunas como no mockup: a principal (saudação, rotina,
             // metas) e o rail dos widgets, que começa no topo e desce por toda
             // a altura da direita.
-            <div className="w-full max-w-[1400px] lg:flex lg:items-start lg:gap-6">
+            <div className="w-full lg:flex lg:items-start lg:gap-6">
                 <div className="min-w-0 flex-1 px-4 py-6 lg:px-7">
                     <Perfil />
 

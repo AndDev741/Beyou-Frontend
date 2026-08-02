@@ -105,7 +105,7 @@ function Categories(){
     } = useCategoriesTutorial({ hasCategories });
     
     return(
-        <div className="min-h-screen w-full max-w-[1400px] bg-bg px-4 py-6 text-text lg:px-7">
+        <div className="min-h-screen w-full bg-bg px-4 py-6 text-text lg:px-7">
             {showCategorySpotlight && (
                 <SpotlightTutorial
                     steps={categorySteps}

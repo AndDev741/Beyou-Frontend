@@ -118,6 +118,10 @@ export default function RoutineSection({ section, routineId}: { section: section
             const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
             const checked: boolean = ItemCheck?.checked === true ? true : false;
             const skipped: boolean = ItemCheck?.skipped === true && !checked;
+            // O XP fica NA LINHA depois de concluído (o XpFloat só marca o
+            // instante do check e some). Vem do próprio check, então sobrevive
+            // ao reload e mostra o valor real, já com decaimento aplicado.
+            const xpEarned: number = checked ? (ItemCheck?.xpGenerated ?? 0) : 0;
             const motivationalPhrase = item.type === "habit" ? itemObj?.motivationalPhrase : "";
             const toastPosition = window.matchMedia("(min-width: 712px)").matches ? "top-left" : "bottom-center";
 
@@ -182,6 +186,11 @@ export default function RoutineSection({ section, routineId}: { section: section
                             extra "Skipped" label needed (saves mobile space). */}
                     </div>
                     <div className="ml-auto flex shrink-0 items-center gap-2">
+                        {xpEarned > 0 && (
+                            <span className="rounded-full bg-xp-soft px-2.5 py-0.5 font-mono text-xs font-semibold text-xp">
+                                +{xpEarned} XP
+                            </span>
+                        )}
                         <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
                             {formatTimeRange(item.startTime, item.endTime)}
                         </span>

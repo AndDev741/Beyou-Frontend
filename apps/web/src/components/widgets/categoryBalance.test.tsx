@@ -46,8 +46,8 @@ test("scales the series against the strongest category, not an absolute maximum"
             return Math.hypot(x - 60, y - 60);
         });
     // O eixo do maior XP toca a borda (raio 46); os outros ficam proporcionais.
-    expect(Math.max(...distances)).toBeCloseTo(46, 0);
-    expect(Math.min(...distances)).toBeLessThan(46);
+    expect(Math.max(...distances)).toBeCloseTo(42, 0);
+    expect(Math.min(...distances)).toBeLessThan(42);
 });
 
 test("keeps a zero-XP category visible instead of collapsing it into the centre", () => {
