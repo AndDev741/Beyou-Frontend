@@ -18,6 +18,8 @@ interface SkeletonProps {
   testID?: string;
 }
 
+// Valores espelhados do `borderRadius` do tailwind.config.js: o bloco animado é
+// estilizado por `style`, então não alcança as classes rounded-*.
 const RADIUS: Record<NonNullable<SkeletonProps['rounded']>, number> = {
   control: 10,
   card: 16,
