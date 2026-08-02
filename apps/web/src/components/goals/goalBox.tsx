@@ -220,10 +220,8 @@ function GoalBox({
       {/* Stepper: -/+ em volta da barra, com o valor em mono à direita. */}
       <div className="mt-auto flex flex-col gap-2 pt-1">
         <div className="flex items-center gap-2">
-          {/* Sem chave i18n para "diminuir/aumentar": o nome acessível continua
-              sendo o glifo, exatamente como no stepper antigo. */}
           <IconButton
-            label="-"
+            label={t("Decrease")}
             onClick={() => decreaseTask(id)}
             disabled={currentValue === 0}
             className="border border-border"
@@ -232,7 +230,7 @@ function GoalBox({
           </IconButton>
           <XpBar className="min-w-0 flex-1" current={currentValue} target={targetValue} compact />
           <IconButton
-            label="+"
+            label={t("Increase")}
             onClick={() => increaseTask(id)}
             className="border border-border"
           >

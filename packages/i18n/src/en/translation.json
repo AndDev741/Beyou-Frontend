@@ -957,5 +957,7 @@
     "LoginSubtitle": "Sign in to pick your routine back up.",
     "RegisterSubtitle": "Start building your best self.",
     "Or": "or",
-    "VerifyEmailTitle": "Check your email"
+    "VerifyEmailTitle": "Check your email",
+    "Increase": "Increase",
+    "Decrease": "Decrease"
 }

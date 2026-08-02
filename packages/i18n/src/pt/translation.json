@@ -957,5 +957,7 @@
     "LoginSubtitle": "Entre para continuar sua rotina.",
     "RegisterSubtitle": "Comece a construir a sua melhor versão.",
     "Or": "ou",
-    "VerifyEmailTitle": "Confira seu e-mail"
+    "VerifyEmailTitle": "Confira seu e-mail",
+    "Increase": "Aumentar",
+    "Decrease": "Diminuir"
 }
