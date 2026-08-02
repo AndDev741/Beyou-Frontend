@@ -48,6 +48,15 @@ de constância por hábito, o total de check-ins e o heatmap seguem sem dado na
 API. Os componentes que os exibiriam foram escritos para **degradar sem o dado**
 (escondem o elemento), não para inventar número.
 
+Duas decisões concretas nos widgets, ambas comentadas no código:
+
+- **Faixa de constância** (widget Constância): sem histórico diário, a faixa de
+  28 dias destaca apenas a sequência ATUAL — que é dado real — e deixa o resto
+  neutro, com legenda dizendo isso. Quadrado apagado não significa "falhei",
+  significa "não sabemos"; a legenda existe para ninguém ler errado.
+- **Melhor/Pior área**: entram sem as barras da semana do mockup. Mostram
+  ícone, nome, nível e a barra de XP do nível, que é o que a API devolve.
+
 ---
 
 ## Decisões tomadas durante a implementação
@@ -105,11 +114,15 @@ API. Os componentes que os exibiriam foram escritos para **degradar sem o dado**
 2. **Sweep de borda por heurística.** A regra "linha com ternário = seleção"
    acertou na maioria, e eu revisei cartões e inputs à mão, mas vale passar o
    olho em telas menos óbvias (agendar rotina, seletor de ícones, wizard de IA).
-3. **`CategoryForm` ficou com `<select>` na experiência** enquanto o formulário
+3. **O radar do Equilíbrio saiu do chart.js para SVG.** Ganhou tema e pack de
+   acento de graça (canvas não resolve CSS var) e tirou uma dependência do
+   caminho do dashboard, mas perdeu o tooltip nativo da biblioteca. Se o
+   tooltip fizer falta, é reimplementável em cima do SVG.
+4. **`CategoryForm` ficou com `<select>` na experiência** enquanto o formulário
    de hábito virou segmented. Trocar é mudança de lógica (o select devolve
    string, o segmented devolve número), então parei — é um follow-up de uma
    linha se quiser igualar.
-4. **Geometria do botão central da barra no Android.** O disco é posicionado
+5. **Geometria do botão central da barra no Android.** O disco é posicionado
    absoluto e sobra 14px para fora do pai; comportamento de toque fora do pai
    no Android merece um teste em device.
 
