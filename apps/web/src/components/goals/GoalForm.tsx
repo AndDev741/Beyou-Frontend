@@ -9,6 +9,8 @@ import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import GenericInput from "../inputs/genericInput";
 import IconsBox from "../inputs/iconsBox";
 import SelectorInput from "../inputs/SelectorInput";
+import IconTile from "../../ui/IconTile";
+import { Target } from "lucide-react";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -24,6 +26,8 @@ export type GoalFormMode = "create" | "edit";
 
 type GoalFormProps = {
     mode: GoalFormMode;
+    /** Fecha o modal que embrulha o formulário (undefined fora dele). */
+    onClose?: () => void;
 };
 
 type GoalFormValues = {
@@ -56,7 +60,7 @@ const defaultValues: GoalFormValues = {
     term: "SHORT_TERM"
 };
 
-function GoalForm({ mode }: GoalFormProps) {
+function GoalForm({ mode, onClose }: GoalFormProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
@@ -130,6 +134,7 @@ function GoalForm({ mode }: GoalFormProps) {
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
+        onClose?.();
     };
 
     const onSubmit = async (values: GoalFormValues) => {
@@ -182,6 +187,8 @@ function GoalForm({ mode }: GoalFormProps) {
             } else {
                 reset(defaultValues);
                 setSearch("");
+                // Em modal, criar tem de fechar — a meta nova já está na grade.
+                onClose?.();
                 toast.success(t("created successfully"));
             }
             return;
@@ -200,11 +207,20 @@ function GoalForm({ mode }: GoalFormProps) {
     };
 
     return (
-        <div className="bg-surface text-text transition-colors duration-200 rounded-control p-4 lg:p-6">
-            <div className="flex items-center justify-center text-3xl font-semibold">
-                <h2>{t(mode === "edit" ? "Edit Goal" : "Create Goal")}</h2>
+        <div className="bg-surface text-text transition-colors duration-200">
+            {/* Cabeçalho de modal: título à esquerda, no tamanho do sistema. */}
+            <div className="flex items-center gap-2.5">
+                <IconTile size={36}>
+                    <Target size={20} aria-hidden="true" />
+                </IconTile>
+                <h2
+                    id={mode === "edit" ? "goal-edit-title" : "goal-create-title"}
+                    className="text-lg font-semibold tracking-[-0.01em] text-text"
+                >
+                    {t(mode === "edit" ? "Edit Goal" : "Create Goal")}
+                </h2>
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col mt-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col mt-6">
                 <div className="flex md:items-start md:flex-row justify-center">
                     <div className="flex flex-col md:items-start md:justify-start">
                         <Controller

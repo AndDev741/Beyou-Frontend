@@ -257,6 +257,13 @@ function GoalBox({
         <div className="flex flex-wrap items-center gap-1.5">
           {termPhrase && <Chip size="sm">{termPhrase}</Chip>}
           {statusPhrase && <Chip size="sm" variant={statusVariant}>{statusPhrase}</Chip>}
+          {/* O XP só aparece quando está em jogo: alvo batido (a pagar) ou meta
+              já concluída (o troféu mostra o que rendeu). */}
+          {showCompleteAction && (
+            <Chip size="sm" variant="xp" title={t('XP Reward')}>
+              +{xpReward} XP
+            </Chip>
+          )}
         </div>
         <span className="flex items-center gap-1 font-mono text-xs text-text-3">
           <CalendarDays size={12} aria-hidden="true" />

@@ -8,6 +8,7 @@ import DescriptionInput from "../inputs/descriptionInput";
 import IconsInput from "../inputs/iconsBox";
 import GenericInput from "../inputs/genericInput";
 import SelectorInput from "../inputs/SelectorInput";
+import IconTile from "../../ui/IconTile";
 import { CgAddR } from "react-icons/cg";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
@@ -124,6 +125,9 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
                 dispatch(dispatchFunction(categories.success));
             }
             if (mode === "edit") {
+                // Em modal, salvar tem de fechar — senão o formulário fica aberto
+                // por cima da grade que acabou de mudar.
+                onClose?.();
                 toast.success(t("edited successfully"));
             } else {
                 onCreated?.({
@@ -156,13 +160,21 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
             className="bg-surface"
             data-tutorial-id={mode === "create" ? "category-create-form" : undefined}
         >
-            <div className="flex items-center justify-center text-3xl font-semibold">
-                <CgAddR className="w-[40px] h-[40px] mr-1" />
-                <h2>{t(mode === "edit" ? "EditCategory" : "CreateCategory")}</h2>
+            {/* Cabeçalho de modal: título à esquerda, no tamanho do sistema. */}
+            <div className="flex items-center gap-2.5">
+                <IconTile size={36}>
+                    <CgAddR className="h-5 w-5" />
+                </IconTile>
+                <h2
+                    id={mode === "edit" ? "category-edit-title" : "category-create-title"}
+                    className="text-lg font-semibold tracking-[-0.01em] text-text"
+                >
+                    {t(mode === "edit" ? "EditCategory" : "CreateCategory")}
+                </h2>
             </div>
             <form
                 onSubmit={(e) => { e.stopPropagation(); handleSubmit(onSubmit)(e); }}
-                className="flex flex-col mt-8"
+                className="flex flex-col mt-6"
             >
                 <div className="flex md:items-start md:flex-row justify-center">
                     <div className="flex flex-col md:items-start md:justify-start">

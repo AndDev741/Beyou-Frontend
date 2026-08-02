@@ -9,9 +9,11 @@ import EmptyState from "../EmptyState";
 
 type RenderGoalsProps = {
   goals: goal[];
+  /** Sobrescreve a mensagem de lista vazia (ex.: busca/filtro sem resultado). */
+  emptyTitle?: string;
 };
 
-function RenderGoals({ goals }: RenderGoalsProps) {
+function RenderGoals({ goals, emptyTitle }: RenderGoalsProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   // O dashboard linka para cá com ?goal=<id>: a lista rola até ela e destaca,
@@ -31,13 +33,14 @@ function RenderGoals({ goals }: RenderGoalsProps) {
   }, [focusedId, goals]);
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 text-text">
+    // 3 colunas no desktop, 1 no mobile — grade escaneável, sem formulário ao lado.
+    <div className="grid grid-cols-1 gap-4 text-text md:grid-cols-2 lg:grid-cols-3">
       {goals.length > 0 ? (
         goals.map((g) => (
           <div
             key={g.id}
             id={`goal-${g.id}`}
-            className={`rounded-card transition-shadow duration-500 lg:mx-1 ${
+            className={`rounded-card transition-shadow duration-500 ${
               focusedId === g.id ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : ""
             }`}
           >
@@ -61,7 +64,10 @@ function RenderGoals({ goals }: RenderGoalsProps) {
           </div>
         ))
       ) : (
-        <EmptyState emoji="🎯" title={t("Start creating amazing goals to track your progress!")} />
+        <EmptyState
+          emoji="🎯"
+          title={emptyTitle ?? t("Start creating amazing goals to track your progress!")}
+        />
       )}
     </div>
   );
