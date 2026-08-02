@@ -2,38 +2,67 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
 import { themeInUseEnter } from "@beyou/state/user/perfilSlice";
-import { themes } from "@beyou/theme";
+import { accentPacks, buildTheme, type ThemeMode } from "@beyou/theme";
 
+const MODES: { value: ThemeMode; labelKey: string }[] = [
+    { value: "light", labelKey: "ThemeModeLight" },
+    { value: "dark", labelKey: "ThemeModeDark" },
+];
+
+/**
+ * Versão enxuta da Aparência para a tela de login: alterna claro/escuro e
+ * escolhe o acento. Ninguém está autenticado aqui, então a escolha só vale
+ * localmente (o ThemeProvider persiste no localStorage) e é carregada para a
+ * conta quando ela nascer sem tema próprio.
+ */
 export default function ThemeSelectorInline() {
     const { t } = useTranslation();
-    const { theme, setTheme } = useTheme();
+    const { theme, preference, setPreference } = useTheme();
     const dispatch = useDispatch();
 
-    // Login page only: no user is authenticated, so don't hit the user API —
-    // just apply the theme locally.
-    const onSubmit = (nextTheme: typeof themes[0]) => {
-        dispatch(themeInUseEnter(nextTheme));
-        setTheme(nextTheme);
+    const apply = (next: { mode: ThemeMode; accentPack: string }) => {
+        setPreference(next);
+        dispatch(themeInUseEnter(buildTheme(next, theme.base === "dark")));
     };
 
     return (
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-            {themes.map((item) => {
-                const isActive = theme.mode === item.mode;
-                return (
+        <div className="flex items-center gap-3 flex-wrap justify-end">
+            <div className="inline-flex rounded-control bg-surface-2 p-1">
+                {MODES.map(({ value, labelKey }) => (
                     <button
-                        key={item.mode}
+                        key={value}
                         type="button"
-                        aria-label={t(item.mode)}
-                        className={`w-6 h-6 rounded-full border-2 transition-transform duration-200 hover:scale-105 ${isActive ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
-                        style={{
-                            background: `linear-gradient(90deg, ${item.background} 50%, ${item.primary} 50%)`,
-                            borderColor: item.primary
-                        }}
-                        onClick={() => onSubmit(item)}
+                        aria-pressed={theme.base === value}
+                        aria-label={t(labelKey)}
+                        onClick={() => apply({ ...preference, mode: value })}
+                        className={`rounded-[7px] px-3 py-1 text-xs font-semibold transition-colors duration-200 ${
+                            theme.base === value
+                                ? "bg-surface text-text shadow-sm"
+                                : "text-text-2 hover:text-text"
+                        }`}
+                    >
+                        {t(labelKey)}
+                    </button>
+                ))}
+            </div>
+
+            <div className="flex items-center gap-1.5">
+                {accentPacks.map((pack) => (
+                    <button
+                        key={pack.id}
+                        type="button"
+                        aria-label={t(pack.labelKey)}
+                        aria-pressed={preference.accentPack === pack.id}
+                        onClick={() => apply({ ...preference, accentPack: pack.id })}
+                        className={`h-6 w-6 rounded-full transition-transform duration-200 hover:scale-105 ${
+                            preference.accentPack === pack.id
+                                ? "ring-2 ring-accent ring-offset-2 ring-offset-bg"
+                                : ""
+                        }`}
+                        style={{ background: pack.accent[theme.base] }}
                     />
-                );
-            })}
+                ))}
+            </div>
         </div>
     );
 }

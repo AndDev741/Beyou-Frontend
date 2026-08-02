@@ -937,5 +937,16 @@
         "updateGlobalContext": "Memória atualizada",
         "updateChatContext": "Nota da conversa salva",
         "updateUserConfiguration": "Configurações atualizadas"
-    }
+    },
+    "ThemeMode": "Modo",
+    "ThemeModeSystem": "Sistema",
+    "ThemeModeLight": "Claro",
+    "ThemeModeDark": "Escuro",
+    "ThemeAccent": "Acento",
+    "AccentBeyou": "Beyou",
+    "AccentAmethyst": "Ametista",
+    "AccentSunset": "Pôr do sol",
+    "AccentForest": "Floresta",
+    "AccentCyber": "Cyber",
+    "ThemeHint": "Duas bases feitas com capricho; o acento troca a cor da marca."
 }

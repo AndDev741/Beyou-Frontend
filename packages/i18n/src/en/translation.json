@@ -937,5 +937,16 @@
         "updateGlobalContext": "Memory updated",
         "updateChatContext": "Conversation note saved",
         "updateUserConfiguration": "Settings updated"
-    }
+    },
+    "ThemeMode": "Mode",
+    "ThemeModeSystem": "System",
+    "ThemeModeLight": "Light",
+    "ThemeModeDark": "Dark",
+    "ThemeAccent": "Accent",
+    "AccentBeyou": "Beyou",
+    "AccentAmethyst": "Amethyst",
+    "AccentSunset": "Sunset",
+    "AccentForest": "Forest",
+    "AccentCyber": "Cyber",
+    "ThemeHint": "Two bases done properly; the accent swaps the brand colour."
 }
