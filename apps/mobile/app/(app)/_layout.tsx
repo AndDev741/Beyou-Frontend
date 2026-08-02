@@ -34,7 +34,11 @@ export default function AppLayout() {
             the dashboard first. */}
         <BottomNav />
         <FeedbackLauncher />
-        <AgentWidget />
+        {/* Sem balão flutuante: a barra acima já carrega o botão central do
+            assistente, e ela existe em TODA tela deste grupo. Dois gatilhos
+            para o mesmo painel seriam mobília permanente numa tela pequena —
+            o widget continua montado aqui porque é ele que guarda a conversa. */}
+        <AgentWidget showFab={false} />
       </TutorialOverlayHost>
     </View>
   );

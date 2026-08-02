@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { tutorialCompletedEnter } from '@beyou/state/user/perfilSlice';
 import AgentWidget from './AgentWidget';
+import { openAgentPanel } from './agentPanelBus';
 import { BeyouThemeProvider } from '../../theme/ThemeProvider';
 import { makeStore } from '../../store';
 import '../../i18n';
@@ -39,13 +40,16 @@ const textTurn = (text: string) => [{ type: 'text', text }];
 
 // The FAB is gated on tutorial completion (web parity), so the default
 // harness renders as a user who already finished onboarding.
-const wrap = async ({ isTutorialCompleted = true }: { isTutorialCompleted?: boolean } = {}) => {
+const wrap = async ({
+  isTutorialCompleted = true,
+  showFab = true,
+}: { isTutorialCompleted?: boolean; showFab?: boolean } = {}) => {
   const store = makeStore();
   store.dispatch(tutorialCompletedEnter(isTutorialCompleted));
   return render(
     <Provider store={store}>
       <BeyouThemeProvider>
-        <AgentWidget />
+        <AgentWidget showFab={showFab} />
       </BeyouThemeProvider>
     </Provider>,
   );
@@ -225,5 +229,99 @@ describe('AgentWidget', () => {
       fireEvent.press(getByTestId('agent-history-back'));
     });
     expect(getByTestId('agent-input')).toBeTruthy();
+  });
+});
+
+/**
+ * On mobile every authenticated screen carries the bottom bar, so the (app)
+ * layout mounts this widget with `showFab={false}` and the bar's centre button
+ * is the single way in. The chat state can't move to the bar (it must survive
+ * navigation and the sheet closing), so the bar asks over the module bus.
+ */
+describe('AgentWidget opened from the bottom bar', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    api.getAgentChats.mockResolvedValue({ success: [] });
+  });
+
+  it('drops the floating bubble when the host owns the trigger', async () => {
+    const { queryByTestId } = await wrap({ showFab: false });
+    expect(queryByTestId('agent-fab')).toBeNull();
+    expect(queryByTestId('agent-input')).toBeNull();
+  });
+
+  it('opens the chat when the bar asks over the bus', async () => {
+    const { getByTestId, queryByTestId } = await wrap({ showFab: false });
+    expect(queryByTestId('agent-input')).toBeNull();
+
+    await act(async () => {
+      openAgentPanel();
+    });
+
+    expect(api.getAgentChats).toHaveBeenCalled();
+    expect(getByTestId('agent-input')).toBeTruthy();
+  });
+
+  it('ignores the bus while onboarding is still running', async () => {
+    // The bar hides its centre button then; this is the second lock, so a
+    // stale subscription can't pop the chat over the tutorial spotlight.
+    const { queryByTestId } = await wrap({ isTutorialCompleted: false, showFab: false });
+    await act(async () => {
+      openAgentPanel();
+    });
+    expect(queryByTestId('agent-input')).toBeNull();
+  });
+
+  it('unsubscribes from the bus when it unmounts', async () => {
+    const view = await wrap({ showFab: false });
+    await act(async () => {
+      view.unmount();
+    });
+    // No listener left: the call must not throw or resurrect the chat.
+    await act(async () => {
+      openAgentPanel();
+    });
+    expect(api.getAgentChats).not.toHaveBeenCalled();
+  });
+});
+
+/** Sheet chrome added by the redesign: 86% of the screen, expandable. */
+describe('AgentChatModal shell', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    api.getAgentChats.mockResolvedValue({ success: [] });
+  });
+
+  it('opens as a sheet and toggles to full height', async () => {
+    const { getByTestId } = await wrap();
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-fab'));
+    });
+
+    const height = () => getByTestId('agent-sheet').props.style.height;
+    expect(height()).toBe('86%');
+
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-expand'));
+    });
+    expect(height()).toBe('100%');
+
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-expand'));
+    });
+    expect(height()).toBe('86%');
+  });
+
+  it('hides the bubble while the sheet is open so the chat owns the screen', async () => {
+    const { getByTestId, queryByTestId } = await wrap();
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-fab'));
+    });
+    expect(queryByTestId('agent-fab')).toBeNull();
+
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-close'));
+    });
+    expect(getByTestId('agent-fab')).toBeTruthy();
   });
 });

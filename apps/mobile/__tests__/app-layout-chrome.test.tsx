@@ -35,7 +35,7 @@ jest.mock('react-native-safe-area-context', () => {
 jest.mock('../src/ui/agent/AgentWidget', () => ({ __esModule: true, default: () => null }));
 
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { tutorialCompletedEnter } from '@beyou/state/user/perfilSlice';
@@ -79,11 +79,25 @@ describe('(app) layout chrome', () => {
     expect(screen.getAllByTestId('bottom-nav')).toHaveLength(1);
   });
 
-  it('offers all six sections from any screen', async () => {
+  /**
+   * The redesign cut the bar to five targets (Today, Routines, [Assistant],
+   * Habits, More); Tasks, Goals, Categories, Config and Feedback live one tap
+   * away inside the "More" sheet. What this test guards is unchanged: the whole
+   * app is reachable sideways from any screen, without going home first.
+   */
+  it('offers every section from any screen', async () => {
     mockPathname = '/goals';
     await renderLayout();
 
-    for (const key of ['categories', 'tasks', 'habits', 'routines', 'goals', 'config']) {
+    for (const key of ['today', 'routines', 'habits', 'more']) {
+      expect(screen.getByTestId(`nav-${key}`)).toBeTruthy();
+    }
+    expect(screen.getByTestId('nav-agent')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-more'));
+    });
+    for (const key of ['tasks', 'goals', 'categories', 'config', 'feedbackshortcutlabel']) {
       expect(screen.getByTestId(`nav-${key}`)).toBeTruthy();
     }
   });

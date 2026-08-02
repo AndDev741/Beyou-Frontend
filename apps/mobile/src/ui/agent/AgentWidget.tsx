@@ -45,12 +45,12 @@ export default function AgentWidget({ showFab = true }: AgentWidgetProps) {
   // O botão central da barra inferior é o gatilho do mobile; ele pede a
   // abertura por evento porque o estado de aberto vive aqui. A inscrição
   // respeita o mesmo portão do balão: durante o onboarding nada abre.
+  // Deps só o portão: `openPanel` é recriado a cada render, e reinscrever a
+  // cada render não mudaria nada — a closure só usa `setOpen` e
+  // `chat.ensureLoaded`, ambos estáveis (useCallback sem deps mutáveis).
   useEffect(() => {
     if (!isTutorialCompleted) return;
     return onAgentPanelOpen(openPanel);
-    // `openPanel` é recriado a cada render; reinscrever a cada render seria
-    // desperdício e a closure só lê `chat.ensureLoaded`, que é estável.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTutorialCompleted]);
 
   // Hidden until onboarding finishes: the tutorial (manual or AI) should own

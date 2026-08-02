@@ -1,35 +1,78 @@
-/** BottomNav (global action bar) — renders all six items, navigates, and marks the current route. */
+/**
+ * BottomNav (global action bar). Five targets since the redesign — Today,
+ * Routines, [Assistant], Habits, More — with everything that left the bar one
+ * tap away inside the "More" sheet.
+ */
 const mockPush = jest.fn();
 let mockPathname = '/';
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }),
   usePathname: () => mockPathname,
 }));
-jest.mock('react-native-safe-area-context', () => ({
-  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-  SafeAreaProvider: ({ children }: { children: unknown }) => children,
-}));
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  return {
+    useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+    // The "More" sheet reads the inset through context.
+    SafeAreaInsetsContext: React.createContext({ top: 0, right: 0, bottom: 0, left: 0 }),
+    SafeAreaProvider: ({ children }: { children: unknown }) => children,
+  };
+});
 
+// Records which tutorial anchors the bar registers, so the dashboard tutorial's
+// target can be asserted without a layout engine.
+var mockRegisteredTargets = new Set<string>();
+jest.mock('../src/tutorial/TutorialProvider', () => {
+  const actual = jest.requireActual('../src/tutorial/TutorialProvider');
+  return {
+    ...actual,
+    useTutorialRegistry: () => ({
+      register: (id: string) => {
+        if (id) mockRegisteredTargets.add(id);
+      },
+      unregister: (id: string) => mockRegisteredTargets.delete(id),
+      measure: async () => null,
+    }),
+  };
+});
+
+import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
+import { tutorialCompletedEnter } from '@beyou/state/user/perfilSlice';
 import '../src/i18n';
+import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import BottomNav from '../src/ui/dashboard/BottomNav';
+import { onAgentPanelOpen } from '../src/ui/agent/agentPanelBus';
 
-const ITEM_KEYS = ['categories', 'tasks', 'habits', 'routines', 'goals', 'config'] as const;
+/** The four labelled destinations in the bar, in bar order. */
+const BAR_KEYS = ['today', 'routines', 'habits', 'more'] as const;
+/** What moved into the sheet — same i18n keys as before the redesign. */
+const SHEET_KEYS = ['tasks', 'goals', 'categories', 'config', 'feedbackshortcutlabel'] as const;
 
-const renderNav = (pathname = '/') => {
+const renderNav = async (pathname = '/', { isTutorialCompleted = true } = {}) => {
   mockPathname = pathname;
+  const store = makeStore();
+  store.dispatch(tutorialCompletedEnter(isTutorialCompleted));
   return render(
-    <BeyouThemeProvider>
-      <BottomNav />
-    </BeyouThemeProvider>,
+    <Provider store={store}>
+      <BeyouThemeProvider>
+        <BottomNav />
+      </BeyouThemeProvider>
+    </Provider>,
   );
+};
+
+const openSheet = async () => {
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('nav-more'));
+  });
 };
 
 /** Which items report themselves as the current page, in bar order. */
 const selectedKeys = () =>
-  ITEM_KEYS.filter((key) => screen.getByTestId(`nav-${key}`).props.accessibilityState?.selected);
+  BAR_KEYS.filter((key) => screen.getByTestId(`nav-${key}`).props.accessibilityState?.selected);
 
 /**
  * The label colour the item actually renders with — the visual side of "active".
@@ -46,23 +89,25 @@ describe('BottomNav', () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockPathname = '/';
+    mockRegisteredTargets.clear();
   });
 
-  it('renders all six nav items', async () => {
+  it('renders the five bar targets', async () => {
     await renderNav();
-    for (const key of ITEM_KEYS) {
+    for (const key of BAR_KEYS) {
       expect(screen.getByTestId(`nav-${key}`)).toBeTruthy();
     }
+    expect(screen.getByTestId('nav-agent')).toBeTruthy();
   });
 
   it('navigates to the matching route on press', async () => {
-    await renderNav();
+    await renderNav('/habits');
     // act-wrapped per AGENTS.md: an unwrapped press lets the theme provider's
     // settle leak into the NEXT test in this file and corrupt its render.
     await act(async () => {
-      fireEvent.press(screen.getByTestId('nav-habits'));
+      fireEvent.press(screen.getByTestId('nav-today'));
     });
-    expect(mockPush).toHaveBeenCalledWith('/habits');
+    expect(mockPush).toHaveBeenCalledWith('/');
     await act(async () => {
       fireEvent.press(screen.getByTestId('nav-routines'));
     });
@@ -71,11 +116,92 @@ describe('BottomNav', () => {
 });
 
 /**
- * The filled-primary treatment answers "where am I?", so exactly one item may
- * carry it. It used to be a static flag on Habits + Routines, which meant the
- * bar showed the same two items filled no matter where you were: decoration,
- * not orientation.
- *
+ * The centre button is the ONLY way into the agent on mobile now — the floating
+ * bubble is gone from every screen the bar covers, which is all of them. It
+ * cannot own the chat state (that lives in AgentWidget, which must survive
+ * navigation), so it asks for the panel over the module bus.
+ */
+describe('BottomNav assistant button', () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+    mockPathname = '/';
+  });
+
+  it('asks the assistant panel to open', async () => {
+    const opened = jest.fn();
+    const unsubscribe = onAgentPanelOpen(opened);
+    await renderNav();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-agent'));
+    });
+
+    expect(opened).toHaveBeenCalledTimes(1);
+    expect(mockPush).not.toHaveBeenCalled();
+    unsubscribe();
+  });
+
+  it('stays hidden until onboarding is finished', async () => {
+    // Same gate as AgentWidget and FeedbackLauncher: while the tutorial owns
+    // the screen the button would open nothing, so it must not be there.
+    await renderNav('/', { isTutorialCompleted: false });
+    expect(screen.queryByTestId('nav-agent')).toBeNull();
+    expect(screen.getByTestId('nav-more')).toBeTruthy();
+  });
+});
+
+/**
+ * Four destinations moved behind "More". They must still be one tap away, and
+ * still carry the labels the rest of the app (and the user) knows them by.
+ */
+describe('BottomNav "More" sheet', () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+    mockPathname = '/';
+  });
+
+  it('keeps the sheet destinations out of the tree until it is opened', async () => {
+    await renderNav();
+    for (const key of SHEET_KEYS) {
+      expect(screen.queryByTestId(`nav-${key}`)).toBeNull();
+    }
+  });
+
+  it('offers every remaining section once opened', async () => {
+    await renderNav();
+    await openSheet();
+    for (const key of SHEET_KEYS) {
+      expect(screen.getByTestId(`nav-${key}`)).toBeTruthy();
+    }
+  });
+
+  it('navigates and closes itself on a tile press', async () => {
+    await renderNav();
+    await openSheet();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-categories'));
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/categories');
+    expect(screen.queryByTestId('nav-categories')).toBeNull();
+  });
+
+  /**
+   * The dashboard tutorial's second step spotlights `nav-categories`, and the
+   * overlay can only frame a target it can measure — i.e. one that is mounted.
+   * Categories lives behind "More" now, so the anchor rides the button that
+   * leads there and stays registered with the sheet closed.
+   */
+  it('keeps the nav-categories tutorial anchor mounted with the sheet closed', async () => {
+    await renderNav();
+    expect(mockRegisteredTargets.has('nav-categories')).toBe(true);
+    expect(mockRegisteredTargets.has('nav-routines')).toBe(true);
+    expect(mockRegisteredTargets.has('nav-habits')).toBe(true);
+  });
+});
+
+/**
+ * The accent treatment answers "where am I?", so exactly one item may carry it.
  * `accessibilityState.selected` is the anchor rather than a style value — it is
  * what a screen reader announces, and it comes from the same match that drives
  * the colour. One test then pins the colour to it so the two can't drift.
@@ -87,14 +213,16 @@ describe('BottomNav active item', () => {
   });
 
   it.each([
-    ['/categories', ['categories']],
-    ['/tasks', ['tasks']],
-    ['/habits', ['habits']],
+    ['/', ['today']],
     ['/routines', ['routines']],
-    ['/goals', ['goals']],
-    ['/configuration', ['config']],
-    // The dashboard has no entry in the bar, so nothing is highlighted there.
-    ['/', []],
+    ['/habits', ['habits']],
+    // Everything inside the sheet lights "More" — otherwise the bar would go
+    // mute on four of the app's screens.
+    ['/categories', ['more']],
+    ['/tasks', ['more']],
+    ['/goals', ['more']],
+    ['/configuration', ['more']],
+    ['/feedback', ['more']],
   ])('on %s selects %s', async (pathname, expected) => {
     await renderNav(pathname);
     expect(selectedKeys()).toEqual(expected);
@@ -113,10 +241,10 @@ describe('BottomNav active item', () => {
   });
 
   it('colours the current item differently, and the rest identically', async () => {
-    await renderNav('/goals');
+    await renderNav('/habits');
 
-    const active = labelColor('goals');
-    const others = ITEM_KEYS.filter((k) => k !== 'goals').map(labelColor);
+    const active = labelColor('habits');
+    const others = BAR_KEYS.filter((k) => k !== 'habits').map(labelColor);
 
     // Compared relatively rather than against a hex, so a theme change or a new
     // palette can't turn this into a false failure.

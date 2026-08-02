@@ -173,28 +173,11 @@ export default function BottomNav() {
           />
         ))}
 
-        {isTutorialCompleted ? (
-          <Pressable
-            onPress={openAgentPanel}
-            accessibilityRole="button"
-            accessibilityLabel={t('OpenAssistant')}
-            testID="nav-agent"
-            className="h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
-            style={{
-              // Sobe o disco para fora da barra (como no mockup). Margem
-              // negativa, não transform: assim a linha continua com a altura
-              // dos itens de texto em vez de esticar para os 48px do disco.
-              marginTop: -26,
-              elevation: 6,
-              shadowColor: theme.accent,
-              shadowOpacity: 0.4,
-              shadowRadius: 10,
-              shadowOffset: { width: 0, height: 6 },
-            }}
-          >
-            <Sparkles size={22} color={theme.onAccent} />
-          </Pressable>
-        ) : null}
+        {/* Vaga do disco central. Ele é posicionado em absoluto (abaixo) para
+            subir uma altura EXATA para fora da barra; um filho em fluxo teria
+            essa altura decidida pela altura dos rótulos, que muda com a fonte
+            do sistema. O espaçador é quem reserva o buraco no meio da linha. */}
+        <View className="w-14 shrink-0" />
 
         {RIGHT.map((item) => (
           <NavItemButton
@@ -223,6 +206,32 @@ export default function BottomNav() {
             {t('More')}
           </Text>
         </Pressable>
+
+        {isTutorialCompleted ? (
+          <Pressable
+            onPress={openAgentPanel}
+            accessibilityRole="button"
+            accessibilityLabel={t('OpenAssistant')}
+            testID="nav-agent"
+            className="absolute h-12 w-12 items-center justify-center rounded-full bg-accent active:opacity-80"
+            style={{
+              // Centralizado sobre o espaçador (dois itens flexíveis de cada
+              // lado ⇒ o meio da barra é o meio da vaga) e 14px para fora da
+              // barra: alto o bastante para ler como disco elevado, baixo o
+              // bastante para o toque não depender da área fora do pai.
+              left: '50%',
+              marginLeft: -24,
+              top: -14,
+              elevation: 6,
+              shadowColor: theme.accent,
+              shadowOpacity: 0.4,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 6 },
+            }}
+          >
+            <Sparkles size={22} color={theme.onAccent} />
+          </Pressable>
+        ) : null}
       </View>
 
       <BottomSheet
