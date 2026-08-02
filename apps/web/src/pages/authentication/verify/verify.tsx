@@ -86,7 +86,7 @@ function VerifyEmail() {
                             <p className="text-base text-text/70 mb-8">{t("VerifyEmailSuccessMessage")}</p>
                             <Link
                                 to="/"
-                                className="px-8 py-3 bg-accent text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("Enter")}
                             </Link>
@@ -104,7 +104,7 @@ function VerifyEmail() {
                             <p className="text-base text-text/70 mb-8">{t("VerifyEmailErrorMessage")}</p>
                             <Link
                                 to="/"
-                                className="px-8 py-3 bg-accent text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("Enter")}
                             </Link>
@@ -122,7 +122,7 @@ function VerifyEmail() {
                             <p className="text-base text-text/70 mb-8">{t("VerifyEmailExpiredMessage")}</p>
                             <Link
                                 to="/register"
-                                className="px-8 py-3 bg-accent text-white rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("ToRegister")}
                             </Link>
