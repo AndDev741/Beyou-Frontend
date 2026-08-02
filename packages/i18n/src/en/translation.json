@@ -999,5 +999,10 @@
     "ActiveDaysThisWeek": "{{count}} active days this week",
     "ActiveDaysThisWeek_one": "{{count}} active day this week",
     "ActiveDaysThisWeek_other": "{{count}} active days this week",
-    "Edit routine": "Edit routine"
+    "Edit routine": "Edit routine",
+    "HabitSearchPlaceholder": "Search habit",
+    "TaskSearchPlaceholder": "Search task",
+    "GoalSearchPlaceholder": "Search goal",
+    "CategorySearchPlaceholder": "Search category",
+    "NoResultsForSearch": "No results for this search."
 }

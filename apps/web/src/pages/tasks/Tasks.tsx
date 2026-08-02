@@ -170,7 +170,7 @@ function Tasks() {
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder={searchLabel}
                         aria-label={searchLabel}
-                        className={`${CONTROL_CLASS} w-full pl-9 pr-3 placeholder:capitalize placeholder:text-text-3`}
+                        className={`${CONTROL_CLASS} w-full pl-9 pr-3 placeholder:text-text-3`}
                     />
                 </div>
                 <select

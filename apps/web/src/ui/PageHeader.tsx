@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 type PageHeaderProps = {
     title: string;
     /** Linha de contexto: contagens, data, resumo. */
-    subtitle?: string;
+    subtitle?: ReactNode;
     /** Ação primária da página (criar). */
     action?: ReactNode;
     className?: string;

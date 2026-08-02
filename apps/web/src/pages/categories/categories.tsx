@@ -188,7 +188,7 @@ function Categories(){
                             onChange={(event) => setSearch(event.target.value)}
                             aria-label={searchLabel}
                             placeholder={searchLabel}
-                            className="h-10 w-full rounded-control border border-border bg-surface pl-9 pr-3 text-sm text-text placeholder:capitalize placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                            className="h-10 w-full rounded-control border border-border bg-surface pl-9 pr-3 text-sm text-text placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                         />
                     </div>
                     <select
