@@ -120,6 +120,12 @@ API. Os componentes que os exibiriam foram escritos para **degradar sem o dado**
   foram atualizados junto do que mudou de propósito).
 - `npm run build` do web gerando bundle, e a tela de login conferida por
   screenshot contra a seção Login do mockup.
+- **`profile-persistence.spec.ts` vai falhar e precisa ser atualizada** (repo
+  Beyou-e2e-tests, fora deste PR): ela semeia `theme: "Sunset"` e afirma que
+  `--primary` fica `#FB923C`. Com o modelo novo, "Sunset" migra para
+  `light:sunset` e o acento passa a ser **`#E45A0B`** — o valor do pack no
+  mockup. A asserção precisa do valor novo; o comportamento testado (tema salvo
+  sobrevive ao reload) continua válido.
 - **Não rodei a suíte e2e** (`Beyou-e2e-tests`): ela precisa da stack completa
   (backend em perfil e2e + Postgres `beyou_e2e`) subida. É o próximo passo de
   verificação, e o risco mora nos seletores por texto da navegação.

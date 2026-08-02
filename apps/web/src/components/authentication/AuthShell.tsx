@@ -2,8 +2,6 @@ import type { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import BrandMark from "../brand/BrandMark";
-import ThemeSelectorInline from "./ThemeSelectorInline";
-import TranslationButton from "../translationButton";
 
 type AuthShellProps = {
     title: string;
@@ -14,41 +12,41 @@ type AuthShellProps = {
 };
 
 /**
- * A casca das telas de autenticação: painel de marca à esquerda (o próprio
- * símbolo vira textura, sem clipart) e o cartão do formulário à direita.
- * Registro, recuperação e verificação herdam daqui — só o conteúdo do cartão
- * muda.
+ * A casca das telas de autenticação: painel de marca à esquerda e o cartão do
+ * formulário à direita. Registro, recuperação e verificação herdam daqui — só
+ * o conteúdo do cartão muda.
+ *
+ * Sem seletor de tema e sem seletor de idioma: antes de existir conta o app
+ * segue o padrão do sistema (tema pela preferência do SO, idioma pelo
+ * navegador). Trocar isso é coisa de usuário logado, na Configuração.
  */
 export default function AuthShell({ title, subtitle, children, showTabs = false }: AuthShellProps) {
     const { t } = useTranslation();
     const path = useLocation().pathname;
 
     return (
-        <div className="flex min-h-screen bg-bg text-text">
-            <aside className="relative hidden w-[46%] shrink-0 overflow-hidden bg-accent px-12 py-14 text-on-accent lg:flex lg:flex-col lg:justify-center">
-                {/* O símbolo em escala grande é a textura do painel; fica atrás
-                    do conteúdo e não compete com ele. */}
+        <div className="min-h-screen bg-bg text-text lg:grid lg:grid-cols-[1fr_1.1fr]">
+            {/* O símbolo em escala grande sangra pelo canto superior direito a 7%
+                de opacidade: é textura, não ilustração. O conteúdo ancora no
+                rodapé do painel. */}
+            <aside className="relative hidden overflow-hidden border-r border-border bg-surface p-9 lg:flex lg:flex-col lg:justify-end">
                 <BrandMark
-                    size={520}
-                    className="pointer-events-none absolute -bottom-24 -right-32 text-on-accent/10"
+                    size={420}
+                    className="pointer-events-none absolute -right-20 -top-16 text-accent opacity-[0.07]"
                 />
                 <div className="relative">
-                    <BrandMark size={26} withWordmark className="text-on-accent" />
-                    <h2 className="mt-8 max-w-md text-4xl font-semibold leading-tight tracking-[-0.02em]">
+                    <BrandMark size={26} withWordmark className="text-accent" />
+                    <h2 className="mt-[18px] max-w-[300px] text-[26px] font-semibold leading-[1.2] tracking-[-0.02em] text-text">
                         {t("LoginBrandHeadline")}
                     </h2>
-                    <p className="mt-3 max-w-sm text-base text-on-accent/75">{t("LoginBrandSub")}</p>
-                    <div className="mt-10">
-                        <ThemeSelectorInline />
-                    </div>
+                    <p className="mt-2.5 max-w-[300px] text-sm text-text-2">{t("LoginBrandSub")}</p>
                 </div>
             </aside>
 
-            <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
-                <div className="w-full max-w-[400px]">
-                    <div className="mb-6 flex items-center justify-between lg:hidden">
-                        <BrandMark size={30} withWordmark className="text-accent" />
-                        <TranslationButton />
+            <main className="flex flex-col items-center justify-center px-4 py-10">
+                <div className="w-full max-w-[380px]">
+                    <div className="mb-6 flex justify-center lg:hidden">
+                        <BrandMark size={32} withWordmark className="text-accent" />
                     </div>
 
                     <div className="rounded-card border border-border bg-surface p-6 shadow-surface">
@@ -74,14 +72,10 @@ export default function AuthShell({ title, subtitle, children, showTabs = false 
                             </nav>
                         )}
 
-                        <h1 className="text-2xl font-semibold tracking-[-0.02em] text-text">{title}</h1>
-                        {subtitle && <p className="mt-1 text-sm text-text-2">{subtitle}</p>}
+                        <h1 className="text-xl font-semibold tracking-[-0.015em] text-text">{title}</h1>
+                        {subtitle && <p className="mt-1.5 text-[13px] text-text-3">{subtitle}</p>}
 
                         <div className="mt-5">{children}</div>
-                    </div>
-
-                    <div className="mt-6 hidden justify-center lg:flex">
-                        <TranslationButton />
                     </div>
                 </div>
             </main>
