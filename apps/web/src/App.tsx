@@ -92,7 +92,7 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <ErrorBoundary>
-          <div className="font-mainFont bg-background">
+          <div className="font-sans bg-bg text-text">
             <AppContent />
           </div>
         </ErrorBoundary>

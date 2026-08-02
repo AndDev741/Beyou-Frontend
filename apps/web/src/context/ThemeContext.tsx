@@ -1,6 +1,12 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react"
-import {defaultDark, defaultLight} from "@beyou/theme";
-import type { Theme } from "@beyou/theme";
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react"
+import {
+    buildTheme,
+    defaultLight,
+    parseThemePreference,
+    themeToVars,
+    type Theme,
+    type ThemePreference,
+} from "@beyou/theme";
 import { useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import { logger } from "../utils/logger";
@@ -8,11 +14,17 @@ import { logger } from "../utils/logger";
 export type ThemeType = Theme;
 type ThemeContextType = {
     theme: ThemeType;
-    setTheme: React.Dispatch<React.SetStateAction<ThemeType>>;
+    /** Preferência crua (modo + pack), antes de resolver `system`. */
+    preference: ThemePreference;
+    setPreference: (next: ThemePreference) => void;
+    /** @deprecated aplica um tema já resolvido; prefira `setPreference`. */
+    setTheme: (next: ThemeType) => void;
 };
 
 const ThemeContext = createContext<ThemeContextType>({
     theme: defaultLight,
+    preference: { mode: "system", accentPack: "beyou" },
+    setPreference: () => { },
     setTheme: () => { },
 });
 
@@ -22,53 +34,80 @@ const ThemeContext = createContext<ThemeContextType>({
 // when that account has no theme of its own.
 const THEME_STORAGE_KEY = "beyou-theme";
 
-function readStoredTheme(): ThemeType | null {
+const prefersDarkQuery = () => window.matchMedia("(prefers-color-scheme: dark)");
+
+function readStoredPreference(): ThemePreference | null {
     try {
         const raw = localStorage.getItem(THEME_STORAGE_KEY);
-        return raw ? (JSON.parse(raw) as ThemeType) : null;
+        if (!raw) return null;
+        // Formato atual: a string da preferência ("system:beyou"). Instalações
+        // antigas guardaram o objeto Theme inteiro — aproveitamos o `mode` dele,
+        // que o parse migra dos nomes legados ("Cyberpunk", "Late Latte", ...).
+        if (raw.startsWith("{")) {
+            const parsed = JSON.parse(raw) as { mode?: string };
+            return parsed.mode ? parseThemePreference(parsed.mode) : null;
+        }
+        return parseThemePreference(raw);
     } catch {
         return null;
     }
 }
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const userTheme = useSelector((state: RootState) => state.perfil.themeInUse);
-    logger.log("USER THEME => ", userTheme);
-    // Precedence: account theme → localStorage (pre-signup pick) → OS preference.
-    const [theme, setTheme] = useState<ThemeType>(
-        userTheme ?? readStoredTheme() ?? (prefersDark ? defaultDark : defaultLight)
+    const [preference, setPreference] = useState<ThemePreference>(
+        () => readStoredPreference() ?? parseThemePreference(userTheme?.mode),
     );
-    logger.log("theme => ", theme);
+    // `system` acompanha o SO em tempo real: quem troca o tema do sistema com o
+    // app aberto vê a mudança sem recarregar.
+    const [prefersDark, setPrefersDark] = useState(() => prefersDarkQuery().matches);
 
-    // The account theme wins once it is present. When it is absent (login page,
-    // or a logged-in account with no saved theme) we keep whatever is already
-    // applied — i.e. the localStorage pick — instead of resetting to OS default.
     useEffect(() => {
-        if (userTheme) setTheme(userTheme);
-    }, [userTheme]);
+        const query = prefersDarkQuery();
+        const onChange = (event: MediaQueryListEvent) => setPrefersDark(event.matches);
+        query.addEventListener?.("change", onChange);
+        return () => query.removeEventListener?.("change", onChange);
+    }, []);
+
+    // A preferência da conta vence assim que o perfil carrega. Quando ela não
+    // existe, mantemos a escolha local (feita na tela de login) em vez de
+    // resetar para o padrão do SO.
+    useEffect(() => {
+        if (userTheme?.mode) setPreference(parseThemePreference(userTheme.mode));
+    }, [userTheme?.mode]);
+
+    const theme = useMemo(() => buildTheme(preference, prefersDark), [preference, prefersDark]);
+    logger.log("theme => ", theme.mode, theme.base);
 
     useEffect(() => {
         const root = document.documentElement;
-
-        root.style.setProperty("--background", theme.background);
-        root.style.setProperty("--primary", theme.primary);
-        root.style.setProperty("--secondary", theme.secondary);
-        root.style.setProperty("--description", theme.description);
-        root.style.setProperty("--icon", theme.icon);
-        root.style.setProperty("--placeholder", theme.placeholder);
-        root.style.setProperty("--success", theme.success);
-        root.style.setProperty("--error", theme.error);
+        Object.entries(themeToVars(theme)).forEach(([name, value]) =>
+            root.style.setProperty(name, value),
+        );
+        // A base entra como atributo para o CSS puro poder reagir (scrollbar,
+        // seleção de texto) e como color-scheme para os controles nativos.
+        root.dataset.theme = theme.base;
+        root.style.colorScheme = theme.base;
 
         try {
-            localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(theme));
+            localStorage.setItem(THEME_STORAGE_KEY, theme.mode);
         } catch {
             /* storage unavailable (private mode / quota) — theme still applies in-session */
         }
     }, [theme]);
 
+    const value = useMemo<ThemeContextType>(
+        () => ({
+            theme,
+            preference,
+            setPreference,
+            setTheme: (next: ThemeType) => setPreference(parseThemePreference(next.mode)),
+        }),
+        [theme, preference],
+    );
+
     return (
-        <ThemeContext.Provider value={{ theme, setTheme }}>
+        <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
     )

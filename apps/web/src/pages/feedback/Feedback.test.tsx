@@ -148,7 +148,7 @@ describe("Feedback screen", () => {
         expect(href).toContain("screen=/feedback");
         expect(href).toContain("platform=web");
         expect(href).toContain("language=en");
-        expect(href).toContain("theme=beYou");
+        expect(href).toContain("theme=light:beyou");
         expect(href).toContain("Please add streak reminders");
 
         // The client-side context and the mailto context agree.
@@ -157,7 +157,7 @@ describe("Feedback screen", () => {
             screen: "/feedback",
             platform: "web",
             language: "en",
-            theme: "beYou"
+            theme: "light:beyou"
         });
         expect(input.category).toBe("FEATURE_REQUEST");
     });

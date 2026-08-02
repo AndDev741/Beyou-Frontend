@@ -1,121 +1,100 @@
-import type { Theme } from './theme';
+import type { Theme, ThemeMode, ThemePreference } from './theme';
+import {
+    DEFAULT_ACCENT_PACK,
+    accentPacks,
+    buildTokens,
+    findAccentPack,
+    type ThemeBase,
+} from './tokens';
 
-export const defaultLight = {
-    mode: "beYou", //Need to match i18n
-    background: "#ffffff",
-    primary: "#0082e1",
-    secondary: "#000000",
-    description: "#616366ff",
-    icon: "#4a4f55ff",
-    placeholder: "#9ca3afff",
-    success: "#16a34a",
-    error: "#dc2626"
-} satisfies Theme;
+/**
+ * O modelo de temas do redesign: duas bases × cinco packs de acento, no lugar
+ * dos 9 temas soltos. A preferência é persistida como `"<modo>:<pack>"` — o
+ * modo pode ser `system`, e nesse caso a base sai da preferência do SO.
+ */
 
-export const defaultDark = {
-    mode: "beYouDark", //Need to match i18n
-    background: "#18181B",
-    primary: "#0082e1",
-    secondary: "#e7e0e0ff",
-    description: "#c2c4c7ff",
-    icon: "#8cbceeff",
-    placeholder: "#71717aff",
-    success: "#22c55e",
-    error: "#dc2626"
-} satisfies Theme;
+export const serializeThemePreference = ({ mode, accentPack }: ThemePreference): string =>
+    `${mode}:${accentPack}`;
 
-export const sunsetTheme = {
-    mode: "Sunset",
-    background: "#FFF3E0",
-    primary: "#FB923C",
-    secondary: "#78350F",
-    description: "#92400E",
-    icon: "#F97316",
-    placeholder: "#FED7AA",
-    success: "#22C55E",
-    error: "#DC2626"
-} satisfies Theme;
+/**
+ * Modos salvos antes do redesign. Nenhum usuário pode ficar órfão: o que não
+ * casar cai em `system:beyou`.
+ *
+ * Late Latte é um tema ESCURO (fundo #2c1e1e) apesar do acento caramelo — vai
+ * para a base escura, não para a clara.
+ */
+export const LEGACY_MODE_MAP: Record<string, string> = {
+    beYou: 'light:beyou',
+    beYouDark: 'dark:beyou',
+    Sunset: 'light:sunset',
+    Amethyst: 'light:amethyst',
+    Midnight: 'dark:beyou',
+    Cyberpunk: 'dark:cyber',
+    Mocha: 'light:sunset',
+    Polar: 'dark:beyou',
+    'Late Latte': 'dark:sunset',
+};
 
-export const amethystTheme = {
-    mode: "Amethyst",
-    background: "#F5F3FF",
-    primary: "#8B5CF6",
-    secondary: "#3730A3",
-    description: "#4C1D95",
-    icon: "#7C3AED",
-    placeholder: "#DDD6FE",
-    success: "#22C55E",
-    error: "#DC2626"
-} satisfies Theme;
+export const DEFAULT_PREFERENCE: ThemePreference = {
+    mode: 'system',
+    accentPack: DEFAULT_ACCENT_PACK,
+};
 
-export const midnigthTheme = {
-    mode: "Midnight",
-    background: "#0F172A",
-    primary: "#60A5FA",
-    secondary: "#E2E8F0",
-    description: "#94A3B8",
-    icon: "#38BDF8",
-    placeholder: "#64748B",
-    success: "#22C55E",
-    error: "#DC2626"
-} satisfies Theme;
+/**
+ * Lê a string persistida (formato novo OU um modo legado) e devolve a
+ * preferência. Entrada desconhecida cai no padrão em vez de explodir.
+ */
+export function parseThemePreference(raw: string | null | undefined): ThemePreference {
+    if (!raw) return DEFAULT_PREFERENCE;
 
-export const cyberpunkTheme = {
-    mode: "Cyberpunk",
-    background: "#0D0C1D",
-    primary: "#D946EF",
-    secondary: "#E0E7FF",
-    description: "#C084FC",
-    icon: "#A21CAF",
-    placeholder: "#6B21A8",
-    success: "#10B981",
-    error: "#EF4444"
-} satisfies Theme;
+    const migrated = LEGACY_MODE_MAP[raw] ?? raw;
+    const [mode, pack] = migrated.split(':');
 
-export const mochaTheme = {
-  mode: "Mocha",
-  background: "#FAF3E0",
-  primary: "#B45309",
-  secondary: "#78350F",
-  description: "#92400E",
-  icon: "#C2410C",
-  placeholder: "#FED7AA",
-  success: "#16A34A",
-  error: "#DC2626"
-} satisfies Theme;
+    const validMode: ThemeMode =
+        mode === 'light' || mode === 'dark' || mode === 'system' ? mode : 'system';
 
-export const polarTheme = {
-  mode: "Polar",
-  background: "#1E293B",
-  primary: "#0EA5E9",
-  secondary: "#E2E8F0",
-  description: "#94A3B8",
-  icon: "#38BDF8",
-  placeholder: "#64748B",
-  success: "#22C55E",
-  error: "#DC2626"
-} satisfies Theme;
+    return { mode: validMode, accentPack: findAccentPack(pack).id };
+}
 
-export const lateNight = {
-  mode: "Late Latte",
-  background: "#2c1e1eff",
-  primary: "#947347ff",          // caramelo suave
-  secondary: "#F0E3D2",        // quase off-white quente
-  description: "#D6C3B3",
-  icon: "#F6AD55",
-  placeholder: "#7C6A5C",
-  success: "#22C55E",
-  error: "#DC2626"
-} satisfies Theme;
+/** Resolve `system` contra a preferência do SO. */
+export const resolveBase = (mode: ThemeMode, prefersDark: boolean): ThemeBase =>
+    mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode;
 
-export const themes: Theme[] = [
-    defaultLight,
-    defaultDark,
-    sunsetTheme,
-    amethystTheme,
-    midnigthTheme,
-    cyberpunkTheme,
-    mochaTheme,
-    polarTheme,
-    lateNight
-];
+/** Monta o objeto Theme (tokens novos + aliases do modelo antigo). */
+export function buildTheme(pref: ThemePreference, prefersDark = false): Theme {
+    const base = resolveBase(pref.mode, prefersDark);
+    const tokens = buildTokens(base, pref.accentPack);
+
+    return {
+        ...tokens,
+        mode: serializeThemePreference(pref),
+        base,
+        accentPack: pref.accentPack,
+
+        // Aliases do modelo antigo. `background` aponta para `surface` porque
+        // 110 dos 136 usos de bg-background são cartão, input ou modal; o fundo
+        // de página passou a usar `bg` explicitamente.
+        background: tokens.surface,
+        primary: tokens.accent,
+        secondary: tokens.text,
+        description: tokens.text2,
+        icon: tokens.text2,
+        placeholder: tokens.text3,
+        error: tokens.danger,
+    };
+}
+
+/** Atalho: string persistida → tema pronto para aplicar. */
+export const themeFromStoredMode = (raw: string | null | undefined, prefersDark = false): Theme =>
+    buildTheme(parseThemePreference(raw), prefersDark);
+
+export const defaultLight: Theme = buildTheme({ mode: 'light', accentPack: DEFAULT_ACCENT_PACK });
+export const defaultDark: Theme = buildTheme({ mode: 'dark', accentPack: DEFAULT_ACCENT_PACK });
+
+/**
+ * Todas as combinações concretas. O seletor de tema real mostra modo e pack
+ * separados; esta lista existe para telas que precisam iterar temas prontos.
+ */
+export const themes: Theme[] = (['light', 'dark'] as ThemeBase[]).flatMap((mode) =>
+    accentPacks.map((pack) => buildTheme({ mode, accentPack: pack.id })),
+);

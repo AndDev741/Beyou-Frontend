@@ -9,11 +9,13 @@ export default function useColors(dificulty: number,
     setImportancePhrase: React.Dispatch<React.SetStateAction<string>>, 
     t: TFunction){
     useEffect(() => {
+        // Escala semântica em token: neutro → acento → atenção → risco. Cor
+        // fixa aqui ignorava o tema e o pack de acento do usuário.
         const dificultyAndImportanceColors = {
-            1: "#8EB2C5",
-            2: "#F9BF76",
-            3: "#E5625C",
-            4: "#D1313D"
+            1: "var(--text-3)",
+            2: "var(--accent)",
+            3: "var(--flame)",
+            4: "var(--danger)"
         }
     
         const dificultyPhrases = {

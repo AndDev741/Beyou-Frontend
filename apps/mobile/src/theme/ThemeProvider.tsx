@@ -1,27 +1,33 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { View, useColorScheme } from 'react-native';
 import { vars } from 'nativewind';
-import { themes, defaultLight, type Theme } from '@beyou/theme';
+import {
+  buildTheme,
+  parseThemePreference,
+  themeToVars,
+  type Theme,
+  type ThemePreference,
+} from '@beyou/theme';
 
-export function themeToVars(theme: Theme): Record<string, string> {
-  return {
-    '--background': theme.background,
-    '--primary': theme.primary,
-    '--secondary': theme.secondary,
-    '--description': theme.description,
-    '--icon': theme.icon,
-    '--placeholder': theme.placeholder,
-    '--success': theme.success,
-    '--error': theme.error,
-  };
-}
+/** Reexportado por compatibilidade: a fonte do mapa agora é packages/theme. */
+export { themeToVars };
 
 interface ThemeCtx {
   theme: Theme;
+  preference: ThemePreference;
+  setPreference: (next: ThemePreference) => void;
+  /** Aceita a string persistida (formato novo ou modo legado). */
   setThemeByMode: (mode: string) => void;
 }
 
-const Ctx = createContext<ThemeCtx>({ theme: defaultLight, setThemeByMode: () => {} });
+const fallbackPreference: ThemePreference = { mode: 'system', accentPack: 'beyou' };
+
+const Ctx = createContext<ThemeCtx>({
+  theme: buildTheme(fallbackPreference),
+  preference: fallbackPreference,
+  setPreference: () => {},
+  setThemeByMode: () => {},
+});
 
 export const useBeyouTheme = () => useContext(Ctx);
 
@@ -32,17 +38,27 @@ export function BeyouThemeProvider({
   children: ReactNode;
   initialMode?: string;
 }) {
-  const [theme, setTheme] = useState<Theme>(
-    () => themes.find((t) => t.mode === initialMode) ?? defaultLight,
+  const [preference, setPreference] = useState<ThemePreference>(() =>
+    parseThemePreference(initialMode),
   );
+  // `system` segue o SO em tempo real — o usuário pode trocar sem sair do app.
+  const prefersDark = useColorScheme() === 'dark';
 
-  const setThemeByMode = (mode: string) =>
-    setTheme(themes.find((t) => t.mode === mode) ?? defaultLight);
-
+  const theme = useMemo(() => buildTheme(preference, prefersDark), [preference, prefersDark]);
   const style = useMemo(() => vars(themeToVars(theme)), [theme]);
 
+  const value = useMemo<ThemeCtx>(
+    () => ({
+      theme,
+      preference,
+      setPreference,
+      setThemeByMode: (mode: string) => setPreference(parseThemePreference(mode)),
+    }),
+    [theme, preference],
+  );
+
   return (
-    <Ctx.Provider value={{ theme, setThemeByMode }}>
+    <Ctx.Provider value={value}>
       <View style={[{ flex: 1 }, style]}>{children}</View>
     </Ctx.Provider>
   );

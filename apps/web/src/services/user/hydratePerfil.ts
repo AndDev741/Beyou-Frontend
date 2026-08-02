@@ -1,6 +1,6 @@
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { UserType } from "@beyou/types/user/UserType";
-import { themes } from "@beyou/theme";
+import { themeFromStoredMode } from "@beyou/theme";
 import {
     nameEnter,
     emailEnter,
@@ -40,7 +40,9 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     dispatch(photoEnter(data.photo));
     dispatch(isGoogleAccountEnter(data.isGoogleAccount));
     dispatch(widgetsIdInUseEnter(data.widgetsId));
-    dispatch(themeInUseEnter(themes.find((theme) => theme.mode === data?.themeInUse) || null));
+    // Um modo desconhecido (tema removido no redesign) cai no padrão em vez de
+    // deixar a conta sem tema — a migração dos 9 modos antigos vive no parse.
+    dispatch(themeInUseEnter(data?.themeInUse ? themeFromStoredMode(data.themeInUse) : null));
     dispatch(xpEnter(data.xp));
     dispatch(levelEnter(data.level));
     dispatch(nextLevelXpEnter(data.nextLevelXp));

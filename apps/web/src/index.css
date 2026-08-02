@@ -6,9 +6,17 @@
 @layer base {
   /* Themed page background at the root so short pages (e.g. a loading gate
      smaller than the viewport) and overscroll never show the browser's white
-     body behind the app. --background is set per-theme by ThemeContext. */
+     body behind the app. `--bg` is the PAGE tone (mais escuro que o cartão);
+     cartões usam `--surface`. Ambos são setados por tema pelo ThemeContext. */
   body {
-    background-color: var(--background);
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Números (XP, nível, contagem, horário) sempre tabulares. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
   }
 }
 

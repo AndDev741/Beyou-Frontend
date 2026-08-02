@@ -1,13 +1,93 @@
+/* Fallback estático dos tokens: vale no primeiro paint, antes de o ThemeProvider
+   aplicar a preferência do usuário em runtime. A fonte da verdade é
+   packages/theme (tokens.ts + cssVars.ts) — mexeu lá, espelhe aqui. */
 :root {
-    --background: #ffffff;
-    --primary: #0082e1;
-    --secondary: #000000;
-    --description: #7f8b99ff;
+    --bg: #F5F7FA;
+    --surface: #FFFFFF;
+    --surface-2: #EDF0F4;
+    --border: #E2E6EC;
+    --text: #171B22;
+    --text-2: #566070;
+    --text-3: #8792A2;
+    --accent: #1D6BF3;
+    --accent-strong: #1558D6;
+    --on-accent: #FFFFFF;
+    --accent-soft: rgba(29, 107, 243, .09);
+    --xp: #B45309;
+    --xp-soft: rgba(217, 119, 6, .13);
+    --flame: #EA580C;
+    --flame-soft: rgba(234, 88, 12, .12);
+    --success: #0E9F6E;
+    --danger: #DC2626;
+    --shadow: 0 1px 2px rgba(23, 27, 34, .05), 0 8px 24px rgba(23, 27, 34, .06);
+
+    /* aliases do modelo antigo — saem na fase de limpeza */
+    --background: #FFFFFF;
+    --primary: #1D6BF3;
+    --secondary: #171B22;
+    --description: #566070;
+    --icon: #566070;
+    --placeholder: #8792A2;
+    --error: #DC2626;
 }
 
-.dark {
-    --background: #000000;
-    --primary: #0082e1;
-    --secondary: #ffffff;
-    --description: #7f8b99ff;
+:root[data-theme="dark"] {
+    --bg: #0E1218;
+    --surface: #151A22;
+    --surface-2: #1D242E;
+    --border: #29313D;
+    --text: #F0F4F9;
+    --text-2: #A3AEBD;
+    --text-3: #6C7889;
+    --accent: #5C9DFF;
+    --accent-strong: #7AB0FF;
+    --on-accent: #0B1526;
+    --accent-soft: rgba(92, 157, 255, .13);
+    --xp: #FBBF24;
+    --xp-soft: rgba(251, 191, 36, .14);
+    --flame: #FB923C;
+    --flame-soft: rgba(251, 146, 60, .14);
+    --success: #34D399;
+    --danger: #F87171;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .35);
+
+    --background: #151A22;
+    --primary: #5C9DFF;
+    --secondary: #F0F4F9;
+    --description: #A3AEBD;
+    --icon: #A3AEBD;
+    --placeholder: #6C7889;
+    --error: #F87171;
+}
+
+/* Sem preferência salva, o primeiro paint segue o SO. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #0E1218;
+        --surface: #151A22;
+        --surface-2: #1D242E;
+        --border: #29313D;
+        --text: #F0F4F9;
+        --text-2: #A3AEBD;
+        --text-3: #6C7889;
+        --accent: #5C9DFF;
+        --accent-strong: #7AB0FF;
+        --on-accent: #0B1526;
+        --accent-soft: rgba(92, 157, 255, .13);
+        --xp: #FBBF24;
+        --xp-soft: rgba(251, 191, 36, .14);
+        --flame: #FB923C;
+        --flame-soft: rgba(251, 146, 60, .14);
+        --success: #34D399;
+        --danger: #F87171;
+        --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .35);
+
+        --background: #151A22;
+        --primary: #5C9DFF;
+        --secondary: #F0F4F9;
+        --description: #A3AEBD;
+        --icon: #A3AEBD;
+        --placeholder: #6C7889;
+        --error: #F87171;
+    }
 }

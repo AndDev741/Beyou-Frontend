@@ -97,7 +97,7 @@ describe("Reporting from a non-fatal error surface", () => {
             screen: "/habits",
             platform: "web",
             language: "en",
-            theme: "beYou"
+            theme: "light:beyou"
         });
     });
 
