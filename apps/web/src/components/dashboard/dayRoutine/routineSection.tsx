@@ -166,19 +166,30 @@ export default function RoutineSection({ section, routineId}: { section: section
                             className="transition-transform duration-200 group-hover:scale-105 peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface rounded-full"
                         />
                         </label>
-                        <span className={`text-sm md:text-base ml-2 ${skipped ? "text-text-2 line-through" : "text-text"}`}>
+                        <span className="ml-3 flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
+                            <BeyouIcon id={itemObj.iconId} />
+                        </span>
+                        <span
+                            className={`ml-3 truncate text-[13.5px] font-medium ${
+                                checked || skipped ? "text-text-3" : "text-text"
+                            } ${skipped ? "line-through" : ""}`}
+                        >
                             {itemObj.name}
                         </span>
-                        <span className="ml-2 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-text-3">
-                            {formatTimeRange(item.startTime, item.endTime)}
-                        </span>
+
                         {/* The skipped state is already conveyed by the dimmed row,
                             the line-through name and the "Undo skip" button — no
                             extra "Skipped" label needed (saves mobile space). */}
                     </div>
+                    <div className="ml-auto flex shrink-0 items-center gap-2">
+                        <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
+                            {formatTimeRange(item.startTime, item.endTime)}
+                        </span>
                     {!checked && (
                         <button
-                            className="flex items-center gap-1 rounded-control border border-border/30 px-2 py-1.5 text-xs font-semibold text-text-2 hover:text-accent hover:border-border active:scale-95 transition-all duration-200"
+                            aria-label={skipped ? t("Undo skip") : t("Skip")}
+                            title={skipped ? t("Undo skip") : t("Skip")}
+                            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11.5px] font-semibold text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
                             onClick={() => {
                                 const groupToSkip: itemGroupToSkip = {
                                     routineId: routineId,
@@ -201,28 +212,29 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 handleSkip(groupToSkip);
                             }}
                         >
-                            <FiSlash />
+                            <FiSlash size={13} aria-hidden="true" />
                             {skipped ? t("Undo skip") : t("Skip")}
                         </button>
                     )}
+                    </div>
                 </div>
             );
         });
     };
 
     return (
-        <div className="flex flex-col items-start justify-center w-full h-full">
-            <div className="flex items-center gap-2">
-                <span className="text-[22px] md:text-[30px] text-text-2"><BeyouIcon id={section.iconId} /></span>
-                <span className="text-base md:text-xl font-bold text-accent line-clamp-1">{section.name}
-                <span className="ml-2 md:ml-4 text-xs md:text-base text-text-2">
-                        {formatTimeRange(section.startTime, section.endTime)}
+        <div className="flex w-full flex-col items-start justify-center pb-1 pt-2.5">
+            <div className="flex items-center gap-2.5 py-1.5">
+                <span className="text-[15px] text-text-3">
+                    <BeyouIcon id={section.iconId} />
                 </span>
-            </span>
-
+                <b className="truncate text-[12.5px] font-semibold text-text-2">{section.name}</b>
+                <span className="whitespace-nowrap font-mono text-[11px] text-text-3">
+                    {formatTimeRange(section.startTime, section.endTime)}
+                </span>
             </div>
-    
-            <div className="w-full flex flex-col items-start justify-start mb-4 mt-2">
+
+            <div className="mb-2 flex w-full flex-col items-start justify-start">
                 {renderItems()}
             </div>
 

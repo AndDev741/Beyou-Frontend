@@ -966,5 +966,10 @@
     "Sending": "Sending…",
     "PasswordResetRequestSentTitle": "Check your inbox",
     "NewPassword": "New password",
-    "ConfirmPassword": "Confirm password"
+    "ConfirmPassword": "Confirm password",
+    "TodaysRoutine": "Today's routine",
+    "SectionsCount_one": "{{count}} section",
+    "SectionsCount_other": "{{count}} sections",
+    "Of": "of",
+    "SectionsCount": "{{count}} sections"
 }

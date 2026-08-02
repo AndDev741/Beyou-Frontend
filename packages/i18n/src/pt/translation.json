@@ -966,5 +966,10 @@
     "Sending": "Enviando…",
     "PasswordResetRequestSentTitle": "Confira sua caixa de entrada",
     "NewPassword": "Nova senha",
-    "ConfirmPassword": "Confirmar senha"
+    "ConfirmPassword": "Confirmar senha",
+    "TodaysRoutine": "Rotina de hoje",
+    "SectionsCount_one": "{{count}} seção",
+    "SectionsCount_other": "{{count}} seções",
+    "Of": "de",
+    "SectionsCount": "{{count}} seções"
 }
