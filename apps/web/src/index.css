@@ -3,6 +3,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Geist self-hosted: sem CDN de terceiro no caminho crítico do primeiro paint.
+   Arquivos variáveis — um por família cobre 400-700. */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   /* Themed page background at the root so short pages (e.g. a loading gate
      smaller than the viewport) and overscroll never show the browser's white

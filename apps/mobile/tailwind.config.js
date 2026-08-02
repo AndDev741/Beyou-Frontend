@@ -40,8 +40,15 @@ module.exports = {
         control: '10px',
       },
       fontFamily: {
+        // Cada peso é uma família própria: o RN não sintetiza peso a partir de
+        // um arquivo só. `font-semibold` sozinho não muda a fonte — use
+        // font-medium/font-semibold/font-bold destas famílias.
         sans: ['Geist'],
+        medium: ['GeistMedium'],
+        semibold: ['GeistSemiBold'],
+        bold: ['GeistBold'],
         mono: ['GeistMono'],
+        'mono-semibold': ['GeistMonoSemiBold'],
       },
     },
   },

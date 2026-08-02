@@ -1,42 +1,77 @@
 /**
- * ThemeSelector — pressing a swatch switches the live theme via BeyouThemeProvider.
- * A tiny consumer renders the current theme.mode so we can assert the change.
+ * ThemeSelector — modo e acento trocam o tema vivo via BeyouThemeProvider.
+ * Um consumidor mínimo renderiza a preferência atual para a asserção.
  */
 import { Text } from 'react-native';
 import { render, fireEvent, act } from '@testing-library/react-native';
-import { themes } from '@beyou/theme';
+import { accentPacks } from '@beyou/theme';
+import '../src/i18n';
 import { BeyouThemeProvider, useBeyouTheme } from '../src/theme/ThemeProvider';
 import ThemeSelector from '../src/ui/ThemeSelector';
 
-function CurrentMode() {
+function CurrentTheme() {
   const { theme } = useBeyouTheme();
-  return <Text testID="current-mode">{theme.mode}</Text>;
+  return (
+    <>
+      <Text testID="current-mode">{theme.mode}</Text>
+      <Text testID="current-base">{theme.base}</Text>
+      <Text testID="current-accent">{theme.accent}</Text>
+    </>
+  );
 }
 
 const renderSelector = async () =>
   render(
     <BeyouThemeProvider>
       <ThemeSelector />
-      <CurrentMode />
+      <CurrentTheme />
     </BeyouThemeProvider>,
   );
 
 describe('ThemeSelector', () => {
-  it('renders a swatch for every theme', async () => {
+  it('renders the three modes and every accent pack', async () => {
     const screen = await renderSelector();
-    for (const t of themes) {
-      expect(screen.getByTestId(`theme-swatch-${t.mode}`)).toBeTruthy();
+    for (const mode of ['system', 'light', 'dark']) {
+      expect(screen.getByTestId(`theme-mode-${mode}`)).toBeTruthy();
+    }
+    for (const pack of accentPacks) {
+      expect(screen.getByTestId(`theme-accent-${pack.id}`)).toBeTruthy();
     }
   });
 
-  it('switches the active theme when a swatch is pressed', async () => {
+  it('switches the base when a mode is pressed', async () => {
     const screen = await renderSelector();
-    // Pick a theme that is not the default starting one.
-    const target = themes.find((t) => t.mode !== screen.getByTestId('current-mode').props.children);
-    expect(target).toBeTruthy();
     await act(async () => {
-      fireEvent.press(screen.getByTestId(`theme-swatch-${target!.mode}`));
+      fireEvent.press(screen.getByTestId('theme-mode-dark'));
     });
-    expect(screen.getByTestId('current-mode').props.children).toBe(target!.mode);
+    expect(screen.getByTestId('current-base').props.children).toBe('dark');
+    expect(screen.getByTestId('current-mode').props.children).toBe('dark:beyou');
+  });
+
+  it('swaps only the accent when a pack is pressed', async () => {
+    const screen = await renderSelector();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('theme-mode-light'));
+    });
+    const beyouAccent = screen.getByTestId('current-accent').props.children;
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('theme-accent-forest'));
+    });
+    expect(screen.getByTestId('current-accent').props.children).not.toBe(beyouAccent);
+    expect(screen.getByTestId('current-base').props.children).toBe('light');
+  });
+
+  it('reports the selected pack through onSelect for persistence', async () => {
+    const onSelect = jest.fn();
+    const screen = await render(
+      <BeyouThemeProvider>
+        <ThemeSelector onSelect={onSelect} />
+      </BeyouThemeProvider>,
+    );
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('theme-accent-amethyst'));
+    });
+    expect(onSelect).toHaveBeenCalledWith('system:amethyst');
   });
 });

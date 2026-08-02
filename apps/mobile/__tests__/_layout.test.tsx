@@ -102,6 +102,10 @@ jest.mock('react-native-safe-area-context', () => {
 //    component reference (not an element) keeps the factory transform-clean; the
 //    actual element is created by <Stack/> inside the real RootLayout at render
 //    time.
+// expo-font resolves a native module that jest can't load, and the .ttf assets
+// are not mapped by the transformer. The layout only needs `fontsLoaded` true.
+jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
+
 jest.mock('expo-router', () => ({
   Stack: require('../app/(auth)/login').default,
   useRouter: () => ({ replace: jest.fn(), push: jest.fn() }),

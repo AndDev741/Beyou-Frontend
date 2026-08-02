@@ -5,6 +5,7 @@ import '../global.css';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import Toast from 'react-native-toast-message';
@@ -108,6 +109,25 @@ function Gate() {
 }
 
 export default function RootLayout() {
+  // Geist é a tipografia da marca; até carregar, renderizar texto com a fonte
+  // do sistema causaria um salto de layout visível no boot.
+  const [fontsLoaded] = useFonts({
+    Geist: require('../assets/fonts/Geist-Regular.ttf'),
+    GeistMedium: require('../assets/fonts/Geist-Medium.ttf'),
+    GeistSemiBold: require('../assets/fonts/Geist-SemiBold.ttf'),
+    GeistBold: require('../assets/fonts/Geist-Bold.ttf'),
+    GeistMono: require('../assets/fonts/GeistMono-Medium.ttf'),
+    GeistMonoSemiBold: require('../assets/fonts/GeistMono-SemiBold.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <Provider store={store}>
       <TutorialProvider>
