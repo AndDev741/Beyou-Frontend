@@ -29,7 +29,6 @@ import {
     setSnapshotLoading,
 } from "@beyou/state/routine/snapshotSlice";
 
-import PageHeader from "../../ui/PageHeader";
 import { editModeEnter } from "@beyou/state/routine/editRoutineSlice";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
@@ -154,27 +153,24 @@ const Routine = () => {
                     onSkip={onSkip}
                 />
             )}
-            <PageHeader
-                title={t("Your Routines")}
-                action={
-                    !isSnapshotMode && !onCreateRoutine ? (
-                        <Button
-                            text={t("Create routine")}
-                            mode="primary"
-                            size="medium"
-                            icon={<FiPlus aria-hidden="true" />}
-                            onClick={() => setOnCreateRoutine(true)}
-                            testId="create-routine"
-                            tutorialId="routine-add-button"
-                        />
-                    ) : undefined
-                }
-            />
-            <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
+            <main className="mt-1 flex min-h-[80vh] flex-col gap-5">
                 <RoutineSummary
                     routines={routines}
                     selectedDate={selectedDateLocal}
                     onDateChange={handleDateChange}
+                    action={
+                        !isSnapshotMode && !onCreateRoutine ? (
+                            <Button
+                                text={t("Create routine")}
+                                mode="primary"
+                                size="medium"
+                                icon={<FiPlus aria-hidden="true" />}
+                                onClick={() => setOnCreateRoutine(true)}
+                                testId="create-routine"
+                                tutorialId="routine-add-button"
+                            />
+                        ) : undefined
+                    }
                 />
 
                 {snapshotLoading ? (

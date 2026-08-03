@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Routine } from "@beyou/types/routine/routine";
@@ -9,23 +9,33 @@ type RoutineSummaryProps = {
     routines: Routine[];
     selectedDate: string;
     onDateChange: (value: string) => void;
+    /** Ação primária da página (criar rotina), no topo direito do cartão. */
+    action?: ReactNode;
 };
 
 /** Returns ISO date string YYYY-MM-DD for N days ago (0 = today). */
-function getDateDaysAgo(n: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() - n);
-    return d.toISOString().split("T")[0];
-}
-
 /** Returns the last 5 days including today, oldest→newest. */
-function getLast5Days(): string[] {
-    return [4, 3, 2, 1, 0].map(getDateDaysAgo);
+/**
+ * A semana corrente de segunda a domingo, em ISO. O seletor da página é a
+ * SEMANA (é assim que o usuário pensa a rotina), não os últimos cinco dias
+ * corridos — que deixavam a lista começando numa quinta-feira qualquer.
+ */
+function getCurrentWeek(): string[] {
+    const now = new Date();
+    const monday = new Date(now);
+    // getDay(): 0 = domingo. Recuar até a segunda da semana atual.
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    return Array.from({ length: 7 }, (_, index) => {
+        const day = new Date(monday);
+        day.setDate(monday.getDate() + index);
+        return day.toISOString().split("T")[0];
+    });
 }
 
 // ─── DayChip ──────────────────────────────────────────────────────────────────
 
 interface DayChipProps {
+    todayLabel: string;
     dateStr: string;
     isSelected: boolean;
     isToday: boolean;
@@ -34,51 +44,44 @@ interface DayChipProps {
     onClick: () => void;
 }
 
-function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick }: DayChipProps) {
+function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick, todayLabel }: DayChipProps) {
     // Parse at noon to avoid timezone day-shift issues
     const date = new Date(dateStr + "T12:00:00");
 
     const shortDay = new Intl.DateTimeFormat(locale, { weekday: "short" })
         .format(date)
         .replace(/\.$/, "")   // Portuguese adds a period: "seg." → "seg"
-        .slice(0, 3)
-        .toUpperCase();
-
-    const dayNum = date.getDate();
-
-    const baseClasses =
-        "relative flex flex-col items-center justify-center rounded-full border-2 w-10 h-10 md:w-12 md:h-12 " +
-        "transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 cursor-pointer";
-
-    const stateClasses = isSelected
-        ? isSnapshotMode
-            ? "bg-description/15 border-border text-text-2 shadow-sm scale-110 ring-2 ring-description ring-offset-2 ring-offset-background"
-            : "bg-accent border-border text-on-accent shadow-sm scale-110 ring-2 ring-accent ring-offset-2 ring-offset-background"
-        : "border-border hover:border-border hover:bg-accent/5 hover:scale-105";
+        .slice(0, 3);
 
     return (
         <button
             type="button"
             onClick={onClick}
             aria-pressed={isSelected}
-            className={`${baseClasses} ${stateClasses}`}
+            aria-current={isToday ? "date" : undefined}
+            className={`w-[58px] shrink-0 rounded-xl border py-[9px] text-center transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                isSelected
+                    ? isSnapshotMode
+                        ? "border-text-3 bg-surface-2"
+                        : "border-accent bg-accent"
+                    : "border-border bg-surface hover:border-text-3/60"
+            }`}
         >
             <span
-                className={`text-[9px] md:text-[10px] font-bold leading-none tracking-wide
-                    ${isSelected ? "" : "text-text-2"}`}
+                className={`block font-mono text-[9.5px] font-medium uppercase tracking-[0.04em] ${
+                    isSelected && !isSnapshotMode ? "text-on-accent" : "text-text-3"
+                }`}
             >
-                {shortDay}
+                {/* Hoje se anuncia pelo nome, não por um ponto discreto. */}
+                {isToday ? todayLabel : shortDay}
             </span>
-            <span
-                className={`text-xs md:text-sm font-bold leading-none mt-0.5
-                    ${isSelected ? "" : "text-text"}`}
+            <b
+                className={`font-mono text-[15px] font-semibold ${
+                    isSelected && !isSnapshotMode ? "text-on-accent" : "text-text"
+                }`}
             >
-                {dayNum}
-            </span>
-            {/* Today indicator dot (only when not selected) */}
-            {isToday && !isSelected && (
-                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-accent" />
-            )}
+                {date.getDate()}
+            </b>
         </button>
     );
 }
@@ -250,7 +253,6 @@ function CalendarPopover({
         </div>
     );
 }
-
 // ─── DatePickerBar ────────────────────────────────────────────────────────────
 
 interface DatePickerBarProps {
@@ -273,7 +275,7 @@ function DatePickerBar({
     const [calendarOpen, setCalendarOpen] = useState(false);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
-    const last5 = useMemo(() => getLast5Days(), []);
+    const week = useMemo(() => getCurrentWeek(), []);
 
     // Close on Escape
     useEffect(() => {
@@ -301,7 +303,7 @@ function DatePickerBar({
     }, [calendarOpen]);
 
     // When selected date is older than 5 days, show it formatted in the button
-    const isOlderDate = !last5.includes(selectedDate);
+    const isOlderDate = !week.includes(selectedDate);
     const formattedOlderDate = isOlderDate
         ? new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(
               new Date(selectedDate + "T12:00:00")
@@ -311,10 +313,10 @@ function DatePickerBar({
     const calendarBtnActive = calendarOpen || isOlderDate;
 
     return (
-        <div className="flex flex-col items-center md:items-end gap-1">
-            <div className="flex items-center gap-1.5">
-                {/* Quick day chips — last 5 days */}
-                {last5.map((dateStr) => (
+        <div className="flex flex-col gap-1">
+            <div className="flex flex-wrap items-center gap-2">
+                {/* A semana como seletor: seg → dom, hoje em destaque. */}
+                {week.map((dateStr) => (
                     <DayChip
                         key={dateStr}
                         dateStr={dateStr}
@@ -322,6 +324,7 @@ function DatePickerBar({
                         isToday={dateStr === today}
                         locale={locale}
                         isSnapshotMode={isSnapshotMode}
+                        todayLabel={t("Today")}
                         onClick={() => onDateChange(dateStr)}
                     />
                 ))}
@@ -335,13 +338,13 @@ function DatePickerBar({
                         aria-expanded={calendarOpen}
                         aria-label={t("More dates")}
                         className={[
-                            "flex items-center gap-1.5 rounded-card border px-2.5 py-1.5 text-xs font-medium transition-all duration-200",
+                            // Discreto de propósito: a semana é o caminho normal;
+                            // o calendário existe para alcançar o histórico antigo.
+                            "ml-1 flex items-center gap-1.5 rounded-control px-2.5 py-2 text-xs font-medium transition-colors duration-200",
                             "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                             calendarBtnActive
-                                ? isSnapshotMode
-                                    ? "border-border/50 bg-description/10 text-text-2"
-                                    : "border-border bg-accent/10 text-accent"
-                                : "border-border text-text hover:border-border hover:bg-accent/5",
+                                ? "bg-surface-2 text-text"
+                                : "text-text-3 hover:bg-surface-2 hover:text-text-2",
                         ].join(" ")}
                     >
                         <FiCalendar className="w-3.5 h-3.5 flex-shrink-0" />
@@ -376,7 +379,7 @@ function DatePickerBar({
 
 // ─── RoutineSummary ───────────────────────────────────────────────────────────
 
-export const RoutineSummary = ({ routines, selectedDate, onDateChange }: RoutineSummaryProps) => {
+export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }: RoutineSummaryProps) => {
     const { t, i18n } = useTranslation();
     const locale = i18n.language || "en";
 
@@ -400,26 +403,33 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
 
     return (
         <div
-            className={`w-full rounded-card border bg-surface p-4 shadow-sm ${
-                isSnapshotMode ? "border-border/40" : "border-border"
+            className={`w-full rounded-card border bg-surface px-5 py-4 ${
+                isSnapshotMode ? "border-text-3/40" : "border-border"
             }`}
         >
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                {/* Title & subtitle */}
-                <div className="text-center md:text-left">
+            {/* Título, contexto e ação primária moram no MESMO cartão do seletor
+                de semana: eram três blocos soltos empilhados. */}
+            <div className="flex flex-wrap items-start gap-3">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-semibold tracking-[-0.02em] text-text">
+                        {t("Routines")}
+                    </h1>
                     {isSnapshotMode ? (
-                        <span className="inline-flex items-center rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-text-2">
+                        <span className="mt-1 inline-flex items-center rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-text-2">
                             {t("Historical view")}
                         </span>
                     ) : (
-                        <p className="text-[13px] text-text-3">
+                        <p className="mt-1 text-[13px] text-text-3">
                             {t("RoutinesCount", { count: routines.length })} ·{" "}
                             {t("ActiveDaysThisWeek", { count: allActiveDays })}
                         </p>
                     )}
                 </div>
 
-                {/* Date picker: day chips + calendar */}
+                {action && <div className="ml-auto shrink-0">{action}</div>}
+            </div>
+
+            <div className="mt-5">
                 <DatePickerBar
                     selectedDate={selectedDate}
                     today={today}
@@ -429,7 +439,6 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
                     t={t}
                 />
             </div>
-
         </div>
     );
 };

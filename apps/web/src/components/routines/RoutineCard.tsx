@@ -77,14 +77,17 @@ export const RoutineCard = ({
         }
     };
 
+    // O backend guarda "Monday", "Tuesday"…; a comparação é case-insensitive
+    // porque o agendamento já gravou variações ao longo do tempo.
+    const scheduledDays = new Set(scheduleDays.map((day) => day.toLowerCase()));
     const weekDays = [
-        { key: "SUNDAY", short: "D" },
-        { key: "MONDAY", short: "S" },
-        { key: "TUESDAY", short: "T" },
-        { key: "WEDNESDAY", short: "Q" },
-        { key: "THURSDAY", short: "Q" },
-        { key: "FRIDAY", short: "S" },
-        { key: "SATURDAY", short: "S" },
+        { key: "sunday", short: "D" },
+        { key: "monday", short: "S" },
+        { key: "tuesday", short: "T" },
+        { key: "wednesday", short: "Q" },
+        { key: "thursday", short: "Q" },
+        { key: "friday", short: "S" },
+        { key: "saturday", short: "S" },
     ];
     const levelWindow = Math.max((routine.nextLevelXp ?? 0) - (routine.actualLevelXp ?? 0), 1);
     const levelProgress = Math.min(
@@ -171,7 +174,7 @@ export const RoutineCard = ({
                     <span className="mb-1.5 block text-[11px] font-semibold text-text-3">{t("Days")}</span>
                     <div className="flex gap-1">
                         {weekDays.map((day, index) => {
-                            const isOn = scheduleDays.includes(day.key);
+                            const isOn = scheduledDays.has(day.key);
                             return (
                                 <i
                                     key={`${day.key}-${index}`}
