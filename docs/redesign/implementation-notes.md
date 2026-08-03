@@ -146,6 +146,26 @@ listagens. Isso muda o caminho, não os nomes:
    absoluto e sobra 14px para fora do pai; comportamento de toque fora do pai
    no Android merece um teste em device.
 
+## Revisão visual logada (2026-08-03)
+
+Com credencial válida contra a stack de dev, revisei as páginas renderizadas.
+Achados corrigidos na mesma passada:
+
+- **"+1490 XP ganhos hoje"** no widget Hoje: ele lia `perfil.xp`, que é o
+  acumulado de vida. Agora soma os checks de hoje da rotina.
+- **Chips de dias do cartão de rotina não acendiam**: o backend grava
+  `"Monday"` e a comparação era com `"MONDAY"`.
+- **Cabeçalho de Rotinas** eram três blocos soltos e o seletor mostrava os
+  últimos cinco dias corridos; virou um cartão só com a semana de segunda a
+  domingo.
+- **Perfil na Configuração** com rótulo de 18px e o `alt` da foto vazando do
+  círculo ("erfil" na tela).
+- **Mobile de Rotinas**: semana quebrava em duas linhas e as ações espremiam o
+  nome da rotina.
+
+Lembrete que custou tempo: neste projeto `sm` é **350px**, não 640 — o corte
+útil para telefone é `md` (712px).
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
