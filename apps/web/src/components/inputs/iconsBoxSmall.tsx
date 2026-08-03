@@ -88,8 +88,8 @@ function IconsBoxSmall({
         // (45vw / 160px / 12rem) e o campo de busca cabia em ~90px, cortando o
         // placeholder no meio.
         <div className="w-full">
-            <div className="flex items-center gap-2">
-                <label htmlFor="icon-small" className="text-[12.5px] font-semibold text-text-2">
+            <div className="flex items-center gap-2.5">
+                <label htmlFor="icon-small" className="shrink-0 text-[12.5px] font-semibold text-text-2">
                     {t("Icon")}
                 </label>
                 <input
@@ -98,7 +98,7 @@ function IconsBoxSmall({
                     onChange={(e) => setSearch(e.target.value)}
                     name="icon-small"
                     id="icon-small"
-                    className="ml-auto w-full max-w-[190px] rounded-control border border-border bg-surface px-2.5 py-1.5 text-xs text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:ring-2 focus:ring-accent/40"
+                    className="min-w-0 flex-1 rounded-control border border-border bg-surface px-2.5 py-1.5 text-xs text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:ring-2 focus:ring-accent/40"
                     placeholder={t("IconPlaceholder")}
                 />
             </div>
