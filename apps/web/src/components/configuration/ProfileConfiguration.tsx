@@ -64,9 +64,12 @@ export default function ProfileConfiguration() {
         });
     }, [name, phrase, phrase_author, reset]);
 
-    const labelStyle = "mb-1 font-medium text-lg self-start text-text";
+    // Mesma gramática de campo das outras telas: rótulo pequeno em text-2 e
+    // input de 13.5px. Aqui era rótulo de 18px, que gritava mais que o título
+    // da seção.
+    const labelStyle = "mb-1.5 block self-start text-[12.5px] font-semibold text-text-2";
     const inputStyle =
-        "border border-border rounded-control pl-2 outline-none w-full mb-2 bg-surface text-text placeholder:text-text-3 transition-colors duration-200";
+        "w-full rounded-control border border-border bg-surface px-3 py-[9.5px] text-[13.5px] text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:border-accent focus:ring-[3px] focus:ring-accent-soft";
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
@@ -119,14 +122,22 @@ export default function ProfileConfiguration() {
                     className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
                     onClick={() => setEditPhotoModal(true)}
                 >
-                    <img
-                        src={currentPhoto}
-                        alt={t("Profile")}
-                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-border shadow-lg"
-                    />
+                    {/* Sem foto o `alt` vazava do círculo ("erfil"); o fallback
+                        agora é a inicial, como no rodapé da sidebar. */}
+                    {currentPhoto ? (
+                        <img
+                            src={currentPhoto}
+                            alt={t("Profile")}
+                            className="h-20 w-20 rounded-full border border-border object-cover"
+                        />
+                    ) : (
+                        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft text-2xl font-semibold text-accent">
+                            {(name || "?").charAt(0).toUpperCase()}
+                        </span>
+                    )}
 
-                    <label className="font-medium text-center text-accent flex items-center gap-1 cursor-pointer underline">
-                        Change Photo <MdCreate />
+                    <label className="mt-2 flex cursor-pointer items-center gap-1 text-xs font-semibold text-accent hover:underline">
+                        {t("ChangePhoto")} <MdCreate />
                     </label>
                 </div>
 
