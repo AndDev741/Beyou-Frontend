@@ -166,6 +166,25 @@ Achados corrigidos na mesma passada:
 Lembrete que custou tempo: neste projeto `sm` é **350px**, não 640 — o corte
 útil para telefone é `md` (712px).
 
+## Passada de telefone em Rotinas (2026-08-03)
+
+- **Contagem de dias é medida, não fixa.** O seletor lê a largura da linha e
+  mostra de 3 a 7 caixas conforme o aparelho (5 em 360px, 6 em 390px, 7 a
+  partir de ~430px). Com isso caiu o `overflow-x-auto` — era ele que recortava
+  o popover do calendário.
+- **"Mais datas" virou coluna** (ícone sobre o rótulo) para ocupar a largura de
+  uma caixa em vez de uma pílula larga.
+- **Botão de criar colapsa para um disco com "+"** abaixo de `md`. O rótulo
+  continua no DOM em `sr-only`, então o nome acessível segue "Criar rotina" —
+  é por ele que o e2e acha o botão.
+- **Cartão de rotina no telefone**: nome, cadência, chips de dias e uma barra
+  só. Duas barras iguais empilhadas não diziam qual importava agora; a que
+  aparece é a do dia quando a rotina roda nele, e a de nível quando não roda.
+  As ações só aparecem ao abrir pelo título.
+- **Interior expandido saiu do visual antigo**: usava checkbox nativo,
+  preenchimento verde e a classe `bg-ligthGray/40` (token que não existe mais).
+  Agora usa o mesmo anel de check da rotina do dia.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
