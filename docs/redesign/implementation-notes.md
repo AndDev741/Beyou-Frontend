@@ -185,6 +185,33 @@ Lembrete que custou tempo: neste projeto `sm` é **350px**, não 640 — o corte
   preenchimento verde e a classe `bg-ligthGray/40` (token que não existe mais).
   Agora usa o mesmo anel de check da rotina do dia.
 
+## Formulário de rotina e balão do assistente (2026-08-03)
+
+- **O balão do assistente comia o fim da página no desktop.** O espaçador do
+  `ProtectedRoute` era `h-20 lg:hidden` — existia só para a barra inferior do
+  mobile. No desktop o balão é `fixed bottom-6` e caía sobre o último cartão;
+  com uma rotina expandida, sobre a borda inferior e a última linha. Virou
+  `h-20 lg:h-24`.
+- **Criar/editar rotina** ganhou o desenho do mockup (Tipo · Nome · Seções ·
+  rodapé). A bifurcação de duas ilustrações foi removida: pedia uma escolha
+  entre "diária" e um formato que não existe. O tipo agora é campo, com "em
+  lista" desabilitado e visível.
+- **`SectionsEditor`** passou a ser o dono da lista de seções; criar e editar
+  mantinham a mesma árvore de drag-and-drop copiada.
+- **Seletor de ícone (`iconsBoxSmall`)** tinha largura fixa (45vw / 160px /
+  12rem) e um campo de busca de 90px que cortava o placeholder. Agora acompanha
+  a largura do formulário. Usado também nos modais de criação rápida de hábito
+  e tarefa.
+- **Agendar** virou a fileira de sete quadrados do mockup, com os atalhos
+  (Seg–Sex, fim de semana, toda semana) em pílula e o conflito de dia resolvido
+  numa faixa com "Liberar dia" em vez de tooltip no hover.
+- **Não implementado do mockup:** o link "Prefere datas específicas?". O modelo
+  de agenda é só dia-da-semana (`schedule.days`); datas avulsas exigem backend.
+  Entra na lista de dependências de dados.
+- **`addRoutineButton.tsx` ficou órfão** (nenhum importador) desde que criar
+  virou modal, e ainda carrega o âncora `routine-add-button`. Não apaguei
+  porque está fora do que foi pedido; candidato à fase de limpeza.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
