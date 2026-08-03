@@ -1,6 +1,4 @@
-import { useTranslation } from 'react-i18next';
-import DailyRoutineExample from './routineTypeExample/dailyRoutineExample';
-import TodoRoutineExample from './routineTypeExample/todoRoutineExample';
+import { useEffect } from 'react';
 import CreateDailyRoutine from './dailyRoutine/CreateDailyRoutine';
 
 type createRoutineProps = {
@@ -8,53 +6,37 @@ type createRoutineProps = {
     routineType: string;
     onDailySectionChange?: (hasSection: boolean) => void;
     onSectionModalChange?: (isOpen: boolean) => void;
+    onCancel?: () => void;
+    onCreated?: () => void;
 };
 
+/**
+ * O formulário abre direto na rotina diária.
+ *
+ * Antes havia uma bifurcação com duas ilustrações ("quer uma rotina diária ou
+ * de lista?") em que a segunda opção nem existe — um passo a mais para chegar
+ * na única escolha possível. O tipo agora é um campo do próprio formulário,
+ * com "em lista" desabilitado e visível.
+ */
 const CreateRoutine = ({
     setRoutineType,
-    routineType,
     onDailySectionChange,
-    onSectionModalChange
+    onSectionModalChange,
+    onCancel,
+    onCreated
 }: createRoutineProps) => {
-
-    const { t } = useTranslation();
+    // O tutorial de rotinas escolhe seus passos a partir do tipo selecionado.
+    useEffect(() => {
+        setRoutineType("daily");
+    }, [setRoutineType]);
 
     return (
-        <div
-            className='w-full flex flex-col items-center justify-center text-text'
-            data-tutorial-id="routine-create-area"
-        >
-            {!routineType && (
-                <div className='w-full flex flex-col items-center justify-center'>
-                    <h2 className='text-2xl text-text'>{t('Do you want a')}</h2>
-
-                    <div className='w-full flex items-center justify-evenly mt-5 gap-2'>
-                        <div className='flex flex-col items-center justify-center'>
-                            <h3 className='text-lg mb-2 text-text'>{t('Daily Routine')}</h3>
-                            <div>
-                                <DailyRoutineExample setRoutineType={setRoutineType} />
-                            </div>
-                        </div>
-                        <div className='flex flex-col items-center justify-center'>
-                            <h3 className='text-lg mb-2 text-text'>{t('Todo Routine')}</h3>
-                            <p className='text-sm text-text-3'>{t('Not available yet')}</p>
-                            <div>
-                                <TodoRoutineExample />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {routineType === "daily" && (
-                <div className="mt-2 w-full">
-                    <CreateDailyRoutine
-                        onSectionChange={onDailySectionChange}
-                        onSectionModalChange={onSectionModalChange}
-                    />
-                </div>
-            )}
-        </div>
+        <CreateDailyRoutine
+            onSectionChange={onDailySectionChange}
+            onSectionModalChange={onSectionModalChange}
+            onCancel={onCancel}
+            onCreated={onCreated}
+        />
     );
 };
 

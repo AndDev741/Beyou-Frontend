@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import BeyouIcon from "../../../ui/BeyouIcon";
 import { resolveIcon } from "@beyou/icons";
 import { formatTimeRange } from "../routineMetrics";
+import { FiX } from "react-icons/fi";
+import Button from "../../Button";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { routineSectionSchema } from "@beyou/validation/forms/routineSchemas";
@@ -118,138 +120,149 @@ const CreateRoutineSection = ({
         if (onClose) onClose();
     };
 
+    const fieldClass =
+        "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
+
     return (
         <div>
-            <h2 className="text-center mb-4">
-                {editSection ? t("Edit Routine Section") : t("Creating Routine Section")}
-            </h2>
-            <div className="flex gap-3 md:gap-4">
-                <div className="flex-1 flex flex-col gap-4">
-                    <label className="font-medium text-text">
-                        {t("name")}
-                        <Controller
-                            control={control}
-                            name="name"
-                            render={({ field }) => (
-                                <input
-                                    type="text"
-                                    placeholder={t("Cozy Morning")}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40 placeholder:text-sm placeholder:text-text-3 bg-surface text-text transition-colors duration-200"
-                                />
-                            )}
+            <div className="flex items-center gap-3">
+                <h2 className="text-base font-semibold tracking-[-0.01em] text-text">
+                    {editSection ? t("Edit Routine Section") : t("Creating Routine Section")}
+                </h2>
+                {onClose && (
+                    <button
+                        type="button"
+                        aria-label={t("Close")}
+                        onClick={onClose}
+                        className="ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                    >
+                        <FiX />
+                    </button>
+                )}
+            </div>
+
+            <div className="mt-3.5">
+                <label className={labelClass} htmlFor="section-name">{t("name")}</label>
+                <Controller
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                        <input
+                            id="section-name"
+                            type="text"
+                            placeholder={t("Cozy Morning")}
+                            value={field.value}
+                            onChange={field.onChange}
+                            className={`${fieldClass} ${errors.name ? "border-danger" : ""}`}
                         />
-                        {errors.name?.message && (
-                            <p className="text-danger text-xs mt-1">{errors.name?.message}</p>
-                        )}
-                    </label>
-                    <label className="font-medium text-text">
-                        {t("Start time")}
-                        <Controller
-                            control={control}
-                            name="startTime"
-                            render={({ field }) => (
-                                <input
-                                    type="time"
-                                    placeholder={"06:00"}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40 bg-surface text-text transition-colors duration-200"
-                                />
-                            )}
-                        />
-                        {errors.startTime?.message && (
-                            <p className="text-danger text-xs mt-1">{errors.startTime?.message}</p>
-                        )}
-                    </label>
-                    <label className="font-medium text-text">
-                        {t("End time")}
-                        <Controller
-                            control={control}
-                            name="endTime"
-                            render={({ field }) => (
-                                <input
-                                    type="time"
-                                    placeholder={"12:00"}
-                                    value={field.value || ""}
-                                    onChange={field.onChange}
-                                    className="block w-full mt-1 border-2 border-border rounded-control px-2 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40 bg-surface text-text transition-colors duration-200"
-                                />
-                            )}
-                        />
-                    </label>
-                </div>
-                <div className="md:min-w-[223px] flex flex-col items-center">
+                    )}
+                />
+                {errors.name?.message && <p className="mt-1.5 text-xs text-danger">{errors.name.message}</p>}
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+                <div>
+                    <label className={labelClass} htmlFor="section-start">{t("Start time")}</label>
                     <Controller
                         control={control}
-                        name="iconId"
+                        name="startTime"
                         render={({ field }) => (
-                            <IconsBoxSmall
-                                search={search}
-                                setSearch={setSearch}
-                                t={t}
-                                iconError={""}
-                                setSelectedIcon={field.onChange}
-                                selectedIcon={field.value || ""}
+                            <input
+                                id="section-start"
+                                type="time"
+                                value={field.value}
+                                onChange={field.onChange}
+                                className={`${fieldClass} font-mono ${errors.startTime ? "border-danger" : ""}`}
                             />
                         )}
                     />
-                    {editSection ? (
-                        <button
-                            type="button"
-                            className="mt-6 px-6 py-2 bg-accent text-on-accent rounded-control font-semibold shadow transition-colors duration-200 hover:bg-accent/90"
-                            onClick={handleSubmit(handleUpdate)}
-                        >
-                            {t("Edit")}
-                        </button>
-                    ) : (
-                        <button
-                            type="button"
-                            className="mt-6 px-6 py-2 bg-accent text-on-accent rounded-control font-semibold shadow transition-colors duration-200 hover:bg-accent/90"
-                            onClick={handleSubmit(handleCreate)}
-                        >
-                            {t("Create")}
-                        </button>
+                    {errors.startTime?.message && (
+                        <p className="mt-1.5 text-xs text-danger">{errors.startTime.message}</p>
                     )}
+                </div>
+                <div>
+                    <label className={labelClass} htmlFor="section-end">{t("End time")}</label>
+                    <Controller
+                        control={control}
+                        name="endTime"
+                        render={({ field }) => (
+                            <input
+                                id="section-end"
+                                type="time"
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                                className={`${fieldClass} font-mono`}
+                            />
+                        )}
+                    />
                 </div>
             </div>
 
-            <h1
-                className={`${
-                    editSection == null && favoritedSections?.length > 0 ? "" : "hidden"
-                } text-center mt-2 text-text font-semibold text-lg`}
-            >
-                {t("Your favorite sections")}
-            </h1>
-            <div className="flex flex-col items-start justify-start w-full">
-                {editSection == null &&
-                    favoritedSections.map((section) => {
-                        const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
+            <div className="mt-4">
+                <Controller
+                    control={control}
+                    name="iconId"
+                    render={({ field }) => (
+                        <IconsBoxSmall
+                            search={search}
+                            setSearch={setSearch}
+                            t={t}
+                            iconError={""}
+                            setSelectedIcon={field.onChange}
+                            selectedIcon={field.value || ""}
+                        />
+                    )}
+                />
+            </div>
 
-                        return (
-                            <div key={section.id} className="w-full flex items-center justify-between py-2">
-                                <div className="flex items-center gap-2 w-full">
+            {/* Seções favoritas viram modelo: reaproveitar uma pronta é o
+                caminho mais rápido para montar a rotina seguinte. */}
+            {editSection == null && favoritedSections.length > 0 && (
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Your favorite sections")}</span>
+                    <div className="flex flex-col gap-1.5">
+                        {favoritedSections.map((section) => {
+                            const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
+                            return (
+                                <div
+                                    key={section.id}
+                                    className="flex items-center gap-2.5 rounded-control border border-border bg-bg px-2.5 py-2"
+                                >
                                     {hasIcon && (
-                                        <span className="text-[25px] md:text-[30px] text-text-2">
+                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] bg-accent-soft text-[13px] text-accent">
                                             <BeyouIcon id={section.iconId} />
                                         </span>
                                     )}
-                                    <span className="text-md md:text-xl font-semibold text-accent line-clamp-1">
+                                    <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-text">
                                         {section.name}
                                     </span>
-                                    <span className="text-xs md:text-md">{formatTimeRange(section.startTime, section.endTime)}</span>
+                                    <span className="shrink-0 font-mono text-[11px] text-text-3">
+                                        {formatTimeRange(section.startTime, section.endTime)}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        className="shrink-0 rounded-lg bg-accent-soft px-2.5 py-1 text-[11.5px] font-semibold text-accent transition-colors duration-200 hover:bg-accent/15"
+                                        onClick={() => handleUseFavorite(section)}
+                                    >
+                                        {t("Use")}
+                                    </button>
                                 </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
-                                <button
-                                    className="text-xs md:text-md hover:text-accent hover:scale-105 border border-border rounded-control px-2 py-1 transition-all duration-200"
-                                    onClick={() => handleUseFavorite(section)}
-                                >
-                                    {t("Use")}
-                                </button>
-                            </div>
-                        );
-                    })}
+            <div className="mt-[18px] flex justify-end gap-2">
+                {onClose && <Button text={t("Cancel")} mode="ghost" size="medium" onClick={onClose} />}
+                <Button
+                    text={editSection ? t("Save section") : t("Create section")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    onClick={editSection ? handleSubmit(handleUpdate) : handleSubmit(handleCreate)}
+                />
             </div>
         </div>
     );

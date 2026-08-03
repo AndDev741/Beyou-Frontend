@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateRoutineSection from "./CreateRoutineSection";
+import SectionsEditor from "./SectionsEditor";
+import RoutineTypeField from "./RoutineTypeField";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
-import SectionItem from "./SectionItem";
 import { Routine } from "@beyou/types/routine/routine";
 import { useDispatch, useSelector } from "react-redux";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
@@ -10,9 +11,6 @@ import getRoutines from "@beyou/api/routine/getRoutines";
 import { RootState } from "@beyou/state/rootReducer";
 import { editModeEnter } from "@beyou/state/routine/editRoutineSlice";
 import editRoutine from "@beyou/api/routine/editRoutine";
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
-import Droppable from "../../../components/utils/StrictModeDroppable";
-import { CgAddR } from "react-icons/cg";
 import Button from "../../Button";
 import { toast } from "react-toastify";
 import ErrorNotice from "../../ErrorNotice";
@@ -39,7 +37,7 @@ const EditDailyRoutine = () => {
         setValue,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting, isSubmitted }
     } = useForm<{ routineName: string; routineSections: RoutineSection[] }>({
         resolver: zodResolver(routineFormSchema(t)),
         mode: "onBlur",
@@ -60,8 +58,10 @@ const EditDailyRoutine = () => {
     }, [routineToEdit, reset]);
 
     useEffect(() => {
-        setValue("routineSections", routineSection, { shouldValidate: true });
-    }, [routineSection, setValue]);
+        // Só revalida depois da primeira tentativa de salvar: abrir o
+        // formulário vazio não deve receber "ao menos 1 seção" de cara.
+        setValue("routineSections", routineSection, { shouldValidate: isSubmitted });
+    }, [routineSection, setValue, isSubmitted]);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -125,105 +125,79 @@ const EditDailyRoutine = () => {
         toast.success(t("edited successfully"));
     };
 
-    const handleOnDragEnd = (result: any) => {
-        if (!result.destination) return;
-        const items = Array.from(routineSection);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-        setRoutineSection(items);
-    };
-
     return (
-        <div className="w-full flex flex-col items-center justify-center text-text overflow-x-hidden">
-            <h2 className="text-2xl text-text">{t("Editing daily routine")}</h2>
+        <div>
+            <RoutineTypeField />
 
-            <div className="relative w-full md:w-[95%] max-w-full flex flex-col items-center justify-start border-2 border-border rounded-control p-3 mt-4 bg-surface shadow-sm min-h-[400px] transition-colors duration-200">
+            <div className="mt-4">
+                <label htmlFor="edit-routine-name" className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
+                    {t("Name")}
+                </label>
                 <Controller
                     control={control}
                     name="routineName"
                     render={({ field }) => (
                         <input
+                            id="edit-routine-name"
                             type="text"
                             value={field.value}
                             onChange={field.onChange}
-                            className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-surface text-text placeholder:text-text-3 transition-colors duration-200"
+                            onBlur={field.onBlur}
                             placeholder={t("Routine name")}
+                            className={`w-full rounded-control border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40 ${
+                                errors.routineName ? "border-danger" : "border-border"
+                            }`}
                         />
                     )}
                 />
                 {errors.routineName?.message && (
-                    <p className="text-danger text-center mt-2">{errors.routineName?.message}</p>
+                    <p className="mt-1.5 text-xs text-danger">{errors.routineName.message}</p>
                 )}
+            </div>
 
-                <button
-                    className="absolute top-3 right-3 flex flex-col items-center"
-                    onClick={() => {
+            <div className="mt-4">
+                <SectionsEditor
+                    sections={routineSection}
+                    setRoutineSection={setRoutineSection}
+                    onEditSection={handleEditSection}
+                    onDeleteSection={handleDeleteSection}
+                    onAddSection={() => {
                         setShowModal(true);
                         setEditIndex(null);
                     }}
-                    type="button"
-                >
-                    <CgAddR className="w-[30px] h-[30px] mr-1" />
-                    <span className="text-sm text-center font-medium mt-1 whitespace-pre-line text-text">
-                        {t("add section")}
-                    </span>
-                </button>
+                />
+                {errors.routineSections?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.routineSections.message}</p>
+                )}
+            </div>
 
-                <DragDropContext onDragEnd={handleOnDragEnd}>
-                    <Droppable droppableId="sections">
-                        {(provided) => (
-                            <div
-                                className="w-full flex flex-col items-stretch justify-start mt-5 text-text"
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}
-                            >
-                                {routineSection.length > 0 ? (
-                                    routineSection.map((section, index) => (
-                                        <Draggable
-                                            key={section.id.toString()}
-                                            draggableId={section.id.toString()}
-                                            index={index}
-                                        >
-                                            {(provided) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    className="flex items-start w-full min-w-0"
-                                                >
-                                                    <div
-                                                        {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 text-text-2"
-                                                    >
-                                                        ⠿
-                                                    </div>
-                                                    <SectionItem
-                                                        section={section}
-                                                        onEdit={() => handleEditSection(index)}
-                                                        onDelete={() => handleDeleteSection(index)}
-                                                        setRoutineSection={setRoutineSection}
-                                                        index={index}
-                                                    />
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))
-                                ) : (
-                                    <p className="text-text-2">{t("No sections added")}</p>
-                                )}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                </DragDropContext>
+            {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+            <ErrorNotice error={apiError} className="mt-2" />
+
+            <div className="mt-[18px] flex justify-end gap-2">
+                <Button
+                    text={t("Cancel")}
+                    mode="ghost"
+                    size="medium"
+                    onClick={() => dispatch(editModeEnter(false))}
+                />
+                <Button
+                    text={t("Save routine")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(onSubmit)}
+                />
             </div>
 
             {showModal && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4"
                     onClick={handleOverlayClick}
                 >
                     <div
-                        className="bg-surface text-text border border-border rounded-control shadow-lg p-5 md:p-8 min-w-[350px] max-w-lg w-[93%] relative transition-colors duration-200"
+                        className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-card border border-border bg-surface p-5 text-text shadow-surface md:p-7"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <CreateRoutineSection
@@ -250,28 +224,6 @@ const EditDailyRoutine = () => {
                     </div>
                 </div>
             )}
-
-            <div className="my-2 mb-6 flex flex-col items-center">
-                <div className="w-full flex mt-2">
-                    <Button
-                        text={t("Cancel")}
-                        mode="cancel"
-                        size="medium"
-                        onClick={() => dispatch(editModeEnter(false))}
-                    />
-
-                    <div className="mx-3"></div>
-
-                    <Button text={t("Edit")} mode="create" size="medium" onClick={handleSubmit(onSubmit)} type="submit" />
-                </div>
-                {errors.routineSections?.message && (
-                    <p className="text-center text-danger mt-2">{errors.routineSections?.message}</p>
-                )}
-                {errors.root?.message && (
-                    <p className="text-center text-danger mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center mt-2" />
-            </div>
         </div>
     );
 };

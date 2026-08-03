@@ -10,7 +10,7 @@ test("shows validation errors for empty section fields", async () => {
         />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: /create section/i }));
 
     expect(await screen.findByText("RoutineSectionNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("RoutineSectionStartRequired")).toBeInTheDocument();

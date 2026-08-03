@@ -1,4 +1,4 @@
-type Option<T extends string | number> = { value: T; label: string };
+type Option<T extends string | number> = { value: T; label: string; disabled?: boolean };
 
 type SegmentedControlProps<T extends string | number> = {
     options: Option<T>[];
@@ -26,7 +26,7 @@ export default function SegmentedControl<T extends string | number>({
         <div
             role="radiogroup"
             aria-label={label}
-            className={`inline-flex rounded-control bg-surface-2 p-1 ${className}`}
+            className={`inline-flex rounded-control border border-border bg-surface-2 p-[3px] ${className}`}
         >
             {options.map((option) => {
                 const isActive = option.value === value;
@@ -36,9 +36,10 @@ export default function SegmentedControl<T extends string | number>({
                         type="button"
                         role="radio"
                         aria-checked={isActive}
+                        disabled={option.disabled}
                         onClick={() => onChange(option.value)}
-                        className={`flex-1 rounded-[7px] font-semibold transition-colors duration-200 ${pad} ${
-                            isActive ? "bg-surface text-text shadow-sm" : "text-text-2 hover:text-text"
+                        className={`flex-1 rounded-[7px] font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-45 ${pad} ${
+                            isActive ? "bg-surface text-accent shadow-sm" : "text-text-3 hover:text-text-2"
                         }`}
                     >
                         {option.label}

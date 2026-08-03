@@ -83,48 +83,57 @@ function IconsBoxSmall({
         setSelectedIcon(canonical);
     };
 
-    const borderCss = "border border-border rounded w-[45vw] h-[100px] md:h-[180px] md:w-[160px] lg:w-[12rem] bg-surface";
-    const labelCss = "text-base md:text-lg text-text";
-    const errorCss = "text-danger text-xs leading-snug break-words whitespace-normal w-[45vw] md:w-[160px] lg:w-[12rem] mt-1";
     return (
-        <>
-            <div className='flex items-center justify-start text-text'>
-                <label htmlFor='icon-small' className={labelCss}>
-                    {t('Icon')}
+        // O seletor acompanha a largura do formulário. Antes tinha largura fixa
+        // (45vw / 160px / 12rem) e o campo de busca cabia em ~90px, cortando o
+        // placeholder no meio.
+        <div className="w-full">
+            <div className="flex items-center gap-2">
+                <label htmlFor="icon-small" className="text-[12.5px] font-semibold text-text-2">
+                    {t("Icon")}
                 </label>
                 <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    name='icon-small'
-                    className='w-[110px] md:w-[90px] ml-1 pl-1 border border-border rounded outline-none text-xs bg-surface text-text placeholder:text-text-3 transition-colors duration-200'
-                    placeholder={t('IconPlaceholder')}
+                    name="icon-small"
+                    id="icon-small"
+                    className="ml-auto w-full max-w-[190px] rounded-control border border-border bg-surface px-2.5 py-1.5 text-xs text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:ring-2 focus:ring-accent/40"
+                    placeholder={t("IconPlaceholder")}
                 />
             </div>
-            {iconError ? <p className={errorCss} title={iconError}>{iconError}</p> : null}
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
+
+            {iconError ? (
+                <p className="mt-1 text-xs leading-snug text-danger" title={iconError}>
+                    {iconError}
+                </p>
+            ) : null}
+
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {categoryOptions.map((option) => (
                     <button
                         key={option.id}
                         type="button"
                         onClick={() => setCategory(option.id)}
-                        className={`px-2 py-1 text-[10px] rounded-full border transition-colors duration-150 ${
+                        className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors duration-200 ${
                             category === option.id
-                                ? "bg-accent text-on-accent border-accent"
-                                : "border-border text-text hover:bg-accent/10"
+                                ? "border-accent bg-accent-soft text-accent"
+                                : "border-border text-text-3 hover:text-text-2"
                         }`}
                     >
                         {option.label}
                     </button>
                 ))}
             </div>
+
             <div
-                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-danger" : ""} min-h-[180px] ${minLgH ? `md:min-h-[${minLgH}px]` : "md:min-h-[100px]"} p-1`}
+                className={`mt-2 grid grid-cols-6 gap-1 overflow-auto rounded-control border bg-bg p-2 sm:grid-cols-8 ${
+                    iconError ? "border-danger" : "border-border"
+                }`}
+                style={{ height: Math.max(minLgH, 132) }}
             >
                 {iconsToDisplay.length === 0 ? (
-                    <div className="text-xs text-text-2 p-2">
-                        {t("IconNoResults")}
-                    </div>
+                    <p className="col-span-full p-1 text-xs text-text-3">{t("IconNoResults")}</p>
                 ) : (
                     iconsToDisplay.map((entry) => (
                         <button
@@ -133,17 +142,18 @@ function IconsBoxSmall({
                             key={entry.id}
                             aria-label={`${t("Icon")}: ${entry.label}`}
                             aria-pressed={entry.id === selectedCanonical}
-                            className={`${entry.id === selectedCanonical
-                                ? "scale-110 text-accent border border-accent rounded"
-                                : "text-text-2"
-                                } text-3xl m-1 bg-transparent border-0 p-0 hover:text-accent hover:scale-105 cursor-pointer transition-all duration-150`}
+                            className={`flex h-9 w-9 items-center justify-center rounded-lg text-2xl transition-colors duration-150 ${
+                                entry.id === selectedCanonical
+                                    ? "bg-accent-soft text-accent ring-1 ring-accent"
+                                    : "text-text-2 hover:bg-surface-2 hover:text-accent"
+                            }`}
                         >
                             <BeyouIcon id={entry.id} />
                         </button>
                     ))
                 )}
             </div>
-        </>
+        </div>
     );
 }
 

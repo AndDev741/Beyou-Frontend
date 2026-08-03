@@ -32,7 +32,7 @@ import {
 import { editModeEnter } from "@beyou/state/routine/editRoutineSlice";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiX } from "react-icons/fi";
 const Routine = () => {
     useAuthGuard();
     const { t } = useTranslation();
@@ -200,10 +200,26 @@ const Routine = () => {
                         dataTutorialId="routine-create-area"
                         className="max-w-3xl"
                     >
-                        <h2 id="routine-form-title" className="text-lg font-semibold text-text">
-                            {editMode ? t("Edit routine") : t("Create routine")}
-                        </h2>
-                        <div className="mt-4">
+                        <div className="flex items-center gap-3">
+                            <h2
+                                id="routine-form-title"
+                                className="text-base font-semibold tracking-[-0.01em] text-text"
+                            >
+                                {editMode ? t("Edit routine") : t("Create routine")}
+                            </h2>
+                            <button
+                                type="button"
+                                aria-label={t("Close")}
+                                className="ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                                onClick={() => {
+                                    setOnCreateRoutine(false);
+                                    dispatch(editModeEnter(false));
+                                }}
+                            >
+                                <FiX />
+                            </button>
+                        </div>
+                        <div className="mt-3.5">
                             {editMode ? (
                                 <EditDailyRoutine />
                             ) : (
@@ -212,6 +228,8 @@ const Routine = () => {
                                     onDailySectionChange={setHasDailySection}
                                     onSectionModalChange={setIsSectionModalOpen}
                                     routineType={routineType}
+                                    onCancel={() => setOnCreateRoutine(false)}
+                                    onCreated={() => setOnCreateRoutine(false)}
                                 />
                             )}
                         </div>
