@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 import { useSelector } from "react-redux"
 import { Target } from "lucide-react"
 import type { RootState } from "@beyou/state/rootReducer"
+import { getRoutineStats } from "../routines/routineMetrics"
 import BaseDiv from "./baseDiv"
 
 export type dailyProgressProps = {
@@ -22,7 +23,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
  */
 export default function DailyProgress({ checked, total }: dailyProgressProps) {
     const { t } = useTranslation()
-    const xpToday = useSelector((s: RootState) => s.perfil.xp)
+    // XP DO DIA, não o acumulado da conta: sai dos checks de hoje da rotina.
+    // `perfil.xp` é o total de vida e mostrava "+1490 XP ganhos hoje".
+    const routine = useSelector((s: RootState) => s.todayRoutine.routine)
+    const today = new Date().toISOString().split("T")[0]
+    const xpToday = routine ? getRoutineStats(routine, today).xpEarned : 0
     const percent = total > 0 ? Math.round((checked / total) * 100) : 0
 
     return (
