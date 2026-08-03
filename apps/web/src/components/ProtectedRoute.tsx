@@ -33,10 +33,12 @@ function ProtectedRoute({ authState }: Props) {
             <Sidebar />
             <div className="min-w-0 flex-1">
                 <Outlet />
-                {/* `BottomNav` é fixed e cobriria o fim da página. O espaçador
-                    mora aqui junto da barra: escrito uma vez, nenhuma página
-                    precisa saber que a barra existe. */}
-                <div className="h-20 lg:hidden" aria-hidden="true" data-testid="bottom-nav-spacer" />
+                {/* `BottomNav` (mobile) e o balão do assistente (desktop) são
+                    fixed e cobririam o fim da página — no desktop o balão comia
+                    a borda inferior do último cartão. O espaçador mora aqui
+                    junto deles: escrito uma vez, nenhuma página precisa saber
+                    que existem. */}
+                <div className="h-20 lg:h-24" aria-hidden="true" data-testid="bottom-nav-spacer" />
             </div>
             <BottomNav />
             <AgentWidget />
