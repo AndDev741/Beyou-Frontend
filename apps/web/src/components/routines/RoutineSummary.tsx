@@ -16,18 +16,18 @@ type RoutineSummaryProps = {
 /** Returns ISO date string YYYY-MM-DD for N days ago (0 = today). */
 /** Returns the last 5 days including today, oldest→newest. */
 /**
- * A semana corrente de segunda a domingo, em ISO. O seletor da página é a
- * SEMANA (é assim que o usuário pensa a rotina), não os últimos cinco dias
- * corridos — que deixavam a lista começando numa quinta-feira qualquer.
+ * Os sete últimos dias, TERMINANDO HOJE — hoje é sempre a última caixa e a
+ * selecionada por padrão.
+ *
+ * Assim ontem e os dias recentes ficam a um toque, sem passar pelo calendário.
+ * A semana civil (seg→dom) colocaria dias futuros na fila numa segunda-feira, e
+ * dia futuro não tem rotina para ver.
  */
-function getCurrentWeek(): string[] {
+function getLastSevenDays(): string[] {
     const now = new Date();
-    const monday = new Date(now);
-    // getDay(): 0 = domingo. Recuar até a segunda da semana atual.
-    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
     return Array.from({ length: 7 }, (_, index) => {
-        const day = new Date(monday);
-        day.setDate(monday.getDate() + index);
+        const day = new Date(now);
+        day.setDate(now.getDate() - (6 - index));
         return day.toISOString().split("T")[0];
     });
 }
@@ -275,7 +275,7 @@ function DatePickerBar({
     const [calendarOpen, setCalendarOpen] = useState(false);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
-    const week = useMemo(() => getCurrentWeek(), []);
+    const week = useMemo(() => getLastSevenDays(), []);
 
     // Close on Escape
     useEffect(() => {
@@ -313,9 +313,9 @@ function DatePickerBar({
     const calendarBtnActive = calendarOpen || isOlderDate;
 
     return (
-        <div className="flex flex-col gap-1">
-            <div className="-mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {/* A semana como seletor: seg → dom, hoje em destaque. */}
+        <div className="flex items-center gap-2">
+            <div className="-mx-1 flex min-w-0 items-center gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {/* Os sete últimos dias; hoje é a última caixa e vem selecionada. */}
                 {week.map((dateStr) => (
                     <DayChip
                         key={dateStr}
@@ -328,9 +328,11 @@ function DatePickerBar({
                         onClick={() => onDateChange(dateStr)}
                     />
                 ))}
+            </div>
 
-                {/* Calendar button + popover — anchored right so it never clips */}
-                <div className="relative ml-1">
+            {/* O botão fica FORA do trilho: dentro dele, o overflow-x-auto
+                recortava o calendário e ele simplesmente não aparecia. */}
+            <div className="relative shrink-0">
                     <button
                         ref={triggerRef}
                         type="button"
@@ -372,7 +374,6 @@ function DatePickerBar({
                         </div>
                     )}
                 </div>
-            </div>
         </div>
     );
 }
@@ -402,13 +403,10 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }:
     }, [routines]);
 
     return (
-        <div
-            className={`w-full rounded-card border bg-surface px-5 py-4 ${
-                isSnapshotMode ? "border-text-3/40" : "border-border"
-            }`}
-        >
-            {/* Título, contexto e ação primária moram no MESMO cartão do seletor
-                de semana: eram três blocos soltos empilhados. */}
+        <div className="w-full">
+            {/* Sem cartão: título, contexto, ação e seletor ficam direto sobre a
+                página. A moldura competia com os cartões de rotina logo abaixo e
+                pesava a primeira impressão. */}
             <div className="flex flex-wrap items-start gap-3">
                 <div className="min-w-0">
                     <h1 className="text-2xl font-semibold tracking-[-0.02em] text-text">
