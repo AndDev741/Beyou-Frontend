@@ -314,7 +314,7 @@ function DatePickerBar({
 
     return (
         <div className="flex flex-col gap-1">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="-mx-1 flex items-center gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {/* A semana como seletor: seg → dom, hoje em destaque. */}
                 {week.map((dateStr) => (
                     <DayChip

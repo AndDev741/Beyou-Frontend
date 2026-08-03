@@ -97,7 +97,7 @@ export const RoutineCard = ({
 
     return (
         <div className="rounded-card border border-border bg-surface p-4 lg:px-5 lg:py-[18px]">
-            <header className="flex items-start gap-3">
+            <header className="flex flex-col gap-3 md:flex-row md:items-start">
                 <div className="min-w-0">
                     <b className="block truncate text-base font-semibold tracking-[-0.01em] text-text">
                         {routine.name}
@@ -108,7 +108,7 @@ export const RoutineCard = ({
                     </span>
                 </div>
 
-                <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5 md:ml-auto md:flex-nowrap md:shrink-0">
                     <button
                         type="button"
                         data-tutorial-id="routine-schedule-button"
