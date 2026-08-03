@@ -105,7 +105,7 @@ function Categories(){
     };
 
     // Sem chave nova de i18n: "filtrar" + "Categorias" já existem nos dois idiomas.
-    const searchLabel = `${t("Filter")} ${t("Categories")}`;
+    const searchLabel = t("CategorySearchPlaceholder");
 
     //When open the page
     useEffect(() => {

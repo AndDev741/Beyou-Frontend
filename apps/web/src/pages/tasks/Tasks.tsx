@@ -114,7 +114,7 @@ function Tasks() {
     const isFiltered = search.trim() !== "" || categoryFilter !== ALL_CATEGORIES;
     // Sem chave própria de busca no i18n: o rótulo é composto com as existentes
     // (mesma convenção de categorias/metas) e capitalizado no CSS.
-    const searchLabel = `${t("Filter")} ${t("Tasks")}`;
+    const searchLabel = t("TaskSearchPlaceholder");
 
     const handleSortChange = (value: string) => {
         dispatch(setViewSort({ view: "tasks", sortBy: value }));

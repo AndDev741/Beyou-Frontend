@@ -142,7 +142,7 @@ function Goals() {
   const isFiltering = Boolean(search.trim()) || statusFilter !== "all" || categoryFilter !== "all";
 
   // Sem chave nova de i18n: "filtrar" + "Metas" já existem nos dois idiomas.
-  const searchLabel = `${t("Filter")} ${t("Goals")}`;
+  const searchLabel = t("GoalSearchPlaceholder");
 
   useEffect(() => {
     const fetchGoals = async () => {

@@ -119,15 +119,19 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
             {/* A linha que se lê de relance: nível, XP e streak. */}
             <div className="mt-auto flex items-end gap-3 pt-1">
                 <XpBar className="min-w-0 flex-1" current={xp} target={nextLevelXp} level={level} />
-                <Chip
-                    variant="flame"
-                    size="sm"
-                    className="font-mono"
-                    icon={<Flame size={12} aria-hidden="true" />}
-                    title={t('Constance')}
-                >
-                    {constance}
-                </Chip>
+                {/* Sem sequência não há o que celebrar: uma chama apagada com
+                    zero ao lado lê como falha, não como estado neutro. */}
+                {constance > 0 && (
+                    <Chip
+                        variant="flame"
+                        size="sm"
+                        className="font-mono"
+                        icon={<Flame size={12} aria-hidden="true" />}
+                        title={t('Constance')}
+                    >
+                        {constance}
+                    </Chip>
+                )}
             </div>
 
             {expanded && (

@@ -130,7 +130,7 @@ function Habits(){
     const isFiltered = search.trim() !== "" || categoryFilter !== ALL_CATEGORIES;
     // Sem chave própria de busca no i18n: o rótulo é composto com as existentes
     // (mesma convenção de categorias/metas) e capitalizado no CSS.
-    const searchLabel = `${t("Filter")} ${t("Habits")}`;
+    const searchLabel = t("HabitSearchPlaceholder");
 
     const handleSortChange = (value: string) => {
         dispatch(setViewSort({ view: "habits", sortBy: value }));
