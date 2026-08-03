@@ -59,7 +59,7 @@ function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick
             onClick={onClick}
             aria-pressed={isSelected}
             aria-current={isToday ? "date" : undefined}
-            className={`w-[58px] shrink-0 rounded-xl border py-[9px] text-center transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+            className={`w-10 shrink-0 rounded-xl border py-2 text-center transition-colors duration-200 md:w-[58px] md:py-[9px] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
                 isSelected
                     ? isSnapshotMode
                         ? "border-text-3 bg-surface-2"
@@ -68,7 +68,7 @@ function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick
             }`}
         >
             <span
-                className={`block font-mono text-[9.5px] font-medium uppercase tracking-[0.04em] ${
+                className={`block font-mono text-[9px] font-medium uppercase tracking-[0.04em] md:text-[9.5px] ${
                     isSelected && !isSnapshotMode ? "text-on-accent" : "text-text-3"
                 }`}
             >
@@ -76,7 +76,7 @@ function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick
                 {isToday ? todayLabel : shortDay}
             </span>
             <b
-                className={`font-mono text-[15px] font-semibold ${
+                className={`font-mono text-[13.5px] font-semibold md:text-[15px] ${
                     isSelected && !isSnapshotMode ? "text-on-accent" : "text-text"
                 }`}
             >
@@ -264,6 +264,10 @@ interface DatePickerBarProps {
     t: (key: string) => string;
 }
 
+/** Largura de uma caixa de dia + o gap, e o espaço do botão de calendário. */
+const DAY_BOX = { compact: 40 + 6, full: 58 + 8 };
+const CALENDAR_SLOT = { compact: 52 + 6, full: 118 + 8 };
+
 function DatePickerBar({
     selectedDate,
     today,
@@ -275,7 +279,26 @@ function DatePickerBar({
     const [calendarOpen, setCalendarOpen] = useState(false);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
+    const rowRef = useRef<HTMLDivElement>(null);
     const week = useMemo(() => getLastSevenDays(), []);
+    // Quantos dias cabem de fato na tela. Sem isto, o trilho ou rolava
+    // escondendo dias ou quebrava em duas linhas no telefone.
+    const [visibleDays, setVisibleDays] = useState(7);
+
+    useEffect(() => {
+        const row = rowRef.current;
+        if (!row || typeof ResizeObserver === "undefined") return;
+        const measure = () => {
+            const wide = window.matchMedia("(min-width: 712px)").matches;
+            const box = wide ? DAY_BOX.full : DAY_BOX.compact;
+            const free = row.clientWidth - (wide ? CALENDAR_SLOT.full : CALENDAR_SLOT.compact);
+            setVisibleDays(Math.max(3, Math.min(7, Math.floor(free / box))));
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(row);
+        return () => observer.disconnect();
+    }, []);
 
     // Close on Escape
     useEffect(() => {
@@ -313,10 +336,11 @@ function DatePickerBar({
     const calendarBtnActive = calendarOpen || isOlderDate;
 
     return (
-        <div className="flex items-center gap-2">
-            <div className="-mx-1 flex min-w-0 items-center gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {/* Os sete últimos dias; hoje é a última caixa e vem selecionada. */}
-                {week.map((dateStr) => (
+        <div ref={rowRef} className="flex items-center gap-1.5 md:gap-2">
+            <div className="flex min-w-0 items-center gap-1.5 md:gap-2">
+                {/* Os últimos dias terminando hoje — hoje é a última caixa e vem
+                    selecionada. Mostra só o que cabe: o resto vive no calendário. */}
+                {week.slice(week.length - visibleDays).map((dateStr) => (
                     <DayChip
                         key={dateStr}
                         dateStr={dateStr}
@@ -342,7 +366,9 @@ function DatePickerBar({
                         className={[
                             // Discreto de propósito: a semana é o caminho normal;
                             // o calendário existe para alcançar o histórico antigo.
-                            "ml-1 flex items-center gap-1.5 rounded-control px-2.5 py-2 text-xs font-medium transition-colors duration-200",
+                            // No telefone vira coluna (ícone sobre o rótulo) para
+                            // ocupar a largura de uma caixa de dia em vez de uma pílula larga.
+                            "flex shrink-0 flex-col items-center gap-0.5 whitespace-nowrap rounded-control px-1.5 py-1.5 text-[9px] font-medium leading-tight transition-colors duration-200 md:ml-1 md:w-auto md:flex-row md:gap-1.5 md:px-2.5 md:py-2 md:text-xs",
                             "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                             calendarBtnActive
                                 ? "bg-surface-2 text-text"
@@ -407,7 +433,7 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }:
             {/* Sem cartão: título, contexto, ação e seletor ficam direto sobre a
                 página. A moldura competia com os cartões de rotina logo abaixo e
                 pesava a primeira impressão. */}
-            <div className="flex flex-wrap items-start gap-3">
+            <div className="flex items-center gap-3">
                 <div className="min-w-0">
                     <h1 className="text-2xl font-semibold tracking-[-0.02em] text-text">
                         {t("Routines")}
@@ -419,7 +445,7 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }:
                     ) : (
                         <p className="mt-1 text-[13px] text-text-3">
                             {t("RoutinesCount", { count: routines.length })} ·{" "}
-                            {t("ActiveDaysThisWeek", { count: allActiveDays })}
+                            {t("ActiveDays", { count: allActiveDays })}
                         </p>
                     )}
                 </div>

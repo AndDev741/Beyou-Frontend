@@ -5,12 +5,8 @@ import { Routine } from "@beyou/types/routine/routine";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
-import {
-    formatTimeRange,
-    getSectionStats,
-    getRoutineStats,
-    getTimeOfDay,
-} from "./routineMetrics";
+import Ring from "../../ui/Ring";
+import { formatTimeRange, getSectionStats, getRoutineStats } from "./routineMetrics";
 import { AiFillStar } from "react-icons/ai";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 
@@ -29,13 +25,6 @@ type RoutineCardProps = {
     onConfirmDelete: (routineId: string) => void;
     onCancelDelete: () => void;
     isConfirmingDelete: boolean;
-};
-
-const timeOfDayClasses: Record<string, string> = {
-    morning: "bg-accent/10 text-accent",
-    afternoon: "bg-success/10 text-success",
-    evening: "bg-surface-2/10 text-text",
-    night: "bg-description/20 text-text",
 };
 
 export const RoutineCard = ({
@@ -89,6 +78,13 @@ export const RoutineCard = ({
         { key: "friday", short: "S" },
         { key: "saturday", short: "S" },
     ];
+    // A rotina roda no dia aberto? Sem agenda, assume que sim (rotina avulsa).
+    const selectedWeekday = selectedDate
+        ? new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" }).toLowerCase()
+        : "";
+    const runsOnSelectedDay = scheduledDays.size === 0 || scheduledDays.has(selectedWeekday);
+    const isToday = selectedDate === new Date().toISOString().split("T")[0];
+
     const levelWindow = Math.max((routine.nextLevelXp ?? 0) - (routine.actualLevelXp ?? 0), 1);
     const levelProgress = Math.min(
         100,
@@ -98,17 +94,33 @@ export const RoutineCard = ({
     return (
         <div className="rounded-card border border-border bg-surface p-4 lg:px-5 lg:py-[18px]">
             <header className="flex flex-col gap-3 md:flex-row md:items-start">
-                <div className="min-w-0">
+                <button
+                    type="button"
+                    onClick={() => setExpanded((prev) => !prev)}
+                    aria-expanded={expanded}
+                    className="min-w-0 text-left"
+                >
                     <b className="block truncate text-base font-semibold tracking-[-0.01em] text-text">
                         {routine.name}
                     </b>
                     <span className="text-xs text-text-3">
                         {t("SectionsCount", { count: totalSections })} · {t("ItemsCount", { count: totalItems })}
-                        {scheduleDays.length === 7 && ` · ${t("EveryDay")}`}
+                        {scheduleDays.length > 0 &&
+                            ` · ${
+                                scheduleDays.length === 7
+                                    ? t("EveryDay")
+                                    : t("DaysPerWeek", { count: scheduleDays.length })
+                            }`}
                     </span>
-                </div>
+                </button>
 
-                <div className="flex flex-wrap items-center gap-1.5 md:ml-auto md:flex-nowrap md:shrink-0">
+                {/* No telefone o cartão fica limpo: as ações aparecem ao abrir
+                    pelo título. No desktop continuam sempre à vista. */}
+                <div
+                    className={`${
+                        expanded ? "flex" : "hidden"
+                    } flex-wrap items-center gap-1.5 md:ml-auto md:flex md:flex-nowrap md:shrink-0`}
+                >
                     <button
                         type="button"
                         data-tutorial-id="routine-schedule-button"
@@ -169,9 +181,9 @@ export const RoutineCard = ({
             {/* A identidade da rotina em três blocos: quando ela roda, o nível
                 dela e como está hoje. Os quatro cartões de estatística que
                 existiam aqui eram mais interface que informação. */}
-            <div className="mt-4 flex flex-wrap items-start gap-x-6 gap-y-4">
-                <div>
-                    <span className="mb-1.5 block text-[11px] font-semibold text-text-3">{t("Days")}</span>
+            <div className="mt-3 flex flex-wrap items-start gap-x-6 gap-y-3 md:mt-4 md:gap-y-4">
+                <div className="w-full md:w-auto">
+                    <span className="mb-1.5 hidden text-[11px] font-semibold text-text-3 md:block">{t("Days")}</span>
                     <div className="flex gap-1">
                         {weekDays.map((day, index) => {
                             const isOn = scheduledDays.has(day.key);
@@ -179,7 +191,7 @@ export const RoutineCard = ({
                                 <i
                                     key={`${day.key}-${index}`}
                                     title={t(day.key)}
-                                    className={`h-[22px] w-[22px] rounded-[7px] text-center font-mono text-[10px] font-semibold not-italic leading-[22px] ${
+                                    className={`h-[26px] w-[26px] rounded-[8px] text-center font-mono text-[11px] font-semibold not-italic leading-[26px] md:h-[22px] md:w-[22px] md:rounded-[7px] md:text-[10px] md:leading-[22px] ${
                                         isOn ? "bg-accent-soft text-accent" : "bg-surface-2 text-text-3"
                                     }`}
                                 >
@@ -190,7 +202,7 @@ export const RoutineCard = ({
                     </div>
                 </div>
 
-                <div>
+                <div className="hidden md:block">
                     <span className="mb-1.5 block text-[11px] font-semibold text-text-3">
                         {t("Level")} {routine.level ?? 0}
                     </span>
@@ -205,7 +217,7 @@ export const RoutineCard = ({
                     </div>
                 </div>
 
-                <div>
+                <div className="hidden md:block">
                     <span className="mb-1.5 block text-[11px] font-semibold text-text-3">{t("Today")}</span>
                     <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-text-3">
                         <div className="h-1.5 w-[110px] overflow-hidden rounded-full bg-surface-2">
@@ -219,7 +231,7 @@ export const RoutineCard = ({
                 </div>
 
                 {stats.xpEarned > 0 && (
-                    <div>
+                    <div className="hidden md:block">
                         <span className="mb-1.5 block text-[11px] font-semibold text-text-3">
                             {formatDate(selectedDate)}
                         </span>
@@ -228,6 +240,22 @@ export const RoutineCard = ({
                         </span>
                     </div>
                 )}
+                {/* Telefone: uma barra só — o progresso do dia quando a rotina
+                    roda nele, senão o nível. Duas barras iguais empilhadas em
+                    tela estreita não diziam qual importava agora. */}
+                <div className="w-full md:hidden">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
+                        <div
+                            className="h-full rounded-full bg-accent transition-[width] duration-500"
+                            style={{ width: `${runsOnSelectedDay ? completion : levelProgress}%` }}
+                        />
+                    </div>
+                    <span className="mt-1.5 block text-right font-mono text-[11px] font-medium text-text-3">
+                        {runsOnSelectedDay
+                            ? `${isToday ? t("Today").toLowerCase() : formatDate(selectedDate)} ${stats.completedItems}/${stats.totalItems || totalItems}`
+                            : `LV ${routine.level ?? 0} · ${routine.xp ?? 0}/${routine.nextLevelXp ?? 0}`}
+                    </span>
+                </div>
             </div>
 
             {expanded && (
@@ -267,7 +295,6 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
     const { t } = useTranslation();
     const sectionStats = useMemo(() => getSectionStats(section, selectedDate), [section, selectedDate]);
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
-    const timeOfDay = getTimeOfDay(section.startTime);
 
     const items = useMemo(() => {
         const tasks =
@@ -320,39 +347,30 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
     }, [section, selectedDate, taskLookup, habitLookup, t]);
 
     return (
-        <div className="rounded-control border border-border bg-surface/80 p-3">
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 w-full">
-                    <div
-                        className={`flex h-9 w-9 items-center justify-center rounded-control ${timeOfDayClasses[timeOfDay]} text-base`}
-                    >
-                        {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
+        <div className="mt-3 first:mt-0">
+            <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
+                    {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
+                </span>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                        <p className="truncate text-[13.5px] font-semibold text-text">{section.name}</p>
+                        {section.favorite && <AiFillStar className="shrink-0 text-xp" aria-hidden="true" />}
                     </div>
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                            <p className="text-base font-semibold text-text">{section.name}</p>
-                            {section.favorite && <AiFillStar className="text-accent" />}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-text-2">
-                            <span className="flex items-center gap-1">
-                                <FiClock /> {formatTimeRange(section.startTime, section.endTime)}
-                            </span>
-                            <span className="rounded-full bg-accent/10 px-2 py-1 text-xs font-semibold text-accent">
-                                {t(timeOfDay)}
-                            </span>
-                            <span className="text-xs font-medium text-text">
-                                {sectionStats.completedItems}/{sectionStats.totalItems} {t("Done")}
-                            </span>
-                            {sectionStats.xpEarned > 0 && (
-                                <span className="text-xs font-medium text-success">+{sectionStats.xpEarned} XP</span>
-                            )}
-                        </div>
-                    </div>
+                    <span className="font-mono text-[11.5px] text-text-3">
+                        {formatTimeRange(section.startTime, section.endTime)} · {sectionStats.completedItems}/
+                        {sectionStats.totalItems}
+                    </span>
                 </div>
+                {sectionStats.xpEarned > 0 && (
+                    <span className="shrink-0 rounded-full bg-xp-soft px-2.5 py-0.5 font-mono text-[11.5px] font-semibold text-xp">
+                        +{sectionStats.xpEarned} XP
+                    </span>
+                )}
             </div>
 
             {items.length > 0 && (
-                <div className="mt-3 space-y-2">
+                <div className="mt-1.5">
                     {items.map((item, idx) => {
                         const hasItemIcon = item.iconId ? resolveIcon(item.iconId).kind !== "fallback" : false;
                         const handleToggle = () => {
@@ -379,34 +397,48 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                         return (
                             <div
                                 key={`${item.type}-${item.id}-${idx}`}
-                                className={`flex items-center gap-3 rounded-control border px-3 py-2 text-sm transition-colors ${item.completed
-                                    ? "border-success/30 bg-success/10 text-text"
-                                    : "border-border bg-surface text-text"
-                                    }`}
+                                className="group flex items-center gap-2.5 rounded-control px-1.5 py-1.5 transition-colors duration-200 hover:bg-surface-2"
                             >
-                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10 text-accent">
-                                    {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-medium truncate">{item.label}</p>
-                                    <div className="flex flex-wrap items-center gap-3 text-xs text-text-2">
-                                        <span className="flex items-center gap-1">
-                                            <FiClock /> {formatTimeRange(item.startTime, item.endTime)}
-                                        </span>
-                                        <span className="rounded-full bg-ligthGray/40 px-2 py-0.5 font-semibold text-text/80">
-                                            {item.type === "task" ? t("Task") : t("Habit")}
-                                        </span>
-                                        {item.completed && <span className="text-success font-semibold">{t("Completed")}</span>}
-                                        {item.xp ? <span className="text-accent font-semibold">+{item.xp} XP</span> : null}
-                                    </div>
+                                {/* Mesmo padrão da rotina do dia: o input é o alvo
+                                    real (teclado, leitor de tela, e2e) e o anel é
+                                    o desenho por cima dele. */}
+                                <label className="-my-2 -ml-2 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
+                                    <input
+                                        type="checkbox"
+                                        aria-label={item.label}
+                                        className="peer sr-only"
+                                        checked={item.completed}
+                                        onChange={handleToggle}
+                                    />
+                                    <Ring
+                                        size={24}
+                                        state={item.completed ? "done" : "todo"}
+                                        className="rounded-full transition-transform duration-200 group-hover:scale-105 peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface"
+                                    />
+                                </label>
 
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
+                                    {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
+                                </span>
+
+                                <span
+                                    className={`line-clamp-2 min-w-0 flex-1 text-[13px] font-medium lg:line-clamp-1 ${
+                                        item.completed ? "text-text-3" : "text-text"
+                                    }`}
+                                >
+                                    {item.label}
+                                </span>
+
+                                <div className="flex shrink-0 items-center gap-1.5">
+                                    {item.xp ? (
+                                        <span className="rounded-full bg-xp-soft px-2 py-0.5 font-mono text-[11px] font-semibold text-xp">
+                                            +{item.xp} XP
+                                        </span>
+                                    ) : null}
+                                    <span className="hidden rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-medium text-text-3 md:inline">
+                                        {formatTimeRange(item.startTime, item.endTime)}
+                                    </span>
                                 </div>
-                                <input
-                                    type="checkbox"
-                                    className="h-5 w-5 accent-primary cursor-pointer"
-                                    checked={item.completed}
-                                    onChange={handleToggle}
-                                />
                             </div>
                         );
                     })}

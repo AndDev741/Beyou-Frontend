@@ -168,6 +168,7 @@ const Routine = () => {
                                 onClick={() => setOnCreateRoutine(true)}
                                 testId="create-routine"
                                 tutorialId="routine-add-button"
+                                collapseLabel
                             />
                         ) : undefined
                     }

@@ -12,6 +12,11 @@ type buttonProps = {
     className?: string;
     /** Âncora do tutorial (data-tutorial-id). */
     tutorialId?: string;
+    /**
+     * No telefone o botão vira um disco só com o ícone; o rótulo continua no
+     * DOM (`sr-only`), então leitor de tela e testes por nome seguem achando.
+     */
+    collapseLabel?: boolean;
 }
 
 /**
@@ -42,10 +47,13 @@ const SIZES: Record<buttonProps["size"], string> = {
     auto: "h-10 px-5 text-sm",
 };
 
-function Button({ text, size, mode, onClick, type, icon, testId, disabled, className = "", tutorialId }: buttonProps) {
+/** Disco só de ícone abaixo de `md`, botão com rótulo a partir daí. */
+const COLLAPSED = "h-10 w-10 shrink-0 rounded-full px-0 text-sm md:w-auto md:rounded-control md:px-5";
+
+function Button({ text, size, mode, onClick, type, icon, testId, disabled, className = "", tutorialId, collapseLabel = false }: buttonProps) {
     return (
         <button
-            className={`inline-flex items-center justify-center gap-2 rounded-control font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 ${MODES[mode]} ${SIZES[size]} ${className}`}
+            className={`inline-flex items-center justify-center gap-2 rounded-control font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 ${MODES[mode]} ${collapseLabel ? COLLAPSED : SIZES[size]} ${className}`}
             onClick={onClick}
             type={type}
             data-testid={testId}
@@ -53,7 +61,7 @@ function Button({ text, size, mode, onClick, type, icon, testId, disabled, class
             disabled={disabled}
         >
             {icon && <span aria-hidden="true">{icon}</span>}
-            {text}
+            {collapseLabel ? <span className="sr-only md:not-sr-only">{text}</span> : text}
         </button>
     )
 }
