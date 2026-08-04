@@ -38,9 +38,6 @@ function RenderCategories({categories, emptyTitle}: props){
                     xp={category.xp} 
                     nextLevelXp={category.nextLevelXp}
                     actualLevelXp={category.actualLevelXp}
-                    habits={category.habits ? new Map(Object.entries(category.habits)) : undefined}
-                    tasks={category.tasks ? new Map(Object.entries(category.tasks)) : undefined}
-                    goals={category.goals ? new Map(Object.entries(category.goals)) : undefined}
                     />
                 </div>
                 ))    

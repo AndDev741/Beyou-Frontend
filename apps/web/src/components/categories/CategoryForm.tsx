@@ -4,12 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../Button";
-import DescriptionInput from "../inputs/descriptionInput";
-import IconsInput from "../inputs/iconsBox";
-import GenericInput from "../inputs/genericInput";
-import SelectorInput from "../inputs/SelectorInput";
-import IconTile from "../../ui/IconTile";
-import { CgAddR } from "react-icons/cg";
+import IconsBoxSmall from "../inputs/iconsBoxSmall";
+import SegmentedControl from "../../ui/SegmentedControl";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -27,6 +23,7 @@ type CategoryFormProps = {
     mode: CategoryFormMode;
     dispatchFunction: any;
     generatedCategory?: categoryGeneratedByAi;
+    /** Usado pela criação rápida do seletor de categorias. */
     onCreated?: (values: { name: string; description: string; iconId: string }) => void;
     onClose?: () => void;
 };
@@ -45,6 +42,10 @@ const defaultValues: CategoryFormValues = {
     iconId: ""
 };
 
+/**
+ * O formulário do mockup: nome, descrição, ícone e experiência em segmentado
+ * (só na criação — a edição não tem como mudar a curva de XP pela API).
+ */
 function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, onClose }: CategoryFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
@@ -124,22 +125,16 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
             if (Array.isArray(categories.success)) {
                 dispatch(dispatchFunction(categories.success));
             }
-            if (mode === "edit") {
-                // Em modal, salvar tem de fechar — senão o formulário fica aberto
-                // por cima da grade que acabou de mudar.
-                onClose?.();
-                toast.success(t("edited successfully"));
-            } else {
+            toast.success(t(mode === "edit" ? "edited successfully" : "created successfully"));
+            if (mode === "create") {
                 onCreated?.({
                     name: values.name,
                     description: values.description,
                     iconId: values.iconId
                 });
-                onClose?.();
-                reset(defaultValues);
-                setSearch("");
-                toast.success(t("created successfully"));
             }
+            handleCancel();
+            onClose?.();
             return;
         }
 
@@ -155,121 +150,112 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
         }
     };
 
+    const fieldClass =
+        "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
+
     return (
-        <div
-            className="bg-surface"
+        <form
+            onSubmit={(e) => { e.stopPropagation(); handleSubmit(onSubmit)(e); }}
+            className="text-text"
             data-tutorial-id={mode === "create" ? "category-create-form" : undefined}
         >
-            {/* Cabeçalho de modal: título à esquerda, no tamanho do sistema. */}
-            <div className="flex items-center gap-2.5">
-                <IconTile size={36}>
-                    <CgAddR className="h-5 w-5" />
-                </IconTile>
-                <h2
-                    id={mode === "edit" ? "category-edit-title" : "category-create-title"}
-                    className="text-lg font-semibold tracking-[-0.01em] text-text"
-                >
-                    {t(mode === "edit" ? "EditCategory" : "CreateCategory")}
-                </h2>
+            <div>
+                <label htmlFor="category-name" className={labelClass}>{t("Name")}</label>
+                <Controller
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                        <input
+                            id="category-name"
+                            type="text"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder={t("CategoryNamePlaceholder")}
+                            className={`${fieldClass} ${errors.name ? "border-danger" : ""}`}
+                        />
+                    )}
+                />
+                {errors.name?.message && <p className="mt-1.5 text-xs text-danger">{errors.name.message}</p>}
             </div>
-            <form
-                onSubmit={(e) => { e.stopPropagation(); handleSubmit(onSubmit)(e); }}
-                className="flex flex-col mt-6"
-            >
-                <div className="flex md:items-start md:flex-row justify-center">
-                    <div className="flex flex-col md:items-start md:justify-start">
-                        <Controller
-                            control={control}
-                            name="name"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Name"
-                                    data={field.value}
-                                    placeholder="CategoryNamePlaceholder"
-                                    setData={field.onChange}
-                                    dataError={errors.name?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
+
+            <div className="mt-4">
+                <label htmlFor="category-description" className={labelClass}>{t("Description")}</label>
+                <Controller
+                    control={control}
+                    name="description"
+                    render={({ field }) => (
+                        <textarea
+                            id="category-description"
+                            rows={3}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder={t("DescriptionPlaceholder")}
+                            className={`${fieldClass} resize-none`}
                         />
+                    )}
+                />
+            </div>
 
-                        <Controller
-                            control={control}
-                            name="description"
-                            render={({ field }) => (
-                                <DescriptionInput
-                                    description={field.value}
-                                    placeholder="DescriptionPlaceholder"
-                                    setDescription={field.onChange}
-                                    descriptionError={errors.description?.message ?? ""}
-                                    minH={mode === "edit" ? 178 : 231}
-                                    minHSmallScreen={mode === "edit" ? 145 : 231}
-                                    t={t}
-                                />
-                            )}
+            <div className="mt-4">
+                <Controller
+                    control={control}
+                    name="iconId"
+                    render={({ field }) => (
+                        <IconsBoxSmall
+                            search={search}
+                            setSearch={setSearch}
+                            t={t}
+                            iconError={errors.iconId?.message ?? ""}
+                            setSelectedIcon={field.onChange}
+                            selectedIcon={field.value || ""}
                         />
-                    </div>
+                    )}
+                />
+            </div>
 
-                    <div className="mx-2"></div>
-
-                    <div className="flex flex-col mt-1 w-auto">
-                        <Controller
-                            control={control}
-                            name="iconId"
-                            render={({ field }) => (
-                                <IconsInput
-                                    search={search}
-                                    setSearch={setSearch}
-                                    t={t}
-                                    iconError={errors.iconId?.message ?? ""}
-                                    setSelectedIcon={field.onChange}
-                                    selectedIcon={field.value}
-                                    minLgH={mode === "edit" ? 233 : 200}
-                                    minHSmallScreen={mode === "edit" ? 200 : undefined}
-                                />
-                            )}
-                        />
-
-                        {mode === "create" && (
-                            <Controller
-                                control={control}
-                                name="experience"
-                                render={({ field }) => (
-                                    <SelectorInput
-                                        value={field.value ?? 0}
-                                        setValue={field.onChange}
-                                        errorPhrase={errors.experience?.message ?? ""}
-                                        valuesToSelect={[
-                                            { value: 0, title: t("Beginner") },
-                                            { value: 1, title: t("Intermediate") },
-                                            { value: 2, title: t("Advanced") }
-                                        ]}
-                                        title={t("YourExperience")}
-                                        t={t}
-                                    />
-                                )}
+            {mode === "create" && (
+                <div className="mt-4">
+                    <span className={labelClass}>{t("YourExperience")}</span>
+                    <Controller
+                        control={control}
+                        name="experience"
+                        render={({ field }) => (
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("YourExperience")}
+                                value={field.value ?? 0}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 0, label: t("Beginner") },
+                                    { value: 1, label: t("Intermediate") },
+                                    { value: 2, label: t("Advanced") },
+                                ]}
                             />
                         )}
-                    </div>
+                    />
+                    <span className="mt-1.5 block font-mono text-[10.5px] text-text-3">
+                        {t("CategoryExperienceCaption")}
+                    </span>
                 </div>
+            )}
 
-                {errors.root?.message && (
-                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center" />
+            {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+            <ErrorNotice error={apiError} className="mt-2" />
 
-                {mode === "edit" ? (
-                    <div className="flex items-center justify-evenly mt-3">
-                        <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center mt-6">
-                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
-                    </div>
-                )}
-            </form>
-        </div>
+            <div className="mt-[18px] flex justify-end gap-2">
+                <Button text={t("Cancel")} mode="ghost" size="medium" type="button" onClick={handleCancel} />
+                <Button
+                    text={t("Save category")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    disabled={isSubmitting}
+                />
+            </div>
+        </form>
     );
 }
 

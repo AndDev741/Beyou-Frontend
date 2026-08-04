@@ -94,6 +94,8 @@
     "Beginner": "Beginner",
     "Intermediate": "Intermediate",
     "Advanced": "Advanced",
+    "Save category": "Save category",
+    "CategoryExperienceCaption": "adjusts the category's XP curve",
     "Icon": "Icon",
     "IconPlaceholder": "Search icon or emoji",
     "IconCategoryAll": "All",
