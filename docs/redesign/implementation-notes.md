@@ -275,6 +275,24 @@ de i18n que não existe.
   com um clique. `items-start` na grade: só o cartão clicado muda (medido:
   165 → 261px no aberto, vizinho estável em 165px).
 
+## Metas (2026-08-04)
+
+- **Formulário no desenho do mockup** (criar e editar): Nome, Descrição,
+  Motivação, Ícone, Alvo + Unidade (com a legenda de que o progresso nasce em
+  0 e sobe pelo stepper), Período (início/término lado a lado), Prazo em
+  segmentado e Categorias, rodapé Cancelar/Salvar meta. "Progresso atual" e
+  "status" saíram do formulário: em edição preservam o valor real, em criação
+  nascem zerados. O modal passou de `max-w-4xl` para `max-w-xl` e ganhou
+  título próprio (antes o título morava dentro do form).
+- **Botão Deletar**: já estava ligado ao DeleteModal no código — verificado ao
+  vivo de ponta a ponta (criar meta descartável → Deletar → confirmar → some
+  da grade). Quem via o botão morto estava num bundle antigo do dev container,
+  mesmo sintoma das chaves de i18n cruas.
+- **`t` de módulo vs hook**: `goals.tsx` usava `import { t } from "i18next"`,
+  que funciona no app mas devolve `undefined` nos testes unitários (o i18n só
+  é inicializado no boot do app). Passou para `useTranslation()` — idêntico no
+  app e testável. Vale conferir outras páginas com o mesmo padrão.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
