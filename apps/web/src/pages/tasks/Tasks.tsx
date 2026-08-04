@@ -207,7 +207,7 @@ function Tasks() {
             />
 
             {isFormOpen && (
-                <Modal isOpen onClose={closeForm} labelledBy={TASK_FORM_TITLE_ID} className="max-w-3xl">
+                <Modal isOpen onClose={closeForm} labelledBy={TASK_FORM_TITLE_ID} className="max-w-xl">
                     {isEditMode ? (
                         <EditTask setTasks={setTasks} onClose={closeForm} />
                     ) : (

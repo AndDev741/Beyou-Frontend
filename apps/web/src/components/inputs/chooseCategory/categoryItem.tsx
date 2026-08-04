@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import BeyouIcon from "../../../ui/BeyouIcon";
 import category from "@beyou/types/category/categoryType";
-import { logger } from "../../../utils/logger";
 
 type categoryItemProps = {
     name: string,
@@ -13,70 +12,62 @@ type categoryItemProps = {
     chosenCategoriesId?: string[]
 }
 
+/**
+ * O chip do seletor de categorias (catrow do mockup): ícone + nome em pílula;
+ * selecionado fica com o acento suave. É um botão de verdade com estado de
+ * checkbox no nome acessível.
+ */
 function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategoriesIdList, chosenCategories, chosenCategoriesId}: categoryItemProps){
     const [alreadyChosen, setAlreadyChosen] = useState(false);
-    logger.log(`NAME =? ${name} checked? ${alreadyChosen}`)
-    const handleCheckboxChange= (event: { target: { id: string; checked: boolean; }; }) => {
-        const {id, checked} = event.target;
 
-        if(checked) {
-            setAlreadyChosen(true);
+    const handleToggle = () => {
+        const checked = !alreadyChosen;
+        setAlreadyChosen(checked);
+        if (checked) {
             // Guard against double-add: `alreadyChosen` (local UI state) can
             // desync from the actual list (e.g. a category auto-selected after
             // inline creation), which previously let the same id be appended
             // twice and produced a duplicate categoriesId in the payload.
             setCategoriesIdList(
-                categoriesIdList.includes(id) ? categoriesIdList : [...categoriesIdList, id]
+                categoriesIdList.includes(categoryId) ? categoriesIdList : [...categoriesIdList, categoryId]
             );
-        }else{
-            setAlreadyChosen(false);
-            setCategoriesIdList(categoriesIdList.filter((itemId) => itemId !== id));
+        } else {
+            setCategoriesIdList(categoriesIdList.filter((itemId) => itemId !== categoryId));
         }
     }
 
     useEffect(() => {
-        if(chosenCategories && chosenCategories?.length > 0){
-            const isChosen = chosenCategories.some((category) => category.id === categoryId)
-            setAlreadyChosen(isChosen)
+        if (chosenCategories && chosenCategories?.length > 0) {
+            const isChosen = chosenCategories.some((category) => category.id === categoryId);
+            setAlreadyChosen(isChosen);
         }
-        if(chosenCategoriesId && chosenCategoriesId?.length > 0){
-            const isChosen = chosenCategoriesId.some((category) => category === categoryId)
-            setAlreadyChosen(isChosen)
+        if (chosenCategoriesId && chosenCategoriesId?.length > 0) {
+            const isChosen = chosenCategoriesId.some((category) => category === categoryId);
+            setAlreadyChosen(isChosen);
         }
-    }, [chosenCategories, categoryId, chosenCategoriesId])
+    }, [chosenCategories, categoryId, chosenCategoriesId]);
 
     useEffect(() => {
-        if(categoriesIdList?.length < 1){
+        if (categoriesIdList?.length < 1) {
             setAlreadyChosen(false);
         }
-    }, [categoriesIdList])
+    }, [categoriesIdList]);
 
-    const isChosen = alreadyChosen;
-    const labelClasses = `relative flex flex-col items-start p-1 my-2 mx-1 w-full cursor-pointer max-w-[43vw] md:max-w-[180px] border-2 border-border rounded-control bg-surface text-text transition-colors duration-200
-        ${isChosen ? "bg-accent text-on-accent" : ""} 
-        ${alreadyChosen ? "bg-accent text-on-accent" : ""}`;
-    
-    const iconClasses = `min-w-[30px] text-[30px] text-text-2 
-        ${isChosen ? "text-on-accent" : ""} 
-        ${alreadyChosen ? "text-on-accent" : ""}`;
-    
     return (
-        <label htmlFor={categoryId} className={labelClasses}>
-            <input
-                type="checkbox"
-                checked={alreadyChosen}
-                id={categoryId}
-                name={name}
-                onChange={handleCheckboxChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-            <div className="flex items-start w-full">
-                <BeyouIcon id={iconId} className={iconClasses} />
-                <p className="text-lg md:text-xl font-semibold ml-1 line-clamp-2">
-                    {name}
-                </p>
-            </div>
-        </label>
+        <button
+            type="button"
+            role="checkbox"
+            aria-checked={alreadyChosen}
+            onClick={handleToggle}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-semibold transition-colors duration-200 ${
+                alreadyChosen
+                    ? "border-transparent bg-accent-soft text-accent"
+                    : "border-border text-text-2 hover:border-text-3/60 hover:text-text"
+            }`}
+        >
+            <BeyouIcon id={iconId} size={13} />
+            <span className="line-clamp-1">{name}</span>
+        </button>
     );
 }
 

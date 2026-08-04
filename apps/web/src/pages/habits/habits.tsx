@@ -233,7 +233,7 @@ function Habits(){
             />
 
             {isFormOpen && (
-                <Modal isOpen onClose={closeForm} labelledBy={HABIT_FORM_TITLE_ID} className="max-w-3xl">
+                <Modal isOpen onClose={closeForm} labelledBy={HABIT_FORM_TITLE_ID} className="max-w-xl">
                     {isEditMode ? (
                         <EditHabit setHabits={setHabits} onClose={closeForm} />
                     ) : (

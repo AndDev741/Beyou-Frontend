@@ -3,12 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import IconsBox from "../inputs/iconsBox";
-import DescriptionInput from "../inputs/descriptionInput";
-import GenericInput from "../inputs/genericInput";
-import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
-import ExperienceInput from "../inputs/experienceInput";
+import IconsBoxSmall from "../inputs/iconsBoxSmall";
+import SegmentedControl from "../../ui/SegmentedControl";
 import Button from "../Button";
 import IconButton from "../../ui/IconButton";
 import { X } from "lucide-react";
@@ -202,140 +199,172 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
         }
     };
 
+    const fieldClass =
+        "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
+
     return (
         <div className="text-text">
-            {/* Cabeçalho do modal: título + fechar. O ícone decorativo saiu — o
-                título já é o contexto. */}
-            <div className="mb-4 flex items-start justify-between gap-3">
-                <h2 id={HABIT_FORM_TITLE_ID} className="text-lg font-semibold tracking-[-0.01em] text-text">
+            {/* Cabeçalho do modal: título + fechar. */}
+            <div className="flex items-center gap-3">
+                <h2 id={HABIT_FORM_TITLE_ID} className="text-base font-semibold tracking-[-0.01em] text-text">
                     {t(mode === "edit" ? "EditHabit" : "CreateHabit")}
                 </h2>
                 {onClose && (
-                    <IconButton label={t("Close")} onClick={onClose} className="-mr-1 -mt-1">
+                    <IconButton label={t("Close")} onClick={onClose} className="ml-auto">
                         <X size={18} aria-hidden="true" />
                     </IconButton>
                 )}
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center px-2">
-                <div className="flex md:items-start md:flex-row justify-center">
-                    <div className="flex flex-col md:items-start md:justify-start">
-                        <Controller
-                            control={control}
-                            name="name"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Name"
-                                    data={field.value}
-                                    placeholder="CategoryNamePlaceholder"
-                                    setData={field.onChange}
-                                    dataError={errors.name?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
 
-                        <Controller
-                            control={control}
-                            name="description"
-                            render={({ field }) => (
-                                <DescriptionInput
-                                    t={t}
-                                    description={field.value}
-                                    setDescription={field.onChange}
-                                    descriptionError={errors.description?.message ?? ""}
-                                    placeholder="HabitDescriptionPlaceholder"
-                                    minH={mode === "edit" ? 110 : 213}
-                                    minHSmallScreen={mode === "edit" ? 123 : 146}
-                                />
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="motivationalPhrase"
-                            render={({ field }) => (
-                                <GenericInput
-                                    t={t}
-                                    data={field.value}
-                                    setData={field.onChange}
-                                    dataError={errors.motivationalPhrase?.message ?? ""}
-                                    placeholder="MotivationalPhrasePlaceholder"
-                                    name="MotivationPhrase"
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div className="mx-2"></div>
-
-                    <div className="flex flex-col mt-2 md:mt-0">
-                        <Controller
-                            control={control}
-                            name="iconId"
-                            render={({ field }) => (
-                                <IconsBox
-                                    search={search}
-                                    setSearch={setSearch}
-                                    iconError={errors.iconId?.message ?? ""}
-                                    selectedIcon={field.value}
-                                    setSelectedIcon={field.onChange}
-                                    t={t}
-                                    minLgH={mode === "edit" ? 255 : 272}
-                                    minHSmallScreen={mode === "edit" ? 262 : 200}
-                                />
-                            )}
-                        />
-
-                        {mode === "create" && (
-                            <Controller
-                                control={control}
-                                name="experience"
-                                render={({ field }) => (
-                                    <ExperienceInput
-                                        t={t}
-                                        experience={field.value ?? 0}
-                                        setExperience={field.onChange}
-                                        experienceError={errors.experience?.message ?? ""}
-                                    />
-                                )}
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-3.5">
+                <div>
+                    <label htmlFor="habit-name" className={labelClass}>{t("Name")}</label>
+                    <Controller
+                        control={control}
+                        name="name"
+                        render={({ field }) => (
+                            <input
+                                id="habit-name"
+                                type="text"
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("HabitNamePlaceholder")}
+                                className={`${fieldClass} ${errors.name ? "border-danger" : ""}`}
                             />
                         )}
-                    </div>
+                    />
+                    {errors.name?.message && <p className="mt-1.5 text-xs text-danger">{errors.name.message}</p>}
                 </div>
-                <div className="flex flex-col md:flex-row items-center justify-center md:gap-10 w-full md:w-[80%]">
+
+                <div className="mt-4">
+                    <label htmlFor="habit-description" className={labelClass}>{t("Description")}</label>
+                    <Controller
+                        control={control}
+                        name="description"
+                        render={({ field }) => (
+                            <textarea
+                                id="habit-description"
+                                rows={3}
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("HabitDescriptionPlaceholder")}
+                                className={`${fieldClass} resize-none`}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <label htmlFor="habit-motivation" className={labelClass}>{t("MotivationPhrase")}</label>
+                    <Controller
+                        control={control}
+                        name="motivationalPhrase"
+                        render={({ field }) => (
+                            <input
+                                id="habit-motivation"
+                                type="text"
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("MotivationalPhrasePlaceholder")}
+                                className={fieldClass}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <Controller
+                        control={control}
+                        name="iconId"
+                        render={({ field }) => (
+                            <IconsBoxSmall
+                                search={search}
+                                setSearch={setSearch}
+                                t={t}
+                                iconError={errors.iconId?.message ?? ""}
+                                setSelectedIcon={field.onChange}
+                                selectedIcon={field.value || ""}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Importance")}</span>
                     <Controller
                         control={control}
                         name="importance"
                         render={({ field }) => (
-                            <ChooseInput
-                                choosedLevel={field.value}
-                                setLevel={field.onChange}
-                                title="Importance"
-                                levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
-                                error={errors.importance?.message ?? ""}
-                                name="importance"
-                                t={t}
-                            />
-                        )}
-                    />
-
-                    <Controller
-                        control={control}
-                        name="difficulty"
-                        render={({ field }) => (
-                            <ChooseInput
-                                choosedLevel={field.value}
-                                error={errors.difficulty?.message ?? ""}
-                                setLevel={field.onChange}
-                                title="Difficulty"
-                                levels={[t("Easy"), t("Normal"), t("Hard"), t("Terrible")]}
-                                name="difficulty"
-                                t={t}
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Importance")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 1, label: t("Low") },
+                                    { value: 2, label: t("Medium") },
+                                    { value: 3, label: t("High") },
+                                    { value: 4, label: t("Max") },
+                                ]}
                             />
                         )}
                     />
                 </div>
-                <div>
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Difficulty")}</span>
+                    <Controller
+                        control={control}
+                        name="difficulty"
+                        render={({ field }) => (
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Difficulty")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 1, label: t("Easy") },
+                                    { value: 2, label: t("Normal") },
+                                    { value: 3, label: t("Hard") },
+                                    { value: 4, label: t("Terrible") },
+                                ]}
+                            />
+                        )}
+                    />
+                </div>
+
+                {mode === "create" && (
+                    <div className="mt-4">
+                        <span className={labelClass}>{t("YourExperience")}</span>
+                        <Controller
+                            control={control}
+                            name="experience"
+                            render={({ field }) => (
+                                <SegmentedControl
+                                    className="w-full"
+                                    label={t("YourExperience")}
+                                    value={field.value ?? 0}
+                                    onChange={field.onChange}
+                                    options={[
+                                        { value: 0, label: t("Beginner") },
+                                        { value: 1, label: t("Intermediate") },
+                                        { value: 2, label: t("Advanced") },
+                                    ]}
+                                />
+                            )}
+                        />
+                        <span className="mt-1.5 block font-mono text-[10.5px] text-text-3">
+                            {t("HabitExperienceCaption")}
+                        </span>
+                    </div>
+                )}
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Categories")}</span>
                     <Controller
                         control={control}
                         name="categoriesId"
@@ -350,26 +379,22 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                     />
                 </div>
 
-                {errors.root?.message && (
-                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center" />
+                {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+                <ErrorNotice error={apiError} className="mt-2" />
 
-                {/* Rodapé do modal: cancelar à esquerda, ação primária à direita. */}
-                <div className="mt-6 flex w-full items-center justify-end gap-3 border-t border-border pt-4">
-                    {(mode === "edit" || onClose) && (
-                        <Button
-                            text={t("Cancel")}
-                            mode="cancel"
-                            size="medium"
-                            type="button"
-                            onClick={mode === "edit" ? handleCancel : onClose}
-                        />
-                    )}
+                <div className="mt-[18px] flex justify-end gap-2">
                     <Button
-                        text={t(mode === "edit" ? "Edit" : "Create")}
-                        mode="create"
+                        text={t("Cancel")}
+                        mode="ghost"
                         size="medium"
+                        type="button"
+                        onClick={mode === "edit" ? handleCancel : onClose}
+                    />
+                    <Button
+                        text={t("Save habit")}
+                        mode="primary"
+                        size="medium"
+                        type="submit"
                         disabled={isSubmitting}
                     />
                 </div>
