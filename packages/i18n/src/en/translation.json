@@ -113,6 +113,7 @@
     "Cancel": "Cancel",
     "Delete": "Delete",
     "ConfirmDeleteOfCategoryPhrase": "Confirm deletion of this category?",
+    "DeleteWillRemove": "\"{{name}}\" and everything attached to it will be removed.",
     "Habits": "Habits",
     "YourHabits": "Your Habits",
     "CreateHabit": "Create Habit",

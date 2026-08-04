@@ -10,6 +10,7 @@ import { editModeEnter as editGoalMode } from "@beyou/state/goal/editGoalSlice";
 import { toast } from "react-toastify";
 import { useEffect, useId, useState } from "react";
 import ErrorNotice from "./ErrorNotice";
+import Button from "./Button";
 import Modal from "./modals/Modal";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 
@@ -105,21 +106,23 @@ function DeleteModal<T>({objectId, onDelete, setOnDelete, t, name, setObjects, d
     }
 
     return(
+        // O desenho do mockup: pergunta como título à esquerda, o item entre
+        // aspas no corpo e as ações à direita — Cancelar (ghost) antes de
+        // Excluir (destrutivo), que é a última e mais forte.
         <Modal isOpen={onDelete} onClose={handleClose} labelledBy={titleId} className="max-w-md">
-            <div className="flex flex-col items-center justify-center text-text">
-                <h1 id={titleId} className="text-center font-semibold">{deletePhrase}</h1>
-                <h2 className="underline my-3 text-text-2">{name}</h2>
-                <div className="flex lg:flex-row flex-col items-center">
-                    <button onClick={handleDelete}
-                    className="bg-danger hover:bg-danger/90 lg:mr-1 text-on-accent font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
-                        {t('Delete')}
-                    </button>
-                    <button onClick={handleClose}
-                    className="bg-surface-2/10 hover:bg-surface-2/20 mt-1 lg:mt-0 lg:ml-1 text-text font-semibold w-[100px] h-[32px] rounded-control transition-colors duration-200">
-                        {t('Cancel')}
-                    </button>
+            <div className="text-text">
+                <h1 id={titleId} className="text-[15px] font-semibold tracking-[-0.01em] text-text">
+                    {deletePhrase}
+                </h1>
+                <p className="mt-1.5 text-[12.5px] leading-snug text-text-2">
+                    {t("DeleteWillRemove", { name })}
+                </p>
+
+                <div className="mt-4 flex justify-end gap-2">
+                    <Button text={t("Cancel")} mode="ghost" size="medium" type="button" onClick={handleClose} />
+                    <Button text={t("Delete")} mode="danger" size="medium" type="button" onClick={handleDelete} />
                 </div>
-                <ErrorNotice error={apiError} className="mt-2 text-center" />
+                <ErrorNotice error={apiError} className="mt-2" />
             </div>
         </Modal>
     )

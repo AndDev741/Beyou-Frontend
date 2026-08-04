@@ -28,9 +28,20 @@ test('Render collapsed compact card', () => {
     // existem no DOM e no nome acessível.
     expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
-    // O cartão é compacto: sem estado expandido no desenho do mockup.
-    expect(screen.queryByRole('button', { name: /Expand/i })).toBeNull();
+    // O chevron de expandir fica sempre visível — é o que mostra onde a
+    // categoria é usada.
+    expect(screen.getByRole('button', { name: /Expand/i })).toBeInTheDocument();
     expect(screen.getByText(/LV 2/i)).toBeInTheDocument();
+});
+
+test('expanding reveals where the category is used', () => {
+    const habits = new Map([['h1', 'Habit One']]);
+    render(<CategoryBox {...defaultProps} habits={habits} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
+
+    expect(screen.getByText('Habit One')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Collapse/i })).toBeInTheDocument();
 });
 
 test('dispatches edit actions and scrolls', () => {
