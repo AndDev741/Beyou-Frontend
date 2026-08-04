@@ -237,6 +237,18 @@ apareciam cruas na tela mesmo já presentes no arquivo dentro do container. Um
 `docker restart` do serviço resolveu; vale lembrar disso antes de caçar um bug
 de i18n que não existe.
 
+## Ajustes finos (2026-08-04)
+
+- **Scrollbar fantasma.** Toda página autenticada media `min-h-screen` e a
+  shell acrescentava o espaçador de 80/96px — o documento ficava sempre
+  `100vh + espaçador`, e até uma página vazia rolava. As páginas sob a shell
+  passaram a medir `calc(100vh - espaçador)`; login, boot e erro continuam
+  `min-h-screen` porque não têm shell.
+- **Chevron de expandir no mobile.** O cartão de rotina e o cabeçalho de seção
+  do formulário escondem as ações até abrir, mas nada indicava que expandiam.
+  Entrou o chevron ao lado do nome (só abaixo de `md`, gira 180° aberto). O
+  cartão de snapshot já tinha o dele.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
