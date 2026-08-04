@@ -260,6 +260,21 @@ de i18n que não existe.
   usuário que completou a seção economiza o espaço dela. Amanhã abre de novo.
   Coberto por 3 testes (recolher persiste, começa recolhida, é por dia).
 
+## Categorias (2026-08-04)
+
+- **Ações no topo do cartão.** Editar e excluir saíram do rodapé (só aparecia
+  expandido, separado por `border-t`) e foram para o cabeçalho, à esquerda do
+  chevron: `md:opacity-0` com revelação em `group-hover`/`group-focus-within`
+  no desktop e sempre visíveis no telefone. Verificado com hover real: 0 → 1 e
+  de volta a 0 ao sair.
+- **"Usando em" acima da barra de nível.** O rodapé com borda que fazia o
+  conteúdo expandido terminar cortado saiu; o cartão expandido termina na
+  própria barra de XP.
+- **Expansão isolada.** A grade esticava os cartões vizinhos à altura do
+  expandido (`items-stretch` padrão), então a fileira inteira "crescia junto"
+  com um clique. `items-start` na grade: só o cartão clicado muda (medido:
+  165 → 261px no aberto, vizinho estável em 165px).
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
