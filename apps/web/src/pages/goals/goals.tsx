@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import RenderGoals from "../../components/goals/renderGoals";
 import getGoals from "@beyou/api/goals/getGoals";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 import CreateGoal from "../../components/goals/createGoal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
@@ -20,7 +20,6 @@ import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import PageHeader from "../../ui/PageHeader";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
-import IconButton from "../../ui/IconButton";
 import { Plus, Search, X } from "lucide-react";
 
 /** "all" ou um valor do enum de status do backend. */
@@ -31,6 +30,7 @@ type SortOption = { value: string; label: string };
 function Goals() {
   useAuthGuard();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const isEditMode = useSelector((state: RootState) => state.editGoal.editMode);
   // const [goals, setGoals] = useState<goal[]>([]);
@@ -246,12 +246,27 @@ function Goals() {
           isOpen
           onClose={closeForm}
           labelledBy={isEditMode ? "goal-edit-title" : "goal-create-title"}
-          className="max-w-4xl"
+          className="max-w-xl"
         >
-          <IconButton label={t("Close")} onClick={closeForm} className="absolute right-3 top-3">
-            <X size={18} aria-hidden="true" />
-          </IconButton>
-          {isEditMode ? <EditGoal onClose={closeForm} /> : <CreateGoal onClose={closeForm} />}
+          <div className="flex items-center gap-3">
+            <h2
+              id={isEditMode ? "goal-edit-title" : "goal-create-title"}
+              className="text-base font-semibold tracking-[-0.01em] text-text"
+            >
+              {isEditMode ? t("Edit Goal") : t("Create Goal")}
+            </h2>
+            <button
+              type="button"
+              aria-label={t("Close")}
+              onClick={closeForm}
+              className="ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <div className="mt-3.5">
+            {isEditMode ? <EditGoal onClose={closeForm} /> : <CreateGoal onClose={closeForm} />}
+          </div>
         </Modal>
       )}
     </div>

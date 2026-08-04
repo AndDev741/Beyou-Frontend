@@ -4,13 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../Button";
-import DescriptionInput from "../inputs/descriptionInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
-import GenericInput from "../inputs/genericInput";
-import IconsBox from "../inputs/iconsBox";
-import SelectorInput from "../inputs/SelectorInput";
-import IconTile from "../../ui/IconTile";
-import { Target } from "lucide-react";
+import IconsBoxSmall from "../inputs/iconsBoxSmall";
+import SegmentedControl from "../../ui/SegmentedControl";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -60,6 +56,14 @@ const defaultValues: GoalFormValues = {
     term: "SHORT_TERM"
 };
 
+/**
+ * O formulário do mockup: nome, descrição, motivação, ícone, alvo + unidade,
+ * período (início/término), prazo em segmentado e categorias.
+ *
+ * "Progresso atual" e "status" ficam de fora de propósito: o progresso nasce
+ * em 0 e sobe pelo stepper do cartão, e o status é derivado dele — editar os
+ * dois à mão quebraria a integridade do XP.
+ */
 function GoalForm({ mode, onClose }: GoalFormProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
@@ -141,6 +145,11 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
         clearErrors("root");
         setApiError(null);
 
+        // O progresso e o status não têm campo: em edição preservam o valor
+        // real (o stepper do cartão é quem move), em criação nascem zerados.
+        const currentValue = mode === "edit" ? Number(values.currentValue) : 0;
+        const status = mode === "edit" ? values.status : "NOT_STARTED";
+
         const response =
             mode === "edit"
                 ? await editGoal(
@@ -150,13 +159,13 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                       values.description,
                       Number(values.targetValue),
                       values.unit,
-                      Number(values.currentValue),
+                      currentValue,
                       completeEdit,
                       values.categoriesId,
                       values.motivation,
                       values.startDate,
                       values.endDate,
-                      values.status,
+                      status,
                       values.term,
                       t
                   )
@@ -166,12 +175,12 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                       values.description,
                       Number(values.targetValue),
                       values.unit,
-                      Number(values.currentValue),
+                      currentValue,
                       values.categoriesId,
                       values.motivation,
                       values.startDate,
                       values.endDate,
-                      values.status,
+                      status,
                       values.term,
                       t
                   );
@@ -181,16 +190,9 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
             if (Array.isArray(newGoals.success)) {
                 dispatch(enterGoals(newGoals.success));
             }
-            if (mode === "edit") {
-                handleCancel();
-                toast.success(t("edited successfully"));
-            } else {
-                reset(defaultValues);
-                setSearch("");
-                // Em modal, criar tem de fechar — a meta nova já está na grade.
-                onClose?.();
-                toast.success(t("created successfully"));
-            }
+            toast.success(t(mode === "edit" ? "edited successfully" : "created successfully"));
+            handleCancel();
+            onClose?.();
             return;
         }
 
@@ -206,202 +208,188 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
         }
     };
 
+    const fieldClass =
+        "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
+
     return (
-        <div className="bg-surface text-text transition-colors duration-200">
-            {/* Cabeçalho de modal: título à esquerda, no tamanho do sistema. */}
-            <div className="flex items-center gap-2.5">
-                <IconTile size={36}>
-                    <Target size={20} aria-hidden="true" />
-                </IconTile>
-                <h2
-                    id={mode === "edit" ? "goal-edit-title" : "goal-create-title"}
-                    className="text-lg font-semibold tracking-[-0.01em] text-text"
-                >
-                    {t(mode === "edit" ? "Edit Goal" : "Create Goal")}
-                </h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="text-text">
+            <div>
+                <label htmlFor="goal-title" className={labelClass}>{t("Name")}</label>
+                <Controller
+                    control={control}
+                    name="title"
+                    render={({ field }) => (
+                        <input
+                            id="goal-title"
+                            type="text"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder={t("GoalTitlePlaceholder")}
+                            className={`${fieldClass} ${errors.title ? "border-danger" : ""}`}
+                        />
+                    )}
+                />
+                {errors.title?.message && <p className="mt-1.5 text-xs text-danger">{errors.title.message}</p>}
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col mt-6">
-                <div className="flex md:items-start md:flex-row justify-center">
-                    <div className="flex flex-col md:items-start md:justify-start">
-                        <Controller
-                            control={control}
-                            name="title"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Title"
-                                    placeholder="GoalTitlePlaceholder"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                    dataError={errors.title?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name="description"
-                            render={({ field }) => (
-                                <DescriptionInput
-                                    description={field.value}
-                                    setDescription={field.onChange}
-                                    placeholder="GoalDescriptionPlaceholder"
-                                    descriptionError={errors.description?.message ?? ""}
-                                    minH={213}
-                                    minHSmallScreen={140}
-                                    t={t}
-                                />
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name="targetValue"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Target Value"
-                                    type="number"
-                                    placeholder="GoalTargetValuePlaceholder"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                    t={t}
-                                    dataError={errors.targetValue?.message ?? ""}
-                                />
-                            )}
-                        />
 
-                        <Controller
-                            control={control}
-                            name="motivation"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Motivation"
-                                    placeholder="GoalMotivationPlaceholder"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                    dataError={errors.motivation?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
+            <div className="mt-4">
+                <label htmlFor="goal-description" className={labelClass}>{t("Description")}</label>
+                <Controller
+                    control={control}
+                    name="description"
+                    render={({ field }) => (
+                        <textarea
+                            id="goal-description"
+                            rows={3}
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder={t("GoalDescriptionPlaceholder")}
+                            className={`${fieldClass} resize-none`}
                         />
-                        <Controller
-                            control={control}
-                            name="startDate"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Start Date"
-                                    placeholder="GoalStartDatePlaceholder"
-                                    t={t}
-                                    dataError={errors.startDate?.message ?? ""}
-                                    type="date"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                />
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name="status"
-                            render={({ field }) => (
-                                <SelectorInput
-                                    title={t("Status")}
-                                    value={field.value}
-                                    valuesToSelect={[
-                                        { title: t("Not Started"), value: "NOT_STARTED" },
-                                        { title: t("In Progress"), value: "IN_PROGRESS" },
-                                        { title: t("Completed"), value: "COMPLETED" }
-                                    ]}
-                                    setValue={field.onChange}
-                                    errorPhrase={errors.status?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
-                    </div>
+                    )}
+                />
+            </div>
 
-                    <div className="mx-2"></div>
+            <div className="mt-4">
+                <label htmlFor="goal-motivation" className={labelClass}>{t("Motivation")}</label>
+                <Controller
+                    control={control}
+                    name="motivation"
+                    render={({ field }) => (
+                        <input
+                            id="goal-motivation"
+                            type="text"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            placeholder={t("GoalMotivationPlaceholder")}
+                            className={fieldClass}
+                        />
+                    )}
+                />
+            </div>
 
-                    <div className="flex flex-col">
-                        <Controller
-                            control={control}
-                            name="iconId"
-                            render={({ field }) => (
-                                <IconsBox
-                                    search={search}
-                                    setSearch={setSearch}
-                                    iconError={errors.iconId?.message ?? ""}
-                                    selectedIcon={field.value}
-                                    setSelectedIcon={field.onChange}
-                                    t={t}
-                                    minLgH={272}
-                                    minHSmallScreen={200}
-                                />
-                            )}
+            <div className="mt-4">
+                <Controller
+                    control={control}
+                    name="iconId"
+                    render={({ field }) => (
+                        <IconsBoxSmall
+                            search={search}
+                            setSearch={setSearch}
+                            t={t}
+                            iconError={errors.iconId?.message ?? ""}
+                            setSelectedIcon={field.onChange}
+                            selectedIcon={field.value || ""}
                         />
-                        <Controller
-                            control={control}
-                            name="unit"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Unit"
-                                    placeholder="GoalUnitPlaceholder"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                    dataError={errors.unit?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name="currentValue"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Actual Progress"
-                                    type="number"
-                                    placeholder="Progress"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                    dataError={errors.currentValue?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
+                    )}
+                />
+            </div>
 
-                        <Controller
-                            control={control}
-                            name="endDate"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="End Date"
-                                    placeholder="End date"
-                                    t={t}
-                                    dataError={errors.endDate?.message ?? ""}
-                                    type="date"
-                                    data={field.value}
-                                    setData={field.onChange}
-                                />
-                            )}
-                        />
-                        <Controller
-                            control={control}
-                            name="term"
-                            render={({ field }) => (
-                                <SelectorInput
-                                    title={t("Term")}
-                                    value={field.value}
-                                    setValue={field.onChange}
-                                    valuesToSelect={[
-                                        { title: t("Short Term"), value: "SHORT_TERM" },
-                                        { title: t("Medium Term"), value: "MEDIUM_TERM" },
-                                        { title: t("Long Term"), value: "LONG_TERM" }
-                                    ]}
-                                    t={t}
-                                    errorPhrase={errors.term?.message ?? ""}
-                                />
-                            )}
-                        />
-                    </div>
+            <div className="mt-4">
+                <span className={labelClass}>{t("Target")}</span>
+                <div className="flex gap-2">
+                    <Controller
+                        control={control}
+                        name="targetValue"
+                        render={({ field }) => (
+                            <input
+                                type="number"
+                                inputMode="numeric"
+                                aria-label={t("Target")}
+                                value={field.value}
+                                onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
+                                className={`${fieldClass} w-28 font-mono ${errors.targetValue ? "border-danger" : ""}`}
+                            />
+                        )}
+                    />
+                    <Controller
+                        control={control}
+                        name="unit"
+                        render={({ field }) => (
+                            <input
+                                type="text"
+                                aria-label={t("Unit")}
+                                placeholder={t("GoalUnitPlaceholder")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                className={`${fieldClass} flex-1 ${errors.unit ? "border-danger" : ""}`}
+                            />
+                        )}
+                    />
                 </div>
+                {errors.targetValue?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.targetValue.message}</p>
+                )}
+                {errors.unit?.message && <p className="mt-1.5 text-xs text-danger">{errors.unit.message}</p>}
+                <span className="mt-1.5 block font-mono text-[10.5px] text-text-3">
+                    {t("GoalProgressStartsAtZero")}
+                </span>
+            </div>
 
+            <div className="mt-4">
+                <span className={labelClass}>{t("Period")}</span>
+                <div className="flex gap-2">
+                    <Controller
+                        control={control}
+                        name="startDate"
+                        render={({ field }) => (
+                            <input
+                                type="date"
+                                aria-label={t("StartDate")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                className={`${fieldClass} flex-1 font-mono ${errors.startDate ? "border-danger" : ""}`}
+                            />
+                        )}
+                    />
+                    <Controller
+                        control={control}
+                        name="endDate"
+                        render={({ field }) => (
+                            <input
+                                type="date"
+                                aria-label={t("EndDate")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                className={`${fieldClass} flex-1 font-mono ${errors.endDate ? "border-danger" : ""}`}
+                            />
+                        )}
+                    />
+                </div>
+                {errors.startDate?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.startDate.message}</p>
+                )}
+                {errors.endDate?.message && <p className="mt-1.5 text-xs text-danger">{errors.endDate.message}</p>}
+            </div>
+
+            <div className="mt-4">
+                <span className={labelClass}>{t("Term")}</span>
+                <Controller
+                    control={control}
+                    name="term"
+                    render={({ field }) => (
+                        <SegmentedControl
+                            className="w-full"
+                            label={t("Term")}
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={[
+                                { value: "SHORT_TERM", label: t("Short Term") },
+                                { value: "MEDIUM_TERM", label: t("Medium Term") },
+                                { value: "LONG_TERM", label: t("Long Term") },
+                            ]}
+                        />
+                    )}
+                />
+            </div>
+
+            <div className="mt-4">
+                <span className={labelClass}>{t("Categories")}</span>
                 <Controller
                     control={control}
                     name="categoriesId"
@@ -415,23 +403,22 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                         />
                     )}
                 />
+            </div>
 
-                {errors.root?.message && (
-                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center mt-2" />
-                {mode === "edit" ? (
-                    <div className="flex items-center justify-evenly mt-4">
-                        <Button text={t("Cancel")} mode="cancel" type="button" size="medium" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
-                    </div>
-                ) : (
-                    <div className="flex justify-center mt-4">
-                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
-                    </div>
-                )}
-            </form>
-        </div>
+            {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+            <ErrorNotice error={apiError} className="mt-2" />
+
+            <div className="mt-[18px] flex justify-end gap-2">
+                <Button text={t("Cancel")} mode="ghost" size="medium" type="button" onClick={handleCancel} />
+                <Button
+                    text={t("Save goal")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    disabled={isSubmitting}
+                />
+            </div>
+        </form>
     );
 }
 
