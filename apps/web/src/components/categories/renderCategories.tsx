@@ -17,8 +17,10 @@ function RenderCategories({categories, emptyTitle}: props){
 
     return(
         // 3 colunas no desktop, 1 no mobile — grade escaneável, sem formulário ao lado.
+        // items-start: sem isso a fileira estica os cartões vizinhos à altura
+        // do expandido — a row inteira "crescia junto" com quem foi aberto.
         <div
-            className="grid grid-cols-1 gap-4 text-text md:grid-cols-2 lg:grid-cols-3"
+            className="grid grid-cols-1 items-start gap-4 text-text md:grid-cols-2 lg:grid-cols-3"
             data-tutorial-id="categories-grid"
         >
             {categories.length > 0 ? (

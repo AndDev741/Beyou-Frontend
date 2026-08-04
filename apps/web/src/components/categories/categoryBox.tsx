@@ -51,12 +51,25 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
     }
 
     return(
-        <Card interactive className="flex h-full flex-col gap-3 break-words">
+        <Card interactive className="group flex h-full flex-col gap-3 break-words">
             <div className="flex items-start gap-2.5">
                 <IconTile size={38}>
                     <BeyouIcon id={iconId} size={20} />
                 </IconTile>
                 <h3 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h3>
+
+                {/* Editar e excluir no topo, à esquerda do chevron: no desktop
+                    aparecem ao passar o mouse (ou ao focar por teclado); no
+                    telefone ficam sempre visíveis. */}
+                <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                    <IconButton label={t('Edit')} onClick={handleEdit}>
+                        <Pencil size={15} aria-hidden="true" />
+                    </IconButton>
+                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                        <Trash2 size={15} aria-hidden="true" />
+                    </IconButton>
+                </div>
+
                 <IconButton
                     label={expanded ? t('Collapse') : t('Expand')}
                     aria-expanded={expanded}
@@ -91,19 +104,10 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                 )
             )}
 
-            {/* Categoria acumula o XP dos hábitos: nível e progresso, sem streak. */}
-            <XpBar className="mt-auto pt-1" current={xp} target={nextLevelXp} level={level} />
-
-            {expanded && (
-                <div className="flex justify-end gap-1 border-t border-border pt-2">
-                    <IconButton label={t('Edit')} onClick={handleEdit}>
-                        <Pencil size={16} aria-hidden="true" />
-                    </IconButton>
-                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
-                        <Trash2 size={16} aria-hidden="true" />
-                    </IconButton>
-                </div>
-            )}
+            {/* Categoria acumula o XP dos hábitos: nível e progresso, sem streak.
+                Fica DEPOIS do "usando em" — o conteúdo expandido termina na
+                barra, não cortado por uma borda. */}
+            <XpBar className="pt-1" current={xp} target={nextLevelXp} level={level} />
 
             {expanded && (
                 <DeleteModal objectId={id}

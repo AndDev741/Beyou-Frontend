@@ -24,15 +24,18 @@ test('Render collapsed view', () => {
     render(<CategoryBox {...defaultProps} />);
     expect(screen.getByText('Dance')).toBeInTheDocument();
     expect(screen.getByText('Dance with me')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Edit/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Delete/i })).not.toBeInTheDocument();
+    // As ações vivem no cabeçalho, à esquerda do chevron — no desktop só
+    // aparecem no hover, mas existem no DOM e no nome acessível.
+    expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
+    // O conteúdo expandido é que continua escondido.
+    expect(screen.queryByText(/Add this category/i)).toBeNull();
 });
 
 test('Expand the card when clicked', () => {
     render(<CategoryBox {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
+    expect(screen.getByText(/Add this category/i)).toBeInTheDocument();
 });
 
 test('renders using-in lists', () => {
