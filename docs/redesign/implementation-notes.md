@@ -319,6 +319,24 @@ de i18n que não existe.
   dica de adicionar a categoria em algum lugar. Fechado, segue o cartão do
   mockup.
 
+## Hábitos, tarefas e o seletor de categorias (2026-08-04)
+
+- **Formulários de hábito e tarefa no desenho do mockup**, mesmo esqueleto das
+  outras bibliotecas: campo por campo em coluna, importância/dificuldade em
+  segmentado (1..4, valores que o backend valida), experiência segmentada só
+  na criação, ícone pelo seletor compacto e o rodapé Cancelar/Salvar hábito
+  (ou tarefa). A tarefa ganhou o switch de "única conclusão" com legenda.
+  Modais em `max-w-xl`.
+- **Seletor de categorias virou a catrow do mockup**: chips de ícone + nome
+  (selecionado = acento suave) e o "Nova categoria" como chip tracejado na
+  própria fileira — antes era um título com botão de adicionar acima, o que
+  duplicava o rótulo "Categorias" no formulário de meta.
+- **e2e precisa acompanhar** (repo separado): o submit dos formulários de
+  hábito e tarefa passou de "Create"/"Edit" para "Salvar hábito"/"Salvar
+  tarefa"; os rádios de importância/dificuldade/experiência continuam com os
+  mesmos nomes (o segmentado usa role=radio); a categoria agora é um
+  `role=checkbox` com o nome da categoria.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
