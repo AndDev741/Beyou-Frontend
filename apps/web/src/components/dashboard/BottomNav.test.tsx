@@ -56,7 +56,7 @@ describe("Bottom nav active item", () => {
     it.each([
         ["/habits", "Habits"],
         ["/routines", "Routines"],
-        ["/dashboard", "Today"],
+        ["/dashboard", "Dashboard"],
         ["/tasks", null],
         ["/goals", null],
     ])("on %s highlights %s", (route, expected) => {

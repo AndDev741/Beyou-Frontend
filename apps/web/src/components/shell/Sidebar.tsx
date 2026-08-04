@@ -25,7 +25,7 @@ type Item = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
  * a meta é o porquê.
  */
 const MAIN: Item[] = [
-    { key: "Today", to: "/dashboard", Icon: House },
+    { key: "NavDashboard", to: "/dashboard", Icon: House },
     { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
     { key: "Habits", to: "/habits", Icon: Repeat, tutorial: "shortcut-habits" },
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },

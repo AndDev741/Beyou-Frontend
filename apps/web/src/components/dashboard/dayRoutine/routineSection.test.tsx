@@ -191,3 +191,76 @@ describe("RoutineSection skip UI", () => {
         expect(screen.queryByTestId("xp-float")).not.toBeInTheDocument();
     });
 });
+
+describe("RoutineSection collapse", () => {
+    beforeEach(() => {
+        localStorage.clear();
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2024-01-01T10:00:00Z"));
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    const section = {
+        id: "s-collapse",
+        name: "Morning",
+        iconId: "",
+        startTime: "07:00",
+        endTime: "10:00",
+        taskGroup: [
+            {
+                id: "tg1",
+                taskId: "t1",
+                startTime: "08:00",
+                endTime: "09:00",
+                taskGroupChecks: [
+                    { id: "c1", checkDate: "2024-01-01", checkTime: "08:00", checked: false, skipped: false, xpGenerated: 0 }
+                ]
+            }
+        ],
+        habitGroup: [],
+        order: 0
+    };
+
+    test("collapsing hides the items and persists per day", () => {
+        const store = buildStore();
+        renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
+
+        expect(screen.getByText("Task 1")).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /collapse/i }));
+
+        expect(screen.queryByText("Task 1")).toBeNull();
+        expect(screen.getByRole("button", { name: /expand/i })).toBeInTheDocument();
+
+        const map = JSON.parse(localStorage.getItem("beyou-routine-collapsed") || "{}");
+        expect(map["2024-01-01"]).toEqual(["s-collapse"]);
+    });
+
+    test("a section saved as collapsed for today starts collapsed", () => {
+        localStorage.setItem(
+            "beyou-routine-collapsed",
+            JSON.stringify({ "2024-01-01": ["s-collapse"] })
+        );
+
+        const store = buildStore();
+        renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
+
+        expect(screen.queryByText("Task 1")).toBeNull();
+        expect(screen.getByRole("button", { name: /expand/i })).toBeInTheDocument();
+    });
+
+    test("collapse is per day: a section saved for another date stays open", () => {
+        localStorage.setItem(
+            "beyou-routine-collapsed",
+            JSON.stringify({ "2023-12-31": ["s-collapse"] })
+        );
+
+        const store = buildStore();
+        renderWithProviders(<RoutineSection section={section} routineId="r1" />, { storeOverride: store });
+
+        expect(screen.getByText("Task 1")).toBeInTheDocument();
+    });
+});

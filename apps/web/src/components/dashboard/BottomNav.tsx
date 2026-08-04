@@ -23,7 +23,7 @@ type NavItem = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
 // Hábitos e Mais. O assistente ocupa o centro porque é o ÚNICO acesso ao
 // agente e ele existe em toda página autenticada.
 const LEFT: NavItem[] = [
-    { key: "Today", to: "/dashboard", Icon: House },
+    { key: "NavDashboard", to: "/dashboard", Icon: House },
     { key: "Routines", to: "/routines", Icon: CalendarDays, tutorial: "shortcut-routines" },
 ];
 const RIGHT: NavItem[] = [

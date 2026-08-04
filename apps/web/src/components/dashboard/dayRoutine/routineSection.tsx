@@ -7,17 +7,43 @@ import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import checkRoutine from "@beyou/api/routine/checkItem";
 import skipRoutine from "@beyou/api/routine/skipItem";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
-import { formatTimeRange } from "../../routines/routineMetrics";
-import { FiSlash } from "react-icons/fi";
+import { formatTimeRange, getSectionStats } from "../../routines/routineMetrics";
+import { FiSlash, FiChevronDown } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import XpFloat from "./XpFloat";
 import Ring from "../../../ui/Ring";
 
 const XP_FLOAT_DURATION_MS = 1200;
+const COLLAPSED_STORAGE_KEY = "beyou-routine-collapsed";
+
+/** Seções recolhidas por dia: { "2026-08-04": ["seção-a", "seção-b"] }. */
+function readCollapsed(date: string, sectionId: string): boolean {
+    try {
+        const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
+        if (!raw) return false;
+        const map = JSON.parse(raw) as Record<string, string[]>;
+        return map[date]?.includes(sectionId) ?? false;
+    } catch {
+        return false;
+    }
+}
+
+function writeCollapsed(date: string, sectionId: string, collapsed: boolean) {
+    try {
+        const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
+        const map = raw ? (JSON.parse(raw) as Record<string, string[]>) : {};
+        const list = (map[date] ?? []).filter((id) => id !== sectionId);
+        if (collapsed) list.push(sectionId);
+        map[date] = list;
+        localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(map));
+    } catch {
+        /* storage indisponível — a escolha vale só nesta sessão */
+    }
+}
 
 export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
     const { t } = useTranslation();
@@ -93,6 +119,20 @@ export default function RoutineSection({ section, routineId}: { section: section
      }
 
     const mergedItems = getMergedItems();
+
+    // Recolher é por dia: quem completou a seção de manhã economiza o espaço
+    // dela hoje, mas amanhã a seção volta aberta.
+    const today = new Date().toJSON().slice(0, 10);
+    const sectionId = section.id || section.name;
+    const [collapsed, setCollapsed] = useState(() => readCollapsed(today, sectionId));
+    const sectionXp = useMemo(() => getSectionStats(section, today).xpEarned, [section, today]);
+
+    const toggleCollapsed = () => {
+        setCollapsed((prev) => {
+            writeCollapsed(today, sectionId, !prev);
+            return !prev;
+        });
+    };
 
     const renderItems = () => {
         return mergedItems.map((item, index) => {
@@ -250,12 +290,34 @@ export default function RoutineSection({ section, routineId}: { section: section
                 <span className="whitespace-nowrap font-mono text-[11px] text-text-3">
                     {formatTimeRange(section.startTime, section.endTime)}
                 </span>
+
+                {sectionXp > 0 && (
+                    <span className="ml-1 shrink-0 rounded-full bg-xp-soft px-2 py-0.5 font-mono text-[11px] font-semibold text-xp">
+                        +{sectionXp} XP
+                    </span>
+                )}
+
+                {/* Recolher a seção economiza espaço no dia; o estado fica salvo
+                    por dia no localStorage — amanhã ela abre como nova. */}
+                <button
+                    type="button"
+                    onClick={toggleCollapsed}
+                    aria-expanded={!collapsed}
+                    aria-label={collapsed ? t("Expand") : t("Collapse")}
+                    className="ml-auto shrink-0 rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                >
+                    <FiChevronDown
+                        aria-hidden="true"
+                        className={`transition-transform duration-200 ${collapsed ? "-rotate-90" : ""}`}
+                    />
+                </button>
             </div>
 
-            <div className="mb-2 flex w-full flex-col items-start justify-start">
-                {renderItems()}
-            </div>
-
+            {!collapsed && (
+                <div className="mb-2 flex w-full flex-col items-start justify-start">
+                    {renderItems()}
+                </div>
+            )}
         </div>
     )
 }
