@@ -39,14 +39,6 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
         dispatch(nameEnter(name));
         dispatch(descriptionEnter(description));
         dispatch(iconEnter(iconId));
-
-        //Scroll to bottom if mobile
-        if(window.innerWidth <= 1100){
-            window.scrollTo({
-                top: document.documentElement.scrollHeight,
-                behavior: 'smooth'
-            })
-        }
     }
 
     const xpPct = nextLevelXp > 0 ? Math.min(100, Math.round((xp / nextLevelXp) * 100)) : 0;

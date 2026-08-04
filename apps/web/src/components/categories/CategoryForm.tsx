@@ -103,6 +103,9 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
         dispatch(nameEnter(""));
         dispatch(descriptionEnter(""));
         dispatch(iconEnter(""));
+        // Em modal, cancelar tem de fechar — a visibilidade do criar vive no
+        // estado da página, não no slice de edição.
+        onClose?.();
     };
 
     const onSubmit = async (values: CategoryFormValues) => {

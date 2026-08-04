@@ -15,7 +15,6 @@ const dispatch = vi.fn();
 beforeEach(() => {
     vi.clearAllMocks();
     (useDispatch as unknown as Mock).mockReturnValue(dispatch);
-    (window as any).scrollTo = vi.fn();
 });
 
 const defaultProps = { id: '1', name: 'Dance', description: "Dance with me", iconId: "lucide:music", level: 2, xp: 50, nextLevelXp: 100, actualLevelXp: 50 };
@@ -44,10 +43,10 @@ test('expanding reveals where the category is used', () => {
     expect(screen.getByRole('button', { name: /Collapse/i })).toBeInTheDocument();
 });
 
-test('dispatches edit actions and scrolls', () => {
+test('dispatches edit actions', () => {
     render(<CategoryBox {...defaultProps} />);
     fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
-    expect((window as any).scrollTo).toHaveBeenCalled();
+    expect(dispatch).toHaveBeenCalled();
 });
 
 test('sets delete modal on', () => {
