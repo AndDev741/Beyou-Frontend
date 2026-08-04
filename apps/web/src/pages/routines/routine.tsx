@@ -142,7 +142,7 @@ const Routine = () => {
     });
 
     return (
-        <div className="min-h-screen w-full bg-bg px-4 py-6 pb-4 text-text lg:px-7">
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 pb-4 text-text lg:px-7">
             {showRoutineSpotlight && (
                 <SpotlightTutorial
                     steps={routineSteps}

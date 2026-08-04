@@ -98,12 +98,13 @@ export const RoutineCard = ({
                     type="button"
                     onClick={() => setExpanded((prev) => !prev)}
                     aria-expanded={expanded}
-                    className="min-w-0 text-left"
+                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
                 >
-                    <b className="block truncate text-base font-semibold tracking-[-0.01em] text-text">
-                        {routine.name}
-                    </b>
-                    <span className="text-xs text-text-3">
+                    <span className="min-w-0 flex-1">
+                        <b className="block truncate text-base font-semibold tracking-[-0.01em] text-text">
+                            {routine.name}
+                        </b>
+                        <span className="text-xs text-text-3">
                         {t("SectionsCount", { count: totalSections })} · {t("ItemsCount", { count: totalItems })}
                         {scheduleDays.length > 0 &&
                             ` · ${
@@ -111,7 +112,16 @@ export const RoutineCard = ({
                                     ? t("EveryDay")
                                     : t("DaysPerWeek", { count: scheduleDays.length })
                             }`}
+                        </span>
                     </span>
+                    {/* No telefone as ações ficam escondidas até abrir; o chevron
+                        avisa que o cartão expande. Vira 180° aberto. */}
+                    <FiChevronDown
+                        aria-hidden="true"
+                        className={`shrink-0 text-text-3 transition-transform duration-200 md:hidden ${
+                            expanded ? "rotate-180" : ""
+                        }`}
+                    />
                 </button>
 
                 {/* No telefone o cartão fica limpo: as ações aparecem ao abrir

@@ -152,7 +152,7 @@ function AdminFeedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-bg px-3 py-5 text-text lg:px-7 lg:py-6">
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-3 py-5 text-text lg:px-7 lg:py-6">
             <PageHeader title={t("AdminFeedbackPageTitle")} />
 
             <div className="flex w-full flex-col gap-5">

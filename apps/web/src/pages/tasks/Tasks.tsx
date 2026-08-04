@@ -140,7 +140,7 @@ function Tasks() {
     }, [t])
 
     return (
-        <div className="min-h-screen w-full bg-bg px-4 py-6 text-text lg:px-7">
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 text-text lg:px-7">
             <PageHeader
                 title={t("YourTasks")}
                 subtitle={`${tasks.length} ${t("Tasks")} · ${categoriesInUse.length} ${t("Categories")}`}

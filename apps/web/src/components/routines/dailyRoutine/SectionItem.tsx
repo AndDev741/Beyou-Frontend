@@ -2,7 +2,7 @@ import BeyouIcon from "../../../ui/BeyouIcon";
 import { resolveIcon } from "@beyou/icons";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import type { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
-import { FiEdit2, FiTrash2, FiX, FiClock } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiX, FiClock, FiChevronDown } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import TaskAndHabitSelector from "./taskSelector/TaskAndHabitSelector";
@@ -312,9 +312,16 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                         type="button"
                         onClick={() => setOpen((prev) => !prev)}
                         aria-expanded={open}
-                        className="block w-full truncate text-left text-[13.5px] font-semibold text-text"
+                        className="flex w-full items-center gap-1.5 text-left text-[13.5px] font-semibold text-text"
                     >
-                        {section.name}
+                        <span className="min-w-0 flex-1 truncate">{section.name}</span>
+                        {/* Mesmo aviso do cartão de rotina: expande ao tocar. */}
+                        <FiChevronDown
+                            aria-hidden="true"
+                            className={`shrink-0 text-text-3 transition-transform duration-200 md:hidden ${
+                                open ? "rotate-180" : ""
+                            }`}
+                        />
                     </button>
                     <span className="mt-1 flex gap-1 md:hidden">
                         <TimeChip>{formatTime(section.startTime)}</TimeChip>

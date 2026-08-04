@@ -191,7 +191,7 @@ function Dashboard() {
             {showFinale && <TutorialFinale onDone={completeTutorial} />}
             {isDashboardLoading ? (
                 <div
-                    className="flex min-h-screen items-center justify-center"
+                    className="flex min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] items-center justify-center"
                     data-testid="dashboard-loading"
                 >
                     <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />

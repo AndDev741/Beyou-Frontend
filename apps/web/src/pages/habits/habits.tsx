@@ -155,7 +155,7 @@ function Habits(){
     } = useHabitsTutorial({ hasHabits });
 
     return(
-        <div className="flex min-h-screen w-full flex-col bg-bg px-4 py-6 text-text lg:px-7">
+        <div className="flex min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full flex-col bg-bg px-4 py-6 text-text lg:px-7">
             {showHabitSpotlight && (
                 <SpotlightTutorial
                     steps={habitSteps}
