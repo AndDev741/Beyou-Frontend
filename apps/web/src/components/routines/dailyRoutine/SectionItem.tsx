@@ -360,19 +360,15 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                 <div className="flex flex-col gap-1.5 px-2.5 pb-2.5">
                     {renderItems()}
 
-                    {openTaskSelector ? (
-                        <div className="min-w-0">
-                            <TaskAndHabitSelector
-                                setRoutineSection={setRoutineSection}
-                                index={index}
-                                section={section}
-                                setOpenTaskSelector={setOpenTaskSelector}
-                            />
-                        </div>
-                    ) : (
-                        <GhostAdd
-                            label={t("Add Habit or task")}
-                            onClick={() => setOpenTaskSelector(true)}
+                    <GhostAdd label={t("Add Habit or task")} onClick={() => setOpenTaskSelector(true)} />
+
+                    {/* O seletor abre por cima do editor, como no mockup. */}
+                    {openTaskSelector && (
+                        <TaskAndHabitSelector
+                            setRoutineSection={setRoutineSection}
+                            index={index}
+                            section={section}
+                            setOpenTaskSelector={setOpenTaskSelector}
                         />
                     )}
                 </div>
