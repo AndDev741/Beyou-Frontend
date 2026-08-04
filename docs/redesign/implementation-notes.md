@@ -293,6 +293,19 @@ de i18n que não existe.
   é inicializado no boot do app). Passou para `useTranslation()` — idêntico no
   app e testável. Vale conferir outras páginas com o mesmo padrão.
 
+## Categorias — cartão compacto e formulário (2026-08-04)
+
+- **Cartão no desenho do mockup**: ícone, nome, ações no topo (hover no
+  desktop, sempre no telefone), descrição e barra de XP com LV. O mockup não
+  tem expansão nem "usando em", então a expansão adicionada na rodada
+  anterior saiu — o cartão era 165–261px e virou 152px fixo.
+- **Formulário**: Nome, Descrição, Ícone (o mesmo seletor compacto) e, só na
+  criação, Experiência em segmentado com a legenda "ajusta a curva de XP da
+  categoria". Edição não mostra experiência — `editCategory` não aceita o
+  campo. Modal em `max-w-xl` com título próprio.
+- O `onCreated` do `CategoryForm` continua vivo para a criação rápida do
+  seletor de categorias (ChooseCategories), que também usa o formulário.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
