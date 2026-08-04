@@ -212,6 +212,31 @@ Lembrete que custou tempo: neste projeto `sm` é **350px**, não 640 — o corte
   virou modal, e ainda carrega o âncora `routine-add-button`. Não apaguei
   porque está fora do que foi pedido; candidato à fase de limpeza.
 
+## Seletor de hábito/tarefa (2026-08-04)
+
+Substituiu as duas fileiras de scroll horizontal e os dois campos de horário
+que vinham ANTES da escolha do item. O novo seletor tem busca, alternância
+Hábitos/Tarefas, seleção múltipla com o anel, estado "já na seção" e contagem
+no botão.
+
+- **Horários sugeridos em sequência** (`suggestSlots`, exportada e coberta por
+  teste): retomam do fim do último item da seção e dividem o restante da janela
+  entre os itens escolhidos; sem hora de término na seção, 15 minutos por item.
+  A sugestão nunca cai fora da seção, então `getItemTimeErrorKeys` passa por
+  construção — antes o usuário digitava dois horários e descobria o erro depois.
+- **Não implementado do mockup:** a criação rápida "pede só nome e ícone". Hoje
+  `habitCreateSchema` exige importância, dificuldade, ícone **e ao menos uma
+  categoria** — e categoria não tem padrão razoável para escolher no lugar do
+  usuário. Reduzir o formulário exige decidir o que a conta ganha por omissão
+  (produto), então os modais de criação rápida seguem completos.
+- `HabitOrTaskGroup.tsx` era o cartão da fileira antiga e foi removido junto.
+
+**Nota de ambiente:** o container do dev server (`beyou-dev-env-frontend-1`)
+serviu por um tempo um bundle antigo de `packages/i18n` — as chaves novas
+apareciam cruas na tela mesmo já presentes no arquivo dentro do container. Um
+`docker restart` do serviço resolveu; vale lembrar disso antes de caçar um bug
+de i18n que não existe.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
