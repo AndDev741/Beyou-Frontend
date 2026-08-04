@@ -249,6 +249,17 @@ de i18n que não existe.
   Entrou o chevron ao lado do nome (só abaixo de `md`, gira 180° aberto). O
   cartão de snapshot já tinha o dele.
 
+## Seções recolhíveis do dashboard + menu (2026-08-04)
+
+- **"Hoje" vira "Dashboard"** na sidebar e na barra inferior. Chave nova
+  (`NavDashboard`): o "Today" antigo continua sendo usado nos chips de dia, no
+  widget Hoje e nos títulos do tutorial — mexer nele quebraria o e2e.
+- **Seções da rotina do dia recolhíveis** por chevron, com o estado salvo no
+  localStorage por dia (`beyou-routine-collapsed` → `{ data: [ids] }`). A
+  seção recolhida mostra ícone, nome, horário e o chip de XP do dia — o
+  usuário que completou a seção economiza o espaço dela. Amanhã abre de novo.
+  Coberto por 3 testes (recolher persiste, começa recolhida, é por dia).
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
