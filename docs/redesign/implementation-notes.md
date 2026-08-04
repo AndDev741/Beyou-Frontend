@@ -306,6 +306,19 @@ de i18n que não existe.
 - O `onCreated` do `CategoryForm` continua vivo para a criação rápida do
   seletor de categorias (ChooseCategories), que também usa o formulário.
 
+## Modal de deleção novo + chevron da categoria (2026-08-04)
+
+- **DeleteModal no desenho do mockup** (compartilhado pelos quatro domínios):
+  pergunta como título à esquerda, item entre aspas no corpo ("X" e tudo o que
+  está ligado a ele serão removidos) e ações à direita — Cancelar (ghost)
+  antes de Excluir (destrutivo). O corpo genérico substitui o nome sublinhado
+  que existia; não inventamos contagens (o mockup citava "32 check-ins", dado
+  que a API não devolve por domínio).
+- **Chevron da categoria de volta**: o cartão compacto ganhou o chevron sempre
+  visível; aberto, revela o "usando em" (hábitos/tarefas/metas em chips) ou a
+  dica de adicionar a categoria em algum lugar. Fechado, segue o cartão do
+  mockup.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
