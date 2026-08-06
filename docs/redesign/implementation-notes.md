@@ -401,6 +401,23 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
 - **Zona de soltar dos widgets** ficou discreta: fundo rebaixado e tracejado
   fino no lugar da moldura de 2px sobre superfície.
 
+### Segunda passada na Configuração (2026-08-06)
+
+- **Widgets viraram lista compacta** (alça, posição, ícone, nome, ×) com chips
+  "+ nome" para os disponíveis. Antes eram duas zonas tracejadas com os
+  widgets renderizados de verdade: impossível ordenar no telefone e sem
+  mostrar a ordem. Cada mudança grava sozinha (`editUser({ widgetsId })`).
+- **Seção Conta com Logout** — o botão vivia no `header.tsx`, apagado quando a
+  sidebar nasceu; **desde então não havia como sair da conta pela interface**.
+  Purga o redux-persist antes do redirect.
+- **Caixas dobráveis no telefone**: cada seção abre ao toque (perfil já vem
+  aberto); no desktop as duas colunas seguem abertas.
+- **Ordem do mockup**: perfil, widgets e conta à esquerda; aparência e
+  preferências à direita.
+- **Salvar só no perfil**: constância e configurações de rotina passaram a
+  gravar no clique, como tema e idioma já faziam. Os testes do botão de salvar
+  do RoutineSettings viraram testes de gravação automática.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
