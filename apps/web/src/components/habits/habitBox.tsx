@@ -110,12 +110,18 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
             {expanded && (importancePhrase || dificultyPhrase) && (
                 <div className="flex flex-wrap gap-1.5">
                     {importancePhrase && (
-                        <Chip size="sm" variant={attributeVariant(importance)} title={t('Importance')}>
+                        <Chip size="sm" variant={attributeVariant(importance)}>
+                            {/* O rótulo vem junto: "Média" sozinho não diz se é
+                                importância ou dificuldade. */}
+                            <span className="font-normal opacity-70">{t('Importance')}</span>
+                            <span aria-hidden="true" className="opacity-50">·</span>
                             {importancePhrase}
                         </Chip>
                     )}
                     {dificultyPhrase && (
-                        <Chip size="sm" variant={attributeVariant(dificulty)} title={t('Difficulty')}>
+                        <Chip size="sm" variant={attributeVariant(dificulty)}>
+                            <span className="font-normal opacity-70">{t('Difficulty')}</span>
+                            <span aria-hidden="true" className="opacity-50">·</span>
                             {dificultyPhrase}
                         </Chip>
                     )}
