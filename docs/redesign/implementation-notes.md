@@ -384,6 +384,23 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
   (o anel não existe mais) e entraram três novos — Concluir só no alvo,
   Desfazer na concluída e a expansão revelando a motivação.
 
+## Página de Configuração (2026-08-06)
+
+- **Cartões sem ladrilho de ícone e sem descrição** — o mockup tem só o título.
+  Quatro ícones de acento competindo entre si empurravam o conteúdo para baixo.
+- **Grid do desenho**: perfil + preferências à esquerda, aparência + widgets à
+  direita. Antes a direita só tinha os widgets. No telefone empilha em coluna.
+- **Perfil**: foto e "Trocar foto" numa linha no topo, campos em largura
+  inteira, "Salvar perfil" à direita. A foto ocupava 30% da largura e espremia
+  os inputs.
+- **Sem cartão dentro de cartão**: os blocos de preferências perderam a
+  superfície própria e a tipografia caiu para a gramática de rótulo (havia
+  títulos de 18–20px dentro de um cartão cujo título tem 15px).
+- **Idioma** virou o segmentado do sistema (eram dois quadrados EN/PT de 24px);
+  os "Salvar" de cada bloco viraram tonais à direita.
+- **Zona de soltar dos widgets** ficou discreta: fundo rebaixado e tracejado
+  fino no lugar da moldura de 2px sobre superfície.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
