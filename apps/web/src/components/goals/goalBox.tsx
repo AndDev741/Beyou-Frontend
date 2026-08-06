@@ -6,7 +6,7 @@ import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import DeleteModal from "../DeleteModal";
 import getGoals from "@beyou/api/goals/getGoals";
 import deleteGoal from "@beyou/api/goals/deleteGoal";
-import { CalendarDays, Minus, Pencil, Plus, Trash2 } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronUp, Minus, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   editModeEnter,
   editGoalIdEnter,
@@ -30,7 +30,6 @@ import Card from "../../ui/Card";
 import Chip, { type ChipVariant } from "../../ui/Chip";
 import IconButton from "../../ui/IconButton";
 import IconTile from "../../ui/IconTile";
-import Ring from "../../ui/Ring";
 import XpBar from "../../ui/XpBar";
 import Button from "../Button";
 import markGoalAsComplete from "@beyou/api/goals/markGoalAsComplete";
@@ -80,16 +79,14 @@ function GoalBox({
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
   const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
 
-  // targetValue 0 dividiria por zero — o cartão mostra 0% em vez de NaN%.
-  const progress = targetValue > 0 ? (currentValue / targetValue) * 100 : 0;
-  // "Concluir" é quem paga o XP, então só aparece com o alvo batido. A meta já
-  // marcada como concluída mantém o botão para poder ser desmarcada.
+  // "Concluir" é quem paga o XP, então só aparece com o alvo batido; antes
+  // dele o cartão mostra o + do stepper. targetValue 0 nunca "chega ao alvo".
   const targetReached = targetValue > 0 && currentValue >= targetValue;
-  const showCompleteAction = targetReached || status === "COMPLETED";
   const statusVariant: ChipVariant =
     status === "COMPLETED" ? "ok" : status === "IN_PROGRESS" ? "accent" : "neutral";
   const categoryEntries = Object.entries(categories ?? {});
@@ -178,33 +175,61 @@ function GoalBox({
     dispatch(updateGoal(goal));
   }
 
+  const isCompleted = status === "COMPLETED";
+
   return (
     <Card
       interactive
-      tone={status === "COMPLETED" ? "success" : "default"}
-      className={`flex h-full flex-col gap-3 break-words ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px]" : ""}`}
+      tone={isCompleted ? "success" : "default"}
+      className={`group flex h-full flex-col gap-3 break-words ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px]" : ""}`}
     >
-      <div className="flex items-start gap-2.5">
-        <IconTile size={38}>
-          <BeyouIcon id={iconId} size={20} />
+      <div className="flex items-center gap-2.5">
+        <IconTile size={34}>
+          <BeyouIcon id={iconId} size={18} />
         </IconTile>
-        <h2 className="min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text line-clamp-1">{title}</h2>
-        <Ring
-          size={44}
-          state="progress"
-          progress={progress / 100}
-          label={`${Math.round(progress)}%`}
-          title={t('Progress')}
-        />
+        <h2
+          className={`min-w-0 flex-1 text-[15px] font-semibold leading-snug line-clamp-1 ${
+            isCompleted ? "text-text-3" : "text-text"
+          }`}
+        >
+          {title}
+        </h2>
+
+        {/* A meta concluída é troféu: o chip de XP no lugar do stepper. */}
+        {isCompleted && (
+          <Chip size="sm" variant="ok" className="shrink-0">{t("Completed")}</Chip>
+        )}
+        {!isCompleted && targetReached && (
+          <Chip size="sm" variant="xp" className="shrink-0" title={t("XP Reward")}>
+            +{xpReward} XP
+          </Chip>
+        )}
+
+        {!readonly && (
+          <>
+            {/* Editar e excluir no hover do desktop, sempre visíveis no telefone. */}
+            <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+              <IconButton label={t('Edit')} onClick={handleEditMode}>
+                <Pencil size={15} aria-hidden="true" />
+              </IconButton>
+              <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                <Trash2 size={15} aria-hidden="true" />
+              </IconButton>
+            </div>
+
+            <IconButton
+              label={expanded ? t('Collapse') : t('Expand')}
+              aria-expanded={expanded}
+              onClick={() => setExpanded((prev) => !prev)}
+            >
+              {expanded ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+            </IconButton>
+          </>
+        )}
       </div>
 
-      {/* A descrição fica no cartão em duas linhas — nunca some. */}
-      <p className="text-sm leading-snug text-text-2 line-clamp-2">{description}</p>
-
-      {motivation && (
-        <p className="text-sm italic leading-snug text-text-3 line-clamp-2">
-          {t('Motivation')}: {motivation}
-        </p>
+      {description && !isCompleted && (
+        <p className="text-[12.5px] leading-snug text-text-3 line-clamp-2">{description}</p>
       )}
 
       {categoryEntries.length > 0 && (
@@ -217,9 +242,40 @@ function GoalBox({
         </div>
       )}
 
-      {/* Stepper: -/+ em volta da barra, com o valor em mono à direita. */}
-      <div className="mt-auto flex flex-col gap-2 pt-1">
-        <div className="flex items-center gap-2">
+      {/* O detalhe só ao abrir: motivação, status e o período completo. */}
+      {expanded && (
+        <div className="flex flex-col gap-2">
+          {motivation && (
+            <p className="text-[12.5px] italic leading-snug text-text-3">
+              {t('Motivation')}: {motivation}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {statusPhrase && <Chip size="sm" variant={statusVariant}>{statusPhrase}</Chip>}
+            <Chip size="sm" variant="xp" title={t('XP Reward')}>+{xpReward} XP</Chip>
+          </div>
+          <span className="flex items-center gap-1 font-mono text-[11px] text-text-3">
+            <CalendarDays size={12} aria-hidden="true" />
+            {formatDate(startDate.toString())} - {formatDate(endDate.toString())}
+          </span>
+        </div>
+      )}
+
+      {/* Stepper: -/+ em volta da barra, com o valor em mono à direita.
+          Concluída, ele dá lugar ao Desfazer — o progresso já foi pago. */}
+      {isCompleted ? (
+        <div className="mt-auto flex justify-end pt-1">
+          {!readonly && (
+            <Button
+              text={t("Undo")}
+              size="small"
+              mode="ghost"
+              onClick={() => completeTask(id)}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="mt-auto flex items-center gap-2 pt-1">
           <IconButton
             label={t("Decrease")}
             onClick={() => decreaseTask(id)}
@@ -229,58 +285,46 @@ function GoalBox({
             <Minus size={16} aria-hidden="true" />
           </IconButton>
           <XpBar className="min-w-0 flex-1" current={currentValue} target={targetValue} compact />
-          <IconButton
-            label={t("Increase")}
-            onClick={() => increaseTask(id)}
-            className="border border-border"
-          >
-            <Plus size={16} aria-hidden="true" />
-          </IconButton>
-          <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
-            {currentValue}/{targetValue} {unit}
-          </span>
-        </div>
-
-        {showCompleteAction && (
-          <Button
-            text={status === "COMPLETED" ? t("Remove Complete") : t("Mark Complete")}
-            size="small"
-            mode="primary"
-            onClick={() => completeTask(id)}
-            disabled={currentValue === 0}
-            className="w-full"
-          />
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {termPhrase && <Chip size="sm">{termPhrase}</Chip>}
-          {statusPhrase && <Chip size="sm" variant={statusVariant}>{statusPhrase}</Chip>}
-          {/* O XP só aparece quando está em jogo: alvo batido (a pagar) ou meta
-              já concluída (o troféu mostra o que rendeu). */}
-          {showCompleteAction && (
-            <Chip size="sm" variant="xp" title={t('XP Reward')}>
-              +{xpReward} XP
-            </Chip>
+          {/* Só sobra o + enquanto o alvo não chegou; batido, o espaço é do
+              Concluir, que é quem paga o XP. */}
+          {targetReached ? (
+            <>
+              <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
+                {currentValue}/{targetValue} {unit}
+              </span>
+              <Button
+                text={t("Complete")}
+                size="small"
+                mode="primary"
+                onClick={() => completeTask(id)}
+              />
+            </>
+          ) : (
+            <>
+              <IconButton
+                label={t("Increase")}
+                onClick={() => increaseTask(id)}
+                className="border border-border"
+              >
+                <Plus size={16} aria-hidden="true" />
+              </IconButton>
+              <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
+                {currentValue}/{targetValue} {unit}
+              </span>
+            </>
           )}
         </div>
-        <span className="flex items-center gap-1 font-mono text-xs text-text-3">
-          <CalendarDays size={12} aria-hidden="true" />
-          {formatDate(startDate.toString())} - {formatDate(endDate.toString())}
+      )}
+
+      {/* O rodapé de relance: prazo à esquerda, data-limite à direita. */}
+      <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-text-3">
+        <span>{isCompleted ? formatDate(endDate.toString()) : termPhrase}</span>
+        <span>
+          {isCompleted
+            ? t("GoalXpEarned", { xp: xpReward })
+            : `${t("Until")} ${formatDate(endDate.toString())}`}
         </span>
       </div>
-
-      {!readonly && (
-        <div className="flex justify-end gap-1 border-t border-border pt-2">
-          <IconButton label={t('Edit')} onClick={handleEditMode}>
-            <Pencil size={16} aria-hidden="true" />
-          </IconButton>
-          <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
-            <Trash2 size={16} aria-hidden="true" />
-          </IconButton>
-        </div>
-      )}
 
       <DeleteModal
         objectId={id}
