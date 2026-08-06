@@ -40,7 +40,7 @@ function RenderHabits({habits, setHabits, emptyTitle}: renderHabitsProps){
         // Grid escaneável: 3 colunas no desktop, 1 no mobile. Vazio ocupa a
         // largura toda em vez de virar uma coluna espremida.
         <div
-            className={`text-text ${hasHabits ? "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}
+            className={`text-text ${hasHabits ? "grid grid-cols-1 items-start gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}
             data-tutorial-id="habits-grid"
         >
             {hasHabits ? (

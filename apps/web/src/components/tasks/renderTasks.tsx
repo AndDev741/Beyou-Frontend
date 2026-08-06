@@ -26,7 +26,7 @@ function RenderTasks({tasks, setTasks, emptyTitle}: renderTasksProps){
 
     return(
         // Grid escaneável: 3 colunas no desktop, 1 no mobile.
-        <div className={`text-text ${hasTasks ? "grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}>
+        <div className={`text-text ${hasTasks ? "grid grid-cols-1 items-start gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}>
            {hasTasks ? (
                 tasks.map(task => (
                     <div key={task.id}>

@@ -92,7 +92,7 @@ export const RoutineCard = ({
     );
 
     return (
-        <div className="rounded-card border border-border bg-surface p-4 lg:px-5 lg:py-[18px]">
+        <div className="group rounded-card border border-border bg-surface p-4 lg:px-5 lg:py-[18px]">
             <header className="flex flex-col gap-3 md:flex-row md:items-start">
                 <button
                     type="button"
@@ -140,6 +140,10 @@ export const RoutineCard = ({
                         <FiCalendar aria-hidden="true" />
                         {t("Schedule")}
                     </button>
+
+                    {/* Editar e excluir só no hover do desktop — no telefone
+                        aparecem junto com o resto ao abrir o cartão. */}
+                    <div className="flex items-center gap-1.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                     <button
                         type="button"
                         className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
@@ -176,6 +180,8 @@ export const RoutineCard = ({
                             <FiTrash2 />
                         </button>
                     )}
+                    </div>
+
                     <button
                         type="button"
                         className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"

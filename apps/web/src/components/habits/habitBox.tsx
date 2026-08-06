@@ -48,12 +48,25 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
     }
 
     return(
-        <Card interactive className="flex h-full flex-col gap-3 break-words">
+        <Card interactive className="group flex h-full flex-col gap-3 break-words">
             <div className="flex items-start gap-2.5">
                 <IconTile size={38}>
                     <BeyouIcon id={iconId} size={20} />
                 </IconTile>
                 <h2 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h2>
+
+                {/* Editar e excluir no topo, à esquerda do chevron: no desktop
+                    aparecem no hover (ou no foco por teclado); no telefone
+                    ficam sempre visíveis. */}
+                <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                    <IconButton label={t('Edit')} onClick={handleEditMode}>
+                        <Pencil size={15} aria-hidden="true" />
+                    </IconButton>
+                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                        <Trash2 size={15} aria-hidden="true" />
+                    </IconButton>
+                </div>
+
                 <IconButton
                     label={expanded ? t('Collapse') : t('Expand')}
                     aria-expanded={expanded}
@@ -133,17 +146,6 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                     </Chip>
                 )}
             </div>
-
-            {expanded && (
-                <div className="flex justify-end gap-1 border-t border-border pt-2">
-                    <IconButton label={t('Edit')} onClick={handleEditMode}>
-                        <Pencil size={16} aria-hidden="true" />
-                    </IconButton>
-                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
-                        <Trash2 size={16} aria-hidden="true" />
-                    </IconButton>
-                </div>
-            )}
 
             <DeleteModal
             objectId={id}

@@ -2,7 +2,7 @@ import { useDispatch } from "react-redux";
 import { task } from "@beyou/types/tasks/taskType"
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { attributePhrase, attributeVariant } from "../habits/utils/attributeMeta";
 import BeyouIcon from "../../ui/BeyouIcon";
 import Card from "../../ui/Card";
@@ -35,16 +35,11 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     const dispatch = useDispatch();
 
     const {t} = useTranslation();
-    const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
     const dificultyPhrase = attributePhrase("difficulty", dificulty, t);
     const importancePhrase = attributePhrase("importance", importance, t);
     const categoryEntries = Object.entries(categories ?? {});
-
-    const handleExpanded = () => {
-        setExpanded(!expanded);
-    }
 
     function handleEditMode(){
         dispatch(editModeEnter(true));
@@ -59,19 +54,24 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
     }
 
     return(
-        <Card interactive className="flex h-full flex-col gap-3 break-words">
+        <Card interactive className="group flex h-full flex-col gap-3 break-words">
             <div className="flex items-start gap-2.5">
                 <IconTile size={38}>
                     <BeyouIcon id={iconId} size={20} />
                 </IconTile>
-                <h2 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h2>
-                <IconButton
-                    label={expanded ? t('Collapse') : t('Expand')}
-                    aria-expanded={expanded}
-                    onClick={handleExpanded}
-                >
-                    {expanded ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-                </IconButton>
+                <h2 className="min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text line-clamp-1">{name}</h2>
+
+                {/* A tarefa não expande: importância e dificuldade já aparecem
+                    no cartão fechado, e expandir só revelava estas ações. Elas
+                    sobem para o topo — hover no desktop, sempre no telefone. */}
+                <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                    <IconButton label={t('Edit')} onClick={handleEditMode}>
+                        <Pencil size={15} aria-hidden="true" />
+                    </IconButton>
+                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                        <Trash2 size={15} aria-hidden="true" />
+                    </IconButton>
+                </div>
             </div>
 
             {oneTimeTask && (
@@ -81,8 +81,7 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 </div>
             )}
 
-            {/* A descrição fica no cartão em duas linhas — expandir só solta o clamp. */}
-            <p className={`text-sm leading-snug text-text-2 ${expanded ? "" : "line-clamp-2"}`}>{description}</p>
+            <p className="line-clamp-2 text-sm leading-snug text-text-2">{description}</p>
 
             {categoryEntries.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
@@ -107,17 +106,6 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                             {dificultyPhrase}
                         </Chip>
                     )}
-                </div>
-            )}
-
-            {expanded && (
-                <div className="flex justify-end gap-1 border-t border-border pt-2">
-                    <IconButton label={t('Edit')} onClick={handleEditMode}>
-                        <Pencil size={16} aria-hidden="true" />
-                    </IconButton>
-                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
-                        <Trash2 size={16} aria-hidden="true" />
-                    </IconButton>
                 </div>
             )}
 
