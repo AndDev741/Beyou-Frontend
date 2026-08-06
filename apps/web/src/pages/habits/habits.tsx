@@ -177,6 +177,7 @@ function Habits(){
                         icon={<Plus size={18} aria-hidden="true" />}
                         onClick={() => setIsCreateOpen(true)}
                         testId="create-habit"
+                        collapseLabel
                         tutorialId="habit-create-form"
                     />
                 }

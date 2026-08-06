@@ -167,6 +167,7 @@ function Categories(){
                         icon={<Plus size={16} aria-hidden="true" />}
                         onClick={() => setIsCreateOpen(true)}
                         testId="create-category"
+                        collapseLabel
                         tutorialId={isFormOpen ? undefined : "category-create-form"}
                     />
                 }

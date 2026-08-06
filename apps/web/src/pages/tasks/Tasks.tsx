@@ -152,6 +152,7 @@ function Tasks() {
                         icon={<Plus size={18} aria-hidden="true" />}
                         onClick={() => setIsCreateOpen(true)}
                         testId="create-task"
+                        collapseLabel
                     />
                 }
             />
