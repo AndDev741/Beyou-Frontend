@@ -8,7 +8,7 @@ import Droppable from "../../components/utils/StrictModeDroppable";
 import { t } from "i18next";
 import { EditUser } from "@beyou/types/user/EditUser";
 import { widgetsIdInUseEnter } from "@beyou/state/user/perfilSlice";
-import SmallButton from "../SmallButton";
+import Button from "../Button";
 import editUser from "@beyou/api/user/editUser";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -95,8 +95,8 @@ export default function WidgetsConfiguration() {
         }
     };
 
-    const onSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (e?: React.FormEvent) => {
+        e?.preventDefault();
         resetErrorAndSuccessMessage();
 
         const editWidget: EditUser = {
@@ -118,7 +118,7 @@ export default function WidgetsConfiguration() {
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start lg:p-4 bg-surface text-text transition-colors duration-200 rounded-control shadow-sm">
+        <div className="w-full">
             {/* Section title + description come from the ConfigSection wrapper */}
             <DragDropContext onDragEnd={handleOnDragEnd}>
                 <DroppableList
@@ -155,14 +155,11 @@ export default function WidgetsConfiguration() {
 
             </DragDropContext>
 
-            <div className="flex flex-col items-center justify-center w-full">
-                <SmallButton
-                    text={t('Save')}
-                    disabled={false}
-                    onClick={onSubmit}
-                />
-                <p className="text-success">{successMessage}</p>
-                <p className="text-danger">{errorMessage}</p>
+            {successMessage && <p className="text-xs text-success">{successMessage}</p>}
+            {errorMessage && <p className="text-xs text-danger">{errorMessage}</p>}
+
+            <div className="mt-[18px] flex justify-end">
+                <Button text={t('Save')} mode="primary" size="medium" type="button" onClick={() => onSubmit()} />
             </div>
         </div>
     );
@@ -184,8 +181,8 @@ function DroppableList({
     actualLevelXp,
 }: any) {
     return (
-        <div className="mb-6 w-full">
-            <h3 className="px-3 lg:p-1 text-lg font-medium text-text">{title}</h3>
+        <div className="mb-4 w-full">
+            <h3 className="mb-1.5 text-[12.5px] font-semibold text-text-2">{title}</h3>
             <Droppable
                 droppableId={droppableId}
                 direction="horizontal"
@@ -199,8 +196,8 @@ function DroppableList({
                         // justify-evenly + gap-4) so the configured layout is a
                         // faithful preview. The dashed border is the only extra:
                         // it marks the drop zone while editing.
-                        className={`flex flex-wrap items-center justify-evenly gap-4 p-1 md:p-4 rounded-card border-2 border-dashed transition-all md:min-h-[150px]
-                        ${snapshot.isDraggingOver ? "border-accent bg-accent/10 min-h-[200px]" : "border-border bg-surface"}`}
+                        className={`flex flex-wrap items-center justify-evenly gap-3 rounded-control border border-dashed p-3 transition-colors duration-200 md:min-h-[140px]
+                        ${snapshot.isDraggingOver ? "border-accent bg-accent-soft" : "border-border bg-bg"}`}
                     >
                         {widgets?.length === 0 && (
                             <p className="text-sm text-text-2 italic ">

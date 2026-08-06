@@ -6,7 +6,7 @@ import { RootState } from "@beyou/state/rootReducer";
 import { timezoneEnter, xpDecayStrategyEnter } from "@beyou/state/user/perfilSlice";
 import editUser from "@beyou/api/user/editUser";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
-import SmallButton from "../SmallButton";
+import Button from "../Button";
 
 type XpDecayStrategy = "GRADUAL" | "FLAT" | "TIME_WINDOW";
 
@@ -144,23 +144,21 @@ export default function RoutineSettings() {
         selectedXpDecay !== currentXpDecay;
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-surface text-text">
-            <h2 className="text-base font-semibold mb-2">
-                {t("RoutineSettingsTitle")}
-            </h2>
-            <p className="text-sm text-text-2 mb-4">
+        <div className="w-full">
+            <h3 className="mb-1.5 block text-[12.5px] font-semibold text-text-2">{t("RoutineSettingsTitle")}</h3>
+            <p className="mb-3 text-xs text-text-3">
                 {t("RoutineSettingsDescription")}
             </p>
 
             {/* Timezone Selector */}
             <div className="w-full mb-6">
-                <label className="mb-1 font-medium text-lg text-text block">
+                <label className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
                     {t("TimezoneLabel")}
                 </label>
 
                 {showTimezoneSuggestion && (
                     <div className="mb-3 p-3 rounded-control border border-border bg-accent/5">
-                        <p className="text-sm text-text-2 mb-2">
+                        <p className="mb-2 text-xs text-text-3">
                             {t("TimezoneSuggestion", {
                                 timezone: detectedTimezone,
                             })}
@@ -247,10 +245,10 @@ export default function RoutineSettings() {
 
             {/* XP Decay Strategy Selector */}
             <div className="w-full mb-4">
-                <label className="mb-1 font-medium text-lg text-text block">
+                <label className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
                     {t("XpDecayLabel")}
                 </label>
-                <p className="text-sm text-text-2 mb-3">
+                <p className="mb-2 text-xs text-text-3">
                     {t("XpDecayDescription")}
                 </p>
 
@@ -275,7 +273,7 @@ export default function RoutineSettings() {
                                 aria-pressed={isActive}
                             >
                                 <div className="flex items-center justify-between mb-2">
-                                    <p className="text-lg font-semibold">
+                                    <p className="text-[13.5px] font-semibold text-text">
                                         {t(option.titleKey)}
                                     </p>
                                     <div
@@ -296,15 +294,17 @@ export default function RoutineSettings() {
                 </div>
             </div>
 
-            {/* Save Button */}
-            <div className="flex flex-col items-center justify-center w-full">
-                <SmallButton
+            {success && <span className="text-xs text-success">{success}</span>}
+            {error && <span className="text-xs text-danger">{error}</span>}
+            <div className="mt-2.5 flex justify-end">
+                <Button
                     text={saving ? t("Saving...") : t("Save")}
+                    mode="tonal"
+                    size="small"
+                    type="button"
                     disabled={saving || !hasChanges}
                     onClick={handleSave}
                 />
-                <span className="text-xs text-success mt-1">{success}</span>
-                <span className="text-xs text-danger">{error}</span>
             </div>
         </div>
     );

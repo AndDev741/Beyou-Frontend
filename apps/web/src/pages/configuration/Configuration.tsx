@@ -10,9 +10,6 @@ import ConfigSection from "../../components/configuration/ConfigSection";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
-import { CgProfile } from "react-icons/cg";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { FiSettings, FiGrid } from "react-icons/fi";
 import PageHeader from "../../ui/PageHeader";
 
 export default function Configuration() {
@@ -22,7 +19,7 @@ export default function Configuration() {
 
     return (
         <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 text-text lg:px-7">
-            <PageHeader title={t("Configuration")} />
+            <PageHeader title={t("Configuration")} subtitle={t("ConfigSubtitle")} />
             {showConfigSpotlight && (
                 <SpotlightTutorial
                     steps={configSteps}
@@ -34,65 +31,34 @@ export default function Configuration() {
                 />
             )}
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {/* Duas colunas no desktop, uma no telefone. Perfil e preferências
+                de um lado; aparência e widgets do outro, como no mockup. */}
+            <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
                 <div className="flex w-full flex-col gap-4">
-                    <div className="w-full">
-                        <ConfigSection
-                            icon={<CgProfile />}
-                            title={t("ConfigSectionProfile")}
-                            description={t("ConfigSectionProfileDesc")}
-                            tutorialId="config-profile"
-                        >
-                            <ProfileConfiguration />
-                        </ConfigSection>
-                    </div>
+                    <ConfigSection title={t("ConfigSectionProfile")} tutorialId="config-profile">
+                        <ProfileConfiguration />
+                    </ConfigSection>
 
-                    
-                    <div className="w-full">
-                        <ConfigSection
-                            icon={<IoColorPaletteOutline />}
-                            title={t("ConfigSectionAppearance")}
-                            description={t("ConfigSectionAppearanceDesc")}
-                            tutorialId="config-appearance"
-                        >
-                            <ThemeSelector />
-                        </ConfigSection>
-                    </div>
-
-                    
-                    <div className="w-full">
-                        <ConfigSection
-                            icon={<FiSettings />}
-                            title={t("ConfigSectionPreferences")}
-                            description={t("ConfigSectionPreferencesDesc")}
-                            tutorialId="config-preferences"
-                        >
+                    <ConfigSection title={t("ConfigSectionPreferences")} tutorialId="config-preferences">
+                        <div className="flex flex-col gap-5">
                             <LanguageSelector />
                             <ConstanceConfiguration />
                             <RoutineSettings />
                             <TutorialConfiguration />
-                        </ConfigSection>
-                    </div>
-
-                    {/* Horizontal divider for mobile screens */}
+                        </div>
+                    </ConfigSection>
                 </div>
 
                 <div className="flex w-full flex-col gap-4">
-                    <div className="w-full">
-                        <ConfigSection
-                            icon={<FiGrid />}
-                            title={t("ConfigSectionDashboard")}
-                            description={t("ConfigSectionDashboardDesc")}
-                            tutorialId="config-dashboard"
-                        >
-                            <WidgetsConfiguration />
-                        </ConfigSection>
-                    </div>
+                    <ConfigSection title={t("ConfigSectionAppearance")} tutorialId="config-appearance">
+                        <ThemeSelector />
+                    </ConfigSection>
 
-                    {/* Divider horizontal só aparece em mobile */}
+                    <ConfigSection title={t("ConfigSectionWidgets")} tutorialId="config-dashboard">
+                        <WidgetsConfiguration />
+                    </ConfigSection>
                 </div>
             </div>
-
         </div>
     );
 }

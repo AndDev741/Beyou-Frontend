@@ -1,26 +1,31 @@
 import { useTranslation } from "react-i18next";
 import useChangeLanguage from "../hooks/useChangeLanguage";
 import { useState } from "react";
+import SegmentedControl from "../ui/SegmentedControl";
 
+/**
+ * O idioma no mesmo controle segmentado do resto do app — eram dois blocos
+ * quadrados de 24px que não pareciam da mesma família de nada.
+ */
 function TranslationButton({updateUser}: {updateUser?: boolean}){
-    const {i18n} = useTranslation();
+    const {t, i18n} = useTranslation();
     const [lng, setLng] = useState(i18n.language);
-    
+
     useChangeLanguage(lng, updateUser);
 
+    const current = i18n.language === "en" ? "en" : "pt";
+
     return(
-        <div className="flex items-center justify-center w-[100px] cursor-pointer">
-            <button
-            onClick={() => setLng("en")}
-            className={`border-solid border-2 border-border p-3 lg:p-2 font-bold text-2xl transition-colors duration-200 ${i18n.language === "en" ? "bg-accent text-on-accent" : "text-text hover:bg-accent/10"}`}>
-                EN
-            </button>
-            <button
-             onClick={() => setLng("pt")}
-             className={`border-solid border-2 border-border p-3 lg:p-2 font-bold text-2xl transition-colors duration-200 ${i18n.language === "pt" || i18n.language === "pt-BR" ? "bg-accent text-on-accent" : "text-text hover:bg-accent/10"}`}>
-                PT
-            </button>
-        </div>
+        <SegmentedControl
+            className="w-full"
+            label={t("Language")}
+            value={current}
+            onChange={setLng}
+            options={[
+                { value: "pt", label: "Português" },
+                { value: "en", label: "English" },
+            ]}
+        />
     )
 }
 

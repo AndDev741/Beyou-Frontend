@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { EditUser } from "@beyou/types/user/EditUser";
 import editUser from "@beyou/api/user/editUser";
 import { nameEnter, phraseAuthorEnter, phraseEnter } from "@beyou/state/user/perfilSlice";
-import SmallButton from "../SmallButton";
+import Button from "../Button";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { Controller, useForm } from "react-hook-form";
@@ -116,113 +116,123 @@ export default function ProfileConfiguration() {
     const currentPhoto = resolvePhotoUrl(photo);
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-surface text-text transition-colors duration-200 rounded-control shadow-sm">
-            <form className="w-full flex items-center" onSubmit={handleSubmit(onSubmit)}>
-                <div
-                    className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
+        // Sem cartão próprio: quem desenha a moldura é a seção da página. A
+        // foto e o botão ficam numa linha no topo e os campos ocupam a largura
+        // inteira — antes a foto roubava 30% e espremia todos os inputs.
+        <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex items-center gap-3.5">
+                {/* Sem foto o `alt` vazava do círculo ("erfil"); o fallback é a
+                    inicial, como no rodapé da sidebar. */}
+                {currentPhoto ? (
+                    <img
+                        src={currentPhoto}
+                        alt={t("Profile")}
+                        className="h-16 w-16 shrink-0 rounded-full border border-border object-cover"
+                    />
+                ) : (
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xl font-semibold text-accent">
+                        {(name || "?").charAt(0).toUpperCase()}
+                    </span>
+                )}
+
+                <button
+                    type="button"
                     onClick={() => setEditPhotoModal(true)}
+                    className="flex items-center gap-1.5 rounded-control bg-accent-soft px-3.5 py-2 text-[12.5px] font-semibold text-accent transition-colors duration-200 hover:bg-accent/15"
                 >
-                    {/* Sem foto o `alt` vazava do círculo ("erfil"); o fallback
-                        agora é a inicial, como no rodapé da sidebar. */}
-                    {currentPhoto ? (
-                        <img
-                            src={currentPhoto}
-                            alt={t("Profile")}
-                            className="h-20 w-20 rounded-full border border-border object-cover"
-                        />
-                    ) : (
-                        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-accent-soft text-2xl font-semibold text-accent">
-                            {(name || "?").charAt(0).toUpperCase()}
-                        </span>
-                    )}
-
-                    <label className="mt-2 flex cursor-pointer items-center gap-1 text-xs font-semibold text-accent hover:underline">
-                        {t("ChangePhoto")} <MdCreate />
-                    </label>
-                </div>
-
-                <div className="w-[80%] lg:w-[75%] flex flex-col items-end">
-                    <label className={labelStyle} htmlFor="name">
-                        {t("Name")}
-                    </label>
-                    <Controller
-                        control={control}
-                        name="name"
-                        render={({ field }) => (
-                            <input
-                                type="text"
-                                placeholder={t("NamePlaceholder")}
-                                value={field.value}
-                                onChange={field.onChange}
-                                id="name"
-                                className={inputStyle}
-                            />
-                        )}
-                    />
-                    {errors.name?.message && (
-                        <p className="text-xs text-danger self-start mb-2">{errors.name?.message}</p>
-                    )}
-
-                    <label className={labelStyle} htmlFor="email">
-                        {t("Email")}
-                    </label>
-                    <input
-                        type="email"
-                        placeholder={t("EmailPlaceholder")}
-                        value={email}
-                        disabled
-                        onChange={() => {}}
-                        id="email"
-                        className={`${inputStyle} text-text-2 cursor-not-allowed`}
-                    />
-
-                    <label className={labelStyle} htmlFor="phrase">
-                        {t("Phrase")}
-                    </label>
-                    <Controller
-                        control={control}
-                        name="phrase"
-                        render={({ field }) => (
-                            <textarea
-                                placeholder={t("PhrasePlaceholder")}
-                                id="phrase"
-                                value={field.value}
-                                onChange={field.onChange}
-                                className={inputStyle}
-                            />
-                        )}
-                    />
-                    {errors.phrase?.message && (
-                        <p className="text-xs text-danger self-start mb-2">{errors.phrase?.message}</p>
-                    )}
-
-                    <label className={labelStyle} htmlFor="author">
-                        {t("Author")}
-                    </label>
-                    <Controller
-                        control={control}
-                        name="phrase_author"
-                        render={({ field }) => (
-                            <input
-                                type="text"
-                                placeholder={t("AuthorPlaceholder")}
-                                id="author"
-                                value={field.value}
-                                onChange={field.onChange}
-                                className={inputStyle}
-                            />
-                        )}
-                    />
-                    {errors.phrase_author?.message && (
-                        <p className="text-xs text-danger self-start mb-2">{errors.phrase_author?.message}</p>
-                    )}
-                </div>
-            </form>
-            <div className="flex flex-col items-center justify-center w-full pt-2">
-                <SmallButton text={t("Save")} disabled={hasErrors} onClick={handleSubmit(onSubmit)} />
-                <p className="text-success">{successPhrase}</p>
-                {errorMessage && <p className="text-danger text-xs">{errorMessage}</p>}
+                    {t("ChangePhotoShort")} <MdCreate aria-hidden="true" />
+                </button>
             </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="name">{t("Name")}</label>
+                <Controller
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            placeholder={t("NamePlaceholder")}
+                            value={field.value}
+                            onChange={field.onChange}
+                            id="name"
+                            className={inputStyle}
+                        />
+                    )}
+                />
+                {errors.name?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.name?.message}</p>
+                )}
+            </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="email">{t("Email")}</label>
+                <input
+                    type="email"
+                    placeholder={t("EmailPlaceholder")}
+                    value={email}
+                    disabled
+                    onChange={() => {}}
+                    id="email"
+                    className={`${inputStyle} cursor-not-allowed text-text-3`}
+                />
+            </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="phrase">{t("Phrase")}</label>
+                <Controller
+                    control={control}
+                    name="phrase"
+                    render={({ field }) => (
+                        <textarea
+                            placeholder={t("PhrasePlaceholder")}
+                            id="phrase"
+                            rows={2}
+                            value={field.value}
+                            onChange={field.onChange}
+                            className={`${inputStyle} resize-none`}
+                        />
+                    )}
+                />
+                {errors.phrase?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.phrase?.message}</p>
+                )}
+            </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="author">{t("Author")}</label>
+                <Controller
+                    control={control}
+                    name="phrase_author"
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            placeholder={t("AuthorPlaceholder")}
+                            id="author"
+                            value={field.value}
+                            onChange={field.onChange}
+                            className={inputStyle}
+                        />
+                    )}
+                />
+                {errors.phrase_author?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.phrase_author?.message}</p>
+                )}
+            </div>
+
+            {successPhrase && <p className="mt-2 text-xs text-success">{successPhrase}</p>}
+            {errorMessage && <p className="mt-2 text-xs text-danger">{errorMessage}</p>}
+
+            <div className="mt-[18px] flex justify-end">
+                <Button
+                    text={t("SaveProfile")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    disabled={hasErrors}
+                />
+            </div>
+
             {editPhotoModal && (
                 <EditPhoto
                     currentPhotoUrl={currentPhoto}
@@ -234,7 +244,7 @@ export default function ProfileConfiguration() {
                     onClose={() => setEditPhotoModal(false)}
                 />
             )}
-        </div>
+        </form>
     );
 }
 

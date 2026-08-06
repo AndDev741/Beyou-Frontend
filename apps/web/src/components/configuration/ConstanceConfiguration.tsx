@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SmallButton from "../SmallButton";
+import Button from "../Button";
 import { useTranslation } from "react-i18next";
 import editUser from "@beyou/api/user/editUser";
 import { EditUser } from "@beyou/types/user/EditUser";
@@ -71,9 +71,9 @@ export default function ConstanceConfiguration({
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-surface text-text">
-            <h2 className="text-base font-semibold mb-2">{t("ConstanceTitle")}</h2>
-            <p className="text-sm text-text-2 mb-4">
+        <div className="w-full">
+            <h3 className="mb-1.5 block text-[12.5px] font-semibold text-text-2">{t("ConstanceTitle")}</h3>
+            <p className="mb-3 text-xs text-text-3">
                 {t("ConstanceDescription")}
             </p>
 
@@ -92,8 +92,8 @@ export default function ConstanceConfiguration({
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <div>
-                                    <p className="text-lg font-semibold">{t(option.title)}</p>
-                                    <p className="text-sm text-text-2">{t(option.description)}</p>
+                                    <p className="text-[13.5px] font-semibold text-text">{t(option.title)}</p>
+                                    <p className="mt-0.5 text-xs text-text-3">{t(option.description)}</p>
                                 </div>
                                 <div
                                     className={`absolute right-3 top-3 h-5 w-5 rounded-full border-2 ${
@@ -108,10 +108,17 @@ export default function ConstanceConfiguration({
                 })}
             </div>
 
-            <div className="flex flex-col items-center justify-center  w-full">
-                <SmallButton text={saving ? t("Saving...") : t("Save")} disabled={saving} onClick={() => handleSave(selectedMode)} />
-                <span className="text-xs text-success mt-1">{success}</span>
-                <span className="text-xs text-danger">{error}</span>
+            {success && <span className="text-xs text-success">{success}</span>}
+            {error && <span className="text-xs text-danger">{error}</span>}
+            <div className="mt-2.5 flex justify-end">
+                <Button
+                    text={saving ? t("Saving...") : t("Save")}
+                    mode="tonal"
+                    size="small"
+                    type="button"
+                    disabled={saving}
+                    onClick={() => handleSave(selectedMode)}
+                />
             </div>
         </div>
     );
