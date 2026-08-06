@@ -367,6 +367,23 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
   com rótulo em 1440px. O submit do Feedback ficou como estava — é botão de
   formulário, não o criar da listagem.
 
+## Cartão de meta (2026-08-04)
+
+- **Anel de porcentagem removido** do canto superior direito: a barra do
+  stepper já mostra o mesmo progresso, e o anel ocupava justamente o canto das
+  ações. Lá entraram editar/excluir (hover no desktop, sempre no telefone) e o
+  chevron.
+- **Fechado**: ícone, nome, descrição, categoria, stepper e rodapé com prazo +
+  data-limite. **Aberto**: motivação, status e o período completo.
+- **"Concluir" só com o alvo batido** — e nesse momento o `+` sai de cena, já
+  que o que resta a fazer é concluir (é ele que paga o XP). Alvo 0 nunca conta
+  como batido.
+- **Meta concluída** troca o stepper por **Desfazer** e mostra data + XP ganho
+  (`Undo`/`Desfazer`, `+N XP earned`/`ganhos`).
+- Testes: os dois de divisão por zero passaram a olhar o contador do stepper
+  (o anel não existe mais) e entraram três novos — Concluir só no alvo,
+  Desfazer na concluída e a expansão revelando a motivação.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
