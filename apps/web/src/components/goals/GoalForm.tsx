@@ -208,8 +208,12 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
         }
     };
 
-    const fieldClass =
-        "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    // Sem largura: quem usa decide (w-full nos campos soltos, flex nas linhas
+    // de dois campos). Com `w-full` aqui dentro, o `flex-1` da unidade e o
+    // `w-28` do alvo perdiam para a ordem do CSS e o campo sumia.
+    const controlClass =
+        "rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const fieldClass = `w-full ${controlClass}`;
     const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
@@ -302,7 +306,7 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                                 aria-label={t("Target")}
                                 value={field.value}
                                 onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
-                                className={`${fieldClass} w-28 font-mono ${errors.targetValue ? "border-danger" : ""}`}
+                                className={`${controlClass} w-24 shrink-0 font-mono ${errors.targetValue ? "border-danger" : ""}`}
                             />
                         )}
                     />
@@ -317,7 +321,7 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                                 value={field.value}
                                 onChange={field.onChange}
                                 onBlur={field.onBlur}
-                                className={`${fieldClass} flex-1 ${errors.unit ? "border-danger" : ""}`}
+                                className={`${controlClass} min-w-0 flex-1 ${errors.unit ? "border-danger" : ""}`}
                             />
                         )}
                     />
@@ -343,7 +347,7 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                                 aria-label={t("StartDate")}
                                 value={field.value}
                                 onChange={field.onChange}
-                                className={`${fieldClass} flex-1 font-mono ${errors.startDate ? "border-danger" : ""}`}
+                                className={`${controlClass} min-w-0 flex-1 font-mono ${errors.startDate ? "border-danger" : ""}`}
                             />
                         )}
                     />
@@ -356,7 +360,7 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                                 aria-label={t("EndDate")}
                                 value={field.value}
                                 onChange={field.onChange}
-                                className={`${fieldClass} flex-1 font-mono ${errors.endDate ? "border-danger" : ""}`}
+                                className={`${controlClass} min-w-0 flex-1 font-mono ${errors.endDate ? "border-danger" : ""}`}
                             />
                         )}
                     />

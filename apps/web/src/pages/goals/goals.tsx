@@ -27,6 +27,10 @@ type StatusFilter = "all" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
 type SortOption = { value: string; label: string };
 
+/** Filtro da barra: divide a linha no telefone, largura própria no desktop. */
+const FILTER_CLASS =
+  "h-10 min-w-0 flex-1 rounded-control border border-border bg-surface px-2 text-xs text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent lg:flex-none lg:px-3 lg:text-sm";
+
 function Goals() {
   useAuthGuard();
   const dispatch = useDispatch();
@@ -194,12 +198,12 @@ function Goals() {
               className="h-10 w-full rounded-control border border-border bg-surface pl-9 pr-3 text-sm text-text placeholder:text-text-3 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <select
               aria-label={t("Status")}
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
-              className="h-10 min-w-0 flex-1 rounded-control border border-border bg-surface px-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent sm:flex-none"
+              className={FILTER_CLASS}
             >
               <option value="all">{t("All")}</option>
               <option value="NOT_STARTED">{t("Not Started")}</option>
@@ -211,7 +215,7 @@ function Goals() {
                 aria-label={t("Categories")}
                 value={categoryFilter}
                 onChange={(event) => setCategoryFilter(event.target.value)}
-                className="h-10 min-w-0 flex-1 rounded-control border border-border bg-surface px-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent sm:flex-none"
+                className={FILTER_CLASS}
               >
                 <option value="all">{t("All")}</option>
                 {categoryOptions.map(([id, name]) => (
@@ -225,7 +229,7 @@ function Goals() {
               aria-label={t("Sort by")}
               value={sortBy}
               onChange={(event) => handleSortChange(event.target.value)}
-              className="h-10 min-w-0 flex-1 rounded-control border border-border bg-surface px-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent sm:flex-none lg:w-[220px]"
+              className={`${FILTER_CLASS} lg:w-[220px]`}
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
