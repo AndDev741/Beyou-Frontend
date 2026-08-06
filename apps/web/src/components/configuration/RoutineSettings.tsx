@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -6,7 +6,6 @@ import { RootState } from "@beyou/state/rootReducer";
 import { timezoneEnter, xpDecayStrategyEnter } from "@beyou/state/user/perfilSlice";
 import editUser from "@beyou/api/user/editUser";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
-import Button from "../Button";
 
 type XpDecayStrategy = "GRADUAL" | "FLAT" | "TIME_WINDOW";
 
@@ -95,18 +94,22 @@ export default function RoutineSettings() {
         );
     }, [timezoneSearch]);
 
+    const saveRef = useRef<(tz?: string, decay?: XpDecayStrategy) => void>(() => {});
+
     const handleTimezoneSelect = useCallback((tz: string) => {
         setSelectedTimezone(tz);
         setTimezoneSearch("");
         setIsTimezoneOpen(false);
         setError("");
         setSuccess("");
+        saveRef.current(tz, undefined);
     }, []);
 
     const handleXpDecaySelect = useCallback((strategy: XpDecayStrategy) => {
         setSelectedXpDecay(strategy);
         setError("");
         setSuccess("");
+        saveRef.current(undefined, strategy);
     }, []);
 
     const handleAcceptDetectedTimezone = useCallback(() => {
@@ -115,23 +118,28 @@ export default function RoutineSettings() {
         }
     }, [detectedTimezone, handleTimezoneSelect]);
 
-    const handleSave = async () => {
+    // Cada escolha grava sozinha: só o perfil tem botão de salvar. O timezone
+    // e a estratégia são escolha única, então não existe "meio preenchido".
+    const handleSave = async (
+        timezone: string = selectedTimezone,
+        xpDecayStrategy: typeof selectedXpDecay = selectedXpDecay
+    ) => {
         setSaving(true);
         setError("");
         setSuccess("");
 
         const response = await editUser({
-            timezone: selectedTimezone,
-            xpDecayStrategy: selectedXpDecay,
+            timezone,
+            xpDecayStrategy,
         });
 
-        if (response.error) {
+        if (response?.error) {
             const friendlyMessage = getFriendlyErrorMessage(t, response.error);
             setError(friendlyMessage);
             toast.error(friendlyMessage);
         } else {
-            dispatch(timezoneEnter(selectedTimezone));
-            dispatch(xpDecayStrategyEnter(selectedXpDecay));
+            dispatch(timezoneEnter(timezone));
+            dispatch(xpDecayStrategyEnter(xpDecayStrategy));
             setSuccess(t("RoutineSettingsSaved"));
             toast.success(t("RoutineSettingsSaved"));
         }
@@ -139,9 +147,9 @@ export default function RoutineSettings() {
         setSaving(false);
     };
 
-    const hasChanges =
-        selectedTimezone !== currentTimezone ||
-        selectedXpDecay !== currentXpDecay;
+    saveRef.current = (tz?: string, decay?: XpDecayStrategy) => {
+        void handleSave(tz ?? selectedTimezone, decay ?? selectedXpDecay);
+    };
 
     return (
         <div className="w-full">
@@ -259,9 +267,8 @@ export default function RoutineSettings() {
                             <button
                                 key={option.id}
                                 type="button"
-                                onClick={() =>
-                                    handleXpDecaySelect(option.id)
-                                }
+                                onClick={() => handleXpDecaySelect(option.id)}
+                                disabled={saving}
                                 className={`
                                     relative text-left rounded-control border p-4 transition-all duration-200 h-full
                                     ${
@@ -294,18 +301,8 @@ export default function RoutineSettings() {
                 </div>
             </div>
 
-            {success && <span className="text-xs text-success">{success}</span>}
-            {error && <span className="text-xs text-danger">{error}</span>}
-            <div className="mt-2.5 flex justify-end">
-                <Button
-                    text={saving ? t("Saving...") : t("Save")}
-                    mode="tonal"
-                    size="small"
-                    type="button"
-                    disabled={saving || !hasChanges}
-                    onClick={handleSave}
-                />
-            </div>
+            {success && <span className="mt-2 block text-xs text-success">{success}</span>}
+            {error && <span className="mt-2 block text-xs text-danger">{error}</span>}
         </div>
     );
 }

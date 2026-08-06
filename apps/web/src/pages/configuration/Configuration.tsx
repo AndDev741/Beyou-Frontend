@@ -7,6 +7,7 @@ import ThemeSelector from "../../components/configuration/ThemeSelector";
 import TutorialConfiguration from "../../components/configuration/TutorialConfiguration";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import ConfigSection from "../../components/configuration/ConfigSection";
+import AccountConfiguration from "../../components/configuration/AccountConfiguration";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
@@ -31,12 +32,27 @@ export default function Configuration() {
                 />
             )}
 
-            {/* Duas colunas no desktop, uma no telefone. Perfil e preferências
-                de um lado; aparência e widgets do outro, como no mockup. */}
+            {/* Ordem do mockup: perfil, widgets e conta à esquerda; aparência e
+                preferências à direita. No telefone tudo empilha e cada caixa
+                abre ao toque. */}
             <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
                 <div className="flex w-full flex-col gap-4">
-                    <ConfigSection title={t("ConfigSectionProfile")} tutorialId="config-profile">
+                    <ConfigSection title={t("ConfigSectionProfile")} tutorialId="config-profile" defaultOpen>
                         <ProfileConfiguration />
+                    </ConfigSection>
+
+                    <ConfigSection title={t("ConfigSectionWidgets")} tutorialId="config-dashboard">
+                        <WidgetsConfiguration />
+                    </ConfigSection>
+
+                    <ConfigSection title={t("ConfigSectionAccount")}>
+                        <AccountConfiguration />
+                    </ConfigSection>
+                </div>
+
+                <div className="flex w-full flex-col gap-4">
+                    <ConfigSection title={t("ConfigSectionAppearance")} tutorialId="config-appearance">
+                        <ThemeSelector />
                     </ConfigSection>
 
                     <ConfigSection title={t("ConfigSectionPreferences")} tutorialId="config-preferences">
@@ -46,16 +62,6 @@ export default function Configuration() {
                             <RoutineSettings />
                             <TutorialConfiguration />
                         </div>
-                    </ConfigSection>
-                </div>
-
-                <div className="flex w-full flex-col gap-4">
-                    <ConfigSection title={t("ConfigSectionAppearance")} tutorialId="config-appearance">
-                        <ThemeSelector />
-                    </ConfigSection>
-
-                    <ConfigSection title={t("ConfigSectionWidgets")} tutorialId="config-dashboard">
-                        <WidgetsConfiguration />
                     </ConfigSection>
                 </div>
             </div>

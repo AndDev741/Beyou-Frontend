@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Button from "../Button";
 import { useTranslation } from "react-i18next";
 import editUser from "@beyou/api/user/editUser";
 import { EditUser } from "@beyou/types/user/EditUser";
@@ -45,6 +44,7 @@ export default function ConstanceConfiguration({
         setSelectedMode(mode);
         setError("");
         setSuccess("");
+        handleSave(mode);
     };
 
     const handleSave = async (config: "ANY" | "COMPLETE") => {
@@ -85,6 +85,7 @@ export default function ConstanceConfiguration({
                             key={option.id}
                             type="button"
                             onClick={() => handleSelect(option.id)}
+                            disabled={saving}
                             className={`
                                 relative text-left rounded-control border p-4 transition-all duration-200 h-full
                                 ${isActive ? "border-accent bg-accent/10 shadow-md" : "border-border hover:border-border"}
@@ -108,18 +109,8 @@ export default function ConstanceConfiguration({
                 })}
             </div>
 
-            {success && <span className="text-xs text-success">{success}</span>}
-            {error && <span className="text-xs text-danger">{error}</span>}
-            <div className="mt-2.5 flex justify-end">
-                <Button
-                    text={saving ? t("Saving...") : t("Save")}
-                    mode="tonal"
-                    size="small"
-                    type="button"
-                    disabled={saving}
-                    onClick={() => handleSave(selectedMode)}
-                />
-            </div>
+            {success && <span className="mt-2 block text-xs text-success">{success}</span>}
+            {error && <span className="mt-2 block text-xs text-danger">{error}</span>}
         </div>
     );
 }

@@ -210,36 +210,28 @@ describe('RoutineSettings', () => {
     });
 
     // -----------------------------------------------------------------------
-    // Save button
+    // Gravação automática
     // -----------------------------------------------------------------------
-    describe('save button', () => {
-        it('renders the save button', () => {
+    describe('auto save', () => {
+        it('has no save button: each choice persists on its own', () => {
             renderWithProviders(<RoutineSettings />, {
                 storeOverride: createStore(),
             });
 
-            expect(screen.getByRole('button', { name: /Save/i })).toBeInTheDocument();
+            expect(screen.queryByRole('button', { name: /^Save$/i })).toBeNull();
         });
 
-        it('save button is disabled when there are no changes', () => {
-            renderWithProviders(<RoutineSettings />, {
-                storeOverride: createStore(),
-            });
-
-            const saveButton = screen.getByRole('button', { name: /Save/i });
-            expect(saveButton).toBeDisabled();
-        });
-
-        it('save button becomes enabled after making a change', () => {
+        it('persists the strategy as soon as it is picked', async () => {
+            const editUser = (await import('@beyou/api/user/editUser')).default;
             renderWithProviders(<RoutineSettings />, {
                 storeOverride: createStore({ xpDecayStrategy: 'GRADUAL' }),
             });
 
-            const flatBtn = screen.getByRole('button', { name: /Flat/i });
-            fireEvent.click(flatBtn);
+            fireEvent.click(screen.getByRole('button', { name: /Flat/i }));
 
-            const saveButton = screen.getByRole('button', { name: /Save/i });
-            expect(saveButton).not.toBeDisabled();
+            expect(editUser).toHaveBeenCalledWith(
+                expect.objectContaining({ xpDecayStrategy: 'FLAT' })
+            );
         });
     });
 });
