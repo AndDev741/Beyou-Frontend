@@ -82,14 +82,17 @@ describe("GoalBox", () => {
     expect(screen.queryByRole("button", { name: "Increase" })).toBeNull();
   });
 
-  it("a completed goal shows Undo and the XP it earned", () => {
+  it("a completed goal keeps the card and turns Complete into Undo", () => {
     renderWithProviders(
       <GoalBox {...baseProps} status="COMPLETED" targetValue={10} currentValue={10} />
     );
 
     expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Complete" })).toBeNull();
-    expect(screen.getAllByText("GoalXpEarned").length).toBeGreaterThan(0);
+    // O cartão continua o mesmo: contador, XP e o selo de concluída no topo.
+    expect(screen.getByText("10/10 pages")).toBeInTheDocument();
+    expect(screen.getByText("+100 XP")).toBeInTheDocument();
+    expect(screen.getByText("Completed")).toBeInTheDocument();
   });
 
   it("expanding reveals motivation and the period", () => {
