@@ -156,9 +156,11 @@ function Tasks() {
                 }
             />
 
-            {/* Barra compacta: buscar, ordenar e filtrar numa linha só. */}
-            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div className="relative min-w-0 flex-1">
+            {/* No telefone a busca fica com a linha inteira e os filtros descem
+                para a linha de baixo, lado a lado — os três juntos espremiam a
+                busca até sobrar só a lupa (`sm` aqui é 350px). */}
+            <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center">
+                <div className="relative min-w-0 lg:flex-1">
                     <Search
                         size={16}
                         aria-hidden="true"
@@ -173,11 +175,13 @@ function Tasks() {
                         className={`${CONTROL_CLASS} w-full pl-9 pr-3 placeholder:text-text-3`}
                     />
                 </div>
+
+                <div className="flex gap-2">
                 <select
                     value={sortBy}
                     onChange={(event) => handleSortChange(event.target.value)}
                     aria-label={t("Sort by")}
-                    className={`${CONTROL_CLASS} px-3 sm:max-w-[220px]`}
+                    className={`${CONTROL_CLASS} min-w-0 flex-1 px-3 lg:w-[220px] lg:flex-none`}
                 >
                     {sortOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -189,7 +193,7 @@ function Tasks() {
                     value={categoryFilter}
                     onChange={(event) => setCategoryFilter(event.target.value)}
                     aria-label={t("Categories")}
-                    className={`${CONTROL_CLASS} px-3 sm:max-w-[220px]`}
+                    className={`${CONTROL_CLASS} min-w-0 flex-1 px-3 lg:w-[220px] lg:flex-none`}
                 >
                     <option value={ALL_CATEGORIES}>{t("All")}</option>
                     {categoriesInUse.map((category) => (
@@ -198,6 +202,7 @@ function Tasks() {
                         </option>
                     ))}
                 </select>
+                </div>
             </div>
 
             <RenderTasks

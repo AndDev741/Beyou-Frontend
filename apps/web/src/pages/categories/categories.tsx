@@ -174,8 +174,8 @@ function Categories(){
             <main className="mt-4 flex flex-col gap-4 pb-4">
                 {/* Barra compacta no lugar do cartão de ordenação: busca à
                     esquerda, ordenação à direita. */}
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <div className="relative min-w-0 flex-1">
+                <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+                    <div className="relative min-w-0 lg:flex-1">
                         <Search
                             size={16}
                             aria-hidden="true"
@@ -194,7 +194,7 @@ function Categories(){
                         aria-label={t("Sort by")}
                         value={sortBy}
                         onChange={(event) => handleSortChange(event.target.value)}
-                        className="h-10 rounded-control border border-border bg-surface px-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent sm:w-[220px]"
+                        className="h-10 rounded-control border border-border bg-surface px-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent lg:w-[220px]"
                     >
                         {sortOptions.map((option) => (
                             <option key={option.value} value={option.value}>
