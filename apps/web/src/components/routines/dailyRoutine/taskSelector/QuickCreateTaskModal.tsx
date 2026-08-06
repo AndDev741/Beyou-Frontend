@@ -5,10 +5,9 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import Modal from "../../../modals/Modal";
-import GenericInput from "../../../inputs/genericInput";
-import DescriptionInput from "../../../inputs/descriptionInput";
 import IconsBoxSmall from "../../../inputs/iconsBoxSmall";
-import ChooseInput from "../../../inputs/chooseInput";
+import SegmentedControl from "../../../../ui/SegmentedControl";
+import { FiX } from "react-icons/fi";
 import ChooseCategories from "../../../inputs/chooseCategory/chooseCategories";
 import Button from "../../../Button";
 import ErrorNotice from "../../../ErrorNotice";
@@ -53,6 +52,7 @@ function QuickCreateTaskModal({ isOpen, onClose, onCreated }: QuickCreateTaskMod
 
     const {
         control,
+        register,
         handleSubmit,
         reset,
         setError,
@@ -110,99 +110,130 @@ function QuickCreateTaskModal({ isOpen, onClose, onCreated }: QuickCreateTaskMod
         }
     };
 
+    const controlClass =
+        "rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const fieldClass = `w-full ${controlClass}`;
+    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
+
     return (
-        <Modal isOpen={isOpen} onClose={closeAndReset}>
-            <h2 className="text-2xl font-semibold text-center mb-2">{t("QuickCreateTaskTitle")}</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center">
-                <div className="flex md:items-start md:flex-row justify-center w-full">
-                    <div className="flex flex-col md:items-start md:justify-start">
-                        <Controller
-                            control={control}
-                            name="name"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Name"
-                                    data={field.value}
-                                    placeholder="Clean the house"
-                                    setData={field.onChange}
-                                    dataError={errors.name?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
+        <Modal isOpen={isOpen} onClose={closeAndReset} className="max-w-xl">
+            <div className="flex items-center gap-3">
+                <h2 className="text-base font-semibold tracking-[-0.01em] text-text">
+                    {t("QuickCreateTaskTitle")}
+                </h2>
+                <button
+                    type="button"
+                    aria-label={t("Close")}
+                    onClick={closeAndReset}
+                    className="ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                >
+                    <FiX />
+                </button>
+            </div>
 
-                        <Controller
-                            control={control}
-                            name="description"
-                            render={({ field }) => (
-                                <DescriptionInput
-                                    t={t}
-                                    description={field.value}
-                                    setDescription={field.onChange}
-                                    descriptionError={errors.description?.message ?? ""}
-                                    placeholder="Important to keep things organized"
-                                    minH={120}
-                                    minHSmallScreen={120}
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div className="mx-2"></div>
-
-                    <div className="flex flex-col mt-2 md:mt-0">
-                        <Controller
-                            control={control}
-                            name="iconId"
-                            render={({ field }) => (
-                                <IconsBoxSmall
-                                    search={search}
-                                    setSearch={setSearch}
-                                    iconError={errors.iconId?.message ?? ""}
-                                    selectedIcon={field.value}
-                                    setSelectedIcon={field.onChange}
-                                    t={t}
-                                    minLgH={140}
-                                />
-                            )}
-                        />
-                    </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-3.5 text-text">
+                <div>
+                    <label htmlFor="quick-task-name" className={labelClass}>{t("Name")}</label>
+                    <Controller
+                        control={control}
+                        name="name"
+                        render={({ field }) => (
+                            <input
+                                id="quick-task-name"
+                                type="text"
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("TaskNamePlaceholder")}
+                                className={`${fieldClass} ${errors.name ? "border-danger" : ""}`}
+                            />
+                        )}
+                    />
+                    {errors.name?.message && <p className="mt-1.5 text-xs text-danger">{errors.name.message}</p>}
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center justify-center w-full md:w-[80%]">
+                <div className="mt-4">
+                    <label htmlFor="quick-task-description" className={labelClass}>{t("Description")}</label>
+                    <Controller
+                        control={control}
+                        name="description"
+                        render={({ field }) => (
+                            <textarea
+                                id="quick-task-description"
+                                rows={3}
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("TaskDescriptionPlaceholder")}
+                                className={`${fieldClass} resize-none`}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <Controller
+                        control={control}
+                        name="iconId"
+                        render={({ field }) => (
+                            <IconsBoxSmall
+                                search={search}
+                                setSearch={setSearch}
+                                t={t}
+                                iconError={errors.iconId?.message ?? ""}
+                                setSelectedIcon={field.onChange}
+                                selectedIcon={field.value || ""}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Importance")}</span>
                     <Controller
                         control={control}
                         name="importance"
                         render={({ field }) => (
-                            <ChooseInput
-                                choosedLevel={field.value}
-                                setLevel={field.onChange}
-                                title="Importance"
-                                levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
-                                error={errors.importance?.message ?? ""}
-                                name="importance"
-                                t={t}
-                            />
-                        )}
-                    />
-                    <Controller
-                        control={control}
-                        name="difficulty"
-                        render={({ field }) => (
-                            <ChooseInput
-                                choosedLevel={field.value}
-                                error={errors.difficulty?.message ?? ""}
-                                setLevel={field.onChange}
-                                title="Difficulty"
-                                levels={[t("Easy"), t("Normal"), t("Hard"), t("Terrible")]}
-                                name="difficulty"
-                                t={t}
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Importance")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 1, label: t("Low") },
+                                    { value: 2, label: t("Medium") },
+                                    { value: 3, label: t("High") },
+                                    { value: 4, label: t("Max") },
+                                ]}
                             />
                         )}
                     />
                 </div>
 
-                <div>
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Difficulty")}</span>
+                    <Controller
+                        control={control}
+                        name="difficulty"
+                        render={({ field }) => (
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Difficulty")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 1, label: t("Easy") },
+                                    { value: 2, label: t("Normal") },
+                                    { value: 3, label: t("Hard") },
+                                    { value: 4, label: t("Terrible") },
+                                ]}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Categories")}</span>
                     <Controller
                         control={control}
                         name="categoriesId"
@@ -216,14 +247,29 @@ function QuickCreateTaskModal({ isOpen, onClose, onCreated }: QuickCreateTaskMod
                     />
                 </div>
 
-                {errors.root?.message && (
-                    <p className="text-danger text-center mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center" />
+                <div className="mt-4 flex items-center gap-3">
+                    <input
+                        id="quick-task-one-time"
+                        type="checkbox"
+                        {...register("oneTimeTask")}
+                        className="h-4 w-4 shrink-0 cursor-pointer rounded-control accent-accent"
+                    />
+                    <div>
+                        <label htmlFor="quick-task-one-time" className="block text-[12.5px] font-semibold text-text">
+                            {t("OneTimeTaskLabel")}
+                        </label>
+                        <span className="mt-0.5 block font-mono text-[10.5px] text-text-3">
+                            {t("OneTimeTaskCaption")}
+                        </span>
+                    </div>
+                </div>
 
-                <div className="flex w-full items-center justify-evenly mt-2">
-                    <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={closeAndReset} />
-                    <Button text={t("Create")} mode="create" size="medium" type="submit" />
+                {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+                <ErrorNotice error={apiError} className="mt-2" />
+
+                <div className="mt-[18px] flex justify-end gap-2">
+                    <Button text={t("Cancel")} mode="ghost" size="medium" type="button" onClick={closeAndReset} />
+                    <Button text={t("Save task")} mode="primary" size="medium" type="submit" />
                 </div>
             </form>
         </Modal>

@@ -27,18 +27,6 @@ vi.mock("../../../inputs/chooseCategory/chooseCategories", () => ({
     )
 }));
 
-vi.mock("../../../inputs/chooseInput", () => ({
-    default: ({ setLevel, title }: { setLevel: (value: number) => void; title: string }) => (
-        <button type="button" onClick={() => setLevel(1)}>{`pick ${title}`}</button>
-    )
-}));
-
-vi.mock("../../../inputs/experienceInput", () => ({
-    default: ({ setExperience }: { setExperience: (value: number) => void }) => (
-        <button type="button" onClick={() => setExperience(1)}>pick experience</button>
-    )
-}));
-
 vi.mock("react-toastify", () => ({
     toast: {
         success: vi.fn(),
@@ -79,16 +67,18 @@ test("creates habit and returns new id", async () => {
 
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Read" } });
     fireEvent.click(screen.getByText("pick icon"));
-    fireEvent.click(screen.getByText("pick Importance"));
-    fireEvent.click(screen.getByText("pick Difficulty"));
-    fireEvent.click(screen.getByText("pick experience"));
+    // Importância, dificuldade e experiência viraram segmentados: cada opção
+    // é um rádio com o próprio rótulo.
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
     fireEvent.click(screen.getByText("pick categories"));
 
     const form = document.querySelector("form");
     if (form) {
         fireEvent.submit(form);
     } else {
-        fireEvent.click(screen.getByRole("button", { name: "Create" }));
+        fireEvent.click(screen.getByRole("button", { name: "Save habit" }));
     }
 
     await waitFor(() => {
