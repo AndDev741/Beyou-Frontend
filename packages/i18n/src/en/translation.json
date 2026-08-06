@@ -367,6 +367,7 @@
     "Medium Term": "Medium Term",
     "Long Term": "Long Term",
     "ConfirmDeleteOfGoalPhrase": "Confirm deletion of this goal?",
+    "ConfirmDeleteOfRoutinePhrase": "Confirm deletion of this routine?",
     "CreateGoal": "Create goal",
     "EditGoal": "Edit goal",
     "DeleteGoal": "Delete goal",

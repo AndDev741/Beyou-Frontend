@@ -30,7 +30,7 @@ type DeleteModalProps<T> = {
      *  `success` carries the refreshed array. */
     getObjects: (t: TFunction) => Promise<Record<string, unknown>>;
     deletePhrase: string;
-    mode: "category" | "habit" | "task" | "goal";
+    mode: "category" | "habit" | "task" | "goal" | "routine";
     /** Redux action creator for pages that keep the list in the store. */
     dispatchFunction?: (items: T[]) => UnknownAction;
 };

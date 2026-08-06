@@ -21,10 +21,7 @@ type RoutineCardProps = {
     onEdit: (routine: Routine) => void;
     onSchedule: (routine: Routine) => void;
     onCheckItem: (payload: itemGroupToCheck) => Promise<void>;
-    onRequestDelete: (routineId: string) => void;
-    onConfirmDelete: (routineId: string) => void;
-    onCancelDelete: () => void;
-    isConfirmingDelete: boolean;
+    onRequestDelete: (routine: Routine) => void;
 };
 
 export const RoutineCard = ({
@@ -36,9 +33,6 @@ export const RoutineCard = ({
     onSchedule,
     onCheckItem,
     onRequestDelete,
-    onConfirmDelete,
-    onCancelDelete,
-    isConfirmingDelete,
 }: RoutineCardProps) => {
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
@@ -54,17 +48,7 @@ export const RoutineCard = ({
 
     const scheduleDays = routine.schedule?.days || [];
 
-    const handleDeleteClick = () => {
-        if (routine.id) {
-            onRequestDelete(routine.id);
-        }
-    };
-
-    const confirmDelete = () => {
-        if (routine.id) {
-            onConfirmDelete(routine.id);
-        }
-    };
+    const handleDeleteClick = () => onRequestDelete(routine);
 
     // O backend guarda "Monday", "Tuesday"…; a comparação é case-insensitive
     // porque o agendamento já gravou variações ao longo do tempo.
@@ -152,34 +136,14 @@ export const RoutineCard = ({
                     >
                         <FiEdit2 />
                     </button>
-                    {isConfirmingDelete ? (
-                        <div className="flex items-center gap-1.5 rounded-control border border-danger/30 bg-danger/5 px-2 py-1">
-                            <span className="text-xs font-semibold text-danger">{t("Confirm Deletion")}</span>
-                            <button
-                                type="button"
-                                className="rounded-lg bg-danger px-2 py-0.5 text-xs font-semibold text-on-accent"
-                                onClick={confirmDelete}
-                            >
-                                {t("Yes")}
-                            </button>
-                            <button
-                                type="button"
-                                className="rounded-lg px-2 py-0.5 text-xs font-semibold text-text-2"
-                                onClick={onCancelDelete}
-                            >
-                                {t("No")}
-                            </button>
-                        </div>
-                    ) : (
-                        <button
-                            type="button"
-                            className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-danger/10 hover:text-danger"
-                            onClick={handleDeleteClick}
-                            aria-label={t("Delete")}
-                        >
-                            <FiTrash2 />
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-danger/10 hover:text-danger"
+                        onClick={handleDeleteClick}
+                        aria-label={t("Delete")}
+                    >
+                        <FiTrash2 />
+                    </button>
                     </div>
 
                     <button

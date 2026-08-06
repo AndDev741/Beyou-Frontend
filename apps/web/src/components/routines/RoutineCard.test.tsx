@@ -43,9 +43,6 @@ test("renders item time range when endTime is provided", () => {
             onSchedule={vi.fn()}
             onCheckItem={vi.fn()}
             onRequestDelete={vi.fn()}
-            onConfirmDelete={vi.fn()}
-            onCancelDelete={vi.fn()}
-            isConfirmingDelete={false}
         />
     );
 
@@ -66,9 +63,6 @@ const renderCard = (routine: Routine) =>
             onSchedule={vi.fn()}
             onCheckItem={vi.fn()}
             onRequestDelete={vi.fn()}
-            onConfirmDelete={vi.fn()}
-            onCancelDelete={vi.fn()}
-            isConfirmingDelete={false}
         />
     );
 

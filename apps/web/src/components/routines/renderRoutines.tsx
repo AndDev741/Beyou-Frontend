@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
 import { SnapshotEmptyState } from "./SnapshotEmptyState";
+import DeleteModal from "../DeleteModal";
 
 type RenderRoutinesProps = {
     selectedDate: string;
@@ -43,7 +44,7 @@ export default function RenderRoutines({
     const today = new Date().toISOString().split("T")[0];
     const isSnapshotMode = selectedDate < today && snapshotState.selectedDate === selectedDate;
 
-    const [confirmDelete, setConfirmDelete] = useState("");
+    const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
@@ -66,18 +67,6 @@ export default function RenderRoutines({
     const handleCloseModal = () => {
         setShowModal(false);
         onScheduleModalChange?.(false);
-    };
-
-    const handleDelete = async (id: string) => {
-        const response = await deleteRoutine(id, t);
-        if (response.error) {
-            toast.error(getFriendlyErrorMessage(t, response.error));
-            return;
-        }
-        const routinesResponse = await getRoutines(t);
-        dispatch(enterRoutines(routinesResponse?.success));
-        setConfirmDelete("");
-        toast.success(t("deleted successfully"));
     };
 
     const handleEdit = (routine: Routine) => {
@@ -137,10 +126,7 @@ export default function RenderRoutines({
                             onEdit={handleEdit}
                             onSchedule={handleSchedule}
                             onCheckItem={handleCheck}
-                            onRequestDelete={(id) => setConfirmDelete(id)}
-                            onConfirmDelete={handleDelete}
-                            onCancelDelete={() => setConfirmDelete("")}
-                            isConfirmingDelete={confirmDelete === routine.id}
+                            onRequestDelete={setRoutineToDelete}
                         />
                     ))}
                 </div>
@@ -149,6 +135,26 @@ export default function RenderRoutines({
                     <p className="text-lg font-semibold">{t("No routines available, start create some to track you tasks!")}</p>
                     <p className="mt-2 text-sm text-text-2">{t("Create your first routine to see it here")}</p>
                 </div>
+            )}
+
+            {/* Excluir usa o mesmo modal das outras entidades — antes a rotina
+                tinha uma confirmação inline própria dentro do cartão. */}
+            {routineToDelete && (
+                <DeleteModal
+                    objectId={routineToDelete.id ?? ""}
+                    onDelete={Boolean(routineToDelete)}
+                    setOnDelete={(open) => {
+                        const next = typeof open === "function" ? open(true) : open;
+                        if (!next) setRoutineToDelete(null);
+                    }}
+                    t={t}
+                    name={routineToDelete.name}
+                    dispatchFunction={enterRoutines}
+                    deleteObject={deleteRoutine}
+                    getObjects={getRoutines}
+                    deletePhrase={t("ConfirmDeleteOfRoutinePhrase")}
+                    mode="routine"
+                />
             )}
 
             {showModal && selectedRoutine && (
