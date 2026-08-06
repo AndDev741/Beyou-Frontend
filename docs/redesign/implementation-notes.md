@@ -354,6 +354,19 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
 - Rotinas já era lista de coluna única, então lá não havia o que corrigir na
   expansão; só o hover das ações entrou.
 
+## Exclusão de rotina e o "+" no telefone (2026-08-04)
+
+- **Rotina passou a usar o DeleteModal compartilhado.** Era a única entidade
+  com confirmação inline (uma faixa "Confirmar exclusão? Sim / Não" dentro do
+  cabeçalho do cartão, que empurrava as outras ações). O modal ganhou o modo
+  `routine`; como não existe slice de edição por id para limpar nesse caso, o
+  switch não faz nada e a lista se atualiza por `enterRoutines`.
+- **Criar vira só o "+" no telefone nas cinco listagens.** Só Rotinas tinha o
+  `collapseLabel`; Hábitos, Tarefas, Categorias e Metas mostravam o botão
+  inteiro e comiam a largura do cabeçalho. Medido: 40×40px em 390px e 142px
+  com rótulo em 1440px. O submit do Feedback ficou como estava — é botão de
+  formulário, não o criar da listagem.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
