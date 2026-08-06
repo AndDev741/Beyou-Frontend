@@ -337,6 +337,23 @@ de i18n que não existe.
   mesmos nomes (o segmentado usa role=radio); a categoria agora é um
   `role=checkbox` com o nome da categoria.
 
+## Ações no topo e expansão isolada (2026-08-04)
+
+Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
+
+- **Editar/excluir no topo**, à esquerda do chevron, revelados no hover
+  (`md:group-hover`) e sempre visíveis no telefone. No cartão de rotina o
+  Agendar continua sempre à vista — é a ação principal.
+- **Tarefa perdeu o chevron.** Importância e dificuldade já apareciam no cartão
+  fechado; expandir só revelava as ações, que agora moram no topo. Sem conteúdo
+  escondido, o controle não tinha função.
+- **`items-start` nas grades** de hábitos, tarefas e metas. Sem isso a fileira
+  estica os cartões à altura do expandido e parece que a linha inteira abriu
+  junto — mesmo bug que Categorias tinha. Medido em Hábitos: expandido 197 →
+  457px, vizinhos parados em 197.
+- Rotinas já era lista de coluna única, então lá não havia o que corrigir na
+  expansão; só o hover das ações entrou.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
