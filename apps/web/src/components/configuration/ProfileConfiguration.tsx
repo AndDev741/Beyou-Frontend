@@ -121,16 +121,18 @@ export default function ProfileConfiguration() {
         // inteira — antes a foto roubava 30% e espremia todos os inputs.
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex items-center gap-3.5">
+                {/* O avatar aqui é do desktop: no telefone ele já aparece no
+                    cabeçalho da caixa, junto do nome e do nível. */}
                 {/* Sem foto o `alt` vazava do círculo ("erfil"); o fallback é a
                     inicial, como no rodapé da sidebar. */}
                 {currentPhoto ? (
                     <img
                         src={currentPhoto}
                         alt={t("Profile")}
-                        className="h-16 w-16 shrink-0 rounded-full border border-border object-cover"
+                        className="hidden h-16 w-16 shrink-0 rounded-full border border-border object-cover lg:block"
                     />
                 ) : (
-                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xl font-semibold text-accent">
+                    <span className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xl font-semibold text-accent lg:flex">
                         {(name || "?").charAt(0).toUpperCase()}
                     </span>
                 )}
