@@ -55,7 +55,7 @@ describe('GoalForm create', () => {
     await setDate('goal-start', new Date(2026, 0, 1));
     await setDate('goal-end', new Date(2026, 11, 31));
 
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-form-submit')); });
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     const [url, body] = post.mock.calls[0];
@@ -75,7 +75,7 @@ describe('GoalForm create', () => {
 
   it('blocks submit when required fields are missing', async () => {
     await wrap(<GoalForm visible mode="create" categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-submit')); }); // no title/icon/unit/dates
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-form-submit')); }); // no title/icon/unit/dates
     expect(post).not.toHaveBeenCalled();
   });
 });
@@ -89,7 +89,7 @@ describe('GoalForm edit', () => {
     expect(screen.getByDisplayValue('books')).toBeTruthy();
 
     await act(async () => { fireEvent.changeText(screen.getByTestId('goal-title'), 'Read 20 books'); });
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-form-submit')); });
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
     const [url, body] = put.mock.calls[0];

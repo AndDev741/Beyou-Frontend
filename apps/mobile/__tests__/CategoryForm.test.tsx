@@ -56,7 +56,7 @@ describe('CategoryForm create', () => {
     // Experience defaults to Beginner; pick Intermediate to exercise the enum mapping.
     await act(async () => { fireEvent.press(screen.getByText('Intermediate')); });
 
-    await act(async () => { fireEvent.press(screen.getByTestId('category-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('category-form-submit')); });
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     const [url, body] = post.mock.calls[0];
@@ -70,7 +70,7 @@ describe('CategoryForm create', () => {
 
   it('blocks submit when required fields are missing', async () => {
     await wrap(<CategoryForm visible mode="create" onClose={jest.fn()} onSaved={jest.fn()} />);
-    await act(async () => { fireEvent.press(screen.getByTestId('category-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('category-form-submit')); });
     expect(post).not.toHaveBeenCalled();
   });
 });
@@ -84,7 +84,7 @@ describe('CategoryForm edit', () => {
     expect(screen.queryByText('Intermediate')).toBeNull(); // experience is create-only
 
     await act(async () => { fireEvent.changeText(screen.getByTestId('category-name'), 'Health & Fitness'); });
-    await act(async () => { fireEvent.press(screen.getByTestId('category-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('category-form-submit')); });
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
     const [url, body] = put.mock.calls[0];

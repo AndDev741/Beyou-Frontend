@@ -16,6 +16,12 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   disabled?: boolean;
   /** Multi-line textarea (taller, top-aligned) — e.g. a description field. */
   multiline?: boolean;
+  /**
+   * A altura dos formulários (a da web): 1px de borda e 13.5px de texto. O
+   * padrão continua sendo o campo alto das telas de autenticação, onde ele é
+   * o único conteúdo da tela.
+   */
+  compact?: boolean;
 }
 
 export default function Input({
@@ -30,6 +36,7 @@ export default function Input({
   accessibilityLabel,
   disabled,
   multiline,
+  compact,
   ...rest
 }: Props) {
   const [hidden, setHidden] = useState(!!password);
@@ -38,13 +45,23 @@ export default function Input({
   return (
     <View className="w-full">
       <View
-        className={`flex-row border-2 rounded-control ${multiline ? 'min-h-[100px] items-start py-1' : 'h-[56px] items-center'} ${
-          disabled ? 'bg-description/10' : 'bg-surface'
-        } ${error ? 'border-danger' : disabled ? 'border-border/40' : 'border-border'}`}
+        className={`flex-row rounded-control ${compact ? 'border' : 'border-2'} ${
+          multiline
+            ? compact
+              ? 'min-h-[84px] items-start py-1'
+              : 'min-h-[100px] items-start py-1'
+            : compact
+              ? 'min-h-[42px] items-center'
+              : 'h-[56px] items-center'
+        } ${disabled ? 'bg-description/10' : 'bg-surface'} ${
+          error ? 'border-danger' : disabled ? 'border-border/40' : 'border-border'
+        }`}
       >
         {iconStart ? <View className="mx-3">{iconStart}</View> : null}
         <TextInput
-          className={`flex-1 text-lg px-2 ${disabled ? 'text-text-2' : 'text-text'}`}
+          className={`flex-1 ${compact ? 'px-3 py-2.5 text-[13.5px]' : 'px-2 text-lg'} ${
+            disabled ? 'text-text-2' : 'text-text'
+          }`}
           value={value}
           onChangeText={onChangeText}
           editable={!disabled}

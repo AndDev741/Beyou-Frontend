@@ -1,6 +1,5 @@
-import { useContext, useEffect } from 'react';
-import { Modal, View, Text, ScrollView, Pressable, Switch } from 'react-native';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { useEffect } from 'react';
+import { View, Text, Switch } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +10,9 @@ import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { task } from '@beyou/types/tasks/taskType';
 import type category from '@beyou/types/category/categoryType';
 import Input from '../Input';
-import Button from '../Button';
+import FormField from '../form/FormField';
+import FormModal from '../form/FormModal';
+import SegmentedControl from '../SegmentedControl';
 import IconPickerField from '../icons/IconPickerField';
 import CategorySelector from '../habits/CategorySelector';
 import { IMPORTANCE_KEYS, DIFFICULTY_KEYS } from '../habits/levelLabels';
@@ -41,41 +42,6 @@ interface TaskFormProps {
   onCreated?: (name: string) => void;
 }
 
-function Segmented({
-  value,
-  onChange,
-  options,
-  testID,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  options: { value: number; label: string }[];
-  testID?: string;
-}) {
-  return (
-    <View className="flex-row flex-wrap gap-2" testID={testID}>
-      {options.map((opt) => {
-        const selected = opt.value === value;
-        return (
-          <Pressable
-            key={opt.value}
-            onPress={() => onChange(opt.value)}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            className={`min-w-[44px] items-center rounded-control border px-3 py-2 ${
-              selected ? 'border-accent bg-accent/10' : 'border-border'
-            }`}
-          >
-            <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-text'}`}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 /** [{value:1,label:t(keys[0])}, …] — keys are 1-based scale labels. */
 const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
   keys.map((k, i) => ({ value: i + 1, label: t(k) }));
@@ -83,7 +49,6 @@ const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
 export default function TaskForm({ visible, mode, task, categories, onClose, onSaved, onCreated }: TaskFormProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
-  const insets = useContext(SafeAreaInsetsContext);
   const isEdit = mode === 'edit';
 
   const {
@@ -130,101 +95,124 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
-        <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-          <Pressable onPress={onClose} accessibilityRole="button" testID="task-form-cancel">
-            <Text className="text-text-2 text-base">{t('Cancel')}</Text>
-          </Pressable>
-          <Text className="text-text text-lg font-bold">{t(isEdit ? 'EditTask' : 'CreateTask')}</Text>
-          <View className="w-12" />
-        </View>
-
-        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
-          <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Name')}</Text>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <Input value={field.value} onChangeText={field.onChange} placeholder={t('TaskNamePlaceholder')} error={errors.name?.message} accessibilityLabel={t('Name')} testID="task-name" />
-              )}
+    <FormModal
+      visible={visible}
+      title={t(isEdit ? 'EditTask' : 'CreateTask')}
+      submitLabel={t('Save task')}
+      submitting={isSubmitting}
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+      testID="task-form"
+    >
+      <FormField label={t('Name')}>
+        <Controller
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <Input
+              compact
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('TaskNamePlaceholder')}
+              error={errors.name?.message}
+              accessibilityLabel={t('Name')}
+              testID="task-name"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
-          <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Description')}</Text>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Input value={field.value} onChangeText={field.onChange} placeholder={t('TaskDescriptionPlaceholder')} error={errors.description?.message} accessibilityLabel={t('Description')} multiline testID="task-description" />
-              )}
+      <FormField label={t('Description')}>
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <Input
+              compact
+              multiline
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('TaskDescriptionPlaceholder')}
+              error={errors.description?.message}
+              accessibilityLabel={t('Description')}
+              testID="task-description"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
-          <Controller
-            control={control}
-            name="iconId"
-            render={({ field }) => (
-              <IconPickerField label={t('Icon')} value={field.value} onChange={field.onChange} error={errors.iconId?.message} testID="task-icon" />
-            )}
+      <Controller
+        control={control}
+        name="iconId"
+        render={({ field }) => (
+          <IconPickerField
+            label={t('Icon')}
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.iconId?.message}
+            testID="task-icon"
           />
+        )}
+      />
 
-          <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Importance')}</Text>
-            <Controller
-              control={control}
-              name="importance"
-              render={({ field }) => (
-                <Segmented value={field.value} onChange={field.onChange} options={labelOptions(IMPORTANCE_KEYS, t)} testID="task-importance" />
-              )}
+      <FormField label={t('Importance')} error={errors.importance?.message}>
+        <Controller
+          control={control}
+          name="importance"
+          render={({ field }) => (
+            <SegmentedControl
+              label={t('Importance')}
+              value={field.value}
+              onChange={field.onChange}
+              options={labelOptions(IMPORTANCE_KEYS, t)}
+              testID="task-importance"
             />
-            {errors.importance?.message ? <Text className="text-danger mt-1 text-sm">{errors.importance.message}</Text> : null}
-          </View>
+          )}
+        />
+      </FormField>
 
-          <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Difficulty')}</Text>
-            <Controller
-              control={control}
-              name="difficulty"
-              render={({ field }) => (
-                <Segmented value={field.value} onChange={field.onChange} options={labelOptions(DIFFICULTY_KEYS, t)} testID="task-difficulty" />
-              )}
+      <FormField label={t('Difficulty')} error={errors.difficulty?.message}>
+        <Controller
+          control={control}
+          name="difficulty"
+          render={({ field }) => (
+            <SegmentedControl
+              label={t('Difficulty')}
+              value={field.value}
+              onChange={field.onChange}
+              options={labelOptions(DIFFICULTY_KEYS, t)}
+              testID="task-difficulty"
             />
-            {errors.difficulty?.message ? <Text className="text-danger mt-1 text-sm">{errors.difficulty.message}</Text> : null}
-          </View>
+          )}
+        />
+      </FormField>
 
-          <Controller
-            control={control}
-            name="categoriesId"
-            render={({ field }) => (
-              <CategorySelector categories={categories} value={field.value} onChange={field.onChange} error={errors.categoriesId?.message} />
-            )}
-          />
+      <FormField label={t('Categories')} error={errors.categoriesId?.message}>
+        <Controller
+          control={control}
+          name="categoriesId"
+          render={({ field }) => (
+            <CategorySelector categories={categories} value={field.value} onChange={field.onChange} />
+          )}
+        />
+      </FormField>
 
-          <View className="flex-row items-center justify-between rounded-control border border-border px-3 py-2">
-            <Text className="text-text text-base font-semibold">{t('One Time Task')}</Text>
-            <Controller
-              control={control}
-              name="oneTimeTask"
-              render={({ field }) => (
-                <Switch
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  trackColor={{ true: theme.primary, false: theme.placeholder }}
-                  thumbColor={theme.background}
-                  testID="task-onetime"
-                />
-              )}
+      <View className="flex-row items-center justify-between rounded-control border border-border bg-surface px-3 py-2">
+        <Text className="text-[13.5px] font-semibold text-text">{t('One Time Task')}</Text>
+        <Controller
+          control={control}
+          name="oneTimeTask"
+          render={({ field }) => (
+            <Switch
+              value={field.value}
+              onValueChange={field.onChange}
+              trackColor={{ true: theme.accent, false: theme.border }}
+              thumbColor={theme.surface}
+              testID="task-onetime"
             />
-          </View>
-
-          <View className="mt-2 items-center">
-            <Button text={t(isEdit ? 'Edit' : 'Create')} mode="create" submitting={isSubmitting} onPress={handleSubmit(onSubmit)} testID="task-submit" />
-          </View>
-        </ScrollView>
+          )}
+        />
       </View>
-    </Modal>
+    </FormModal>
   );
 }

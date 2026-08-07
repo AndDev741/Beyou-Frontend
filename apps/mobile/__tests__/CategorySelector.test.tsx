@@ -39,9 +39,11 @@ describe('CategorySelector', () => {
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
-  it('shows an empty hint with no categories', async () => {
+  it('shows an empty hint with no categories, next to the create chip', async () => {
     await wrap(<CategorySelector categories={[]} value={[]} onChange={jest.fn()} />);
-    expect(screen.getByText('No categories yet')).toBeTruthy();
+    expect(screen.getByText("You don't have categories yet, create one")).toBeTruthy();
+    // O convite de nova categoria mora na própria fileira dos chips.
+    expect(screen.getByTestId('category-add-new')).toBeTruthy();
   });
 
   it('inline-creates a category and auto-selects it after refetch', async () => {
@@ -75,7 +77,7 @@ describe('CategorySelector', () => {
       fireEvent.press(screen.getAllByLabelText(/^Icon: /)[0]);
     });
     await act(async () => {
-      fireEvent.press(screen.getByTestId('category-submit'));
+      fireEvent.press(screen.getByTestId('category-form-submit'));
     });
 
     await waitFor(() => expect(post).toHaveBeenCalledWith('/category', expect.anything()));

@@ -68,7 +68,7 @@ test('quick-creates a task and auto-adds it to the tray', async () => {
   await act(async () => { fireEvent.press(screen.getAllByLabelText(/^Icon: /)[0]); });
   await act(async () => { fireEvent.press(screen.getByText('Low')); });
   await act(async () => { fireEvent.press(screen.getByText('Easy')); });
-  await act(async () => { fireEvent.press(screen.getByTestId('task-submit')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('task-form-submit')); });
 
   await waitFor(() => expect(post).toHaveBeenCalledWith('/task', expect.anything()));
   // The created task is auto-added to the section tray.

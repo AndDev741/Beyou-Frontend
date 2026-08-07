@@ -1,6 +1,4 @@
-import { useContext, useEffect } from 'react';
-import { Modal, View, Text, ScrollView, Pressable } from 'react-native';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +8,9 @@ import editCategory from '@beyou/api/categories/editCategory';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type category from '@beyou/types/category/categoryType';
 import Input from '../Input';
-import Button from '../Button';
+import FormField from '../form/FormField';
+import FormModal from '../form/FormModal';
+import SegmentedControl from '../SegmentedControl';
 import IconPickerField from '../icons/IconPickerField';
 import { notify } from '../../notify';
 
@@ -39,42 +39,8 @@ const EXPERIENCE = [
   { value: 2, key: 'Advanced' },
 ] as const;
 
-function Segmented({
-  value,
-  onChange,
-  options,
-  testID,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  options: { value: number; label: string }[];
-  testID?: string;
-}) {
-  return (
-    <View className="flex-row flex-wrap gap-2" testID={testID}>
-      {options.map((opt) => {
-        const selected = opt.value === value;
-        return (
-          <Pressable
-            key={opt.value}
-            onPress={() => onChange(opt.value)}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            className={`min-w-[44px] items-center rounded-control border px-3 py-2 ${
-              selected ? 'border-accent bg-accent/10' : 'border-border'
-            }`}
-          >
-            <Text className={`text-sm ${selected ? 'text-accent font-semibold' : 'text-text'}`}>{opt.label}</Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 export default function CategoryForm({ visible, mode, category, onCreated, onClose, onSaved }: CategoryFormProps) {
   const { t } = useTranslation();
-  const insets = useContext(SafeAreaInsetsContext);
   const isEdit = mode === 'edit';
 
   const {
@@ -118,65 +84,83 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
-        <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-          <Pressable onPress={onClose} accessibilityRole="button" testID="category-form-cancel">
-            <Text className="text-text-2 text-base">{t('Cancel')}</Text>
-          </Pressable>
-          <Text className="text-text text-lg font-bold">{t(isEdit ? 'EditCategory' : 'CreateCategory')}</Text>
-          <View className="w-12" />
-        </View>
-
-        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
-          <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Name')}</Text>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <Input value={field.value} onChangeText={field.onChange} placeholder={t('CategoryNamePlaceholder')} error={errors.name?.message} accessibilityLabel={t('Name')} testID="category-name" />
-              )}
+    <FormModal
+      visible={visible}
+      title={t(isEdit ? 'EditCategory' : 'CreateCategory')}
+      submitLabel={t('Save category')}
+      submitting={isSubmitting}
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+      testID="category-form"
+    >
+      <FormField label={t('Name')}>
+        <Controller
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <Input
+              compact
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('CategoryNamePlaceholder')}
+              error={errors.name?.message}
+              accessibilityLabel={t('Name')}
+              testID="category-name"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
-          <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Description')}</Text>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Input value={field.value} onChangeText={field.onChange} placeholder={t('DescriptionPlaceholder')} error={errors.description?.message} accessibilityLabel={t('Description')} multiline testID="category-description" />
-              )}
+      <FormField label={t('Description')}>
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <Input
+              compact
+              multiline
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('DescriptionPlaceholder')}
+              error={errors.description?.message}
+              accessibilityLabel={t('Description')}
+              testID="category-description"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
+      <Controller
+        control={control}
+        name="iconId"
+        render={({ field }) => (
+          <IconPickerField
+            label={t('Icon')}
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.iconId?.message}
+            testID="category-icon"
+          />
+        )}
+      />
+
+      {!isEdit ? (
+        <FormField label={t('YourExperience')} hint={t('CategoryExperienceCaption')}>
           <Controller
             control={control}
-            name="iconId"
+            name="experience"
             render={({ field }) => (
-              <IconPickerField label={t('Icon')} value={field.value} onChange={field.onChange} error={errors.iconId?.message} testID="category-icon" />
+              <SegmentedControl
+                label={t('YourExperience')}
+                value={field.value}
+                onChange={field.onChange}
+                options={EXPERIENCE.map((e) => ({ value: e.value, label: t(e.key) }))}
+                testID="category-experience"
+              />
             )}
           />
-
-          {!isEdit ? (
-            <View>
-              <Text className="text-text mb-1 text-base font-semibold">{t('YourExperience')}</Text>
-              <Controller
-                control={control}
-                name="experience"
-                render={({ field }) => (
-                  <Segmented value={field.value} onChange={field.onChange} options={EXPERIENCE.map((e) => ({ value: e.value, label: t(e.key) }))} testID="category-experience" />
-                )}
-              />
-            </View>
-          ) : null}
-
-          <View className="mt-2 items-center">
-            <Button text={t(isEdit ? 'Edit' : 'Create')} mode="create" submitting={isSubmitting} onPress={handleSubmit(onSubmit)} testID="category-submit" />
-          </View>
-        </ScrollView>
-      </View>
-    </Modal>
+        </FormField>
+      ) : null}
+    </FormModal>
   );
 }

@@ -32,16 +32,20 @@ export default function DateField({ label, value, onChange, error, testID }: Dat
 
   return (
     <View className="flex-1">
-      {label ? <Text className="text-text mb-1 text-sm font-semibold">{label}</Text> : null}
+      {label ? (
+        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+      ) : null}
       <Pressable
         onPress={() => setShow(true)}
         accessibilityRole="button"
         testID={testID}
-        className="h-[44px] justify-center rounded-control border-2 border-border bg-surface px-3"
+        className="min-h-[42px] justify-center rounded-control border border-border bg-surface px-3 py-2.5"
       >
-        <Text className={value ? 'text-text' : 'text-text-3'}>{value || 'YYYY-MM-DD'}</Text>
+        <Text className={`text-[13.5px] ${value ? 'text-text' : 'text-text-3'}`}>
+          {value || 'YYYY-MM-DD'}
+        </Text>
       </Pressable>
-      {error ? <Text className="text-danger mt-1 text-sm">{error}</Text> : null}
+      {error ? <Text className="mt-1.5 text-xs text-danger">{error}</Text> : null}
       {show ? (
         <DateTimePicker
           value={ymdToDate(value)}
