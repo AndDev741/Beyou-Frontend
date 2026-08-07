@@ -109,7 +109,7 @@ export default function BottomNav() {
 
                     {/* Sobe mais que os vizinhos e carrega um halo desfocado: o
                         assistente é o único alvo que não é navegação. */}
-                    <span className="relative -mt-8 flex h-14 w-14 shrink-0 items-center justify-center">
+                    <span className="relative -mt-11 flex h-14 w-14 shrink-0 items-center justify-center">
                         <span
                             aria-hidden="true"
                             className="pointer-events-none absolute -inset-2 rounded-full bg-accent/25 blur-lg"

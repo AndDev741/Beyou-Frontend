@@ -261,7 +261,7 @@ export default function BottomNav() {
                   position: 'absolute',
                   left: '50%',
                   marginLeft: -34,
-                  top: -24,
+                  top: -18,
                   height: 68,
                   width: 68,
                   borderRadius: 34,
@@ -275,7 +275,7 @@ export default function BottomNav() {
                   position: 'absolute',
                   left: '50%',
                   marginLeft: -30,
-                  top: -20,
+                  top: -14,
                   height: 60,
                   width: 60,
                   borderRadius: 30,
@@ -292,11 +292,11 @@ export default function BottomNav() {
                 style={{
                   // Centralizado sobre o espaçador (dois itens flexíveis de cada
                   // lado ⇒ o meio da barra é o meio da vaga) e 18px para fora da
-                  // barra: sobe mais que os vizinhos sem que o toque dependa da
-                  // área fora do pai.
+                  // barra: sobe o suficiente para ler como disco elevado sem que
+                  // o toque dependa da área fora do pai.
                   left: '50%',
                   marginLeft: -28,
-                  top: -18,
+                  top: -12,
                   elevation: 8,
                   shadowColor: theme.accent,
                   shadowOpacity: 0.45,

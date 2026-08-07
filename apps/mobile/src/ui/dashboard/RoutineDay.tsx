@@ -10,7 +10,7 @@ import {
   checkedItemsInScheduledRoutineEnter,
   totalItemsInScheduledRoutineEnter,
 } from '@beyou/state/user/perfilSlice';
-import { CalendarDays, ChevronDown } from 'lucide-react-native';
+import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { loadCollapsedSections, saveCollapsedSection } from '../../lib/collapsedSections';
 import { formatTimeRange, getSectionStats } from '../routines/routineMetrics';
@@ -110,11 +110,13 @@ function Section({
           className="ml-auto"
           testID={`routine-section-toggle-${sectionId}`}
         >
-          <ChevronDown
-            size={16}
-            color={theme.text3}
-            style={{ transform: [{ rotate: collapsed ? '-90deg' : '0deg' }] }}
-          />
+          {/* Ícone trocado em vez de rotacionado: rotate no style de um ícone
+              lucide some com o SVG (ver ConfigSection). */}
+          {collapsed ? (
+            <ChevronRight size={16} color={theme.text3} />
+          ) : (
+            <ChevronDown size={16} color={theme.text3} />
+          )}
         </IconButton>
       </View>
 

@@ -3,7 +3,7 @@ import type { RefObject } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { CalendarDays, ChevronDown, Pencil, Trash2 } from 'lucide-react-native';
+import { CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react-native';
 import { calculateLevelProgress, getRoutineStats } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
@@ -111,11 +111,12 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           onPress={() => setExpanded((open) => !open)}
           testID={`routine-expand-${routine.id}`}
         >
-          <ChevronDown
-            size={18}
-            color={theme.text3}
-            style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
-          />
+          {/* Ícone trocado em vez de rotacionado (ver ConfigSection). */}
+          {expanded ? (
+            <ChevronUp size={18} color={theme.text3} />
+          ) : (
+            <ChevronDown size={18} color={theme.text3} />
+          )}
         </IconButton>
       </View>
 

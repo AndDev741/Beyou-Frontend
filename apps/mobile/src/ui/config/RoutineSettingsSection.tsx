@@ -7,6 +7,7 @@ import editUser from '@beyou/api/user/editUser';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { timezoneEnter, xpDecayStrategyEnter } from '@beyou/state/user/perfilSlice';
 import OptionCard from './OptionCard';
+import { ChevronDown } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import type { RootState, AppDispatch } from '../../store';
@@ -121,16 +122,16 @@ export default function RoutineSettingsSection() {
 
       {/* Timezone */}
       <View>
-        <Text className="text-text mb-1 font-medium">{t('TimezoneLabel')}</Text>
+        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('TimezoneLabel')}</Text>
         <Pressable
           onPress={() => setTzModalOpen(true)}
           accessibilityRole="button"
           accessibilityLabel={t('TimezoneLabel')}
           testID="timezone-trigger"
-          className="flex-row items-center justify-between rounded-control border border-border px-3 py-3"
+          className="flex-row items-center justify-between rounded-control border border-border bg-surface px-3 py-2.5"
         >
-          <Text className="text-text">{selectedTimezone}</Text>
-          <Text className="text-text-2">{'▼'}</Text>
+          <Text className="text-[13.5px] text-text">{selectedTimezone}</Text>
+          <ChevronDown size={15} color={theme.text3} />
         </Pressable>
 
         {showDetected ? (
@@ -140,7 +141,7 @@ export default function RoutineSettingsSection() {
             testID="use-detected-timezone"
             className="mt-2"
           >
-            <Text className="text-accent text-sm font-medium underline">
+            <Text className="text-[11px] text-accent underline">
               {t('UseDetectedTimezone', { timezone: detectedTimezone })}
             </Text>
           </Pressable>
@@ -150,8 +151,8 @@ export default function RoutineSettingsSection() {
       {/* XP decay strategy */}
       <View className="gap-2">
         <View>
-          <Text className="text-text font-medium">{t('XpDecayLabel')}</Text>
-          <Text className="text-text-2 mt-0.5 text-sm">{t('XpDecayDescription')}</Text>
+          <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('XpDecayLabel')}</Text>
+          <Text className="text-xs text-text-3">{t('XpDecayDescription')}</Text>
         </View>
         {XP_DECAY_OPTIONS.map((opt) => (
           <OptionCard

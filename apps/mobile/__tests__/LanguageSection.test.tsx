@@ -1,6 +1,7 @@
 /**
- * LanguageSection (P5-A3) — selecting a language persists it via editUser and
- * dispatches to the perfil slice. Boundary mocked: notify and the @beyou/api
+ * LanguageSection — o idioma vive no controle segmentado do sistema, com os
+ * nomes por extenso como na web. Escolher persiste via editUser e despacha
+ * para a slice de perfil. Boundary mocked: notify and the @beyou/api
  * HttpClient.
  */
 jest.mock('../src/notify', () => ({
@@ -35,7 +36,7 @@ describe('LanguageSection', () => {
     );
 
     await act(async () => {
-      fireEvent.press(screen.getByTestId('lang-pt'));
+      fireEvent.press(screen.getByTestId('language-toggle-pt'));
     });
 
     await waitFor(() => expect(putSpy).toHaveBeenCalledWith('/user', { language: 'pt' }));

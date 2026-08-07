@@ -112,15 +112,15 @@ export default function ConfigurationScreen() {
         >
           <View className="gap-6">
             <LanguageSection />
-            <RoutineSettingsSection />
             <ConstanceSection />
+            <RoutineSettingsSection />
             <TutorialSection />
           </View>
         </ConfigSection>
 
         <ConfigSection
           icon={<LayoutGrid size={16} color={theme.accent} />}
-          title={t('ConfigSectionDashboard')}
+          title={t('ConfigSectionWidgets')}
           testID="section-dashboard"
           viewRef={dashboardRef}
           onLayout={onSectionLayout('config-dashboard')}

@@ -36,9 +36,9 @@ export default function OptionCard({
     >
       <View className="flex-row items-start justify-between">
         <View className="flex-1 pr-3">
-          <Text className="text-text text-base font-semibold">{title}</Text>
+          <Text className="text-[13.5px] font-semibold text-text">{title}</Text>
           {description ? (
-            <Text className="text-text-2 mt-0.5 text-sm">{description}</Text>
+            <Text className="mt-0.5 text-xs text-text-3">{description}</Text>
           ) : null}
         </View>
         <View

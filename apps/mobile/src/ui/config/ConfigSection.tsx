@@ -1,6 +1,6 @@
 import { useState, type ReactNode, type RefObject } from 'react';
 import { View, Text, Pressable, type LayoutChangeEvent } from 'react-native';
-import { ChevronDown } from 'lucide-react-native';
+import { ChevronRight, ChevronUp } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import IconTile from '../IconTile';
 
@@ -70,11 +70,14 @@ export default function ConfigSection({
           )}
         </View>
 
-        <ChevronDown
-          size={18}
-          color={theme.text3}
-          style={{ transform: [{ rotate: open ? '180deg' : '-90deg' }] }}
-        />
+        {/* Ícone trocado em vez de rotacionado: `transform: rotate` no style de
+            um ícone lucide-react-native some com o SVG (react-native-svg não
+            aceita o transform assim), e o chevron simplesmente não aparecia. */}
+        {open ? (
+          <ChevronUp size={18} color={theme.text3} />
+        ) : (
+          <ChevronRight size={18} color={theme.text3} />
+        )}
       </Pressable>
 
       {open ? <View className="mt-3.5 w-full">{children}</View> : null}
