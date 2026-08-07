@@ -430,6 +430,21 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
 - **Conta virou a linha vermelha de "Sair"**, sem o e-mail — ele já está no
   formulário de perfil.
 
+## Página de Feedback (2026-08-07)
+
+- **Assunto virou segmentado de três** (ícone só na opção escolhida). Em
+  pílulas soltas as três opções pareciam filtros acumuláveis, quando são
+  exclusivas.
+- **Imagens ganharam zona de soltar**; os anexos viraram chips com o nome do
+  arquivo. A grade de miniaturas de 96px empurrava o enviar para fora da tela
+  no telefone com dois ou três prints.
+- **Formulário dentro de um cartão**, rótulos na gramática do sistema e rodapé
+  de uma linha: "prefere e-mail?" à esquerda, enviar à direita (no telefone o
+  enviar ocupa a largura e o e-mail desce).
+- A intro longa virou o **subtítulo do cabeçalho**.
+- Testes ajustados: a intro agora é o subtítulo, o input de imagens é achado
+  pelo `aria-label` e os anexos são chips, não `img[alt]`.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
