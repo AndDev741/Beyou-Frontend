@@ -602,7 +602,11 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                 <p className="mt-1 max-w-md text-sm text-text-2">{t("AgentEmptySubtitle")}</p>
                                             </div>
                                             <div className="mt-1 flex flex-wrap justify-center gap-2">
-                                                {suggestions.map((suggestion) => (
+                                                {/* Só no começo: depois da primeira
+                                                    troca a pessoa já sabe o que
+                                                    pedir, e o atalho vira ruído
+                                                    em cima do input. */}
+                                                {suggestions.slice(0, 2).map((suggestion) => (
                                                     <button
                                                         key={suggestion}
                                                         type="button"
@@ -663,32 +667,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     )}
                                 </div>
 
-                                {/* Sugestões contextuais logo acima do input: no
-                                    estado vazio elas já apareciam no meio da
-                                    tela, mas depois da primeira resposta a
-                                    pessoa ficava sem atalho nenhum. */}
-                                {messages.length > 0 && !isSending && (
-                                    <div className="flex flex-wrap gap-1.5 border-t border-border px-2.5 pt-2.5">
-                                        {/* Duas sugestões, como no mockup: com três
-                                            elas ou quebravam em três linhas ou
-                                            saíam cortadas na borda do painel. */}
-                                        {suggestions.slice(0, 2).map((suggestion) => (
-                                            <button
-                                                key={suggestion}
-                                                type="button"
-                                                onClick={() => send(suggestion)}
-                                                className="rounded-full border border-border px-3 py-1.5 text-[12.5px]
-                                                text-text-2 transition-colors duration-200 hover:border-accent
-                                                hover:text-accent"
-                                            >
-                                                {suggestion}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-
                                 {/* Composer */}
-                                <div className={`p-2.5 ${messages.length > 0 && !isSending ? "" : "border-t border-border"}`}>
+                                <div className="border-t border-border p-2.5">
                                     <div className="mx-auto flex w-full max-w-3xl items-end gap-2">
                                         <textarea
                                             ref={inputRef}
