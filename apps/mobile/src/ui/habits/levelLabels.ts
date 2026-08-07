@@ -20,3 +20,13 @@ export const scaleClass = (value: number): string => SCALE_CLASSES[value - 1] ??
 /** i18n key for an importance/difficulty value (empty when unset). */
 export const importanceKey = (value: number): string => IMPORTANCE_KEYS[value - 1] ?? '';
 export const difficultyKey = (value: number): string => DIFFICULTY_KEYS[value - 1] ?? '';
+
+/**
+ * Variante do Chip para um valor 1–4: neutro → acento → atenção → risco.
+ * Mesma escala do `attributeVariant` da web — o atributo virou etiqueta, então
+ * a cor vem do token da variante e não de um círculo pintado à mão.
+ */
+export const SCALE_VARIANTS = ['neutral', 'accent', 'flame', 'danger'] as const;
+
+export const attributeVariant = (value: number): (typeof SCALE_VARIANTS)[number] =>
+  SCALE_VARIANTS[value - 1] ?? 'neutral';

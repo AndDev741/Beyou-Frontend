@@ -2,172 +2,170 @@ import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { calculateLevelProgress } from '@beyou/state';
+import { ChevronDown, ChevronUp, Flame, Pencil, Trash2 } from 'lucide-react-native';
 import type { habit } from '@beyou/types/habit/habitType';
 import BeyouIcon from '../BeyouIcon';
+import Chip from '../Chip';
+import IconButton from '../IconButton';
+import IconTile from '../IconTile';
+import AttributeChip from '../AttributeChip';
+import StatTile from '../StatTile';
+import XpBar from '../XpBar';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { scaleClass, importanceKey, difficultyKey } from './levelLabels';
+import { importanceKey, difficultyKey } from './levelLabels';
 
 interface HabitCardProps {
   habit: habit;
   onEdit: (habit: habit) => void;
   onDelete: (habit: habit) => void;
-  /** Optional tutorial ref — passed only for the first card (index 0) to register the habit-first spotlight target. */
+  /** Alvo do tutorial — só o primeiro cartão recebe (`habit-first`). */
   viewRef?: RefObject<View | null>;
 }
 
-function LevelBar({ habit }: { habit: habit }) {
-  const { t } = useTranslation();
-  const progress = calculateLevelProgress(habit.xp, habit.actualLevelXp, habit.nextLevelXp);
-  return (
-    <View>
-      <View className="mb-1 flex-row justify-between">
-        <Text className="text-text-2 text-xs">
-          {t('Level')} {habit.level}
-        </Text>
-        <Text className="text-text-2 text-xs">
-          {habit.xp}/{habit.nextLevelXp} xp
-        </Text>
-      </View>
-      <View className="h-2 overflow-hidden rounded-full bg-accent/15">
-        <View className="h-full rounded-full bg-accent" style={{ width: `${progress}%` }} />
-      </View>
-    </View>
-  );
-}
-
-function ScaleRow({ label, value, phraseKey }: { label: string; value: number; phraseKey: string }) {
-  const { t } = useTranslation();
-  if (!phraseKey) return null;
-  return (
-    <View className="flex-row items-center gap-2">
-      <Text className="text-text text-sm font-semibold">{label}:</Text>
-      <View className={`h-3 w-3 rounded-full ${scaleClass(value)}`} />
-      <Text className="text-text-2 text-sm">{t(phraseKey)}</Text>
-    </View>
-  );
-}
-
 /**
- * Habit list card (mirrors the web habitBox): collapsed shows icon + name +
- * description + level bar + streak; tapping the header expands to reveal full
- * description, categories, motivational phrase, importance/difficulty, and the
- * Edit/Delete actions — so viewing details never requires the edit form.
+ * Cartão de hábito — espelho do `habitBox` da web. Fechado mostra ícone, nome,
+ * descrição em duas linhas, categorias e a linha de nível/XP/sequência.
+ * Expandir solta o clamp e revela rotinas, frase, atributos e os números.
+ *
+ * Editar e excluir ficam no topo, à esquerda do chevron. Na web eles aparecem
+ * no hover; aqui não existe hover, então ficam sempre visíveis — a mesma regra
+ * que a web aplica abaixo de `md`.
  */
 export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const [expanded, setExpanded] = useState(false);
+  const routineNames = Object.values(habit.routines ?? {});
 
   return (
     <View ref={viewRef} className="rounded-card border border-border bg-surface p-4">
-      <Pressable
-        onPress={() => setExpanded((e) => !e)}
-        accessibilityRole="button"
-        accessibilityLabel={habit.name}
-        accessibilityState={{ expanded }}
-        testID={`habit-card-${habit.id}`}
-        className="flex-row items-center gap-3"
-      >
-        <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
-          <BeyouIcon id={habit.iconId} size={24} showFallback />
-        </View>
-        <View className="flex-1">
-          <Text className="text-text text-base font-bold" numberOfLines={expanded ? undefined : 1}>
+      <View className="flex-row items-start gap-2.5">
+        <IconTile size={38}>
+          <BeyouIcon id={habit.iconId} size={20} showFallback />
+        </IconTile>
+
+        <Pressable
+          onPress={() => setExpanded((open) => !open)}
+          accessibilityRole="button"
+          accessibilityLabel={habit.name}
+          accessibilityState={{ expanded }}
+          testID={`habit-card-${habit.id}`}
+          className="min-w-0 flex-1 pt-1"
+        >
+          <Text
+            className="text-base font-semibold leading-snug text-text"
+            numberOfLines={expanded ? undefined : 1}
+          >
             {habit.name}
           </Text>
-          {habit.description ? (
-            <Text className="text-text-2 text-sm" numberOfLines={expanded ? undefined : 2}>
-              {habit.description}
-            </Text>
-          ) : null}
-        </View>
-        {habit.constance > 0 ? (
-          <View className="flex-row items-center gap-1">
-            <Text className="text-base">🔥</Text>
-            <Text className="text-text text-sm font-semibold">{habit.constance}</Text>
-          </View>
-        ) : null}
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
-      </Pressable>
+        </Pressable>
 
-      {!expanded && habit.categories?.length ? (
+        <IconButton label={t('Edit')} onPress={() => onEdit(habit)} testID={`habit-edit-${habit.id}`}>
+          <Pencil size={15} color={theme.text2} />
+        </IconButton>
+        <IconButton
+          label={t('Delete')}
+          tone="danger"
+          onPress={() => onDelete(habit)}
+          testID={`habit-delete-${habit.id}`}
+        >
+          <Trash2 size={15} color={theme.danger} />
+        </IconButton>
+        <IconButton
+          label={expanded ? t('Collapse') : t('Expand')}
+          onPress={() => setExpanded((open) => !open)}
+          testID={`habit-expand-${habit.id}`}
+        >
+          {expanded ? (
+            <ChevronUp size={18} color={theme.text3} />
+          ) : (
+            <ChevronDown size={18} color={theme.text3} />
+          )}
+        </IconButton>
+      </View>
+
+      {habit.description ? (
+        <Text className="mt-3 text-sm leading-snug text-text-2" numberOfLines={expanded ? undefined : 2}>
+          {habit.description}
+        </Text>
+      ) : null}
+
+      {habit.categories?.length ? (
         <View className="mt-3 flex-row flex-wrap gap-1.5">
-          {habit.categories.map((cat) => (
-            <View key={cat.id} className="flex-row items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5">
-              <BeyouIcon id={cat.iconId} size={12} />
-              <Text className="text-accent text-xs">{cat.name}</Text>
-            </View>
+          {habit.categories.map((category, index) => (
+            <Chip
+              key={`${category.id}-${index}`}
+              size="sm"
+              icon={<BeyouIcon id={category.iconId} size={12} />}
+            >
+              {category.name}
+            </Chip>
           ))}
         </View>
       ) : null}
 
-      <View className="mt-3">
-        <LevelBar habit={habit} />
-      </View>
-
-      {expanded ? (
-        <View className="mt-4 gap-3 border-t border-border pt-3">
-          {habit.categories?.length ? (
-            <View className="gap-1">
-              <Text className="text-text text-sm font-semibold">{t('Categories')}</Text>
-              <View className="flex-row flex-wrap gap-1.5">
-                {habit.categories.map((cat) => (
-                  <View key={cat.id} className="flex-row items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5">
-                    <BeyouIcon id={cat.iconId} size={12} />
-                    <Text className="text-accent text-xs">{cat.name}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ) : null}
-
-          {habit.motivationalPhrase ? (
-            <View className="gap-0.5">
-              <Text className="text-text text-sm font-semibold">{t('MotivationPhrase')}</Text>
-              <Text className="text-text-2 text-sm italic">"{habit.motivationalPhrase}"</Text>
-            </View>
-          ) : null}
-
-          <ScaleRow label={t('Importance')} value={habit.importance} phraseKey={importanceKey(habit.importance)} />
-          <ScaleRow label={t('Difficulty')} value={habit.dificulty} phraseKey={difficultyKey(habit.dificulty)} />
-
-          {habit.routines && Object.keys(habit.routines).length ? (
-            <View className="gap-1">
-              <Text className="text-text text-sm font-semibold">{t('UsingIn')}</Text>
-              <View className="flex-row flex-wrap gap-1.5">
-                {Object.entries(habit.routines).map(([id, name]) => (
-                  <View key={id} className="rounded-full bg-accent/10 px-2 py-0.5">
-                    <Text className="text-accent text-xs">{name}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          ) : null}
-
-          <View className="mt-1 flex-row gap-3">
-            <Pressable
-              onPress={() => onEdit(habit)}
-              accessibilityRole="button"
-              testID={`habit-edit-${habit.id}`}
-              className="flex-1 items-center rounded-control bg-accent py-2.5"
-            >
-              <Text style={{ color: theme.background }} className="font-semibold">
-                {t('Edit')}
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => onDelete(habit)}
-              accessibilityRole="button"
-              testID={`habit-delete-${habit.id}`}
-              className="flex-1 items-center rounded-control border border-danger py-2.5"
-            >
-              <Text className="text-danger font-semibold">{t('Delete')}</Text>
-            </Pressable>
+      {expanded && routineNames.length > 0 ? (
+        <View className="mt-3">
+          <Text className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-3">
+            {t('UsingIn')}
+          </Text>
+          <View className="flex-row flex-wrap gap-1.5">
+            {routineNames.map((routineName) => (
+              <Chip key={String(routineName)} size="sm">
+                {String(routineName)}
+              </Chip>
+            ))}
           </View>
         </View>
       ) : null}
+
+      {expanded && habit.motivationalPhrase ? (
+        <View className="mt-3 rounded-control border-l-2 border-accent bg-surface-2 px-3 py-2">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-text-3">
+            {t('MotivationPhrase')}
+          </Text>
+          <Text className="mt-0.5 text-sm italic text-text-2">{habit.motivationalPhrase}</Text>
+        </View>
+      ) : null}
+
+      {expanded ? (
+        <View className="mt-3 flex-row flex-wrap gap-1.5">
+          <AttributeChip
+            label={t('Importance')}
+            value={habit.importance}
+            phraseKey={importanceKey(habit.importance)}
+          />
+          <AttributeChip
+            label={t('Difficulty')}
+            value={habit.dificulty}
+            phraseKey={difficultyKey(habit.dificulty)}
+          />
+        </View>
+      ) : null}
+
+      {expanded ? (
+        <View className="mt-3 flex-row gap-2">
+          <StatTile
+            className="flex-1"
+            label={t('Level')}
+            value={habit.level}
+            hint={`${habit.xp}/${habit.nextLevelXp} XP`}
+          />
+          <StatTile className="flex-1" label={t('Constance')} value={habit.constance} hint={t('Days')} />
+        </View>
+      ) : null}
+
+      {/* A linha que se lê de relance: nível, XP e sequência. */}
+      <View className="mt-3 flex-row items-end gap-3">
+        <XpBar className="min-w-0 flex-1" current={habit.xp} target={habit.nextLevelXp} level={habit.level} />
+        {/* Sem sequência não há o que celebrar: uma chama apagada com zero ao
+            lado lê como falha, não como estado neutro. */}
+        {habit.constance > 0 ? (
+          <Chip variant="flame" size="sm" icon={<Flame size={12} color={theme.flame} />}>
+            {habit.constance}
+          </Chip>
+        ) : null}
+      </View>
     </View>
   );
 }

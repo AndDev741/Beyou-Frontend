@@ -1,7 +1,7 @@
 /**
- * HabitCard (P6-B1) — collapsed shows name/desc/level; tapping expands to reveal
- * the motivational phrase + importance/difficulty + Edit/Delete, which fire their
- * callbacks. Viewing details never requires the edit form.
+ * HabitCard — espelho do habitBox da web. Editar e excluir ficam SEMPRE
+ * visíveis no topo (a web os revela no hover, que não existe aqui); expandir
+ * solta o clamp e mostra rotinas, frase, atributos e os números.
  */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';
@@ -25,32 +25,65 @@ const habit = {
   routines: { r1: 'Morning Routine' },
 } as never;
 
-const wrap = (node: React.ReactElement) =>
-  render(<BeyouThemeProvider>{node}</BeyouThemeProvider>);
+// Dentro de `act`: o provider de tema assenta depois do primeiro render, e um
+// update solto corromperia o próximo teste do arquivo (ver AGENTS.md).
+const wrap = async (node: React.ReactElement) => {
+  await act(async () => {
+    render(<BeyouThemeProvider>{node}</BeyouThemeProvider>);
+  });
+};
 
 describe('HabitCard', () => {
-  it('expands to show details + fires edit/delete callbacks', async () => {
+  it('keeps edit and delete reachable without expanding', async () => {
     const onEdit = jest.fn();
     const onDelete = jest.fn();
     await wrap(<HabitCard habit={habit} onEdit={onEdit} onDelete={onDelete} />);
 
-    // Collapsed: no phrase / edit / delete yet.
-    expect(screen.queryByTestId('habit-edit-h1')).toBeNull();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('habit-edit-h1'));
+      fireEvent.press(screen.getByTestId('habit-delete-h1'));
+    });
+
+    expect(onEdit).toHaveBeenCalledWith(habit);
+    expect(onDelete).toHaveBeenCalledWith(habit);
+  });
+
+  it('hides the details until it is expanded', async () => {
+    await wrap(<HabitCard habit={habit} onEdit={jest.fn()} onDelete={jest.fn()} />);
+
+    expect(screen.queryByText('keep growing')).toBeNull();
+    expect(screen.queryByText('Morning Routine')).toBeNull();
+    // A categoria fica no cartão fechado — é o que separa um hábito do outro.
+    expect(screen.getByText('Health')).toBeTruthy();
+  });
+
+  it('expands into routines, phrase and labelled attributes', async () => {
+    await wrap(<HabitCard habit={habit} onEdit={jest.fn()} onDelete={jest.fn()} />);
 
     await act(async () => {
       fireEvent.press(screen.getByTestId('habit-card-h1'));
     });
 
-    // Expanded: phrase + importance phrase (High) + difficulty phrase (Normal) visible.
-    expect(screen.getByText('"keep growing"')).toBeTruthy();
-    expect(screen.getByText('High')).toBeTruthy(); // importance 3
-    expect(screen.getByText('Normal')).toBeTruthy(); // dificulty 2
-    expect(screen.getByText('Morning Routine')).toBeTruthy(); // "Using in" routine
+    expect(screen.getByText('keep growing')).toBeTruthy();
+    expect(screen.getByText('Morning Routine')).toBeTruthy();
+    // O rótulo acompanha o valor: "Média" sozinho não diz de que escala é.
+    expect(screen.getByText('Importance')).toBeTruthy();
+    expect(screen.getByText('High')).toBeTruthy();
+    expect(screen.getByText('Difficulty')).toBeTruthy();
+    expect(screen.getByText('Normal')).toBeTruthy();
+  });
 
-    fireEvent.press(screen.getByTestId('habit-edit-h1'));
-    expect(onEdit).toHaveBeenCalledWith(habit);
+  it('collapses again from the chevron', async () => {
+    await wrap(<HabitCard habit={habit} onEdit={jest.fn()} onDelete={jest.fn()} />);
 
-    fireEvent.press(screen.getByTestId('habit-delete-h1'));
-    expect(onDelete).toHaveBeenCalledWith(habit);
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('habit-expand-h1'));
+    });
+    expect(screen.getByText('keep growing')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('habit-expand-h1'));
+    });
+    expect(screen.queryByText('keep growing')).toBeNull();
   });
 });

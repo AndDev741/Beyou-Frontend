@@ -1,11 +1,14 @@
-import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Pencil, TriangleAlert, Trash2 } from 'lucide-react-native';
 import type { task } from '@beyou/types/tasks/taskType';
 import BeyouIcon from '../BeyouIcon';
+import AttributeChip from '../AttributeChip';
+import Chip from '../Chip';
+import IconButton from '../IconButton';
+import IconTile from '../IconTile';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { scaleClass, importanceKey, difficultyKey } from '../habits/levelLabels';
+import { importanceKey, difficultyKey } from '../habits/levelLabels';
 
 interface TaskCardProps {
   task: task;
@@ -13,115 +16,90 @@ interface TaskCardProps {
   onDelete: (task: task) => void;
 }
 
-function ScaleRow({ label, value, phraseKey }: { label: string; value: number; phraseKey: string }) {
-  const { t } = useTranslation();
-  if (!phraseKey) return null;
-  return (
-    <View className="flex-row items-center gap-2">
-      <Text className="text-text text-sm font-semibold">{label}:</Text>
-      <View className={`h-3 w-3 rounded-full ${scaleClass(value)}`} />
-      <Text className="text-text-2 text-sm">{t(phraseKey)}</Text>
-    </View>
-  );
-}
-
-/** Chips for a task's categories (stored as a Record keyed by category id). */
-function CategoryChips({ categories }: { categories: task['categories'] }) {
-  const entries = Object.entries(categories ?? {});
-  if (!entries.length) return null;
-  return (
-    <View className="flex-row flex-wrap gap-1.5">
-      {entries.map(([id, cat]) => (
-        <View key={id} className="flex-row items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5">
-          <BeyouIcon id={cat.iconId} size={12} />
-          <Text className="text-accent text-xs">{cat.name}</Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
 /**
- * Task list card — a simpler HabitCard (no gamification). Collapsed shows icon +
- * name + description + a one-time badge; tapping expands to categories,
- * importance/difficulty and the Edit/Delete actions.
+ * Cartão de tarefa — espelho do `taskBox` da web.
+ *
+ * Não expande: importância e dificuldade já aparecem no cartão fechado, e
+ * expandir só revelava editar/excluir. Essas duas sobem para o topo; na web
+ * aparecem no hover, aqui ficam sempre visíveis (não há hover no toque).
  */
 export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
-  const [expanded, setExpanded] = useState(false);
-  const hasCategories = Object.keys(task.categories ?? {}).length > 0;
+  const categoryEntries = Object.entries(task.categories ?? {});
 
   return (
-    <View className="rounded-card border border-border bg-surface p-4">
-      <Pressable
-        onPress={() => setExpanded((e) => !e)}
-        accessibilityRole="button"
-        accessibilityLabel={task.name}
-        accessibilityState={{ expanded }}
-        testID={`task-card-${task.id}`}
-        className="flex-row items-center gap-3"
-      >
-        <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
-          <BeyouIcon id={task.iconId} size={24} showFallback />
-        </View>
-        <View className="flex-1">
-          <Text className="text-text text-base font-bold" numberOfLines={expanded ? undefined : 1}>
-            {task.name}
-          </Text>
-          {task.description ? (
-            <Text className="text-text-2 text-sm" numberOfLines={expanded ? undefined : 2}>
-              {task.description}
-            </Text>
-          ) : null}
-        </View>
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
-      </Pressable>
+    <View className="rounded-card border border-border bg-surface p-4" testID={`task-card-${task.id}`}>
+      <View className="flex-row items-start gap-2.5">
+        <IconTile size={38}>
+          <BeyouIcon id={task.iconId} size={20} showFallback />
+        </IconTile>
+        <Text
+          className="min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text"
+          numberOfLines={1}
+        >
+          {task.name}
+        </Text>
+
+        <IconButton label={t('Edit')} onPress={() => onEdit(task)} testID={`task-edit-${task.id}`}>
+          <Pencil size={15} color={theme.text2} />
+        </IconButton>
+        <IconButton
+          label={t('Delete')}
+          tone="danger"
+          onPress={() => onDelete(task)}
+          testID={`task-delete-${task.id}`}
+        >
+          <Trash2 size={15} color={theme.danger} />
+        </IconButton>
+      </View>
 
       {task.oneTimeTask ? (
-        <View className="mt-2 flex-row items-center gap-1.5">
-          <Ionicons name="alert-circle-outline" size={16} color={theme.icon} />
-          <Text className="text-text text-sm">{t('One Time Task')}</Text>
+        <View className="mt-3 flex-row flex-wrap items-center gap-1.5">
+          <Chip size="sm" icon={<TriangleAlert size={12} color={theme.text2} />}>
+            {t('One Time Task')}
+          </Chip>
           {task.markedToDelete ? (
-            <Text className="text-danger text-xs font-semibold underline">{t('And Marked to Delete')}</Text>
+            <Chip size="sm" variant="danger">
+              {t('And Marked to Delete')}
+            </Chip>
           ) : null}
         </View>
       ) : null}
 
-      {!expanded && hasCategories ? <View className="mt-3"><CategoryChips categories={task.categories} /></View> : null}
+      {task.description ? (
+        <Text className="mt-3 text-sm leading-snug text-text-2" numberOfLines={2}>
+          {task.description}
+        </Text>
+      ) : null}
 
-      {expanded ? (
-        <View className="mt-4 gap-3 border-t border-border pt-3">
-          {hasCategories ? (
-            <View className="gap-1">
-              <Text className="text-text text-sm font-semibold">{t('Categories')}</Text>
-              <CategoryChips categories={task.categories} />
-            </View>
-          ) : null}
-
-          <ScaleRow label={t('Importance')} value={task.importance ?? 0} phraseKey={importanceKey(task.importance ?? 0)} />
-          <ScaleRow label={t('Difficulty')} value={task.difficulty ?? 0} phraseKey={difficultyKey(task.difficulty ?? 0)} />
-
-          <View className="mt-1 flex-row gap-3">
-            <Pressable
-              onPress={() => onEdit(task)}
-              accessibilityRole="button"
-              testID={`task-edit-${task.id}`}
-              className="flex-1 items-center rounded-control bg-accent py-2.5"
+      {categoryEntries.length > 0 ? (
+        <View className="mt-3 flex-row flex-wrap gap-1.5">
+          {categoryEntries.map(([categoryId, category], index) => (
+            <Chip
+              key={`${categoryId}-${index}`}
+              size="sm"
+              icon={<BeyouIcon id={category.iconId} size={12} />}
             >
-              <Text style={{ color: theme.background }} className="font-semibold">{t('Edit')}</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => onDelete(task)}
-              accessibilityRole="button"
-              testID={`task-delete-${task.id}`}
-              className="flex-1 items-center rounded-control border border-danger py-2.5"
-            >
-              <Text className="text-danger font-semibold">{t('Delete')}</Text>
-            </Pressable>
-          </View>
+              {category.name}
+            </Chip>
+          ))}
         </View>
       ) : null}
+
+      {/* Tarefa não tem nível: o rodapé do cartão são importância e dificuldade. */}
+      <View className="mt-3 flex-row flex-wrap gap-1.5">
+        <AttributeChip
+          label={t('Importance')}
+          value={task.importance ?? 0}
+          phraseKey={importanceKey(task.importance ?? 0)}
+        />
+        <AttributeChip
+          label={t('Difficulty')}
+          value={task.difficulty ?? 0}
+          phraseKey={difficultyKey(task.difficulty ?? 0)}
+        />
+      </View>
     </View>
   );
 }
