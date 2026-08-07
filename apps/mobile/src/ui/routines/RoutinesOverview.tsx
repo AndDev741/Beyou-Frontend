@@ -3,12 +3,11 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Ionicons } from '@expo/vector-icons';
 import { getSnapshotsForDay, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
 import { getRoutineStats, enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
-import { History } from 'lucide-react-native';
+import { CalendarDays, History } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import EmptyState from '../EmptyState';
 import type { RootState, AppDispatch } from '../../store';
@@ -42,6 +41,10 @@ function Insight({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+/** Largura de uma caixa de dia + gap, e o espaço do botão de calendário. */
+const DAY_BOX = 40 + 6;
+const CALENDAR_SLOT = 52 + 6;
+
 export default function RoutinesOverview({ routines }: { routines: Routine[] }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
@@ -53,14 +56,19 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
   const [snapshotPairs, setSnapshotPairs] = useState<SnapshotPair[]>([]);
 
   const today = iso(new Date());
-  const chips = useMemo(() => Array.from({ length: 5 }, (_, i) => iso(daysBack(i))), []);
+  // Os últimos sete dias terminando HOJE, como na web — hoje é a última caixa.
+  const week = useMemo(() => Array.from({ length: 7 }, (_, i) => iso(daysBack(6 - i))), []);
+  // Quantos cabem de fato: sem isto a fileira quebrava em duas linhas em 360px.
+  const [rowWidth, setRowWidth] = useState(0);
+  const visibleDays = rowWidth > 0 ? Math.max(3, Math.min(7, Math.floor((rowWidth - CALENDAR_SLOT) / DAY_BOX))) : 5;
+  const chips = week.slice(week.length - visibleDays);
   const day = selectedDate || today;
   const isPast = day < today;
 
   useEffect(() => {
     (async () => {
       const curMonth = monthOf(new Date());
-      const oldestChip = chips[chips.length - 1]; // 4 days back
+      const oldestChip = week[0]; // seis dias atrás
       const oldestMonth = oldestChip.slice(0, 7);
       const months = oldestMonth !== curMonth ? [curMonth, oldestMonth] : [curMonth];
       const calls = routines.flatMap((r) => months.map((m) => getSnapshotDatesForMonth(r.id as string, m, t)));
@@ -69,7 +77,7 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
       results.forEach((res) => { if (res.success?.dates) res.success.dates.forEach((d) => all.add(d)); });
       dispatch(enterSnapshotDates([...all]));
     })();
-  }, [routines, t, dispatch, chips]);
+  }, [routines, t, dispatch, week]);
 
   const load = async (date: string) => {
     dispatch(setSelectedDate(date === today ? '' : date));
@@ -96,24 +104,54 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
 
   return (
     <View className="gap-3 px-4 pb-2">
-      <View className="flex-row flex-wrap gap-2">
-        {chips.map((date, i) => {
-          const sel = date === day;
-          const has = dates.includes(date);
-          return (
-            <Pressable key={date} onPress={() => load(date)} accessibilityRole="button" accessibilityState={{ selected: sel }} testID={`rov-day-${i}`}
-              className={`h-14 w-12 items-center justify-center rounded-card border-2 ${sel ? 'border-accent bg-accent' : 'border-border'}`}>
-              <Text className={`text-[10px] font-bold tracking-wide ${sel ? 'text-on-accent' : 'text-text-2'}`}>
-                {t(WEEKDAY_KEYS[dateAtNoon(date).getDay()]).toUpperCase()}
-              </Text>
-              <Text className={`text-sm font-bold ${sel ? 'text-on-accent' : 'text-text'}`}>{dateAtNoon(date).getDate()}</Text>
-              {has && !sel ? <View className="mt-0.5 h-1 w-1 rounded-full bg-accent" /> : null}
-            </Pressable>
-          );
-        })}
-        <Pressable onPress={() => setShowPicker(true)} accessibilityRole="button" testID="routines-date-more"
-          className="items-center justify-center rounded-control border border-border px-3 py-2">
-          <Ionicons name="calendar-outline" size={18} color={theme.primary} />
+      <View
+        className="flex-row items-center gap-1.5"
+        onLayout={(event) => setRowWidth(event.nativeEvent.layout.width)}
+      >
+        <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
+          {chips.map((date, i) => {
+            const sel = date === day;
+            const has = dates.includes(date);
+            return (
+              <Pressable
+                key={date}
+                onPress={() => load(date)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: sel }}
+                testID={`rov-day-${i}`}
+                className={`h-[46px] w-10 items-center justify-center rounded-control ${
+                  sel ? 'bg-accent' : 'bg-surface-2'
+                }`}
+              >
+                <Text
+                  className={`font-mono text-[9px] font-semibold ${sel ? 'text-on-accent' : 'text-text-3'}`}
+                >
+                  {t(WEEKDAY_KEYS[dateAtNoon(date).getDay()]).toUpperCase()}
+                </Text>
+                <Text
+                  className={`font-mono-semibold text-[13px] ${sel ? 'text-on-accent' : 'text-text'}`}
+                >
+                  {dateAtNoon(date).getDate()}
+                </Text>
+                {has && !sel ? <View className="mt-0.5 h-1 w-1 rounded-full bg-accent" /> : null}
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {/* Coluna, não pílula: ocupa a largura de uma caixa de dia. A semana é o
+            caminho normal; o calendário existe para alcançar o histórico. */}
+        <Pressable
+          onPress={() => setShowPicker(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t('More dates')}
+          testID="routines-date-more"
+          className="shrink-0 items-center gap-0.5 rounded-control px-1.5 py-1.5 active:bg-surface-2"
+        >
+          <CalendarDays size={14} color={theme.text3} />
+          <Text className="text-[9px] font-medium leading-tight text-text-3" numberOfLines={1}>
+            {t('More dates')}
+          </Text>
         </Pressable>
       </View>
       {showPicker ? (
