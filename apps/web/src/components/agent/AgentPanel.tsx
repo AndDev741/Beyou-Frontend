@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Check, History, Maximize2, Minimize2, Pencil, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
+import { Check, History, Pencil, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
 import { agentChat, agentMessage, agentSegment } from "@beyou/types/agent/chatType";
 import {
     createAgentChat,
@@ -45,9 +45,10 @@ function TypingDots() {
 }
 
 /**
- * The chat surface behind the FAB. Three shells, same content:
- * mobile = fullscreen sheet, desktop = popover anchored to the FAB,
- * desktop expanded = centered overlay with a persistent history column.
+ * The chat surface behind the FAB. Two shells, same content: telefone = sheet
+ * de 86% ancorada embaixo, desktop = painel lateral de altura cheia à direita.
+ * O modo tela cheia saiu — o painel lateral já dá espaço de conversa, e o
+ * overlay central escondia a página que a conversa está falando sobre.
  * Stays mounted once opened so the conversation survives page changes.
  */
 function AgentPanel({ open, onClose }: AgentPanelProps) {
@@ -59,7 +60,6 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const currentPageRef = useRef(location.pathname);
     currentPageRef.current = location.pathname;
 
-    const [expanded, setExpanded] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [chats, setChats] = useState<agentChat[]>([]);
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -492,18 +492,6 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         <AnimatePresence>
             {open && (
                 <>
-                    {/* Backdrop — expanded desktop only */}
-                    {expanded && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={onClose}
-                            className="fixed inset-0 z-40 hidden bg-black/40 lg:block"
-                            aria-hidden
-                        />
-                    )}
-
                     <motion.div
                         role="dialog"
                         aria-label={t("AiAssistant")}
@@ -511,40 +499,17 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.92, y: reducedMotion ? 0 : 12 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
-                        style={{ transformOrigin: expanded ? "center" : "right center" }}
+                        style={{ transformOrigin: "right center" }}
                         // Telefone: sheet de 86% da tela, ancorada embaixo.
                         // Desktop: painel lateral de altura cheia encostado à
                         // direita — o popover flutuante de 440px sobrava espaço
                         // de conversa e ainda tampava o canto do conteúdo.
-                        className={`fixed inset-x-0 bottom-0 top-[14%] z-50 flex flex-col overflow-hidden
+                        className="fixed inset-x-0 bottom-0 top-[8%] z-50 flex flex-col overflow-hidden
                         rounded-t-card bg-surface text-text shadow-2xl shadow-black/20
-                        lg:rounded-none lg:border-l lg:border-border ${
-                            expanded
-                                ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)] lg:rounded-card lg:border"
-                                : "lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[420px]"
-                        }`}
+                        lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[520px] lg:rounded-none
+                        lg:border-l lg:border-border"
                     >
                         <div className="flex min-h-0 flex-1">
-                            {/* Persistent history column — expanded desktop only */}
-                            {expanded && (
-                                <aside className="hidden w-72 flex-col border-r border-border lg:flex">
-                                    <div className="flex items-center justify-between p-4 pb-2">
-                                        <h2 className="text-lg font-semibold">{t("AgentChats")}</h2>
-                                        <button
-                                            type="button"
-                                            onClick={startNewChat}
-                                            className="flex items-center gap-1.5 rounded-card bg-accent px-3 py-2
-                                            text-sm font-semibold text-on-accent transition-transform duration-200
-                                            hover:scale-105"
-                                        >
-                                            <Plus size={16} />
-                                            {t("NewChat")}
-                                        </button>
-                                    </div>
-                                    {chatList}
-                                </aside>
-                            )}
-
                             {/* Thread column */}
                             <div className="relative flex min-w-0 flex-1 flex-col">
                                 {/* Header */}
@@ -572,7 +537,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                         aria-label={t("ChatHistory")}
                                         title={t("ChatHistory")}
                                         onClick={() => setHistoryOpen((v) => !v)}
-                                        className={`${headerButton} ${expanded ? "lg:hidden" : ""}`}
+                                        className={headerButton}
                                     >
                                         <History size={18} />
                                     </button>
@@ -584,15 +549,6 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                         className={headerButton}
                                     >
                                         <Plus size={18} />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        aria-label={expanded ? t("MinimizeChat") : t("ExpandChat")}
-                                        title={expanded ? t("MinimizeChat") : t("ExpandChat")}
-                                        onClick={() => setExpanded((v) => !v)}
-                                        className={`${headerButton} hidden lg:block`}
-                                    >
-                                        {expanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                                     </button>
                                     <button
                                         type="button"
@@ -615,7 +571,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             transition={{ duration: 0.2, ease: "easeOut" }}
                                             className={`absolute bottom-0 left-0 top-[53px] z-10 flex w-72 max-w-[85%]
                                             flex-col border-r border-border bg-surface shadow-xl
-                                            ${expanded ? "lg:hidden" : ""}`}
+                                            `}
                                         >
                                             <div className="flex items-center justify-between p-3 pb-1">
                                                 <h3 className="font-semibold">{t("AgentChats")}</h3>
@@ -712,15 +668,18 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     tela, mas depois da primeira resposta a
                                     pessoa ficava sem atalho nenhum. */}
                                 {messages.length > 0 && !isSending && (
-                                    <div className="flex gap-1.5 overflow-x-auto border-t border-border px-2.5 pt-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                        {suggestions.map((suggestion) => (
+                                    <div className="flex flex-wrap gap-1.5 border-t border-border px-2.5 pt-2.5">
+                                        {/* Duas sugestões, como no mockup: com três
+                                            elas ou quebravam em três linhas ou
+                                            saíam cortadas na borda do painel. */}
+                                        {suggestions.slice(0, 2).map((suggestion) => (
                                             <button
                                                 key={suggestion}
                                                 type="button"
                                                 onClick={() => send(suggestion)}
-                                                className="shrink-0 whitespace-nowrap rounded-full border border-border
-                                                px-3 py-1.5 text-[12.5px] text-text-2 transition-colors duration-200
-                                                hover:border-accent hover:text-accent"
+                                                className="rounded-full border border-border px-3 py-1.5 text-[12.5px]
+                                                text-text-2 transition-colors duration-200 hover:border-accent
+                                                hover:text-accent"
                                             >
                                                 {suggestion}
                                             </button>
