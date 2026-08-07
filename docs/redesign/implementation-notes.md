@@ -459,6 +459,11 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
   caixas com fundo de acento.
 - **Sugestões acima do input**, numa linha rolável, sempre que há conversa —
   antes só existiam no estado vazio.
+- **Ajustes na sequência**: painel de 420 → 520px, sheet de 86% → 92%, e o
+  **modo tela cheia foi removido** junto da coluna de histórico que só existia
+  nele (o histórico continua no botão do cabeçalho). As sugestões voltaram a
+  quebrar linha, limitadas a duas — em linha rolável a terceira ficava cortada
+  na borda do painel.
 - **Não implementado do mockup:** os cartões de entidade criada com link "ver".
   `agentSegment` só carrega `tool`, `error` e `domains` — não vem id nem nome
   da entidade. Precisa de backend; entra na lista de dependências de dados.
