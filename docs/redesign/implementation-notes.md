@@ -548,6 +548,55 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
 - **Não seguido do mockup**: o ladrilho "Perfil" da sheet. A web não tem rota
   de perfil — ele é uma seção da configuração. Entraria como link morto.
 
+## Expo: a passagem do redesign para o mobile (2026-08-07)
+
+O app nativo tinha só a fundação do redesign (tokens, tipografia, marca,
+primitivos, autenticação e a casca). As telas ainda eram do modelo anterior.
+Esta rodada levou o desenho da web para elas, tela por tela.
+
+### O que mudou de regra, não só de pixel
+
+- **Hover não existe no toque.** Onde a web revela editar/excluir no hover, o
+  mobile os deixa SEMPRE visíveis — que é o que a própria web faz abaixo de
+  `md`. Vale para hábito, tarefa, categoria e meta.
+- **O Alert nativo saiu de toda exclusão.** Ele não carrega tema, nem
+  tipografia, nem o nome do item, e a ordem dos botões é da plataforma. O
+  `DeleteModal` do mobile é o mesmo desenho da web. Ficou só o Alert de "dia já
+  agendado" no `ScheduleSheet`, que não é exclusão.
+- **A barra inferior não pode sumir.** O painel do "Mais" era um `Modal` —
+  outra janela, que cobria os atalhos. Agora é irmão da barra, ancorado em
+  `bottom: '100%'`, com o escurecido atrás dos dois.
+- **Persistência local usa `expo-secure-store`.** Mesma escolha do
+  `viewFiltersStore`: é a dependência nativa que já estava instalada, e trazer
+  AsyncStorage forçaria rebuild. Vale para o convite de widgets dispensado e
+  para as seções recolhidas por dia. Como a leitura é assíncrona, o
+  `useDismissed` começa DISPENSADO e só libera depois de ler — ao contrário, um
+  convite recusado piscaria a cada abertura.
+- **Sem blur no RN.** O halo do assistente são dois discos translúcidos.
+- **Sem `<select>`.** O `SelectField` é um controle com a casca dos inputs que
+  abre uma sheet — mais confortável que um picker de roda numa lista de treze
+  ordenações.
+
+### Peças novas do lado nativo
+
+`EmptyState`, `DeleteModal`, `SelectField`, `ListToolbar`, `AttributeChip`,
+`BeyouToast` (+ o host que lê o inset de dentro do SafeAreaProvider),
+`form/FormModal`, `form/FormField`, `ProfileHeaderRow`, `useDismissed`,
+`lib/dismissedStore`, `lib/collapsedSections`, `ui/sortOptions` e a cópia de
+`routineMetrics`.
+
+`routineMetrics` é cópia literal da web: lógica pura sobre os tipos
+compartilhados, vivendo nos dois apps até alguém movê-la para um pacote. Mexeu
+num, mexa no outro.
+
+### O que ficou de fora
+
+- O ladrilho "Perfil" da sheet do "Mais" (nem web nem mobile têm rota de
+  perfil — ele é uma seção da configuração).
+- O `RoutineBuilder` e o `SectionCard` continuam no desenho anterior; só o
+  seletor de itens da seção foi alinhado.
+- O console de feedback do admin não existe no mobile.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
