@@ -292,24 +292,19 @@ describe('AgentChatModal shell', () => {
     api.getAgentChats.mockResolvedValue({ success: [] });
   });
 
-  it('opens as a sheet and toggles to full height', async () => {
-    const { getByTestId } = await wrap();
+  /**
+   * A sheet abre em 92% e fica: o modo tela cheia saiu junto com o botão que o
+   * ligava. Em 86% sobrava uma faixa de fundo sem função e cabia menos
+   * mensagem; 100% perdia a borda que lembra que aquilo é uma sheet.
+   */
+  it('opens as a sheet at a fixed height, with no fullscreen toggle', async () => {
+    const { getByTestId, queryByTestId } = await wrap();
     await act(async () => {
       fireEvent.press(getByTestId('agent-fab'));
     });
 
-    const height = () => getByTestId('agent-sheet').props.style.height;
-    expect(height()).toBe('86%');
-
-    await act(async () => {
-      fireEvent.press(getByTestId('agent-expand'));
-    });
-    expect(height()).toBe('100%');
-
-    await act(async () => {
-      fireEvent.press(getByTestId('agent-expand'));
-    });
-    expect(height()).toBe('86%');
+    expect(getByTestId('agent-sheet').props.style.height).toBe('92%');
+    expect(queryByTestId('agent-expand')).toBeNull();
   });
 
   it('hides the bubble while the sheet is open so the chat owns the screen', async () => {

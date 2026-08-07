@@ -19,8 +19,6 @@ import {
   ArrowLeft,
   Check,
   History,
-  Maximize2,
-  Minimize2,
   Pencil,
   Plus,
   Send,
@@ -38,7 +36,9 @@ const WEB_TO_MOBILE_ROUTE: Record<string, string> = { '/dashboard': '/' };
 
 // Altura da sheet no mockup: quase a tela toda, mas com a faixa de cima ainda
 // visível — o usuário nunca perde de vista de onde veio.
-const SHEET_HEIGHT = '86%';
+// 92%: a conversa é a tela inteira menos a borda que lembra que é uma sheet.
+// Em 86% sobrava uma faixa de fundo sem função e cabia menos mensagem.
+const SHEET_HEIGHT = '92%';
 
 interface AgentChatModalProps {
   visible: boolean;
@@ -59,7 +59,6 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
   const router = useRouter();
   const reduceMotion = useReducedMotion();
   const [pane, setPane] = useState<'thread' | 'history'>('thread');
-  const [expanded, setExpanded] = useState(false);
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const scrollRef = useRef<ScrollView>(null);
@@ -130,21 +129,13 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
         />
         <View
           testID="agent-sheet"
-          className={`overflow-hidden border-t border-border bg-surface ${
-            expanded ? '' : 'rounded-t-frame'
-          }`}
-          style={{
-            height: expanded ? '100%' : SHEET_HEIGHT,
-            paddingTop: expanded ? insets?.top ?? 0 : 0,
-            paddingBottom: insets?.bottom ?? 0,
-          }}
+          className="overflow-hidden rounded-t-frame border-t border-border bg-surface"
+          style={{ height: SHEET_HEIGHT, paddingBottom: insets?.bottom ?? 0 }}
         >
           {/* Puxador: diz "isto é uma sheet" antes de qualquer gesto. */}
-          {!expanded && (
-            <View className="items-center pt-2" aria-hidden>
-              <View className="h-1 w-10 rounded-full bg-border" />
-            </View>
-          )}
+          <View className="items-center pt-2" aria-hidden>
+            <View className="h-1 w-10 rounded-full bg-border" />
+          </View>
 
           {/* Header */}
           <View className="flex-row items-center gap-2 border-b border-border px-3 py-2.5">
@@ -193,19 +184,6 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
               testID="agent-new-chat"
             >
               <Plus size={20} color={theme.text2} />
-            </Pressable>
-            <Pressable
-              accessibilityLabel={expanded ? t('Collapse') : t('Expand')}
-              accessibilityState={{ expanded }}
-              onPress={() => setExpanded((current) => !current)}
-              className={headerButton}
-              testID="agent-expand"
-            >
-              {expanded ? (
-                <Minimize2 size={18} color={theme.text2} />
-              ) : (
-                <Maximize2 size={18} color={theme.text2} />
-              )}
             </Pressable>
             <Pressable
               accessibilityLabel={t('CloseAssistant')}
