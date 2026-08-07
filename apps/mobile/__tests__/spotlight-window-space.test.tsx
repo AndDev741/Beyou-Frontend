@@ -134,16 +134,36 @@ const childTestIDs = (node: JsonNode): (string | undefined)[] =>
     .filter((c): c is JsonNode => typeof c === 'object' && c !== null)
     .map((c) => (c.props as { testID?: string })?.testID);
 
-/** The rendered node that has the bottom bar as a direct child: the layout root. */
+/** True when the bar lives anywhere under this node. */
+const containsBar = (node: JsonNode | string | null): boolean => {
+  if (!node || typeof node === 'string') return false;
+  if ((node.props as { testID?: string })?.testID === 'bottom-nav') return true;
+  return (node.children ?? []).some(containsBar);
+};
+
+/**
+ * The layout root: the node whose children are the bar's branch and the
+ * overlay. The bar is no longer a DIRECT child — it sits inside a wrapper that
+ * also anchors the "More" panel above it — so the search is by branch.
+ */
 const findBarParent = (node: JsonNode | string | null): JsonNode | null => {
   if (!node || typeof node === 'string') return null;
-  if (childTestIDs(node).includes('bottom-nav')) return node;
-  for (const child of node.children ?? []) {
+  const children = (node.children ?? []).filter(
+    (c): c is JsonNode => typeof c === 'object' && c !== null,
+  );
+  if (children.some(containsBar) && childTestIDs(node).includes('spotlight-overlay')) return node;
+  for (const child of children) {
     const hit = findBarParent(child);
     if (hit) return hit;
   }
   return null;
 };
+
+/** Index of the child whose branch holds the bar. */
+const barBranchIndex = (node: JsonNode): number =>
+  (node.children ?? [])
+    .filter((c): c is JsonNode => typeof c === 'object' && c !== null)
+    .findIndex(containsBar);
 
 /**
  * Mounts the (app) layout with the dashboard inside it, then settles the
@@ -212,11 +232,10 @@ describe('spotlight overlay coordinate space', () => {
     expect(barParent).not.toBeNull();
 
     const order = childTestIDs(barParent as JsonNode);
-    expect(order).toContain('bottom-nav');
     expect(order).toContain('spotlight-overlay');
     // Later sibling ⇒ painted on top: the bar gets dimmed and the ring draws
     // over it instead of under it.
-    expect(order.indexOf('spotlight-overlay')).toBeGreaterThan(order.indexOf('bottom-nav'));
+    expect(order.indexOf('spotlight-overlay')).toBeGreaterThan(barBranchIndex(barParent as JsonNode));
   });
 
   it('still frames an in-screen target correctly (the path that already worked)', async () => {

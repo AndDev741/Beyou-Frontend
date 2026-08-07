@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useRouter, usePathname } from 'expo-router';
@@ -14,15 +14,12 @@ import {
   Settings,
   Sparkles,
   Trophy,
-  X,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useTutorialTarget } from '../../tutorial/useTutorialTarget';
 import { openAgentPanel } from '../agent/agentPanelBus';
-import BottomSheet from '../BottomSheet';
-import IconButton from '../IconButton';
 import IconTile from '../IconTile';
 import type { RootState } from '../../store';
 
@@ -119,8 +116,8 @@ function SheetTile({
       testID={`nav-${item.key.toLowerCase()}`}
       className="w-[31%] items-center gap-2 rounded-card border border-border bg-surface px-2 py-4 active:bg-surface-2"
     >
-      <IconTile tone="neutral" size={36}>
-        <Icon size={18} color={theme.text2} />
+      <IconTile tone="accent" size={36}>
+        <Icon size={17} color={theme.accent} />
       </IconTile>
       <Text className="text-center text-[11px] font-semibold text-text-2" numberOfLines={2}>
         {t(item.key)}
@@ -158,107 +155,161 @@ export default function BottomNav() {
 
   return (
     <>
-      <View
-        testID="bottom-nav"
-        accessibilityLabel={t('Shortcuts')}
-        className="flex-row items-center justify-around border-t border-border bg-surface px-2 pt-2"
-        style={{ paddingBottom: Math.max(insets.bottom, 8) }}
-      >
-        {LEFT.map((item) => (
-          <NavItemButton
-            key={item.key}
-            item={item}
-            theme={theme}
-            active={isRouteActive(pathname, item.route)}
-          />
-        ))}
-
-        {/* Vaga do disco central. Ele é posicionado em absoluto (abaixo) para
-            subir uma altura EXATA para fora da barra; um filho em fluxo teria
-            essa altura decidida pela altura dos rótulos, que muda com a fonte
-            do sistema. O espaçador é quem reserva o buraco no meio da linha. */}
-        <View className="w-14 shrink-0" />
-
-        {RIGHT.map((item) => (
-          <NavItemButton
-            key={item.key}
-            item={item}
-            theme={theme}
-            active={isRouteActive(pathname, item.route)}
-          />
-        ))}
-
+      {/* O escurecido fica ABAIXO da barra: abrir o "Mais" não pode apagar os
+          atalhos, que são a orientação de onde se está. Sem Modal de propósito
+          — um Modal é outra janela e cobriria a barra junto. */}
+      {sheetOpen ? (
         <Pressable
-          ref={moreRef}
-          onPress={() => setSheetOpen(true)}
           accessibilityRole="button"
-          accessibilityLabel={t('More')}
-          accessibilityState={{ selected: moreActive, expanded: sheetOpen }}
-          testID="nav-more"
-          className="flex-1 items-center justify-center gap-0.5 rounded-control py-1.5 active:bg-surface-2"
-        >
-          <Ellipsis size={20} color={moreActive ? theme.accent : theme.text3} />
-          <Text
-            className="text-[10px] font-semibold"
-            style={{ color: moreActive ? theme.accent : theme.text3 }}
-            numberOfLines={1}
-          >
-            {t('More')}
-          </Text>
-        </Pressable>
+          accessibilityLabel={t('Close')}
+          testID="nav-more-backdrop"
+          onPress={() => setSheetOpen(false)}
+          style={StyleSheet.absoluteFill}
+          className="bg-black/40"
+        />
+      ) : null}
 
-        {isTutorialCompleted ? (
-          <Pressable
-            onPress={openAgentPanel}
-            accessibilityRole="button"
-            accessibilityLabel={t('OpenAssistant')}
-            testID="nav-agent"
-            className="absolute h-12 w-12 items-center justify-center rounded-full bg-accent active:opacity-80"
+      <View>
+        {sheetOpen ? (
+          <View
+            testID="nav-more-sheet"
+            className="mx-2 mb-2 rounded-frame border border-border bg-surface p-4"
             style={{
-              // Centralizado sobre o espaçador (dois itens flexíveis de cada
-              // lado ⇒ o meio da barra é o meio da vaga) e 14px para fora da
-              // barra: alto o bastante para ler como disco elevado, baixo o
-              // bastante para o toque não depender da área fora do pai.
-              left: '50%',
-              marginLeft: -24,
-              top: -14,
-              elevation: 6,
-              shadowColor: theme.accent,
-              shadowOpacity: 0.4,
-              shadowRadius: 10,
-              shadowOffset: { width: 0, height: 6 },
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              elevation: 12,
+              shadowColor: '#000',
+              shadowOpacity: 0.25,
+              shadowRadius: 18,
+              shadowOffset: { width: 0, height: -6 },
             }}
           >
-            <Sparkles size={22} color={theme.onAccent} />
-          </Pressable>
-        ) : null}
-      </View>
-
-      <BottomSheet
-        visible={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        closeLabel="Close"
-        maxHeight="max-h-[70%]"
-      >
-        <View className="mb-3 flex-row items-center justify-between">
-          <Text accessibilityRole="header" className="text-base font-semibold text-text">
-            {t('More')}
-          </Text>
-          <IconButton label={t('Close')} onPress={() => setSheetOpen(false)} testID="nav-more-close">
-            <X size={18} color={theme.text3} />
-          </IconButton>
-        </View>
-        <ScrollView>
-          {/* 31% + gap de 8px = três por linha em qualquer largura de celular;
-              a segunda linha alinha à esquerda em vez de esticar os dois
-              últimos tiles. */}
-          <View className="flex-row flex-wrap gap-2">
-            {SHEET.map((item) => (
-              <SheetTile key={item.key} item={item} theme={theme} onPress={() => goTo(item.route)} />
-            ))}
+            <View className="mx-auto mb-3 h-1 w-9 rounded-full bg-border" />
+            <Text accessibilityRole="header" className="mb-3 text-[15px] font-semibold text-text">
+              {t('More')}
+            </Text>
+            {/* 31% + gap de 8px = três por linha em qualquer largura de celular;
+                a segunda linha alinha à esquerda em vez de esticar os dois
+                últimos tiles. */}
+            <View className="flex-row flex-wrap gap-2">
+              {SHEET.map((item) => (
+                <SheetTile key={item.key} item={item} theme={theme} onPress={() => goTo(item.route)} />
+              ))}
+            </View>
           </View>
-        </ScrollView>
-      </BottomSheet>
+        ) : null}
+
+        <View
+          testID="bottom-nav"
+          accessibilityLabel={t('Shortcuts')}
+          className="flex-row items-center justify-around border-t border-border bg-surface px-2 pt-2"
+          style={{ paddingBottom: Math.max(insets.bottom, 8) }}
+        >
+          {LEFT.map((item) => (
+            <NavItemButton
+              key={item.key}
+              item={item}
+              theme={theme}
+              active={isRouteActive(pathname, item.route)}
+            />
+          ))}
+
+          {/* Vaga do disco central. Ele é posicionado em absoluto (abaixo) para
+              subir uma altura EXATA para fora da barra; um filho em fluxo teria
+              essa altura decidida pela altura dos rótulos, que muda com a fonte
+              do sistema. O espaçador é quem reserva o buraco no meio da linha. */}
+          <View className="w-14 shrink-0" />
+
+          {RIGHT.map((item) => (
+            <NavItemButton
+              key={item.key}
+              item={item}
+              theme={theme}
+              active={isRouteActive(pathname, item.route)}
+            />
+          ))}
+
+          <Pressable
+            ref={moreRef}
+            onPress={() => setSheetOpen((open) => !open)}
+            accessibilityRole="button"
+            accessibilityLabel={t('More')}
+            accessibilityState={{ selected: moreActive, expanded: sheetOpen }}
+            testID="nav-more"
+            className="flex-1 items-center justify-center gap-0.5 rounded-control py-1.5 active:bg-surface-2"
+          >
+            <Ellipsis size={20} color={moreActive ? theme.accent : theme.text3} />
+            <Text
+              className="text-[10px] font-semibold"
+              style={{ color: moreActive ? theme.accent : theme.text3 }}
+              numberOfLines={1}
+            >
+              {t('More')}
+            </Text>
+          </Pressable>
+
+          {isTutorialCompleted ? (
+            <>
+              {/* Halo: dois discos translúcidos em vez de blur (o RN não tem
+                  filtro). É o único alvo da barra que não é navegação, e o
+                  desenho precisa dizer isso antes do rótulo. */}
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  marginLeft: -40,
+                  top: -30,
+                  height: 80,
+                  width: 80,
+                  borderRadius: 40,
+                  backgroundColor: theme.accent,
+                  opacity: 0.12,
+                }}
+              />
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  marginLeft: -32,
+                  top: -22,
+                  height: 64,
+                  width: 64,
+                  borderRadius: 32,
+                  backgroundColor: theme.accent,
+                  opacity: 0.18,
+                }}
+              />
+              <Pressable
+                onPress={openAgentPanel}
+                accessibilityRole="button"
+                accessibilityLabel={t('OpenAssistant')}
+                testID="nav-agent"
+                className="absolute h-14 w-14 items-center justify-center rounded-full bg-accent active:opacity-80"
+                style={{
+                  // Centralizado sobre o espaçador (dois itens flexíveis de cada
+                  // lado ⇒ o meio da barra é o meio da vaga) e 18px para fora da
+                  // barra: sobe mais que os vizinhos sem que o toque dependa da
+                  // área fora do pai.
+                  left: '50%',
+                  marginLeft: -28,
+                  top: -18,
+                  elevation: 8,
+                  shadowColor: theme.accent,
+                  shadowOpacity: 0.45,
+                  shadowRadius: 12,
+                  shadowOffset: { width: 0, height: 6 },
+                }}
+              >
+                <Sparkles size={22} color={theme.onAccent} />
+              </Pressable>
+            </>
+          ) : null}
+        </View>
+      </View>
     </>
   );
 }

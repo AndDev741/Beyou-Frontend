@@ -1,3 +1,4 @@
+import { Trophy } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,7 @@ import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import EmptyState from '../../src/ui/EmptyState';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null };
 const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
@@ -126,18 +128,14 @@ export default function GoalsScreen() {
             />
           )}
           ListEmptyComponent={
-            <View className="mt-20 items-center gap-3 px-8">
-              <Text className="text-5xl">🎯</Text>
-              <Text className="text-text-2 text-center text-base">{t('NoGoalsYet')}</Text>
-              <Pressable
-                onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
-                accessibilityRole="button"
-                testID="empty-create-goal"
-                className="rounded-full bg-accent px-5 py-2.5"
-              >
-                <Text style={{ color: theme.background }} className="font-semibold">{t('CreateGoal')}</Text>
-              </Pressable>
-            </View>
+            <EmptyState
+              icon={<Trophy size={20} color={theme.accent} />}
+              title={t('0GoalsTitle')}
+              description={t('Start creating amazing goals to track your progress!')}
+              actionLabel={t('CreateGoal')}
+              onAction={() => setForm({ visible: true, mode: 'create', goal: null })}
+              testID="empty-create-goal"
+            />
           }
         />
       )}

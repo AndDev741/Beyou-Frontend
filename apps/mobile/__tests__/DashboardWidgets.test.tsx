@@ -15,7 +15,7 @@ jest.mock('expo-router', () => ({
 }));
 
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import type category from '@beyou/types/category/categoryType';
 import { widgetsIdInUseEnter, constanceEnter } from '@beyou/state/user/perfilSlice';
 import {
@@ -76,8 +76,21 @@ describe('DashboardWidgets', () => {
     await renderWith(store);
 
     expect(screen.getByTestId('no-widgets-empty-state')).toBeTruthy();
-    expect(screen.getByTestId('add-widgets-cta')).toBeTruthy();
+    expect(screen.getByTestId('no-widgets-empty-state-action')).toBeTruthy();
     expect(screen.queryByTestId('dashboard-widgets')).toBeNull();
+  });
+
+  /** O convite é dispensável: fechado, some e não volta. */
+  it('hides the invite for good once dismissed', async () => {
+    const store = makeStore();
+    store.dispatch(widgetsIdInUseEnter([]));
+    await renderWith(store);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('no-widgets-empty-state-dismiss'));
+    });
+
+    expect(screen.queryByTestId('no-widgets-empty-state')).toBeNull();
   });
 
   it('DailyProgress widget shows the ring + the tasks count', async () => {

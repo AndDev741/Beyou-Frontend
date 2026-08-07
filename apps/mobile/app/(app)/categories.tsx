@@ -1,3 +1,4 @@
+import { Folder } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,7 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useCategoriesTutorial } from '../../src/tutorial/hooks/useCategoriesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import EmptyState from '../../src/ui/EmptyState';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; category: category | null };
 const CLOSED: FormState = { visible: false, mode: 'create', category: null };
@@ -129,18 +131,14 @@ export default function CategoriesScreen() {
             />
           )}
           ListEmptyComponent={
-            <View className="mt-20 items-center gap-3 px-8">
-              <Text className="text-5xl">🗂️</Text>
-              <Text className="text-text-2 text-center text-base">{t('NoCategories')}</Text>
-              <Pressable
-                onPress={() => setForm({ visible: true, mode: 'create', category: null })}
-                accessibilityRole="button"
-                testID="empty-create-category"
-                className="rounded-full bg-accent px-5 py-2.5"
-              >
-                <Text style={{ color: theme.background }} className="font-semibold">{t('CreateCategory')}</Text>
-              </Pressable>
-            </View>
+            <EmptyState
+              icon={<Folder size={20} color={theme.accent} />}
+              title={t('0CategoriesTitle')}
+              description={t('0CategoriesMessage')}
+              actionLabel={t('CreateCategory')}
+              onAction={() => setForm({ visible: true, mode: 'create', category: null })}
+              testID="empty-create-category"
+            />
           }
         />
       )}

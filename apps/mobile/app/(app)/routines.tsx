@@ -1,3 +1,4 @@
+import { CalendarDays } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +26,8 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useRoutinesTutorial } from '../../src/tutorial/hooks/useRoutinesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import EmptyState from '../../src/ui/EmptyState';
+import { openAgentPanel } from '../../src/ui/agent/agentPanelBus';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
@@ -115,9 +118,17 @@ export default function RoutinesScreen() {
           )}
           ListEmptyComponent={
             !isPast ? (
-              <View className="mt-12 items-center gap-3 px-8">
-                <Text className="text-5xl">🗓️</Text>
-                <Text className="text-text-2 text-center text-base">{t('NoRoutinesYet')}</Text>
+              <View className="px-4">
+                <EmptyState
+                  icon={<CalendarDays size={20} color={theme.accent} />}
+                  title={t('0RoutinesTitle')}
+                  description={t('0RoutinesDescription')}
+                  actionLabel={t('Create routine')}
+                  onAction={() => setBuilder(true)}
+                  secondaryLabel={t('OrAskTheAssistant')}
+                  onSecondary={openAgentPanel}
+                  testID="routines-empty"
+                />
               </View>
             ) : null
           }

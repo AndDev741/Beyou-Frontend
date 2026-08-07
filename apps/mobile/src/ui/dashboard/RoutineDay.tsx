@@ -10,7 +10,9 @@ import {
   checkedItemsInScheduledRoutineEnter,
   totalItemsInScheduledRoutineEnter,
 } from '@beyou/state/user/perfilSlice';
+import { CalendarDays } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import EmptyState from '../EmptyState';
 import BeyouIcon from '../BeyouIcon';
 import RoutineItem, { type MergedItem } from './RoutineItem';
 import RoutineCompleteSummary from './RoutineCompleteSummary';
@@ -44,20 +46,14 @@ function EmptyRoutine() {
   const router = useRouter();
   const { theme } = useBeyouTheme();
   return (
-    <View className="items-center rounded-card border border-border bg-surface p-6" testID="routine-empty">
-      <Ionicons name="calendar-outline" size={36} color={theme.icon} />
-      <Text className="text-text-2 mt-3 text-center text-base font-semibold">
-        {t('No Routines Scheduled for today')}
-      </Text>
-      <Pressable
-        onPress={() => router.push('/routines')}
-        accessibilityRole="button"
-        testID="routine-empty-cta"
-        className="mt-4 rounded-control border border-border px-5 py-2"
-      >
-        <Text className="text-accent font-semibold">{t('Routines')}</Text>
-      </Pressable>
-    </View>
+    <EmptyState
+      icon={<CalendarDays size={20} color={theme.accent} />}
+      title={t('No Routines Scheduled for today')}
+      description={t('NothingScheduledTodayDescription')}
+      actionLabel={t('ScheduleRoutine')}
+      onAction={() => router.push('/routines')}
+      testID="routine-empty"
+    />
   );
 }
 

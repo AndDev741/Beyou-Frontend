@@ -8,7 +8,9 @@ import { getSnapshotsForDay, getSnapshotDatesForMonth } from '@beyou/api/routine
 import { getRoutineStats, enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
+import { History } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import EmptyState from '../EmptyState';
 import type { RootState, AppDispatch } from '../../store';
 import SnapshotCard from './SnapshotCard';
 import { useSnapshotCheckin } from './useSnapshotCheckin';
@@ -136,7 +138,12 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
         </View>
       ) : null}
       {isPast && snapshotPairs.length === 0 ? (
-        <Text className="text-text-2 text-center text-sm">{t('NoSnapshotForDay')}</Text>
+        <EmptyState
+          icon={<History size={20} color={theme.accent} />}
+          title={t('No history available for this date')}
+          description={t('NoSnapshotForDay')}
+          testID="routines-snapshot-empty"
+        />
       ) : null}
     </View>
   );

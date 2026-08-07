@@ -253,3 +253,48 @@ describe('BottomNav active item', () => {
     expect(new Set(others).size).toBe(1);
   });
 });
+
+/**
+ * O painel do "Mais" cobria a barra quando era um Modal. Agora ele mora acima
+ * dela, e os atalhos continuam visíveis e tocáveis — é a barra que responde
+ * "onde estou".
+ */
+describe('BottomNav "More" panel placement', () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+    mockPathname = '/';
+  });
+
+  it('keeps the bar mounted alongside the open panel', async () => {
+    await renderNav();
+    await openSheet();
+
+    expect(screen.getByTestId('nav-more-sheet')).toBeTruthy();
+    expect(screen.getByTestId('bottom-nav')).toBeTruthy();
+    expect(screen.getByTestId('nav-routines')).toBeTruthy();
+  });
+
+  it('anchors the panel above the bar instead of over it', async () => {
+    await renderNav();
+    await openSheet();
+
+    const style = StyleSheet.flatten(screen.getByTestId('nav-more-sheet').props.style);
+    expect(style.position).toBe('absolute');
+    expect(style.bottom).toBe('100%');
+  });
+
+  it('closes from the backdrop and from a second tap on More', async () => {
+    await renderNav();
+    await openSheet();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-more-backdrop'));
+    });
+    expect(screen.queryByTestId('nav-more-sheet')).toBeNull();
+
+    await openSheet();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-more'));
+    });
+    expect(screen.queryByTestId('nav-more-sheet')).toBeNull();
+  });
+});

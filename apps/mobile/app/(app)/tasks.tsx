@@ -1,3 +1,4 @@
+import { ListChecks } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ import TasksSortSheet from '../../src/ui/tasks/TasksSortSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import EmptyState from '../../src/ui/EmptyState';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; task: task | null };
 const CLOSED: FormState = { visible: false, mode: 'create', task: null };
@@ -121,18 +123,14 @@ export default function TasksScreen() {
             />
           )}
           ListEmptyComponent={
-            <View className="mt-20 items-center gap-3 px-8">
-              <Text className="text-5xl">📝</Text>
-              <Text className="text-text-2 text-center text-base">{t('NoTasksYet')}</Text>
-              <Pressable
-                onPress={() => setForm({ visible: true, mode: 'create', task: null })}
-                accessibilityRole="button"
-                testID="empty-create-task"
-                className="rounded-full bg-accent px-5 py-2.5"
-              >
-                <Text style={{ color: theme.background }} className="font-semibold">{t('CreateTask')}</Text>
-              </Pressable>
-            </View>
+            <EmptyState
+              icon={<ListChecks size={20} color={theme.accent} />}
+              title={t('0TasksTitle')}
+              description={t('Start creating amazing tasks to organize your day!')}
+              actionLabel={t('CreateTask')}
+              onAction={() => setForm({ visible: true, mode: 'create', task: null })}
+              testID="empty-create-task"
+            />
           }
         />
       )}
