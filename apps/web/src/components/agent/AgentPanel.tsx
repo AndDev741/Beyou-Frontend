@@ -511,13 +511,17 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.92, y: reducedMotion ? 0 : 12 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
-                        style={{ transformOrigin: expanded ? "center" : "bottom right" }}
-                        className={`fixed inset-0 z-50 flex flex-col overflow-hidden bg-surface
-                        text-text shadow-2xl shadow-black/20 lg:rounded-card lg:border
-                        lg:border-border ${
+                        style={{ transformOrigin: expanded ? "center" : "right center" }}
+                        // Telefone: sheet de 86% da tela, ancorada embaixo.
+                        // Desktop: painel lateral de altura cheia encostado à
+                        // direita — o popover flutuante de 440px sobrava espaço
+                        // de conversa e ainda tampava o canto do conteúdo.
+                        className={`fixed inset-x-0 bottom-0 top-[14%] z-50 flex flex-col overflow-hidden
+                        rounded-t-card bg-surface text-text shadow-2xl shadow-black/20
+                        lg:rounded-none lg:border-l lg:border-border ${
                             expanded
-                                ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)]"
-                                : "lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[min(720px,calc(100vh-48px))] lg:w-[440px]"
+                                ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)] lg:rounded-card lg:border"
+                                : "lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[420px]"
                         }`}
                     >
                         <div className="flex min-h-0 flex-1">
@@ -548,9 +552,20 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
                                         <Sparkles size={16} className="text-accent" />
                                     </span>
-                                    <h2 className="min-w-0 flex-1 truncate font-semibold">
-                                        {activeChat ? activeChat.title : t("AiAssistant")}
-                                    </h2>
+                                    {/* Nome fixo em cima, assunto da conversa em
+                                        mono embaixo — o título mudava sozinho
+                                        quando o agente renomeava o chat e a
+                                        pessoa perdia a referência de onde está. */}
+                                    <div className="min-w-0 flex-1">
+                                        <h2 className="truncate text-[15px] font-semibold leading-tight">
+                                            {t("AiAssistant")}
+                                        </h2>
+                                        {activeChat && (
+                                            <p className="truncate font-mono text-[11px] text-text-3">
+                                                {activeChat.title}
+                                            </p>
+                                        )}
+                                    </div>
 
                                     <button
                                         type="button"
@@ -692,8 +707,29 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     )}
                                 </div>
 
+                                {/* Sugestões contextuais logo acima do input: no
+                                    estado vazio elas já apareciam no meio da
+                                    tela, mas depois da primeira resposta a
+                                    pessoa ficava sem atalho nenhum. */}
+                                {messages.length > 0 && !isSending && (
+                                    <div className="flex gap-1.5 overflow-x-auto border-t border-border px-2.5 pt-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                        {suggestions.map((suggestion) => (
+                                            <button
+                                                key={suggestion}
+                                                type="button"
+                                                onClick={() => send(suggestion)}
+                                                className="shrink-0 whitespace-nowrap rounded-full border border-border
+                                                px-3 py-1.5 text-[12.5px] text-text-2 transition-colors duration-200
+                                                hover:border-accent hover:text-accent"
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {/* Composer */}
-                                <div className="border-t border-border p-2.5">
+                                <div className={`p-2.5 ${messages.length > 0 && !isSending ? "" : "border-t border-border"}`}>
                                     <div className="mx-auto flex w-full max-w-3xl items-end gap-2">
                                         <textarea
                                             ref={inputRef}

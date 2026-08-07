@@ -11,23 +11,25 @@ function ToolRow({ segment }: { segment: agentSegment }) {
     const running = segment.status === "started";
 
     return (
+        // Chip discreto, como no mockup: o que a ferramenta fez é contexto,
+        // não a resposta — não deve competir com o texto do assistente.
         <div
-            className={`flex w-fit items-center gap-2 rounded-control border px-2.5 py-1.5 text-sm ${
+            className={`flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11.5px] ${
                 failed
                     ? "border-danger/30 bg-danger/10 text-danger"
-                    : "border-border bg-accent/5 text-text"
+                    : "border-border bg-surface text-text-3"
             }`}
         >
             {running ? (
-                <Loader2 size={14} className="shrink-0 animate-spin text-accent" />
+                <Loader2 size={12} className="shrink-0 animate-spin text-accent" />
             ) : failed ? (
-                <X size={14} className="shrink-0" />
+                <X size={12} className="shrink-0" />
             ) : (
-                <Check size={14} className="shrink-0 text-accent" />
+                <Check size={12} className="shrink-0 text-success" />
             )}
-            <span className="font-medium">
+            <span>
                 {label}
-                {failed && <span className="font-normal opacity-80"> · {t("AgentToolFailed")}</span>}
+                {failed && <span className="opacity-80"> · {t("AgentToolFailed")}</span>}
             </span>
         </div>
     );
