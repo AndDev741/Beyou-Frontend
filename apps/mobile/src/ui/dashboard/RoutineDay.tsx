@@ -107,7 +107,12 @@ export default function RoutineDay() {
                   routineId={routine.id ?? ''}
                   item={item}
                   name={resolved.name}
-                  motivationalPhrase={item.type === 'habit' ? allHabits?.find((h) => h.id === item.id)?.motivationalPhrase : undefined}
+                  iconId={resolved.iconId}
+                  motivationalPhrase={
+                    item.type === 'habit'
+                      ? (resolved as { motivationalPhrase?: string }).motivationalPhrase
+                      : undefined
+                  }
                   today={today}
                 />
               );

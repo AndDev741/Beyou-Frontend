@@ -9,16 +9,23 @@ import Animated, {
   withSpring,
   useReducedMotion,
 } from 'react-native-reanimated';
+import { Flame } from 'lucide-react-native';
+import { withAlpha } from '@beyou/theme';
 import { celebrationShifted } from '@beyou/state/celebration/celebrationSlice';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import Ring from '../Ring';
 import type { RootState, AppDispatch } from '../../store';
 
 const AUTO_DISMISS_MS = 4000;
 
 /**
- * Full-screen celebration for level-ups and streak milestones. Reads the head of
- * the shared celebration queue (populated by applyRefreshUi); auto-dismisses
- * after 4s and on backdrop tap. Native equivalent of the web CelebrationOverlay.
+ * A celebração do mockup: o anel do sistema cheio, com o número do nível no
+ * centro — a mesma peça do check-in e da marca. Marco de sequência usa o mesmo
+ * anel com a chama e a contagem de dias.
+ *
+ * Lê a cabeça da fila de celebrações (preenchida pelo applyRefreshUi). Fecha
+ * sozinha em 4s, no toque do fundo e no "Continuar" — o botão é uma saída
+ * antes disso, não a única. Espelha a CelebrationOverlay da web.
  */
 export default function CelebrationOverlay() {
   const { t } = useTranslation();
@@ -47,12 +54,11 @@ export default function CelebrationOverlay() {
   const message = isLevelUp
     ? t('LevelUpMessage', { level: celebration.level })
     : t('StreakMilestoneMessage', { days: celebration.days });
-  const badge = isLevelUp ? `LV ${celebration.level}` : `${celebration.days}`;
-  const badgeCaption = isLevelUp ? '' : t('Days');
+  const dismiss = () => dispatch(celebrationShifted());
 
   return (
     <Pressable
-      onPress={() => dispatch(celebrationShifted())}
+      onPress={dismiss}
       accessibilityRole="button"
       accessibilityLabel={title}
       testID="celebration-overlay"
@@ -60,23 +66,46 @@ export default function CelebrationOverlay() {
     >
       <Animated.View
         style={cardStyle}
-        className="items-center rounded-card border-2 border-border bg-surface px-10 py-8"
+        className="w-full max-w-[340px] items-center rounded-card border border-border bg-surface px-7 py-8"
       >
-        <View
-          className="h-24 w-24 items-center justify-center rounded-full"
-          style={{ backgroundColor: theme.primary }}
-        >
-          <Text className="text-2xl font-black" style={{ color: theme.background }}>
-            {badge}
-          </Text>
-          {badgeCaption ? (
-            <Text className="text-xs font-semibold uppercase" style={{ color: theme.background }}>
-              {badgeCaption}
-            </Text>
-          ) : null}
+        <View className="h-[104px] w-[104px] items-center justify-center">
+          {/* Halo: o anel cheio já é a mensagem, o brilho só o apoia. */}
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              height: 104,
+              width: 104,
+              borderRadius: 52,
+              backgroundColor: withAlpha(theme.accent, 0.1),
+            }}
+          />
+          {isLevelUp ? (
+            <Ring size={96} state="progress" progress={1} label={String(celebration.level)} testID="celebration-ring" />
+          ) : (
+            <View className="h-24 w-24 items-center justify-center">
+              <Ring size={96} state="progress" progress={1} className="absolute" testID="celebration-ring" />
+              <View className="items-center gap-0.5">
+                <Flame size={18} color={theme.flame} />
+                <Text className="font-mono-semibold text-[22px] text-text">{celebration.days}</Text>
+              </View>
+            </View>
+          )}
         </View>
-        <Text className="text-accent mt-4 text-2xl font-bold">{title}</Text>
-        <Text className="text-text mt-2 max-w-xs text-center text-sm">{message}</Text>
+
+        <Text className="mt-5 text-center text-[19px] font-semibold text-text">{title}</Text>
+        <Text className="mt-2 max-w-[15rem] text-center text-[13px] text-text-3">{message}</Text>
+
+        <Pressable
+          onPress={dismiss}
+          accessibilityRole="button"
+          testID="celebration-continue"
+          className="mt-6 w-full items-center rounded-control bg-accent px-5 py-2.5 active:opacity-80"
+        >
+          <Text className="text-sm font-semibold" style={{ color: theme.onAccent }}>
+            {t('Continue')}
+          </Text>
+        </Pressable>
       </Animated.View>
     </Pressable>
   );
@@ -86,7 +115,8 @@ const styles = StyleSheet.create({
   backdrop: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
     zIndex: 60,
   },
 });

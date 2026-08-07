@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useCallback } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,10 @@ import type { AppDispatch, RootState } from '../store';
 interface CheckOpts {
   wasChecked: boolean;
   motivationalPhrase?: string;
+  /** Nome do item concluído — vira o título da notificação. */
+  name?: string;
+  /** Ícone do próprio hábito/tarefa, em vez de um check genérico. */
+  icon?: ReactNode;
 }
 
 /**
@@ -41,7 +46,14 @@ export function useRoutineCheckin() {
       const res = await checkRoutine(dto, t);
       if (res.success) {
         apply(res.success);
-        if (!opts.wasChecked) notify.success(opts.motivationalPhrase || t('Item completed'));
+        if (!opts.wasChecked) {
+          // A frase motivacional vira o subtítulo, com o ícone do próprio
+          // item: um check verde genérico não diz o que foi concluído.
+          notify.success(opts.name || t('Item completed'), {
+            subtitle: opts.motivationalPhrase,
+            icon: opts.icon,
+          });
+        }
         return res.success;
       }
       notify.error(getFriendlyErrorMessage(t, res.error));

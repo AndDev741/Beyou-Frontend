@@ -7,6 +7,7 @@ import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useRoutineCheckin } from '../../dashboard/useRoutineCheckin';
+import BeyouIcon from '../BeyouIcon';
 import XpFloat from './XpFloat';
 
 const XP_FLOAT_DURATION_MS = 1200;
@@ -24,6 +25,8 @@ interface RoutineItemProps {
   routineId: string;
   item: MergedItem;
   name: string;
+  /** Ícone salvo do hábito/tarefa — acompanha a notificação de conclusão. */
+  iconId?: string;
   motivationalPhrase?: string;
   /** YYYY-MM-DD for "today" — matched against check.checkDate. */
   today: string;
@@ -39,7 +42,7 @@ function groupDTO(item: MergedItem) {
     : { habitGroupDTO: { habitGroupId: item.groupId, startTime: item.startTime ?? '' } };
 }
 
-export default function RoutineItem({ routineId, item, name, motivationalPhrase, today, onChanged }: RoutineItemProps) {
+export default function RoutineItem({ routineId, item, name, iconId, motivationalPhrase, today, onChanged }: RoutineItemProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const { check, skip } = useRoutineCheckin();
@@ -69,7 +72,12 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
     setOptChecked(next);
     if (next) setOptSkipped(false); // checking clears any skipped state
     const dto: itemGroupToCheck = { routineId, ...groupDTO(item) };
-    const result = await check(dto, { wasChecked: checked, motivationalPhrase });
+    const result = await check(dto, {
+      wasChecked: checked,
+      motivationalPhrase,
+      name,
+      icon: iconId ? <BeyouIcon id={iconId} size={16} /> : undefined,
+    });
     if (!result) { setOptChecked(null); setOptSkipped(null); } // failed → revert
     const itemChecked = result?.refreshItemChecked;
     const gen = itemChecked?.check?.xpGenerated;

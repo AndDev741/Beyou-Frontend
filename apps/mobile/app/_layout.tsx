@@ -8,7 +8,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import Toast from 'react-native-toast-message';
 import '../src/i18n';
 import { fetch as expoFetch } from 'expo/fetch';
 import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
@@ -27,6 +26,7 @@ import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
 import { initTelemetry, reportHandledFailure } from '../src/lib/telemetry';
+import { BeyouToastHost } from '../src/ui/BeyouToast';
 
 // Error reporting comes up before any app wiring so a crash *during* the setup
 // below is still captured. No-ops when EXPO_PUBLIC_SENTRY_DSN is unset.
@@ -140,7 +140,7 @@ export default function RootLayout() {
             <ErrorBoundary>
               <Gate />
             </ErrorBoundary>
-            <Toast />
+            <BeyouToastHost />
           </BeyouThemeProvider>
         </SafeAreaProvider>
       </TutorialProvider>
