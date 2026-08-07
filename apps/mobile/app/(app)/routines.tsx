@@ -1,6 +1,6 @@
 import { CalendarDays } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -26,6 +26,7 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useRoutinesTutorial } from '../../src/tutorial/hooks/useRoutinesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import { openAgentPanel } from '../../src/ui/agent/agentPanelBus';
 
@@ -71,18 +72,24 @@ export default function RoutinesScreen() {
   // ScheduleSheet derives conflicts from the routines slice itself — just open it.
   const onSchedule = useCallback((r: Routine) => setScheduleTarget(r), []);
 
-  const onDelete = useCallback((r: Routine) => {
-    if (!r.id) return;
-    Alert.alert(t('DeleteRoutine'), t('ConfirmDeleteRoutine'), [
-      { text: t('Cancel'), style: 'cancel' },
-      { text: t('Delete'), style: 'destructive', onPress: async () => {
-        const res = await deleteRoutine(r.id as string, t);
-        if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
-        notify.success(t('deleted successfully'));
-        await load();
-      } },
-    ]);
-  }, [t, load]);
+  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
+  // tipografia, nem o nome da rotina, e traz a ordem de botões do sistema.
+  const [deleteTarget, setDeleteTarget] = useState<Routine | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteRoutine(deleteTarget.id as string, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
@@ -113,7 +120,7 @@ export default function RoutinesScreen() {
           }
           renderItem={({ item, index }) => (
             <View className="px-4">
-              <RoutineCard routine={item} today={today} onSchedule={onSchedule} onEdit={setEditTarget} onDelete={onDelete} onChanged={load} scheduleRef={index === 0 ? scheduleRoutineRef : undefined} />
+              <RoutineCard routine={item} today={today} onSchedule={onSchedule} onEdit={setEditTarget} onDelete={setDeleteTarget} onChanged={load} scheduleRef={index === 0 ? scheduleRoutineRef : undefined} />
             </View>
           )}
           ListEmptyComponent={
@@ -134,6 +141,15 @@ export default function RoutinesScreen() {
           }
         />
       )}
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfRoutinePhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <RoutineBuilder visible={builder} mode="create" habits={habits} tasks={tasks} onClose={() => setBuilder(false)} onSaved={load} />
       <RoutineBuilder visible={editTarget !== null} mode="edit" routine={editTarget ?? undefined} habits={habits} tasks={tasks} onClose={() => setEditTarget(null)} onSaved={load} />

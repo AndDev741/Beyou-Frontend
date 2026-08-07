@@ -62,18 +62,14 @@ describe('GoalsScreen', () => {
     expect(screen.queryByTestId('goals-sort')).toBeNull();
   });
 
-  it('deletes a goal after Alert confirmation', async () => {
+  it('deletes a goal from the shared delete modal', async () => {
     setHttp([goal]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      (buttons ?? []).find((b) => b.style === 'destructive')?.onPress?.();
-    });
     await renderScreen();
     await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
 
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-g1')); }); // expand
     await act(async () => { fireEvent.press(screen.getByTestId('goal-delete-g1')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('delete-modal-confirm')); });
 
     await waitFor(() => expect(del).toHaveBeenCalledWith('/goal/g1'));
-    alertSpy.mockRestore();
   });
 });

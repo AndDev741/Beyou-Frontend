@@ -70,23 +70,19 @@ describe('HabitsScreen', () => {
     expect(screen.queryByTestId('habits-sort')).toBeNull();
   });
 
-  it('deletes a habit after Alert confirmation', async () => {
+  it('deletes a habit from the shared delete modal', async () => {
     setHttp([habit]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      (buttons ?? []).find((b) => b.style === 'destructive')?.onPress?.();
-    });
     await renderScreen();
     await waitFor(() => expect(screen.getByTestId('habit-card-h1')).toBeTruthy());
 
     await act(async () => {
-      fireEvent.press(screen.getByTestId('habit-card-h1')); // expand
+      fireEvent.press(screen.getByTestId('habit-delete-h1'));
     });
     await act(async () => {
-      fireEvent.press(screen.getByTestId('habit-delete-h1'));
+      fireEvent.press(screen.getByTestId('delete-modal-confirm'));
     });
 
     await waitFor(() => expect(del).toHaveBeenCalledWith('/habit/h1'));
-    alertSpy.mockRestore();
   });
 });
 

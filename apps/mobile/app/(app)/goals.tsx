@@ -1,6 +1,6 @@
 import { ChevronLeft, Trophy, Plus, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,6 +19,7 @@ import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
@@ -101,26 +102,24 @@ export default function GoalsScreen() {
     };
   }, [load]);
 
-  const handleDelete = useCallback(
-    (target: goal) => {
-      Alert.alert(t('DeleteGoal'), t('ConfirmDeleteOfGoalPhrase'), [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: async () => {
-            const res = await deleteGoal(target.id, t);
-            if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
-            else {
-              notify.success(t('deleted successfully'));
-              await load();
-            }
-          },
-        },
-      ]);
-    },
-    [t, load],
-  );
+  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
+  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  const [deleteTarget, setDeleteTarget] = useState<goal | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteGoal(deleteTarget.id, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
@@ -194,7 +193,7 @@ export default function GoalsScreen() {
               goal={item}
               initialExpanded={item.id === expand}
               onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
-              onDelete={handleDelete}
+              onDelete={setDeleteTarget}
               onChanged={load}
             />
           )}
@@ -225,6 +224,16 @@ export default function GoalsScreen() {
           }
         />
       )}
+
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfGoalPhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <GoalForm
         visible={form.visible}

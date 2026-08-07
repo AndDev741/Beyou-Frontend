@@ -66,18 +66,14 @@ describe('TasksScreen', () => {
     expect(screen.queryByTestId('tasks-sort')).toBeNull();
   });
 
-  it('deletes a task after Alert confirmation', async () => {
+  it('deletes a task from the shared delete modal', async () => {
     setHttp([task]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      (buttons ?? []).find((b) => b.style === 'destructive')?.onPress?.();
-    });
     await renderScreen();
     await waitFor(() => expect(screen.getByTestId('task-card-t1')).toBeTruthy());
 
-    await act(async () => { fireEvent.press(screen.getByTestId('task-card-t1')); }); // expand
     await act(async () => { fireEvent.press(screen.getByTestId('task-delete-t1')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('delete-modal-confirm')); });
 
     await waitFor(() => expect(del).toHaveBeenCalledWith('/task/t1'));
-    alertSpy.mockRestore();
   });
 });

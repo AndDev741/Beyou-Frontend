@@ -1,6 +1,6 @@
 import { ChevronLeft, Folder, Plus, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -19,6 +19,7 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useCategoriesTutorial } from '../../src/tutorial/hooks/useCategoriesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
@@ -84,26 +85,24 @@ export default function CategoriesScreen() {
     };
   }, [load]);
 
-  const handleDelete = useCallback(
-    (target: category) => {
-      Alert.alert(t('DeleteCategory'), t('ConfirmDeleteOfCategoryPhrase'), [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: async () => {
-            const res = await deleteCategory(target.id, t);
-            if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
-            else {
-              notify.success(t('deleted successfully'));
-              await load();
-            }
-          },
-        },
-      ]);
-    },
-    [t, load],
-  );
+  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
+  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  const [deleteTarget, setDeleteTarget] = useState<category | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteCategory(deleteTarget.id, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
@@ -169,7 +168,7 @@ export default function CategoriesScreen() {
             <CategoryCard
               category={item}
               onEdit={(c) => setForm({ visible: true, mode: 'edit', category: c })}
-              onDelete={handleDelete}
+              onDelete={setDeleteTarget}
               viewRef={index === 0 ? firstCardRef : undefined}
             />
           )}
@@ -197,6 +196,16 @@ export default function CategoriesScreen() {
           }
         />
       )}
+
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfCategoryPhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <CategoryForm
         visible={form.visible}

@@ -1,6 +1,6 @@
 import { ChevronLeft, Plus, Repeat, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,6 +21,7 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useHabitsTutorial } from '../../src/tutorial/hooks/useHabitsTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
@@ -108,26 +109,24 @@ export default function HabitsScreen() {
     };
   }, [load]);
 
-  const handleDelete = useCallback(
-    (target: habit) => {
-      Alert.alert(t('DeleteHabit'), t('ConfirmDeleteHabit'), [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: async () => {
-            const res = await deleteHabit(target.id, t);
-            if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
-            else {
-              notify.success(t('deleted successfully'));
-              await load();
-            }
-          },
-        },
-      ]);
-    },
-    [t, load],
-  );
+  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
+  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  const [deleteTarget, setDeleteTarget] = useState<habit | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteHabit(deleteTarget.id, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
@@ -201,7 +200,7 @@ export default function HabitsScreen() {
             <HabitCard
               habit={item}
               onEdit={(h) => setForm({ visible: true, mode: 'edit', habit: h })}
-              onDelete={handleDelete}
+              onDelete={setDeleteTarget}
               viewRef={index === 0 ? firstCardRef : undefined}
             />
           )}
@@ -232,6 +231,16 @@ export default function HabitsScreen() {
           }
         />
       )}
+
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfHabitPhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <HabitForm
         visible={form.visible}
