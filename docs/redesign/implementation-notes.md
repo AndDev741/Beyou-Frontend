@@ -418,6 +418,18 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
   gravar no clique, como tema e idioma já faziam. Os testes do botão de salvar
   do RoutineSettings viraram testes de gravação automática.
 
+### Menu do telefone na Configuração (2026-08-07)
+
+- As caixas viraram o menu do mockup: ladrilho de acento com ícone, nome e o
+  chevron para o lado. O perfil mostra avatar, nome e "nível N · xp/next XP"
+  em vez da palavra "Perfil".
+- **Ordem por breakpoint sem duplicar markup**: as colunas usam
+  `display: contents` abaixo de `lg`, então as seções viram filhas diretas do
+  flex e a ordem do telefone (perfil, aparência, preferências, widgets, sair)
+  sai de classes `order-*`. No desktop as colunas voltam a ser colunas.
+- **Conta virou a linha vermelha de "Sair"**, sem o e-mail — ele já está no
+  formulário de perfil.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
