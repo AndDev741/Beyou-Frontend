@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,15 +10,17 @@ import {
   checkedItemsInScheduledRoutineEnter,
   totalItemsInScheduledRoutineEnter,
 } from '@beyou/state/user/perfilSlice';
-import { CalendarDays } from 'lucide-react-native';
+import { CalendarDays, ChevronDown } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { loadCollapsedSections, saveCollapsedSection } from '../../lib/collapsedSections';
+import { formatTimeRange, getSectionStats } from '../routines/routineMetrics';
+import Chip from '../Chip';
 import EmptyState from '../EmptyState';
 import BeyouIcon from '../BeyouIcon';
+import IconButton from '../IconButton';
 import RoutineItem, { type MergedItem } from './RoutineItem';
 import RoutineCompleteSummary from './RoutineCompleteSummary';
 import type { RootState, AppDispatch } from '../../store';
-
-const fmt = (s?: string) => (s ? s.slice(0, 5) : '');
 
 /** Flatten a section's habit + task groups into one start-time-sorted list. */
 function mergeItems(section: RoutineSection): MergedItem[] {
@@ -57,11 +59,123 @@ function EmptyRoutine() {
   );
 }
 
+/**
+ * Uma seção do dia. Fechada mostra o essencial — ícone, nome, horário e o XP
+ * que ela rendeu; é o suficiente para decidir se vale abrir. Espelha o
+ * `routineSection` da web.
+ */
+function Section({
+  section,
+  routineId,
+  today,
+  collapsedIds,
+  onToggle,
+}: {
+  section: RoutineSection;
+  routineId: string;
+  today: string;
+  collapsedIds: string[];
+  onToggle: (sectionId: string) => void;
+}) {
+  const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
+  const allHabits = useSelector((s: RootState) => s.habits.habits);
+  const allTasks = useSelector((s: RootState) => s.tasks.tasks);
+
+  const sectionId = section.id ?? section.name ?? '';
+  const collapsed = collapsedIds.includes(sectionId);
+  const items = mergeItems(section);
+  const { xpEarned } = getSectionStats(section, today);
+  const timeRange = formatTimeRange(section.startTime, section.endTime);
+
+  return (
+    <View className="mb-4 w-full" testID={`routine-section-${sectionId}`}>
+      <View className="flex-row items-center gap-2">
+        <BeyouIcon id={section.iconId} size={16} />
+        <Text className="shrink text-[12.5px] font-semibold text-text-2" numberOfLines={1}>
+          {section.name}
+        </Text>
+        {timeRange ? (
+          <Text className="shrink-0 font-mono text-[11px] text-text-3">{timeRange}</Text>
+        ) : null}
+        {xpEarned > 0 ? (
+          <Chip size="sm" variant="xp" testID={`routine-section-xp-${sectionId}`}>
+            {`+${xpEarned} XP`}
+          </Chip>
+        ) : null}
+
+        <IconButton
+          label={collapsed ? t('Expand') : t('Collapse')}
+          onPress={() => onToggle(sectionId)}
+          className="ml-auto"
+          testID={`routine-section-toggle-${sectionId}`}
+        >
+          <ChevronDown
+            size={16}
+            color={theme.text3}
+            style={{ transform: [{ rotate: collapsed ? '-90deg' : '0deg' }] }}
+          />
+        </IconButton>
+      </View>
+
+      {!collapsed
+        ? items.map((item) => {
+            const resolved =
+              item.type === 'habit'
+                ? allHabits?.find((h) => h.id === item.id)
+                : allTasks?.find((task) => task.id === item.id);
+            if (!resolved) return null;
+            return (
+              <RoutineItem
+                key={`${item.type}-${item.groupId}`}
+                routineId={routineId}
+                item={item}
+                name={resolved.name}
+                iconId={resolved.iconId}
+                motivationalPhrase={
+                  item.type === 'habit'
+                    ? (resolved as { motivationalPhrase?: string }).motivationalPhrase
+                    : undefined
+                }
+                today={today}
+              />
+            );
+          })
+        : null}
+    </View>
+  );
+}
+
 export default function RoutineDay() {
   const dispatch = useDispatch<AppDispatch>();
   const routine = useSelector((s: RootState) => s.todayRoutine.routine);
-  const allHabits = useSelector((s: RootState) => s.habits.habits);
-  const allTasks = useSelector((s: RootState) => s.tasks.tasks);
+  const today = new Date().toJSON().slice(0, 10);
+  // Recolher a seção economiza espaço no dia; a escolha é salva POR DIA, então
+  // amanhã ela abre como nova.
+  const [collapsedIds, setCollapsedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    loadCollapsedSections(today).then((ids) => {
+      if (active) setCollapsedIds(ids);
+    });
+    return () => {
+      active = false;
+    };
+  }, [today]);
+
+  const toggleSection = useCallback(
+    (sectionId: string) => {
+      setCollapsedIds((current) => {
+        const next = current.includes(sectionId)
+          ? current.filter((id) => id !== sectionId)
+          : [...current, sectionId];
+        void saveCollapsedSection(today, sectionId, next.includes(sectionId));
+        return next;
+      });
+    },
+    [today],
+  );
 
   // Sync today's checked/total into the perfil slice (drives the complete
   // summary). Re-runs whenever the routine changes — incl. after a check, since
@@ -75,51 +189,20 @@ export default function RoutineDay() {
 
   if (!routine) return <EmptyRoutine />;
 
-  const today = new Date().toJSON().slice(0, 10);
-
   return (
     <View className="rounded-card border border-border bg-surface p-4" testID="routine-day">
       <Text className="text-text mb-3 text-center text-2xl font-semibold">{routine.name}</Text>
 
-      {routine.routineSections?.map((section, sIdx) => {
-        const items = mergeItems(section);
-        return (
-          <View key={section.id ?? sIdx} className="mb-4 w-full">
-            {/* Icon (null when unset/legacy) + name (shrinks/wraps) + time. `gap`
-                spaces only the rendered children, so a null icon adds no gap. */}
-            <View className="flex-row flex-wrap items-center gap-1.5">
-              <BeyouIcon id={section.iconId} size={18} />
-              <Text className="text-accent shrink text-lg font-bold">{section.name}</Text>
-              <Text className="text-text-2 shrink-0 text-sm">
-                {[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}
-              </Text>
-            </View>
-
-            {items.map((item) => {
-              const resolved =
-                item.type === 'habit'
-                  ? allHabits?.find((h) => h.id === item.id)
-                  : allTasks?.find((t) => t.id === item.id);
-              if (!resolved) return null;
-              return (
-                <RoutineItem
-                  key={`${item.type}-${item.groupId}`}
-                  routineId={routine.id ?? ''}
-                  item={item}
-                  name={resolved.name}
-                  iconId={resolved.iconId}
-                  motivationalPhrase={
-                    item.type === 'habit'
-                      ? (resolved as { motivationalPhrase?: string }).motivationalPhrase
-                      : undefined
-                  }
-                  today={today}
-                />
-              );
-            })}
-          </View>
-        );
-      })}
+      {routine.routineSections?.map((section, sIdx) => (
+        <Section
+          key={section.id ?? sIdx}
+          section={section}
+          routineId={routine.id ?? ''}
+          today={today}
+          collapsedIds={collapsedIds}
+          onToggle={toggleSection}
+        />
+      ))}
 
       <RoutineCompleteSummary />
     </View>
