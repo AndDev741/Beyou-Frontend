@@ -468,6 +468,20 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
   `agentSegment` só carrega `tool`, `error` e `domains` — não vem id nem nome
   da entidade. Precisa de backend; entra na lista de dependências de dados.
 
+## Console de feedback do admin (2026-08-07)
+
+- **Contagens viraram StatTile**; filtros viraram dois selects compactos numa
+  linha, com o rótulo dentro da opção "todos".
+- **Lista e detalhe dividem a tela** (`lg:grid-cols-2`): abrir um item não
+  empurra a lista para fora. No telefone o detalhe desce; no desktop ele fica
+  `sticky` enquanto a lista rola.
+- **Linha escaneável**: ícone por categoria, título em uma linha, autor e data
+  em mono, status em pílula à direita. O e-mail saiu da lista — vive no
+  detalhe, onde a resposta é escrita (o teste passou a olhar o nome).
+- **Cores semânticas de status**: `FEEDBACK_STATUS_BADGE_CLASSES` ainda usava
+  `text-primary` e `border-description`, aliases do modelo antigo.
+- O contexto capturado virou linhas mono chave/valor, como no mockup.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
