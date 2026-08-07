@@ -149,9 +149,12 @@ function Section({
 }
 
 export default function RoutineDay() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const routine = useSelector((s: RootState) => s.todayRoutine.routine);
   const today = new Date().toJSON().slice(0, 10);
+  const checked = useSelector((s: RootState) => s.perfil.checkedItemsInScheduledRoutine);
+  const total = useSelector((s: RootState) => s.perfil.totalItemsInScheduledRoutine);
   // Recolher a seção economiza espaço no dia; a escolha é salva POR DIA, então
   // amanhã ela abre como nova.
   const [collapsedIds, setCollapsedIds] = useState<string[]>([]);
@@ -193,7 +196,32 @@ export default function RoutineDay() {
 
   return (
     <View className="rounded-card border border-border bg-surface p-4" testID="routine-day">
-      <Text className="text-text mb-3 text-center text-2xl font-semibold">{routine.name}</Text>
+      <View className="flex-row items-center gap-3 pb-3">
+        <View className="min-w-0 flex-1">
+          <Text className="text-base font-semibold tracking-[-0.01em] text-text" numberOfLines={1}>
+            {routine.name}
+          </Text>
+          <Text className="text-xs text-text-3" numberOfLines={1}>
+            {`${t('TodaysRoutine')} · ${t('SectionsCount', { count: routine.routineSections?.length ?? 0 })}`}
+          </Text>
+        </View>
+
+        {/* O progresso do dia vive no cabeçalho: é o número que responde
+            "quanto falta" sem percorrer a lista. */}
+        {total > 0 ? (
+          <View className="shrink-0 items-end">
+            <Text className="font-mono text-[12.5px] font-medium text-text-2">
+              {`${checked} ${t('Of')} ${total}`}
+            </Text>
+            <View className="mt-1.5 h-1.5 w-[92px] overflow-hidden rounded-full bg-surface-2">
+              <View
+                className="h-full rounded-full bg-accent"
+                style={{ width: `${total > 0 ? Math.round((checked / total) * 100) : 0}%` }}
+              />
+            </View>
+          </View>
+        ) : null}
+      </View>
 
       {routine.routineSections?.map((section, sIdx) => (
         <Section

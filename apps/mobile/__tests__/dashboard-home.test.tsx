@@ -52,7 +52,7 @@ beforeEach(() => {
 });
 
 describe('AppHome (dashboard)', () => {
-  it('loads the profile and renders the name + level + streak', async () => {
+  it('loads the profile and renders the greeting with the name', async () => {
     const store = makeStore();
     await render(
       <Provider store={store}>
@@ -64,9 +64,9 @@ describe('AppHome (dashboard)', () => {
 
     await waitFor(() => expect(screen.getByTestId('dashboard-greeting').props.children).toContain('Alice'));
     expect(store.getState().perfil.username).toBe('Alice');
-    expect(screen.getByTestId('level-ring')).toBeTruthy();
-    expect(screen.getByText('3')).toBeTruthy(); // level in the ring
-    expect(screen.getByText('7')).toBeTruthy(); // streak
+
+    // A sequência é uma pílula; o nível tem widget próprio e saiu do cabeçalho.
+    expect(screen.getByText(/^7 /)).toBeTruthy();
   });
 
   it('shows the intro modal when phase is intro', async () => {

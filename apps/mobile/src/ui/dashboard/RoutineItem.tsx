@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Ban } from 'lucide-react-native';
 import type { check as Check } from '@beyou/types/routine/routineSection';
 import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useRoutineCheckin } from '../../dashboard/useRoutineCheckin';
 import BeyouIcon from '../BeyouIcon';
+import Chip from '../Chip';
 import IconTile from '../IconTile';
 import Ring from '../Ring';
 import XpFloat from './XpFloat';
@@ -105,11 +106,13 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
   };
 
   const timeRange = [fmt(item.startTime), fmt(item.endTime)].filter(Boolean).join(' - ');
+  const xpEarned = checked ? (todayCheck?.xpGenerated ?? 0) : 0;
 
   return (
-    <View className={`mt-1 flex-row items-center justify-between gap-2 py-1 ${skipped ? 'opacity-60' : ''}`} testID={`routine-item-${item.groupId}`}>
-      {/* Left: checkbox + name. Name shrinks/wraps so it never pushes the time
-          or skip button off-screen. */}
+    <View
+      className={`mt-1 flex-row items-center gap-2.5 py-1 ${skipped ? 'opacity-60' : ''}`}
+      testID={`routine-item-${item.groupId}`}
+    >
       <Pressable
         onPress={onCheck}
         disabled={pending}
@@ -117,37 +120,63 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         accessibilityState={{ checked }}
         accessibilityLabel={name}
         testID={`routine-check-${item.groupId}`}
-        className="flex-1 flex-row items-center"
+        className="shrink-0 flex-row items-center"
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
         {/* O anel do sistema, não um quadradinho: check-in, nível e a marca são
             a MESMA peça (ver Ring). Um checkbox de plataforma quebrava isso. */}
         <Ring size={26} state={checked ? 'done' : skipped ? 'skipped' : 'todo'} />
-        {iconId ? (
-          <IconTile size={30} className="ml-2">
-            <BeyouIcon id={iconId} size={16} showFallback />
-          </IconTile>
-        ) : null}
-        <Text className={`ml-2 shrink text-[13.5px] ${skipped ? 'text-text-3 line-through' : 'text-text'}`}>
-          {name}
-        </Text>
       </Pressable>
 
-      {/* Right: time + skip stay together, fixed — no overlap with the name. */}
-      <View className="shrink-0 flex-row items-center gap-2">
-        {timeRange ? <Text className="text-accent text-xs">{timeRange}</Text> : null}
-        {!checked && (
-          <Pressable
-            onPress={onSkip}
-            disabled={pending}
-            accessibilityRole="button"
-            testID={`routine-skip-${item.groupId}`}
-            className="flex-row items-center gap-1 rounded-control border border-border/40 px-2 py-1.5"
-          >
-            <Ionicons name="ban-outline" size={14} color={theme.description} />
-            <Text className="text-text-2 text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>
-          </Pressable>
-        )}
+      {iconId ? (
+        <IconTile size={30}>
+          <BeyouIcon id={iconId} size={16} showFallback />
+        </IconTile>
+      ) : null}
+
+      {/* A linha quebra em duas: metadados em cima, nome embaixo em largura
+          cheia. Numa linha só, nome + XP + hora + pular não cabem em 390px e a
+          coluna da direita saía da tela. `column-reverse` inverte só o VISUAL —
+          o nome continua vindo antes na árvore, que é o que o leitor de tela lê. */}
+      <View className="min-w-0 flex-1 gap-1" style={{ flexDirection: 'column-reverse' }}>
+        <Text
+          className={`text-[13.5px] font-medium ${
+            checked || skipped ? 'text-text-3' : 'text-text'
+          } ${skipped ? 'line-through' : ''}`}
+          numberOfLines={2}
+        >
+          {name}
+        </Text>
+
+        <View className="flex-row items-center gap-1.5">
+          {/* O XP fica NA LINHA depois de concluído (o XpFloat só marca o
+              instante do check e some). Vem do próprio check, então sobrevive ao
+              reload e mostra o valor real, já com decaimento aplicado. */}
+          {xpEarned > 0 ? (
+            <Chip size="sm" variant="xp" testID={`routine-xp-${item.groupId}`}>
+              {`+${xpEarned} XP`}
+            </Chip>
+          ) : null}
+          {timeRange ? (
+            <Chip size="sm" variant="time">
+              {timeRange}
+            </Chip>
+          ) : null}
+          {!checked ? (
+            <Pressable
+              onPress={onSkip}
+              disabled={pending}
+              accessibilityRole="button"
+              testID={`routine-skip-${item.groupId}`}
+              className="flex-row items-center gap-1 rounded-control px-2 py-1 active:bg-surface-2"
+            >
+              <Ban size={13} color={theme.text3} />
+              <Text className="text-xs font-semibold text-text-3">
+                {skipped ? t('Undo skip') : t('Skip')}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
     </View>
   );

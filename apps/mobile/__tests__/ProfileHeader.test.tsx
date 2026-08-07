@@ -1,6 +1,7 @@
 /**
- * ProfileHeader (P3-T4) — renders greeting+name, level ring and streak from the
- * shared perfil slice (seeded via hydratePerfil).
+ * ProfileHeader — saudação, data por extenso, frase e a pílula de sequência,
+ * lidas da slice de perfil. Sem avatar e sem anel de nível: quem você é já está
+ * na configuração e o nível tem widget próprio (mesma decisão da web).
  */
 import { render, screen } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
@@ -39,18 +40,25 @@ describe('ProfileHeader', () => {
     expect(screen.getByTestId('dashboard-greeting').props.children).toContain('Alice');
   });
 
-  it('renders the level ring and streak', async () => {
+  it('shows the streak as a chip', async () => {
     await renderWithPerfil();
-    expect(screen.getByTestId('level-ring')).toBeTruthy();
-    expect(screen.getByTestId('streak-badge')).toBeTruthy();
-    // level value rendered inside the ring
-    expect(screen.getByText('3')).toBeTruthy();
-    // constance value
-    expect(screen.getByText('7')).toBeTruthy();
+    expect(screen.getByText(/^7 /)).toBeTruthy();
   });
 
-  it('falls back to an initial avatar when no photo', async () => {
+  it('leaves out the avatar and the level ring', async () => {
     await renderWithPerfil({ name: 'Bob', photo: '' });
-    expect(screen.getByText('B')).toBeTruthy();
+    expect(screen.queryByTestId('level-ring')).toBeNull();
+    expect(screen.queryByText('B')).toBeNull();
+  });
+
+  it('hides the streak chip at zero — an unlit flame reads as failure', async () => {
+    await renderWithPerfil({ constance: 0 });
+    expect(screen.queryByText(/^0 /)).toBeNull();
+  });
+
+  it('carries the phrase and its author', async () => {
+    await renderWithPerfil({ phrase: 'Keep going', phrase_author: 'Dad' });
+    expect(screen.getByText(/Keep going/)).toBeTruthy();
+    expect(screen.getByText(/Dad/)).toBeTruthy();
   });
 });
