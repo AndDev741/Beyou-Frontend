@@ -235,7 +235,8 @@ function Habits(){
             <RenderHabits
                 habits={visibleHabits}
                 setHabits={setHabits}
-                emptyTitle={isFiltered && hasHabits ? t("NoHabitsYet") : undefined}
+                emptyTitle={isFiltered && hasHabits ? t("NoResultsTitle") : undefined}
+                onClearFilters={() => { setSearch(""); setCategoryFilter(ALL_CATEGORIES); }}
             />
 
             {isFormOpen && (

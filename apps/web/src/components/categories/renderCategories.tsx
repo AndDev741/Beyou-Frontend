@@ -1,6 +1,7 @@
 //Components
 import CategoryBox from "./categoryBox";
 import EmptyState from "../EmptyState";
+import { Folder, Search } from "lucide-react";
 //Functions
 import { useTranslation } from "react-i18next";
 //Types
@@ -9,10 +10,12 @@ import categoryType from "@beyou/types/category/categoryType";
 type props = {
     categories: Array<categoryType>,
     /** Sobrescreve a mensagem de lista vazia (ex.: busca sem resultado). */
-    emptyTitle?: string
+    emptyTitle?: string,
+    /** Limpa a busca a partir do estado vazio. */
+    onClearFilters?: () => void
 }
 
-function RenderCategories({categories, emptyTitle}: props){
+function RenderCategories({categories, emptyTitle, onClearFilters}: props){
     const {t} = useTranslation();
 
     return(
@@ -45,7 +48,22 @@ function RenderCategories({categories, emptyTitle}: props){
                 </div>
                 ))    
             ) : (
-                <EmptyState emoji="🗂️" title={emptyTitle ?? t('0CategoriesMessage')} />
+                emptyTitle ? (
+                <EmptyState
+                    icon={<Search size={20} aria-hidden="true" />}
+                    title={emptyTitle}
+                    description={t('NoResultsDescription')}
+                    actionLabel={onClearFilters ? t('ClearFilters') : undefined}
+                    onAction={onClearFilters}
+                    variant="ghost"
+                />
+            ) : (
+                <EmptyState
+                    icon={<Folder size={20} aria-hidden="true" />}
+                    title={t('0CategoriesTitle')}
+                    description={t('0CategoriesMessage')}
+                />
+            )
             )}
         </div>
     )

@@ -209,7 +209,8 @@ function Tasks() {
             <RenderTasks
                 tasks={visibleTasks}
                 setTasks={setTasks}
-                emptyTitle={isFiltered && tasks.length > 0 ? t("NoTasksYet") : undefined}
+                emptyTitle={isFiltered && tasks.length > 0 ? t("NoResultsTitle") : undefined}
+                onClearFilters={() => { setSearch(""); setCategoryFilter(ALL_CATEGORIES); }}
             />
 
             {isFormOpen && (

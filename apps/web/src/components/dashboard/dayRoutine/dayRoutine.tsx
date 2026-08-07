@@ -5,6 +5,7 @@ import type { RootState } from "@beyou/state/rootReducer";
 import RoutineSection from "./routineSection";
 import RoutineCompleteSummary from "./RoutineCompleteSummary";
 import EmptyState from "../../EmptyState";
+import { CalendarDays } from "lucide-react";
 
 export default function RoutineDay({ routine }: { routine: Routine | null }) {
     const { t } = useTranslation();
@@ -15,10 +16,10 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
         return (
             <div data-tutorial-id="dashboard-routine-today">
                 <EmptyState
-                    emoji="🗓️"
+                    icon={<CalendarDays size={20} aria-hidden="true" />}
                     title={t("No Routines Scheduled for today")}
-                    description={t("Create your first routine to see it here")}
-                    actionLabel={t("Routines")}
+                    description={t("NothingScheduledTodayDescription")}
+                    actionLabel={t("ScheduleRoutine")}
                     actionTo="/routines"
                     testId="no-routine-today"
                 />

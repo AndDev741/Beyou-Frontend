@@ -242,7 +242,8 @@ function Goals() {
 
         <RenderGoals
           goals={sortedGoals}
-          emptyTitle={isFiltering && goals.length > 0 ? t("NoGoalsYet") : undefined}
+          emptyTitle={isFiltering && goals.length > 0 ? t("NoResultsTitle") : undefined}
+          onClearFilters={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); }}
         />
       </main>
 

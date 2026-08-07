@@ -29,6 +29,7 @@ import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboa
 import AiOnboardingWizard from "../../components/tutorial/aiOnboarding/AiOnboardingWizard";
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
+import { LayoutGrid } from "lucide-react";
 
 function Dashboard() {
     useAuthGuard();
@@ -234,7 +235,7 @@ function Dashboard() {
                         ) : (
                             <div className="lg:hidden">
                                 <EmptyState
-                                    emoji="🧩"
+                                    icon={<LayoutGrid size={20} aria-hidden="true" />}
                                     title={t('NoWidgetsTitle')}
                                     description={t('NoWidgetsDescription')}
                                     actionLabel={t('AddWidgets')}
@@ -265,7 +266,7 @@ function Dashboard() {
                                 />
                     )) : (
                         <EmptyState
-                            emoji="🧩"
+                            icon={<LayoutGrid size={20} aria-hidden="true" />}
                             title={t('NoWidgetsTitle')}
                             description={t('NoWidgetsDescription')}
                             actionLabel={t('AddWidgets')}

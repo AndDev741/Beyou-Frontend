@@ -7,15 +7,18 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { editModeEnter } from "@beyou/state/habit/editHabitSlice";
 import EmptyState from "../EmptyState";
+import { Repeat, Search } from "lucide-react";
 
 type renderHabitsProps = {
     habits: habit[],
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>,
     /** Sobrescreve o vazio quando a lista sumiu pela busca/filtro, não por falta de hábitos. */
-    emptyTitle?: string
+    emptyTitle?: string,
+    /** Limpa busca e filtros a partir do estado vazio. */
+    onClearFilters?: () => void
 }
 
-function RenderHabits({habits, setHabits, emptyTitle}: renderHabitsProps){
+function RenderHabits({habits, setHabits, emptyTitle, onClearFilters}: renderHabitsProps){
     const dispatch = useDispatch();
     const { t: tRhf } = useTranslation();
 
@@ -68,10 +71,17 @@ function RenderHabits({habits, setHabits, emptyTitle}: renderHabitsProps){
                     </div>
                 ))
             ) : emptyTitle ? (
-                <EmptyState emoji="🔍" title={emptyTitle} />
+                <EmptyState
+                    icon={<Search size={20} aria-hidden="true" />}
+                    title={emptyTitle}
+                    description={tRhf('NoResultsDescription')}
+                    actionLabel={onClearFilters ? tRhf('ClearFilters') : undefined}
+                    onAction={onClearFilters}
+                    variant="ghost"
+                />
             ) : (
                 <EmptyState
-                    emoji="🌱"
+                    icon={<Repeat size={20} aria-hidden="true" />}
                     title={tRhf('0HabitsTitle')}
                     description={tRhf('0HabitsDescription')}
                 />

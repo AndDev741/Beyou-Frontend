@@ -183,6 +183,7 @@ const Routine = () => {
                         selectedDate={selectedDateLocal}
                         routines={sortedRoutines}
                         onScheduleModalChange={setIsScheduleModalOpen}
+                        onCreateRoutine={isSnapshotMode ? undefined : () => setOnCreateRoutine(true)}
                     />
                 )}
 

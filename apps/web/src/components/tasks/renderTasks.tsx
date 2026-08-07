@@ -5,15 +5,18 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { editModeEnter } from "@beyou/state/task/editTaskSlice";
 import EmptyState from "../EmptyState";
+import { ListChecks, Search } from "lucide-react";
 
 type renderTasksProps = {
     tasks: task[],
     setTasks: React.Dispatch<React.SetStateAction<task[]>>,
     /** Sobrescreve o vazio quando a lista sumiu pela busca/filtro, não por falta de tarefas. */
-    emptyTitle?: string
+    emptyTitle?: string,
+    /** Limpa busca e filtros a partir do estado vazio. */
+    onClearFilters?: () => void
 }
 
-function RenderTasks({tasks, setTasks, emptyTitle}: renderTasksProps){
+function RenderTasks({tasks, setTasks, emptyTitle, onClearFilters}: renderTasksProps){
     const {t} = useTranslation();
     const dispatch = useDispatch();
 
@@ -47,9 +50,20 @@ function RenderTasks({tasks, setTasks, emptyTitle}: renderTasksProps){
                     </div>
                 ))
             ) : emptyTitle ? (
-                <EmptyState emoji="🔍" title={emptyTitle} />
+                <EmptyState
+                    icon={<Search size={20} aria-hidden="true" />}
+                    title={emptyTitle}
+                    description={t('NoResultsDescription')}
+                    actionLabel={onClearFilters ? t('ClearFilters') : undefined}
+                    onAction={onClearFilters}
+                    variant="ghost"
+                />
             ) : (
-                <EmptyState emoji="✅" title={t('Start creating amazing tasks to organize your day!')} />
+                <EmptyState
+                    icon={<ListChecks size={20} aria-hidden="true" />}
+                    title={t('0TasksTitle')}
+                    description={t('Start creating amazing tasks to organize your day!')}
+                />
             )}
         </div>
     )

@@ -207,7 +207,8 @@ function Categories(){
 
                 <RenderCategories
                     categories={sortedCategories}
-                    emptyTitle={search.trim() && hasCategories ? t("NoCategories") : undefined}
+                    emptyTitle={search.trim() && hasCategories ? t("NoResultsTitle") : undefined}
+                    onClearFilters={() => setSearch("")}
                 />
             </main>
 

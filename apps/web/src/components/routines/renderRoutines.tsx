@@ -18,17 +18,23 @@ import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
 import { SnapshotEmptyState } from "./SnapshotEmptyState";
 import DeleteModal from "../DeleteModal";
+import EmptyState from "../EmptyState";
+import { CalendarDays } from "lucide-react";
+import { openAgentPanel } from "../agent/agentPanelBus";
 
 type RenderRoutinesProps = {
     selectedDate: string;
     routines?: Routine[];
     onScheduleModalChange?: (isOpen: boolean) => void;
+    /** Abre o formulário de criação a partir do estado vazio. */
+    onCreateRoutine?: () => void;
 };
 
 export default function RenderRoutines({
     selectedDate,
     routines: routinesOverride,
-    onScheduleModalChange
+    onScheduleModalChange,
+    onCreateRoutine
 }: RenderRoutinesProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
@@ -131,10 +137,16 @@ export default function RenderRoutines({
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-8 text-center shadow-sm">
-                    <p className="text-lg font-semibold">{t("No routines available, start create some to track you tasks!")}</p>
-                    <p className="mt-2 text-sm text-text-2">{t("Create your first routine to see it here")}</p>
-                </div>
+                <EmptyState
+                    icon={<CalendarDays size={20} aria-hidden="true" />}
+                    title={t("0RoutinesTitle")}
+                    description={t("0RoutinesDescription")}
+                    actionLabel={onCreateRoutine ? t("Create routine") : undefined}
+                    onAction={onCreateRoutine}
+                    secondaryLabel={t("OrAskTheAssistant")}
+                    onSecondary={openAgentPanel}
+                    testId="no-routines-empty-state"
+                />
             )}
 
             {/* Excluir usa o mesmo modal das outras entidades — antes a rotina

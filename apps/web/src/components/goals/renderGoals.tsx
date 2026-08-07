@@ -6,14 +6,17 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import EmptyState from "../EmptyState";
+import { Search, Trophy } from "lucide-react";
 
 type RenderGoalsProps = {
   goals: goal[];
   /** Sobrescreve a mensagem de lista vazia (ex.: busca/filtro sem resultado). */
   emptyTitle?: string;
+  /** Limpa busca e filtros a partir do estado vazio. */
+  onClearFilters?: () => void;
 };
 
-function RenderGoals({ goals, emptyTitle }: RenderGoalsProps) {
+function RenderGoals({ goals, emptyTitle, onClearFilters }: RenderGoalsProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   // O dashboard linka para cá com ?goal=<id>: a lista rola até ela e destaca,
@@ -64,10 +67,22 @@ function RenderGoals({ goals, emptyTitle }: RenderGoalsProps) {
           </div>
         ))
       ) : (
+        emptyTitle ? (
         <EmptyState
-          emoji="🎯"
-          title={emptyTitle ?? t("Start creating amazing goals to track your progress!")}
+          icon={<Search size={20} aria-hidden="true" />}
+          title={emptyTitle}
+          description={t("NoResultsDescription")}
+          actionLabel={onClearFilters ? t("ClearFilters") : undefined}
+          onAction={onClearFilters}
+          variant="ghost"
         />
+      ) : (
+        <EmptyState
+          icon={<Trophy size={20} aria-hidden="true" />}
+          title={t("0GoalsTitle")}
+          description={t("Start creating amazing goals to track your progress!")}
+        />
+      )
       )}
     </div>
   );

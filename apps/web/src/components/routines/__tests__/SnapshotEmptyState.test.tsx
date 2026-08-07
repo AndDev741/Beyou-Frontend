@@ -22,11 +22,11 @@ describe('SnapshotEmptyState', () => {
         ).toBeInTheDocument();
     });
 
-    it('renders the calendar emoji with accessible label', () => {
-        renderWithProviders(<SnapshotEmptyState />);
+    it('renders the history icon, not an emoji', () => {
+        const { container } = renderWithProviders(<SnapshotEmptyState />);
 
-        const calendarEmoji = screen.getByRole('img', { name: 'Calendar' });
-        expect(calendarEmoji).toBeInTheDocument();
+        expect(container.querySelector('svg.lucide-history')).toBeInTheDocument();
+        expect(screen.queryByRole('img')).not.toBeInTheDocument();
     });
 
     it('renders within a bordered container', () => {

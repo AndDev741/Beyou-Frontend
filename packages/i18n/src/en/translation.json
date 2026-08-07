@@ -1052,5 +1052,17 @@
     "TaskSearchPlaceholder": "Search task",
     "GoalSearchPlaceholder": "Search goal",
     "CategorySearchPlaceholder": "Search category",
-    "NoResultsForSearch": "No results for this search."
+    "NoResultsForSearch": "No results for this search.",
+    "0CategoriesTitle": "No categories yet",
+    "0TasksTitle": "No tasks yet",
+    "0GoalsTitle": "No goals yet",
+    "0RoutinesTitle": "No routines yet",
+    "0RoutinesDescription": "Build a routine with sections and schedule the weekdays it happens.",
+    "OrAskTheAssistant": "or ask the Assistant",
+    "NothingScheduledTodayDescription": "Schedule a routine for the days it happens.",
+    "ScheduleRoutine": "Schedule routine",
+    "Continue": "Continue",
+    "NoResultsTitle": "Nothing found",
+    "NoResultsDescription": "Try another term or clear the filters.",
+    "ClearFilters": "Clear filters"
 }

@@ -1052,5 +1052,17 @@
     "TaskSearchPlaceholder": "Buscar tarefa",
     "GoalSearchPlaceholder": "Buscar meta",
     "CategorySearchPlaceholder": "Buscar categoria",
-    "NoResultsForSearch": "Nenhum resultado para esta busca."
+    "NoResultsForSearch": "Nenhum resultado para esta busca.",
+    "0CategoriesTitle": "Nenhuma categoria ainda",
+    "0TasksTitle": "Nenhuma tarefa ainda",
+    "0GoalsTitle": "Nenhuma meta ainda",
+    "0RoutinesTitle": "Nenhuma rotina ainda",
+    "0RoutinesDescription": "Monte uma rotina com seções e agende os dias da semana.",
+    "OrAskTheAssistant": "ou peça ao Assistente",
+    "NothingScheduledTodayDescription": "Agende uma rotina para os dias em que ela acontece.",
+    "ScheduleRoutine": "Agendar rotina",
+    "Continue": "Continuar",
+    "NoResultsTitle": "Nada encontrado",
+    "NoResultsDescription": "Tente outro termo ou limpe os filtros.",
+    "ClearFilters": "Limpar filtros"
 }
