@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import { Search } from 'lucide-react-native';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
 import getCategories from '@beyou/api/categories/getCategories';
@@ -14,6 +15,9 @@ import type { task } from '@beyou/types/tasks/taskType';
 import type category from '@beyou/types/category/categoryType';
 import { uuidv4 } from '../../lib/uuid';
 import BeyouIcon from '../BeyouIcon';
+import IconTile from '../IconTile';
+import Ring from '../Ring';
+import SegmentedControl from '../SegmentedControl';
 import Button from '../Button';
 import BottomSheet from '../BottomSheet';
 import HabitForm from '../habits/HabitForm';
@@ -44,6 +48,10 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   const [habitGroup, setHabitGroup] = useState<HabitGroup[]>([]);
   const [taskGroup, setTaskGroup] = useState<TaskGroup[]>([]);
   const [tab, setTab] = useState<'habit' | 'task'>('habit');
+  const [search, setSearch] = useState('');
+  // Marcar vários e adicionar de uma vez, como na web: um por toque obrigava a
+  // percorrer a lista tantas vezes quantos itens.
+  const [selected, setSelected] = useState<string[]>([]);
   const [quickOpen, setQuickOpen] = useState<'habit' | 'task' | null>(null);
   const [pending, setPending] = useState<{ type: 'habit' | 'task'; name: string } | null>(null);
   // After quick-create we refetch locally (no redux dep) and render the merged lists.
@@ -59,6 +67,8 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     setHabitGroup(section.habitGroup ?? []);
     setTaskGroup(section.taskGroup ?? []);
     setTab('habit');
+    setSearch('');
+    setSelected([]);
     setFetchedHabits(null);
     setFetchedTasks(null);
   }, [visible, section]);
@@ -71,9 +81,25 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
 
   // Available = items of the active tab NOT yet selected, sorted A→Z.
   const available = useMemo(() => {
-    if (tab === 'habit') return allHabits.filter((h) => !habitGroup.some((g) => g.habitId === h.id)).slice().sort(byName);
-    return allTasks.filter((tk) => !taskGroup.some((g) => g.taskId === tk.id)).slice().sort(byName);
-  }, [tab, allHabits, allTasks, habitGroup, taskGroup]);
+    const term = search.trim().toLowerCase();
+    const pool =
+      tab === 'habit'
+        ? allHabits.filter((h) => !habitGroup.some((g) => g.habitId === h.id))
+        : allTasks.filter((tk) => !taskGroup.some((g) => g.taskId === tk.id));
+    return pool
+      .filter((item) => !term || item.name?.toLowerCase().includes(term))
+      .slice()
+      .sort(byName);
+  }, [tab, search, allHabits, allTasks, habitGroup, taskGroup]);
+
+  const toggleSelected = (id: string) =>
+    setSelected((current) => (current.includes(id) ? current.filter((x) => x !== id) : [...current, id]));
+
+  const addSelected = () => {
+    if (tab === 'habit') selected.forEach(addHabit);
+    else selected.forEach(addTask);
+    setSelected([]);
+  };
 
   const addHabit = (id: string) => setHabitGroup((g) => [...g, { id: uuidv4(), habitId: id, startTime: '', endTime: '' }]);
   const addTask = (id: string) => setTaskGroup((g) => [...g, { id: uuidv4(), taskId: id, startTime: '', endTime: '' }]);
@@ -167,44 +193,80 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           </View>
         )}
 
-        {/* Tabs */}
-        <View className="mt-1 flex-row rounded-full border border-border p-1">
-          {(['habit', 'task'] as const).map((tk) => (
-            <Pressable
-              key={tk}
-              onPress={() => setTab(tk)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: tab === tk }}
-              testID={`tab-${tk}`}
-              className={`flex-1 items-center rounded-full py-1.5 ${tab === tk ? 'bg-accent' : ''}`}
-            >
-              <Text className={`text-sm font-semibold ${tab === tk ? 'text-on-accent' : 'text-text'}`}>
-                {tk === 'habit' ? t('Habits') : t('Tasks')}
-              </Text>
-            </Pressable>
-          ))}
+        <View className="mt-1 flex-row items-center gap-2 rounded-control border border-border bg-surface px-3">
+          <Search size={16} color={theme.text3} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder={t('SearchHabitOrTask')}
+            placeholderTextColor={theme.text3}
+            accessibilityLabel={t('SearchHabitOrTask')}
+            testID="item-picker-search"
+            className="min-w-0 flex-1 py-2.5 text-[13.5px] text-text"
+          />
         </View>
+
+        <SegmentedControl
+          label={t('RoutineTypeLabel')}
+          value={tab}
+          onChange={(value) => {
+            setTab(value);
+            setSelected([]);
+          }}
+          options={[
+            { value: 'habit' as const, label: t('Habits') },
+            { value: 'task' as const, label: t('Tasks') },
+          ]}
+          testID="item-picker-kind"
+        />
 
         {/* Available list for the active tab */}
         {available.length === 0 ? (
-          <Text className="text-text-3 text-sm">{t('NoItemsToAssign')}</Text>
+          <Text className="py-6 text-center text-[13px] text-text-3">
+            {search ? t('IconNoResults') : t('NoItemsToAssign')}
+          </Text>
         ) : (
-          <View className="gap-2">
-            {available.map((it) => (
-              <Pressable
-                key={it.id}
-                onPress={() => (tab === 'habit' ? addHabit(it.id) : addTask(it.id))}
-                accessibilityRole="button"
-                testID={`item-${tab}-${it.id}`}
-                className="flex-row items-center gap-2 rounded-control border border-border p-2"
-              >
-                <BeyouIcon id={it.iconId} size={18} />
-                <Text className="text-text flex-1 text-sm" numberOfLines={1}>{it.name}</Text>
-                <Ionicons name="add-circle-outline" size={20} color={theme.primary} />
-              </Pressable>
-            ))}
+          <View className="gap-1.5">
+            {available.map((it) => {
+              const isSelected = selected.includes(it.id);
+              return (
+                <Pressable
+                  key={it.id}
+                  onPress={() => toggleSelected(it.id)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: isSelected }}
+                  testID={`item-${tab}-${it.id}`}
+                  className={`flex-row items-center gap-2.5 rounded-[9px] border px-2.5 py-[7px] ${
+                    isSelected ? 'border-accent bg-accent-soft' : 'border-border bg-surface'
+                  }`}
+                >
+                  <Ring size={20} state={isSelected ? 'done' : 'todo'} />
+                  <IconTile size={24}>
+                    <BeyouIcon id={it.iconId} size={13} />
+                  </IconTile>
+                  <Text
+                    className={`min-w-0 flex-1 text-[12.5px] font-medium ${
+                      isSelected ? 'text-text' : 'text-text-3'
+                    }`}
+                    numberOfLines={1}
+                  >
+                    {it.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         )}
+
+        {selected.length > 0 ? (
+          <Button
+            text={`${t('Add')} ${selected.length}`}
+            mode="tonal"
+            size="auto"
+            onPress={addSelected}
+            testID="item-picker-add-selected"
+          />
+        ) : null}
 
         {/* Quick-create a new habit/task without leaving the routine builder. */}
         <Pressable

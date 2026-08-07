@@ -20,7 +20,9 @@ const wrap = (n: React.ReactElement) =>
 test('adds a habit to the tray with empty times and emits it', async () => {
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
+  // Marcar e adicionar são dois passos: dá para levar vários de uma vez.
   await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h1')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-add-selected')); });
   // Once added it leaves the list and gains a tray remove + time fields.
   expect(screen.getByTestId('remove-habit-h1')).toBeTruthy();
   expect(screen.getByTestId('tray-habit-h1-start')).toBeTruthy();
@@ -35,8 +37,9 @@ test('Tasks tab lists tasks; select then remove clears the tray', async () => {
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
   // Habits tab is default — the task isn't listed yet.
   expect(screen.queryByTestId('item-task-t1')).toBeNull();
-  await act(async () => { fireEvent.press(screen.getByTestId('tab-task')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-kind-task')); });
   await act(async () => { fireEvent.press(screen.getByTestId('item-task-t1')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-add-selected')); });
   expect(screen.getByTestId('remove-task-t1')).toBeTruthy();
   await act(async () => { fireEvent.press(screen.getByTestId('remove-task-t1')); });
   await act(async () => { fireEvent.press(screen.getByTestId('items-save')); });
@@ -58,7 +61,7 @@ test('quick-creates a task and auto-adds it to the tray', async () => {
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
 
-  await act(async () => { fireEvent.press(screen.getByTestId('tab-task')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-kind-task')); });
   await act(async () => { fireEvent.press(screen.getByTestId('quick-create-task')); });
 
   // Fill the nested TaskForm.
@@ -79,6 +82,7 @@ test('sets a start time on a tray item', async () => {
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
   await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h1')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-add-selected')); });
   await act(async () => { fireEvent.press(screen.getByTestId('tray-habit-h1-start')); });
   const d = new Date(); d.setHours(6, 30, 0, 0);
   await act(async () => { fireEvent(screen.getByTestId('tray-habit-h1-start-picker'), 'onChange', { type: 'set' }, d); });
@@ -115,4 +119,36 @@ test('gives the scroll area a shrinkable height, not flexBasis 0', async () => {
   // measurement, which is what collapsed the sheet to title + footer.
   expect(style.flexBasis).not.toBe(0);
   expect(style.flexShrink).toBe(1);
+});
+
+/** A busca filtra a lista do lado ativo; trocar de lado limpa a marcação. */
+test('filters the available list by the search term', async () => {
+  await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={jest.fn()} onClose={jest.fn()} />);
+
+  await act(async () => {
+    fireEvent.changeText(screen.getByTestId('item-picker-search'), 'zzz');
+  });
+
+  expect(screen.queryByTestId('item-habit-h1')).toBeNull();
+
+  await act(async () => {
+    fireEvent.changeText(screen.getByTestId('item-picker-search'), '');
+  });
+
+  expect(screen.getByTestId('item-habit-h1')).toBeTruthy();
+});
+
+test('drops the marks when the kind changes', async () => {
+  await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={jest.fn()} onClose={jest.fn()} />);
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('item-habit-h1'));
+  });
+  expect(screen.getByTestId('item-picker-add-selected')).toBeTruthy();
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('item-picker-kind-task'));
+  });
+
+  expect(screen.queryByTestId('item-picker-add-selected')).toBeNull();
 });
