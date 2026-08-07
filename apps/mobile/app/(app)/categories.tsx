@@ -1,4 +1,4 @@
-import { Folder } from 'lucide-react-native';
+import { ChevronLeft, Folder, Plus, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -9,11 +9,10 @@ import getCategories from '@beyou/api/categories/getCategories';
 import deleteCategory from '@beyou/api/categories/deleteCategory';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
-import { sortCategories } from '@beyou/state';
+import { setViewSort, sortCategories } from '@beyou/state';
 import type category from '@beyou/types/category/categoryType';
 import CategoryCard from '../../src/ui/categories/CategoryCard';
 import CategoryForm from '../../src/ui/categories/CategoryForm';
-import CategoriesSortSheet from '../../src/ui/categories/CategoriesSortSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
@@ -21,6 +20,9 @@ import { useCategoriesTutorial } from '../../src/tutorial/hooks/useCategoriesTut
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import EmptyState from '../../src/ui/EmptyState';
+import ListToolbar from '../../src/ui/ListToolbar';
+import SelectField from '../../src/ui/SelectField';
+import { CATEGORY_SORT_OPTIONS } from '../../src/ui/sortOptions';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; category: category | null };
 const CLOSED: FormState = { visible: false, mode: 'create', category: null };
@@ -40,6 +42,7 @@ export default function CategoriesScreen() {
   const sortBy = useSelector((s: RootState) => s.viewFilters.categories);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+  const [search, setSearch] = useState('');
 
   const cat = useCategoriesTutorial();
   // Rendered by the (app) layout so the overlay spans the window — target
@@ -49,6 +52,21 @@ export default function CategoriesScreen() {
   const firstCardRef = useTutorialTarget('category-first');
 
   const sortedCategories = useMemo(() => sortCategories(categories, sortBy), [categories, sortBy]);
+
+  const visibleCategories = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return sortedCategories;
+    return sortedCategories.filter(
+      (category) =>
+        category.name?.toLowerCase().includes(term) ||
+        (category.description ?? '').toLowerCase().includes(term),
+    );
+  }, [sortedCategories, search]);
+
+  const sortOptions = useMemo(
+    () => CATEGORY_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.key) })),
+    [t],
+  );
 
   const load = useCallback(async () => {
     const c = await getCategories(t);
@@ -90,15 +108,22 @@ export default function CategoriesScreen() {
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
-        <View className="flex-row items-center gap-2">
+        <View className="min-w-0 flex-row items-center gap-2">
           <Pressable
             onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
             accessibilityRole="button"
             testID="back-button"
           >
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
+            <ChevronLeft size={24} color={theme.text2} />
           </Pressable>
-          <Text className="text-accent text-2xl font-bold">{t('Categories')}</Text>
+          <View className="min-w-0">
+            <Text accessibilityRole="header" className="text-[22px] font-semibold text-text">
+              {t('YourCategories')}
+            </Text>
+            <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
+              {`${categories.length} ${t('Categories')}`}
+            </Text>
+          </View>
         </View>
         <Pressable
           ref={createRef}
@@ -106,9 +131,9 @@ export default function CategoriesScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('CreateCategory')}
           testID="create-category"
-          className="h-10 w-10 items-center justify-center rounded-full bg-accent"
+          className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
         >
-          <Ionicons name="add" size={26} color={theme.background} />
+          <Plus size={22} color={theme.onAccent} />
         </Pressable>
       </View>
 
@@ -118,10 +143,28 @@ export default function CategoriesScreen() {
         </View>
       ) : (
         <FlatList
-          data={sortedCategories}
+          data={visibleCategories}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
-          ListHeaderComponent={categories.length > 0 ? <View className="mb-1"><CategoriesSortSheet /></View> : null}
+          ListHeaderComponent={
+            categories.length > 0 ? (
+              <ListToolbar
+                search={search}
+                onSearchChange={setSearch}
+                searchLabel={t('CategorySearchPlaceholder')}
+                testID="categories-toolbar"
+              >
+                <SelectField
+                  label={t('Sort by')}
+                  value={sortBy}
+                  options={sortOptions}
+                  onChange={(value) => dispatch(setViewSort({ view: 'categories', sortBy: value }))}
+                  testID="categories-sort"
+                  className="flex-1"
+                />
+              </ListToolbar>
+            ) : null
+          }
           renderItem={({ item, index }) => (
             <CategoryCard
               category={item}
@@ -131,14 +174,26 @@ export default function CategoriesScreen() {
             />
           )}
           ListEmptyComponent={
-            <EmptyState
-              icon={<Folder size={20} color={theme.accent} />}
-              title={t('0CategoriesTitle')}
-              description={t('0CategoriesMessage')}
-              actionLabel={t('CreateCategory')}
-              onAction={() => setForm({ visible: true, mode: 'create', category: null })}
-              testID="empty-create-category"
-            />
+            search.trim() ? (
+              <EmptyState
+                icon={<Search size={20} color={theme.accent} />}
+                title={t('NoResultsTitle')}
+                description={t('NoResultsDescription')}
+                actionLabel={t('ClearFilters')}
+                onAction={() => setSearch('')}
+                variant="ghost"
+                testID="categories-no-results"
+              />
+            ) : (
+              <EmptyState
+                icon={<Folder size={20} color={theme.accent} />}
+                title={t('0CategoriesTitle')}
+                description={t('0CategoriesMessage')}
+                actionLabel={t('CreateCategory')}
+                onAction={() => setForm({ visible: true, mode: 'create', category: null })}
+                testID="empty-create-category"
+              />
+            )
           }
         />
       )}

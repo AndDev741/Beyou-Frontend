@@ -1,4 +1,4 @@
-import { Trophy } from 'lucide-react-native';
+import { ChevronLeft, Trophy, Plus, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -11,19 +11,22 @@ import deleteGoal from '@beyou/api/goals/deleteGoal';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
-import { sortGoals } from '@beyou/state';
+import { setViewSort, sortGoals } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import GoalCard from '../../src/ui/goals/GoalCard';
 import GoalForm from '../../src/ui/goals/GoalForm';
-import GoalsSortSheet from '../../src/ui/goals/GoalsSortSheet';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 import EmptyState from '../../src/ui/EmptyState';
+import ListToolbar from '../../src/ui/ListToolbar';
+import SelectField from '../../src/ui/SelectField';
+import { GOAL_SORT_OPTIONS } from '../../src/ui/sortOptions';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null };
 const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
+const ALL_CATEGORIES = 'all';
 
 /**
  * Goals section screen: self-fetches goals + categories, lists them as cards with
@@ -43,8 +46,43 @@ export default function GoalsScreen() {
   const sortBy = useSelector((s: RootState) => s.viewFilters.goals);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
+
+  // Só as categorias que ALGUM item usa: um filtro cheio de opções que não
+  // devolvem nada é ruído.
+  const categoriesInUse = useMemo(
+    () => categories.filter((category) => goals.some((item) => Object.keys(item.categories ?? {}).includes(category.id))),
+    [categories, goals],
+  );
+
+  const visibleItems = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return sortedGoals.filter((item) => {
+      const matchesTerm =
+        !term ||
+        item.name?.toLowerCase().includes(term) ||
+        (item.description ?? '').toLowerCase().includes(term);
+      const matchesCategory =
+        categoryFilter === ALL_CATEGORIES || Object.keys(item.categories ?? {}).includes(categoryFilter);
+      return matchesTerm && matchesCategory;
+    });
+  }, [sortedGoals, search, categoryFilter]);
+
+  const isFiltered = search.trim() !== '' || categoryFilter !== ALL_CATEGORIES;
+  const sortOptions = useMemo(
+    () => GOAL_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.key) })),
+    [t],
+  );
+  const categoryOptions = useMemo(
+    () => [
+      { value: ALL_CATEGORIES, label: t('All') },
+      ...categoriesInUse.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categoriesInUse, t],
+  );
 
   const load = useCallback(async () => {
     const [g, c] = await Promise.all([getGoals(t), getCategories(t)]);
@@ -87,24 +125,31 @@ export default function GoalsScreen() {
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
-        <View className="flex-row items-center gap-2">
+        <View className="min-w-0 flex-row items-center gap-2">
           <Pressable
             onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
             accessibilityRole="button"
             testID="back-button"
           >
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
+            <ChevronLeft size={24} color={theme.text2} />
           </Pressable>
-          <Text className="text-accent text-2xl font-bold">{t('Goals')}</Text>
+          <View className="min-w-0">
+            <Text accessibilityRole="header" className="text-[22px] font-semibold text-text">
+              {t('YourGoals')}
+            </Text>
+            <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
+              {`${goals.length} ${t('Goals')} · ${categoriesInUse.length} ${t('Categories')}`}
+            </Text>
+          </View>
         </View>
         <Pressable
           onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
           accessibilityRole="button"
           accessibilityLabel={t('CreateGoal')}
           testID="create-goal"
-          className="h-10 w-10 items-center justify-center rounded-full bg-accent"
+          className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
         >
-          <Ionicons name="add" size={26} color={theme.background} />
+          <Plus size={22} color={theme.onAccent} />
         </Pressable>
       </View>
 
@@ -114,10 +159,36 @@ export default function GoalsScreen() {
         </View>
       ) : (
         <FlatList
-          data={sortedGoals}
+          data={visibleItems}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
-          ListHeaderComponent={goals.length > 0 ? <View className="mb-1"><GoalsSortSheet /></View> : null}
+          ListHeaderComponent={
+            goals.length > 0 ? (
+              <ListToolbar
+                search={search}
+                onSearchChange={setSearch}
+                searchLabel={t('GoalSearchPlaceholder')}
+                testID="goals-toolbar"
+              >
+                <SelectField
+                  label={t('Sort by')}
+                  value={sortBy}
+                  options={sortOptions}
+                  onChange={(value) => dispatch(setViewSort({ view: 'goals', sortBy: value }))}
+                  testID="goals-sort"
+                  className="flex-1"
+                />
+                <SelectField
+                  label={t('Categories')}
+                  value={categoryFilter}
+                  options={categoryOptions}
+                  onChange={setCategoryFilter}
+                  testID="goals-category-filter"
+                  className="flex-1"
+                />
+              </ListToolbar>
+            ) : null
+          }
           renderItem={({ item }) => (
             <GoalCard
               goal={item}
@@ -128,14 +199,29 @@ export default function GoalsScreen() {
             />
           )}
           ListEmptyComponent={
-            <EmptyState
-              icon={<Trophy size={20} color={theme.accent} />}
-              title={t('0GoalsTitle')}
-              description={t('Start creating amazing goals to track your progress!')}
-              actionLabel={t('CreateGoal')}
-              onAction={() => setForm({ visible: true, mode: 'create', goal: null })}
-              testID="empty-create-goal"
-            />
+            isFiltered ? (
+              <EmptyState
+                icon={<Search size={20} color={theme.accent} />}
+                title={t('NoResultsTitle')}
+                description={t('NoResultsDescription')}
+                actionLabel={t('ClearFilters')}
+                onAction={() => {
+                  setSearch('');
+                  setCategoryFilter(ALL_CATEGORIES);
+                }}
+                variant="ghost"
+                testID="goals-no-results"
+              />
+            ) : (
+              <EmptyState
+                icon={<Trophy size={20} color={theme.accent} />}
+                title={t('0GoalsTitle')}
+                description={t('Start creating amazing goals to track your progress!')}
+                actionLabel={t('CreateGoal')}
+                onAction={() => setForm({ visible: true, mode: 'create', goal: null })}
+                testID="empty-create-goal"
+              />
+            )
           }
         />
       )}

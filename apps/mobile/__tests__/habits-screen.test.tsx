@@ -89,3 +89,74 @@ describe('HabitsScreen', () => {
     alertSpy.mockRestore();
   });
 });
+
+/**
+ * Busca e filtros seguem o mesmo desenho da web: a busca ocupa a linha e os
+ * dois selects descem para a de baixo. Sem resultado, o vazio é o ghost com
+ * "limpar filtros" — não há o que criar ali.
+ */
+describe('HabitsScreen search and filters', () => {
+  const other = { ...habit, id: 'h2', name: 'Swim', description: 'pool' };
+
+  it('narrows the list by the search term', async () => {
+    setHttp([habit, other]);
+    await renderScreen();
+    await waitFor(() => expect(screen.getByTestId('habit-card-h1')).toBeTruthy());
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('habits-toolbar-search'), 'swim');
+    });
+
+    expect(screen.queryByTestId('habit-card-h1')).toBeNull();
+    expect(screen.getByTestId('habit-card-h2')).toBeTruthy();
+  });
+
+  it('offers the ghost empty state and clears the filters from it', async () => {
+    setHttp([habit]);
+    await renderScreen();
+    await waitFor(() => expect(screen.getByTestId('habit-card-h1')).toBeTruthy());
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('habits-toolbar-search'), 'zzz');
+    });
+    expect(screen.getByTestId('habits-no-results')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('habits-no-results-action'));
+    });
+
+    expect(screen.queryByTestId('habits-no-results')).toBeNull();
+    expect(screen.getByTestId('habit-card-h1')).toBeTruthy();
+  });
+
+  it('filters by category through the select sheet', async () => {
+    const otherCategory = {
+      ...habit,
+      id: 'h3',
+      name: 'Study',
+      categories: [{ id: 'c2', name: 'Mind', iconId: 'lucide:brain' }],
+    };
+    // O filtro só lista categorias que ALGUM hábito usa, e ele as cruza com a
+    // slice de categorias — que precisa vir do endpoint.
+    const categories = [
+      { id: 'c1', name: 'Health', iconId: 'lucide:heart' },
+      { id: 'c2', name: 'Mind', iconId: 'lucide:brain' },
+    ];
+    const get = async (url: string) =>
+      url === '/habit' ? { data: [habit, otherCategory] } : { data: categories };
+    setHttpClient({ get, post: get, put: get, delete: get } as never);
+    setLogger({ error: () => {} });
+    await renderScreen();
+    await waitFor(() => expect(screen.getByTestId('habit-card-h1')).toBeTruthy());
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('habits-category-filter'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('habits-category-filter-option-c2'));
+    });
+
+    expect(screen.queryByTestId('habit-card-h1')).toBeNull();
+    expect(screen.getByTestId('habit-card-h3')).toBeTruthy();
+  });
+});
