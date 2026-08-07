@@ -1,13 +1,9 @@
 import type { SpotlightStep } from "../SpotlightTutorial";
 
+// O passo do perfil saiu: no dashboard redesenhado ele é só a saudação com a
+// data e a frase — não há cartão de perfil para apontar, e o holofote caía
+// num bloco de texto sem nada a explicar.
 export const getDashboardSteps = (): SpotlightStep[] => [
-    {
-        id: "profile",
-        targetSelector: "[data-tutorial-id='dashboard-profile']",
-        titleKey: "TutorialSpotlightProfileTitle",
-        descriptionKey: "TutorialSpotlightProfileDescription",
-        position: "bottom"
-    },
     {
         id: "shortcuts",
         targetSelector: "[data-tutorial-id='dashboard-shortcuts']",

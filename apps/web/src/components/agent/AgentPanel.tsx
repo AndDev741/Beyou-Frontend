@@ -606,7 +606,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     troca a pessoa já sabe o que
                                                     pedir, e o atalho vira ruído
                                                     em cima do input. */}
-                                                {suggestions.slice(0, 2).map((suggestion) => (
+                                                {suggestions.map((suggestion) => (
                                                     <button
                                                         key={suggestion}
                                                         type="button"
