@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import { Image as ImageIcon, X } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { MAX_ATTACHMENTS, selectImages, type FeedbackImage } from './feedbackAttachments';
 
@@ -54,27 +54,31 @@ export default function AttachmentsField({ images, onChange }: Props) {
   };
 
   return (
-    <View className="gap-2">
-      <Text className="text-text text-base font-semibold">{t('FeedbackImagesLabel')}</Text>
-      <Text className="text-text-2 text-xs">{t('FeedbackImagesHint')}</Text>
+    <View>
+      <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
+        {t('FeedbackImagesLabelOptional')}
+      </Text>
 
+      {/* Zona de soltar em vez de um botão: no telefone o toque abre o mesmo
+          seletor, e o alvo grande é mais fácil de acertar que uma pílula. */}
       <Pressable
         onPress={pick}
         accessibilityRole="button"
         accessibilityLabel={t('FeedbackAddImages')}
         testID="feedback-add-images"
-        className={`flex-row items-center gap-2 self-start rounded-full border border-border px-4 py-2 ${
+        className={`items-center justify-center gap-1.5 rounded-control border border-dashed border-border px-4 py-6 ${
           full ? 'opacity-60' : ''
         }`}
       >
-        <Ionicons name="attach" size={16} color={theme.primary} />
-        <Text className="text-accent text-sm font-semibold">{t('FeedbackAddImages')}</Text>
+        <ImageIcon size={18} color={theme.text3} />
+        <Text className="text-[12.5px] text-text-2">{t('FeedbackAddImages')}</Text>
+        <Text className="font-mono text-[10.5px] text-text-3">{t('FeedbackImagesHint')}</Text>
       </Pressable>
 
       {errors.length > 0 ? (
         <View className="gap-0.5" testID="feedback-image-errors">
           {errors.map((message) => (
-            <Text key={message} className="text-danger text-sm">
+            <Text key={message} className="mt-1.5 text-xs text-danger">
               {message}
             </Text>
           ))}
@@ -82,7 +86,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
       ) : null}
 
       {images.length > 0 ? (
-        <View className="mt-1 flex-row flex-wrap gap-3">
+        <View className="mt-2 flex-row flex-wrap gap-2">
           {images.map((image, index) => (
             <View key={`${image.uri}-${index}`} testID={`feedback-attachment-${index}`}>
               <Image
@@ -97,7 +101,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
                 testID={`feedback-remove-image-${index}`}
                 className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-border bg-surface"
               >
-                <Ionicons name="close" size={16} color={theme.primary} />
+                <X size={14} color={theme.text2} />
               </Pressable>
             </View>
           ))}
