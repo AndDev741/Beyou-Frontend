@@ -185,12 +185,12 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
         <section
             data-testid="admin-feedback-detail"
             aria-labelledby="admin-feedback-detail-heading"
-            className="flex flex-col gap-5 rounded-card border-2 border-border bg-bg p-4"
+            className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 lg:sticky lg:top-6"
         >
             <div className="flex items-start justify-between gap-3">
                 <h2
                     id="admin-feedback-detail-heading"
-                    className="text-lg font-semibold text-text"
+                    className="text-[15px] font-semibold tracking-[-0.01em] text-text"
                 >
                     {t("AdminFeedbackDetailTitle")}
                 </h2>
@@ -198,7 +198,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                     type="button"
                     onClick={onClose}
                     aria-label={t("AdminFeedbackCloseDetail")}
-                    className="rounded-full border border-border p-1 text-text transition-colors duration-200 hover:border-border hover:text-accent"
+                    className="rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
                 >
                     <X size={16} aria-hidden="true" />
                 </button>
@@ -229,11 +229,14 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                         ) : (
                             <ul className="flex flex-col gap-1">
                                 {contextEntries.map(({ key, value }) => (
-                                    <li key={key} className="text-sm text-text">
-                                        <span className="text-text-2">
-                                            {t(FEEDBACK_CONTEXT_LABEL_KEYS[key])}:{" "}
+                                    <li
+                                        key={key}
+                                        className="flex items-baseline justify-between gap-3 font-mono text-[11.5px]"
+                                    >
+                                        <span className="text-text-3">
+                                            {t(FEEDBACK_CONTEXT_LABEL_KEYS[key])}
                                         </span>
-                                        {value}
+                                        <span className="truncate text-text-2">{value}</span>
                                     </li>
                                 ))}
                             </ul>

@@ -892,6 +892,7 @@
     "FeedbackReportErrorLabel": "Erro",
     "FeedbackReportStackLabel": "Pilha de componentes",
     "AdminFeedbackPageTitle": "Caixa de feedback",
+    "AdminFeedbackSubtitle": "rota interna · sem item na navegação",
     "AdminFeedbackIntro": "Todo envio do site e do app chega aqui. O status é só seu — apenas uma resposta chega a quem escreveu.",
     "AdminFeedbackCountTotal": "Total",
     "AdminFeedbackStatusOpen": "Aberto",

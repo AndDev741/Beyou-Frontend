@@ -892,6 +892,7 @@
     "FeedbackReportErrorLabel": "Error",
     "FeedbackReportStackLabel": "Component stack",
     "AdminFeedbackPageTitle": "Feedback inbox",
+    "AdminFeedbackSubtitle": "internal route · not in the navigation",
     "AdminFeedbackIntro": "Every submission from web and mobile lands here. Status is yours alone — only a reply reaches the person who wrote in.",
     "AdminFeedbackCountTotal": "Total",
     "AdminFeedbackStatusOpen": "Open",
