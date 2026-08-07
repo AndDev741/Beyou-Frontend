@@ -12,7 +12,6 @@ import {
     Trophy,
     Settings,
     MessageSquare,
-    X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { openAgentPanel } from "../agent/agentPanelBus";
@@ -58,61 +57,30 @@ export default function BottomNav() {
 
     return (
         <>
-            <nav
-                data-tutorial-id="dashboard-shortcuts"
-                aria-label={t("Shortcuts")}
-                className="fixed bottom-0 left-0 right-0 z-40 flex items-end justify-around border-t border-border bg-surface px-2 pb-2 pt-1.5 lg:hidden"
-            >
-                {LEFT.map(renderLink)}
-
-                <button
-                    type="button"
-                    onClick={openAgentPanel}
-                    data-tutorial-id="agent-fab"
-                    aria-label={t("OpenAssistant")}
-                    className="-mt-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent shadow-lg transition-transform duration-200 active:scale-95"
-                >
-                    <Sparkles size={22} aria-hidden="true" />
-                </button>
-
-                {RIGHT.map(renderLink)}
-
-                <button
-                    type="button"
-                    onClick={() => setSheetOpen(true)}
-                    aria-expanded={sheetOpen}
-                    className="flex flex-1 flex-col items-center justify-center gap-0.5 rounded-control py-1.5 text-text-3 transition-colors duration-200 active:bg-surface-2"
-                >
-                    <Ellipsis size={20} aria-hidden="true" />
-                    <span className="text-[10px] font-semibold">{t("More")}</span>
-                </button>
-            </nav>
-
+            {/* O escurecido fica ABAIXO da barra: abrir o "Mais" não pode apagar
+                os atalhos, que são a orientação de onde se está. */}
             {sheetOpen && (
-                <div
-                    className="fixed inset-0 z-50 lg:hidden"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={t("More")}
-                >
-                    <button
-                        type="button"
-                        aria-label={t("Close")}
-                        onClick={() => setSheetOpen(false)}
-                        className="absolute inset-0 bg-black/40"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 rounded-t-frame border-t border-border bg-surface p-4 pb-8">
-                        <div className="mb-3 flex items-center justify-between">
-                            <h2 className="text-base font-semibold text-text">{t("More")}</h2>
-                            <button
-                                type="button"
-                                aria-label={t("Close")}
-                                onClick={() => setSheetOpen(false)}
-                                className="rounded-control p-1.5 text-text-3 active:bg-surface-2"
-                            >
-                                <X size={18} aria-hidden="true" />
-                            </button>
-                        </div>
+                <button
+                    type="button"
+                    aria-label={t("Close")}
+                    onClick={() => setSheetOpen(false)}
+                    className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+                />
+            )}
+
+            <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+                {sheetOpen && (
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={t("More")}
+                        className="mx-2 mb-2 rounded-frame border border-border bg-surface p-4 shadow-2xl"
+                    >
+                        <span
+                            aria-hidden="true"
+                            className="mx-auto mb-3 block h-1 w-9 rounded-full bg-border"
+                        />
+                        <h2 className="mb-3 text-[15px] font-semibold text-text">{t("More")}</h2>
                         <div className="grid grid-cols-3 gap-2">
                             {SHEET.map(({ key, to, Icon, tutorial }) => (
                                 <Link
@@ -120,16 +88,58 @@ export default function BottomNav() {
                                     to={to}
                                     data-tutorial-id={tutorial}
                                     onClick={() => setSheetOpen(false)}
-                                    className="flex flex-col items-center gap-2 rounded-card border border-border bg-surface px-2 py-4 text-center text-xs font-semibold text-text-2 active:bg-surface-2"
+                                    className="flex flex-col items-center gap-2 rounded-card border border-border bg-surface-2/40 px-2 py-4 text-center text-xs font-semibold text-text-2 active:bg-surface-2"
                                 >
-                                    <Icon size={20} className="text-text-3" aria-hidden="true" />
+                                    <span className="flex h-9 w-9 items-center justify-center rounded-control bg-accent-soft text-accent">
+                                        <Icon size={17} aria-hidden="true" />
+                                    </span>
                                     {t(key)}
                                 </Link>
                             ))}
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+
+                <nav
+                    data-tutorial-id="dashboard-shortcuts"
+                    aria-label={t("Shortcuts")}
+                    className="flex items-end justify-around border-t border-border bg-surface px-2 pb-2 pt-1.5"
+                >
+                    {LEFT.map(renderLink)}
+
+                    {/* Sobe mais que os vizinhos e carrega um halo desfocado: o
+                        assistente é o único alvo que não é navegação. */}
+                    <span className="relative -mt-8 flex h-14 w-14 shrink-0 items-center justify-center">
+                        <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute -inset-2 rounded-full bg-accent/25 blur-lg"
+                        />
+                        <button
+                            type="button"
+                            onClick={openAgentPanel}
+                            data-tutorial-id="agent-fab"
+                            aria-label={t("OpenAssistant")}
+                            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-lg shadow-accent/40 transition-transform duration-200 active:scale-95"
+                        >
+                            <Sparkles size={22} aria-hidden="true" />
+                        </button>
+                    </span>
+
+                    {RIGHT.map(renderLink)}
+
+                    <button
+                        type="button"
+                        onClick={() => setSheetOpen((open) => !open)}
+                        aria-expanded={sheetOpen}
+                        className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-control py-1.5 transition-colors duration-200 active:bg-surface-2 ${
+                            sheetOpen ? "text-accent" : "text-text-3"
+                        }`}
+                    >
+                        <Ellipsis size={20} aria-hidden="true" />
+                        <span className="text-[10px] font-semibold">{t("More")}</span>
+                    </button>
+                </nav>
+            </div>
         </>
     );
 }
