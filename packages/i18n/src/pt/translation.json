@@ -850,7 +850,7 @@
     "FeedbackIntro": "Conte o que está funcionando, o que não está e o que você gostaria de ver a seguir.",
     "FeedbackCategoryLabel": "Sobre o que é?",
     "FeedbackCategoryBug": "Erro",
-    "FeedbackCategoryFeature": "Sugestão de recurso",
+    "FeedbackCategoryFeature": "Sugestão",
     "FeedbackCategoryOther": "Outro",
     "FeedbackCategoryRequired": "Escolha uma categoria.",
     "FeedbackBodyLabel": "Sua mensagem",

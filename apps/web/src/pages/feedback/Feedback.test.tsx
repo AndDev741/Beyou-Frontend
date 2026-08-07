@@ -83,7 +83,7 @@ describe("Feedback screen", () => {
         ).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Send feedback" })).toBeInTheDocument();
         expect(screen.getByRole("radio", { name: "Bug" })).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "Feature request" })).toBeInTheDocument();
+        expect(screen.getByRole("radio", { name: "Suggestion" })).toBeInTheDocument();
         expect(screen.getByRole("radio", { name: "Other" })).toBeInTheDocument();
     });
 
@@ -96,7 +96,7 @@ describe("Feedback screen", () => {
         ).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Enviar feedback" })).toBeInTheDocument();
         expect(screen.getByRole("radio", { name: "Erro" })).toBeInTheDocument();
-        expect(screen.getByRole("radio", { name: "Sugestão de recurso" })).toBeInTheDocument();
+        expect(screen.getByRole("radio", { name: "Sugestão" })).toBeInTheDocument();
         expect(screen.getByRole("radio", { name: "Outro" })).toBeInTheDocument();
     });
 
@@ -130,7 +130,7 @@ describe("Feedback screen", () => {
         mockSubmitFeedback.mockResolvedValue({ error: { errorKey: "RATE_LIMIT_EXCEEDED" } });
         renderFeedback();
 
-        fireEvent.click(screen.getByRole("radio", { name: "Feature request" }));
+        fireEvent.click(screen.getByRole("radio", { name: "Suggestion" }));
         fillBody("Please add streak reminders");
         submit();
 
@@ -141,7 +141,7 @@ describe("Feedback screen", () => {
 
         expect(href.startsWith("mailto:")).toBe(true);
         // Same category the submission carried…
-        expect(href).toContain("Feature request");
+        expect(href).toContain("Suggestion");
         // …and the same automatic context.
         expect(href).toContain("screen=/feedback");
         expect(href).toContain("platform=web");

@@ -850,7 +850,7 @@
     "FeedbackIntro": "Tell us what is working, what is not, and what you would like to see next.",
     "FeedbackCategoryLabel": "What is this about?",
     "FeedbackCategoryBug": "Bug",
-    "FeedbackCategoryFeature": "Feature request",
+    "FeedbackCategoryFeature": "Suggestion",
     "FeedbackCategoryOther": "Other",
     "FeedbackCategoryRequired": "Choose a category.",
     "FeedbackBodyLabel": "Your message",
