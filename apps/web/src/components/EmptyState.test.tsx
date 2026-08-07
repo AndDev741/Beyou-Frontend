@@ -49,3 +49,13 @@ test("calls onAction and onSecondary when there is no route", async () => {
     expect(onAction).toHaveBeenCalledTimes(1);
     expect(onSecondary).toHaveBeenCalledTimes(1);
 });
+
+test("shows the dismiss button only when a handler is given", async () => {
+    const onDismiss = vi.fn();
+    const { rerender } = renderWithProviders(<EmptyState icon={icon} title="NoWidgetsTitle" />);
+    expect(screen.queryByRole("button", { name: "Dismiss" })).not.toBeInTheDocument();
+
+    rerender(<EmptyState icon={icon} title="NoWidgetsTitle" onDismiss={onDismiss} />);
+    await userEvent.click(screen.getByRole("button", { name: "Dismiss" }));
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+});

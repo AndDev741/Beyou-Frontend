@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { X } from "lucide-react";
 
 type EmptyStateProps = {
     /** Ícone da entidade (Lucide). Nunca emoji: o vazio é parte do sistema. */
@@ -18,6 +20,8 @@ type EmptyStateProps = {
      * o caminho é limpar o filtro, não um botão primário chamando atenção.
      */
     variant?: "default" | "ghost";
+    /** Quando dado, mostra o × que dispensa o convite de vez. */
+    onDismiss?: () => void;
     testId?: string;
 };
 
@@ -35,8 +39,10 @@ export default function EmptyState({
     secondaryLabel,
     onSecondary,
     variant = "default",
+    onDismiss,
     testId,
 }: EmptyStateProps) {
+    const { t } = useTranslation();
     const ctaClass =
         variant === "ghost"
             ? "mt-4 rounded-control px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:bg-accent-soft"
@@ -45,8 +51,18 @@ export default function EmptyState({
     return (
         <div
             data-testid={testId}
-            className="col-span-full flex w-full flex-col items-center justify-center rounded-card border border-dashed border-border bg-surface p-8 text-center"
+            className="relative col-span-full flex w-full flex-col items-center justify-center rounded-card border border-dashed border-border bg-surface p-8 text-center"
         >
+            {onDismiss && (
+                <button
+                    type="button"
+                    onClick={onDismiss}
+                    aria-label={t("Dismiss")}
+                    className="absolute right-2.5 top-2.5 rounded-md p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                >
+                    <X size={15} aria-hidden="true" />
+                </button>
+            )}
             <span
                 className="mb-3 flex h-11 w-11 items-center justify-center rounded-control bg-accent-soft text-accent"
                 aria-hidden="true"

@@ -30,9 +30,13 @@ import AiOnboardingWizard from "../../components/tutorial/aiOnboarding/AiOnboard
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
 import { LayoutGrid } from "lucide-react";
+import { useDismissed } from "../../hooks/useDismissed";
 
 function Dashboard() {
     useAuthGuard();
+    // Sem widgets a coluna vira um convite; quem não quiser fecha e ele não
+    // volta — a configuração continua a um clique no menu.
+    const [widgetsInviteDismissed, dismissWidgetsInvite] = useDismissed("widgets-invite");
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const [isDashboardLoading, setIsDashboardLoading] = useState(true);
@@ -232,7 +236,7 @@ function Dashboard() {
                                     />
                                 ))}
                             </WidgetCarousel>
-                        ) : (
+                        ) : widgetsInviteDismissed ? null : (
                             <div className="lg:hidden">
                                 <EmptyState
                                     icon={<LayoutGrid size={20} aria-hidden="true" />}
@@ -240,6 +244,7 @@ function Dashboard() {
                                     description={t('NoWidgetsDescription')}
                                     actionLabel={t('AddWidgets')}
                                     actionTo="/configuration"
+                                    onDismiss={dismissWidgetsInvite}
                                     testId="no-widgets-empty-state-mobile"
                                 />
                             </div>
@@ -264,13 +269,14 @@ function Dashboard() {
                                     actualLevelXp={actualLevelXp}
                                     draggable
                                 />
-                    )) : (
+                    )) : widgetsInviteDismissed ? null : (
                         <EmptyState
                             icon={<LayoutGrid size={20} aria-hidden="true" />}
                             title={t('NoWidgetsTitle')}
                             description={t('NoWidgetsDescription')}
                             actionLabel={t('AddWidgets')}
                             actionTo="/configuration"
+                            onDismiss={dismissWidgetsInvite}
                             testId="no-widgets-empty-state-desktop"
                         />
                     )}

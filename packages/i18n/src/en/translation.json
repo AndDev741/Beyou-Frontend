@@ -1064,5 +1064,6 @@
     "Continue": "Continue",
     "NoResultsTitle": "Nothing found",
     "NoResultsDescription": "Try another term or clear the filters.",
-    "ClearFilters": "Clear filters"
+    "ClearFilters": "Clear filters",
+    "Dismiss": "Dismiss"
 }
