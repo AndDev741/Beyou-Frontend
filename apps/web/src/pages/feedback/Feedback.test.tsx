@@ -79,7 +79,7 @@ describe("Feedback screen", () => {
         renderFeedback();
 
         expect(
-            screen.getByText("Tell us what is working, what is not, and what you would like to see next.")
+            screen.getByText("tell us what works, what does not and what you want to see")
         ).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Send feedback" })).toBeInTheDocument();
         expect(screen.getByRole("radio", { name: "Bug" })).toBeInTheDocument();
@@ -92,9 +92,7 @@ describe("Feedback screen", () => {
         renderFeedback();
 
         expect(
-            screen.getByText(
-                "Conte o que está funcionando, o que não está e o que você gostaria de ver a seguir."
-            )
+            screen.getByText("conte o que funciona, o que não funciona e o que você quer ver")
         ).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Enviar feedback" })).toBeInTheDocument();
         expect(screen.getByRole("radio", { name: "Erro" })).toBeInTheDocument();
@@ -191,13 +189,16 @@ describe("Feedback screen", () => {
         const first = new File(["a"], "screenshot-1.png", { type: "image/png" });
         const second = new File(["b"], "screenshot-2.jpg", { type: "image/jpeg" });
 
-        fireEvent.change(screen.getByLabelText("Add images"), {
+        fireEvent.change(screen.getByLabelText("Images · optional"), {
             target: { files: [first, second] }
         });
 
-        const previews = await screen.findAllByAltText(/screenshot-\d/);
-        expect(previews).toHaveLength(2);
-        expect(previews[0]).toHaveAttribute("src", "blob:screenshot-1.png");
+        // Os anexos agora são chips com o nome do arquivo, não miniaturas: a
+        // grade de 96px empurrava o botão de enviar para fora da tela no
+        // telefone com dois ou três prints.
+        const chips = await screen.findAllByText(/screenshot-\d/);
+        expect(chips).toHaveLength(2);
+        expect(chips[0]).toHaveTextContent("screenshot-1.png");
 
         fireEvent.click(screen.getByRole("radio", { name: "Bug" }));
         fillBody("Here is what I see");
@@ -217,7 +218,7 @@ describe("Feedback screen", () => {
         const huge = new File(["x"], "huge.png", { type: "image/png" });
         Object.defineProperty(huge, "size", { value: 6 * 1024 * 1024 });
 
-        fireEvent.change(screen.getByLabelText("Add images"), { target: { files: [huge] } });
+        fireEvent.change(screen.getByLabelText("Images · optional"), { target: { files: [huge] } });
 
         expect(await screen.findByText("huge.png is larger than 5 MB.")).toBeInTheDocument();
         expect(screen.queryByAltText("huge.png")).not.toBeInTheDocument();
