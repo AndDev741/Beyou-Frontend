@@ -482,6 +482,72 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
   `text-primary` e `border-description`, aliases do modelo antigo.
 - O contexto capturado virou linhas mono chave/valor, como no mockup.
 
+## Vazios, notificações e celebração (2026-08-07)
+
+### EmptyState
+
+- O `emoji` virou `icon: ReactNode`: uma IconTile com o ícone da entidade
+  (`Folder`, `Repeat`, `ListChecks`, `CalendarDays`, `Trophy`, `LayoutGrid`,
+  `History`), os mesmos da barra lateral. Emoji não escala com o tema nem tem
+  peso de traço; o vazio é parte do sistema, não um adesivo.
+- Ganhou `onAction` (para vazios que abrem modal, não navegam),
+  `secondaryLabel`/`onSecondary` e `variant="ghost"`.
+- **Busca sem resultado usa `ghost`**: título "Nada encontrado", uma linha de
+  ajuda e "Limpar filtros" sem peso de botão primário — não há o que criar ali.
+  As quatro listagens passaram a mandar `onClearFilters` (a de categorias limpa
+  só a busca, que é o único filtro dela).
+- **Rotinas ganharam os dois vazios que faltavam**: na página, "Nenhuma rotina
+  ainda" com "Criar rotina" (abre o modal, via `onAction`) e o secundário "ou
+  peça ao Assistente", que dispara `openAgentPanel()`; no dashboard, a CTA
+  passou a ser "Agendar rotina" em vez do genérico "Rotinas".
+- `SnapshotEmptyState` deixou de ter markup próprio e passou pelo componente
+  compartilhado.
+
+### NOTIFY
+
+- `lib/notify.tsx` é a casca única. O `ToastContainer` do `App` recebe
+  `icon={ToastTypeIcon}` e `closeButton={ToastCloseButton}`, então **os
+  `toast.*` antigos herdam o desenho novo sem precisar migrar chamada por
+  chamada**; `notify.*` existe para quando há ícone da entidade ou subtítulo.
+- Posição: `top-right` no desktop e `top-center` no telefone (`useIsDesktop`),
+  no máximo `limit={3}`. O `closeOnClick` saiu: com × explícito, fechar sem
+  querer ao tentar ler é pior que um clique a mais.
+- O check-in do dashboard passou a mandar o **ícone do próprio hábito** com o
+  nome no título e a frase motivacional no subtítulo. Antes era um check verde
+  genérico com a frase solta, e a posição mudava por media query na mão.
+- CSS: o `react-toastify` v11 se estende pelos tokens dele
+  (`--toastify-toast-width`, `-padding`, `-bd-radius`, `-shadow`), então o
+  bloco no `index.css` seta as variáveis no container em vez de duelar por
+  especificidade. Duas exceções precisam de duas classes:
+  `.Toastify__toast.beyou-toast` para o fundo (o tema claro dele pinta branco e
+  vem depois no cascade) e o bloco `@media (max-width: 480px)`, que
+  transformava a notificação em faixa colada no topo, de canto reto.
+- Cronômetro: 2px, sem trilho (`--wrp` com altura 2px e `--bg` invisível), na
+  cor do tom.
+
+### Celebração
+
+- O balão de 96px com "LV 3" dentro virou **o anel do sistema fechado com o
+  número do nível no centro** — a mesma peça do check-in e da marca. Marco de
+  sequência usa o mesmo anel com a chama e a contagem de dias.
+- Ganhou "Continuar". O fechamento automático em 4s continua: o botão é uma
+  saída, não a única.
+
+## Convite dispensável e barra do celular (2026-08-07)
+
+- **Convite de widgets fecha de vez**: `useDismissed(key)` guarda a recusa em
+  `localStorage` sob `beyou-dismissed:<key>`. Preferência de tela não é dado de
+  conta — não vale uma ida ao backend, e o `perfil` nem persiste. O × vive no
+  `EmptyState` (`onDismiss`), então qualquer outro convite pode usá-lo.
+- **O "Mais" parou de cobrir os atalhos**: painel e barra dividem o mesmo
+  container fixo, empilhados; o escurecido fica atrás dos dois. A barra é a
+  orientação de onde se está e some junto era desorientador. Veio com alça no
+  topo, ícone em tile e o gatilho alternando (e aceso enquanto aberto).
+- **Assistente mais alto**: `-mt-6` → `-mt-8`, com halo desfocado atrás. É o
+  único alvo da barra que não é navegação, e o desenho tem de dizer isso.
+- **Não seguido do mockup**: o ladrilho "Perfil" da sheet. A web não tem rota
+  de perfil — ele é uma seção da configuração. Entraria como link morto.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
