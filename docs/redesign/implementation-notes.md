@@ -597,6 +597,46 @@ num, mexa no outro.
   seletor de itens da seção foi alinhado.
 - O console de feedback do admin não existe no mobile.
 
+## Paridade web ⟷ mobile, tela por tela (2026-08-08)
+
+Passagem comparando a web a 390px (agent-browser) com o app no emulador,
+página por página. O que apareceu só quando as duas ficaram lado a lado:
+
+- **O chevron dos cartões não renderizava.** `transform: rotate` no `style` de
+  um ícone `lucide-react-native` faz o SVG sumir — o `react-native-svg` não
+  aceita o transform por ali. Onde a web rotaciona um chevron, o mobile agora
+  TROCA o ícone (`ChevronRight`/`ChevronUp`). Valia para configuração, seção do
+  dia e cartão de rotina.
+- **O Hermes deste build não tem `Intl.PluralRules`.** Sem ele o i18next não
+  acha `_one`/`_other` e cai na chave base — que em várias é só o rótulo, então
+  "1 rotina" virava "Rotinas". `src/lib/pluralRulesPolyfill.ts` cobre os dois
+  idiomas (en: one só para 1; pt: one para 0 e 1, como o CLDR) e é instalado
+  antes do init. Só cardinal: nada no app usa ordinal.
+- **O `Button` engolia `className`.** Ela caía no `...rest` e o spread
+  substituía a className calculada, então quem passasse largura perdia o fundo
+  junto. Silencioso e fácil de repetir; agora é desestruturada e mesclada.
+- **O ícone de ação em repouso é `text-3` nos dois tons.** A lixeira vermelha
+  no mobile gritava; na web o tom destrutivo só aparece no hover, e aqui só no
+  fundo do toque.
+- **Telas que ainda eram do modelo antigo**: perfil (campos sem rótulo, salvar
+  centrado), idioma (caixinha EN|PT), rotinas (quatro números grandes + pílula
+  de ordenação que a web não tem) e o cabeçalho do dashboard (avatar + anel de
+  nível dentro de um cartão). Todas passaram para o desenho da web.
+- **Duas coisas que faltavam nos dois lados**: metas sem o filtro de status no
+  mobile, e o cartão de entidade criada do agente sem equivalente na web. O
+  cartão foi PORTADO PARA A WEB — o mobile já resolvia o que eu havia anotado
+  como inviável, derivando o destino do nome da ferramenta em vez do id da
+  entidade.
+
+### Diferenças que ficam de propósito
+
+- O mobile tem um chevron de voltar no cabeçalho das telas; a web não precisa
+  (sidebar no desktop, barra no telefone).
+- O seletor de ícone é grade inline na web e sheet no mobile — a grade de seis
+  colunas dentro de um formulário rolável não é o padrão do toque.
+- O botão do assistente ficou mais alto na web (`-mt-8` → `-mt-11`) e mais
+  baixo no nativo (`top: -18` → `-12`), a pedido.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
