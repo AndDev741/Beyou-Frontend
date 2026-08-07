@@ -119,7 +119,7 @@ export default function GoalCard({
         {!readonly ? (
           <>
             <IconButton label={t('Edit')} onPress={() => onEdit(goal)} testID={`goal-edit-${goal.id}`}>
-              <Pencil size={15} color={theme.text2} />
+              <Pencil size={15} color={theme.text3} />
             </IconButton>
             <IconButton
               label={t('Delete')}
@@ -127,7 +127,7 @@ export default function GoalCard({
               onPress={() => onDelete(goal)}
               testID={`goal-delete-${goal.id}`}
             >
-              <Trash2 size={15} color={theme.danger} />
+              <Trash2 size={15} color={theme.text3} />
             </IconButton>
             <IconButton
               label={expanded ? t('Collapse') : t('Expand')}

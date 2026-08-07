@@ -1,4 +1,4 @@
-import { CalendarDays } from 'lucide-react-native';
+import { CalendarDays, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,6 @@ import { sortRoutines } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
 import RoutinesOverview from '../../src/ui/routines/RoutinesOverview';
-import RoutinesSortSheet from '../../src/ui/routines/RoutinesSortSheet';
 import RoutineBuilder from '../../src/ui/routines/RoutineBuilder';
 import ScheduleSheet from '../../src/ui/routines/ScheduleSheet';
 import { notify } from '../../src/notify';
@@ -93,17 +92,6 @@ export default function RoutinesScreen() {
 
   return (
     <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
-      <View className="flex-row items-center justify-between px-4 pb-3">
-        <View className="flex-row items-center gap-2">
-          <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" testID="back-button">
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
-          </Pressable>
-          <Text className="text-accent text-2xl font-bold">{t('Routines')}</Text>
-        </View>
-        <Pressable ref={createRoutineRef} onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-accent">
-          <Ionicons name="add" size={26} color={theme.background} />
-        </Pressable>
-      </View>
 
       {loading ? (
         <View className="flex-1 items-center justify-center"><ActivityIndicator color={theme.primary} /></View>
@@ -114,8 +102,23 @@ export default function RoutinesScreen() {
           contentContainerStyle={{ paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
             <View className="gap-2">
-              <RoutinesOverview routines={routines} />
-              {!isPast ? <View className="px-4"><RoutinesSortSheet /></View> : null}
+              <RoutinesOverview
+                routines={routines}
+                action={
+                  !isPast ? (
+                    <Pressable
+                      ref={createRoutineRef}
+                      onPress={() => setBuilder(true)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('Create routine')}
+                      testID="create-routine"
+                      className="h-10 w-10 items-center justify-center rounded-full bg-accent active:opacity-80"
+                    >
+                      <Plus size={22} color={theme.onAccent} />
+                    </Pressable>
+                  ) : undefined
+                }
+              />
             </View>
           }
           renderItem={({ item, index }) => (

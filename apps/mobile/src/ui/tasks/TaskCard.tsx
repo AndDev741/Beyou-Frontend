@@ -42,7 +42,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         </Text>
 
         <IconButton label={t('Edit')} onPress={() => onEdit(task)} testID={`task-edit-${task.id}`}>
-          <Pencil size={15} color={theme.text2} />
+          <Pencil size={15} color={theme.text3} />
         </IconButton>
         <IconButton
           label={t('Delete')}
@@ -50,7 +50,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           onPress={() => onDelete(task)}
           testID={`task-delete-${task.id}`}
         >
-          <Trash2 size={15} color={theme.danger} />
+          <Trash2 size={15} color={theme.text3} />
         </IconButton>
       </View>
 

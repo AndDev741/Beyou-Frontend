@@ -28,6 +28,7 @@ import { GOAL_SORT_OPTIONS } from '../../src/ui/sortOptions';
 type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null };
 const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
 const ALL_CATEGORIES = 'all';
+type StatusFilter = 'all' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
 /**
  * Goals section screen: self-fetches goals + categories, lists them as cards with
@@ -49,6 +50,7 @@ export default function GoalsScreen() {
   const [form, setForm] = useState<FormState>(CLOSED);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
 
@@ -68,11 +70,23 @@ export default function GoalsScreen() {
         (item.description ?? '').toLowerCase().includes(term);
       const matchesCategory =
         categoryFilter === ALL_CATEGORIES || Object.keys(item.categories ?? {}).includes(categoryFilter);
-      return matchesTerm && matchesCategory;
+      const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+      return matchesTerm && matchesCategory && matchesStatus;
     });
-  }, [sortedGoals, search, categoryFilter]);
+  }, [sortedGoals, search, categoryFilter, statusFilter]);
 
-  const isFiltered = search.trim() !== '' || categoryFilter !== ALL_CATEGORIES;
+  const isFiltered =
+    search.trim() !== '' || categoryFilter !== ALL_CATEGORIES || statusFilter !== 'all';
+  const completedCount = useMemo(() => goals.filter((g) => g.status === 'COMPLETED').length, [goals]);
+  const statusOptions = useMemo(
+    () => [
+      { value: 'all', label: t('All') },
+      { value: 'NOT_STARTED', label: t('Not Started') },
+      { value: 'IN_PROGRESS', label: t('In Progress') },
+      { value: 'COMPLETED', label: t('Completed') },
+    ],
+    [t],
+  );
   const sortOptions = useMemo(
     () => GOAL_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.key) })),
     [t],
@@ -137,7 +151,9 @@ export default function GoalsScreen() {
               {t('YourGoals')}
             </Text>
             <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
-              {`${goals.length} ${t('Goals')} · ${categoriesInUse.length} ${t('Categories')}`}
+              {completedCount > 0
+                ? `${goals.length} ${t('Goals')} · ${completedCount} ${t('Completed')}`
+                : `${goals.length} ${t('Goals')}`}
             </Text>
           </View>
         </View>
@@ -169,6 +185,14 @@ export default function GoalsScreen() {
                 searchLabel={t('GoalSearchPlaceholder')}
                 testID="goals-toolbar"
               >
+                <SelectField
+                  label={t('Status')}
+                  value={statusFilter}
+                  options={statusOptions}
+                  onChange={(value) => setStatusFilter(value as StatusFilter)}
+                  testID="goals-status-filter"
+                  className="flex-1"
+                />
                 <SelectField
                   label={t('Sort by')}
                   value={sortBy}
@@ -207,6 +231,7 @@ export default function GoalsScreen() {
                 onAction={() => {
                   setSearch('');
                   setCategoryFilter(ALL_CATEGORIES);
+                  setStatusFilter('all');
                 }}
                 variant="ghost"
                 testID="goals-no-results"

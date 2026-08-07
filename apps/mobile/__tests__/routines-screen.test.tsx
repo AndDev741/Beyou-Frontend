@@ -52,11 +52,17 @@ test('the + button opens the type picker, then the builder', async () => {
   expect(screen.getByTestId('routine-name')).toBeTruthy();
 });
 
-test('today mode shows the sort pill + an expandable card', async () => {
+/**
+ * A pílula de ordenação saiu: a web não tem ordenação nesta página, e o
+ * contexto (quantas rotinas, quantos dias ativos) mora na linha do título.
+ */
+test('today mode lists the routine card under the title and its context line', async () => {
   setHttp([routine]);
   await renderScreen();
   await waitFor(() => expect(screen.getByTestId('routine-card-r1')).toBeTruthy());
-  expect(screen.getByTestId('routines-sort')).toBeTruthy();
+
+  expect(screen.queryByTestId('routines-sort')).toBeNull();
+  expect(screen.getByTestId('create-routine')).toBeTruthy();
 });
 
 function setHttpForSnapshots(routines: unknown[], date: string) {

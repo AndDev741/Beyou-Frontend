@@ -86,10 +86,6 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   return (
     <View className="rounded-card border border-border bg-surface p-4">
       <View className="flex-row items-center gap-2.5">
-        <IconTile size={38}>
-          <BeyouIcon id={routine.iconId} size={20} showFallback />
-        </IconTile>
-
         <Pressable
           onPress={() => setExpanded((open) => !open)}
           accessibilityRole="button"
@@ -102,7 +98,17 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             {routine.name}
           </Text>
           <Text className="text-xs text-text-3" numberOfLines={1}>
-            {`${t('SectionsCount', { count: sections })} · ${t('ItemsCount', { count: totalItems })}`}
+            {[
+              t('SectionsCount', { count: sections }),
+              t('ItemsCount', { count: totalItems }),
+              scheduledDays.size > 0
+                ? scheduledDays.size === 7
+                  ? t('EveryDay')
+                  : t('DaysPerWeek', { count: scheduledDays.size })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
           </Text>
         </Pressable>
 
@@ -173,7 +179,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
             </Pressable>
 
             <IconButton label={t('Edit')} onPress={() => onEdit(routine)} testID={`edit-${routine.id}`}>
-              <Pencil size={15} color={theme.text2} />
+              <Pencil size={15} color={theme.text3} />
             </IconButton>
             <IconButton
               label={t('Delete')}
@@ -181,7 +187,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
               onPress={() => onDelete(routine)}
               testID={`delete-${routine.id}`}
             >
-              <Trash2 size={15} color={theme.danger} />
+              <Trash2 size={15} color={theme.text3} />
             </IconButton>
           </View>
 

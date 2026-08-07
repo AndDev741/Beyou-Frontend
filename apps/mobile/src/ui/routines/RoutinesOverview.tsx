@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
@@ -32,20 +32,18 @@ const WEEKDAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 // Parse at noon so the local weekday + day-number match the ISO date (no tz day-shift).
 const dateAtNoon = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
 
-function Insight({ label, value }: { label: string; value: string | number }) {
-  return (
-    <View className="flex-1 items-center rounded-card bg-accent/10 py-3">
-      <Text className="text-accent text-lg font-bold">{value}</Text>
-      <Text className="text-text-2 text-xs">{label}</Text>
-    </View>
-  );
-}
-
 /** Largura de uma caixa de dia + gap, e o espaço do botão de calendário. */
 const DAY_BOX = 40 + 6;
 const CALENDAR_SLOT = 52 + 6;
 
-export default function RoutinesOverview({ routines }: { routines: Routine[] }) {
+export default function RoutinesOverview({
+  routines,
+  action,
+}: {
+  routines: Routine[];
+  /** Ação primária da página (criar), à direita do título — como na web. */
+  action?: ReactNode;
+}) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const dispatch = useDispatch<AppDispatch>();
@@ -92,18 +90,39 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
 
   // Insights for the selected day.
   const daySnapshots = useMemo(() => Object.values(snapshots).filter((s) => s.snapshotDate === day), [snapshots, day]);
-  const insights = useMemo(() => {
-    if (isPast) {
-      const allChecks = daySnapshots.flatMap((s) => s.checks);
-      const sections = daySnapshots.reduce((n, s) => n + s.structure.sections.length, 0);
-      return { count: daySnapshots.length, sections, done: `${allChecks.filter((c) => c.checked).length}/${allChecks.length}`, xp: allChecks.reduce((n, c) => n + (c.checked ? c.xpGenerated : 0), 0) };
-    }
-    const agg = routines.reduce((acc, r) => { const st = getRoutineStats(r, today); return { sections: acc.sections + (r.routineSections?.length ?? 0), completed: acc.completed + st.completedItems, total: acc.total + st.totalItems, xp: acc.xp + st.xpEarned }; }, { sections: 0, completed: 0, total: 0, xp: 0 });
-    return { count: routines.length, sections: agg.sections, done: `${agg.completed}/${agg.total}`, xp: agg.xp };
-  }, [isPast, daySnapshots, routines, today]);
+  // Quantos dias da semana têm alguma rotina agendada.
+  const activeDays = useMemo(() => {
+    const days = new Set<string>();
+    routines.forEach((routine) => routine.schedule?.days?.forEach((day) => days.add(day)));
+    return days.size;
+  }, [routines]);
+
 
   return (
     <View className="gap-3 px-4 pb-2">
+      {/* Sem cartão: título, contexto e ação ficam direto sobre a página — a
+          moldura competia com os cartões de rotina logo abaixo. */}
+      <View className="flex-row items-center gap-3">
+        <View className="min-w-0">
+          <Text
+            accessibilityRole="header"
+            className="text-2xl font-semibold tracking-[-0.02em] text-text"
+          >
+            {t('Routines')}
+          </Text>
+          {isPast ? (
+            <View className="mt-1 self-start rounded-full bg-surface-2 px-2.5 py-0.5">
+              <Text className="text-xs font-semibold text-text-2">{t('Historical view')}</Text>
+            </View>
+          ) : (
+            <Text className="mt-1 text-[13px] text-text-3">
+              {`${t('RoutinesCount', { count: routines.length })} · ${t('ActiveDays', { count: activeDays })}`}
+            </Text>
+          )}
+        </View>
+        {action ? <View className="ml-auto shrink-0">{action}</View> : null}
+      </View>
+
       <View
         className="flex-row items-center gap-1.5"
         onLayout={(event) => setRowWidth(event.nativeEvent.layout.width)}
@@ -126,7 +145,8 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
                 <Text
                   className={`font-mono text-[9px] font-semibold ${sel ? 'text-on-accent' : 'text-text-3'}`}
                 >
-                  {t(WEEKDAY_KEYS[dateAtNoon(date).getDay()]).toUpperCase()}
+                  {/* Hoje se anuncia pelo nome, não por um ponto discreto. */}
+                  {(date === today ? t('Today') : t(WEEKDAY_KEYS[dateAtNoon(date).getDay()])).toUpperCase()}
                 </Text>
                 <Text
                   className={`font-mono-semibold text-[13px] ${sel ? 'text-on-accent' : 'text-text'}`}
@@ -157,13 +177,6 @@ export default function RoutinesOverview({ routines }: { routines: Routine[] }) 
       {showPicker ? (
         <DateTimePicker value={day ? new Date(day) : new Date()} mode="date" maximumDate={new Date()} onChange={onPick} testID="routines-date-picker" />
       ) : null}
-
-      <View className="flex-row gap-2">
-        <Insight label={t('RoutinesCount')} value={insights.count} />
-        <Insight label={t('Sections')} value={insights.sections} />
-        <Insight label={t('ItemsDone')} value={insights.done} />
-        <Insight label={t('XpEarned')} value={insights.xp} />
-      </View>
 
       {isPast && snapshotPairs.length > 0 ? (
         <View className="gap-3">

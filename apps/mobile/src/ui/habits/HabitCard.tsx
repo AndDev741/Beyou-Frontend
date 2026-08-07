@@ -61,7 +61,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         </Pressable>
 
         <IconButton label={t('Edit')} onPress={() => onEdit(habit)} testID={`habit-edit-${habit.id}`}>
-          <Pencil size={15} color={theme.text2} />
+          <Pencil size={15} color={theme.text3} />
         </IconButton>
         <IconButton
           label={t('Delete')}
@@ -69,7 +69,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
           onPress={() => onDelete(habit)}
           testID={`habit-delete-${habit.id}`}
         >
-          <Trash2 size={15} color={theme.danger} />
+          <Trash2 size={15} color={theme.text3} />
         </IconButton>
         <IconButton
           label={expanded ? t('Collapse') : t('Expand')}

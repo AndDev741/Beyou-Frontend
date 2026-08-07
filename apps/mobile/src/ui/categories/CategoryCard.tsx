@@ -66,7 +66,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
           onPress={() => onEdit(category)}
           testID={`category-edit-${category.id}`}
         >
-          <Pencil size={15} color={theme.text2} />
+          <Pencil size={15} color={theme.text3} />
         </IconButton>
         <IconButton
           label={t('Delete')}
@@ -74,7 +74,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
           onPress={() => onDelete(category)}
           testID={`category-delete-${category.id}`}
         >
-          <Trash2 size={15} color={theme.danger} />
+          <Trash2 size={15} color={theme.text3} />
         </IconButton>
         {/* O chevron fica sempre visível — é o que avisa que o cartão expande
             para mostrar onde a categoria é usada. */}
