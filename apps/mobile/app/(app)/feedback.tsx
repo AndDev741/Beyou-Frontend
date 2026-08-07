@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bug, ChevronLeft, Lightbulb, Mail, MessageSquare } from 'lucide-react-native';
+import { Bug, ChevronLeft, Lightbulb, Mail, MessageSquare, Send } from 'lucide-react-native';
 import submitFeedback from '@beyou/api/feedback/submitFeedback';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { ApiErrorPayload } from '@beyou/api/apiError';
@@ -120,7 +120,7 @@ export default function FeedbackScreen() {
         >
           <ChevronLeft size={24} color={theme.text2} />
         </Pressable>
-        <View className="min-w-0">
+        <View className="min-w-0 flex-1">
           <Text accessibilityRole="header" className="text-[22px] font-semibold text-text">
             {t('FeedbackPageTitle')}
           </Text>
@@ -241,10 +241,11 @@ export default function FeedbackScreen() {
             text={isSubmitting ? t('FeedbackSubmitting') : t('FeedbackSubmit')}
             mode="primary"
             size="auto"
+            icon={<Send size={16} color={theme.onAccent} />}
             submitting={isSubmitting}
             onPress={handleSubmit(onSubmit)}
             testID="feedback-submit"
-            className="self-end"
+            className="w-full"
           />
         </View>
 

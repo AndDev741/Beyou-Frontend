@@ -11,6 +11,11 @@ interface Props extends Omit<PressableProps, 'children'> {
   size?: Size;
   submitting?: boolean;
   icon?: ReactNode;
+  /**
+   * Classes extras (largura, alinhamento). Precisa ser DESTRUTURADA: caindo no
+   * `...rest` ela substituía a className calculada e o botão perdia o fundo.
+   */
+  className?: string;
   testID?: string;
 }
 
@@ -60,6 +65,7 @@ export default function Button({
   submitting,
   disabled,
   icon,
+  className = '',
   testID,
   ...rest
 }: Props) {
@@ -77,7 +83,7 @@ export default function Button({
       disabled={isDisabled}
       className={`flex-row items-center justify-center gap-2 rounded-control ${MODE[mode]} ${
         SIZE[size]
-      } ${isDisabled ? 'opacity-60' : ''}`}
+      } ${isDisabled ? 'opacity-60' : ''} ${className}`}
       {...rest}
     >
       {submitting ? (

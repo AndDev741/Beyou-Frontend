@@ -71,8 +71,9 @@ export default function AttachmentsField({ images, onChange }: Props) {
         }`}
       >
         <ImageIcon size={18} color={theme.text3} />
-        <Text className="text-[12.5px] text-text-2">{t('FeedbackAddImages')}</Text>
-        <Text className="font-mono text-[10.5px] text-text-3">{t('FeedbackImagesHint')}</Text>
+        {/* A web esconde a linha de limites no telefone (`lg:block`): o rótulo
+            curto basta, e os limites reaparecem no erro se algo for rejeitado. */}
+        <Text className="text-[12.5px] text-text-2">{t('FeedbackDropzoneMobile')}</Text>
       </Pressable>
 
       {errors.length > 0 ? (
