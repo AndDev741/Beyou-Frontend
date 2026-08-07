@@ -445,6 +445,24 @@ Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
 - Testes ajustados: a intro agora é o subtítulo, o input de imagens é achado
   pelo `aria-label` e os anexos são chips, não `img[alt]`.
 
+## Painel do Assistente (2026-08-07)
+
+- **Desktop: painel lateral de altura cheia** encostado à direita, no lugar do
+  popover de 440px flutuando no canto. Expandido continua o overlay central
+  com a coluna de histórico.
+- **Telefone: sheet de 86%** ancorada embaixo, topo arredondado (medido 726 de
+  844px), no lugar da tela cheia.
+- **Cabeçalho separa identidade de contexto**: "Assistente IA" fixo e o assunto
+  da conversa em mono embaixo. Antes o título era o nome do chat, que o agente
+  renomeia sozinho.
+- **Ferramentas viraram chips** discretos (mono, contorno leve) em vez de
+  caixas com fundo de acento.
+- **Sugestões acima do input**, numa linha rolável, sempre que há conversa —
+  antes só existiam no estado vazio.
+- **Não implementado do mockup:** os cartões de entidade criada com link "ver".
+  `agentSegment` só carrega `tool`, `error` e `domains` — não vem id nem nome
+  da entidade. Precisa de backend; entra na lista de dependências de dados.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
