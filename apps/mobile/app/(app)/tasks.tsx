@@ -157,7 +157,7 @@ export default function TasksScreen() {
         <FlatList
           data={visibleItems}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
+          contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
             tasks.length > 0 ? (
               <ListToolbar

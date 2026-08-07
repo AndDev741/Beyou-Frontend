@@ -89,7 +89,7 @@ describe('(app) layout chrome', () => {
     mockPathname = '/goals';
     await renderLayout();
 
-    for (const key of ['today', 'routines', 'habits', 'more']) {
+    for (const key of ['navdashboard', 'routines', 'habits', 'more']) {
       expect(screen.getByTestId(`nav-${key}`)).toBeTruthy();
     }
     expect(screen.getByTestId('nav-agent')).toBeTruthy();

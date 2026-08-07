@@ -8,6 +8,8 @@ import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useRoutineCheckin } from '../../dashboard/useRoutineCheckin';
 import BeyouIcon from '../BeyouIcon';
+import IconTile from '../IconTile';
+import Ring from '../Ring';
 import XpFloat from './XpFloat';
 
 const XP_FLOAT_DURATION_MS = 1200;
@@ -118,8 +120,15 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         className="flex-1 flex-row items-center"
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
-        <Ionicons name={checked ? 'checkbox' : 'square-outline'} size={24} color={theme.primary} />
-        <Text className={`ml-2 shrink text-base ${skipped ? 'text-text-2 line-through' : 'text-text'}`}>
+        {/* O anel do sistema, não um quadradinho: check-in, nível e a marca são
+            a MESMA peça (ver Ring). Um checkbox de plataforma quebrava isso. */}
+        <Ring size={26} state={checked ? 'done' : skipped ? 'skipped' : 'todo'} />
+        {iconId ? (
+          <IconTile size={30} className="ml-2">
+            <BeyouIcon id={iconId} size={16} showFallback />
+          </IconTile>
+        ) : null}
+        <Text className={`ml-2 shrink text-[13.5px] ${skipped ? 'text-text-3 line-through' : 'text-text'}`}>
           {name}
         </Text>
       </Pressable>

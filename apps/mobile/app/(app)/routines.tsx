@@ -111,7 +111,7 @@ export default function RoutinesScreen() {
         <FlatList
           data={isPast ? [] : sorted}
           keyExtractor={(item) => item.id ?? item.name}
-          contentContainerStyle={{ paddingBottom: 24, gap: 12 }}
+          contentContainerStyle={{ paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
             <View className="gap-2">
               <RoutinesOverview routines={routines} />

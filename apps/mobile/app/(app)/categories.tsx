@@ -144,7 +144,7 @@ export default function CategoriesScreen() {
         <FlatList
           data={visibleCategories}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
+          contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
             categories.length > 0 ? (
               <ListToolbar

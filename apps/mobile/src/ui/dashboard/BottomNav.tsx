@@ -29,7 +29,7 @@ type NavItemConfig = { key: string; route: string; Icon: LucideIcon; targetId?: 
 // O assistente fica no centro porque passou a ser o ÚNICO acesso ao agente no
 // mobile (o balão flutuante saiu) e ele existe em toda tela autenticada.
 const LEFT: NavItemConfig[] = [
-  { key: 'Today', route: '/', Icon: House },
+  { key: 'NavDashboard', route: '/', Icon: House },
   { key: 'Routines', route: '/routines', Icon: CalendarDays, targetId: 'nav-routines' },
 ];
 const RIGHT: NavItemConfig[] = [
@@ -260,13 +260,13 @@ export default function BottomNav() {
                 style={{
                   position: 'absolute',
                   left: '50%',
-                  marginLeft: -40,
-                  top: -30,
-                  height: 80,
-                  width: 80,
-                  borderRadius: 40,
+                  marginLeft: -34,
+                  top: -24,
+                  height: 68,
+                  width: 68,
+                  borderRadius: 34,
                   backgroundColor: theme.accent,
-                  opacity: 0.12,
+                  opacity: 0.06,
                 }}
               />
               <View
@@ -274,13 +274,13 @@ export default function BottomNav() {
                 style={{
                   position: 'absolute',
                   left: '50%',
-                  marginLeft: -32,
-                  top: -22,
-                  height: 64,
-                  width: 64,
-                  borderRadius: 32,
+                  marginLeft: -30,
+                  top: -20,
+                  height: 60,
+                  width: 60,
+                  borderRadius: 30,
                   backgroundColor: theme.accent,
-                  opacity: 0.18,
+                  opacity: 0.1,
                 }}
               />
               <Pressable

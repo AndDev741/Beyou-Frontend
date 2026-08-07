@@ -47,7 +47,7 @@ import BottomNav from '../src/ui/dashboard/BottomNav';
 import { onAgentPanelOpen } from '../src/ui/agent/agentPanelBus';
 
 /** The four labelled destinations in the bar, in bar order. */
-const BAR_KEYS = ['today', 'routines', 'habits', 'more'] as const;
+const BAR_KEYS = ['navdashboard', 'routines', 'habits', 'more'] as const;
 /** What moved into the sheet — same i18n keys as before the redesign. */
 const SHEET_KEYS = ['tasks', 'goals', 'categories', 'config', 'feedbackshortcutlabel'] as const;
 
@@ -105,7 +105,7 @@ describe('BottomNav', () => {
     // act-wrapped per AGENTS.md: an unwrapped press lets the theme provider's
     // settle leak into the NEXT test in this file and corrupt its render.
     await act(async () => {
-      fireEvent.press(screen.getByTestId('nav-today'));
+      fireEvent.press(screen.getByTestId('nav-navdashboard'));
     });
     expect(mockPush).toHaveBeenCalledWith('/');
     await act(async () => {
@@ -213,7 +213,7 @@ describe('BottomNav active item', () => {
   });
 
   it.each([
-    ['/', ['today']],
+    ['/', ['navdashboard']],
     ['/routines', ['routines']],
     ['/habits', ['habits']],
     // Everything inside the sheet lights "More" — otherwise the bar would go

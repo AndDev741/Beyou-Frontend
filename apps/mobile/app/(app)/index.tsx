@@ -65,7 +65,9 @@ export default function AppHome() {
     <View className="flex-1 bg-bg">
       <ScrollView
         className="flex-1 bg-bg"
-        contentContainerStyle={{ padding: 16, paddingTop: 56, gap: 20 }}
+        // O disco do assistente sobe 18px para fora da barra e cobriria a
+        // última linha do conteúdo; o respiro extra devolve esse espaço.
+        contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40, gap: 20 }}
         testID="dashboard-screen"
       >
         <ProfileHeader />
