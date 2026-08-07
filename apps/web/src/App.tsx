@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useSilentRefresh } from "./hooks/useSilentRefresh";
 import CelebrationOverlay from "./components/celebration/CelebrationOverlay";
+import { ToastCloseButton, ToastTypeIcon } from "./lib/notify";
+import { useIsDesktop } from "./hooks/useIsDesktop";
 
 // Route-level code splitting: each page is its own chunk, so the boot bundle
 // stays small. The auth pages don't touch the icon registry, which keeps the
@@ -42,6 +44,7 @@ function FullScreenSpinner() {
 
 function AppContent() {
   const authState = useSilentRefresh();
+  const isDesktop = useIsDesktop();
 
   if (authState === "checking") {
     return <FullScreenSpinner />;
@@ -72,13 +75,18 @@ function AppContent() {
         </Routes>
       </Suspense>
       <CelebrationOverlay />
+      {/* Canto superior direito no desktop, topo no celular; no máximo três
+          empilhadas — a quarta espera a vez em vez de tomar a tela. */}
       <ToastContainer
-        position="bottom-center"
+        position={isDesktop ? "top-right" : "top-center"}
         autoClose={5000}
+        limit={3}
         hideProgressBar={false}
-        closeOnClick
+        closeOnClick={false}
         pauseOnHover
         draggable
+        icon={ToastTypeIcon}
+        closeButton={ToastCloseButton}
         className="beyou-toast-container"
         toastClassName="beyou-toast"
         progressClassName="beyou-toast-progress"

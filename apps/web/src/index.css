@@ -38,55 +38,107 @@
   }
 }
 
+/* NOTIFY: casca única para toda notificação. A cor do tom aparece só na
+   barra da esquerda e no ícone — o corpo continua na superfície do tema. */
 .beyou-toast-container {
-  padding: 0 12px 12px;
+  /* Os tokens do react-toastify são o ponto de extensão dele: mexer aqui vale
+     para largura, respiro e raio sem duelar por especificidade. */
+  --toastify-toast-width: min(380px, calc(100vw - 24px));
+  --toastify-toast-min-height: 0;
+  --toastify-toast-padding: 12px 12px 12px 14px;
+  --toastify-toast-bd-radius: 14px;
+  --toastify-toast-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+  width: var(--toastify-toast-width);
+  padding: 0;
+}
+
+/* Duas classes de propósito: o tema claro do react-toastify pinta o fundo de
+   branco e vem depois no cascade — a superfície tem de ganhar dele. */
+.Toastify__toast.beyou-toast {
+  background: var(--surface);
+  color: var(--text);
 }
 
 .beyou-toast {
-  background: var(--background);
-  color: var(--secondary);
-  border: 1px solid var(--primary);
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-}
-
-.beyou-toast.Toastify__toast-theme--colored {
-  background: var(--background);
-  color: var(--secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
 }
 
 .beyou-toast .Toastify__toast-body {
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
   font-weight: 500;
   letter-spacing: 0.01em;
 }
 
+.beyou-toast .Toastify__toast-icon {
+  width: auto;
+  margin-inline-end: 0;
+}
+
 .beyou-toast.Toastify__toast--success {
-  border-color: var(--primary);
+  border-left-color: var(--success);
 }
 
 .beyou-toast.Toastify__toast--error {
-  border-color: var(--error);
+  border-left-color: var(--danger);
 }
 
 .beyou-toast.Toastify__toast--info {
-  border-color: var(--primary);
+  border-left-color: var(--accent);
 }
 
 .beyou-toast.Toastify__toast--warning {
-  border-color: var(--primary);
+  border-left-color: var(--flame);
+}
+
+/* Cronômetro: 2px, sem trilho por baixo. */
+.beyou-toast .Toastify__progress-bar--wrp {
+  height: 2px;
+  bottom: 0;
+}
+
+.beyou-toast .Toastify__progress-bar--bg {
+  opacity: 0;
 }
 
 .beyou-toast-progress {
-  background: var(--primary);
+  height: 2px;
+  background: var(--accent);
 }
 
-.beyou-toast .Toastify__close-button {
-  color: var(--secondary);
-  opacity: 0.85;
+.beyou-toast.Toastify__toast--success .beyou-toast-progress {
+  background: var(--success);
 }
 
-.beyou-toast .Toastify__close-button:hover {
-  opacity: 1;
+.beyou-toast.Toastify__toast--error .beyou-toast-progress {
+  background: var(--danger);
+}
+
+.beyou-toast.Toastify__toast--warning .beyou-toast-progress {
+  background: var(--flame);
+}
+
+/* No celular o react-toastify vira faixa colada no topo (largura 100vw, canto
+   reto). A notificação continua sendo um cartão, com o mesmo respiro lateral
+   das telas. */
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container.beyou-toast-container {
+    width: calc(100vw - 20px);
+    left: 10px;
+    right: 10px;
+    margin: 0;
+    padding-top: 10px;
+    transform: none;
+  }
+
+  .Toastify__toast.beyou-toast {
+    --toastify-toast-width: 100%;
+    margin-bottom: 10px;
+    border-radius: 14px;
+  }
 }
 
 /* Agent FAB breathing halo — slow, soft, killed by the reduced-motion block below. */

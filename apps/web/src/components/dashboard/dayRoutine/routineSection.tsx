@@ -13,6 +13,7 @@ import useUiRefresh from "../../../hooks/useUiRefresh";
 import { formatTimeRange, getSectionStats } from "../../routines/routineMetrics";
 import { FiSlash, FiChevronDown } from "react-icons/fi";
 import { toast } from "react-toastify";
+import { notify } from "../../../lib/notify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import XpFloat from "./XpFloat";
 import Ring from "../../../ui/Ring";
@@ -163,7 +164,6 @@ export default function RoutineSection({ section, routineId}: { section: section
             // ao reload e mostra o valor real, já com decaimento aplicado.
             const xpEarned: number = checked ? (ItemCheck?.xpGenerated ?? 0) : 0;
             const motivationalPhrase = item.type === "habit" ? itemObj?.motivationalPhrase : "";
-            const toastPosition = window.matchMedia("(min-width: 712px)").matches ? "top-left" : "bottom-center";
 
             return (
                 <div key={`${item.type}-${item.id}-${index}`} className={`group mt-1 flex w-full items-center gap-2.5 rounded-control px-1.5 py-1.5 transition-colors duration-200 hover:bg-surface-2 lg:px-2 ${skipped ? "opacity-60" : ""}`}>
@@ -199,8 +199,13 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 };
                                 handleCheck(groupToCheck);
                                 if (!checked) {
-                                    const message = motivationalPhrase ? motivationalPhrase : t("Item completed");
-                                    toast.success(message, { position: toastPosition });
+                                    // A frase motivacional vem com o ícone do
+                                    // próprio hábito: o check genérico não diz
+                                    // o que foi concluído.
+                                    notify.success(itemObj.name || t("Item completed"), {
+                                        subtitle: motivationalPhrase || undefined,
+                                        icon: <BeyouIcon id={itemObj.iconId} size={16} />,
+                                    });
                                 }
                             }}
                         />
