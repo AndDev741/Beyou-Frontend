@@ -3,17 +3,17 @@ import type { RefObject } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+import { CalendarDays, ChevronDown, Pencil, Trash2 } from 'lucide-react-native';
 import { calculateLevelProgress, getRoutineStats } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import BeyouIcon from '../BeyouIcon';
-import ScheduleIndicator from './ScheduleIndicator';
+import IconButton from '../IconButton';
+import IconTile from '../IconTile';
+import { formatTimeRange } from './routineMetrics';
 import RoutineItem, { type MergedItem } from '../dashboard/RoutineItem';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
-
-const fmt = (s?: string) => (s ? s.slice(0, 5) : '');
 
 function mergeItems(section: RoutineSection): MergedItem[] {
   const habits: MergedItem[] = (section.habitGroup ?? []).map((g) => ({
@@ -45,6 +45,26 @@ interface RoutineCardProps {
   scheduleRef?: React.RefObject<View | null>;
 }
 
+/** Domingo→sábado, com a inicial em pt/en resolvida pelo i18n do chamador. */
+const WEEK_DAYS = [
+  { key: 'sunday', short: 'D' },
+  { key: 'monday', short: 'S' },
+  { key: 'tuesday', short: 'T' },
+  { key: 'wednesday', short: 'Q' },
+  { key: 'thursday', short: 'Q' },
+  { key: 'friday', short: 'S' },
+  { key: 'saturday', short: 'S' },
+] as const;
+
+/**
+ * Cartão de rotina no desenho de telefone da web: cabeçalho enxuto (ícone,
+ * nome, contagem, chevron), a fileira de dias e UMA barra — o progresso do dia
+ * quando a rotina roda nele, senão o nível. Duas barras iguais empilhadas em
+ * tela estreita não diziam qual importava agora.
+ *
+ * Agendar/editar/excluir aparecem ao abrir o cartão, como na web abaixo de
+ * `md`: fechado ele fica limpo.
+ */
 export default function RoutineCard({ routine, today, onSchedule, onEdit, onDelete, onChanged, scheduleRef }: RoutineCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
@@ -53,95 +73,126 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const [expanded, setExpanded] = useState(false);
 
   const stats = getRoutineStats(routine, today);
-  const levelPct = calculateLevelProgress(routine.xp ?? 0, routine.actualLevelXp ?? 0, routine.nextLevelXp ?? 0);
   const sections = routine.routineSections?.length ?? 0;
-  const donePct = stats.totalItems > 0 ? Math.round((stats.completedItems / stats.totalItems) * 100) : 0;
+  const totalItems = stats.totalItems;
+  const completion = totalItems > 0 ? Math.round((stats.completedItems / totalItems) * 100) : 0;
+  const levelPct = calculateLevelProgress(routine.xp ?? 0, routine.actualLevelXp ?? 0, routine.nextLevelXp ?? 0);
+
+  const scheduledDays = new Set((routine.schedule?.days ?? []).map((day) => day.toLowerCase()));
+  // A rotina roda no dia aberto? Sem agenda, assume que sim (rotina avulsa).
+  const weekday = new Date(`${today}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+  const runsToday = scheduledDays.size === 0 || scheduledDays.has(weekday);
 
   return (
     <View className="rounded-card border border-border bg-surface p-4">
-      {/* Header row: icon + name/stats + schedule button */}
-      <View className="flex-row items-center gap-3">
+      <View className="flex-row items-center gap-2.5">
+        <IconTile size={38}>
+          <BeyouIcon id={routine.iconId} size={20} showFallback />
+        </IconTile>
+
         <Pressable
-          onPress={() => setExpanded((e) => !e)}
+          onPress={() => setExpanded((open) => !open)}
           accessibilityRole="button"
           accessibilityLabel={routine.name}
           accessibilityState={{ expanded }}
           testID={`routine-card-${routine.id}`}
-          className="flex-1 flex-row items-center gap-3"
+          className="min-w-0 flex-1"
         >
-          <View className="h-11 w-11 items-center justify-center rounded-card bg-accent/10">
-            <BeyouIcon id={routine.iconId} size={24} showFallback />
-          </View>
-          <View className="flex-1">
-            <Text className="text-text text-base font-bold" numberOfLines={1}>{routine.name}</Text>
-            <Text className="text-text-2 text-xs">
-              {sections} {t('Sections')} · {stats.completedItems}/{stats.totalItems} · {donePct}%
-            </Text>
-          </View>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
+          <Text className="text-base font-semibold tracking-[-0.01em] text-text" numberOfLines={1}>
+            {routine.name}
+          </Text>
+          <Text className="text-xs text-text-3" numberOfLines={1}>
+            {`${t('SectionsCount', { count: sections })} · ${t('ItemsCount', { count: totalItems })}`}
+          </Text>
         </Pressable>
 
-        {/* Edit / Delete / Schedule — key actions, always visible (no need to expand & scroll). */}
-        <View className="flex-row items-center gap-1.5">
-          <Pressable
-            onPress={() => onEdit(routine)}
-            accessibilityRole="button"
-            accessibilityLabel={t('Edit')}
-            testID={`edit-${routine.id}`}
-            className="h-9 w-9 items-center justify-center rounded-full bg-accent/10"
-          >
-            <Ionicons name="create-outline" size={18} color={theme.primary} />
-          </Pressable>
-          <Pressable
-            onPress={() => onDelete(routine)}
-            accessibilityRole="button"
-            accessibilityLabel={t('Delete')}
-            testID={`delete-${routine.id}`}
-            className="h-9 w-9 items-center justify-center rounded-full bg-danger/10"
-          >
-            <Ionicons name="trash-outline" size={18} color={theme.error} />
-          </Pressable>
-          <Pressable
-            ref={scheduleRef}
-            onPress={() => onSchedule(routine)}
-            accessibilityRole="button"
-            accessibilityLabel={t('Schedule')}
-            testID={scheduleRef ? 'schedule-routine' : `schedule-${routine.id}`}
-            className="h-9 w-9 items-center justify-center rounded-full bg-accent/10"
-          >
-            <Ionicons name="calendar-outline" size={18} color={theme.primary} />
-          </Pressable>
-        </View>
+        <IconButton
+          label={expanded ? t('Collapse') : t('Expand')}
+          onPress={() => setExpanded((open) => !open)}
+          testID={`routine-expand-${routine.id}`}
+        >
+          <ChevronDown
+            size={18}
+            color={theme.text3}
+            style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
+          />
+        </IconButton>
       </View>
 
-      {/* Schedule indicator (days) */}
-      <View className="mt-2">
-        <ScheduleIndicator days={routine.schedule?.days} />
+      {/* Quando ela roda: sete quadradinhos, os agendados no acento. */}
+      <View className="mt-3 flex-row gap-1">
+        {WEEK_DAYS.map((day, index) => {
+          const on = scheduledDays.has(day.key);
+          return (
+            <View
+              key={`${day.key}-${index}`}
+              className={`h-[26px] w-[26px] items-center justify-center rounded-[8px] ${
+                on ? 'bg-accent-soft' : 'bg-surface-2'
+              }`}
+            >
+              <Text
+                className={`font-mono-semibold text-[11px] ${on ? 'text-accent' : 'text-text-3'}`}
+              >
+                {day.short}
+              </Text>
+            </View>
+          );
+        })}
       </View>
 
-      {/* Level / XP progress bar */}
-      <View className="mt-2">
-        <View className="mb-1 flex-row justify-between">
-          <Text className="text-text-2 text-xs">
-            {t('Level')} {routine.level ?? 0} · {routine.xp ?? 0}/{routine.nextLevelXp ?? 0} XP
-          </Text>
-          <Text className="text-text-2 text-xs">{levelPct}%</Text>
+      {/* Uma barra só: hoje quando a rotina roda hoje, senão o nível. */}
+      <View className="mt-3">
+        <View className="h-1.5 overflow-hidden rounded-full bg-surface-2">
+          <View
+            className="h-full rounded-full bg-accent"
+            style={{ width: `${runsToday ? completion : levelPct}%` }}
+          />
         </View>
-        <View className="h-2 overflow-hidden rounded-full bg-accent/15">
-          <View className="h-full rounded-full bg-accent" style={{ width: `${levelPct}%` }} />
-        </View>
+        <Text className="mt-1.5 text-right font-mono text-[11px] text-text-3">
+          {runsToday
+            ? `${t('Today').toLowerCase()} ${stats.completedItems}/${totalItems}`
+            : `LV ${routine.level ?? 0} · ${routine.xp ?? 0}/${routine.nextLevelXp ?? 0}`}
+        </Text>
       </View>
 
-      {/* Expanded: interactive sections + Edit/Delete */}
       {expanded ? (
-        <View className="mt-4 gap-4 border-t border-border pt-3">
-          {routine.routineSections?.map((section, i) => (
-            <View key={section.id ?? i}>
-              <View className="flex-row flex-wrap items-center gap-1.5">
+        <View className="mt-3 border-t border-border pt-3">
+          {/* Fechado o cartão fica limpo; as ações vêm com o resto ao abrir. */}
+          <View className="mb-3 flex-row items-center gap-1.5">
+            <Pressable
+              ref={scheduleRef}
+              onPress={() => onSchedule(routine)}
+              accessibilityRole="button"
+              accessibilityLabel={t('Schedule')}
+              testID={scheduleRef ? 'schedule-routine' : `schedule-${routine.id}`}
+              className="flex-row items-center gap-1.5 rounded-control bg-accent-soft px-3.5 py-[7px] active:opacity-80"
+            >
+              <CalendarDays size={14} color={theme.accent} />
+              <Text className="text-[12.5px] font-semibold text-accent">{t('Schedule')}</Text>
+            </Pressable>
+
+            <IconButton label={t('Edit')} onPress={() => onEdit(routine)} testID={`edit-${routine.id}`}>
+              <Pencil size={15} color={theme.text2} />
+            </IconButton>
+            <IconButton
+              label={t('Delete')}
+              tone="danger"
+              onPress={() => onDelete(routine)}
+              testID={`delete-${routine.id}`}
+            >
+              <Trash2 size={15} color={theme.danger} />
+            </IconButton>
+          </View>
+
+          {routine.routineSections?.map((section, index) => (
+            <View key={section.id ?? index} className="mb-3">
+              <View className="flex-row items-center gap-2">
                 <BeyouIcon id={section.iconId} size={16} />
-                <Text className="text-accent shrink text-base font-bold">{section.name}</Text>
-                <Text className="text-text-2 shrink-0 text-xs">
-                  {[fmt(section.startTime), fmt(section.endTime)].filter(Boolean).join(' - ')}
+                <Text className="shrink text-[12.5px] font-semibold text-text-2" numberOfLines={1}>
+                  {section.name}
+                </Text>
+                <Text className="shrink-0 font-mono text-[11px] text-text-3">
+                  {formatTimeRange(section.startTime, section.endTime)}
                 </Text>
               </View>
               {mergeItems(section).map((item) => {
@@ -156,6 +207,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
                     routineId={routine.id ?? ''}
                     item={item}
                     name={resolved.name}
+                    iconId={resolved.iconId}
                     motivationalPhrase={
                       item.type === 'habit'
                         ? (resolved as { motivationalPhrase?: string }).motivationalPhrase
