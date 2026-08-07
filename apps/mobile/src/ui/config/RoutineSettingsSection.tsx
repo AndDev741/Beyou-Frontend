@@ -83,30 +83,40 @@ export default function RoutineSettingsSection() {
     return COMMON_TIMEZONES.filter((tz) => tz.toLowerCase().includes(q));
   }, [tzSearch]);
 
-  const selectTimezone = (tz: string) => {
-    setSelectedTimezone(tz);
-    setTzSearch('');
-    setTzModalOpen(false);
-  };
-
-  const onSave = async () => {
+  // Salva ao escolher: só o perfil tem botão de salvar. O parâmetro diz o que
+  // MUDOU nesta escolha — ler o estado aqui pegaria o valor anterior.
+  const persist = async (tz?: string, decay?: XpDecayStrategy) => {
+    const timezone = tz ?? selectedTimezone;
+    const xpDecayStrategy = decay ?? selectedXpDecay;
     setSaving(true);
-    const res = await editUser({ timezone: selectedTimezone, xpDecayStrategy: selectedXpDecay });
-    if (res.error) {
+    const res = await editUser({ timezone, xpDecayStrategy });
+    if (res?.error) {
       notify.error(getFriendlyErrorMessage(t, res.error));
     } else {
-      dispatch(timezoneEnter(selectedTimezone));
-      dispatch(xpDecayStrategyEnter(selectedXpDecay));
+      dispatch(timezoneEnter(timezone));
+      dispatch(xpDecayStrategyEnter(xpDecayStrategy));
       notify.success(t('RoutineSettingsSaved'));
     }
     setSaving(false);
   };
 
+  const selectTimezone = (tz: string) => {
+    setSelectedTimezone(tz);
+    setTzSearch('');
+    setTzModalOpen(false);
+    void persist(tz, undefined);
+  };
+
+  const selectXpDecay = (strategy: XpDecayStrategy) => {
+    setSelectedXpDecay(strategy);
+    void persist(undefined, strategy);
+  };
+
   return (
     <View className="gap-3" testID="config-routine-settings">
       <View>
-        <Text className="text-text text-base font-semibold">{t('RoutineSettingsTitle')}</Text>
-        <Text className="text-text-2 mt-0.5 text-sm">{t('RoutineSettingsDescription')}</Text>
+        <Text className="text-[12.5px] font-semibold text-text-2">{t('RoutineSettingsTitle')}</Text>
+        <Text className="mt-0.5 text-xs text-text-3">{t('RoutineSettingsDescription')}</Text>
       </View>
 
       {/* Timezone */}
@@ -149,23 +159,12 @@ export default function RoutineSettingsSection() {
             title={t(opt.titleKey)}
             description={t(opt.descriptionKey)}
             selected={selectedXpDecay === opt.id}
-            onPress={() => setSelectedXpDecay(opt.id)}
+            onPress={() => selectXpDecay(opt.id)}
             testID={`xp-decay-${opt.id}`}
           />
         ))}
       </View>
 
-      <Pressable
-        onPress={onSave}
-        disabled={saving}
-        accessibilityRole="button"
-        testID="save-routine-settings"
-        className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
-      >
-        <Text style={{ color: theme.background }} className="text-base font-semibold">
-          {saving ? t('Saving...') : t('Save')}
-        </Text>
-      </Pressable>
 
       <Modal
         visible={tzModalOpen}

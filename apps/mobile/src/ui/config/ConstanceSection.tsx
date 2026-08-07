@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import editUser from '@beyou/api/user/editUser';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import OptionCard from './OptionCard';
-import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 
 type ConstanceMode = 'ANY' | 'COMPLETE';
@@ -41,14 +40,16 @@ export default function ConstanceSection({
   initialMode?: ConstanceMode;
 }) {
   const { t } = useTranslation();
-  const { theme } = useBeyouTheme();
   const [selectedMode, setSelectedMode] = useState<ConstanceMode>(initialMode);
   const [saving, setSaving] = useState(false);
 
-  const onSave = async () => {
+  // Salva ao escolher: só o perfil tem botão de salvar. Uma escolha única
+  // não precisa de confirmação — o toast já diz que foi.
+  const select = async (mode: ConstanceMode) => {
+    setSelectedMode(mode);
     setSaving(true);
-    const res = await editUser({ constanceConfiguration: selectedMode });
-    if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
+    const res = await editUser({ constanceConfiguration: mode });
+    if (res?.error) notify.error(getFriendlyErrorMessage(t, res.error));
     else notify.success(t('SettingsSaved'));
     setSaving(false);
   };
@@ -56,8 +57,8 @@ export default function ConstanceSection({
   return (
     <View className="gap-3" testID="config-constance">
       <View>
-        <Text className="text-text text-base font-semibold">{t('ConstanceTitle')}</Text>
-        <Text className="text-text-2 mt-0.5 text-sm">{t('ConstanceDescription')}</Text>
+        <Text className="text-[12.5px] font-semibold text-text-2">{t('ConstanceTitle')}</Text>
+        <Text className="mt-0.5 text-xs text-text-3">{t('ConstanceDescription')}</Text>
       </View>
 
       <View className="gap-2">
@@ -68,23 +69,12 @@ export default function ConstanceSection({
             description={t(opt.descriptionKey)}
             detail={t(opt.detailKey)}
             selected={selectedMode === opt.id}
-            onPress={() => setSelectedMode(opt.id)}
+            onPress={() => select(opt.id)}
             testID={`constance-${opt.id}`}
           />
         ))}
       </View>
 
-      <Pressable
-        onPress={onSave}
-        disabled={saving}
-        accessibilityRole="button"
-        testID="save-constance"
-        className={`mt-2 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
-      >
-        <Text style={{ color: theme.background }} className="text-base font-semibold">
-          {saving ? t('Saving...') : t('Save')}
-        </Text>
-      </Pressable>
     </View>
   );
 }

@@ -1,35 +1,83 @@
-import { type ReactNode, type RefObject } from 'react';
-import { View, Text, type LayoutChangeEvent } from 'react-native';
-import BeyouIcon from '../BeyouIcon';
+import { useState, type ReactNode, type RefObject } from 'react';
+import { View, Text, Pressable, type LayoutChangeEvent } from 'react-native';
+import { ChevronDown } from 'lucide-react-native';
+import { useBeyouTheme } from '../../theme/ThemeProvider';
+import IconTile from '../IconTile';
 
 interface ConfigSectionProps {
-  /** lucide/emoji icon id for the section header (e.g. "lucide:user"). */
-  iconId?: string;
   title: string;
-  description?: string;
   children: ReactNode;
+  /** Ícone do cartão, num tile de acento. */
+  icon?: ReactNode;
+  /** Substitui o título na linha fechada (o perfil mostra avatar, nome, nível). */
+  header?: ReactNode;
+  /** Começa aberta. */
+  defaultOpen?: boolean;
   testID?: string;
-  /** Tutorial spotlight target ref (attached to the section root). */
+  /** Alvo do spotlight do tutorial (fica na raiz do cartão). */
   viewRef?: RefObject<View | null>;
-  /** Fires with the section's layout so the tutorial can scroll it into view. */
+  /** Reporta o layout para o tutorial rolar a seção até a vista. */
   onLayout?: (e: LayoutChangeEvent) => void;
 }
 
-/** Titled settings section (icon + title + description + body), mirroring the
- *  web ConfigSection. */
-export default function ConfigSection({ iconId, title, description, children, testID, viewRef, onLayout }: ConfigSectionProps) {
+/**
+ * Cada assunto da configuração é um cartão que abre ao toque — a página inteira
+ * aberta dava umas seis rolagens até os widgets. Espelha o ConfigSection da
+ * web abaixo de `lg`, que é exatamente o caso do celular.
+ */
+export default function ConfigSection({
+  title,
+  children,
+  icon,
+  header,
+  defaultOpen = false,
+  testID,
+  viewRef,
+  onLayout,
+}: ConfigSectionProps) {
+  const { theme } = useBeyouTheme();
+  const [open, setOpen] = useState(defaultOpen);
+
   return (
-    <View className="w-full" testID={testID} ref={viewRef} onLayout={onLayout}>
-      <View className="flex-row items-center gap-2">
-        {iconId ? <BeyouIcon id={iconId} size={20} /> : null}
-        <Text className="text-text text-xl font-bold">{title}</Text>
-      </View>
-      {description ? <Text className="text-text-2 mt-0.5 text-sm">{description}</Text> : null}
-      <View className="mt-3">{children}</View>
-      {/* Primary divider to visually separate sections. Margin via inline style
-          (RN-native, always applies — the NativeWind mt-* util wasn't taking
-          effect on refresh); border via className (renders fine). */}
-      <View style={{ marginTop: 28, marginBottom: 4 }} className="border-b-2 border-border" />
+    <View
+      className="w-full rounded-card border border-border bg-surface p-4"
+      testID={testID}
+      ref={viewRef}
+      onLayout={onLayout}
+    >
+      <Pressable
+        onPress={() => setOpen((prev) => !prev)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        accessibilityLabel={title}
+        testID={testID ? `${testID}-toggle` : undefined}
+        className="w-full flex-row items-center gap-3"
+      >
+        {icon ? (
+          <IconTile tone="accent" size={36}>
+            {icon}
+          </IconTile>
+        ) : null}
+
+        <View className="min-w-0 flex-1">
+          {header ?? (
+            <Text
+              accessibilityRole="header"
+              className="text-[14px] font-semibold tracking-[-0.01em] text-text"
+            >
+              {title}
+            </Text>
+          )}
+        </View>
+
+        <ChevronDown
+          size={18}
+          color={theme.text3}
+          style={{ transform: [{ rotate: open ? '180deg' : '-90deg' }] }}
+        />
+      </Pressable>
+
+      {open ? <View className="mt-3.5 w-full">{children}</View> : null}
     </View>
   );
 }

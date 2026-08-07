@@ -1,7 +1,7 @@
 /**
- * RoutineSettingsSection (P5-A3) — changing the XP decay strategy and saving
- * persists { timezone, xpDecayStrategy } via editUser and dispatches both to the
- * perfil slice. Boundary mocked: notify, expo-localization, and the @beyou/api
+ * RoutineSettingsSection — escolher a estratégia de decaimento persiste
+ * { timezone, xpDecayStrategy } via editUser e despacha os dois para a slice de
+ * perfil. Não há botão de salvar: só o perfil tem. Boundary mocked: notify, expo-localization, and the @beyou/api
  * HttpClient.
  */
 jest.mock('../src/notify', () => ({
@@ -29,7 +29,7 @@ beforeEach(() => {
 });
 
 describe('RoutineSettingsSection', () => {
-  it('saves the selected timezone + xp-decay strategy via editUser and dispatches', async () => {
+  it('persists the xp-decay strategy as soon as it is picked', async () => {
     const store = makeStore();
     await render(
       <Provider store={store}>
@@ -39,12 +39,10 @@ describe('RoutineSettingsSection', () => {
       </Provider>,
     );
 
-    // Defaults: timezone 'UTC', xpDecayStrategy 'GRADUAL'. Pick FLAT, then save.
+    // Escolher já salva: só o perfil tem botão de salvar. O valor persistido é
+    // o RECÉM-escolhido, não o que estava no estado quando o toque aconteceu.
     await act(async () => {
       fireEvent.press(screen.getByTestId('xp-decay-FLAT'));
-    });
-    await act(async () => {
-      fireEvent.press(screen.getByTestId('save-routine-settings'));
     });
 
     await waitFor(() =>
