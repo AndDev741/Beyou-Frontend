@@ -107,21 +107,24 @@ export default function BottomNav() {
                 >
                     {LEFT.map(renderLink)}
 
-                    {/* Sobe mais que os vizinhos e carrega um halo desfocado: o
-                        assistente é o único alvo que não é navegação. */}
-                    <span className="relative -mt-11 flex h-14 w-14 shrink-0 items-center justify-center">
+                    {/* Sobe um pouco acima dos vizinhos e carrega um halo
+                        discreto: o assistente é o único alvo que não é
+                        navegação. `-translate-y` e não margem negativa — a
+                        margem dentro de uma linha com `items-end` era
+                        reabsorvida pelo alinhamento e o disco não subia. */}
+                    <span className="relative flex h-12 w-12 shrink-0 -translate-y-2.5 items-center justify-center">
                         <span
                             aria-hidden="true"
-                            className="pointer-events-none absolute -inset-2 rounded-full bg-accent/25 blur-lg"
+                            className="pointer-events-none absolute -inset-1.5 rounded-full bg-accent/20 blur-md"
                         />
                         <button
                             type="button"
                             onClick={openAgentPanel}
                             data-tutorial-id="agent-fab"
                             aria-label={t("OpenAssistant")}
-                            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-lg shadow-accent/40 transition-transform duration-200 active:scale-95"
+                            className="relative flex h-12 w-12 items-center justify-center rounded-full bg-accent text-on-accent shadow-lg shadow-accent/40 transition-transform duration-200 active:scale-95"
                         >
-                            <Sparkles size={22} aria-hidden="true" />
+                            <Sparkles size={20} aria-hidden="true" />
                         </button>
                     </span>
 

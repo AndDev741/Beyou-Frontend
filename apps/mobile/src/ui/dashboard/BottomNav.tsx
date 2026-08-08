@@ -251,7 +251,15 @@ export default function BottomNav() {
           </Pressable>
 
           {isTutorialCompleted ? (
-            <>
+            /* Uma faixa de largura cheia centraliza o disco com flexbox. Antes
+               era `left: '50%'` + `marginLeft`, e a porcentagem resolvia contra
+               a caixa de conteúdo (a barra tem px-2), então o disco caía 10dp à
+               esquerda do meio da tela. `box-none` deixa o toque passar pela
+               faixa e chegar aos atalhos por baixo. */
+            <View
+              pointerEvents="box-none"
+              style={{ position: 'absolute', left: 0, right: 0, top: -12, alignItems: 'center' }}
+            >
               {/* Halo: dois discos translúcidos em vez de blur (o RN não tem
                   filtro). É o único alvo da barra que não é navegação, e o
                   desenho precisa dizer isso antes do rótulo. */}
@@ -259,9 +267,7 @@ export default function BottomNav() {
                 pointerEvents="none"
                 style={{
                   position: 'absolute',
-                  left: '50%',
-                  marginLeft: -34,
-                  top: -18,
+                  top: -6,
                   height: 68,
                   width: 68,
                   borderRadius: 34,
@@ -273,9 +279,7 @@ export default function BottomNav() {
                 pointerEvents="none"
                 style={{
                   position: 'absolute',
-                  left: '50%',
-                  marginLeft: -30,
-                  top: -14,
+                  top: -2,
                   height: 60,
                   width: 60,
                   borderRadius: 30,
@@ -288,15 +292,8 @@ export default function BottomNav() {
                 accessibilityRole="button"
                 accessibilityLabel={t('OpenAssistant')}
                 testID="nav-agent"
-                className="absolute h-14 w-14 items-center justify-center rounded-full bg-accent active:opacity-80"
+                className="h-14 w-14 items-center justify-center rounded-full bg-accent active:opacity-80"
                 style={{
-                  // Centralizado sobre o espaçador (dois itens flexíveis de cada
-                  // lado ⇒ o meio da barra é o meio da vaga) e 18px para fora da
-                  // barra: sobe o suficiente para ler como disco elevado sem que
-                  // o toque dependa da área fora do pai.
-                  left: '50%',
-                  marginLeft: -28,
-                  top: -12,
                   elevation: 8,
                   shadowColor: theme.accent,
                   shadowOpacity: 0.45,
@@ -306,7 +303,7 @@ export default function BottomNav() {
               >
                 <Sparkles size={22} color={theme.onAccent} />
               </Pressable>
-            </>
+            </View>
           ) : null}
         </View>
       </View>

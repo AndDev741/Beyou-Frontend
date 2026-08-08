@@ -67,7 +67,14 @@ export default function AppHome() {
         className="flex-1 bg-bg"
         // O disco do assistente sobe 18px para fora da barra e cobriria a
         // última linha do conteúdo; o respiro extra devolve esse espaço.
-        contentContainerStyle={{ padding: 16, paddingTop: 56, paddingBottom: 40, gap: 20 }}
+        // 12 de lado e não 16: a rotina é o conteúdo mais denso da tela e
+        // ganha 8dp de largura útil. É a mesma medida da web no telefone (px-3).
+        contentContainerStyle={{
+          paddingHorizontal: 12,
+          paddingTop: 56,
+          paddingBottom: 40,
+          gap: 20,
+        }}
         testID="dashboard-screen"
       >
         <ProfileHeader />

@@ -195,7 +195,7 @@ export default function RoutineDay() {
   if (!routine) return <EmptyRoutine />;
 
   return (
-    <View className="rounded-card border border-border bg-surface p-4" testID="routine-day">
+    <View className="rounded-card border border-border bg-surface px-3 pb-3 pt-4" testID="routine-day">
       <View className="flex-row items-center gap-3 pb-3">
         <View className="min-w-0 flex-1">
           <Text className="text-base font-semibold tracking-[-0.01em] text-text" numberOfLines={1}>
