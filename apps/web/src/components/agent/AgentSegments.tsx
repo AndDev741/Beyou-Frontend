@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
     CalendarDays,
     Check,
@@ -15,6 +14,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { agentSegment } from "@beyou/types/agent/chatType";
 import AgentMarkdown from "./AgentMarkdown";
+
+type OnInternalLink = (href: string) => void;
 
 /**
  * Ferramentas de LEITURA: viram um chip discreto ("Rotinas consultadas"), que é
@@ -111,9 +112,11 @@ function ToolChip({ segment }: { segment: agentSegment }) {
 function ToolActionCard({
     segment,
     destination,
+    onInternalLink,
 }: {
     segment: agentSegment;
     destination: Destination;
+    onInternalLink?: OnInternalLink;
 }) {
     const { t } = useTranslation();
     const { Icon } = destination;
@@ -126,18 +129,27 @@ function ToolActionCard({
                 <Icon size={16} aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1 text-[13px] font-semibold text-text">{label}</span>
-            <Link
-                to={destination.route}
-                className="flex shrink-0 items-center gap-0.5 rounded-control px-1 py-0.5 text-[11px] font-semibold text-accent transition-colors duration-200 hover:bg-surface-2"
-            >
-                {target}
-                <ChevronRight size={13} aria-hidden="true" />
-            </Link>
+            {onInternalLink && (
+                <button
+                    type="button"
+                    onClick={() => onInternalLink(destination.route)}
+                    className="flex shrink-0 items-center gap-0.5 rounded-control px-1 py-0.5 text-[11px] font-semibold text-accent transition-colors duration-200 hover:bg-surface-2"
+                >
+                    {target}
+                    <ChevronRight size={13} aria-hidden="true" />
+                </button>
+            )}
         </div>
     );
 }
 
-function ToolSegment({ segment }: { segment: agentSegment }) {
+function ToolSegment({
+    segment,
+    onInternalLink,
+}: {
+    segment: agentSegment;
+    onInternalLink?: OnInternalLink;
+}) {
     const destination = destinationFor(segment.tool);
     const isWrite =
         !!segment.tool &&
@@ -147,7 +159,11 @@ function ToolSegment({ segment }: { segment: agentSegment }) {
         !!destination;
 
     return isWrite ? (
-        <ToolActionCard segment={segment} destination={destination as Destination} />
+        <ToolActionCard
+            segment={segment}
+            destination={destination as Destination}
+            onInternalLink={onInternalLink}
+        />
     ) : (
         <ToolChip segment={segment} />
     );
@@ -159,14 +175,25 @@ function ToolSegment({ segment }: { segment: agentSegment }) {
  * interleaved exactly as they happened. Used for both the live-streaming bubble
  * and persisted history.
  */
-function AgentSegments({ segments }: { segments: agentSegment[] }) {
+function AgentSegments({
+    segments,
+    onInternalLink,
+}: {
+    segments: agentSegment[];
+    /** Navega e FECHA o painel — ver `goToPage` no AgentPanel. */
+    onInternalLink?: OnInternalLink;
+}) {
     return (
         <div className="flex flex-col gap-2">
             {segments.map((segment, index) =>
                 segment.type === "tool" ? (
-                    <ToolSegment key={index} segment={segment} />
+                    <ToolSegment key={index} segment={segment} onInternalLink={onInternalLink} />
                 ) : (
-                    <AgentMarkdown key={index} text={segment.text ?? ""} />
+                    <AgentMarkdown
+                        key={index}
+                        text={segment.text ?? ""}
+                        onInternalLink={onInternalLink}
+                    />
                 ),
             )}
         </div>

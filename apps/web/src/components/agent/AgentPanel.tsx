@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
@@ -55,6 +56,18 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const { t, i18n } = useTranslation();
     const reducedMotion = useReducedMotion();
     const location = useLocation();
+    const navigate = useNavigate();
+    const isDesktop = useIsDesktop();
+
+    /**
+     * Link interno sugerido pelo agente: navega E fecha o painel. Ir ver o que
+     * o agente fez com o painel ainda aberto por cima da tela não ajuda —
+     * ele cobre exatamente o que a pessoa foi conferir.
+     */
+    const goToPage = (href: string) => {
+        onClose();
+        navigate(href);
+    };
     const refreshDomains = useAgentRefresh();
     // Ref so an in-flight send captures the page the message was SENT from.
     const currentPageRef = useRef(location.pathname);
@@ -201,6 +214,20 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [open, onClose]);
+
+    /**
+     * No telefone o painel é uma sheet que cobre a tela: a página atrás não pode
+     * rolar por baixo dela. No desktop ele é uma coluna lateral e a página
+     * continua visível, então travar a rolagem ali seria tirar algo que funciona.
+     */
+    useEffect(() => {
+        if (!open || isDesktop) return;
+        const previous = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previous;
+        };
+    }, [open, isDesktop]);
 
     const startNewChat = () => {
         // No server round-trip: the chat row is only created with the first message.
@@ -367,7 +394,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
 
     const chatList = (
         <div className="flex min-h-0 flex-1 flex-col">
-            <div className="flex-1 space-y-1 overflow-y-auto p-2">
+            <div className="flex-1 space-y-1 overflow-y-auto overscroll-contain p-2">
                 {chats.length === 0 && (
                     <p className="px-3 py-6 text-center text-sm text-text-2">{t("NoChatsYet")}</p>
                 )}
@@ -590,7 +617,13 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 </AnimatePresence>
 
                                 {/* Messages / empty state */}
-                                <div className="flex-1 overflow-y-auto" onClick={() => setHistoryOpen(false)}>
+                                {/* `overscroll-contain`: chegando ao fim da
+                                    conversa, a rolagem PARA em vez de continuar
+                                    na página atrás do painel. */}
+                                <div
+                                    className="flex-1 overflow-y-auto overscroll-contain"
+                                    onClick={() => setHistoryOpen(false)}
+                                >
                                     {messages.length === 0 && !isSending ? (
                                         <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
                                             <div className="flex h-14 w-14 items-center justify-center rounded-full
@@ -637,7 +670,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                 >
                                                     {message.role === "USER"
                                                         ? message.segments[0]?.text
-                                                        : <AgentSegments segments={message.segments} />}
+                                                        : <AgentSegments segments={message.segments} onInternalLink={goToPage} />}
                                                 </motion.div>
                                             ))}
                                             {isSending && (
@@ -650,7 +683,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     {streamSegments.length > 0
                                                         ? (
                                                             <>
-                                                                <AgentSegments segments={streamSegments} />
+                                                                <AgentSegments segments={streamSegments} onInternalLink={goToPage} />
                                                                 {/* Blinking caret: the reply is still streaming. */}
                                                                 <span
                                                                     aria-hidden="true"

@@ -1,14 +1,29 @@
+import { createContext, useContext } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
 
+type OnInternalLink = (href: string) => void;
+
+/**
+ * Como navegar a partir de um link do agente. O painel injeta um handler que
+ * NAVEGA E FECHA — ir ver o que o agente fez com o chat aberto por cima cobre
+ * exatamente o que a pessoa foi conferir. Sem handler (uso fora do painel), o
+ * link só navega.
+ *
+ * Via contexto porque `react-markdown` monta os componentes de link por conta
+ * própria: não há por onde passar prop até eles.
+ */
+const InternalLinkContext = createContext<OnInternalLink | null>(null);
+
 /**
  * Links: internal app paths (/habits, /routines…) navigate via react-router —
  * the agent is prompted to guide users with these; a plain <a href> would
- * full-reload the SPA and close the chat. Everything else opens a new tab.
+ * full-reload the SPA. Everything else opens a new tab.
  */
 function MarkdownLink({ href, children, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
     const navigate = useNavigate();
+    const onInternalLink = useContext(InternalLinkContext);
     if (href?.startsWith("/")) {
         return (
             <a
@@ -17,7 +32,8 @@ function MarkdownLink({ href, children, ...rest }: React.AnchorHTMLAttributes<HT
                 className="font-medium text-accent underline"
                 onClick={(e) => {
                     e.preventDefault();
-                    navigate(href);
+                    if (onInternalLink) onInternalLink(href);
+                    else navigate(href);
                 }}
             >
                 {children}
@@ -63,10 +79,18 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>["components
     td: (props) => <td className="border border-border px-2 py-1 align-top" {...props} />,
 };
 
-export default function AgentMarkdown({ text }: { text: string }) {
+export default function AgentMarkdown({
+    text,
+    onInternalLink,
+}: {
+    text: string;
+    onInternalLink?: OnInternalLink;
+}) {
     return (
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-            {text}
-        </ReactMarkdown>
+        <InternalLinkContext.Provider value={onInternalLink ?? null}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                {text}
+            </ReactMarkdown>
+        </InternalLinkContext.Provider>
     );
 }
