@@ -637,6 +637,25 @@ página por página. O que apareceu só quando as duas ficaram lado a lado:
 - O botão do assistente ficou mais alto na web (`-mt-8` → `-mt-11`) e mais
   baixo no nativo (`top: -18` → `-12`), a pedido.
 
+## Tokens de cor do mobile: a forma importa (2026-08-08)
+
+`bg-success` não pintava nada no app nativo — a barra da meta concluída ficava
+com só o trilho, e o chip "Concluído" saía sem fundo. `bg-flame` e `bg-accent`,
+no mesmo arquivo e na mesma linha, pintavam.
+
+A causa era a forma do token no `tailwind.config.js` do mobile: `var(--x)` em
+vez de `rgb(var(--x-rgb) / <alpha-value>)`. Sem os canais crus o Tailwind v3 não
+emite as classes com barra, e o elemento fica SEM FUNDO — é literalmente o que
+o comentário do `cssVars.ts` já avisava, e por isso o `themeToVars` publica cada
+cor duas vezes. A web já usava a forma com canais; o mobile ficou para trás.
+
+O config do mobile agora espelha o da web. Isso conserta de uma vez todas as
+49 classes com barra que existiam no app (`bg-accent/10`, `bg-danger/10`,
+`border-border/40`, …) e que silenciosamente não pintavam.
+
+Lição para a próxima cor que nascer: token novo entra nos DOIS configs na forma
+com canais, senão a variante de opacidade morre calada.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.
