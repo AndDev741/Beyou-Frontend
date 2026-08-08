@@ -10,8 +10,9 @@ jest.mock('../src/notify', () => ({
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockParams,
 }));
+let mockParams: Record<string, string> = {};
 
 import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
@@ -72,4 +73,19 @@ describe('GoalsScreen', () => {
 
     await waitFor(() => expect(del).toHaveBeenCalledWith('/goal/g1'));
   });
+});
+
+/**
+ * Vindo do dashboard com `expand=<id>`, a meta abre expandida E destacada — sem
+ * isso a pessoa cai numa lista e tem de procurar a que acabou de tocar.
+ */
+test('focuses the goal handed over by the dashboard', async () => {
+  mockParams = { expand: 'g1' };
+  setHttp([goal]);
+  await renderScreen();
+  await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
+
+  // Expandida: o status só aparece aberto.
+  expect(screen.getByText('In Progress')).toBeTruthy();
+  mockParams = {};
 });

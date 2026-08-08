@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { Check, ChevronDown, ChevronUp, Trophy } from 'lucide-react-native';
-import { sortGoalsByTime } from '@beyou/state';
+import { sortGoalsByTime, formatGoalDeadline, type DeadlineShape } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import BeyouIcon from '../BeyouIcon';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -15,31 +15,20 @@ type HorizonKey = 'thisWeek' | 'thisMonth' | 'thisYear' | 'beyond';
 
 const HORIZONS: HorizonKey[] = ['thisWeek', 'thisMonth', 'thisYear', 'beyond'];
 
+/** Quanto do prazo cabe em cada horizonte: perto, só o dia; longe, só o mês. */
+const DEADLINE_SHAPE: Record<HorizonKey, DeadlineShape> = {
+  thisWeek: 'weekday',
+  thisMonth: 'dayMonth',
+  thisYear: 'month',
+  beyond: 'month',
+};
+
 const LABELS: Record<HorizonKey, { title: string; chip: string }> = {
   thisWeek: { title: 'This Week', chip: 'Week' },
   thisMonth: { title: 'This Month', chip: 'Month' },
   thisYear: { title: 'This Year', chip: 'Year' },
   beyond: { title: 'Future Goals', chip: 'Future' },
 };
-
-/** Prazo curto do cartão: "até dom", "até 31 ago", "até dez". */
-function shortDeadline(
-  date: Date | string | undefined,
-  key: HorizonKey,
-  locale: string,
-  t: (k: string) => string,
-): string {
-  if (!date) return '';
-  const end = new Date(date);
-  if (Number.isNaN(end.getTime())) return '';
-  const format =
-    key === 'thisWeek'
-      ? ({ weekday: 'short' } as const)
-      : key === 'thisMonth'
-        ? ({ day: 'numeric', month: 'short' } as const)
-        : ({ month: 'short' } as const);
-  return `${t('Until')} ${new Intl.DateTimeFormat(locale, format).format(end)}`;
-}
 
 /**
  * "Suas metas" no dashboard: o porquê dos checks do dia, agrupado por horizonte.
@@ -198,7 +187,7 @@ export default function DashboardGoals() {
                       {`${item.currentValue}/${item.targetValue} ${item.unit ?? ''}`}
                     </Text>
                     <Text className="font-mono text-[11px] text-text-3">
-                      {shortDeadline(item.endDate, key, i18n.language, t)}
+                      {`${t('Until')} ${formatGoalDeadline(item.endDate, i18n.language, DEADLINE_SHAPE[key])}`}
                     </Text>
                   </View>
                 </Pressable>

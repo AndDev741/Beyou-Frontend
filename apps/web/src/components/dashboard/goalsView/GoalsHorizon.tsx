@@ -6,6 +6,7 @@ import { Check, ChevronDown, Trophy } from "lucide-react";
 import { RootState } from "@beyou/state/rootReducer";
 import { goal } from "@beyou/types/goals/goalType";
 import { sortGoalsByTime } from "./sortGoalsByTime";
+import { formatGoalDeadline, type DeadlineShape } from "@beyou/state";
 import BeyouIcon from "../../../ui/BeyouIcon";
 
 type HorizonKey = "thisWeek" | "thisMonth" | "thisYear" | "beyond";
@@ -21,6 +22,14 @@ const LABELS: Record<HorizonKey, { title: string; chip: string }> = {
 
 const STORAGE_KEY = "beyou-goal-horizons";
 
+/** Quanto do prazo cabe em cada horizonte: perto, só o dia; longe, só o mês. */
+const DEADLINE_SHAPE: Record<HorizonKey, DeadlineShape> = {
+    thisWeek: "weekday",
+    thisMonth: "dayMonth",
+    thisYear: "month",
+    beyond: "month",
+};
+
 /** Contexto curto ao lado do título do grupo: "até domingo", "agosto", "2026". */
 function horizonContext(key: HorizonKey, locale: string, t: (k: string) => string): string {
     const now = new Date();
@@ -28,19 +37,6 @@ function horizonContext(key: HorizonKey, locale: string, t: (k: string) => strin
     if (key === "thisMonth") return new Intl.DateTimeFormat(locale, { month: "long" }).format(now);
     if (key === "thisYear") return String(now.getFullYear());
     return t("NoDeadline");
-}
-
-/** Prazo curto do cartão: "até dom", "até 31 ago", "até dez". */
-function shortDeadline(date: Date, key: HorizonKey, locale: string, t: (k: string) => string): string {
-    const end = new Date(date);
-    if (Number.isNaN(end.getTime())) return "";
-    const format =
-        key === "thisWeek"
-            ? { weekday: "short" as const }
-            : key === "thisMonth"
-              ? { day: "numeric" as const, month: "short" as const }
-              : { month: "short" as const };
-    return `${t("Until")} ${new Intl.DateTimeFormat(locale, format).format(end)}`;
 }
 
 function readStoredHorizons(): HorizonKey[] | null {
@@ -213,7 +209,10 @@ export default function GoalsHorizon() {
                                             <span>
                                                 {item.currentValue}/{item.targetValue} {item.unit}
                                             </span>
-                                            <span>{shortDeadline(item.endDate, key, i18n.language, t)}</span>
+                                            <span>
+                                                {t("Until")}{" "}
+                                                {formatGoalDeadline(item.endDate, i18n.language, DEADLINE_SHAPE[key])}
+                                            </span>
                                         </div>
                                     </button>
                                 );

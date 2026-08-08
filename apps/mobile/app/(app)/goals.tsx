@@ -1,5 +1,5 @@
 import { ChevronLeft, Trophy, Plus, Search } from 'lucide-react-native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -40,6 +40,7 @@ export default function GoalsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { expand } = useLocalSearchParams<{ expand?: string }>();
+  const listRef = useRef<FlatList<goal>>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
 
@@ -116,6 +117,22 @@ export default function GoalsScreen() {
     };
   }, [load]);
 
+  /**
+   * O dashboard manda para cá com `expand=<id>`: a lista rola até a meta e a
+   * destaca. Sem isso a pessoa cai numa lista e tem de procurar a meta que
+   * acabou de tocar.
+   */
+  useEffect(() => {
+    if (!expand || loading) return;
+    const index = visibleItems.findIndex((item) => item.id === expand);
+    if (index < 0) return;
+    const timer = setTimeout(
+      () => listRef.current?.scrollToIndex({ index, viewPosition: 0.5, animated: true }),
+      250,
+    );
+    return () => clearTimeout(timer);
+  }, [expand, loading, visibleItems]);
+
   // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
   // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
   const [deleteTarget, setDeleteTarget] = useState<goal | null>(null);
@@ -174,8 +191,16 @@ export default function GoalsScreen() {
         </View>
       ) : (
         <FlatList
+          ref={listRef}
           data={visibleItems}
           keyExtractor={(item) => item.id}
+          onScrollToIndexFailed={({ index }) => {
+            // A lista ainda não mediu esse item (janela de render). Vai até o
+            // fim e tenta de novo — sem isto o scroll simplesmente não acontece
+            // para metas fora da primeira janela.
+            listRef.current?.scrollToEnd({ animated: false });
+            setTimeout(() => listRef.current?.scrollToIndex({ index, viewPosition: 0.5 }), 80);
+          }}
           contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
             goals.length > 0 ? (
@@ -216,6 +241,7 @@ export default function GoalsScreen() {
             <GoalCard
               goal={item}
               initialExpanded={item.id === expand}
+              focused={item.id === expand}
               onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
               onDelete={setDeleteTarget}
               onChanged={load}

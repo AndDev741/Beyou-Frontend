@@ -37,6 +37,7 @@ import { enterGoals, updateGoal } from "@beyou/state/goal/goalsSlice";
 import increaseCurrentValue from "@beyou/api/goals/increaseCurrentValue";
 import decreaseCurrentValue from "@beyou/api/goals/decreaseCurrentValue";
 import useUiRefresh from "../../hooks/useUiRefresh";
+import { formatGoalDeadline } from "@beyou/state";
 
 
 type GoalBoxProps = {
@@ -77,7 +78,7 @@ function GoalBox({
   readonly = false,
 }: GoalBoxProps) {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [termPhrase, setTermPhrase] = useState("");
@@ -143,13 +144,9 @@ function GoalBox({
 
   }, [iconId, term, status]);
 
-  function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short", // "Jan", "Feb", "Mar"...
-      day: "numeric"  // 1, 2, 3...
-    });
-  }
+  // Prazo compartilhado com o mobile: dia e mês, com o ano quando ele não é o
+  // corrente — "até Jul 24 - 2027" não se confunde com julho deste ano.
+  const formatDate = (dateString: string) => formatGoalDeadline(dateString, i18n.language);
 
   const completeTask = async (id: string) => {
     const refreshUi = await markGoalAsComplete(id, t);

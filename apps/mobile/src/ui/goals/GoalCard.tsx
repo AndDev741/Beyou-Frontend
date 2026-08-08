@@ -11,6 +11,7 @@ import IconTile from '../IconTile';
 import XpBar from '../XpBar';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useGoalActions } from './useGoalActions';
+import { formatGoalDeadline } from '@beyou/state';
 
 interface GoalCardProps {
   goal: goal;
@@ -20,6 +21,8 @@ interface GoalCardProps {
   onChanged: () => void;
   /** Abre já expandida — ex.: vindo de um toque na meta do dashboard. */
   initialExpanded?: boolean;
+  /** Destaca a meta que veio do dashboard, para ela não se perder na lista. */
+  focused?: boolean;
   /** Cartão do carrossel do dashboard: sem editar, excluir nem chevron. */
   readonly?: boolean;
 }
@@ -33,14 +36,6 @@ const TERM_KEY: Record<string, string> = {
   SHORT_TERM: 'Short Term',
   MEDIUM_TERM: 'Medium Term',
   LONG_TERM: 'Long Term',
-};
-
-/** "Jan 3" — o mesmo formato curto do cartão da web. */
-const formatDate = (value: Date | string | undefined): string => {
-  if (!value) return '';
-  const date = typeof value === 'string' ? new Date(value) : value;
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
 /**
@@ -57,9 +52,10 @@ export default function GoalCard({
   onDelete,
   onChanged,
   initialExpanded,
+  focused = false,
   readonly = false,
 }: GoalCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useBeyouTheme();
   const { increase, decrease, complete } = useGoalActions();
   const [expanded, setExpanded] = useState(initialExpanded ?? false);
@@ -84,7 +80,11 @@ export default function GoalCard({
   };
 
   return (
-    <Card tone={isCompleted ? 'success' : 'default'} className="gap-3">
+    <Card
+      tone={isCompleted ? 'success' : 'default'}
+      selected={focused}
+      className={`gap-3 ${focused ? 'border-2' : ''}`}
+    >
       <View className="flex-row items-start gap-2.5">
         <IconTile size={34}>
           <BeyouIcon id={goal.iconId} size={18} showFallback />
@@ -183,7 +183,7 @@ export default function GoalCard({
           <View className="flex-row items-center gap-1">
             <CalendarDays size={12} color={theme.text3} />
             <Text className="font-mono text-[11px] text-text-3">
-              {`${formatDate(goal.startDate)} - ${formatDate(goal.endDate)}`}
+              {`${formatGoalDeadline(goal.startDate, i18n.language)} - ${formatGoalDeadline(goal.endDate, i18n.language)}`}
             </Text>
           </View>
         </View>
@@ -249,7 +249,7 @@ export default function GoalCard({
       <View className="flex-row items-center justify-between gap-2">
         <Text className="font-mono text-[11px] text-text-3">{termPhrase}</Text>
         <Text className="font-mono text-[11px] text-text-3">
-          {`${t('Until')} ${formatDate(goal.endDate)}`}
+          {`${t('Until')} ${formatGoalDeadline(goal.endDate, i18n.language)}`}
         </Text>
       </View>
     </Card>
