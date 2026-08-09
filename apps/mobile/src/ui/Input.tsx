@@ -22,6 +22,8 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
    * o único conteúdo da tela.
    */
   compact?: boolean;
+  /** Rótulo visível acima do campo (padrão do sistema, igual à web). */
+  label?: string;
 }
 
 export default function Input({
@@ -37,6 +39,7 @@ export default function Input({
   disabled,
   multiline,
   compact,
+  label,
   ...rest
 }: Props) {
   const [hidden, setHidden] = useState(!!password);
@@ -44,6 +47,9 @@ export default function Input({
 
   return (
     <View className="w-full">
+      {label ? (
+        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+      ) : null}
       <View
         className={`flex-row rounded-control ${compact ? 'border' : 'border-2'} ${
           multiline

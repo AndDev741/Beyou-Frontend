@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Text, View, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
@@ -12,9 +11,8 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import GoogleSignInButton from '../../src/ui/GoogleSignInButton';
-import MobileBrand from '../../src/ui/MobileBrand';
-import LanguageToggle from '../../src/ui/LanguageToggle';
-import AuthTabs from '../../src/ui/AuthTabs';
+import AuthShell from '../../src/ui/auth/AuthShell';
+import FormNotice from '../../src/ui/auth/FormNotice';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { login } from '../../src/auth/authSlice';
@@ -25,7 +23,7 @@ interface LoginFormValues {
   password: string;
 }
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 15;
 
 export default function LoginRoute() {
   const { t } = useTranslation();
@@ -60,36 +58,42 @@ export default function LoginRoute() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-bg">
-      <ScrollView
-        testID="login-screen"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 24 }}
-      >
-        <AuthTabs active="login" />
-
-        <Text className="text-3xl font-bold text-text text-center mt-6 mb-8">
-          {t('Welcome')}
-          <Text className="text-accent"> {t('Back!')} </Text>
-        </Text>
-
-        {emailNotVerified ? (
-          <View
-            className="border-2 border-danger rounded-card bg-danger/10 p-4 mb-6"
-            testID="login-email-not-verified"
+    <AuthShell
+      testID="login-screen"
+      footer={
+        <Text className="text-[12.5px] text-text-3">
+          {t('NewHere')}{' '}
+          <Text
+            className="font-semibold text-accent"
+            accessibilityRole="link"
+            onPress={() => router.replace('/(auth)/register')}
+            testID="login-to-register"
           >
-            <Text className="text-danger font-semibold mb-1">{t('EmailNotVerifiedTitle')}</Text>
-            <Text className="text-text/80">{t('EmailNotVerifiedMessage')}</Text>
-          </View>
-        ) : null}
+            {t('ToRegister')}
+          </Text>
+        </Text>
+      }
+    >
+      {emailNotVerified ? (
+        <View className="mt-4">
+          <FormNotice
+            tone="error"
+            title={t('EmailNotVerifiedTitle')}
+            message={t('EmailNotVerifiedMessage')}
+            testID="login-email-not-verified"
+          />
+        </View>
+      ) : null}
 
+      <View className="mt-4 gap-4">
         <Controller
           control={control}
           name="email"
           render={({ field }) => (
             <Input
               testID="login-email-input"
-              accessibilityLabel={t('EmailPlaceholder')}
+              label={t('Email')}
+              accessibilityLabel={t('Email')}
               placeholder={t('EmailPlaceholder')}
               value={field.value}
               onChangeText={field.onChange}
@@ -98,12 +102,11 @@ export default function LoginRoute() {
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
-              iconStart={<Ionicons name="mail-outline" size={ICON_SIZE} color={theme.icon} />}
+              compact
+              iconStart={<Ionicons name="mail-outline" size={ICON_SIZE} color={theme.text3} />}
             />
           )}
         />
-
-        <View className="h-5" />
 
         <Controller
           control={control}
@@ -111,7 +114,8 @@ export default function LoginRoute() {
           render={({ field }) => (
             <Input
               testID="login-password-input"
-              accessibilityLabel={t('PasswordPlaceholder')}
+              label={t('Password')}
+              accessibilityLabel={t('Password')}
               placeholder={t('PasswordPlaceholder')}
               value={field.value}
               onChangeText={field.onChange}
@@ -120,9 +124,10 @@ export default function LoginRoute() {
               password
               autoCapitalize="none"
               autoCorrect={false}
-              iconStart={<Ionicons name="lock-closed-outline" size={ICON_SIZE} color={theme.icon} />}
-              eyeOpen={<Ionicons name="eye-outline" size={ICON_SIZE} color={theme.icon} />}
-              eyeClosed={<Ionicons name="eye-off-outline" size={ICON_SIZE} color={theme.icon} />}
+              compact
+              iconStart={<Ionicons name="lock-closed-outline" size={ICON_SIZE} color={theme.text3} />}
+              eyeOpen={<Ionicons name="eye-outline" size={ICON_SIZE} color={theme.text3} />}
+              eyeClosed={<Ionicons name="eye-off-outline" size={ICON_SIZE} color={theme.text3} />}
             />
           )}
         />
@@ -130,29 +135,24 @@ export default function LoginRoute() {
         <Pressable
           onPress={() => router.push('/(auth)/forgot')}
           accessibilityRole="link"
-          className="self-end mt-3 mb-6"
+          className="-mt-1 self-end"
           testID="login-forgot-link"
         >
-          <Text className="text-accent underline font-medium">{t('ForgotPassword')}</Text>
+          <Text className="text-xs text-text-2">{t('ForgotPassword')}</Text>
         </Pressable>
 
-        <View className="items-center">
-          <Button
-            text={t('Enter')}
-            mode="create"
-            size="big"
-            submitting={isSubmitting}
-            onPress={handleSubmit(onSubmit)}
-            testID="login-submit-button"
-          />
+        <Button
+          text={t('Enter')}
+          mode="primary"
+          size="auto"
+          className="w-full"
+          submitting={isSubmitting}
+          onPress={handleSubmit(onSubmit)}
+          testID="login-submit-button"
+        />
+      </View>
 
-          <View className="mt-4">
-            <GoogleSignInButton />
-          </View>
-        </View>
-        <LanguageToggle />
-        <MobileBrand />
-      </ScrollView>
-    </SafeAreaView>
+      <GoogleSignInButton />
+    </AuthShell>
   );
 }

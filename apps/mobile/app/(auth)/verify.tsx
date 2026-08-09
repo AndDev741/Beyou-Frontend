@@ -1,17 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { CircleCheck, CircleX, Clock } from 'lucide-react-native';
+import { withAlpha } from '@beyou/theme';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import Button from '../../src/ui/Button';
-import MobileBrand from '../../src/ui/MobileBrand';
+import AuthShell from '../../src/ui/auth/AuthShell';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { verifyEmailRequest, type VerifyEmailResult } from '../../src/auth/authApi';
 
 type VerifyState = 'loading' | VerifyEmailResult;
-const ICON_SIZE = 64;
+
+/** Bloco de resultado: disco com o ícone do tom, título, mensagem e a ação. */
+function Result({
+  icon,
+  tint,
+  title,
+  message,
+  action,
+  testID,
+}: {
+  icon: ReactNode;
+  tint: string;
+  title: string;
+  message: string;
+  action: ReactNode;
+  testID: string;
+}) {
+  return (
+    <View className="mt-6 items-center gap-3" testID={testID}>
+      <View
+        className="h-14 w-14 items-center justify-center rounded-full"
+        style={{ backgroundColor: withAlpha(tint, 0.15) }}
+      >
+        {icon}
+      </View>
+      <Text className="text-center text-[17px] font-semibold tracking-[-0.015em] text-text">
+        {title}
+      </Text>
+      <Text className="text-center text-[13px] leading-snug text-text-2">{message}</Text>
+      <View className="mt-2 w-full">{action}</View>
+    </View>
+  );
+}
 
 export default function VerifyRoute() {
   const { t } = useTranslation();
@@ -42,44 +74,67 @@ export default function VerifyRoute() {
   const goToLogin = () => router.replace('/(auth)/login');
   const goToRegister = () => router.replace('/(auth)/register');
 
+  const enterButton = (
+    <Button
+      text={t('Enter')}
+      mode="primary"
+      size="auto"
+      className="w-full"
+      onPress={goToLogin}
+      testID="verify-login-button"
+    />
+  );
+
   return (
-    <SafeAreaView className="flex-1 bg-bg">
-      <View testID="verify-screen" className="flex-1 items-center justify-center px-8">
-        {state === 'loading' ? (
-          <View className="items-center gap-5" testID="verify-loading">
-            <ActivityIndicator color={theme.primary} size="large" />
-            <Text className="text-text-2 text-center text-lg">{t('VerifyEmailLoading')}</Text>
-          </View>
-        ) : null}
+    <AuthShell testID="verify-screen" title={t('VerifyEmailTitle')}>
+      {state === 'loading' ? (
+        <View className="mt-6 items-center gap-3" testID="verify-loading">
+          <ActivityIndicator color={theme.accent} size="large" />
+          <Text className="text-center text-[13px] text-text-2">{t('VerifyEmailLoading')}</Text>
+        </View>
+      ) : null}
 
-        {state === 'success' ? (
-          <View className="items-center gap-4" testID="verify-success">
-            <Ionicons name="checkmark-circle" size={ICON_SIZE} color={theme.success} />
-            <Text className="text-text text-center text-2xl font-bold">{t('VerifyEmailSuccessTitle')}</Text>
-            <Text className="text-text-2 text-center">{t('VerifyEmailSuccessMessage')}</Text>
-            <Button text={t('Enter')} mode="create" size="big" onPress={goToLogin} testID="verify-login-button" />
-          </View>
-        ) : null}
+      {state === 'success' ? (
+        <Result
+          testID="verify-success"
+          tint={theme.success}
+          icon={<CircleCheck size={26} color={theme.success} />}
+          title={t('VerifyEmailSuccessTitle')}
+          message={t('VerifyEmailSuccessMessage')}
+          action={enterButton}
+        />
+      ) : null}
 
-        {state === 'expired' ? (
-          <View className="items-center gap-4" testID="verify-expired">
-            <Ionicons name="time-outline" size={ICON_SIZE} color={theme.error} />
-            <Text className="text-text text-center text-2xl font-bold">{t('VerifyEmailExpiredTitle')}</Text>
-            <Text className="text-text-2 text-center">{t('VerifyEmailExpiredMessage')}</Text>
-            <Button text={t('ToRegister')} mode="create" size="big" onPress={goToRegister} testID="verify-register-button" />
-          </View>
-        ) : null}
+      {state === 'expired' ? (
+        <Result
+          testID="verify-expired"
+          tint={theme.danger}
+          icon={<Clock size={26} color={theme.danger} />}
+          title={t('VerifyEmailExpiredTitle')}
+          message={t('VerifyEmailExpiredMessage')}
+          action={
+            <Button
+              text={t('ToRegister')}
+              mode="primary"
+              size="auto"
+              className="w-full"
+              onPress={goToRegister}
+              testID="verify-register-button"
+            />
+          }
+        />
+      ) : null}
 
-        {state === 'error' ? (
-          <View className="items-center gap-4" testID="verify-error">
-            <Ionicons name="close-circle" size={ICON_SIZE} color={theme.error} />
-            <Text className="text-text text-center text-2xl font-bold">{t('VerifyEmailErrorTitle')}</Text>
-            <Text className="text-text-2 text-center">{t('VerifyEmailErrorMessage')}</Text>
-            <Button text={t('Enter')} mode="create" size="big" onPress={goToLogin} testID="verify-login-button" />
-          </View>
-        ) : null}
-      </View>
-      <MobileBrand />
-    </SafeAreaView>
+      {state === 'error' ? (
+        <Result
+          testID="verify-error"
+          tint={theme.danger}
+          icon={<CircleX size={26} color={theme.danger} />}
+          title={t('VerifyEmailErrorTitle')}
+          message={t('VerifyEmailErrorMessage')}
+          action={enterButton}
+        />
+      ) : null}
+    </AuthShell>
   );
 }
