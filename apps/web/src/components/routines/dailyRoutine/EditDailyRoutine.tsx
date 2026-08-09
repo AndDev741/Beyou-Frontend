@@ -58,8 +58,8 @@ const EditDailyRoutine = () => {
     }, [routineToEdit, reset]);
 
     useEffect(() => {
-        // Só revalida depois da primeira tentativa de salvar: abrir o
-        // formulário vazio não deve receber "ao menos 1 seção" de cara.
+        // Only revalidates after the first save attempt: opening an empty form
+        // should not be met with "at least 1 section" right away.
         setValue("routineSections", routineSection, { shouldValidate: isSubmitted });
     }, [routineSection, setValue, isSubmitted]);
 

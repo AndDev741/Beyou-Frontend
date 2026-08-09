@@ -19,7 +19,7 @@ interface CategoryCardProps {
   viewRef?: RefObject<View | null>;
 }
 
-/** Nomes de um mapa `{id: nome}` vindo do backend. */
+/** Names out of an `{id: name}` map coming from the backend. */
 const namesOf = (source?: Record<string, string> | Map<string, string>): string[] => {
   if (!source) return [];
   return source instanceof Map ? [...source.values()] : Object.values(source);

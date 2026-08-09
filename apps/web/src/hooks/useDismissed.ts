@@ -5,8 +5,7 @@ const STORAGE_PREFIX = "beyou-dismissed:";
 /**
  * Invitations the user has already dismissed do not come back. Kept in localStorage
  * and not in the profile on purpose: it is a screen preference, not account data, and
- * is not worth
- * uma ida ao backend.
+ * is not worth a round trip to the backend.
  */
 export function useDismissed(key: string): [boolean, () => void] {
     const storageKey = `${STORAGE_PREFIX}${key}`;

@@ -214,8 +214,8 @@ function Dashboard() {
                         <RoutineDay routine={routine ? routine : null} />
                     </div>
 
-                    {/* Mobile: carrossel de altura fixa entre a rotina e as
-                        metas, com pontos de página. */}
+                    {/* Mobile: a fixed-height carousel between the routine and the
+                        goals, with page dots. */}
                     <div className="mt-5" data-testid="mobile-widget-board">
                         {widgetsIdsInUse?.length > 0 ? (
                             <WidgetCarousel>
@@ -283,9 +283,9 @@ function Dashboard() {
                 </aside>
             </div>
 
-            {/* Metas fecham a tela em largura total, abaixo da rotina e do rail:
-                are the why behind the day's checks, and they were hidden in a
-                estreita. */}
+            {/* Goals close the screen at full width, below the routine and the rail:
+                they are the why behind the day's checks, and they were hidden in a
+                narrow column. */}
             <div className="px-3 pb-6 lg:px-7">
                 <GoalsHorizon />
             </div>

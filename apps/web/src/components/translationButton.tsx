@@ -4,8 +4,8 @@ import { useState } from "react";
 import SegmentedControl from "../ui/SegmentedControl";
 
 /**
- * O idioma no mesmo controle segmentado do resto do app — eram dois blocos
- * quadrados de 24px que não pareciam da mesma família de nada.
+ * The language in the same segmented control as the rest of the app — it used to be
+ * two 24px square blocks that looked like family to nothing.
  */
 function TranslationButton({updateUser}: {updateUser?: boolean}){
     const {t, i18n} = useTranslation();

@@ -17,8 +17,7 @@ type RingProps = {
 /**
  * The system's ring: check-in, level, day progress and the logo are the SAME
  * piece. If they drift apart the brand signature breaks (see `BrandMark`, which
- * uses the same
- * geometria com a abertura no nordeste).
+ * uses the same geometry with the gap to the north-east).
  *
  * The stroke follows the size — a 20px ring with a fixed stroke of 3 turns into a
  * blob; a 96px one with the same stroke turns into a thread.

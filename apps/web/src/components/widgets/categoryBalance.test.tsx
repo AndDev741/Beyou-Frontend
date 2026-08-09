@@ -25,8 +25,8 @@ test("renders the radar chart with 3+ categories", () => {
     expect(screen.getByTestId("category-balance-chart")).toBeInTheDocument();
 });
 
-// O radar é SVG (não canvas) justamente para acompanhar tema e pack de acento:
-// canvas não resolve CSS var. Estes casos travam a geometria.
+// The radar is SVG (not canvas) precisely so it can follow the theme and accent
+// pack: canvas cannot resolve a CSS var. These cases lock in the geometry.
 test("draws one axis label per category, capped at six", () => {
     const many = ["A", "B", "C", "D", "E", "F", "G"].map((n, i) => cat(n, 10 * (i + 1)));
     render(<CategoryBalance categories={many as any} />);
@@ -45,7 +45,7 @@ test("scales the series against the strongest category, not an absolute maximum"
             const [x, y] = pair.split(",").map(Number);
             return Math.hypot(x - 60, y - 60);
         });
-    // O eixo do maior XP toca a borda (raio 46); os outros ficam proporcionais.
+    // The highest-XP axis touches the edge (radius 46); the others stay proportional.
     expect(Math.max(...distances)).toBeCloseTo(42, 0);
     expect(Math.min(...distances)).toBeLessThan(42);
 });

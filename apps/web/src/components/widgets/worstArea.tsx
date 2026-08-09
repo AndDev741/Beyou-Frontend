@@ -31,9 +31,9 @@ export default function WorstArea({categoriePassed}: worstAreaProps){
 
     return (
         <BaseDiv title={t('Worst Area')} icon={<Gauge size={14.5} aria-hidden="true" />}>
-            {/* O mockup traz barras da semana aqui, mas a API não devolve XP por
-                categoria por dia — o cartão mostra o que existe (nível e XP) em
-                vez de inventar série. Ver docs/redesign/implementation-notes.md. */}
+            {/* The mockup puts weekly bars here, but the API does not return XP per
+                category per day — the card shows what exists (level and XP) instead of
+                inventing a series. See docs/redesign/implementation-notes.md. */}
             <div className="mt-3 flex items-center gap-2.5">
                 <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-flame-soft text-flame">
                     <BeyouIcon id={categoryToUse.iconId} />

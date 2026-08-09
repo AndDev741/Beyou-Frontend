@@ -65,8 +65,8 @@ export default function ProfileConfiguration() {
     }, [name, phrase, phrase_author, reset]);
 
     // Same field grammar as the other screens: small label in text-2 and a
-    // 13.5px input. Here the label was 18px, shouting louder than the title
-    // da seção.
+    // 13.5px input. Here the label was 18px, shouting louder than the section's
+    // title.
     const labelStyle = "mb-1.5 block self-start text-[12.5px] font-semibold text-text-2";
     const inputStyle =
         "w-full rounded-control border border-border bg-surface px-3 py-[9.5px] text-[13.5px] text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:border-accent focus:ring-[3px] focus:ring-accent-soft";

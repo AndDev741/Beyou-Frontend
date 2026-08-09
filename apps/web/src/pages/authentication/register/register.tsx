@@ -64,9 +64,9 @@ function Register() {
             navigate
         );
         if (errorMessage) {
-            // Erro que pertence a um campo fica NO campo. O aviso geral existe
-            // só para falha sem dono (rede, 500), senão a mesma frase aparece
-            // duas vezes na mesma tela.
+            // An error that belongs to a field stays ON the field. The general notice
+            // exists only for a failure with no owner (network, 500), otherwise the
+            // same sentence shows up twice on one screen.
             if (errorMessage === t("EmailInUseError")) {
                 setError("email", { message: errorMessage });
                 return;

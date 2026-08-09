@@ -4,8 +4,8 @@ import rootReducer from "@beyou/state/rootReducer";
 import { renderWithProviders } from "../../test/test-utils";
 import DailyProgress from "./dailyProgress";
 
-// `preloadedState` do test-utils é ignorado (o store é o singleton do app);
-// para semear estado é preciso passar um store próprio.
+// The test-utils `preloadedState` is ignored (the store is the app's singleton); to
+// seed state you have to pass a store of your own.
 const base = rootReducer(undefined as never, { type: "@@INIT" } as never);
 
 test("renders a progress ring with the completion percentage", () => {

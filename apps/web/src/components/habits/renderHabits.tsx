@@ -12,9 +12,9 @@ import { Repeat, Search } from "lucide-react";
 type renderHabitsProps = {
     habits: habit[],
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>,
-    /** Sobrescreve o vazio quando a lista sumiu pela busca/filtro, não por falta de hábitos. */
+    /** Overrides the empty state when search/filter emptied the list, not a lack of habits. */
     emptyTitle?: string,
-    /** Limpa busca e filtros a partir do estado vazio. */
+    /** Clears search and filters from the empty state. */
     onClearFilters?: () => void
 }
 
@@ -40,8 +40,8 @@ function RenderHabits({habits, setHabits, emptyTitle, onClearFilters}: renderHab
     const hasHabits = habits.length > 0;
 
     return(
-        // Grid escaneável: 3 colunas no desktop, 1 no mobile. Vazio ocupa a
-        // largura toda em vez de virar uma coluna espremida.
+        // A scannable grid: 3 columns on desktop, 1 on mobile. The empty state takes
+        // the full width instead of becoming one squeezed column.
         <div
             className={`text-text ${hasHabits ? "grid grid-cols-1 items-start gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}
             data-tutorial-id="habits-grid"

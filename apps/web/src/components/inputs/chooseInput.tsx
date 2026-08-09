@@ -16,7 +16,7 @@ function ChooseInput({choosedLevel, error, name, setLevel, levels, title, t}: ch
     const label = t(`${title}`);
     const errorId = `${name}-error`;
 
-    // Clicar no nível já escolhido desmarca — comportamento do rádio antigo.
+    // Clicking the level already chosen clears it — the old radio's behaviour.
     const handleChange = (value: number) => {
         if (choosedLevel === value) {
             setLevel(0);

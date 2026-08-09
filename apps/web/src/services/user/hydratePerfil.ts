@@ -40,8 +40,9 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     dispatch(photoEnter(data.photo));
     dispatch(isGoogleAccountEnter(data.isGoogleAccount));
     dispatch(widgetsIdInUseEnter(data.widgetsId));
-    // Um modo desconhecido (tema removido no redesign) cai no padrão em vez de
-    // deixar a conta sem tema — a migração dos 9 modos antigos vive no parse.
+    // An unknown mode (a theme dropped in the redesign) falls back to the default
+    // instead of leaving the account with no theme — the migration of the 9 old modes
+    // lives in the parse.
     dispatch(themeInUseEnter(data?.themeInUse ? themeFromStoredMode(data.themeInUse) : null));
     dispatch(xpEnter(data.xp));
     dispatch(levelEnter(data.level));

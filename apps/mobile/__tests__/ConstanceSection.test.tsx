@@ -36,7 +36,7 @@ describe('ConstanceSection', () => {
       </Provider>,
     );
 
-    // Escolher já salva: só o perfil tem botão de salvar.
+    // Picking already saves: only the profile has a save button.
     await act(async () => {
       fireEvent.press(screen.getByTestId('constance-COMPLETE'));
     });

@@ -152,8 +152,8 @@ describe("Admin feedback console", () => {
 
         expect(await screen.findByText("The routine check-in double-counts XP")).toBeInTheDocument();
         expect(screen.getByText("Dark mode for the widgets")).toBeInTheDocument();
-        // A linha da lista mostra quem enviou e quando; o e-mail vive no
-        // detalhe, onde a resposta é escrita.
+        // The list row shows who sent it and when; the e-mail lives in the detail,
+        // where the reply is written.
         expect(screen.getByText(/Ana/)).toBeInTheDocument();
     });
 

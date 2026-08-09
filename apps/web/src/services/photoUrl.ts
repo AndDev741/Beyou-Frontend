@@ -21,8 +21,8 @@ export function resolvePhotoUrl(photo: string): string {
     // Root-relative API path we serve ourselves — prepend the backend origin.
     if (photo.startsWith('/')) return `${API_ORIGIN}${photo}`;
 
-    // Parseia de verdade em vez de casar com regex: o parser normaliza a string
-    // and returns a NEW `href`, so nothing of the original value reaches `src`
+    // A real parse instead of a regex match: the parser normalizes the string and
+    // returns a NEW `href`, so nothing of the original value reaches `src`
     // without passing through here. A malformed URL throws and is dropped — the old
     // regex let through anything that started with a known scheme.
     let url: URL;

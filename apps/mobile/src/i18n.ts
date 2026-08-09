@@ -4,7 +4,7 @@ import { getLocales } from 'expo-localization';
 import { resources } from '@beyou/i18n';
 import { installPluralRulesPolyfill } from './lib/pluralRulesPolyfill';
 
-// Antes do init: o i18next monta o resolvedor de plural na inicialização.
+// Before init: i18next builds its plural resolver during initialization.
 installPluralRulesPolyfill();
 
 const lng = getLocales()[0]?.languageCode === 'pt' ? 'pt' : 'en';

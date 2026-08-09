@@ -42,7 +42,7 @@ describe('CategorySelector', () => {
   it('shows an empty hint with no categories, next to the create chip', async () => {
     await wrap(<CategorySelector categories={[]} value={[]} onChange={jest.fn()} />);
     expect(screen.getByText("You don't have categories yet, create one")).toBeTruthy();
-    // O convite de nova categoria mora na própria fileira dos chips.
+    // The new-category invitation lives in the chips' own row.
     expect(screen.getByTestId('category-add-new')).toBeTruthy();
   });
 

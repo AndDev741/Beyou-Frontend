@@ -187,9 +187,9 @@ const Routine = () => {
                     />
                 )}
 
-                {/* Criar e editar acontecem em modal: a lista fica com a largura
-                    toda, em vez de dividir a tela com um formulário que só é
-                    usado de vez em quando. */}
+                {/* Create and edit happen in a modal: the list keeps the full width
+                    instead of splitting the screen with a form that is only used now
+                    and then. */}
                 {!isSnapshotMode && (onCreateRoutine || editMode) && (
                     <Modal
                         isOpen

@@ -218,10 +218,10 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         <p className="mt-1.5 text-[12.5px] text-text-3">{t("NothingAssignedYet")}</p>
                     ) : (
                         <div className="mt-1.5 flex max-h-[30vh] flex-col gap-1.5 overflow-y-auto">
-                            {/* Name on top, times below — as on native.
-                                Numa linha só, nome + dois campos de hora + o
-                                remover não cabem nos 448px do modal e o nome
-                                sobrava em uma letra. */}
+                            {/* Name on top, times below — as on native. On a single
+                                row the name plus two time fields plus remove do not
+                                fit the modal's 448px, and the name was left with one
+                                letter. */}
                             {tray.map((item) => (
                                 <div
                                     key={`${item.kind}-${item.refId}`}

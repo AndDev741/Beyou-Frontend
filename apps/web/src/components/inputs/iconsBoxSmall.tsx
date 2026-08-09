@@ -84,9 +84,9 @@ function IconsBoxSmall({
     };
 
     return (
-        // O seletor acompanha a largura do formulário. Antes tinha largura fixa
-        // (45vw / 160px / 12rem) e o campo de busca cabia em ~90px, cortando o
-        // placeholder no meio.
+        // The selector follows the form's width. It used to be a fixed width
+        // (45vw / 160px / 12rem) and the search field fit into ~90px, cutting the
+        // placeholder in half.
         <div className="w-full">
             <div className="flex items-center gap-2.5">
                 <label htmlFor="icon-small" className="shrink-0 text-[12.5px] font-semibold text-text-2">

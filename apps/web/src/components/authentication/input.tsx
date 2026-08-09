@@ -17,7 +17,7 @@ type InputProps = {
     errorMessage: string;
     testId?: string;
     autoComplete?: string;
-    /** Rótulo visível acima do campo (padrão do sistema). */
+    /** A visible label above the field (the system's default). */
     label?: string;
 };
 

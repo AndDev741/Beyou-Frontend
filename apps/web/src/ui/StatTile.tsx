@@ -8,7 +8,7 @@ type StatTileProps = {
     className?: string;
 };
 
-/** Bloco de número da tela estendida (nível, constância, check-ins). */
+/** A number block for the expanded view (level, streak, check-ins). */
 export default function StatTile({ label, value, hint, className = "" }: StatTileProps) {
     return (
         <div className={`rounded-control border border-border bg-surface px-3 py-2.5 ${className}`}>

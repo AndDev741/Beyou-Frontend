@@ -12,8 +12,8 @@ export type levelProgressProps = {
 export default function LevelProgress({ level, xp, nextLevelXp, actualLevelXp }: levelProgressProps) {
     const { t } = useTranslation();
 
-    // Janela do nível, não XP total: sem o piso, um nível alto começaria a barra
-    // quase cheia.
+    // The level's window, not total XP: without the floor a high level would start the
+    // bar nearly full.
     const xpWindow = Math.max(nextLevelXp - actualLevelXp, 1);
     const progress = Math.min(100, Math.max(0, Math.round(((xp - actualLevelXp) / xpWindow) * 100)));
 

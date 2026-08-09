@@ -1,6 +1,6 @@
 /**
- * WidgetsSection — o seletor de widgets do dashboard, no desenho da web:
- * position, icon, name and ×; the available ones as chips. There is no Save button —
+ * WidgetsSection — the dashboard's widget picker, in the web's design: the ones in
+ * use as numbered rows with position, icon, name and ×; the available ones as chips. There is no Save button —
  * every change persists by itself through editUser + widgetsIdInUseEnter. Boundary
  * mocked: notify and the @beyou/api HttpClient.
  */

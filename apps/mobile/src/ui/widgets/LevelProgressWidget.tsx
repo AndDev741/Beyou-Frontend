@@ -33,8 +33,8 @@ export default function LevelProgressWidget({
         className="mt-3 h-2 overflow-hidden rounded-[5px] bg-surface-2"
         testID="level-progress-track"
       >
-        {/* Sem gradiente: o RN não tem `bg-gradient-to-r` sem uma lib de svg
-            para isto. O acento cheio lê igual num bloco de 8px de altura. */}
+        {/* No gradient: RN has no `bg-gradient-to-r` without an svg library for it.
+            The solid accent reads the same in an 8px-tall block. */}
         <View
           className="h-full rounded-[5px] bg-accent"
           style={{ width: `${progress}%` }}

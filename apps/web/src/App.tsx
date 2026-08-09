@@ -75,8 +75,8 @@ function AppContent() {
         </Routes>
       </Suspense>
       <CelebrationOverlay />
-      {/* Canto superior direito no desktop, topo no celular; no máximo três
-          empilhadas — a quarta espera a vez em vez de tomar a tela. */}
+      {/* Top right on desktop, top on a phone; at most three stacked — the fourth
+          waits its turn instead of taking over the screen. */}
       <ToastContainer
         position={isDesktop ? "top-right" : "top-center"}
         autoClose={5000}

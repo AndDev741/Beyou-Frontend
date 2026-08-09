@@ -3,7 +3,7 @@ import type { habit } from "@beyou/types/habit/habitType";
 
 type CreateHabitProps = {
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>;
-    /** Fecha o modal que hospeda o formulário. */
+    /** Closes the modal hosting the form. */
     onClose?: () => void;
 };
 

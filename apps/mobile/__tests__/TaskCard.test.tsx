@@ -20,8 +20,8 @@ const task = {
   markedToDelete: new Date(),
 } as never;
 
-// Dentro de `act`: o provider de tema assenta depois do primeiro render, e um
-// a loose update would corrupt the next test in the file (see AGENTS.md).
+// Inside `act`: the theme provider settles after the first render, and a loose
+// update would corrupt the next test in the file (see AGENTS.md).
 const wrap = async (node: React.ReactElement) => {
   await act(async () => {
     render(<BeyouThemeProvider>{node}</BeyouThemeProvider>);

@@ -12,7 +12,7 @@ import { verifyEmailRequest, type VerifyEmailResult } from '../../src/auth/authA
 
 type VerifyState = 'loading' | VerifyEmailResult;
 
-/** Bloco de resultado: disco com o ícone do tom, título, mensagem e a ação. */
+/** The result block: a disc with the tone's icon, a title, a message and the action. */
 function Result({
   icon,
   tint,

@@ -1,7 +1,7 @@
 /**
- * O Hermes do build Android vem sem Intl.PluralRules, e sem ele o i18next cai
- * na chave base — "Rotinas" no lugar de "1 rotina". O polyfill cobre os dois
- * idiomas do app.
+ * The Android build's Hermes ships without Intl.PluralRules, and without it i18next
+ * falls back to the base key — "Rotinas" instead of "1 rotina". The polyfill covers
+ * both of the app's languages.
  */
 import { installPluralRulesPolyfill } from '../src/lib/pluralRulesPolyfill';
 

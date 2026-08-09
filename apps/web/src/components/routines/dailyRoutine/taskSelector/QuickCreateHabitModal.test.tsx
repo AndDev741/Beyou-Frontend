@@ -67,8 +67,8 @@ test("creates habit and returns new id", async () => {
 
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Read" } });
     fireEvent.click(screen.getByText("pick icon"));
-    // Importância, dificuldade e experiência viraram segmentados: cada opção
-    // é um rádio com o próprio rótulo.
+    // Importance, difficulty and experience became segmented controls: every option
+    // is a radio with its own label.
     fireEvent.click(screen.getByRole("radio", { name: "Low" }));
     fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
     fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));

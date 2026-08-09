@@ -65,7 +65,7 @@ describe('AppHome (dashboard)', () => {
     await waitFor(() => expect(screen.getByTestId('dashboard-greeting').props.children).toContain('Alice'));
     expect(store.getState().perfil.username).toBe('Alice');
 
-    // A sequência é uma pílula; o nível tem widget próprio e saiu do cabeçalho.
+    // The streak is a pill; the level has a widget of its own and left the header.
     expect(screen.getByText(/^7 /)).toBeTruthy();
   });
 

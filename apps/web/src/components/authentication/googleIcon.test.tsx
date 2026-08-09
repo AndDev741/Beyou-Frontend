@@ -19,8 +19,8 @@ describe('GoogleIcon — client ID guard', () => {
         const button = container.querySelector('button');
         expect(button).not.toBeNull();
 
-        // O rótulo agora está no texto do botão; o logo é decorativo
-        // (alt vazio + aria-hidden), como manda o padrão de ícone + texto.
+        // The label lives in the button's text now; the logo is decorative (empty
+        // alt + aria-hidden), as the icon-plus-text pattern requires.
         expect(screen.getByRole('button', { name: 'ContinueWithGoogle' })).toBeDefined();
     });
 

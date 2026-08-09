@@ -430,9 +430,9 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }:
 
     return (
         <div className="w-full">
-            {/* No card: title, context, action and picker sit straight on the
-                página. A moldura competia com os cartões de rotina logo abaixo e
-                pesava a primeira impressão. */}
+            {/* No card: title, context, action and picker sit straight on the page.
+                The frame competed with the routine cards right below it and weighed
+                down the first impression. */}
             <div className="flex items-center gap-3">
                 <div className="min-w-0">
                     <h1 className="text-2xl font-semibold tracking-[-0.02em] text-text">

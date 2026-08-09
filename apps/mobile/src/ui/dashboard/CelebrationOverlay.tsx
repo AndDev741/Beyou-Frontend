@@ -20,9 +20,8 @@ const AUTO_DISMISS_MS = 4000;
 
 /**
  * The mockup's celebration: the system ring filled, with the level number in the
- * centre — the same piece as the check-in and the brand. A streak milestone uses
- * the same
- * anel com a chama e a contagem de dias.
+ * centre — the same piece as the check-in and the brand. A streak milestone uses the
+ * same ring with the flame and the day count.
  *
  * Reads the head of the celebration queue (filled by applyRefreshUi). It closes
  * itself after 4s, on a backdrop tap and on "Continue" — the button is an early

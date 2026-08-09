@@ -171,9 +171,9 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                     </button>
                 </div>
 
-                {/* Uma fileira de sete: a semana inteira cabe numa olhada, e o
-                    a day already taken by another routine is marked on the
-                    quadrado em vez de num aviso separado. */}
+                {/* One row of seven: the whole week fits in a glance, and a day
+                    already taken by another routine is marked on the square itself
+                    rather than in a separate notice. */}
                 <div className="mt-3.5 flex gap-1.5">
                     {WEEK_ORDER.map((day) => {
                         const isBlocked = blockedSet.has(day) && !overrides.has(day);

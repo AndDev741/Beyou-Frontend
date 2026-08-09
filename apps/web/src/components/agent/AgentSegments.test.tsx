@@ -75,8 +75,8 @@ describe("destinationFor", () => {
     });
 
     it("sends two-entity tools to the routine, not to the first regex that matches", () => {
-        // `addTaskToRoutineSection` casaria /Task/ primeiro, e o que a pessoa
-        // want to check is the routine the task went into.
+        // `addTaskToRoutineSection` would match /Task/ first, and what you want to
+        // check is the routine the task went into.
         expect(destinationFor("addTaskToRoutineSection")?.route).toBe("/routines");
         expect(destinationFor("addHabitToRoutineSection")?.route).toBe("/routines");
     });

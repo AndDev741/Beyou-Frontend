@@ -78,8 +78,8 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                     <span className="text-[12.5px] text-text-3">{t("YouDontHaveCategories")}</span>
                 )}
 
-                {/* O convite de nova categoria mora na própria fileira, como no
-                    mockup — chip tracejado que abre a criação rápida. */}
+                {/* The new-category invitation lives in the row itself, as in the
+                    mockup — a dashed chip that opens the quick create. */}
                 <button
                     type="button"
                     onClick={() => setShowCreateModal(true)}

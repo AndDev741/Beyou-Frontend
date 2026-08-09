@@ -6,7 +6,7 @@ interface DeleteModalProps {
   visible: boolean;
   /** The title question: "Delete this habit?" */
   deletePhrase: string;
-  /** Nome do item, citado no corpo. */
+  /** The item's name, quoted in the body. */
   name: string;
   onCancel: () => void;
   onConfirm: () => void;

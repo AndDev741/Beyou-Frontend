@@ -196,8 +196,8 @@ export default function GoalsScreen() {
           keyExtractor={(item) => item.id}
           onScrollToIndexFailed={({ index }) => {
             // The list has not measured that item yet (render window). Go to the
-            // end and try again — without this the scroll simply never happens
-            // para metas fora da primeira janela.
+            // end and try again — without this the scroll simply never happens for
+            // goals outside the first window.
             listRef.current?.scrollToEnd({ animated: false });
             setTimeout(() => listRef.current?.scrollToIndex({ index, viewPosition: 0.5 }), 80);
           }}

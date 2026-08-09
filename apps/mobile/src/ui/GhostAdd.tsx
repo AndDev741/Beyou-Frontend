@@ -9,7 +9,7 @@ interface GhostAddProps {
   testID?: string;
 }
 
-/** Convite discreto para adicionar dentro de uma lista (seção, item, categoria). */
+/** A quiet invitation to add inside a list (section, item, category). */
 export default function GhostAdd({ label, onPress, className = '', testID }: GhostAddProps) {
   const { theme } = useBeyouTheme();
   return (

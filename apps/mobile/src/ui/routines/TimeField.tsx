@@ -43,7 +43,7 @@ export default function TimeField({ label, value, onChange, testID }: TimeFieldP
         testID={testID}
         className="min-h-[42px] justify-center rounded-control border border-border bg-surface px-3"
       >
-        {/* Hora em mono, como todo horário do sistema. */}
+        {/* The time in mono, like every time in the system. */}
         <Text className={`font-mono text-[13.5px] ${value ? 'text-text' : 'text-text-3'}`}>
           {value || '--:--'}
         </Text>

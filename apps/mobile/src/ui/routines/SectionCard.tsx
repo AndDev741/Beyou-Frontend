@@ -110,9 +110,9 @@ export default function SectionCard({
           </View>
         </View>
 
-        {/* Outside the name column: in there it stuck to the first line
-            enquanto estrela, lápis e lixeira se centravam no bloco de duas.
-            Ícone trocado em vez de rotacionado (ver ConfigSection). */}
+        {/* Outside the name column: in there it stuck to the first line while the
+            star, pencil and bin centred on the two-line block. A swapped icon rather
+            than a rotated one (see ConfigSection). */}
         <IconButton
           label={open ? t('Collapse') : t('Expand')}
           onPress={() => setOpen((prev) => !prev)}

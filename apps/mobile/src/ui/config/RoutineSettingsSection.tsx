@@ -83,8 +83,8 @@ export default function RoutineSettingsSection() {
     return COMMON_TIMEZONES.filter((tz) => tz.toLowerCase().includes(q));
   }, [tzSearch]);
 
-  // Salva ao escolher: só o perfil tem botão de salvar. O parâmetro diz o que
-  // MUDOU nesta escolha — ler o estado aqui pegaria o valor anterior.
+  // Saves on pick: only the profile has a save button. The parameter says what
+  // CHANGED in this choice — reading state here would catch the previous value.
   const persist = async (tz?: string, decay?: XpDecayStrategy) => {
     const timezone = tz ?? selectedTimezone;
     const xpDecayStrategy = decay ?? selectedXpDecay;

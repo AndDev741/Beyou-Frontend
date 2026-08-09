@@ -19,7 +19,7 @@ export const withAlpha = (raw: string, alpha: number): string => {
 /**
  * The redesign's chart palette (the mockup's "remaining widgets" section): the best
  * area in `success`, the worst in `flame` (attention, not error), the other series in
- * acento; grade em `border`, eixos em `text-3`.
+ * the accent; the grid in `border`, the axes in `text-3`.
  */
 export const chartPalette = (theme: Theme) => ({
     series: toHex6(theme.accent),

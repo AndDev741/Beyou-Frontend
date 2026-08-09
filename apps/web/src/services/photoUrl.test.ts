@@ -32,7 +32,7 @@ describe("resolvePhotoUrl", () => {
         expect(resolvePhotoUrl(png)).toBe(png);
     });
 
-    /** Antes a regex deixava passar qualquer coisa que começasse com o esquema. */
+    /** The old regex let through anything that started with the scheme. */
     it("drops a malformed URL", () => {
         expect(resolvePhotoUrl("https://")).toBe("");
         expect(resolvePhotoUrl("http:")).toBe("");

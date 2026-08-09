@@ -1,6 +1,6 @@
 /**
- * ThemeSelector — modo e acento trocam o tema vivo via BeyouThemeProvider.
- * Um consumidor mínimo renderiza a preferência atual para a asserção.
+ * ThemeSelector — mode and accent swap the live theme through BeyouThemeProvider. A
+ * minimal consumer renders the current preference for the assertion.
  */
 import { Text } from 'react-native';
 import { render, fireEvent, act } from '@testing-library/react-native';

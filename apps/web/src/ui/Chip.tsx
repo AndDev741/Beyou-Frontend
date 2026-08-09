@@ -12,10 +12,10 @@ type ChipProps = {
 };
 
 /**
- * Etiqueta de dado: streak, XP, horário, categoria, status.
+ * A data label: streak, XP, time, category, status.
  *
- * XP e horário são NÚMERO, então vão em mono tabular — é o que mantém a coluna
- * da direita dos itens de rotina alinhada.
+ * XP and time are NUMBERS, so they go in tabular mono — that is what keeps the
+ * right-hand column of the routine items aligned.
  */
 const VARIANTS: Record<ChipVariant, string> = {
     neutral: "bg-surface-2 text-text-2",

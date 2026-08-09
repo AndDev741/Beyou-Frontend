@@ -168,8 +168,8 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
         />
       </FormField>
 
-      {/* Alvo, atual e unidade dividem a linha: são a mesma frase ("12 livros"),
-          e separá-los em três blocos alongava o formulário sem ganho. */}
+      {/* Target, current and unit share the row: they are one sentence ("12 books"),
+          and splitting them into three blocks stretched the form for nothing. */}
       <View className="flex-row gap-2">
         <FormField label={t('TargetValue')} className="flex-1">
           <Controller

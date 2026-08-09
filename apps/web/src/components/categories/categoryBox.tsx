@@ -54,9 +54,8 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                 </IconTile>
                 <h3 className="min-w-0 flex-1 truncate text-[15px] font-semibold leading-snug text-text">{name}</h3>
 
-                {/* Editar e excluir no topo: no desktop aparecem ao passar o
-                    mouse (ou ao focar por teclado); no telefone ficam sempre
-                    visíveis. */}
+                {/* Edit and delete at the top: on desktop they appear on hover (or on
+                    keyboard focus); on a phone they are always visible. */}
                 <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                     <IconButton label={t('Edit')} onClick={handleEdit}>
                         <Pencil size={15} aria-hidden="true" />

@@ -216,8 +216,8 @@ const CreateRoutineSection = ({
                 />
             </div>
 
-            {/* Seções favoritas viram modelo: reaproveitar uma pronta é o
-                caminho mais rápido para montar a rotina seguinte. */}
+            {/* Favourite sections become templates: reusing a finished one is the
+                fastest way to build the next routine. */}
             {editSection == null && favoritedSections.length > 0 && (
                 <div className="mt-4">
                     <span className={labelClass}>{t("Your favorite sections")}</span>

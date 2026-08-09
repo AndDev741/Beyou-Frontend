@@ -10,7 +10,7 @@ interface StatTileProps {
   testID?: string;
 }
 
-/** Bloco de número da tela estendida (nível, constância, check-ins). */
+/** A number block for the expanded view (level, streak, check-ins). */
 export default function StatTile({ label, value, hint, className = '', testID }: StatTileProps) {
   const isText = typeof value === 'string' || typeof value === 'number';
   return (

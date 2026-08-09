@@ -221,8 +221,8 @@ export default function SpotlightTutorial({
                 : preferred;
         let top = 0;
         let left = 0;
-        // Sem valor inicial: o `switch` abaixo tem `default`, então todo caminho
-        // atribui — e o inicializador só escondia isso.
+        // No initial value: the `switch` below has a `default`, so every path
+        // assigns — and the initializer only hid that.
         let arrow: TooltipPosition["arrow"];
 
         switch (position) {

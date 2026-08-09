@@ -4,12 +4,12 @@ type PageHeaderProps = {
     title: string;
     /** Linha de contexto: contagens, data, resumo. */
     subtitle?: ReactNode;
-    /** Ação primária da página (criar). */
+    /** The page's primary action (create). */
     action?: ReactNode;
     className?: string;
 };
 
-/** Cabeçalho de página: título, contexto e a ação primária à direita. */
+/** A page header: title, context and the primary action on the right. */
 export default function PageHeader({ title, subtitle, action, className = "" }: PageHeaderProps) {
     return (
         <header className={`mb-5 flex flex-wrap items-center justify-between gap-3 ${className}`}>

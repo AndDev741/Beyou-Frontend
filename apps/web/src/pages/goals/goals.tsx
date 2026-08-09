@@ -22,7 +22,7 @@ import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
 import { Plus, Search, X } from "lucide-react";
 
-/** "all" ou um valor do enum de status do backend. */
+/** "all", or one value of the backend's status enum. */
 type StatusFilter = "all" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
 type SortOption = { value: string; label: string };

@@ -5,13 +5,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Tokens do redesign — espelham packages/theme (cssVars.ts), aplicados
-        // em runtime pelo BeyouThemeProvider via nativewind `vars()`.
+        // The redesign's tokens — they mirror packages/theme (cssVars.ts), applied
+        // at runtime by BeyouThemeProvider through nativewind `vars()`.
         //
-        // Forma `rgb(var(--x-rgb) / <alpha-value>)` e não `var(--x)`: sem os
-        // canais crus o Tailwind v3 não emite as classes com barra, e
-        // `bg-success/10` ou `bg-accent/25` saíam SEM FUNDO NENHUM. O
-        // themeToVars já publica os dois formatos; é o mesmo shape da web.
+        // The `rgb(var(--x-rgb) / <alpha-value>)` shape and not `var(--x)`: without
+        // the raw channels Tailwind v3 emits no slash classes at all, and
+        // `bg-success/10` or `bg-accent/25` came out WITH NO BACKGROUND. themeToVars
+        // already publishes both formats; it is the same shape as the web.
         bg: 'rgb(var(--bg-rgb) / <alpha-value>)',
         surface: 'rgb(var(--surface-rgb) / <alpha-value>)',
         'surface-2': 'rgb(var(--surface-2-rgb) / <alpha-value>)',
@@ -27,12 +27,12 @@ module.exports = {
         success: 'rgb(var(--success-rgb) / <alpha-value>)',
         danger: 'rgb(var(--danger-rgb) / <alpha-value>)',
 
-        // Já vêm com alfa embutido; não participam das variantes de opacidade.
+        // These already carry alpha; they take no part in the opacity variants.
         'accent-soft': 'var(--accent-soft)',
         'xp-soft': 'var(--xp-soft)',
         'flame-soft': 'var(--flame-soft)',
 
-        // Aliases do modelo antigo — saem na fase de limpeza.
+        // The old model's aliases — they leave in the cleanup phase.
         background: 'rgb(var(--background-rgb) / <alpha-value>)',
         primary: 'rgb(var(--primary-rgb) / <alpha-value>)',
         secondary: 'rgb(var(--secondary-rgb) / <alpha-value>)',
@@ -47,9 +47,9 @@ module.exports = {
         control: '10px',
       },
       fontFamily: {
-        // Cada peso é uma família própria: o RN não sintetiza peso a partir de
-        // um arquivo só. `font-semibold` sozinho não muda a fonte — use
-        // font-medium/font-semibold/font-bold destas famílias.
+        // Every weight is a family of its own: RN does not synthesize weight from a
+        // single file. `font-semibold` alone changes nothing — use
+        // font-medium/font-semibold/font-bold from these families.
         sans: ['Geist'],
         medium: ['GeistMedium'],
         semibold: ['GeistSemiBold'],

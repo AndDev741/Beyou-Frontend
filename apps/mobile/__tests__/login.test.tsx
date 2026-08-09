@@ -108,7 +108,7 @@ describe('LoginRoute (branded)', () => {
     expect(screen.getByTestId('login-email-input')).toBeTruthy();
     expect(screen.getByTestId('login-password-input')).toBeTruthy();
     expect(screen.getByTestId('login-submit-button')).toBeTruthy();
-    // Wordmark do BrandMark dentro do MobileBrand (literal, não passa por i18n).
+    // The BrandMark's wordmark inside MobileBrand (a literal, it does not go through i18n).
     expect(screen.getByText('beyou')).toBeTruthy();
   });
 

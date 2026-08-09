@@ -115,7 +115,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
     <Modal
       visible
       transparent
-      // Sem slide sob `prefers-reduced-motion`: a sheet aparece em fade.
+      // No slide under `prefers-reduced-motion`: the sheet arrives as a fade.
       animationType={reduceMotion ? 'fade' : 'slide'}
       onRequestClose={onClose}
     >

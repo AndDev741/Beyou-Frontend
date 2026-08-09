@@ -22,8 +22,8 @@ function GoogleIcon(){
 
     return(
         <div className="mt-5">
-            {/* Separador antes da alternativa: o botão do Google é a segunda
-                opção, não um par visual do "Entrar". */}
+            {/* A divider before the alternative: the Google button is the second
+                option, not a visual pair for "Sign in". */}
             <div className="mb-4 flex items-center gap-3 text-xs text-text-3">
                 <span className="h-px flex-1 bg-border" />
                 {t("Or")}

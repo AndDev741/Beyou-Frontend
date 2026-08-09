@@ -240,9 +240,9 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           </Text>
         ) : (
           <View className="gap-1.5">
-            {/* One tap assigns: the item rises into the tray with the suggested
-                sugerido e some daqui. Marcar para depois confirmar era um passo
-                a mais sem nada em troca. */}
+            {/* One tap assigns: the item rises into the tray with the suggested time
+                and leaves this list. Ticking first and confirming later was one extra
+                step with nothing in return. */}
             {available.map((it) => (
               <Pressable
                 key={it.id}

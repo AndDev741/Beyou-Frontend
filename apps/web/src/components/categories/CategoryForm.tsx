@@ -103,8 +103,8 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
         dispatch(nameEnter(""));
         dispatch(descriptionEnter(""));
         dispatch(iconEnter(""));
-        // Em modal, cancelar tem de fechar — a visibilidade do criar vive no
-        // page state, not in the edit slice.
+        // In a modal, cancel has to close — the create's visibility lives in page
+        // state, not in the edit slice.
         onClose?.();
     };
 

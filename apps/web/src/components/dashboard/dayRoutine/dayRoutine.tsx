@@ -45,8 +45,8 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                     </span>
                 </div>
 
-                {/* O progresso do dia vive no cabeçalho do cartão: é o número que
-                    responde "quanto falta" sem precisar percorrer a lista. */}
+                {/* The day's progress lives in the card's header: it is the number
+                    that answers "how much is left" without walking the list. */}
                 {total > 0 && (
                     <div className="ml-auto shrink-0 text-right">
                         <span className="font-mono text-[12.5px] font-medium text-text-2">

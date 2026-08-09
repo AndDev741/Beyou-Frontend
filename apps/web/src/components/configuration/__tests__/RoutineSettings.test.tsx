@@ -210,7 +210,7 @@ describe('RoutineSettings', () => {
     });
 
     // -----------------------------------------------------------------------
-    // Gravação automática
+    // Automatic saving
     // -----------------------------------------------------------------------
     describe('auto save', () => {
         it('has no save button: each choice persists on its own', () => {

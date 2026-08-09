@@ -10,9 +10,9 @@ import { ListChecks, Search } from "lucide-react";
 type renderTasksProps = {
     tasks: task[],
     setTasks: React.Dispatch<React.SetStateAction<task[]>>,
-    /** Sobrescreve o vazio quando a lista sumiu pela busca/filtro, não por falta de tarefas. */
+    /** Overrides the empty state when search/filter emptied the list, not a lack of tasks. */
     emptyTitle?: string,
-    /** Limpa busca e filtros a partir do estado vazio. */
+    /** Clears search and filters from the empty state. */
     onClearFilters?: () => void
 }
 
@@ -28,7 +28,7 @@ function RenderTasks({tasks, setTasks, emptyTitle, onClearFilters}: renderTasksP
     const hasTasks = tasks.length > 0;
 
     return(
-        // Grid escaneável: 3 colunas no desktop, 1 no mobile.
+        // A scannable grid: 3 columns on desktop, 1 on mobile.
         <div className={`text-text ${hasTasks ? "grid grid-cols-1 items-start gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}>
            {hasTasks ? (
                 tasks.map(task => (

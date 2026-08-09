@@ -322,10 +322,9 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                     </span>
                 </div>
 
-                {/* Outside the name column: in there it stuck to the first
-                    linha enquanto estrela, lápis e lixeira se centravam no
-                    bloco de duas. Mesmo aviso do cartão de rotina: expande ao
-                    tocar. */}
+                {/* Outside the name column: in there it stuck to the first line while
+                    the star, pencil and bin centred on the two-line block. Same hint
+                    as the routine card: it expands on tap. */}
                 <button
                     type="button"
                     onClick={() => setOpen((prev) => !prev)}

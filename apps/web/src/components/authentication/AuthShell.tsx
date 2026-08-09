@@ -29,8 +29,8 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
     return (
         <div className="min-h-screen bg-bg text-text lg:grid lg:grid-cols-[1fr_1.1fr]">
             {/* The symbol takes almost the panel's full width and bleeds off the
-                superior direito a 7%: é textura, não ilustração. O conteúdo
-                ancora no rodapé esquerdo. */}
+                top right at 7%: it is texture, not illustration. The content anchors
+                to the bottom left. */}
             <aside className="relative hidden overflow-hidden border-r border-border bg-surface p-9 lg:flex lg:flex-col lg:justify-end">
                 <BrandMark
                     fluid
@@ -49,9 +49,9 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
 
             <main className="flex flex-col items-center justify-center px-5 py-10">
                 <div className="w-full max-w-[360px]">
-                    {/* On phones the brand is the header: symbol on top,
-                        wordmark embaixo em cor de texto. O painel de marca não
-                        existe nessa largura. */}
+                    {/* On phones the brand is the header: symbol on top, wordmark
+                        below in the text colour. The brand panel does not exist at
+                        this width. */}
                     <div className="mb-8 flex flex-col items-center gap-2 lg:hidden">
                         <BrandMark size={44} className="text-accent" />
                         <span className="text-xl font-semibold tracking-[-0.02em] text-text">beyou</span>

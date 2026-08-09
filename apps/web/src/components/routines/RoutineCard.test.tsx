@@ -80,8 +80,8 @@ test("expands from the title, which is the only affordance on the phone", () => 
     expect(screen.getByText("Test task")).toBeInTheDocument();
 });
 
-// O i18n do ambiente de teste devolve a própria chave, então a asserção é
-// sobre qual chave a cadência escolhe — que é a lógica em jogo.
+// The test environment's i18n returns the key itself, so the assertion is about
+// which key the cadence picks — which is the logic at play.
 test("states the cadence next to sections and items", () => {
     const routine = buildRoutine();
     routine.schedule = { days: ["Monday", "Wednesday"] } as Routine["schedule"];

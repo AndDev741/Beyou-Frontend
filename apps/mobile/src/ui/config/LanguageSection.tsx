@@ -15,8 +15,8 @@ const TRANSLATIONS_URL = 'https://github.com/AndDev741/Beyou-Frontend/tree/main/
  * spelled out (Português | English) as on the web — "EN | PT" in a little box looked
  * like it belonged to nothing.
  *
- * Trocar aplica na hora e persiste via editUser. Sem toast de sucesso: a troca
- * live is the feedback itself; only an error speaks up.
+ * Switching applies at once and persists through editUser. No success toast: the live
+ * switch is the feedback itself; only an error speaks up.
  */
 export default function LanguageSection() {
   const { t, i18n } = useTranslation();

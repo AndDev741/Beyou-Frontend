@@ -134,10 +134,10 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         </IconTile>
       ) : null}
 
-      {/* A linha quebra em duas: metadados em cima, nome embaixo em largura
-          width. On one line, name + XP + time + skip do not fit in 390px and the
-          right-hand column ran off screen. `column-reverse` flips only the VISUAL —
-          o nome continua vindo antes na árvore, que é o que o leitor de tela lê. */}
+      {/* The row breaks in two: metadata on top, name below at full width. On one
+          line, name + XP + time + skip do not fit in 390px and the right-hand column
+          ran off screen. `column-reverse` flips only the VISUAL — the name still comes
+          first in the tree, which is what the screen reader reads. */}
       <View className="min-w-0 flex-1 gap-1" style={{ flexDirection: 'column-reverse' }}>
         <Text
           className={`text-[13.5px] font-medium ${

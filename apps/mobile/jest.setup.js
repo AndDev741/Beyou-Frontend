@@ -96,8 +96,8 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
 // does not inject _ReactNativeCSSInterop into the factory — placing jest.mock()
 // inside jest.setup.js causes that injection and a "variable out of scope" error.
 
-// `expo-splash-screen` toca o módulo nativo no import; o layout raiz o usa para
-// segurar a marca até a fonte carregar.
+// `expo-splash-screen` touches the native module on import; the root layout uses it
+// to hold the brand until the font loads.
 jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(() => Promise.resolve()),
   hideAsync: jest.fn(() => Promise.resolve()),

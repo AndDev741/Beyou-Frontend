@@ -7,7 +7,7 @@ type IconTileProps = {
     className?: string;
 };
 
-/** O tile atrás do ícone de hábito/tarefa/meta. A centralização é do componente. */
+/** The tile behind a habit/task/goal icon. Centring belongs to the component. */
 export default function IconTile({ children, size = 34, tone = "accent", className = "" }: IconTileProps) {
     return (
         <span

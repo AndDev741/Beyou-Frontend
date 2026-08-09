@@ -12,7 +12,7 @@ type RenderGoalsProps = {
   goals: goal[];
   /** Sobrescreve a mensagem de lista vazia (ex.: busca/filtro sem resultado). */
   emptyTitle?: string;
-  /** Limpa busca e filtros a partir do estado vazio. */
+  /** Clears search and filters from the empty state. */
   onClearFilters?: () => void;
 };
 

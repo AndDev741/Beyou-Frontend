@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 type XpFloatProps = { xp: number };
 
-/** O chip de XP sobe 1.2s e some. Sob reduced-motion ele só desvanece. */
+/** The XP chip rises for 1.2s and goes. Under reduced-motion it only fades. */
 export default function XpFloat({ xp }: XpFloatProps) {
     const reduceMotion = useReducedMotion();
     return (

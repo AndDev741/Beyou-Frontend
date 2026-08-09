@@ -118,8 +118,8 @@ export default function RoutineSettings() {
         }
     }, [detectedTimezone, handleTimezoneSelect]);
 
-    // Cada escolha grava sozinha: só o perfil tem botão de salvar. O timezone
-    // e a estratégia são escolha única, então não existe "meio preenchido".
+    // Every choice writes itself: only the profile has a save button. The timezone
+    // and the strategy are single choices, so there is no "half filled in".
     const handleSave = async (
         timezone: string = selectedTimezone,
         xpDecayStrategy: typeof selectedXpDecay = selectedXpDecay

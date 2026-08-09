@@ -5,8 +5,8 @@ import { loadDismissed, saveDismissed } from '../lib/dismissedStore';
  * Invitations the user has already dismissed do not come back.
  *
  * Unlike the web, storage here is asynchronous — so the state starts DISMISSED and
- * only opens up after the read. The other way round, a dismissed invitation
- * piscaria na tela a cada abertura do app.
+ * only opens up after the read. The other way round, a dismissed invitation would
+ * blink onto the screen every time the app opens.
  */
 export function useDismissed(key: string): [boolean, () => void] {
   const [dismissed, setDismissed] = useState(true);

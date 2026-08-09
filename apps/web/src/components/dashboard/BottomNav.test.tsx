@@ -3,10 +3,9 @@ import { MemoryRouter } from "react-router-dom";
 import BottomNav from "./BottomNav";
 
 /**
- * A barra do mobile depois do redesign: cinco alvos (Hoje, Rotinas,
- * [Assistant], Habits, More). The destinations that left the bar are still one tap
- * away inside the "More" sheet — with the same label, which is how the e2e suite
- * encontra.
+ * The mobile bar after the redesign: five targets (Today, Routines, [Assistant],
+ * Habits, More). The destinations that left the bar are still one tap away inside the
+ * "More" sheet — with the same label, which is how the e2e suite finds them.
  */
 const renderAt = (pathname: string) =>
     render(

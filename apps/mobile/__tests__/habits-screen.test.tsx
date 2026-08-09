@@ -86,8 +86,8 @@ describe('HabitsScreen', () => {
 });
 
 /**
- * Busca e filtros seguem o mesmo desenho da web: a busca ocupa a linha e os
- * two selects drop to the line below. With no result, the empty state is the ghost
+ * Search and filters follow the web's design: the search takes the row and the two
+ * selects drop to the line below. With no result, the empty state is the ghost
  * with "clear filters" — there is nothing to create there.
  */
 describe('HabitsScreen search and filters', () => {

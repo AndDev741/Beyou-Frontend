@@ -9,7 +9,7 @@ describe("formatGoalDeadline", () => {
     });
 
     it("puts the year in when it is not the current one", () => {
-        // "até Jul 24" numa meta de 2027 se lê como julho deste ano.
+        // "by Jul 24" on a 2027 goal reads as July of this year.
         expect(formatGoalDeadline("2027-07-24", "en-US", "dayMonth", now)).toBe("Jul 24 - 2027");
     });
 

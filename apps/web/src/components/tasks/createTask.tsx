@@ -3,7 +3,7 @@ import type { task } from "@beyou/types/tasks/taskType";
 
 type CreateTaskProps = {
     setTasks: React.Dispatch<React.SetStateAction<task[]>>;
-    /** Fecha o modal que hospeda o formulário. */
+    /** Closes the modal hosting the form. */
     onClose?: () => void;
 };
 

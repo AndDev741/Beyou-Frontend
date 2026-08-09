@@ -1,9 +1,9 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // Tema é resolvido por CSS var em runtime (ThemeProvider), NÃO por variante
-  // de classe: nada no app adiciona `.dark`. Mantido só porque plugins de
-  // terceiros olham para a chave.
+  // The theme resolves through CSS vars at runtime (ThemeProvider), NOT through a
+  // class variant: nothing in the app adds `.dark`. Kept only because third-party
+  // plugins look at the key.
   darkMode: 'class',
   content: [
     "./index.html",
@@ -22,7 +22,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Tokens do redesign — a única fonte de cor para código novo.
+        // The redesign's tokens — the only source of colour for new code.
         bg: "rgb(var(--bg-rgb) / <alpha-value>)",
         surface: "rgb(var(--surface-rgb) / <alpha-value>)",
         "surface-2": "rgb(var(--surface-2-rgb) / <alpha-value>)",
@@ -41,8 +41,8 @@ module.exports = {
         success: "rgb(var(--success-rgb) / <alpha-value>)",
         danger: "rgb(var(--danger-rgb) / <alpha-value>)",
 
-        // Aliases do modelo antigo. Saem na fase de limpeza, quando o último
-        // bg-background / text-secondary tiver virado token novo.
+        // The old model's aliases. They leave in the cleanup phase, once the last
+        // bg-background / text-secondary has become a new token.
         background: "rgb(var(--background-rgb) / <alpha-value>)",
         primary: "rgb(var(--primary-rgb) / <alpha-value>)",
         secondary: "rgb(var(--secondary-rgb) / <alpha-value>)",
@@ -52,11 +52,11 @@ module.exports = {
         error: "rgb(var(--error-rgb) / <alpha-value>)",
       },
       gridTemplateColumns: {
-        // faixa de constância: 14 colunas x 2 linhas = 28 dias
+        // the streak strip: 14 columns x 2 rows = 28 days
         14: "repeat(14, minmax(0, 1fr))",
       },
       borderRadius: {
-        // Uma família de raio por camada.
+        // One radius family per layer.
         frame: "24px",
         card: "16px",
         control: "10px",
@@ -67,7 +67,7 @@ module.exports = {
       fontFamily: {
         sans: ["Geist", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
         mono: ["Geist Mono", "ui-monospace", "SF Mono", "monospace"],
-        // Alias histórico usado pelo wrapper do App.tsx.
+        // A historical alias used by the App.tsx wrapper.
         mainFont: ["Geist", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
       },
       keyframes: {

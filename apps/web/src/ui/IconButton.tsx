@@ -2,12 +2,12 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     children: ReactNode;
-    /** Obrigatório: o botão não tem texto visível. */
+    /** Required: the button has no visible text. */
     label: string;
     tone?: "default" | "danger";
 };
 
-/** Ação discreta (editar, excluir, fechar). Sempre com rótulo acessível. */
+/** A quiet action (edit, delete, close). Always with an accessible label. */
 export default function IconButton({
     children,
     label,

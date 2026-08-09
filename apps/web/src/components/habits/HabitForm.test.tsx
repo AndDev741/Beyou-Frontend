@@ -61,7 +61,7 @@ test("does not double-submit while a create request is in flight", async () => {
     const categoryChip = await screen.findByRole("checkbox", { name: /Health/i });
     fireEvent.click(categoryChip);
 
-    // Escolhe o primeiro ícone do seletor compacto (tiles com aria-label "Icon: …").
+    // Picks the first icon in the compact selector (tiles with aria-label "Icon: …").
     const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
     fireEvent.click(iconTiles[0]);
 
