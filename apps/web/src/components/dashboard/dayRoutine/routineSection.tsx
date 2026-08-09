@@ -137,23 +137,19 @@ export default function RoutineSection({ section, routineId}: { section: section
 
     const renderItems = () => {
         return mergedItems.map((item, index) => {
-            let itemObj: any;
+            // A guarda tinha de vir ANTES do spread. Do jeito que estava, o
+            // `itemObj` era reatribuído a `{ ...undefined, item }` quando o
+            // hábito/tarefa não estava na store — um objeto truthy — então o
+            // `if (!itemObj)` nunca disparava e a linha renderizava sem nome
+            // nem ícone em vez de ser pulada.
+            const found =
+                item.type === 'task'
+                    ? allTasks?.find(task => task.id === item.id)
+                    : allHabits?.find(habit => habit.id === item.id);
 
-            if (item.type === 'task') {
-                itemObj = allTasks?.find(task => task.id === item.id);
-                itemObj = {
-                    ...itemObj,
-                    item
-                }
-            } else {
-                itemObj = allHabits?.find(habit => habit.id === item.id);
-                itemObj = {
-                    ...itemObj,
-                    item
-                }
-            }
+            if (!found) return null;
 
-            if (!itemObj) return null;
+            const itemObj: any = { ...found, item };
 
             let currentDate = new Date().toJSON().slice(0, 10);
             const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
