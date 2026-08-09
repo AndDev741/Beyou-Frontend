@@ -49,8 +49,8 @@ export default function TasksScreen() {
 
   const sortedTasks = useMemo(() => sortTasks(tasks, sortBy), [tasks, sortBy]);
 
-  // Só as categorias que ALGUM item usa: um filtro cheio de opções que não
-  // devolvem nada é ruído.
+  // Only the categories SOME item uses: a filter full of options that return
+  // nothing is noise.
   const categoriesInUse = useMemo(
     () => categories.filter((category) => tasks.some((item) => Object.keys(item.categories ?? {}).includes(category.id))),
     [categories, tasks],
@@ -99,8 +99,8 @@ export default function TasksScreen() {
     };
   }, [load]);
 
-  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
-  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  // Delete uses the system's own modal: the native Alert carries no theme, no
+  // typography and no item name, and brings the OS button order.
   const [deleteTarget, setDeleteTarget] = useState<task | null>(null);
   const [deleting, setDeleting] = useState(false);
 

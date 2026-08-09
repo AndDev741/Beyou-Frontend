@@ -44,9 +44,9 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
     const xpPct = nextLevelXp > 0 ? Math.min(100, Math.round((xp / nextLevelXp) * 100)) : 0;
 
     return(
-        // O cartão compacto do mockup com o chevron de expansão: fechado mostra
-        // ícone, nome, ações, descrição e a barra de XP; aberto revela onde a
-        // categoria é usada (hábitos, tarefas, metas).
+        // The mockup's compact card with the expand chevron: closed it shows icon,
+        // name, actions, description and the XP bar; open it reveals where the
+        // category is used (habits, tasks, goals).
         <Card interactive className="group flex h-full flex-col gap-2.5 break-words">
             <div className="flex items-center gap-2.5">
                 <IconTile size={34}>
@@ -66,7 +66,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                     </IconButton>
                 </div>
 
-                {/* O chevron fica sempre visível — é o que avisa que o cartão
+                {/* The chevron is always visible — it is what says the card
                     expande para mostrar onde a categoria é usada. */}
                 <IconButton
                     label={expanded ? t('Collapse') : t('Expand')}
@@ -101,7 +101,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                 )
             )}
 
-            {/* Categoria acumula o XP dos hábitos: nível e progresso, sem streak. */}
+            {/* A category accumulates its habits' XP: level and progress, no streak. */}
             <div className="mt-auto pt-1">
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
                     <div

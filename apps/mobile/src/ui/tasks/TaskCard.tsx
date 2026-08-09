@@ -18,11 +18,11 @@ interface TaskCardProps {
 }
 
 /**
- * Cartão de tarefa — espelho do `taskBox` da web.
+ * Task card — mirror of the web's `taskBox`.
  *
- * Não expande: importância e dificuldade já aparecem no cartão fechado, e
- * expandir só revelava editar/excluir. Essas duas sobem para o topo; na web
- * aparecem no hover, aqui ficam sempre visíveis (não há hover no toque).
+ * It does not expand: importance and difficulty already show on the closed card,
+ * and expanding only revealed edit/delete. Those two move up to the top; on the web
+ * they appear on hover, here they stay visible (there is no hover on touch).
  */
 export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   const { t } = useTranslation();
@@ -88,7 +88,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         </View>
       ) : null}
 
-      {/* Tarefa não tem nível: o rodapé do cartão são importância e dificuldade. */}
+      {/* A task has no level: the card's footer is importance and difficulty. */}
       <View className="mt-3 flex-row flex-wrap gap-1.5">
         <AttributeChip
           label={t('Importance')}

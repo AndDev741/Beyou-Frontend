@@ -1,17 +1,17 @@
 type XpBarProps = {
-    /** XP acumulado dentro do nível atual. */
+    /** XP accumulated inside the current level. */
     current: number;
-    /** XP necessário para o próximo nível. */
+    /** XP needed for the next level. */
     target: number;
     level?: number;
-    /** Esconde os números (uso em cartão compacto). */
+    /** Hides the numbers (for a compact card). */
     compact?: boolean;
     className?: string;
 };
 
-/** Barra de XP + chip de nível. Números sempre em mono tabular. */
+/** XP bar + level chip. Numbers always in tabular mono. */
 export default function XpBar({ current, target, level, compact = false, className = "" }: XpBarProps) {
-    // target 0 aconteceria num nível recém-criado e dividiria por zero.
+    // A target of 0 would happen on a freshly created level and divide by zero.
     const pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
     return (
         <div className={className}>

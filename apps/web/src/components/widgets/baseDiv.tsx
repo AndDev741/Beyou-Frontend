@@ -3,17 +3,17 @@ import { ReactNode } from "react"
 type baseDivProps = {
     title: string,
     children: ReactNode,
-    /** Ícone do cabeçalho (14.5px, em text-3). */
+    /** Header icon (14.5px, in text-3). */
     icon?: ReactNode,
-    /** Ação à direita do título (menu, atalho). */
+    /** Action right of the title (menu, shortcut). */
     action?: ReactNode,
     bigSize?: boolean
 }
 
 /**
- * A moldura de todo widget do rail: superfície, cabeçalho discreto com ícone e
- * o conteúdo abaixo. `bigSize` sobrou do layout antigo e hoje só afeta o
- * mobile, onde o carrossel dá largura cheia a todos.
+ * Every rail widget's frame: the surface, a quiet header with an icon, and the
+ * content below. `bigSize` is left over from the old layout and today only affects
+ * phones, where the carousel gives every widget the full width.
  */
 export default function BaseDiv({ title, children, icon, action }: baseDivProps) {
     return (

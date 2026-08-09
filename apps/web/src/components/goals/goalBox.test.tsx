@@ -51,11 +51,11 @@ describe("GoalBox", () => {
     );
 
     expect(screen.getByText("Test Goal")).toBeInTheDocument();
-    // O anel de porcentagem saiu do cartão; o que resta é o contador do
-    // stepper, que nunca pode virar NaN.
+    // The percentage ring left the card; what remains is the stepper's counter,
+    // which must never turn into NaN.
     expect(screen.getByText("0/0 pages")).toBeInTheDocument();
     expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
-    // Alvo 0 não é "alvo batido": Concluir não aparece.
+    // A target of 0 is not "target reached": Complete does not appear.
     expect(screen.queryByRole("button", { name: "Complete" })).toBeNull();
   });
 
@@ -78,7 +78,7 @@ describe("GoalBox", () => {
 
     renderWithProviders(<GoalBox {...baseProps} targetValue={10} currentValue={10} />);
     expect(screen.getByRole("button", { name: "Complete" })).toBeInTheDocument();
-    // Batido o alvo, o + sai de cena: o que resta a fazer é concluir.
+    // With the target hit the + steps aside: what is left to do is complete it.
     expect(screen.queryByRole("button", { name: "Increase" })).toBeNull();
   });
 
@@ -89,7 +89,7 @@ describe("GoalBox", () => {
 
     expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Complete" })).toBeNull();
-    // O cartão continua o mesmo: contador, XP e o selo de concluída no topo.
+    // The card stays the same: counter, XP and the done badge up top.
     expect(screen.getByText("10/10 pages")).toBeInTheDocument();
     expect(screen.getByText("+100 XP")).toBeInTheDocument();
     expect(screen.getByText("Completed")).toBeInTheDocument();

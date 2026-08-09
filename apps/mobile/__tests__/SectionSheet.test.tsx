@@ -1,6 +1,6 @@
 /**
- * A folha de seção no desenho do modal da web: nome, horários lado a lado,
- * ícone e — só na criação — a lista de seções favoritas para reaproveitar.
+ * The section sheet in the web modal's design: name, times side by side, icon
+ * and — creation only — the list of favourite sections to reuse.
  */
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
@@ -71,8 +71,8 @@ test('emits an edited section and blocks when name is empty', async () => {
   );
 });
 
-/** Copiar a favorita é o caminho rápido — com ids novos, senão a edição
- *  escreveria por cima da seção de origem. */
+/** Copying the favourite is the fast path — with fresh ids, or an edit would
+ *  write over the source section. */
 test('copies a favorite section with fresh ids', async () => {
   const onSave = jest.fn();
   const onClose = jest.fn();
@@ -92,7 +92,7 @@ test('copies a favorite section with fresh ids', async () => {
   expect(onClose).toHaveBeenCalled();
 });
 
-/** Editando, trocar a seção por outra não é "editar". */
+/** While editing, swapping the section for another is not "editing". */
 test('hides the favorites list while editing a section', async () => {
   await wrap(
     <SectionSheet

@@ -1,7 +1,7 @@
 /**
- * CategoryCard — o cartão compacto do mockup. Fechado mostra ícone, nome,
- * ações, descrição e a barra de XP; expandir revela onde a categoria é usada.
- * Editar e excluir moram no topo (na web aparecem no hover; aqui, sempre).
+ * CategoryCard — the mockup's compact card. Closed it shows icon, name, actions,
+ * description and the XP bar; expanding reveals where the category is used. Edit and
+ * delete live at the top (on the web they appear on hover; here, always).
  */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';
@@ -21,7 +21,7 @@ const category = {
 } as never;
 
 // Dentro de `act`: o provider de tema assenta depois do primeiro render, e um
-// update solto corromperia o próximo teste do arquivo (ver AGENTS.md).
+// a loose update would corrupt the next test in the file (see AGENTS.md).
 const wrap = async (node: React.ReactElement) => {
   await act(async () => {
     render(<BeyouThemeProvider>{node}</BeyouThemeProvider>);

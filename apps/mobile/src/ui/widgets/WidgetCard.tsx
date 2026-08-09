@@ -4,18 +4,19 @@ import Card from '../Card';
 
 interface WidgetCardProps {
   title: string;
-  /** Ícone do cabeçalho (14.5px, em text-3). */
+  /** Header icon (14.5px, in text-3). */
   icon?: ReactNode;
   children: ReactNode;
   testID?: string;
 }
 
 /**
- * A moldura de todo widget — espelho do `baseDiv` da web: superfície, cabeçalho
- * discreto com ícone à esquerda e o conteúdo abaixo.
+ * Every widget's frame — mirror of the web's `baseDiv`: the surface, a quiet header
+ * with the icon on the left, and the content below.
  *
- * O título era centralizado e grande; agora é a linha de 12.5px em `text-2` que
- * o resto do sistema usa para rótulo. O widget é o dado, não o título.
+ * The title used to be centred and large; now it is the 12.5px line in `text-2`
+ * that the rest of the system uses for a label. The widget is the data, not the
+ * title.
  */
 export default function WidgetCard({ title, icon, children, testID }: WidgetCardProps) {
   return (

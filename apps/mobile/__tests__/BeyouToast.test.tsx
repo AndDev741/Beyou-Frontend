@@ -1,7 +1,7 @@
 /**
- * NOTIFY — a casca é uma só: borda no tom, ícone (o da entidade quando vem),
- * título, subtítulo opcional, × e o cronômetro de 2px. As chamadas antigas de
- * uma linha herdam tudo isso porque a casca vive no config do <Toast />.
+ * NOTIFY — there is one shell: border in the tone, icon (the entity's when it
+ * comes), title, optional subtitle, × and the 2px timer. The older one-line calls
+ * inherit all of it because the shell lives in the <Toast /> config.
  */
 import { View } from 'react-native';
 import { Provider } from 'react-redux';
@@ -62,7 +62,7 @@ it('carries the tone on the left border', async () => {
 it('renders a plain one-line call without a subtitle', async () => {
   await renderToast('info', { text1: 'Salvo' });
 
-  // Só o título: uma chamada de uma linha não inventa segunda linha.
+  // Title only: a one-line call does not invent a second line.
   expect(screen.getByTestId('toast-title')).toBeTruthy();
   expect(screen.queryByTestId('toast-subtitle')).toBeNull();
 });

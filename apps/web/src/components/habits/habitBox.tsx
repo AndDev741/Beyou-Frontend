@@ -55,7 +55,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                 </IconTile>
                 <h2 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h2>
 
-                {/* Editar e excluir no topo, à esquerda do chevron: no desktop
+                {/* Edit and delete at the top, left of the chevron: on desktop
                     aparecem no hover (ou no foco por teclado); no telefone
                     ficam sempre visíveis. */}
                 <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
@@ -76,7 +76,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                 </IconButton>
             </div>
 
-            {/* A descrição fica no cartão em duas linhas — expandir só solta o clamp. */}
+            {/* The description sits on the card in two lines — expanding only releases the clamp. */}
             <p className={`text-sm leading-snug text-text-2 ${expanded ? "" : "line-clamp-2"}`}>{description}</p>
 
             {categories.length > 0 && (
@@ -111,7 +111,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                 <div className="flex flex-wrap gap-1.5">
                     {importancePhrase && (
                         <Chip size="sm" variant={attributeVariant(importance)}>
-                            {/* O rótulo vem junto: "Média" sozinho não diz se é
+                            {/* The label rides along: "Medium" alone does not say
                                 importância ou dificuldade. */}
                             <span className="font-normal opacity-70">{t('Importance')}</span>
                             <span aria-hidden="true" className="opacity-50">·</span>
@@ -135,10 +135,10 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                 </div>
             )}
 
-            {/* A linha que se lê de relance: nível, XP e streak. */}
+            {/* The row you read at a glance: level, XP and streak. */}
             <div className="mt-auto flex items-end gap-3 pt-1">
                 <XpBar className="min-w-0 flex-1" current={xp} target={nextLevelXp} level={level} />
-                {/* Sem sequência não há o que celebrar: uma chama apagada com
+                {/* With no streak there is nothing to celebrate: a dim flame with
                     zero ao lado lê como falha, não como estado neutro. */}
                 {constance > 0 && (
                     <Chip

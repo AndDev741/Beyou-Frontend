@@ -87,8 +87,8 @@ describe('HabitsScreen', () => {
 
 /**
  * Busca e filtros seguem o mesmo desenho da web: a busca ocupa a linha e os
- * dois selects descem para a de baixo. Sem resultado, o vazio é o ghost com
- * "limpar filtros" — não há o que criar ali.
+ * two selects drop to the line below. With no result, the empty state is the ghost
+ * with "clear filters" — there is nothing to create there.
  */
 describe('HabitsScreen search and filters', () => {
   const other = { ...habit, id: 'h2', name: 'Swim', description: 'pool' };
@@ -131,8 +131,8 @@ describe('HabitsScreen search and filters', () => {
       name: 'Study',
       categories: [{ id: 'c2', name: 'Mind', iconId: 'lucide:brain' }],
     };
-    // O filtro só lista categorias que ALGUM hábito usa, e ele as cruza com a
-    // slice de categorias — que precisa vir do endpoint.
+    // The filter only lists categories SOME habit uses, and it crosses them with
+    // the categories slice — which has to come from the endpoint.
     const categories = [
       { id: 'c1', name: 'Health', iconId: 'lucide:heart' },
       { id: 'c2', name: 'Mind', iconId: 'lucide:brain' },

@@ -28,7 +28,7 @@ interface RoutineItemProps {
   routineId: string;
   item: MergedItem;
   name: string;
-  /** Ícone salvo do hábito/tarefa — acompanha a notificação de conclusão. */
+  /** The habit/task's saved icon — rides along with the done notification. */
   iconId?: string;
   motivationalPhrase?: string;
   /** YYYY-MM-DD for "today" — matched against check.checkDate. */
@@ -123,7 +123,7 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         className="shrink-0 flex-row items-center"
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
-        {/* O anel do sistema, não um quadradinho: check-in, nível e a marca são
+        {/* The system ring, not a little box: check-in, level and the brand are
             a MESMA peça (ver Ring). Um checkbox de plataforma quebrava isso. */}
         <Ring size={26} state={checked ? 'done' : skipped ? 'skipped' : 'todo'} />
       </Pressable>
@@ -135,8 +135,8 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
       ) : null}
 
       {/* A linha quebra em duas: metadados em cima, nome embaixo em largura
-          cheia. Numa linha só, nome + XP + hora + pular não cabem em 390px e a
-          coluna da direita saía da tela. `column-reverse` inverte só o VISUAL —
+          width. On one line, name + XP + time + skip do not fit in 390px and the
+          right-hand column ran off screen. `column-reverse` flips only the VISUAL —
           o nome continua vindo antes na árvore, que é o que o leitor de tela lê. */}
       <View className="min-w-0 flex-1 gap-1" style={{ flexDirection: 'column-reverse' }}>
         <Text
@@ -149,7 +149,7 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         </Text>
 
         <View className="flex-row items-center gap-1.5">
-          {/* O XP fica NA LINHA depois de concluído (o XpFloat só marca o
+          {/* The XP stays ON THE ROW once done (XpFloat only marks the
               instante do check e some). Vem do próprio check, então sobrevive ao
               reload e mostra o valor real, já com decaimento aplicado. */}
           {xpEarned > 0 ? (

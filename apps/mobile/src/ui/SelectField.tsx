@@ -19,9 +19,9 @@ interface SelectFieldProps {
 }
 
 /**
- * O `<select>` da web, em RN: um controle com a mesma casca dos inputs, que
- * abre uma sheet de opções. Não existe select nativo estilizável no RN, e uma
- * lista rolável é mais confortável que um picker de roda numa lista longa.
+ * The web's `<select>`, in RN: a control with the same shell as the inputs that
+ * opens a sheet of options. RN has no stylable native select, and a scrollable list
+ * is more comfortable than a wheel picker on a long list.
  */
 export default function SelectField({
   label,
@@ -55,8 +55,8 @@ export default function SelectField({
         <Text accessibilityRole="header" className="mb-2 text-[15px] font-semibold text-text">
           {label}
         </Text>
-        {/* Encolhe, não cresce: com o `flexGrow: 1` que o ScrollView traz de
-            fábrica, a folha esticava até o teto mesmo com quatro opções e
+        {/* Shrinks, does not grow: with the `flexGrow: 1` a ScrollView brings by
+            default, the sheet stretched to the cap even with four options and
             sobrava um vão branco embaixo da última. */}
         <ScrollView style={{ flexGrow: 0, flexShrink: 1 }}>
           {options.map((option) => {

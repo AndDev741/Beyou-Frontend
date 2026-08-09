@@ -15,9 +15,9 @@ import type { AppDispatch, RootState } from '../store';
 interface CheckOpts {
   wasChecked: boolean;
   motivationalPhrase?: string;
-  /** Nome do item concluído — vira o título da notificação. */
+  /** The completed item's name — becomes the notification title. */
   name?: string;
-  /** Ícone do próprio hábito/tarefa, em vez de um check genérico. */
+  /** The habit/task's own icon, instead of a generic check. */
   icon?: ReactNode;
 }
 
@@ -47,8 +47,8 @@ export function useRoutineCheckin() {
       if (res.success) {
         apply(res.success);
         if (!opts.wasChecked) {
-          // A frase motivacional vira o subtítulo, com o ícone do próprio
-          // item: um check verde genérico não diz o que foi concluído.
+          // The motivational phrase becomes the subtitle, with the item's own
+          // icon: a generic green check does not say what got done.
           notify.success(opts.name || t('Item completed'), {
             subtitle: opts.motivationalPhrase,
             icon: opts.icon,

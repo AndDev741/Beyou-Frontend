@@ -16,7 +16,7 @@ export interface AreaWidgetProps {
 interface InnerProps extends AreaWidgetProps {
   title: string;
   icon: ReactNode;
-  /** Melhor área usa o verde de sucesso; pior, a chama. */
+  /** The best area uses the success green; the worst, the flame. */
   variant: 'better' | 'worst';
   testID: string;
 }
@@ -35,11 +35,11 @@ const categoryExample: category = {
 };
 
 /**
- * Corpo comum dos widgets de melhor/pior área: ícone em tile, nome, a linha de
- * nível e XP em mono, e a barra do nível.
+ * The shared body of the best/worst area widgets: the icon in a tile, the name, the
+ * level and XP line in mono, and the level bar.
  *
- * O mockup traz barras da semana aqui, mas a API não devolve XP por categoria
- * por dia — o cartão mostra o que existe em vez de inventar série. Igual à web.
+ * The mockup shows a week of bars here, but the API returns no per-category daily
+ * XP — the card shows what exists instead of inventing a series. Same as the web.
  */
 function AreaWidget({ category, title, icon, variant, testID }: InnerProps) {
   const { theme } = useBeyouTheme();

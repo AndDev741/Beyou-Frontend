@@ -46,13 +46,13 @@ test("hides a horizon when its chip is toggled off, and remembers the choice", (
     const store = storeWith([goal("a", inDays(1))]);
     const { unmount } = renderWithProviders(<GoalsHorizon />, { storeOverride: store });
 
-    // Em que horizonte "amanhã" cai depende do dia da semana, então o teste
-    // desliga o chip ligado que existir em vez de fixar o rótulo. Os chips são
-    // os únicos botões com aria-pressed (o dropdown do mobile usa aria-expanded).
+    // Which horizon "tomorrow" falls into depends on the weekday, so the test turns
+    // off whichever chip is on instead of pinning the label. The chips are the only
+    // buttons with aria-pressed (the phone dropdown uses aria-expanded).
     fireEvent.click(screen.getAllByRole("button", { pressed: true })[0]);
     expect(screen.queryByText("Goal a")).not.toBeInTheDocument();
 
-    // A escolha sobrevive à remontagem: quem só olha a semana não refiltra todo dia.
+    // The choice survives a remount: someone watching only the week does not refilter daily.
     unmount();
     renderWithProviders(<GoalsHorizon />, { storeOverride: store });
     expect(screen.queryByText("Goal a")).not.toBeInTheDocument();
@@ -67,7 +67,7 @@ test("marks a goal that reached its target so it stands out from the rest", () =
     renderWithProviders(<GoalsHorizon />, {
         storeOverride: storeWith([goal("done", inDays(1), 10, 10)]),
     });
-    // O XP prometido só aparece quando o alvo foi batido.
+    // The promised XP only shows once the target has been hit.
     expect(screen.getByText("+40")).toBeInTheDocument();
 });
 

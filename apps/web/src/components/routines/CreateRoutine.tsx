@@ -11,12 +11,12 @@ type createRoutineProps = {
 };
 
 /**
- * O formulário abre direto na rotina diária.
+ * The form opens straight on the daily routine.
  *
- * Antes havia uma bifurcação com duas ilustrações ("quer uma rotina diária ou
- * de lista?") em que a segunda opção nem existe — um passo a mais para chegar
- * na única escolha possível. O tipo agora é um campo do próprio formulário,
- * com "em lista" desabilitado e visível.
+ * There used to be a fork with two illustrations ("do you want a daily or a list
+ * routine?") where the second option does not even exist — one more step to reach
+ * the only possible choice. The type is now a field in the form itself, with "list"
+ * visible and disabled.
  */
 const CreateRoutine = ({
     setRoutineType,

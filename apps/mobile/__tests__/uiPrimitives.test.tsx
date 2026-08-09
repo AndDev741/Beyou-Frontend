@@ -13,9 +13,9 @@ describe('Ring', () => {
   it('renders the done state with the check and a full arc', async () => {
     const { getByTestId } = await wrap(<Ring state="done" progress={0.2} testID="ring" />);
     expect(getByTestId('ring')).toBeTruthy();
-    // Mesmo traçado do BrandMark — se divergir, a assinatura da marca quebra.
+    // Same path as BrandMark — if it drifts, the brand signature breaks.
     expect(getByTestId('ring-check').props.d).toBe('M22 33l7 7 14-14');
-    // Arco cheio (offset 0, que o react-native-svg normaliza para null) prova
+    // A full arc (offset 0, which react-native-svg normalises to null) proves
     // que "done" ignora o `progress` recebido.
     expect(getByTestId('ring-arc').props.strokeDashoffset ?? 0).toBe(0);
   });
@@ -59,8 +59,8 @@ describe('SegmentedControl', () => {
       />,
     );
 
-    // O provider de tema reassenta depois do toque; sem o act a atualização
-    // vaza para o próximo teste do arquivo.
+    // The theme provider settles after the tap; without the act the update leaks
+    // into the next test in the file.
     await act(async () => {
       fireEvent.press(getByTestId('seg-3'));
     });

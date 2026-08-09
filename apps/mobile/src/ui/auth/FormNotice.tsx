@@ -13,12 +13,12 @@ interface FormNoticeProps {
 }
 
 /**
- * A resposta de um formulário de autenticação — espelho do `FormNotice` da web:
- * ícone do tom, título opcional e a mensagem em duas linhas de 12,5px.
+ * An auth form's answer — mirror of the web's `FormNotice`: the tone's icon, an
+ * optional title and the message in two lines of 12.5px.
  *
- * Antes cada tela nativa desenhava seu próprio bloco: uma caixa de borda dupla
- * no registro, um ícone de 48px centralizado na recuperação, um parágrafo solto
- * no login. Mesmo aviso, três formas.
+ * Every native screen used to draw its own block: a double-bordered box on
+ * register, a centred 48px icon on recovery, a loose paragraph on login. Same
+ * notice, three shapes.
  */
 export default function FormNotice({ tone, title, message, testID }: FormNoticeProps) {
   const { theme } = useBeyouTheme();

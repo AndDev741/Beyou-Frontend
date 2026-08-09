@@ -1,7 +1,7 @@
 /**
- * DashboardGoals — espelho do GoalsHorizon da web no telefone: cartões
- * compactos agrupados por horizonte, com o filtro atrás de um resumo. Nada
- * quando não há metas.
+ * DashboardGoals — mirror of the web's GoalsHorizon at phone width: compact cards
+ * grouped by horizon, with the filter behind a summary. Nothing at all when there
+ * are no goals.
  */
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
 const mockPush = jest.fn();
@@ -43,7 +43,7 @@ test('shows the compact card with progress and the short deadline', async () => 
   expect(screen.getByTestId('dash-goal-g1')).toBeTruthy();
   expect(screen.getByText('Read books')).toBeTruthy();
   expect(screen.getByText('3/10 books')).toBeTruthy();
-  // O prazo curto, não o período inteiro: "until <dia>".
+  // The short deadline, not the whole period: "until <day>".
   expect(screen.getByText(/until/i)).toBeTruthy();
 });
 

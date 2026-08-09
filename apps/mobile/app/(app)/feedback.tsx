@@ -26,7 +26,7 @@ import { CAPTURE_FILE_NAME, CAPTURE_MIME_TYPE } from '../../src/ui/feedback/capt
 import type { FeedbackImage } from '../../src/ui/feedback/feedbackAttachments';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 
-/** O ícone só aparece na opção escolhida — reforça a escolha sem virar ruído. */
+/** The icon shows only on the chosen option — it backs the choice without noise. */
 const CATEGORY_ICONS = {
   BUG: Bug,
   FEATURE_REQUEST: Lightbulb,
@@ -174,7 +174,7 @@ export default function FeedbackScreen() {
           </View>
         ) : null}
 
-        {/* O formulário inteiro num cartão: assunto, texto e anexos são uma
+        {/* The whole form in one card: subject, text and attachments are one
             coisa só, e a borda diz onde ela começa e termina. */}
         <View className="gap-4 rounded-card border border-border bg-surface p-4">
           <Controller
@@ -182,7 +182,7 @@ export default function FeedbackScreen() {
             name="category"
             render={({ field }) => (
               <FormField label={t('FeedbackCategoryLabel')} error={errors.category?.message}>
-                {/* Segmentado, como o resto dos formulários: as três opções são
+                {/* Segmented, like the rest of the forms: the three options are
                     exclusivas e cabem numa linha, inclusive no telefone. */}
                 <View className="flex-row rounded-control border border-border bg-surface-2 p-[3px]">
                   {CATEGORY_ORDER.map((category) => {
@@ -249,7 +249,7 @@ export default function FeedbackScreen() {
           />
         </View>
 
-        {/* O e-mail é uma alternativa permanente, não só a saída de falha —
+        {/* Email is a standing alternative, not just the failure hatch —
             uma linha só, abaixo do cartão. */}
         <View className="flex-row flex-wrap items-center gap-1.5">
           <Text className="text-[12.5px] text-text-3">{t('FeedbackEmailPreference')}</Text>

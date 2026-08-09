@@ -1,7 +1,7 @@
 /**
- * TaskCard — espelho do taskBox da web. A tarefa NÃO expande: importância e
- * dificuldade já ficam no cartão, e editar/excluir moram no topo (na web
- * aparecem no hover; aqui, sempre).
+ * TaskCard — mirror of the web's taskBox. A task does NOT expand: importance and
+ * difficulty already sit on the card, and edit/delete live at the top (on the web
+ * they appear on hover; here, always).
  */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';
@@ -21,7 +21,7 @@ const task = {
 } as never;
 
 // Dentro de `act`: o provider de tema assenta depois do primeiro render, e um
-// update solto corromperia o próximo teste do arquivo (ver AGENTS.md).
+// a loose update would corrupt the next test in the file (see AGENTS.md).
 const wrap = async (node: React.ReactElement) => {
   await act(async () => {
     render(<BeyouThemeProvider>{node}</BeyouThemeProvider>);
@@ -35,7 +35,7 @@ describe('TaskCard', () => {
     expect(screen.getByText('One Time Task')).toBeTruthy();
     expect(screen.getByText('And Marked to Delete')).toBeTruthy();
     expect(screen.getByText('Health')).toBeTruthy();
-    // O rótulo acompanha o valor: "Média" sozinho não diz de que escala é.
+    // The label rides with the value: "Medium" alone does not say which scale.
     expect(screen.getByText('Importance')).toBeTruthy();
     expect(screen.getByText('High')).toBeTruthy();
     expect(screen.getByText('Difficulty')).toBeTruthy();

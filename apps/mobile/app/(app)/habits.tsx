@@ -59,8 +59,8 @@ export default function HabitsScreen() {
 
   const sortedHabits = useMemo(() => sortHabits(habits, sortBy), [habits, sortBy]);
 
-  // Só as categorias que ALGUM hábito usa: um filtro cheio de opções que não
-  // devolvem nada é ruído.
+  // Only the categories SOME habit uses: a filter full of options that return
+  // nothing is noise.
   const categoriesInUse = useMemo(
     () => categories.filter((category) => habits.some((h) => h.categories?.some((c) => c.id === category.id))),
     [categories, habits],
@@ -109,8 +109,8 @@ export default function HabitsScreen() {
     };
   }, [load]);
 
-  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
-  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  // Delete uses the system's own modal: the native Alert carries no theme, no
+  // typography and no item name, and brings the OS button order.
   const [deleteTarget, setDeleteTarget] = useState<habit | null>(null);
   const [deleting, setDeleting] = useState(false);
 

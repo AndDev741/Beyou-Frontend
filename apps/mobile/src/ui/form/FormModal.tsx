@@ -13,19 +13,20 @@ interface FormModalProps {
   children: ReactNode;
   onClose: () => void;
   onSubmit: () => void;
-  /** Rótulo do botão primário ("Salvar hábito"). */
+  /** The primary button's label ("Save habit"). */
   submitLabel: string;
   submitting?: boolean;
   testID?: string;
 }
 
 /**
- * A casca dos formulários, no desenho da web: cabeçalho com título e ×, corpo
- * rolável e o rodapé com Cancelar (ghost) antes de Salvar (primário), à
- * direita.
+ * The forms' shell, in the web's design: a header with the title and ×, a
+ * scrollable body, and the footer with Cancel (ghost) before Save (primary), on the
+ * right.
  *
- * Antes cada formulário trazia a sua: Cancelar como texto no cabeçalho e um
- * botão único centrado no fim do scroll — longe do polegar e sem par.
+ * Every form used to bring its own: Cancel as text in the header and a single
+ * centred button at the end of the scroll — far from the thumb and without a
+ * pair.
  */
 export default function FormModal({
   visible,

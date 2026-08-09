@@ -34,8 +34,8 @@ import { useDismissed } from "../../hooks/useDismissed";
 
 function Dashboard() {
     useAuthGuard();
-    // Sem widgets a coluna vira um convite; quem não quiser fecha e ele não
-    // volta — a configuração continua a um clique no menu.
+    // With no widgets the column becomes an invitation; whoever does not want it
+    // closes it and it stays closed — configuration is still one click away.
     const [widgetsInviteDismissed, dismissWidgetsInvite] = useDismissed("widgets-invite");
     const dispatch = useDispatch();
     const { t } = useTranslation();
@@ -203,8 +203,8 @@ function Dashboard() {
                 </div>
             ) : (
             <>
-            {/* Duas colunas como no mockup: a principal (saudação, rotina) e o
-                rail dos widgets, que começa no topo e desce por toda a altura
+            {/* Two columns as in the mockup: the main one (greeting, routine) and
+                the widget rail, which starts at the top and runs the full height
                 da direita. */}
             <div className="w-full lg:flex lg:items-start lg:gap-6">
                 <div className="min-w-0 flex-1 px-3 py-5 lg:px-7 lg:py-6">
@@ -284,7 +284,7 @@ function Dashboard() {
             </div>
 
             {/* Metas fecham a tela em largura total, abaixo da rotina e do rail:
-                são o porquê dos checks do dia e estavam escondidas numa faixa
+                are the why behind the day's checks, and they were hidden in a
                 estreita. */}
             <div className="px-3 pb-6 lg:px-7">
                 <GoalsHorizon />

@@ -74,9 +74,9 @@ test("each pick lands in the tray with the next free slot, and confirming commit
     fireEvent.click(screen.getByRole("checkbox", { name: /drink water/i }));
     fireEvent.click(screen.getByRole("checkbox", { name: /stretch/i }));
 
-    // Nada foi para a seção ainda — a bandeja é que segura.
+    // Nothing has reached the section yet — the tray is holding it.
     expect(read()[0].habitGroup).toEqual([]);
-    // O botão conta o que está na bandeja.
+    // The button counts what is in the tray.
     fireEvent.click(screen.getByRole("button", { name: "Add 2" }));
 
     expect(read()[0].habitGroup).toEqual([
@@ -97,8 +97,8 @@ test("the time can be fixed in the tray before it reaches the section", () => {
     ]);
 });
 
-/** O que já está na seção abre na bandeja: dá para corrigir o horário antigo
- *  na mesma passada, em vez de fechar e reabrir pela lista da seção. */
+/** What the section already holds opens in the tray: an old time can be fixed in
+ *  the same pass, instead of closing and reopening through the section list. */
 test("what the section already has opens in the tray", () => {
     const section = buildSection();
     section.habitGroup = [{ id: "g1", habitId: "h1", startTime: "08:00", endTime: "08:10" } as any];
@@ -118,7 +118,7 @@ test("what is already in the tray cannot be picked twice", () => {
     setup(section);
 
     expect(screen.getByRole("checkbox", { name: /drink water/i })).toBeDisabled();
-    // O i18n de teste devolve a chave crua, sem interpolar o nome da seção.
+    // The test i18n returns the raw key, without interpolating the section name.
     expect(screen.getByText("AlreadyInSection")).toBeInTheDocument();
 });
 

@@ -53,8 +53,8 @@ async function renderWith(store: ReturnType<typeof makeStore>) {
     </Provider>,
   );
 
-  // O carrossel dimensiona os slides pela largura medida, e o jest não calcula
-  // layout — sem este evento ele só renderiza o primeiro widget.
+  // The carousel sizes its slides from the measured width, and jest computes no
+  // layout — without this event it renders only the first widget.
   const track = screen.queryByTestId('dashboard-widgets');
   if (track) {
     await act(async () => {
@@ -90,7 +90,7 @@ describe('DashboardWidgets', () => {
     expect(screen.queryByTestId('dashboard-widgets')).toBeNull();
   });
 
-  /** O convite é dispensável: fechado, some e não volta. */
+  /** The invitation is dismissible: closed, it goes and stays gone. */
   it('hides the invite for good once dismissed', async () => {
     const store = makeStore();
     store.dispatch(widgetsIdInUseEnter([]));
@@ -115,7 +115,7 @@ describe('DashboardWidgets', () => {
     expect(screen.getByText('2 of 5')).toBeTruthy();
   });
 
-  /** Mais de um widget: o carrossel mostra os pontos de página. */
+  /** More than one widget: the carousel shows its page dots. */
   it('shows page dots with more than one widget', async () => {
     const store = makeStore();
     store.dispatch(widgetsIdInUseEnter(['constance', 'levelProgress']));
