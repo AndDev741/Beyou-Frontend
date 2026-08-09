@@ -1,4 +1,5 @@
 import type { goal } from '@beyou/types/goals/goalType';
+import { parseLocalDate } from '../date/parseLocalDate';
 
 export type SortedGoals = {
   past: goal[];
@@ -40,8 +41,10 @@ export function sortGoalsByTime(goals: goal[]): SortedGoals {
   const sorted: SortedGoals = { past: [], thisWeek: [], thisMonth: [], thisYear: [], beyond: [] };
 
   for (const g of goals) {
-    const end = g.endDate instanceof Date ? g.endDate : new Date(g.endDate);
-    if (Number.isNaN(end.getTime())) continue;
+    // Local parse: a UTC-parsed `yyyy-MM-dd` lands a day early west of UTC, and
+    // a goal due on Monday fell into `past` — a bucket no horizon renders.
+    const end = parseLocalDate(g.endDate);
+    if (!end) continue;
     if (end < weekStart) sorted.past.push(g);
     else if (end <= weekEnd) sorted.thisWeek.push(g);
     else if (end <= monthEnd) sorted.thisMonth.push(g);

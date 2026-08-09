@@ -9,6 +9,7 @@ import Ring from "../../ui/Ring";
 import { formatTimeRange, getSectionStats, getRoutineStats } from "./routineMetrics";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
+import { parseLocalDate } from "@beyou/state";
 
 
 type ItemLookup = Record<string, { name?: string; iconId?: string }>;
@@ -263,10 +264,7 @@ export const RoutineCard = ({
     );
 };
 
-const formatDate = (date: string) => {
-    if (!date) return "";
-    return new Date(date).toLocaleDateString();
-};
+const formatDate = (date: string) => parseLocalDate(date)?.toLocaleDateString() ?? "";
 
 type SectionRowProps = {
     section: RoutineSection;

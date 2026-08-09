@@ -29,9 +29,16 @@ function AgentWidget() {
         setOpen(true);
     };
 
-    // O botão central da barra inferior é o gatilho do mobile; ele pede a
-    // abertura por evento porque o estado vive aqui.
-    useEffect(() => onAgentPanelOpen(openPanel), []);
+    // The bottom bar's centre button is the phone trigger; it asks for the
+    // panel through an event because the state lives here.
+    //
+    // The subscription is gated on the tutorial too, not just the render: a tap
+    // during onboarding used to set `open` silently, and the chat popped by
+    // itself the moment the tutorial finished. Mirrors the native widget.
+    useEffect(() => {
+        if (!isTutorialCompleted) return;
+        return onAgentPanelOpen(openPanel);
+    }, [isTutorialCompleted]);
 
     // Hidden until onboarding finishes: the tutorial (manual or AI) should own
     // the user's attention, and the AI wizard already covers assisted setup.

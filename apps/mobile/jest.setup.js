@@ -102,3 +102,7 @@ jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(() => Promise.resolve()),
   hideAsync: jest.fn(() => Promise.resolve()),
 }));
+
+// `expo-status-bar` reaches for the native module on import; the theme provider
+// renders it so every mounted test would hit it.
+jest.mock('expo-status-bar', () => ({ StatusBar: () => null }));

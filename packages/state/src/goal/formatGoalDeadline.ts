@@ -1,21 +1,23 @@
 /**
- * O prazo de uma meta, na forma curta que o cartão usa — e com o ANO na frente
- * quando ele não é o ano corrente.
+ * A goal's deadline in the short form the card uses — with the YEAR in front
+ * when it is not the current one.
  *
- * Sem o ano, "até Jul 24" numa meta de 2027 se lê como julho deste ano: a
- * pessoa acha que faltam semanas quando faltam anos. Só aparece quando difere,
- * porque repetir o ano atual em toda meta é ruído.
+ * Without the year, "by Jul 24" on a 2027 goal reads as this July: weeks away
+ * instead of years. It only shows when it differs, because repeating the
+ * current year on every goal is noise.
  *
- * Vive no pacote compartilhado porque web e mobile mostram o mesmo prazo nos
- * mesmos dois lugares (o bloco do dashboard e o cartão da página de metas), e
- * duas cópias divergiriam na primeira mudança.
+ * Lives in the shared package because web and mobile show the same deadline in
+ * the same two places (the dashboard block and the goals page card), and two
+ * copies would drift on the first change.
  */
+import { parseLocalDate } from '../date/parseLocalDate';
+
 export type DeadlineShape =
-    /** Só o dia da semana: "sáb". Para metas que vencem nesta semana. */
+    /** Weekday only: "Sat". For goals due this week. */
     | 'weekday'
-    /** Dia e mês: "24 de jul". */
+    /** Day and month: "Jul 24". */
     | 'dayMonth'
-    /** Só o mês: "jul". Para horizontes longos. */
+    /** Month only: "Jul". For long horizons. */
     | 'month';
 
 const FORMATS: Record<DeadlineShape, Intl.DateTimeFormatOptions> = {
@@ -28,12 +30,12 @@ export function formatGoalDeadline(
     value: Date | string | undefined | null,
     locale: string,
     shape: DeadlineShape = 'dayMonth',
-    /** Injetável para teste; por padrão, agora. */
+    /** Injectable for tests; defaults to now. */
     now: Date = new Date(),
 ): string {
-    if (!value) return '';
-    const end = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(end.getTime())) return '';
+    // Date-only strings must be read in the local timezone — see parseLocalDate.
+    const end = parseLocalDate(value);
+    if (!end) return '';
 
     const label = new Intl.DateTimeFormat(locale, FORMATS[shape]).format(end);
     const year = end.getFullYear();

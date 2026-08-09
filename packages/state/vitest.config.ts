@@ -10,6 +10,10 @@ export default defineConfig({
     // Match the web app's vitest convention so future mock-based slice tests
     // get a clean mock state between cases.
     mockReset: true,
+    // Date assertions here are written to hold in ANY timezone — `env.TZ` does
+    // not reach the worker's `Date` (Node reads TZ at process start), so pinning
+    // it in config buys nothing. The invariant is the guard instead: a date-only
+    // string must keep its calendar day, which a UTC parse breaks west of UTC.
   },
   resolve: {
     alias: {

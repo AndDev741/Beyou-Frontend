@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { View, useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { vars } from 'nativewind';
 import {
   buildTheme,
@@ -59,6 +60,10 @@ export function BeyouThemeProvider({
 
   return (
     <Ctx.Provider value={value}>
+      {/* The status bar follows the resolved base. Nothing styled it before, so
+          on a light theme the clock, wifi and battery stayed white on #F5F7FA —
+          invisible. It lives here because this is where the base is known. */}
+      <StatusBar style={theme.base === 'dark' ? 'light' : 'dark'} />
       <View style={[{ flex: 1 }, style]}>{children}</View>
     </Ctx.Provider>
   );

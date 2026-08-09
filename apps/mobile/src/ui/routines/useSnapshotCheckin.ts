@@ -18,7 +18,15 @@ export function useSnapshotCheckin(routineId: string) {
   const after = useCallback(
     async (refresh: RefreshUI, snapshot: Snapshot) => {
       const prev = store.getState().perfil;
-      applyRefreshUi(refresh, dispatch, { level: prev.level, constance: prev.constance });
+      // A past day never celebrates: the overlay would fire out of context, on
+      // the dashboard, minutes after the check. The web already passes this and
+      // the invariant is shared.
+      applyRefreshUi(
+        refresh,
+        dispatch,
+        { level: prev.level, constance: prev.constance },
+        { skipCelebrations: true },
+      );
       const res = await getSnapshot(routineId, snapshot.snapshotDate, t);
       if (res.success) dispatch(enterSnapshot(res.success));
     },

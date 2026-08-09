@@ -62,6 +62,7 @@ export { defaultErrorEnter } from './errorHandler/errorHandlerSlice';
 // goals
 export { enterGoals, updateGoal } from './goal/goalsSlice';
 export { sortGoalsByTime } from './goal/sortGoalsByTime';
+export { parseLocalDate } from './date/parseLocalDate';
 export { formatGoalDeadline } from './goal/formatGoalDeadline';
 export type { DeadlineShape } from './goal/formatGoalDeadline';
 export type { SortedGoals } from './goal/sortGoalsByTime';

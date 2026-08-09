@@ -16,6 +16,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import BrandMark from "../brand/BrandMark";
+import { resolvePhotoUrl } from "../../services/photoUrl";
 
 type Item = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
 
@@ -52,9 +53,16 @@ const STORAGE_KEY = "beyou-sidebar-collapsed";
 export default function Sidebar() {
     const { t } = useTranslation();
     const perfil = useSelector((state: RootState) => state.perfil);
-    const [collapsed, setCollapsed] = useState(
-        () => localStorage.getItem(STORAGE_KEY) === "true",
-    );
+    // Guarded like every sibling write: a browser with storage blocked throws
+    // SecurityError here, and an unguarded read in the initializer takes down
+    // every authenticated page through the error boundary.
+    const [collapsed, setCollapsed] = useState(() => {
+        try {
+            return localStorage.getItem(STORAGE_KEY) === "true";
+        } catch {
+            return false;
+        }
+    });
 
     const toggle = () => {
         setCollapsed((prev) => {
@@ -144,7 +152,7 @@ export default function Sidebar() {
                 >
                     {perfil.photo ? (
                         <img
-                            src={perfil.photo}
+                            src={resolvePhotoUrl(perfil.photo)}
                             alt=""
                             className="h-8 w-8 shrink-0 rounded-full object-cover"
                         />

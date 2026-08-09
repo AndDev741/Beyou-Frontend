@@ -12,12 +12,15 @@ const fromMinutes = (minutes: number) => {
 };
 
 /**
- * Horários sugeridos em sequência dentro da janela da seção.
+ * Times suggested in sequence inside the section's window.
  *
- * O formulário antigo pedia início e fim ANTES de escolher o item, e só deixava
- * adicionar um por vez. Aqui a seção já define a janela: os itens escolhidos
- * dividem o que sobra dela, em ordem, e cada linha continua editável depois —
- * é mais rápido corrigir um horário sugerido do que digitar dois do zero.
+ * The old form asked for start and end BEFORE picking the item, one at a time.
+ * The section already defines the window: picked items split what is left of
+ * it, in order, and every row stays editable afterwards — correcting a
+ * suggested time beats typing two from scratch.
+ *
+ * Returns `[]` when there is no room left, so callers fall back to empty times
+ * instead of an inverted range.
  */
 export function suggestSlots(
     section: RoutineSection,
@@ -31,7 +34,7 @@ export function suggestSlots(
         ? toMinutes(section.endTime) + (overnight ? 1440 : 0)
         : undefined;
 
-    // Retoma de onde os itens já existentes pararam.
+    // Resume where the items already in the section stopped.
     const existingEnds = [...(section.habitGroup ?? []), ...(section.taskGroup ?? [])].map((item) => {
         const end = item.endTime || item.startTime;
         if (!end) return sectionStart;
@@ -40,13 +43,18 @@ export function suggestSlots(
     });
     const cursor = existingEnds.length > 0 ? Math.max(sectionStart, ...existingEnds) : sectionStart;
 
-    // Sem hora de término na seção, cada item ganha 15 minutos em fila.
+    // The window is already full: an item that runs past the section end left
+    // no room. Only `end` used to be clamped, so the cursor could sit beyond
+    // `sectionEnd` and the suggestion came out backwards — 09:10 to 09:00.
+    if (sectionEnd !== undefined && cursor >= sectionEnd) return [];
+
+    // With no section end, each item gets 15 minutes in a queue.
     const DEFAULT_SLOT = 15;
     const remaining = sectionEnd !== undefined ? Math.max(sectionEnd - cursor, 0) : undefined;
-    // Dividir o que sobra só faz sentido quando se sabe QUANTOS itens entram
-    // juntos. Pedindo um de cada vez (é assim que as duas telas escolhem hoje),
-    // dividir por 1 daria a janela inteira ao primeiro e sobraria zero para o
-    // próximo — então o item avulso leva a fatia padrão, no teto do que resta.
+    // Splitting what is left only makes sense when you know HOW MANY items come
+    // in together. Picked one at a time (which is how both screens work today),
+    // dividing by 1 would hand the whole window to the first and leave zero for
+    // the next — so a lone item takes the default slice, capped by what remains.
     const slot =
         remaining === undefined
             ? DEFAULT_SLOT

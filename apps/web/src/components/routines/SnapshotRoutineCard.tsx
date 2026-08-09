@@ -11,6 +11,7 @@ import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
 import Ring from "../../ui/Ring";
 import { formatTimeRange } from "./routineMetrics";
+import { parseLocalDate } from "@beyou/state";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 
@@ -91,7 +92,7 @@ export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCard
                     {snapshot.routineName}
                 </b>
                 <span className="shrink-0 font-mono text-[11.5px] text-text-3">
-                    {new Date(snapshot.snapshotDate).toLocaleDateString()}
+                    {parseLocalDate(snapshot.snapshotDate)?.toLocaleDateString() ?? ""}
                 </span>
             </div>
 

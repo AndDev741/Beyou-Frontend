@@ -58,7 +58,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
         reset,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<HabitFormValues>({
         resolver: zodResolver(habitCreateSchema(t)),
         mode: "onBlur",
@@ -294,7 +294,16 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
 
                 <div className="mt-[18px] flex justify-end gap-2">
                     <Button text={t("Cancel")} mode="ghost" size="medium" type="button" onClick={closeAndReset} />
-                    <Button text={t("Save habit")} mode="primary" size="medium" type="submit" />
+                    {/* Same double-submit guard the main forms carry: without it a second
+                        click creates a twin, and the create-then-find-by-name lookup
+                        adds that twin to the section. */}
+                    <Button
+                        text={t("Save habit")}
+                        mode="primary"
+                        size="medium"
+                        type="submit"
+                        disabled={isSubmitting}
+                    />
                 </div>
             </form>
         </Modal>
