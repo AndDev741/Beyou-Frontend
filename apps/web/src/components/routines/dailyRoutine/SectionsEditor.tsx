@@ -12,18 +12,18 @@ type SectionsEditorProps = {
     onEditSection: (index: number) => void;
     onDeleteSection: (index: number) => void;
     onAddSection: () => void;
-    /** Âncora do tutorial no botão de nova seção. */
+    /** Tutorial anchor on the new-section button. */
     addTutorialId?: string;
-    /** Âncora do tutorial na primeira seção da lista. */
+    /** Tutorial anchor on the first section in the list. */
     firstItemTutorialId?: string;
 };
 
 /**
- * A lista de seções do formulário de rotina, compartilhada por criar e editar —
- * os dois mantinham a mesma árvore de drag-and-drop copiada.
+ * The routine form's section list, shared by create and edit — the two kept the
+ * same copied drag-and-drop tree.
  *
- * O que muda de verdade entre eles é o estado do react-hook-form, que continua
- * em cada um; aqui mora só a apresentação.
+ * What actually differs between them is the react-hook-form state, which stays in
+ * each; only the presentation lives here.
  */
 export default function SectionsEditor({
     sections,

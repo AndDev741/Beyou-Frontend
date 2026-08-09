@@ -4,23 +4,23 @@ import { ChevronDown } from "lucide-react";
 type ConfigSectionProps = {
     title: string;
     children: ReactNode;
-    /** Ícone do cartão — só aparece no telefone, onde a lista é um menu. */
+    /** The card's icon — phone only, where the list is a menu. */
     icon?: ReactNode;
-    /** Substitui o título no telefone (o perfil mostra avatar, nome e nível). */
+    /** Replaces the title on phones (profile shows avatar, name and level). */
     mobileHeader?: ReactNode;
     /** Tutorial spotlight target id (rendered as data-tutorial-id). */
     tutorialId?: string;
-    /** Começa aberta no telefone. */
+    /** Starts open on phones. */
     defaultOpen?: boolean;
     className?: string;
 };
 
 /**
- * Cada assunto da configuração é um cartão próprio.
+ * Every configuration topic is a card of its own.
  *
- * No telefone os cartões viram um menu: ícone, nome e chevron; tocar abre o
- * conteúdo. A página inteira aberta dava umas seis rolagens até os widgets.
- * No desktop não há dobra — as duas colunas cabem, e esconder conteúdo ali só
+ * On phones the cards become a menu: icon, name and chevron; a tap opens the
+ * content. The whole page open took about six scrolls to reach the widgets. On
+ * desktop there is no fold — both columns fit, and hiding content there would only
  * criaria cliques.
  */
 export default function ConfigSection({

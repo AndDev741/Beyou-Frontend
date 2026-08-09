@@ -2,12 +2,12 @@ import { TFunction } from "i18next";
 import type { ChipVariant } from "../../../ui/Chip";
 
 /**
- * Importância e dificuldade compartilham a mesma escala 1..4.
+ * Importance and difficulty share the same 1..4 scale.
  *
- * Substitui o antigo `useColors`, que existia só para empurrar uma cor crua
- * para dentro de um `style={{backgroundColor}}` de um círculo. No sistema novo
- * o atributo é um `Chip`, então a cor vem do token da variante e o que sobra
- * aqui é o par (frase, variante) — puro, sem estado nem efeito.
+ * Replaces the old `useColors`, which existed only to push a raw colour into a
+ * circle's `style={{backgroundColor}}`. In the new system the attribute is a
+ * `Chip`, so the colour comes from the variant's token and what is left here is the
+ * pair (phrase, variant) — pure, with no state and no effect.
  */
 export type AttributeKind = "difficulty" | "importance";
 
@@ -16,7 +16,7 @@ const PHRASE_KEYS: Record<AttributeKind, readonly string[]> = {
     importance: ["Low", "Medium", "High", "Max"],
 };
 
-/** Neutro → acento → atenção → risco: a mesma escala semântica de antes. */
+/** Neutral → accent → attention → risk: the same semantic scale as before. */
 const VARIANTS: readonly ChipVariant[] = ["neutral", "accent", "flame", "danger"];
 
 function indexOf(level: number | undefined): number | null {

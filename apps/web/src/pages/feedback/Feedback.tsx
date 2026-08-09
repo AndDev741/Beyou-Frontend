@@ -28,7 +28,7 @@ import PageHeader from "../../ui/PageHeader";
 
 const CATEGORY_ORDER: FeedbackFormValues["category"][] = ["BUG", "FEATURE_REQUEST", "OTHER"];
 
-/** Ícone de cada categoria — só aparece na opção escolhida, como no mockup. */
+/** Each category's icon — shown only on the chosen option, as in the mockup. */
 const CATEGORY_ICONS: Record<FeedbackFormValues["category"], typeof Bug> = {
     BUG: Bug,
     FEATURE_REQUEST: Lightbulb,
@@ -218,8 +218,8 @@ function Feedback() {
                                 <legend className="mb-1.5 text-[12.5px] font-semibold text-text-2">
                                     {t("FeedbackCategoryLabel")}
                                 </legend>
-                                {/* Segmentado, como o resto dos formulários: as
-                                    três opções são exclusivas e cabem numa
+                                {/* Segmented, like the rest of the forms: the three
+                                    options are exclusive and fit in one
                                     linha, inclusive no telefone. */}
                                 <div className="flex rounded-control border border-border bg-surface-2 p-[3px]">
                                     {CATEGORY_ORDER.map((category) => {
@@ -289,8 +289,8 @@ function Feedback() {
                             {t("FeedbackImagesLabelOptional")}
                         </span>
 
-                        {/* Zona de soltar em vez de um botão: arrastar o print
-                            é o gesto natural no desktop, e no telefone o toque
+                        {/* A drop zone instead of a button: dragging the shot is
+                            the natural desktop gesture, and on phones a tap
                             abre o mesmo seletor. */}
                         <label
                             htmlFor="feedback-images"
@@ -350,7 +350,7 @@ function Feedback() {
                     </div>
 
                     {/* R7: the mailto is a standing alternative, not only a
-                        failure hatch. No desktop ele divide a linha com o
+                        failure hatch. On desktop it shares the row with the
                         enviar; no telefone desce para baixo do botão, que é a
                         ação principal. */}
                     <div className="mt-1 flex flex-col-reverse items-center gap-3 lg:flex-row lg:justify-between">

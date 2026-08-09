@@ -1,11 +1,11 @@
 import * as SecureStore from 'expo-secure-store';
 
-// Mesma escolha do viewFiltersStore: reaproveita o expo-secure-store já
-// instalado em vez de trazer AsyncStorage (dependência nativa nova ⇒ rebuild).
-// O valor é uma flag de uma letra por chave.
+// Same call as viewFiltersStore: reuse the expo-secure-store already installed
+// instead of pulling in AsyncStorage (a new native dependency ⇒ a rebuild). The
+// value is a one-letter flag per key.
 const PREFIX = 'beyou.dismissed.';
 
-/** Lê a recusa. Best-effort: falha de leitura vale como "ainda não recusou". */
+/** Reads the dismissal. Best-effort: a failed read counts as "not yet". */
 export async function loadDismissed(key: string): Promise<boolean> {
   try {
     return (await SecureStore.getItemAsync(PREFIX + key)) === '1';
@@ -14,11 +14,11 @@ export async function loadDismissed(key: string): Promise<boolean> {
   }
 }
 
-/** Best-effort: sem persistência o convite volta no próximo início. */
+/** Best-effort: with no storage the invitation returns on the next launch. */
 export async function saveDismissed(key: string): Promise<void> {
   try {
     await SecureStore.setItemAsync(PREFIX + key, '1');
   } catch {
-    // swallow — preferência de tela não é dado crítico
+    // swallow — a screen preference is not critical data
   }
 }

@@ -4,9 +4,10 @@
  * by the caller via `t()`.
  */
 /**
- * Escala semântica em CLASSE, não em cor crua: neutro → acento → atenção →
- * risco. Hex fixo ignorava o tema e o pack de acento (mesma decisão do web).
- * Classe e não `var(--x)` porque style inline do RN não resolve CSS var — só
+ * A semantic scale in CLASSES, not raw colour: neutral → accent → attention →
+ * risk. A fixed hex ignored both the theme and the accent pack (same call as the
+ * web). Classes and not `var(--x)` because an RN inline style cannot resolve a CSS
+ * var — only
  * o className passa pelo NativeWind.
  */
 export const SCALE_CLASSES = ['bg-text-3', 'bg-accent', 'bg-flame', 'bg-danger'] as const;
@@ -14,7 +15,7 @@ export const SCALE_CLASSES = ['bg-text-3', 'bg-accent', 'bg-flame', 'bg-danger']
 export const IMPORTANCE_KEYS = ['Low', 'Medium', 'High', 'Max'] as const;
 export const DIFFICULTY_KEYS = ['Easy', 'Normal', 'Hard', 'Terrible'] as const;
 
-/** Classe de cor para um valor 1–4 (transparente quando fora da faixa). */
+/** Colour class for a 1–4 value (transparent when out of range). */
 export const scaleClass = (value: number): string => SCALE_CLASSES[value - 1] ?? 'bg-transparent';
 
 /** i18n key for an importance/difficulty value (empty when unset). */
@@ -22,9 +23,9 @@ export const importanceKey = (value: number): string => IMPORTANCE_KEYS[value - 
 export const difficultyKey = (value: number): string => DIFFICULTY_KEYS[value - 1] ?? '';
 
 /**
- * Variante do Chip para um valor 1–4: neutro → acento → atenção → risco.
- * Mesma escala do `attributeVariant` da web — o atributo virou etiqueta, então
- * a cor vem do token da variante e não de um círculo pintado à mão.
+ * Chip variant for a 1–4 value: neutral → accent → attention → risk. Same scale
+ * as the web's `attributeVariant` — the attribute became a label, so the colour
+ * comes from the variant's token and not from a hand-painted circle.
  */
 export const SCALE_VARIANTS = ['neutral', 'accent', 'flame', 'danger'] as const;
 

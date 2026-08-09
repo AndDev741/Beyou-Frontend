@@ -29,7 +29,7 @@ type SortOption = {
 
 const ALL_CATEGORIES = "all";
 
-/** Altura e superfície comuns aos controles da barra (input + selects). */
+/** Height and surface shared by the bar's controls (input + selects). */
 const CONTROL_CLASS =
     "h-10 rounded-control border border-border bg-surface text-sm text-text transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 
@@ -84,7 +84,7 @@ function Tasks() {
         }
     }, [tasks, sortBy]);
 
-    // O filtro de categoria sai das próprias tarefas: só aparece o que está em uso.
+    // The category filter comes from the tasks themselves: only what is in use.
     const categoriesInUse = useMemo(() => {
         const byId = new Map<string, string>();
         tasks.forEach((item) => {
@@ -112,15 +112,15 @@ function Tasks() {
     }, [sortedTasks, search, categoryFilter]);
 
     const isFiltered = search.trim() !== "" || categoryFilter !== ALL_CATEGORIES;
-    // Sem chave própria de busca no i18n: o rótulo é composto com as existentes
-    // (mesma convenção de categorias/metas) e capitalizado no CSS.
+    // No dedicated search key in i18n: the label is composed from existing ones
+    // (same convention as categories/goals) and capitalised in CSS.
     const searchLabel = t("TaskSearchPlaceholder");
 
     const handleSortChange = (value: string) => {
         dispatch(setViewSort({ view: "tasks", sortBy: value }));
     };
 
-    // Criar e editar acontecem em modal: a página inteira fica para os cartões.
+    // Create and edit happen in a modal: the whole page is left to the cards.
     const isFormOpen = isCreateOpen || isEditMode;
     const closeForm = () => {
         setIsCreateOpen(false);
@@ -157,8 +157,8 @@ function Tasks() {
                 }
             />
 
-            {/* No telefone a busca fica com a linha inteira e os filtros descem
-                para a linha de baixo, lado a lado — os três juntos espremiam a
+            {/* On phones the search takes the whole row and the filters drop to
+                the line below, side by side — all three together squeezed the
                 busca até sobrar só a lupa (`sm` aqui é 350px). */}
             <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center">
                 <div className="relative min-w-0 lg:flex-1">

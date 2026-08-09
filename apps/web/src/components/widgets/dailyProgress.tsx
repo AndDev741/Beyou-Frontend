@@ -15,16 +15,16 @@ const RADIUS = 30;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 /**
- * O widget "Hoje": anel grande com a porcentagem do dia e, ao lado, o que ela
- * significa em números — itens concluídos e XP ganho hoje.
+ * The "Today" widget: a big ring with the day's percentage and, beside it, what
+ * that means in numbers — items done and XP earned today.
  *
- * O anel é SVG e não canvas: canvas não resolve CSS var, o que obrigava a ler
- * cor do objeto de tema e ainda assim errava no primeiro paint.
+ * The ring is SVG and not canvas: a canvas cannot resolve a CSS var, which forced
+ * reading the colour from the theme object and still got the first paint wrong.
  */
 export default function DailyProgress({ checked, total }: dailyProgressProps) {
     const { t } = useTranslation()
-    // XP DO DIA, não o acumulado da conta: sai dos checks de hoje da rotina.
-    // `perfil.xp` é o total de vida e mostrava "+1490 XP ganhos hoje".
+    // TODAY's XP, not the account total: it comes from the routine's checks for
+    // today. `perfil.xp` is the lifetime total and showed "+1490 XP earned today".
     const routine = useSelector((s: RootState) => s.todayRoutine.routine)
     const today = new Date().toISOString().split("T")[0]
     const xpToday = routine ? getRoutineStats(routine, today).xpEarned : 0

@@ -27,7 +27,7 @@ type StatusFilter = "all" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
 
 type SortOption = { value: string; label: string };
 
-/** Filtro da barra: divide a linha no telefone, largura própria no desktop. */
+/** Bar filter: shares the row on phones, its own width on desktop. */
 const FILTER_CLASS =
   "h-10 min-w-0 flex-1 rounded-control border border-border bg-surface px-2 text-xs text-text focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent lg:flex-none lg:px-3 lg:text-sm";
 
@@ -41,7 +41,7 @@ function Goals() {
   const goals = useSelector((state: RootState) => state.goals.goals) || [];
   const sortBy = useSelector((state: RootState) => state.viewFilters.goals);
 
-  // O formulário saiu de ao lado da lista: a grade ocupa a largura toda e
+  // The form left the side of the list: the grid takes the full width and
   // criar/editar acontece em modal.
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -72,8 +72,8 @@ function Goals() {
 
   const completedCount = goals.filter((goalItem) => goalItem.status === "COMPLETED").length;
 
-  // As opções do filtro saem das próprias metas: sem buscar categorias de novo
-  // e sem oferecer um filtro que não devolveria nada.
+  // The filter options come from the goals themselves: no refetching categories
+  // and no offering a filter that would return nothing.
   const categoryOptions = useMemo(() => {
     const seen = new Map<string, string>();
     goals.forEach((goalItem) => {
@@ -145,7 +145,7 @@ function Goals() {
 
   const isFiltering = Boolean(search.trim()) || statusFilter !== "all" || categoryFilter !== "all";
 
-  // Sem chave nova de i18n: "filtrar" + "Metas" já existem nos dois idiomas.
+  // No new i18n key: "filter" + "Goals" already exist in both languages.
   const searchLabel = t("GoalSearchPlaceholder");
 
   useEffect(() => {
@@ -180,7 +180,7 @@ function Goals() {
         }
       />
       <main className="mt-4 flex flex-col gap-4 pb-4">
-        {/* Barra compacta no lugar do cartão de ordenação: busca, status,
+        {/* A compact bar in place of the sorting card: search, status,
             categoria e ordenação numa linha só. */}
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
           <div className="relative min-w-0 flex-1">

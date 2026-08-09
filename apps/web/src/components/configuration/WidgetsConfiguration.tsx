@@ -12,7 +12,7 @@ import editUser from "@beyou/api/user/editUser";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 
-/** Nome e ícone de cada widget — a lista mostra a identidade, não o widget. */
+/** Each widget's name and icon — the list shows the identity, not the widget. */
 const WIDGET_META: Record<string, { labelKey: string; Icon: typeof Target }> = {
     dailyProgress: { labelKey: "Today", Icon: Target },
     constance: { labelKey: "Constance", Icon: Flame },
@@ -24,14 +24,13 @@ const WIDGET_META: Record<string, { labelKey: string; Icon: typeof Target }> = {
 };
 
 /**
- * A lista do mockup: cada widget do dashboard é uma linha compacta com alça de
- * arraste, posição, ícone, nome e o × para tirar. Os que sobraram viram chips
- * de "+ nome" embaixo.
+ * The mockup's list: every dashboard widget is a compact row with a drag handle,
+ * its position, icon, name and the × to remove it. The leftovers become "+ name"
+ * chips below.
  *
- * Antes isto renderizava os widgets DE VERDADE dentro de duas zonas
- * tracejadas — bonito de ver, impossível de ordenar no telefone e sem dizer a
- * ordem em que eles aparecem. E salvava só no botão; agora cada mudança
- * persiste sozinha.
+ * This used to render the REAL widgets inside two dashed zones — pretty to look
+ * at, impossible to reorder on a phone, and silent about the order they appear in.
+ * And it only saved on a button; now every change persists by itself.
  */
 export default function WidgetsConfiguration() {
     const { t } = useTranslation();
@@ -40,7 +39,7 @@ export default function WidgetsConfiguration() {
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
     const [currentWidgets, setCurrentWidgets] = useState<string[]>(widgetsIdsInUse || []);
     const availableWidgets = widgetsIds.filter((id) => !currentWidgets.includes(id));
-    // A primeira renderização não deve disparar um PUT.
+    // The first render must not fire a PUT.
     const isFirstRender = useRef(true);
 
     useEffect(() => {

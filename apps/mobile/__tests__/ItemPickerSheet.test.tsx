@@ -21,19 +21,19 @@ test('one tap assigns the habit, with a time suggested inside the section window
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
   await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h1')); });
-  // Sai da lista e entra na bandeja, já com remover e os dois horários.
+  // It leaves the list and enters the tray, with remove and both times.
   expect(screen.queryByTestId('item-habit-h1')).toBeNull();
   expect(screen.getByTestId('remove-habit-h1')).toBeTruthy();
   expect(screen.getByTestId('tray-habit-h1-start')).toBeTruthy();
   await act(async () => { fireEvent.press(screen.getByTestId('items-save')); });
-  // Seção 06:00–07:00: o item avulso leva a fatia padrão de 15 min, no começo
-  // da janela — o resto fica livre para os próximos.
+  // Section 06:00–07:00: a lone item takes the default 15 minute slice at the
+  // start of the window — the rest stays free for the next ones.
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
     habitGroup: [expect.objectContaining({ habitId: 'h1', startTime: '06:00', endTime: '06:15' })],
   }));
 });
 
-/** O segundo item retoma de onde o primeiro parou, sem sobrepor. */
+/** The second item resumes where the first stopped, with no overlap. */
 test('the next item resumes after the one already assigned', async () => {
   const onSave = jest.fn();
   const twoHabits = [...habits, { id: 'h2', name: 'Stretch', iconId: 'lucide:activity' }] as never[];
@@ -135,7 +135,7 @@ test('gives the scroll area a shrinkable height, not flexBasis 0', async () => {
   expect(style.flexShrink).toBe(1);
 });
 
-/** A busca filtra a lista do lado ativo; trocar de lado limpa a marcação. */
+/** Search filters the active side's list. */
 test('filters the available list by the search term', async () => {
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={jest.fn()} onClose={jest.fn()} />);
 
@@ -160,7 +160,7 @@ test('keeps the tray when the kind changes', async () => {
   });
   expect(screen.getByTestId('remove-habit-h1')).toBeTruthy();
 
-  // Trocar de aba mostra o outro lado; o que já foi atribuído continua lá.
+  // Switching tabs shows the other side; what is already assigned stays.
   await act(async () => {
     fireEvent.press(screen.getByTestId('item-picker-kind-task'));
   });

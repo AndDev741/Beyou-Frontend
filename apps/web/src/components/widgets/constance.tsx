@@ -11,12 +11,12 @@ export type constanceProps = {
 const DAYS_SHOWN = 28;
 
 /**
- * Constância: o número grande, o recorde ao lado e a faixa dos últimos 28 dias.
+ * Streak: the big number, the record beside it and the strip of the last 28 days.
  *
- * A API não devolve histórico diário — o que sabemos com certeza é o tamanho da
- * sequência ATUAL. A faixa então destaca só esses dias e deixa o resto neutro;
- * o rótulo diz isso em voz alta para ninguém ler quadrado apagado como "falhei".
- * Quando existir endpoint de histórico, é aqui que ele entra.
+ * The API returns no daily history — what we know for certain is the length of the
+ * CURRENT streak. So the strip highlights only those days and leaves the rest
+ * neutral; the label says so out loud, so nobody reads a dim square as "I failed".
+ * When a history endpoint exists, this is where it plugs in.
  */
 export default function Constance({ constance }: constanceProps) {
     const { t } = useTranslation();
@@ -39,7 +39,7 @@ export default function Constance({ constance }: constanceProps) {
                 aria-label={t("StreakStripLabel", { days: streakDays, total: DAYS_SHOWN })}
             >
                 {Array.from({ length: DAYS_SHOWN }, (_, index) => {
-                    // A sequência atual termina hoje, então ela ocupa o FIM da faixa.
+                    // The current streak ends today, so it takes the END of the strip.
                     const inStreak = index >= DAYS_SHOWN - streakDays;
                     return (
                         <i

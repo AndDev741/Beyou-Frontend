@@ -3,12 +3,12 @@ import { toast, type CloseButtonProps, type IconProps, type ToastOptions } from 
 import { Check, CircleAlert, Info, TriangleAlert, X } from "lucide-react";
 
 /**
- * NOTIFY do mockup: borda esquerda no tom, ícone da entidade, título e um
- * subtítulo opcional. O tempo é uma linha de 2px sem trilho, no rodapé.
+ * The mockup's NOTIFY: left border in the tone, the entity's icon, a title and an
+ * optional subtitle. Time is a 2px line with no track, at the foot.
  *
- * Toda notificação passa pelo mesmo container do `App`, então os `toast.*`
- * antigos (só texto) já herdam a casca nova; o `notify` existe para quando a
- * mensagem tem ícone próprio ou segunda linha.
+ * Every notification goes through the same container in `App`, so the older
+ * `toast.*` calls (text only) already inherit the new shell; `notify` exists for
+ * when the message has an icon of its own or a second line.
  */
 
 const TILE_BY_TYPE: Record<string, string> = {
@@ -25,7 +25,7 @@ function tileClass(type: string) {
     }`;
 }
 
-/** Ícone padrão por tom, usado quando quem chama não manda o da entidade. */
+/** Default icon per tone, used when the caller sends no entity icon. */
 export function ToastTypeIcon({ type }: IconProps) {
     const glyph =
         type === "success" ? (
@@ -67,7 +67,7 @@ function ToastBody({ title, subtitle }: { title: ReactNode; subtitle?: ReactNode
 
 type NotifyOptions = Omit<ToastOptions, "icon"> & {
     subtitle?: ReactNode;
-    /** Ícone da entidade — o hábito marcado, a meta concluída. */
+    /** The entity's icon — the habit checked, the goal completed. */
     icon?: ReactNode;
 };
 

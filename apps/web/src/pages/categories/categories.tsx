@@ -45,8 +45,8 @@ function Categories(){
     const sortBy = useSelector((state: RootState) => state.viewFilters.categories);
     const hasCategories = categories.length > 0;
 
-    // Criar e editar saíram da coluna ao lado da lista: a grade fica com a
-    // largura toda e o formulário abre em modal.
+    // Create and edit left the column beside the list: the grid gets the full
+    // width and the form opens in a modal.
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [search, setSearch] = useState("");
     const isFormOpen = isCreateOpen || editMode;
@@ -103,7 +103,7 @@ function Categories(){
         dispatch(setViewSort({ view: "categories", sortBy: value }));
     };
 
-    // Sem chave nova de i18n: "filtrar" + "Categorias" já existem nos dois idiomas.
+    // No new i18n key: "filter" + "Categories" already exist in both languages.
     const searchLabel = t("CategorySearchPlaceholder");
 
     //When open the page
@@ -132,9 +132,9 @@ function Categories(){
         onSkip
     } = useCategoriesTutorial({ hasCategories });
 
-    // O formulário virou modal, então a âncora do passo "criar categoria" passa
-    // a ser o botão que o abre — enquanto o modal está aberto o spotlight sai de
-    // cena (o modal fica acima dele) e volta quando fecha, já no passo da lista.
+    // The form became a modal, so the anchor for the "create category" step is now
+    // the button that opens it — while the modal is up the spotlight steps aside
+    // (the modal sits above it) and returns on close, already on the list step.
     const closeForm = () => {
         setIsCreateOpen(false);
         dispatch(editModeEnter(false));
@@ -173,7 +173,7 @@ function Categories(){
                 }
             />
             <main className="mt-4 flex flex-col gap-4 pb-4">
-                {/* Barra compacta no lugar do cartão de ordenação: busca à
+                {/* A compact bar in place of the sorting card: search on the
                     esquerda, ordenação à direita. */}
                 <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
                     <div className="relative min-w-0 lg:flex-1">

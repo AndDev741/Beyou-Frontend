@@ -2,12 +2,12 @@ import { useState, type ReactElement } from 'react';
 import { View, ScrollView, type LayoutChangeEvent, type NativeSyntheticEvent, type NativeScrollEvent } from 'react-native';
 
 /**
- * Carrossel de widgets — o mesmo da web no telefone: um por vez, com pontos de
- * página. Empilhados, cada widget novo empurrava a rotina para baixo; aqui a
- * altura do bloco não cresce com a lista.
+ * Widget carousel — the same as the web at phone width: one at a time, with page
+ * dots. Stacked, every new widget pushed the routine further down; here the
+ * block's height does not grow with the list.
  *
- * A largura vem do `onLayout` e não de `Dimensions`: o bloco vive dentro do
- * padding do dashboard, então a tela inteira daria um slide largo demais.
+ * The width comes from `onLayout` and not from `Dimensions`: the block lives inside
+ * the dashboard's padding, so the full screen would make the slide too wide.
  */
 export default function WidgetCarousel({
   children,
@@ -28,7 +28,7 @@ export default function WidgetCarousel({
 
   return (
     <View onLayout={onLayout} testID={testID}>
-      {/* Antes da primeira medida não dá para dimensionar o slide; renderiza só
+      {/* Before the first measure there is no way to size a slide; render only
           o primeiro widget para não piscar uma pilha de largura zero. */}
       {width > 0 ? (
         <ScrollView

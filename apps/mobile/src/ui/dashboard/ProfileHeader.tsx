@@ -10,12 +10,12 @@ import Chip from '../Chip';
 import type { RootState } from '../../store';
 
 /**
- * O topo do dashboard — espelho do `perfil` da web: saudação, data por extenso e
- * a frase configurável, direto sobre a página, sem cartão.
+ * The top of the dashboard — mirror of the web's `perfil`: greeting, the date
+ * spelled out and the configurable phrase, straight on the page, no card.
  *
- * Não há avatar nem anel de nível aqui: quem você é já está na configuração e o
- * nível tem widget próprio. Repetir os três no cabeçalho era o que empurrava a
- * rotina (o conteúdo que importa) para baixo da dobra.
+ * There is no avatar and no level ring here: who you are already lives in
+ * configuration and the level has a widget of its own. Repeating all three in the
+ * header is what pushed the routine (the content that matters) below the fold.
  */
 export default function ProfileHeader() {
   const { t, i18n } = useTranslation();
@@ -30,13 +30,13 @@ export default function ProfileHeader() {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    // A saudação muda de faixa ao longo do dia; a data vira outra à meia-noite.
+    // The greeting changes band through the day; the date turns over at midnight.
     const interval = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(interval);
   }, []);
 
   const greeting = t(getGreetingKey(now.getHours()));
-  // `first-letter:uppercase` na web; aqui é na mão — pt devolve "sexta-feira".
+  // `first-letter:uppercase` on the web; by hand here — pt returns "sexta-feira".
   const formattedDate = new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
     day: 'numeric',

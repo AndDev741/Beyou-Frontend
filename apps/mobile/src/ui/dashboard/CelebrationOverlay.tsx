@@ -19,13 +19,14 @@ import type { RootState, AppDispatch } from '../../store';
 const AUTO_DISMISS_MS = 4000;
 
 /**
- * A celebração do mockup: o anel do sistema cheio, com o número do nível no
- * centro — a mesma peça do check-in e da marca. Marco de sequência usa o mesmo
+ * The mockup's celebration: the system ring filled, with the level number in the
+ * centre — the same piece as the check-in and the brand. A streak milestone uses
+ * the same
  * anel com a chama e a contagem de dias.
  *
- * Lê a cabeça da fila de celebrações (preenchida pelo applyRefreshUi). Fecha
- * sozinha em 4s, no toque do fundo e no "Continuar" — o botão é uma saída
- * antes disso, não a única. Espelha a CelebrationOverlay da web.
+ * Reads the head of the celebration queue (filled by applyRefreshUi). It closes
+ * itself after 4s, on a backdrop tap and on "Continue" — the button is an early
+ * exit, not the only one. Mirrors the web's CelebrationOverlay.
  */
 export default function CelebrationOverlay() {
   const { t } = useTranslation();
@@ -69,7 +70,7 @@ export default function CelebrationOverlay() {
         className="w-full max-w-[340px] items-center rounded-card border border-border bg-surface px-7 py-8"
       >
         <View className="h-[104px] w-[104px] items-center justify-center">
-          {/* Halo: o anel cheio já é a mensagem, o brilho só o apoia. */}
+          {/* Halo: the filled ring is the message, the glow only backs it. */}
           <View
             pointerEvents="none"
             style={{

@@ -34,10 +34,10 @@ import type { AgentChatState } from './useAgentChat';
 // The agent links web-canonical routes; the mobile dashboard lives at '/'.
 const WEB_TO_MOBILE_ROUTE: Record<string, string> = { '/dashboard': '/' };
 
-// Altura da sheet no mockup: quase a tela toda, mas com a faixa de cima ainda
-// visível — o usuário nunca perde de vista de onde veio.
-// 92%: a conversa é a tela inteira menos a borda que lembra que é uma sheet.
-// Em 86% sobrava uma faixa de fundo sem função e cabia menos mensagem.
+// Sheet height from the mockup: nearly the whole screen, but with the top strip
+// still visible — you never lose sight of where you came from.
+// 92%: the conversation is the whole screen minus the edge that says "sheet".
+// At 86% a strip of background was left doing nothing and fewer messages fit.
 const SHEET_HEIGHT = '92%';
 
 interface AgentChatModalProps {
@@ -107,8 +107,8 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
 
   const suggestions = [t('AgentSuggestion1'), t('AgentSuggestion2'), t('AgentSuggestion3')];
   const headerButton = 'h-9 w-9 items-center justify-center rounded-control active:bg-surface-2';
-  // O assunto da conversa em mono, sob o nome do assistente (mockup): é dado,
-  // não título — a mono é o que separa os dois de relance.
+  // The thread's subject in mono, under the assistant's name (mockup): it is data,
+  // not a title — the mono is what tells the two apart at a glance.
   const subject = pane === 'history' ? t('AgentChats') : activeChat?.title;
 
   return (
@@ -132,7 +132,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
           className="overflow-hidden rounded-t-frame border-t border-border bg-surface"
           style={{ height: SHEET_HEIGHT, paddingBottom: insets?.bottom ?? 0 }}
         >
-          {/* Puxador: diz "isto é uma sheet" antes de qualquer gesto. */}
+          {/* Grabber: says "this is a sheet" before any gesture. */}
           <View className="items-center pt-2" aria-hidden>
             <View className="h-1 w-10 rounded-full bg-border" />
           </View>

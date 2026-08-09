@@ -7,12 +7,13 @@ import { getGreetingKey, GreetingKey } from "./getGreetingKey";
 import Chip from "../../ui/Chip";
 
 /**
- * O topo do dashboard: saudação, data por extenso e a frase configurável —
- * direto sobre a página, sem cartão.
+ * The top of the dashboard: greeting, the date spelled out and the configurable
+ * phrase — straight on the page, no card.
  *
- * Não há avatar nem anel de nível aqui: quem você é já está no rodapé da
- * sidebar, e o nível tem widget próprio. Repetir os três no cabeçalho era o
- * que empurrava a rotina (o conteúdo que importa) para baixo da dobra.
+ * There is no avatar and no level ring here: who you are already sits in the
+ * sidebar's footer, and the level has a widget of its own. Repeating all three in
+ * the header is what pushed the routine (the content that matters) below the
+ * fold.
  */
 function Perfil() {
     const { t, i18n } = useTranslation();
@@ -23,7 +24,7 @@ function Perfil() {
     const constance = useSelector((state: RootState) => state.perfil.constance);
 
     useEffect(() => {
-        // A saudação muda de faixa ao longo do dia; a data vira outra à meia-noite.
+        // The greeting changes band through the day; the date turns at midnight.
         const interval = setInterval(() => setNow(new Date()), 60000);
         return () => clearInterval(interval);
     }, []);

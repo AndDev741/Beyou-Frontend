@@ -110,16 +110,16 @@ function Gate() {
   return <Stack screenOptions={{ headerShown: false }} />;
 }
 
-// O splash nativo fica no ar até a tipografia carregar. Sem isto ele sai assim
-// que a view do RN monta, e aparecia um branco com spinner entre a marca e o
-// app — três telas para uma abertura.
+// The native splash stays up until the typeface loads. Without this it leaves as
+// soon as the RN view mounts, and a white screen with a spinner appeared between
+// the mark and the app — three screens for one launch.
 SplashScreen.preventAutoHideAsync().catch(() => {
-  /* já escondido, ou plataforma sem splash: nada a fazer */
+  /* already hidden, or a platform with no splash: nothing to do */
 });
 
 export default function RootLayout() {
-  // Geist é a tipografia da marca; até carregar, renderizar texto com a fonte
-  // do sistema causaria um salto de layout visível no boot.
+  // Geist is the brand typeface; until it loads, rendering text in the system font
+  // would cause a visible layout jump at boot.
   const systemScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     Geist: require('../assets/fonts/Geist-Regular.ttf'),

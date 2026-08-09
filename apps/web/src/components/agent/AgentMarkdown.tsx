@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 type OnInternalLink = (href: string) => void;
 
 /**
- * Como navegar a partir de um link do agente. O painel injeta um handler que
- * NAVEGA E FECHA — ir ver o que o agente fez com o chat aberto por cima cobre
- * exatamente o que a pessoa foi conferir. Sem handler (uso fora do painel), o
- * link só navega.
+ * How to navigate from an agent link. The panel injects a handler that NAVIGATES
+ * AND CLOSES — going to see what the agent did with the chat still on top covers
+ * exactly what you went to check. With no handler (used outside the panel), the
+ * link just navigates.
  *
- * Via contexto porque `react-markdown` monta os componentes de link por conta
- * própria: não há por onde passar prop até eles.
+ * Through context because `react-markdown` builds the link components itself:
+ * there is no prop path down to them.
  */
 const InternalLinkContext = createContext<OnInternalLink | null>(null);
 

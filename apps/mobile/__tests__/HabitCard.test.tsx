@@ -1,7 +1,8 @@
 /**
  * HabitCard — espelho do habitBox da web. Editar e excluir ficam SEMPRE
- * visíveis no topo (a web os revela no hover, que não existe aqui); expandir
- * solta o clamp e mostra rotinas, frase, atributos e os números.
+ * visible at the top (the web reveals them on hover, which does not exist here);
+ * expanding releases the clamp and shows routines, phrase, attributes and the
+ * numbers.
  */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';
@@ -26,7 +27,7 @@ const habit = {
 } as never;
 
 // Dentro de `act`: o provider de tema assenta depois do primeiro render, e um
-// update solto corromperia o próximo teste do arquivo (ver AGENTS.md).
+// a loose update would corrupt the next test in the file (see AGENTS.md).
 const wrap = async (node: React.ReactElement) => {
   await act(async () => {
     render(<BeyouThemeProvider>{node}</BeyouThemeProvider>);
@@ -53,7 +54,7 @@ describe('HabitCard', () => {
 
     expect(screen.queryByText('keep growing')).toBeNull();
     expect(screen.queryByText('Morning Routine')).toBeNull();
-    // A categoria fica no cartão fechado — é o que separa um hábito do outro.
+    // The category stays on the closed card — it is what tells habits apart.
     expect(screen.getByText('Health')).toBeTruthy();
   });
 
@@ -66,7 +67,7 @@ describe('HabitCard', () => {
 
     expect(screen.getByText('keep growing')).toBeTruthy();
     expect(screen.getByText('Morning Routine')).toBeTruthy();
-    // O rótulo acompanha o valor: "Média" sozinho não diz de que escala é.
+    // The label rides with the value: "Medium" alone does not say which scale.
     expect(screen.getByText('Importance')).toBeTruthy();
     expect(screen.getByText('High')).toBeTruthy();
     expect(screen.getByText('Difficulty')).toBeTruthy();

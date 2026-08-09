@@ -1,7 +1,7 @@
 /**
- * GoalCard — espelho do goalBox da web. O stepper vive no cartão fechado;
- * "Concluir" só aparece com o alvo batido (é ele que paga o XP) e, depois de
- * concluída, vira "Desfazer" sem que o cartão perca o desenho.
+ * GoalCard — mirror of the web's goalBox. The stepper lives on the closed card;
+ * "Complete" only appears once the target is hit (it is what pays the XP) and,
+ * once complete, becomes "Undo" without the card losing its design.
  */
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
 
@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 // Dentro de `act`: o provider de tema assenta depois do primeiro render, e um
-// update solto corromperia o próximo teste do arquivo (ver AGENTS.md).
+// a loose update would corrupt the next test in the file (see AGENTS.md).
 const wrap = async (node: React.ReactElement) => {
   await act(async () => {
     render(
@@ -61,7 +61,7 @@ describe('GoalCard', () => {
 
     expect(screen.queryByTestId('goal-complete-g1')).toBeNull();
     expect(screen.getByTestId('goal-increase-g1')).toBeTruthy();
-    // Sem alvo batido não há XP para anunciar.
+    // With the target unmet there is no XP to announce.
     expect(screen.queryByTestId('goal-xp-g1')).toBeNull();
   });
 
@@ -85,7 +85,7 @@ describe('GoalCard', () => {
     expect(screen.getByTestId('goal-completed-g1')).toBeTruthy();
     expect(screen.getByTestId('goal-xp-g1')).toBeTruthy();
     expect(screen.getByText('Undo')).toBeTruthy();
-    // O desenho continua inteiro: nome, categorias e o rodapé de prazo.
+    // The design stays whole: name, categories and the deadline footer.
     expect(screen.getByText('Read books')).toBeTruthy();
     expect(screen.getByText('Health')).toBeTruthy();
     expect(screen.getByText('Long Term')).toBeTruthy();
