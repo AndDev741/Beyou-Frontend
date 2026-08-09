@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import { calculateDailyProgress } from '@beyou/state/dashboard/helpers';
 import {
@@ -216,7 +216,9 @@ export default function RoutineDay() {
             <View className="mt-1.5 h-1.5 w-[92px] overflow-hidden rounded-full bg-surface-2">
               <View
                 className="h-full rounded-full bg-accent"
-                style={{ width: `${total > 0 ? Math.round((checked / total) * 100) : 0}%` }}
+                // O bloco só existe com `total > 0` (linha acima), então aqui
+                // não há divisão por zero a defender.
+                style={{ width: `${Math.round((checked / total) * 100)}%` }}
               />
             </View>
           </View>

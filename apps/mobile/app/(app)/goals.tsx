@@ -4,7 +4,7 @@ import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getGoals from '@beyou/api/goals/getGoals';
 import getCategories from '@beyou/api/categories/getCategories';
 import deleteGoal from '@beyou/api/goals/deleteGoal';
@@ -275,7 +275,6 @@ export default function GoalsScreen() {
           }
         />
       )}
-
 
       <DeleteModal
         visible={deleteTarget !== null}

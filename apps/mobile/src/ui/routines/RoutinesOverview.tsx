@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { getSnapshotsForDay, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
-import { getRoutineStats, enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
+import { enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
 import { CalendarDays, History } from 'lucide-react-native';
@@ -88,8 +88,6 @@ export default function RoutinesOverview({
 
   const onPick = (e: DateTimePickerEvent, d?: Date) => { setShowPicker(false); if (e.type === 'set' && d) load(iso(d)); };
 
-  // Insights for the selected day.
-  const daySnapshots = useMemo(() => Object.values(snapshots).filter((s) => s.snapshotDate === day), [snapshots, day]);
   // Quantos dias da semana têm alguma rotina agendada.
   const activeDays = useMemo(() => {
     const days = new Set<string>();

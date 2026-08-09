@@ -4,7 +4,7 @@ import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getTasks from '@beyou/api/tasks/getTasks';
 import getCategories from '@beyou/api/categories/getCategories';
 import deleteTask from '@beyou/api/tasks/deleteTask';
@@ -219,7 +219,6 @@ export default function TasksScreen() {
           }
         />
       )}
-
 
       <DeleteModal
         visible={deleteTarget !== null}

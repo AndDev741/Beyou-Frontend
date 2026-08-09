@@ -1,10 +1,9 @@
 import { CalendarDays, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
+import { View, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getRoutines from '@beyou/api/routine/getRoutines';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
@@ -33,7 +32,6 @@ const todayIso = () => new Date().toISOString().slice(0, 10);
 
 export default function RoutinesScreen() {
   const { t } = useTranslation();
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
   const routines = useSelector((s: RootState) => s.routines.routines);

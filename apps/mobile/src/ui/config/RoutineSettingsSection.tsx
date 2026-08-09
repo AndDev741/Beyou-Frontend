@@ -73,7 +73,6 @@ export default function RoutineSettingsSection() {
   const [selectedXpDecay, setSelectedXpDecay] = useState<XpDecayStrategy>(currentXpDecay);
   const [tzModalOpen, setTzModalOpen] = useState(false);
   const [tzSearch, setTzSearch] = useState('');
-  const [saving, setSaving] = useState(false);
 
   const detectedTimezone = useMemo(detectTimezone, []);
   const showDetected = !!detectedTimezone && detectedTimezone !== selectedTimezone;
@@ -89,7 +88,6 @@ export default function RoutineSettingsSection() {
   const persist = async (tz?: string, decay?: XpDecayStrategy) => {
     const timezone = tz ?? selectedTimezone;
     const xpDecayStrategy = decay ?? selectedXpDecay;
-    setSaving(true);
     const res = await editUser({ timezone, xpDecayStrategy });
     if (res?.error) {
       notify.error(getFriendlyErrorMessage(t, res.error));
@@ -98,7 +96,6 @@ export default function RoutineSettingsSection() {
       dispatch(xpDecayStrategyEnter(xpDecayStrategy));
       notify.success(t('RoutineSettingsSaved'));
     }
-    setSaving(false);
   };
 
   const selectTimezone = (tz: string) => {

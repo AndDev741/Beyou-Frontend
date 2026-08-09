@@ -4,7 +4,7 @@ import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getCategories from '@beyou/api/categories/getCategories';
 import deleteCategory from '@beyou/api/categories/deleteCategory';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -196,7 +196,6 @@ export default function CategoriesScreen() {
           }
         />
       )}
-
 
       <DeleteModal
         visible={deleteTarget !== null}

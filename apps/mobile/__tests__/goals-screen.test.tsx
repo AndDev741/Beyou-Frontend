@@ -14,7 +14,6 @@ jest.mock('expo-router', () => ({
 }));
 let mockParams: Record<string, string> = {};
 
-import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';

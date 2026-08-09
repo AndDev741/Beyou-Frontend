@@ -9,7 +9,6 @@ import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import BeyouIcon from '../BeyouIcon';
 import IconButton from '../IconButton';
-import IconTile from '../IconTile';
 import { formatTimeRange } from './routineMetrics';
 import RoutineItem, { type MergedItem } from '../dashboard/RoutineItem';
 import { useBeyouTheme } from '../../theme/ThemeProvider';

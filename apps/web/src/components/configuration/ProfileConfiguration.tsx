@@ -333,8 +333,14 @@ function EditPhoto({
                 <h3 className="text-lg font-semibold text-text mb-4">{t('ChangePhoto')}</h3>
 
                 <div className="flex flex-col items-center gap-4">
+                    {/* Passa pelo whitelist de esquema no PRÓPRIO sink, não só na
+                        origem: o valor chega de uma prop e o CodeQL — com razão —
+                        não enxerga o saneamento lá atrás. `resolvePhotoUrl` é
+                        idempotente (https:, blob: e data:image/ passam intactos),
+                        então isto não muda o comportamento, só torna a defesa
+                        local ao lugar onde ela importa. */}
                     <img
-                        src={previewUrl}
+                        src={resolvePhotoUrl(previewUrl)}
                         alt={t('PhotoPreview')}
                         onError={(e) => {
                             e.currentTarget.src = 'https://placehold.co/128x128/ccc/333?text=No+Image';
