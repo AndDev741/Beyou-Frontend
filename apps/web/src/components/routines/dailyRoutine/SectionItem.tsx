@@ -312,22 +312,32 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                         type="button"
                         onClick={() => setOpen((prev) => !prev)}
                         aria-expanded={open}
-                        className="flex w-full items-center gap-1.5 text-left text-[13.5px] font-semibold text-text"
+                        className="flex w-full items-center text-left text-[13.5px] font-semibold text-text"
                     >
                         <span className="min-w-0 flex-1 truncate">{section.name}</span>
-                        {/* Mesmo aviso do cartão de rotina: expande ao tocar. */}
-                        <FiChevronDown
-                            aria-hidden="true"
-                            className={`shrink-0 text-text-3 transition-transform duration-200 md:hidden ${
-                                open ? "rotate-180" : ""
-                            }`}
-                        />
                     </button>
                     <span className="mt-1 flex gap-1 md:hidden">
                         <TimeChip>{formatTime(section.startTime)}</TimeChip>
                         <TimeChip>{formatTime(section.endTime)}</TimeChip>
                     </span>
                 </div>
+
+                {/* Fora da coluna do nome: ali ele ficava colado na primeira
+                    linha enquanto estrela, lápis e lixeira se centravam no
+                    bloco de duas. Mesmo aviso do cartão de rotina: expande ao
+                    tocar. */}
+                <button
+                    type="button"
+                    onClick={() => setOpen((prev) => !prev)}
+                    aria-expanded={open}
+                    aria-label={open ? t("Collapse") : t("Expand")}
+                    className="shrink-0 rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 md:hidden"
+                >
+                    <FiChevronDown
+                        aria-hidden="true"
+                        className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+                    />
+                </button>
 
                 <span className="hidden shrink-0 items-center gap-1 md:flex">
                     <TimeChip>{formatTime(section.startTime)}</TimeChip>

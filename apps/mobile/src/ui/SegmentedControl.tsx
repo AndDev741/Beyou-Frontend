@@ -3,6 +3,8 @@ import { View, Pressable, Text } from 'react-native';
 interface Option<T extends string | number> {
   value: T;
   label: string;
+  /** Opção desenhada mas ainda não implementada — aparece apagada, não some. */
+  disabled?: boolean;
 }
 
 interface SegmentedControlProps<T extends string | number> {
@@ -45,10 +47,13 @@ export default function SegmentedControl<T extends string | number>({
             key={String(option.value)}
             accessibilityRole="radio"
             accessibilityLabel={option.label}
-            accessibilityState={{ selected: isActive, checked: isActive }}
+            accessibilityState={{ selected: isActive, checked: isActive, disabled: !!option.disabled }}
             testID={testID ? `${testID}-${option.value}` : undefined}
+            disabled={option.disabled}
             onPress={() => onChange(option.value)}
-            className={`flex-1 items-center rounded-[7px] ${pad} ${isActive ? 'bg-surface' : ''}`}
+            className={`flex-1 items-center rounded-[7px] ${pad} ${isActive ? 'bg-surface' : ''} ${
+              option.disabled ? 'opacity-50' : ''
+            }`}
           >
             <Text
               className={`${fontSize} font-semibold ${isActive ? 'text-text' : 'text-text-2'}`}

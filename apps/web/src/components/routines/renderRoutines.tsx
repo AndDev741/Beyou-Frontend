@@ -12,7 +12,9 @@ import { RoutineCard } from "./RoutineCard";
 import { task } from "@beyou/types/tasks/taskType";
 import { habit } from "@beyou/types/habit/habitType";
 import checkRoutine from "@beyou/api/routine/checkItem";
+import skipRoutine from "@beyou/api/routine/skipItem";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
+import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
@@ -90,6 +92,18 @@ export default function RenderRoutines({
         dispatch(enterRoutines(routinesResponse?.success));
     };
 
+    // Pular existia só na rotina do dashboard; a página de rotinas mostrava o
+    // mesmo item sem saída. Mesma chamada, mesma releitura.
+    const handleSkip = async (payload: itemGroupToSkip) => {
+        const response = await skipRoutine(payload, t, selectedDate);
+        if (response.error) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return;
+        }
+        const routinesResponse = await getRoutines(t);
+        dispatch(enterRoutines(routinesResponse?.success));
+    };
+
     useEffect(() => {
         dispatch(editModeEnter(false));
     }, [])
@@ -132,6 +146,7 @@ export default function RenderRoutines({
                             onEdit={handleEdit}
                             onSchedule={handleSchedule}
                             onCheckItem={handleCheck}
+                            onSkipItem={handleSkip}
                             onRequestDelete={setRoutineToDelete}
                         />
                     ))}

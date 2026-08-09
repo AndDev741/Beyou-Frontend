@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { X } from 'lucide-react-native';
 import createSchedule from '@beyou/api/schedule/createSchedule';
 import editSchedule from '@beyou/api/schedule/editSchedule';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -10,11 +11,22 @@ import Button from '../Button';
 import BottomSheet from '../BottomSheet';
 import { DAYS } from './ScheduleIndicator';
 import { notify } from '../../notify';
+import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const WEEKEND = ['Saturday', 'Sunday'];
 const ALL = DAYS.map((d) => d.wire);
+// Ordem de exibição: domingo primeiro, igual aos chips do cartão de rotina.
+const WEEK_ORDER = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+] as const;
 
 interface ScheduleSheetProps {
   visible: boolean;
@@ -23,8 +35,48 @@ interface ScheduleSheetProps {
   onSaved: () => void;
 }
 
+/** Chip de grupo (Seg a Sex / Final de semana / Toda a semana). */
+function GroupChip({
+  label,
+  active,
+  onPress,
+  testID,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+  testID: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      testID={testID}
+      className={`rounded-full border px-3 py-1 ${
+        active ? 'border-accent bg-accent-soft' : 'border-border'
+      }`}
+    >
+      <Text className={`text-[11.5px] font-semibold ${active ? 'text-accent' : 'text-text-3'}`}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+/**
+ * Agendar rotina, no desenho do modal da web: a semana inteira numa fileira de
+ * sete quadrados, os chips de grupo abaixo e as ações no pé.
+ *
+ * Eram sete linhas de largura cheia, uma por dia — a semana não caía numa
+ * olhada e o painel passava da metade da tela. O dia que outra rotina já ocupa
+ * fica marcado no próprio quadrado e ganha uma linha com "Substituir dia", em
+ * vez do `Alert.alert` do sistema (que não carrega tema nem o nome da rotina no
+ * mesmo lugar em que a decisão é tomada).
+ */
 export default function ScheduleSheet({ visible, routine, onClose, onSaved }: ScheduleSheetProps) {
   const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
   // Read other routines' schedules straight from the routines slice (each routine
   // carries its `schedule.days`) — same source the web uses. A separate getSchedules
   // call was unreliable (shape mismatch → no conflicts detected).
@@ -39,12 +91,15 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
     setOverrides(new Set());
   }, [visible, routine]);
 
-  // day -> name of ANOTHER routine already scheduled that day (conflict).
-  const blockedBy = useMemo(() => {
-    const map: Record<string, string> = {};
+  // day -> names of OTHER routines already scheduled that day (conflict).
+  const blockedByDay = useMemo(() => {
+    const map: Record<string, string[]> = {};
     for (const r of allRoutines) {
       if (r.id === routine.id) continue;
-      for (const d of r.schedule?.days ?? []) if (!map[d]) map[d] = r.name;
+      for (const d of r.schedule?.days ?? []) {
+        if (!map[d]) map[d] = [];
+        map[d].push(r.name);
+      }
     }
     return map;
   }, [allRoutines, routine.id]);
@@ -52,33 +107,23 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
   // Keep canonical Mon..Sun order on save regardless of tap order.
   const ordered = (list: string[]) => ALL.filter((d) => list.includes(d));
 
-  const select = (day: string) => setDays((cur) => (cur.includes(day) ? cur : ordered([...cur, day])));
-  const toggle = (day: string) =>
-    setDays((cur) => (cur.includes(day) ? cur.filter((d) => d !== day) : ordered([...cur, day])));
+  const isBlocked = (day: string) => !!blockedByDay[day] && !overrides.has(day);
 
-  const onDayPress = (day: string) => {
-    // A day owned by another routine is blocked until the user confirms an override.
-    if (blockedBy[day] && !overrides.has(day)) {
-      Alert.alert(t('DayAlreadyScheduled'), t('ConfirmOverrideDay', { name: blockedBy[day] }), [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Override'),
-          onPress: () => {
-            setOverrides((prev) => new Set(prev).add(day));
-            select(day);
-          },
-        },
-      ]);
-      return;
-    }
-    toggle(day);
+  const toggle = (day: string) => {
+    if (isBlocked(day)) return;
+    setDays((cur) => (cur.includes(day) ? cur.filter((d) => d !== day) : ordered([...cur, day])));
+  };
+
+  const overrideDay = (day: string) => {
+    setOverrides((prev) => new Set(prev).add(day));
+    setDays((cur) => (cur.includes(day) ? cur : ordered([...cur, day])));
   };
 
   // Quick-groups skip blocked (non-overridden) days — those need an explicit override.
   const toggleGroup = (group: string[]) =>
     setDays((cur) => {
       if (group.every((d) => cur.includes(d))) return cur.filter((d) => !group.includes(d));
-      const allowed = group.filter((d) => !blockedBy[d] || overrides.has(d));
+      const allowed = group.filter((d) => !isBlocked(d));
       return ordered([...new Set([...cur, ...allowed])]);
     });
 
@@ -89,56 +134,131 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
       ? await editSchedule(routine.schedule.id, payload, routine.id as string, t)
       : await createSchedule(payload, routine.id as string, t);
     setSubmitting(false);
-    if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
-    if (res.validation) { notify.error(res.validation); return; }
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    if (res.validation) {
+      notify.error(res.validation);
+      return;
+    }
     notify.success(t(routine.schedule?.id ? 'edited successfully' : 'created successfully'));
     onSaved();
     onClose();
   };
 
+  const blockedDays = WEEK_ORDER.filter(isBlocked);
+
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-        <Text className="text-text mb-3 text-lg font-bold">{t('Schedule')}</Text>
-        <View className="mb-3 flex-row flex-wrap gap-2">
-          <Pressable onPress={() => toggleGroup(WEEKDAYS)} accessibilityRole="button" testID="group-weekdays" className="rounded-full border border-border px-3 py-1.5">
-            <Text className="text-text text-xs">{t('Weekdays')}</Text>
-          </Pressable>
-          <Pressable onPress={() => toggleGroup(WEEKEND)} accessibilityRole="button" testID="group-weekend" className="rounded-full border border-border px-3 py-1.5">
-            <Text className="text-text text-xs">{t('Weekend')}</Text>
-          </Pressable>
-          <Pressable onPress={() => toggleGroup(ALL)} accessibilityRole="button" testID="group-all" className="rounded-full border border-border px-3 py-1.5">
-            <Text className="text-text text-xs">{t('AllDays')}</Text>
-          </Pressable>
+      <View className="flex-row items-start gap-3">
+        <View className="min-w-0 flex-1">
+          <Text
+            accessibilityRole="header"
+            className="text-base font-semibold tracking-[-0.01em] text-text"
+          >
+            {t('ScheduleRoutineTitle')}
+          </Text>
+          <Text className="mt-1 text-[13px] text-text-3">
+            {t('ScheduleRoutineSubtitle', { name: routine.name })}
+          </Text>
         </View>
-        <ScrollView contentContainerClassName="gap-2" keyboardShouldPersistTaps="handled">
-          {DAYS.map((d) => {
-            const selected = days.includes(d.wire);
-            const conflict = blockedBy[d.wire];
-            const overridden = overrides.has(d.wire);
-            const blocked = !!conflict && !overridden;
-            return (
-              <Pressable
-                key={d.wire}
-                onPress={() => onDayPress(d.wire)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                testID={`day-${d.wire}`}
-                className={`flex-row items-center justify-between rounded-control border-2 p-3 ${
-                  blocked ? 'border-danger' : selected ? 'border-accent bg-accent/10' : 'border-border'
+        <Pressable
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={t('Close')}
+          className="rounded-control p-1.5"
+          testID="schedule-close"
+        >
+          <X size={16} color={theme.text3} />
+        </Pressable>
+      </View>
+
+      {/* Uma fileira de sete: a semana inteira cabe numa olhada, e o dia já
+          tomado por outra rotina fica marcado no próprio quadrado. */}
+      <View className="mt-3.5 flex-row" style={{ gap: 6 }}>
+        {WEEK_ORDER.map((day) => {
+          const blocked = isBlocked(day);
+          const active = days.includes(day);
+          return (
+            <Pressable
+              key={day}
+              onPress={() => toggle(day)}
+              accessibilityRole="button"
+              accessibilityLabel={t(day)}
+              accessibilityState={{ selected: active, disabled: blocked }}
+              testID={`day-${day}`}
+              className={`h-8 flex-1 items-center justify-center rounded-[10px] ${
+                active ? 'bg-accent' : blocked ? 'bg-danger/10' : 'bg-surface-2'
+              }`}
+            >
+              <Text
+                className={`font-mono-semibold text-[11.5px] ${
+                  active ? 'text-on-accent' : blocked ? 'text-danger' : 'text-text-3'
                 }`}
               >
-                <View className="flex-row items-center gap-2">
-                  <Text className={`text-base ${selected ? 'text-accent font-semibold' : 'text-text'}`}>{t(d.key)}</Text>
-                  {overridden ? <Text className="text-accent text-[10px] font-semibold uppercase">{t('Override')}</Text> : null}
-                </View>
-                {conflict ? <Text className={`text-xs ${blocked ? 'text-danger' : 'text-text-2'}`}>{t('ScheduledIn', { name: conflict })}</Text> : null}
+                {t(day).charAt(0).toUpperCase()}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {blockedDays.length > 0 ? (
+        <View className="mt-3 rounded-control border border-danger/30 bg-danger/5 p-2.5">
+          <Text className="text-[12.5px] font-semibold text-danger">
+            {t('Already scheduled for')}
+          </Text>
+          {blockedDays.map((day) => (
+            <View key={day} className="mt-1.5 flex-row items-center gap-2">
+              <Text className="min-w-0 flex-1 text-xs text-text-2" numberOfLines={1}>
+                {`${t(day)} · ${(blockedByDay[day] ?? []).join(', ')}`}
+              </Text>
+              <Pressable
+                onPress={() => overrideDay(day)}
+                accessibilityRole="button"
+                testID={`override-${day}`}
+                className="shrink-0 rounded-control bg-accent-soft px-2 py-1"
+              >
+                <Text className="text-[11.5px] font-semibold text-accent">{t('Override day')}</Text>
               </Pressable>
-            );
-          })}
-          <View className="mt-3 items-center">
-            <Button text={t('Save schedule')} mode="create" submitting={submitting} onPress={save} testID="schedule-save" />
-          </View>
-        </ScrollView>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      <View className="mt-3 flex-row flex-wrap gap-1.5">
+        <GroupChip
+          label={t('Mon - Fri')}
+          active={WEEKDAYS.every((d) => days.includes(d))}
+          onPress={() => toggleGroup(WEEKDAYS)}
+          testID="group-weekdays"
+        />
+        <GroupChip
+          label={t('Weekend')}
+          active={WEEKEND.every((d) => days.includes(d))}
+          onPress={() => toggleGroup(WEEKEND)}
+          testID="group-weekend"
+        />
+        <GroupChip
+          label={t('All week')}
+          active={ALL.every((d) => days.includes(d))}
+          onPress={() => toggleGroup(ALL)}
+          testID="group-all"
+        />
+      </View>
+
+      <View className="mt-[18px] flex-row justify-end gap-2">
+        <Button text={t('Cancel')} mode="ghost" size="auto" onPress={onClose} testID="schedule-cancel" />
+        <Button
+          text={t('Save schedule')}
+          mode="primary"
+          size="auto"
+          submitting={submitting}
+          onPress={save}
+          testID="schedule-save"
+        />
+      </View>
     </BottomSheet>
   );
 }

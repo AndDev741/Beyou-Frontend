@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle } from "react-icons/fi";
+import { FiCalendar, FiClock, FiEdit2, FiTrash2, FiChevronDown, FiCheckCircle, FiSlash } from "react-icons/fi";
 import { Routine } from "@beyou/types/routine/routine";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
 import Ring from "../../ui/Ring";
 import { formatTimeRange, getSectionStats, getRoutineStats } from "./routineMetrics";
-import { AiFillStar } from "react-icons/ai";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
+import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 
 
 type ItemLookup = Record<string, { name?: string; iconId?: string }>;
@@ -21,6 +21,7 @@ type RoutineCardProps = {
     onEdit: (routine: Routine) => void;
     onSchedule: (routine: Routine) => void;
     onCheckItem: (payload: itemGroupToCheck) => Promise<void>;
+    onSkipItem: (payload: itemGroupToSkip) => Promise<void>;
     onRequestDelete: (routine: Routine) => void;
 };
 
@@ -32,6 +33,7 @@ export const RoutineCard = ({
     onEdit,
     onSchedule,
     onCheckItem,
+    onSkipItem,
     onRequestDelete,
 }: RoutineCardProps) => {
     const { t } = useTranslation();
@@ -146,9 +148,12 @@ export const RoutineCard = ({
                     </button>
                     </div>
 
+                    {/* Só no desktop: no telefone esta fileira só existe com o
+                        cartão aberto, e aí este chevron seria o SEGUNDO — o do
+                        título já está ali em cima fazendo a mesma coisa. */}
                     <button
                         type="button"
-                        className="flex rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                        className="hidden rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 md:flex"
                         onClick={() => setExpanded((prev) => !prev)}
                         aria-label={expanded ? t("Collapse") : t("Expand")}
                         aria-expanded={expanded}
@@ -249,6 +254,7 @@ export const RoutineCard = ({
                                 habitLookup={habitLookup}
                                 routineId={routine.id}
                                 onCheckItem={onCheckItem}
+                                onSkipItem={onSkipItem}
                             />
                         ))}
                 </div>
@@ -269,9 +275,10 @@ type SectionRowProps = {
     habitLookup: ItemLookup;
     routineId?: string;
     onCheckItem: (payload: itemGroupToCheck) => Promise<void>;
+    onSkipItem: (payload: itemGroupToSkip) => Promise<void>;
 };
 
-const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem }: SectionRowProps) => {
+const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem, onSkipItem }: SectionRowProps) => {
     const { t } = useTranslation();
     const sectionStats = useMemo(() => getSectionStats(section, selectedDate), [section, selectedDate]);
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
@@ -280,9 +287,9 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
         const tasks =
             section.taskGroup?.map((task) => {
                 const data = taskLookup[task.taskId] || {};
-                const completed = task.taskGroupChecks?.some(
-                    (check) => check?.checkDate === selectedDate && Boolean(check?.checked)
-                );
+                const check = task.taskGroupChecks?.find((c) => c?.checkDate === selectedDate);
+                const completed = Boolean(check?.checked);
+                const skipped = Boolean(check?.skipped);
                 const xp = task.taskGroupChecks?.find(
                     (check) => check?.checkDate === selectedDate && typeof check?.xpGenerated === "number"
                 )?.xpGenerated;
@@ -295,6 +302,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     startTime: task.startTime,
                     endTime: task.endTime,
                     completed,
+                    skipped,
                     xp,
                     type: "task" as const,
                 };
@@ -303,9 +311,9 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
         const habits =
             section.habitGroup?.map((habit) => {
                 const data = habitLookup[habit.habitId] || {};
-                const completed = habit.habitGroupChecks?.some(
-                    (check) => check?.checkDate === selectedDate && Boolean(check?.checked)
-                );
+                const check = habit.habitGroupChecks?.find((c) => c?.checkDate === selectedDate);
+                const completed = Boolean(check?.checked);
+                const skipped = Boolean(check?.skipped);
                 const xp = habit.habitGroupChecks?.find(
                     (check) => check?.checkDate === selectedDate && typeof check?.xpGenerated === "number"
                 )?.xpGenerated;
@@ -318,6 +326,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     startTime: habit.startTime,
                     endTime: habit.endTime,
                     completed,
+                    skipped,
                     xp,
                     type: "habit" as const,
                 };
@@ -328,22 +337,20 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
 
     return (
         <div className="mt-3 first:mt-0">
-            <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
+            {/* Mesmo cabeçalho da rotina do dia: ícone solto, nome de 12,5px em
+                text-2 e a hora em mono. O tile de 32px com nome de 13,5px pesava
+                mais que os itens que ele agrupa. */}
+            <div className="flex items-center gap-2.5 py-1.5">
+                <span className="shrink-0 text-[15px] text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                 </span>
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                        <p className="truncate text-[13.5px] font-semibold text-text">{section.name}</p>
-                        {section.favorite && <AiFillStar className="shrink-0 text-xp" aria-hidden="true" />}
-                    </div>
-                    <span className="font-mono text-[11.5px] text-text-3">
-                        {formatTimeRange(section.startTime, section.endTime)} · {sectionStats.completedItems}/
-                        {sectionStats.totalItems}
-                    </span>
-                </div>
+                <b className="truncate text-[12.5px] font-semibold text-text-2">{section.name}</b>
+                <span className="whitespace-nowrap font-mono text-[11px] text-text-3">
+                    {formatTimeRange(section.startTime, section.endTime)} · {sectionStats.completedItems}/
+                    {sectionStats.totalItems}
+                </span>
                 {sectionStats.xpEarned > 0 && (
-                    <span className="shrink-0 rounded-full bg-xp-soft px-2.5 py-0.5 font-mono text-[11.5px] font-semibold text-xp">
+                    <span className="ml-1 shrink-0 rounded-full bg-xp-soft px-2 py-0.5 font-mono text-[11px] font-semibold text-xp">
                         +{sectionStats.xpEarned} XP
                     </span>
                 )}
@@ -374,6 +381,28 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                             };
                             onCheckItem(payload);
                         };
+                        const handleSkip = () => {
+                            if (!routineId) return;
+                            const payload: itemGroupToSkip = {
+                                routineId,
+                                localDate: selectedDate,
+                                skip: !item.skipped,
+                                ...(item.type === "task"
+                                    ? {
+                                        taskGroupDTO: {
+                                            taskGroupId: item.groupId,
+                                            startTime: item.startTime,
+                                        },
+                                    }
+                                    : {
+                                        habitGroupDTO: {
+                                            habitGroupId: item.groupId,
+                                            startTime: item.startTime,
+                                        },
+                                    }),
+                            };
+                            onSkipItem(payload);
+                        };
                         return (
                             <div
                                 key={`${item.type}-${item.id}-${idx}`}
@@ -391,33 +420,52 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                         onChange={handleToggle}
                                     />
                                     <Ring
-                                        size={24}
-                                        state={item.completed ? "done" : "todo"}
+                                        size={26}
+                                        state={item.completed ? "done" : item.skipped ? "skipped" : "todo"}
                                         className="rounded-full transition-transform duration-200 group-hover:scale-105 peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface"
                                     />
                                 </label>
 
-                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
+                                <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-accent-soft text-accent">
                                     {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
                                 </span>
 
-                                <span
-                                    className={`line-clamp-2 min-w-0 flex-1 text-[13px] font-medium lg:line-clamp-1 ${
-                                        item.completed ? "text-text-3" : "text-text"
-                                    }`}
-                                >
-                                    {item.label}
-                                </span>
-
-                                <div className="flex shrink-0 items-center gap-1.5">
-                                    {item.xp ? (
-                                        <span className="rounded-full bg-xp-soft px-2 py-0.5 font-mono text-[11px] font-semibold text-xp">
-                                            +{item.xp} XP
-                                        </span>
-                                    ) : null}
-                                    <span className="hidden rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-medium text-text-3 md:inline">
-                                        {formatTimeRange(item.startTime, item.endTime)}
+                                {/* No telefone a linha quebra em duas: metadados em
+                                    cima, nome embaixo em largura cheia — igual à
+                                    rotina do dia e ao nativo. `flex-col-reverse`
+                                    inverte só o VISUAL; no DOM o nome vem antes,
+                                    que é o que leitor de tela e e2e leem. */}
+                                <div className="flex min-w-0 flex-1 flex-col-reverse gap-1 lg:flex-row lg:items-center lg:gap-3">
+                                    <span
+                                        className={`line-clamp-2 text-[13.5px] font-medium lg:line-clamp-1 ${
+                                            item.completed || item.skipped ? "text-text-3" : "text-text"
+                                        } ${item.skipped ? "line-through" : ""}`}
+                                    >
+                                        {item.label}
                                     </span>
+
+                                    <div className="flex shrink-0 items-center gap-1.5 lg:ml-auto lg:gap-2">
+                                        {item.xp ? (
+                                            <span className="rounded-full bg-xp-soft px-2.5 py-0.5 font-mono text-xs font-semibold text-xp">
+                                                +{item.xp} XP
+                                            </span>
+                                        ) : null}
+                                        <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
+                                            {formatTimeRange(item.startTime, item.endTime)}
+                                        </span>
+                                        {!item.completed && (
+                                            <button
+                                                type="button"
+                                                aria-label={item.skipped ? t("Undo skip") : t("Skip")}
+                                                title={item.skipped ? t("Undo skip") : t("Skip")}
+                                                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11.5px] font-semibold text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                                                onClick={handleSkip}
+                                            >
+                                                <FiSlash size={13} aria-hidden="true" />
+                                                {item.skipped ? t("Undo skip") : t("Skip")}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         );

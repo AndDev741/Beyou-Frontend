@@ -42,6 +42,7 @@ test("renders item time range when endTime is provided", () => {
             onEdit={vi.fn()}
             onSchedule={vi.fn()}
             onCheckItem={vi.fn()}
+            onSkipItem={vi.fn()}
             onRequestDelete={vi.fn()}
         />
     );
@@ -62,6 +63,7 @@ const renderCard = (routine: Routine) =>
             onEdit={vi.fn()}
             onSchedule={vi.fn()}
             onCheckItem={vi.fn()}
+            onSkipItem={vi.fn()}
             onRequestDelete={vi.fn()}
         />
     );

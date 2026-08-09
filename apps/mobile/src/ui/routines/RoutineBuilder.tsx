@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { Modal, View, Text, ScrollView } from 'react-native';
+import { X } from 'lucide-react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { routineFormSchema, getSectionErrorKeys, getItemTimeErrorKeys } from '@beyou/validation';
@@ -12,11 +13,14 @@ import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
 import Input from '../Input';
 import Button from '../Button';
-import IconPickerField from '../icons/IconPickerField';
+import GhostAdd from '../GhostAdd';
+import IconButton from '../IconButton';
+import SegmentedControl from '../SegmentedControl';
 import SectionSheet from './SectionSheet';
 import ItemPickerSheet from './ItemPickerSheet';
 import SectionCard from './SectionCard';
-import RoutineTypePicker from './RoutineTypePicker';
+import type { MergedSectionItem } from './sectionItems';
+import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 
 interface RoutineBuilderProps {
@@ -33,6 +37,7 @@ const emptyRoutine = (): Routine => ({ name: '', iconId: '', routineSections: []
 
 export default function RoutineBuilder({ visible, mode, routine, habits, tasks, onClose, onSaved }: RoutineBuilderProps) {
   const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
   const insets = useContext(SafeAreaInsetsContext);
   const bottomPad = (insets?.bottom ?? 0) + 16;
   const isEdit = mode === 'edit';
@@ -41,14 +46,11 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   const [itemSheet, setItemSheet] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
-  // Plain create starts on the type-picker; edit / AI-seeded create skip straight to the form.
-  const [typeChosen, setTypeChosen] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
     // Deep clone so edits never mutate the slice.
     setWorking(routine ? JSON.parse(JSON.stringify(routine)) : emptyRoutine());
-    setTypeChosen(isEdit || !!routine);
     setFormError(undefined);
   }, [visible, routine, isEdit]);
 
@@ -60,6 +62,20 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
     if (sectionSheet.index === null) list.push(section);
     else list[sectionSheet.index] = section;
     setSections(list);
+  };
+
+  const patchSection = (index: number, patch: Partial<RoutineSection>) =>
+    setSections(working.routineSections.map((s, i) => (i === index ? { ...s, ...patch } : s)));
+
+  /** Tira o hábito/tarefa da seção — o grupo certo conforme o tipo do item. */
+  const removeItem = (index: number, item: MergedSectionItem) => {
+    const section = working.routineSections[index];
+    patchSection(
+      index,
+      item.type === 'habit'
+        ? { habitGroup: (section.habitGroup ?? []).filter((g) => g.habitId !== item.refId) }
+        : { taskGroup: (section.taskGroup ?? []).filter((g) => g.taskId !== item.refId) },
+    );
   };
 
   const move = (index: number, dir: -1 | 1) => {
@@ -112,33 +128,60 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
-        <View className="flex-row items-center justify-between border-b border-border px-4 py-3">
-          <Pressable onPress={onClose} accessibilityRole="button" testID="routine-form-cancel"><Text className="text-text-2 text-base">{t('Cancel')}</Text></Pressable>
-          <Text className="text-text text-lg font-bold">{t(isEdit ? 'Edit Routine' : 'Create routine')}</Text>
-          <View className="w-12" />
+        {/* Cabeçalho do modal da web: título à esquerda, × à direita. As ações
+            ficam no pé, onde o polegar já está depois de preencher. */}
+        <View className="flex-row items-center gap-3 border-b border-border px-4 py-3">
+          <Text
+            accessibilityRole="header"
+            className="min-w-0 flex-1 text-base font-semibold tracking-[-0.01em] text-text"
+          >
+            {t(isEdit ? 'Edit Routine' : 'Create routine')}
+          </Text>
+          <IconButton label={t('Close')} onPress={onClose} testID="routine-form-close">
+            <X size={16} color={theme.text3} />
+          </IconButton>
         </View>
-        {!typeChosen ? (
-          <ScrollView className="flex-1 px-4" contentContainerClassName="pt-6" contentContainerStyle={{ paddingBottom: bottomPad }} keyboardShouldPersistTaps="handled">
-            <RoutineTypePicker onChoose={() => setTypeChosen(true)} />
-          </ScrollView>
-        ) : (
-        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: bottomPad }} keyboardShouldPersistTaps="handled">
+
+        <ScrollView
+          className="flex-1 px-4"
+          contentContainerClassName="gap-4 pt-4"
+          contentContainerStyle={{ paddingBottom: bottomPad }}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Só existe rotina diária; a de lista está desenhada e aparece
+              apagada em vez de escondida, como na web. Isso substitui a tela de
+              escolha que abria a criação com duas ilustrações. */}
           <View>
-            <Text className="text-text mb-1 text-base font-semibold">{t('Routine name')}</Text>
-            <Input value={working.name} onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))} placeholder={t('Routine name')} accessibilityLabel={t('Routine name')} testID="routine-name" />
+            <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
+              {t('RoutineTypeLabel')}
+            </Text>
+            <SegmentedControl
+              className="w-full"
+              label={t('RoutineTypeLabel')}
+              value="daily"
+              onChange={() => {}}
+              testID="routine-type"
+              options={[
+                { value: 'daily', label: t('RoutineTypeDaily') },
+                { value: 'list', label: t('RoutineTypeList'), disabled: true },
+              ]}
+            />
           </View>
-          <IconPickerField label={t('Icon')} value={working.iconId} onChange={(v) => setWorking((w) => ({ ...w, iconId: v }))} testID="routine-icon" />
 
-          <View className="flex-row items-center justify-between">
-            <Text className="text-text text-base font-semibold">{t('Sections')}</Text>
-            <Pressable onPress={() => setSectionSheet({ open: true, index: null })} accessibilityRole="button" testID="add-section" className="items-center justify-center rounded-full bg-accent px-3 py-1.5">
-              <Text className="text-on-accent text-center text-sm font-semibold">{t('add section')}</Text>
-            </Pressable>
+          <View>
+            <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('Name')}</Text>
+            <Input
+              value={working.name}
+              onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))}
+              placeholder={t('Routine name')}
+              accessibilityLabel={t('Routine name')}
+              compact
+              testID="routine-name"
+            />
           </View>
 
-          {working.routineSections.length === 0 ? (
-            <Text className="text-text-2 text-sm">{t('No sections added')}</Text>
-          ) : (
+          <View>
+            <Text className="mb-2 text-[13px] font-semibold text-text-2">{t('Sections')}</Text>
             <View className="gap-2">
               {working.routineSections.map((section, i) => (
                 <SectionCard
@@ -152,19 +195,37 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
                   onAssign={() => setItemSheet(i)}
                   onMove={(dir) => move(i, dir)}
                   onRemove={() => setSections(working.routineSections.filter((_, idx) => idx !== i))}
+                  onRemoveItem={(item) => removeItem(i, item)}
+                  onToggleFavorite={() => patchSection(i, { favorite: !section.favorite })}
                 />
               ))}
             </View>
-          )}
+            <GhostAdd
+              label={t('New section')}
+              onPress={() => setSectionSheet({ open: true, index: null })}
+              className={working.routineSections.length > 0 ? 'mt-2' : ''}
+              testID="add-section"
+            />
+          </View>
 
           {formError ? (
-            <Text className="text-danger text-center text-sm font-semibold" testID="routine-form-error">{formError}</Text>
+            <Text className="text-center text-[12.5px] font-semibold text-danger" testID="routine-form-error">
+              {formError}
+            </Text>
           ) : null}
-          <View className="mt-2 items-center">
-            <Button text={t(isEdit ? 'Edit' : 'Create')} mode="create" submitting={submitting} onPress={save} testID="routine-save" />
+
+          <View className="mt-2 flex-row justify-end gap-2">
+            <Button text={t('Cancel')} mode="ghost" size="auto" onPress={onClose} testID="routine-form-cancel" />
+            <Button
+              text={t('Save routine')}
+              mode="primary"
+              size="auto"
+              submitting={submitting}
+              onPress={save}
+              testID="routine-save"
+            />
           </View>
         </ScrollView>
-        )}
 
         <SectionSheet
           visible={sectionSheet.open}

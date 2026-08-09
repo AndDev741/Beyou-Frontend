@@ -2,7 +2,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import { renderWithProviders } from '../../../test/test-utils';
 import { SnapshotRoutineCard } from '../SnapshotRoutineCard';
+import { checkSnapshotItem, skipSnapshotItem } from '@beyou/api/routine/snapshot';
 import { Snapshot, SnapshotCheck, SnapshotStructureSection } from '@beyou/types/routine/snapshot';
+
+/**
+ * O cartão do histórico no desenho do nativo: a faixa de resumo em cima e uma
+ * ficha por seção, tudo aberto. As medalhas (Seções / Concluído / Progresso), a
+ * barra de porcentagem e o chevron saíram — a página já diz, no cabeçalho, que
+ * se está olhando o histórico.
+ */
 
 // Mock modules that the component depends on
 vi.mock('@beyou/api/routine/snapshot', () => ({
@@ -82,269 +90,124 @@ const buildSnapshot = (overrides: Partial<Snapshot> = {}): Snapshot => ({
     ...overrides,
 });
 
+/** Duas seções, um item em cada, para os casos de contagem. */
+const twoSections = (checks: SnapshotCheck[]) =>
+    buildSnapshot({
+        checks,
+        structure: {
+            sections: [
+                buildSection(),
+                buildSection({
+                    name: 'Evening',
+                    orderIndex: 1,
+                    items: [
+                        {
+                            type: 'TASK',
+                            groupId: 'group-2',
+                            itemId: 'task-1',
+                            name: 'Read',
+                            iconId: 'book',
+                            startTime: '20:00',
+                            endTime: '20:30',
+                        },
+                    ],
+                }),
+            ],
+        },
+    });
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
 describe('SnapshotRoutineCard', () => {
-    it('renders the routine name', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
+    it('renders the routine name and the date', () => {
+        renderWithProviders(<SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />);
 
         expect(screen.getByText('Morning Routine')).toBeInTheDocument();
+        expect(
+            screen.getByText(new Date('2025-06-15').toLocaleDateString()),
+        ).toBeInTheDocument();
     });
 
-    it('shows the "Historical view" badge', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
+    it('sums done, skipped and XP in the summary strip', () => {
+        const snapshot = twoSections([
+            buildCheck({ id: 'c1', originalGroupId: 'group-1', checked: true, xpGenerated: 30 }),
+            buildCheck({ id: 'c2', originalGroupId: 'group-2', skipped: true, xpGenerated: 20 }),
+        ]);
 
-        expect(screen.getByText('Historical view')).toBeInTheDocument();
+        renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />);
+
+        expect(screen.getByText('Completed: 1')).toBeInTheDocument();
+        expect(screen.getByText('Skipped: 1')).toBeInTheDocument();
+        // Só o que foi CONCLUÍDO conta XP — pular não paga. O `t()` do setup
+        // devolve a própria chave, então a asserção mira o número.
+        expect(screen.getByText(/^30\s/)).toBeInTheDocument();
     });
 
-    it('displays sections count badge', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
+    it('shows every section and its items without an expand step', () => {
+        const snapshot = twoSections([
+            buildCheck({ id: 'c1', originalGroupId: 'group-1' }),
+            buildCheck({ id: 'c2', originalGroupId: 'group-2', itemName: 'Read' }),
+        ]);
 
-        // "1 Sections" rendered together inside a Badge
-        expect(screen.getByText(/1\s+Sections/)).toBeInTheDocument();
+        renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />);
+
+        expect(screen.getByText('Morning')).toBeInTheDocument();
+        expect(screen.getByText('Evening')).toBeInTheDocument();
+        expect(screen.getByText('Drink water')).toBeInTheDocument();
+        expect(screen.getByText('Read')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /expand/i })).not.toBeInTheDocument();
     });
 
-    it('displays completion count and progress badges', () => {
+    it('reflects the checked state on the checkbox', () => {
         const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', checked: true }),
-                buildCheck({ id: 'c2', checked: false }),
-            ],
+            checks: [buildCheck({ id: 'c1', checked: true, xpGenerated: 10 })],
         });
 
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
+        renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />);
 
-        // "1/2 Done" in the badge
-        expect(screen.getByText(/1\/2/)).toBeInTheDocument();
-        expect(screen.getByText(/Done/)).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: 'Drink water' })).toBeChecked();
     });
 
-    it('shows 0% progress when there are no checks', () => {
+    it('checks an item through the API', () => {
+        renderWithProviders(<SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />);
+
+        fireEvent.click(screen.getByRole('checkbox', { name: 'Drink water' }));
+
+        expect(checkSnapshotItem).toHaveBeenCalledWith('snap-1', 'check-1', expect.anything());
+    });
+
+    it('skips an item, and offers to undo it afterwards', () => {
+        const { unmount } = renderWithProviders(
+            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'Skip' }));
+        expect(skipSnapshotItem).toHaveBeenCalledWith('snap-1', 'check-1', expect.anything());
+        unmount();
+
+        const skipped = buildSnapshot({ checks: [buildCheck({ skipped: true })] });
+        renderWithProviders(<SnapshotRoutineCard snapshot={skipped} routineId="r-1" />);
+        expect(screen.getByRole('button', { name: 'Undo skip' })).toBeInTheDocument();
+    });
+
+    /** Item concluído não tem o que pular. */
+    it('hides the skip button once the item is done', () => {
+        const snapshot = buildSnapshot({ checks: [buildCheck({ checked: true })] });
+
+        renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />);
+
+        expect(screen.queryByRole('button', { name: /skip/i })).not.toBeInTheDocument();
+    });
+
+    /** Item da estrutura sem check ainda aparece — só não tem controles. */
+    it('lists a structure item that has no check', () => {
         const snapshot = buildSnapshot({ checks: [] });
 
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
+        renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />);
 
-        // The progress text should show "0%"
-        const progressElements = screen.getAllByText(/0%/);
-        expect(progressElements.length).toBeGreaterThan(0);
-    });
-
-    it('computes the correct completion percentage', () => {
-        const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', checked: true }),
-                buildCheck({ id: 'c2', checked: true }),
-                buildCheck({ id: 'c3', checked: false }),
-                buildCheck({ id: 'c4', checked: false }),
-            ],
-        });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        // 2/4 = 50%
-        const percentElements = screen.getAllByText(/50%/);
-        expect(percentElements.length).toBeGreaterThan(0);
-    });
-
-    it('shows the snapshot date', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
-
-        // The date is formatted by toLocaleDateString; check that some date text is present
-        const dateEl = screen.getByText(new Date('2025-06-15').toLocaleDateString());
-        expect(dateEl).toBeInTheDocument();
-    });
-
-    it('displays XP earned when checks have xp', () => {
-        const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', checked: true, xpGenerated: 30 }),
-                buildCheck({ id: 'c2', checked: true, xpGenerated: 20 }),
-            ],
-        });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        expect(screen.getByText(/\+50 XP/)).toBeInTheDocument();
-    });
-
-    it('shows "Completed" text when the snapshot is completed', () => {
-        const snapshot = buildSnapshot({ completed: true });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        expect(screen.getByText('Completed')).toBeInTheDocument();
-    });
-
-    it('renders expand/collapse button', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        expect(expandButton).toBeInTheDocument();
-    });
-
-    it('expands to show section details when clicking the expand button', () => {
-        const snapshot = buildSnapshot();
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        // Items should not be visible before expanding
-        expect(screen.queryByText('Drink water')).not.toBeInTheDocument();
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-
-        // After expanding, item names should be visible
         expect(screen.getByText('Drink water')).toBeInTheDocument();
-    });
-
-    it('shows section name when expanded', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-
-        // The section name "Morning" appears in section header
-        expect(screen.getByText('Morning')).toBeInTheDocument();
-    });
-
-    it('shows item type badges when expanded', () => {
-        const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', itemType: 'HABIT', itemName: 'Water' }),
-                buildCheck({ id: 'c2', itemType: 'TASK', itemName: 'Read', sectionName: 'Morning' }),
-            ],
-            structure: {
-                sections: [
-                    buildSection({
-                        items: [
-                            {
-                                type: 'HABIT',
-                                groupId: 'group-1',
-                                itemId: 'habit-1',
-                                name: 'Water',
-                                iconId: 'water',
-                                startTime: '07:00',
-                                endTime: '07:30',
-                            },
-                            {
-                                type: 'TASK',
-                                groupId: 'group-2',
-                                itemId: 'task-1',
-                                name: 'Read',
-                                iconId: 'book',
-                                startTime: '08:00',
-                                endTime: '08:30',
-                            },
-                        ],
-                    }),
-                ],
-            },
-        });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-
-        expect(screen.getByText('Habit')).toBeInTheDocument();
-        expect(screen.getByText('Task')).toBeInTheDocument();
-    });
-
-    it('displays a checkbox for each check item when expanded', () => {
-        const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', itemName: 'Item 1' }),
-                buildCheck({ id: 'c2', itemName: 'Item 2' }),
-            ],
-        });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-
-        const checkboxes = screen.getAllByRole('checkbox');
-        expect(checkboxes).toHaveLength(2);
-    });
-
-    it('shows checked state for completed items', () => {
-        const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', itemName: 'Done item', checked: true, xpGenerated: 10 }),
-            ],
-        });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeChecked();
-    });
-
-    it('shows "Skipped" text for skipped items', () => {
-        const snapshot = buildSnapshot({
-            checks: [
-                buildCheck({ id: 'c1', itemName: 'Skipped item', skipped: true }),
-            ],
-        });
-
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={snapshot} routineId="r-1" />,
-        );
-
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-
-        expect(screen.getByText('Skipped')).toBeInTheDocument();
-    });
-
-    it('collapses sections when clicking the collapse button', () => {
-        renderWithProviders(
-            <SnapshotRoutineCard snapshot={buildSnapshot()} routineId="r-1" />,
-        );
-
-        // Expand first
-        const expandButton = screen.getByRole('button', { name: /expand/i });
-        fireEvent.click(expandButton);
-        expect(screen.getByText('Drink water')).toBeInTheDocument();
-
-        // Now collapse
-        const collapseButton = screen.getByRole('button', { name: /collapse/i });
-        fireEvent.click(collapseButton);
-        expect(screen.queryByText('Drink water')).not.toBeInTheDocument();
+        expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     });
 });

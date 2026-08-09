@@ -1,14 +1,23 @@
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
 
+import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
 import '../src/i18n';
+import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import RoutineBuilder from '../src/ui/routines/RoutineBuilder';
 import { notify } from '../src/notify';
 
 const habits = [{ id: 'h1', name: 'Meditate', iconId: 'lucide:brain' }] as never[];
-const wrap = (n: React.ReactElement) => render(<BeyouThemeProvider>{n}</BeyouThemeProvider>);
+// A folha de seção lê as favoritas da fatia de rotinas, então o builder
+// precisa do Provider.
+const wrap = (n: React.ReactElement) =>
+  render(
+    <Provider store={makeStore()}>
+      <BeyouThemeProvider>{n}</BeyouThemeProvider>
+    </Provider>,
+  );
 
 let post: jest.Mock;
 beforeEach(() => {
@@ -19,18 +28,16 @@ beforeEach(() => {
   (notify.error as jest.Mock).mockClear();
 });
 
-test('create starts on the type picker; only Daily is selectable', async () => {
+test('opens straight on the form, with the list type shown but disabled', async () => {
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
-  // Picker shown, form hidden until a type is chosen.
-  expect(screen.getByTestId('routine-type-daily')).toBeTruthy();
-  expect(screen.queryByTestId('routine-name')).toBeNull();
-  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
+  // Sem tela de escolha: o tipo é um segmentado no topo do próprio formulário.
   expect(screen.getByTestId('routine-name')).toBeTruthy();
+  expect(screen.getByTestId('routine-type-daily').props.accessibilityState.selected).toBe(true);
+  expect(screen.getByTestId('routine-type-list').props.accessibilityState.disabled).toBe(true);
 });
 
 test('blocks save with no name/sections', async () => {
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
-  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
   await act(async () => { fireEvent.press(screen.getByTestId('routine-save')); });
   expect(post).not.toHaveBeenCalled();
   expect(notify.error).toHaveBeenCalled();
@@ -53,7 +60,6 @@ test('shows an inline, section-qualified error when an item time is outside the 
 test('posts a routine with a section', async () => {
   const onSaved = jest.fn();
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={onSaved} />);
-  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-daily')); });
   await act(async () => { fireEvent.changeText(screen.getByTestId('routine-name'), 'Morning'); });
 
   // Add a section via the sheet.

@@ -1,26 +1,109 @@
+/**
+ * A seção dentro do formulário de rotina, no desenho da web: fechada mostra só
+ * o cabeçalho (nome, horários, favoritar/editar/excluir); os itens e as setas
+ * de ordem vêm ao abrir.
+ */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import SectionCard from '../src/ui/routines/SectionCard';
 
-const section = { id: 's1', name: 'Wake', iconId: 'lucide:sun', startTime: '06:00', endTime: '07:00', order: 0, habitGroup: [{ habitId: 'h1', startTime: '06:10', endTime: '' }], taskGroup: [] } as never;
+const section = {
+  id: 's1',
+  name: 'Wake',
+  iconId: 'lucide:sun',
+  startTime: '06:00',
+  endTime: '07:00',
+  order: 0,
+  habitGroup: [{ habitId: 'h1', startTime: '06:10', endTime: '' }],
+  taskGroup: [],
+} as never;
 const habits = [{ id: 'h1', name: 'Meditate', iconId: 'lucide:brain' }] as never[];
 const tasks = [] as never[];
-const wrap = (n: React.ReactElement) => render(<BeyouThemeProvider>{n}</BeyouThemeProvider>);
 
-test('renders the section, its assigned items, and fires actions', async () => {
-  const onEdit = jest.fn(), onAssign = jest.fn(), onMove = jest.fn(), onRemove = jest.fn();
-  await wrap(<SectionCard section={section} index={0} count={2} habits={habits} tasks={tasks} onEdit={onEdit} onAssign={onAssign} onMove={onMove} onRemove={onRemove} />);
+const handlers = () => ({
+  onEdit: jest.fn(),
+  onAssign: jest.fn(),
+  onMove: jest.fn(),
+  onRemove: jest.fn(),
+  onRemoveItem: jest.fn(),
+  onToggleFavorite: jest.fn(),
+});
+
+const wrap = async (props: ReturnType<typeof handlers>) => {
+  await act(async () => {
+    render(
+      <BeyouThemeProvider>
+        <SectionCard
+          section={section}
+          index={0}
+          count={2}
+          habits={habits}
+          tasks={tasks}
+          {...props}
+        />
+      </BeyouThemeProvider>,
+    );
+  });
+};
+
+const expand = async () => {
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-toggle-0'));
+  });
+};
+
+test('shows the header closed and the items only once expanded', async () => {
+  const props = handlers();
+  await wrap(props);
+
   expect(screen.getByText('Wake')).toBeTruthy();
-  // Assigned habit shows under the section with its time.
+  expect(screen.getByText('06:00')).toBeTruthy();
+  expect(screen.getByText('07:00')).toBeTruthy();
+  expect(screen.queryByText('Meditate')).toBeNull();
+
+  await expand();
   expect(screen.getByText('Meditate')).toBeTruthy();
   expect(screen.getByText('06:10')).toBeTruthy();
+});
+
+test('fires edit, favorite and delete from the header', async () => {
+  const props = handlers();
+  await wrap(props);
+
   await act(async () => {
     fireEvent.press(screen.getByTestId('section-edit'));
   });
-  expect(onEdit).toHaveBeenCalled();
+  expect(props.onEdit).toHaveBeenCalled();
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-favorite-0'));
+  });
+  expect(props.onToggleFavorite).toHaveBeenCalled();
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-remove'));
+  });
+  expect(props.onRemove).toHaveBeenCalled();
+});
+
+test('reorders and drops an item from inside the open section', async () => {
+  const props = handlers();
+  await wrap(props);
+  await expand();
+
   await act(async () => {
     fireEvent.press(screen.getByTestId('section-down'));
   });
-  expect(onMove).toHaveBeenCalledWith(1);
+  expect(props.onMove).toHaveBeenCalledWith(1);
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-item-remove-habit-h1'));
+  });
+  expect(props.onRemoveItem).toHaveBeenCalledWith(expect.objectContaining({ refId: 'h1' }));
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('section-assign'));
+  });
+  expect(props.onAssign).toHaveBeenCalled();
 });
