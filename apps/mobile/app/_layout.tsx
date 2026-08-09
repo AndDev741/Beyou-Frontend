@@ -3,9 +3,10 @@
 import 'react-native-get-random-values';
 import '../global.css';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import '../src/i18n';
@@ -108,9 +109,17 @@ function Gate() {
   return <Stack screenOptions={{ headerShown: false }} />;
 }
 
+// O splash nativo fica no ar até a tipografia carregar. Sem isto ele sai assim
+// que a view do RN monta, e aparecia um branco com spinner entre a marca e o
+// app — três telas para uma abertura.
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* já escondido, ou plataforma sem splash: nada a fazer */
+});
+
 export default function RootLayout() {
   // Geist é a tipografia da marca; até carregar, renderizar texto com a fonte
   // do sistema causaria um salto de layout visível no boot.
+  const systemScheme = useColorScheme();
   const [fontsLoaded] = useFonts({
     Geist: require('../assets/fonts/Geist-Regular.ttf'),
     GeistMedium: require('../assets/fonts/Geist-Medium.ttf'),
@@ -120,11 +129,18 @@ export default function RootLayout() {
     GeistMonoSemiBold: require('../assets/fonts/GeistMono-SemiBold.ttf'),
   });
 
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsLoaded]);
+
+  // Enquanto a fonte carrega, a tela é do MESMO tom do splash (o do sistema,
+  // que é o que o splash nativo usou — o tema do usuário só chega depois). Sem
+  // isto o `null` deixava um frame preto entre a marca e o app.
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator />
-      </View>
+      <View
+        style={{ flex: 1, backgroundColor: systemScheme === 'dark' ? '#0E1218' : '#F5F7FA' }}
+      />
     );
   }
 

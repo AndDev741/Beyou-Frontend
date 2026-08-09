@@ -873,6 +873,26 @@ nativo, ver AGENTS.md), e por isso o texto de ajuda ganhou chave própria
 Fora daqui, saiu a legenda `ThemeHint` ("Duas bases feitas com capricho…") do
 seletor de tema nas duas telas, e a chave junto.
 
+## Abertura do app nativo (2026-08-09)
+
+Antes do primeiro frame aparecia o placeholder do Expo — uma grade cinza com
+círculos concêntricos, esticada como `windowBackground`. O `app.json` não tinha
+splash nenhum configurado, então o prebuild gerava o padrão.
+
+Agora o splash é a marca, centrada, sobre o fundo do tema: `#F5F7FA` no claro e
+`#0E1218` no escuro (o do sistema — o tema do usuário só chega depois do
+perfil).
+
+Só a MARCA, sem o wordmark: no Android 12+ o ícone do splash é mascarado num
+círculo, e um lockup vertical seria cortado no meio da palavra. A marca já é um
+círculo e cai perfeita na máscara.
+
+E o splash agora SEGURA até a tipografia carregar
+(`preventAutoHideAsync` + `hideAsync`). Antes ele saía assim que a view do RN
+montava e apareciam três telas na abertura: marca → branco com spinner → app.
+O gate de fonte também pinta o mesmo tom do splash em vez de devolver `null`,
+que deixava um frame preto no meio.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.

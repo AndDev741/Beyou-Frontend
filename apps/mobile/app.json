@@ -30,7 +30,20 @@
       "expo-router",
       "@react-native-community/datetimepicker",
       "@react-native-google-signin/google-signin",
-      "@sentry/react-native/expo"
+      "@sentry/react-native/expo",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#F5F7FA",
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#0E1218"
+          }
+        }
+      ]
     ]
   }
 }
