@@ -17,29 +17,44 @@ const tasks = [{ id: 't1', name: 'Email', iconId: 'lucide:mail' }] as never[];
 const wrap = (n: React.ReactElement) =>
   render(<Provider store={makeStore()}><BeyouThemeProvider>{n}</BeyouThemeProvider></Provider>);
 
-test('adds a habit to the tray with empty times and emits it', async () => {
+test('one tap assigns the habit, with a time suggested inside the section window', async () => {
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
-  // Marcar e adicionar são dois passos: dá para levar vários de uma vez.
   await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h1')); });
-  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-add-selected')); });
-  // Once added it leaves the list and gains a tray remove + time fields.
+  // Sai da lista e entra na bandeja, já com remover e os dois horários.
+  expect(screen.queryByTestId('item-habit-h1')).toBeNull();
   expect(screen.getByTestId('remove-habit-h1')).toBeTruthy();
   expect(screen.getByTestId('tray-habit-h1-start')).toBeTruthy();
   await act(async () => { fireEvent.press(screen.getByTestId('items-save')); });
+  // Seção 06:00–07:00: o item avulso leva a fatia padrão de 15 min, no começo
+  // da janela — o resto fica livre para os próximos.
   expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
-    habitGroup: [expect.objectContaining({ habitId: 'h1', startTime: '', endTime: '' })],
+    habitGroup: [expect.objectContaining({ habitId: 'h1', startTime: '06:00', endTime: '06:15' })],
   }));
 });
 
-test('Tasks tab lists tasks; select then remove clears the tray', async () => {
+/** O segundo item retoma de onde o primeiro parou, sem sobrepor. */
+test('the next item resumes after the one already assigned', async () => {
+  const onSave = jest.fn();
+  const twoHabits = [...habits, { id: 'h2', name: 'Stretch', iconId: 'lucide:activity' }] as never[];
+  await wrap(<ItemPickerSheet visible section={section} habits={twoHabits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
+
+  await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h1')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h2')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('items-save')); });
+
+  const saved = onSave.mock.calls[0][0];
+  expect(saved.habitGroup[0]).toEqual(expect.objectContaining({ startTime: '06:00', endTime: '06:15' }));
+  expect(saved.habitGroup[1]).toEqual(expect.objectContaining({ startTime: '06:15', endTime: '06:30' }));
+});
+
+test('Tasks tab lists tasks; assigning then removing clears the tray', async () => {
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
   // Habits tab is default — the task isn't listed yet.
   expect(screen.queryByTestId('item-task-t1')).toBeNull();
   await act(async () => { fireEvent.press(screen.getByTestId('item-picker-kind-task')); });
   await act(async () => { fireEvent.press(screen.getByTestId('item-task-t1')); });
-  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-add-selected')); });
   expect(screen.getByTestId('remove-task-t1')).toBeTruthy();
   await act(async () => { fireEvent.press(screen.getByTestId('remove-task-t1')); });
   await act(async () => { fireEvent.press(screen.getByTestId('items-save')); });
@@ -82,7 +97,6 @@ test('sets a start time on a tray item', async () => {
   const onSave = jest.fn();
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={onSave} onClose={jest.fn()} />);
   await act(async () => { fireEvent.press(screen.getByTestId('item-habit-h1')); });
-  await act(async () => { fireEvent.press(screen.getByTestId('item-picker-add-selected')); });
   await act(async () => { fireEvent.press(screen.getByTestId('tray-habit-h1-start')); });
   const d = new Date(); d.setHours(6, 30, 0, 0);
   await act(async () => { fireEvent(screen.getByTestId('tray-habit-h1-start-picker'), 'onChange', { type: 'set' }, d); });
@@ -138,17 +152,19 @@ test('filters the available list by the search term', async () => {
   expect(screen.getByTestId('item-habit-h1')).toBeTruthy();
 });
 
-test('drops the marks when the kind changes', async () => {
+test('keeps the tray when the kind changes', async () => {
   await wrap(<ItemPickerSheet visible section={section} habits={habits} tasks={tasks} onSave={jest.fn()} onClose={jest.fn()} />);
 
   await act(async () => {
     fireEvent.press(screen.getByTestId('item-habit-h1'));
   });
-  expect(screen.getByTestId('item-picker-add-selected')).toBeTruthy();
+  expect(screen.getByTestId('remove-habit-h1')).toBeTruthy();
 
+  // Trocar de aba mostra o outro lado; o que já foi atribuído continua lá.
   await act(async () => {
     fireEvent.press(screen.getByTestId('item-picker-kind-task'));
   });
 
-  expect(screen.queryByTestId('item-picker-add-selected')).toBeNull();
+  expect(screen.getByTestId('remove-habit-h1')).toBeTruthy();
+  expect(screen.getByTestId('item-task-t1')).toBeTruthy();
 });

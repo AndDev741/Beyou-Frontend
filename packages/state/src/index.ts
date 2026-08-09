@@ -123,4 +123,5 @@ export type { CategorySortKey } from './viewFilters/sortCategories';
 export { sortTasks, TASK_SORT_KEYS } from './viewFilters/sortTasks';
 export type { TaskSortKey } from './viewFilters/sortTasks';
 export { getRoutineStats, countItemsInRoutine } from './routine/routineMetrics';
+export { suggestSlots } from './routine/suggestSlots';
 export type { RoutineStats } from './routine/routineMetrics';

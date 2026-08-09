@@ -13,10 +13,10 @@ import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
 import type category from '@beyou/types/category/categoryType';
+import { suggestSlots } from '@beyou/state';
 import { uuidv4 } from '../../lib/uuid';
 import BeyouIcon from '../BeyouIcon';
 import IconTile from '../IconTile';
-import Ring from '../Ring';
 import SegmentedControl from '../SegmentedControl';
 import Button from '../Button';
 import BottomSheet from '../BottomSheet';
@@ -49,9 +49,6 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   const [taskGroup, setTaskGroup] = useState<TaskGroup[]>([]);
   const [tab, setTab] = useState<'habit' | 'task'>('habit');
   const [search, setSearch] = useState('');
-  // Marcar vários e adicionar de uma vez, como na web: um por toque obrigava a
-  // percorrer a lista tantas vezes quantos itens.
-  const [selected, setSelected] = useState<string[]>([]);
   const [quickOpen, setQuickOpen] = useState<'habit' | 'task' | null>(null);
   const [pending, setPending] = useState<{ type: 'habit' | 'task'; name: string } | null>(null);
   // After quick-create we refetch locally (no redux dep) and render the merged lists.
@@ -68,7 +65,6 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     setTaskGroup(section.taskGroup ?? []);
     setTab('habit');
     setSearch('');
-    setSelected([]);
     setFetchedHabits(null);
     setFetchedTasks(null);
   }, [visible, section]);
@@ -92,17 +88,29 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
       .sort(byName);
   }, [tab, search, allHabits, allTasks, habitGroup, taskGroup]);
 
-  const toggleSelected = (id: string) =>
-    setSelected((current) => (current.includes(id) ? current.filter((x) => x !== id) : [...current, id]));
+  /**
+   * O horário do próximo item: retoma de onde os já atribuídos pararam e divide
+   * o que sobra da janela da seção. Mesmo cálculo da web (`suggestSlots`), que
+   * agora mora no pacote compartilhado — antes o item entrava sem horário
+   * nenhum e cada linha tinha de ser preenchida à mão.
+   */
+  const nextSlot = () =>
+    suggestSlots({ ...section, habitGroup, taskGroup }, 1)[0] ?? { startTime: '', endTime: '' };
 
-  const addSelected = () => {
-    if (tab === 'habit') selected.forEach(addHabit);
-    else selected.forEach(addTask);
-    setSelected([]);
+  const addHabit = (id: string) => {
+    const slot = nextSlot();
+    setHabitGroup((g) => [
+      ...g,
+      { id: uuidv4(), habitId: id, startTime: slot.startTime, endTime: slot.endTime ?? '' },
+    ]);
   };
-
-  const addHabit = (id: string) => setHabitGroup((g) => [...g, { id: uuidv4(), habitId: id, startTime: '', endTime: '' }]);
-  const addTask = (id: string) => setTaskGroup((g) => [...g, { id: uuidv4(), taskId: id, startTime: '', endTime: '' }]);
+  const addTask = (id: string) => {
+    const slot = nextSlot();
+    setTaskGroup((g) => [
+      ...g,
+      { id: uuidv4(), taskId: id, startTime: slot.startTime, endTime: slot.endTime ?? '' },
+    ]);
+  };
   const removeHabit = (id: string) => setHabitGroup((g) => g.filter((x) => x.habitId !== id));
   const removeTask = (id: string) => setTaskGroup((g) => g.filter((x) => x.taskId !== id));
 
@@ -146,10 +154,18 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     }
   }, [allHabits, allTasks, pending, habitGroup, taskGroup]);
 
-  const save = () => { onSave({ ...section, habitGroup, taskGroup }); onClose(); };
+  /**
+   * Fechar SALVA. O que se escolhe aqui só mexe na cópia de trabalho da rotina
+   * — quem decide gravar de verdade é o botão da rotina — então sair pelo
+   * backdrop ou pelo voltar do sistema e perder tudo era só armadilha.
+   */
+  const finish = () => {
+    onSave({ ...section, habitGroup, taskGroup });
+    onClose();
+  };
 
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
+    <BottomSheet visible={visible} onClose={finish}>
       <Text className="text-text mb-3 text-lg font-bold">{t('AssignItems')}</Text>
       {/* flexShrink, NOT flex-1. The BottomSheet panel is capped with `max-h`, not
           given a height, so it sizes to its content — and `flex-1` means
@@ -209,10 +225,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         <SegmentedControl
           label={t('RoutineTypeLabel')}
           value={tab}
-          onChange={(value) => {
-            setTab(value);
-            setSelected([]);
-          }}
+          onChange={setTab}
           options={[
             { value: 'habit' as const, label: t('Habits') },
             { value: 'task' as const, label: t('Tasks') },
@@ -227,46 +240,29 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           </Text>
         ) : (
           <View className="gap-1.5">
-            {available.map((it) => {
-              const isSelected = selected.includes(it.id);
-              return (
-                <Pressable
-                  key={it.id}
-                  onPress={() => toggleSelected(it.id)}
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: isSelected }}
-                  testID={`item-${tab}-${it.id}`}
-                  className={`flex-row items-center gap-2.5 rounded-[9px] border px-2.5 py-[7px] ${
-                    isSelected ? 'border-accent bg-accent-soft' : 'border-border bg-surface'
-                  }`}
-                >
-                  <Ring size={20} state={isSelected ? 'done' : 'todo'} />
-                  <IconTile size={24}>
-                    <BeyouIcon id={it.iconId} size={13} />
-                  </IconTile>
-                  <Text
-                    className={`min-w-0 flex-1 text-[12.5px] font-medium ${
-                      isSelected ? 'text-text' : 'text-text-3'
-                    }`}
-                    numberOfLines={1}
-                  >
-                    {it.name}
-                  </Text>
-                </Pressable>
-              );
-            })}
+            {/* Um toque já atribui: o item sobe para a bandeja com o horário
+                sugerido e some daqui. Marcar para depois confirmar era um passo
+                a mais sem nada em troca. */}
+            {available.map((it) => (
+              <Pressable
+                key={it.id}
+                onPress={() => (tab === 'habit' ? addHabit(it.id) : addTask(it.id))}
+                accessibilityRole="button"
+                accessibilityLabel={`${t('Add')} ${it.name}`}
+                testID={`item-${tab}-${it.id}`}
+                className="flex-row items-center gap-2.5 rounded-[9px] border border-border bg-surface px-2.5 py-[7px] active:bg-surface-2"
+              >
+                <IconTile size={24}>
+                  <BeyouIcon id={it.iconId} size={13} />
+                </IconTile>
+                <Text className="min-w-0 flex-1 text-[12.5px] font-medium text-text" numberOfLines={1}>
+                  {it.name}
+                </Text>
+                <Ionicons name="add" size={18} color={theme.text3} />
+              </Pressable>
+            ))}
           </View>
         )}
-
-        {selected.length > 0 ? (
-          <Button
-            text={`${t('Add')} ${selected.length}`}
-            mode="tonal"
-            size="auto"
-            onPress={addSelected}
-            testID="item-picker-add-selected"
-          />
-        ) : null}
 
         {/* Quick-create a new habit/task without leaving the routine builder. */}
         <Pressable
@@ -301,10 +297,17 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         />
       ) : null}
 
-      {/* Fixed footer — actions stay visible regardless of scroll. */}
-      <View className="mt-2 flex-row justify-end gap-3 border-t border-border pt-3">
-        <Pressable onPress={onClose} accessibilityRole="button" className="px-4 py-2"><Text className="text-text-2 font-semibold">{t('Cancel')}</Text></Pressable>
-        <Button text={t('Save')} mode="create" size="small" onPress={save} testID="items-save" />
+      {/* Rodapé fixo: uma ação só, sempre à vista. Não há "cancelar" porque
+          não há o que cancelar — nada saiu daqui para o servidor. */}
+      <View className="mt-2 border-t border-border pt-3">
+        <Button
+          text={t('Done')}
+          mode="primary"
+          size="auto"
+          className="w-full"
+          onPress={finish}
+          testID="items-save"
+        />
       </View>
     </BottomSheet>
   );

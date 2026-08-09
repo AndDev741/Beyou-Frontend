@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 import { FiSearch, FiX, FiPlus } from "react-icons/fi";
 import { RootState } from "@beyou/state/rootReducer";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
-import { getSectionErrorKeys, isOvernightRange } from "@beyou/validation/routineValidation";
+import { getSectionErrorKeys } from "@beyou/validation/routineValidation";
+import { suggestSlots } from "@beyou/state";
 import BeyouIcon from "../../../../ui/BeyouIcon";
 import Ring from "../../../../ui/Ring";
 import Button from "../../../Button";
@@ -30,57 +31,44 @@ type Candidate = {
     alreadyIn: boolean;
 };
 
-const toMinutes = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    return hours * 60 + minutes;
+
+/** Uma linha da bandeja: o item escolhido com o horário ainda editável. */
+type TrayItem = {
+    kind: Kind;
+    refId: string;
+    /** Id do grupo, quando a linha já existia na seção. */
+    groupId?: string;
+    startTime: string;
+    endTime: string;
 };
 
-const fromMinutes = (minutes: number) => {
-    const total = ((minutes % 1440) + 1440) % 1440;
-    return `${Math.floor(total / 60).toString().padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
-};
+const toGroups = (tray: TrayItem[]) => ({
+    habitGroup: tray
+        .filter((item) => item.kind === "habit")
+        .map(({ groupId, refId, startTime, endTime }) => ({
+            ...(groupId ? { id: groupId } : {}),
+            habitId: refId,
+            startTime,
+            endTime,
+        })),
+    taskGroup: tray
+        .filter((item) => item.kind === "task")
+        .map(({ groupId, refId, startTime, endTime }) => ({
+            ...(groupId ? { id: groupId } : {}),
+            taskId: refId,
+            startTime,
+            endTime,
+        })),
+});
 
 /**
- * Horários sugeridos em sequência dentro da janela da seção.
+ * Escolher itens para a seção: um clique manda o item para a BANDEJA com um
+ * horário sugerido dentro da janela da seção, e ali o horário ainda se ajusta.
+ * Só ao confirmar a bandeja vira a seção.
  *
- * O formulário antigo pedia início e fim ANTES de escolher o item, e só deixava
- * adicionar um por vez. Aqui a seção já define a janela: os itens escolhidos
- * dividem o que sobra dela, em ordem, e cada linha continua editável depois —
- * é mais rápido corrigir um horário sugerido do que digitar dois do zero.
+ * Antes era marcar tudo e adicionar no escuro: os horários só apareciam depois,
+ * na lista da seção, e corrigi-los era outra viagem. Mesmo modelo do nativo.
  */
-export function suggestSlots(
-    section: RoutineSection,
-    count: number
-): { startTime: string; endTime?: string }[] {
-    if (count <= 0 || !section.startTime) return [];
-
-    const overnight = isOvernightRange(section.startTime, section.endTime);
-    const sectionStart = toMinutes(section.startTime);
-    const sectionEnd = section.endTime
-        ? toMinutes(section.endTime) + (overnight ? 1440 : 0)
-        : undefined;
-
-    // Retoma de onde os itens já existentes pararam.
-    const existingEnds = [...(section.habitGroup ?? []), ...(section.taskGroup ?? [])].map((item) => {
-        const end = item.endTime || item.startTime;
-        if (!end) return sectionStart;
-        const value = toMinutes(end);
-        return overnight && value < sectionStart ? value + 1440 : value;
-    });
-    const cursor = existingEnds.length > 0 ? Math.max(sectionStart, ...existingEnds) : sectionStart;
-
-    // Sem hora de término na seção, cada item ganha 15 minutos em fila.
-    const DEFAULT_SLOT = 15;
-    const remaining = sectionEnd !== undefined ? Math.max(sectionEnd - cursor, 0) : undefined;
-    const slot = remaining !== undefined ? Math.max(Math.floor(remaining / count), 1) : DEFAULT_SLOT;
-
-    return Array.from({ length: count }, (_, i) => {
-        const start = cursor + slot * i;
-        const end = sectionEnd !== undefined ? Math.min(start + slot, sectionEnd) : start + slot;
-        return { startTime: fromMinutes(start), endTime: fromMinutes(end) };
-    });
-}
-
 const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSelector }: TaskSelectorProps) => {
     const { t } = useTranslation();
     const habits = useSelector((state: RootState) => state.habits.habits);
@@ -88,7 +76,24 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
 
     const [kind, setKind] = useState<Kind>("habit");
     const [search, setSearch] = useState("");
-    const [selected, setSelected] = useState<Set<string>>(new Set());
+    // A bandeja começa com o que a seção já tem: assim dá para corrigir o
+    // horário de um item antigo na mesma passada.
+    const [tray, setTray] = useState<TrayItem[]>(() => [
+        ...(section.habitGroup ?? []).map((group) => ({
+            kind: "habit" as Kind,
+            refId: group.habitId,
+            groupId: group.id,
+            startTime: group.startTime ?? "",
+            endTime: group.endTime ?? "",
+        })),
+        ...(section.taskGroup ?? []).map((group) => ({
+            kind: "task" as Kind,
+            refId: group.taskId,
+            groupId: group.id,
+            startTime: group.startTime ?? "",
+            endTime: group.endTime ?? "",
+        })),
+    ]);
     const [showQuickHabit, setShowQuickHabit] = useState(false);
     const [showQuickTask, setShowQuickTask] = useState(false);
 
@@ -99,8 +104,20 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
 
     const close = () => setOpenTaskSelector?.(false);
 
+    const nameOf = (item: TrayItem) =>
+        item.kind === "habit"
+            ? habits.find((habit) => habit.id === item.refId)?.name ?? ""
+            : tasks.find((task) => task.id === item.refId)?.name ?? "";
+
+    const iconOf = (item: TrayItem) =>
+        item.kind === "habit"
+            ? habits.find((habit) => habit.id === item.refId)?.iconId ?? ""
+            : tasks.find((task) => task.id === item.refId)?.iconId ?? "";
+
     const candidates = useMemo<Candidate[]>(() => {
         const query = search.trim().toLowerCase();
+        const inTray = (id: string, itemKind: Kind) =>
+            tray.some((item) => item.kind === itemKind && item.refId === id);
         const list: Candidate[] =
             kind === "habit"
                 ? habits.map((habit) => ({
@@ -108,67 +125,63 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                       name: habit.name,
                       iconId: habit.iconId,
                       category: habit.categories?.[0]?.name ?? "",
-                      alreadyIn: Boolean(section.habitGroup?.some((group) => group.habitId === habit.id)),
+                      alreadyIn: inTray(habit.id, "habit"),
                   }))
                 : tasks.map((task) => ({
                       id: task.id,
                       name: task.name,
                       iconId: task.iconId,
                       category: Object.values(task.categories ?? {})[0]?.name ?? "",
-                      alreadyIn: Boolean(section.taskGroup?.some((group) => group.taskId === task.id)),
+                      alreadyIn: inTray(task.id, "task"),
                   }));
 
         return query ? list.filter((item) => item.name.toLowerCase().includes(query)) : list;
-    }, [habits, tasks, kind, search, section.habitGroup, section.taskGroup]);
+    }, [habits, tasks, kind, search, tray]);
 
-    const toggle = (id: string) => {
-        setSelected((prev) => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
+    /** Manda o item para a bandeja com o horário que sobra da janela da seção. */
+    const pick = (id: string, itemKind: Kind) => {
+        setTray((prev) => {
+            if (prev.some((item) => item.kind === itemKind && item.refId === id)) return prev;
+            const slot = suggestSlots({ ...section, ...toGroups(prev) }, 1)[0];
+            return [
+                ...prev,
+                {
+                    kind: itemKind,
+                    refId: id,
+                    startTime: slot?.startTime ?? "",
+                    endTime: slot?.endTime ?? "",
+                },
+            ];
         });
     };
 
-    /** Adiciona ids do tipo informado, com horários sugeridos em sequência. */
-    const addToSection = (ids: string[], itemKind: Kind) => {
-        if (!setRoutineSection || ids.length === 0) return;
-        const slots = suggestSlots(section, ids.length);
+    const drop = (item: TrayItem) =>
+        setTray((prev) => prev.filter((row) => !(row.kind === item.kind && row.refId === item.refId)));
 
-        setRoutineSection((prev) =>
-            prev.map((sectionItem, idx) => {
-                if (idx !== index) return sectionItem;
-                if (itemKind === "habit") {
-                    return {
-                        ...sectionItem,
-                        habitGroup: [
-                            ...(sectionItem.habitGroup || []),
-                            ...ids.map((habitId, i) => ({ habitId, ...slots[i] })),
-                        ],
-                    };
-                }
-                return {
-                    ...sectionItem,
-                    taskGroup: [
-                        ...(sectionItem.taskGroup || []),
-                        ...ids.map((taskId, i) => ({ taskId, ...slots[i] })),
-                    ],
-                };
-            })
+    const setTime = (item: TrayItem, field: "startTime" | "endTime", value: string) =>
+        setTray((prev) =>
+            prev.map((row) =>
+                row.kind === item.kind && row.refId === item.refId ? { ...row, [field]: value } : row,
+            ),
         );
-    };
 
-    const handleAdd = () => {
-        addToSection([...selected], kind);
+    const confirm = () => {
+        if (!setRoutineSection) return;
+        const groups = toGroups(tray);
+        setRoutineSection((prev) =>
+            prev.map((sectionItem, idx) => (idx === index ? { ...sectionItem, ...groups } : sectionItem)),
+        );
         close();
     };
 
-    // A criação rápida entra direto na seção: quem cria dali já queria adicionar.
+    // A criação rápida cai na bandeja: quem cria dali já queria o item aqui.
     const handleQuickCreated = (itemKind: Kind) => (id?: string) => {
         if (!id) return;
-        addToSection([id], itemKind);
-        close();
+        pick(id, itemKind);
     };
+
+    const timeInputClass =
+        "w-full rounded-control border border-border bg-surface px-2.5 py-1.5 font-mono text-[12.5px] text-text outline-none focus:ring-2 focus:ring-accent/40";
 
     return (
         <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 p-4" onClick={close}>
@@ -196,7 +209,71 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     </button>
                 </div>
 
-                <div className="relative mt-3.5">
+                {/* A bandeja: o que vai entrar na seção, com o horário à mão. */}
+                <div className="mt-3.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-text-3">
+                        {t("Assigned")} ({tray.length})
+                    </span>
+                    {tray.length === 0 ? (
+                        <p className="mt-1.5 text-[12.5px] text-text-3">{t("NothingAssignedYet")}</p>
+                    ) : (
+                        <div className="mt-1.5 flex max-h-[30vh] flex-col gap-1.5 overflow-y-auto">
+                            {/* Nome em cima, horários embaixo — como no nativo.
+                                Numa linha só, nome + dois campos de hora + o
+                                remover não cabem nos 448px do modal e o nome
+                                sobrava em uma letra. */}
+                            {tray.map((item) => (
+                                <div
+                                    key={`${item.kind}-${item.refId}`}
+                                    className="rounded-control border border-border bg-accent/5 px-2.5 py-2"
+                                    data-testid={`tray-${item.kind}-${item.refId}`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] bg-accent-soft text-[13px] text-accent">
+                                            <BeyouIcon id={iconOf(item)} />
+                                        </span>
+                                        <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-text">
+                                            {nameOf(item)}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            aria-label={`${t("Remove")} ${nameOf(item)}`}
+                                            onClick={() => drop(item)}
+                                            className="shrink-0 rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-danger/10 hover:text-danger"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    </div>
+
+                                    <div className="mt-2 grid grid-cols-2 gap-2">
+                                        <label className="flex flex-col gap-1">
+                                            <span className="text-[11px] font-semibold text-text-3">{t("Start")}</span>
+                                            <input
+                                                type="time"
+                                                aria-label={`${t("Start time")} ${nameOf(item)}`}
+                                                value={item.startTime}
+                                                onChange={(event) => setTime(item, "startTime", event.target.value)}
+                                                className={timeInputClass}
+                                            />
+                                        </label>
+                                        <label className="flex flex-col gap-1">
+                                            <span className="text-[11px] font-semibold text-text-3">{t("End")}</span>
+                                            <input
+                                                type="time"
+                                                aria-label={`${t("End time")} ${nameOf(item)}`}
+                                                value={item.endTime}
+                                                onChange={(event) => setTime(item, "endTime", event.target.value)}
+                                                className={timeInputClass}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className="relative mt-3">
                     <FiSearch
                         aria-hidden="true"
                         className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-3"
@@ -215,10 +292,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     className="mt-2.5 w-full"
                     label={t("RoutineTypeLabel")}
                     value={kind}
-                    onChange={(value) => {
-                        setKind(value);
-                        setSelected(new Set());
-                    }}
+                    onChange={setKind}
                     options={[
                         { value: "habit" as Kind, label: t("Habits") },
                         { value: "task" as Kind, label: t("Tasks") },
@@ -233,37 +307,32 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                             {search ? t("IconNoResults") : t("No habits or task available, create one")}
                         </p>
                     ) : (
-                        candidates.map((item) => {
-                            const isSelected = selected.has(item.id);
-                            return (
-                                <button
-                                    key={item.id}
-                                    type="button"
-                                    role="checkbox"
-                                    aria-checked={isSelected || item.alreadyIn}
-                                    disabled={item.alreadyIn}
-                                    onClick={() => toggle(item.id)}
-                                    className={`flex items-center gap-2.5 rounded-[9px] border px-2.5 py-[7px] text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
-                                        isSelected ? "border-accent bg-accent-soft" : "border-border bg-surface"
-                                    } ${item.alreadyIn ? "" : "hover:border-text-3/60"}`}
+                        candidates.map((item) => (
+                            <button
+                                key={item.id}
+                                type="button"
+                                role="checkbox"
+                                aria-checked={item.alreadyIn}
+                                disabled={item.alreadyIn || sectionErrors.length > 0}
+                                onClick={() => pick(item.id, kind)}
+                                className={`flex items-center gap-2.5 rounded-[9px] border border-border bg-surface px-2.5 py-[7px] text-left transition-colors duration-200 hover:border-text-3/60 disabled:cursor-not-allowed disabled:opacity-50`}
+                            >
+                                <Ring size={20} state={item.alreadyIn ? "done" : "todo"} />
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] bg-accent-soft text-[13px] text-accent">
+                                    <BeyouIcon id={item.iconId} />
+                                </span>
+                                <span
+                                    className={`min-w-0 flex-1 truncate text-[12.5px] font-medium ${
+                                        item.alreadyIn ? "text-text" : "text-text-3"
+                                    }`}
                                 >
-                                    <Ring size={20} state={isSelected || item.alreadyIn ? "done" : "todo"} />
-                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] bg-accent-soft text-[13px] text-accent">
-                                        <BeyouIcon id={item.iconId} />
-                                    </span>
-                                    <span
-                                        className={`min-w-0 flex-1 truncate text-[12.5px] font-medium ${
-                                            isSelected || item.alreadyIn ? "text-text" : "text-text-3"
-                                        }`}
-                                    >
-                                        {item.name}
-                                    </span>
-                                    <span className="shrink-0 font-mono text-[11px] text-text-3">
-                                        {item.alreadyIn ? t("AlreadyInSection", { name: section.name }) : item.category}
-                                    </span>
-                                </button>
-                            );
-                        })
+                                    {item.name}
+                                </span>
+                                <span className="shrink-0 font-mono text-[11px] text-text-3">
+                                    {item.alreadyIn ? t("AlreadyInSection", { name: section.name }) : item.category}
+                                </span>
+                            </button>
+                        ))
                     )}
                 </div>
 
@@ -276,13 +345,16 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         <FiPlus aria-hidden="true" />
                         {kind === "habit" ? t("NewHabit") : t("NewTask")}
                     </button>
-                    <Button
-                        text={`${t("Add")}${selected.size > 0 ? ` ${selected.size}` : ""}`}
-                        mode="primary"
-                        size="small"
-                        onClick={handleAdd}
-                        disabled={selected.size === 0 || sectionErrors.length > 0}
-                    />
+                    <div className="flex items-center gap-2">
+                        <Button text={t("Cancel")} mode="ghost" size="small" onClick={close} />
+                        <Button
+                            text={`${t("Add")}${tray.length > 0 ? ` ${tray.length}` : ""}`}
+                            mode="primary"
+                            size="small"
+                            onClick={confirm}
+                            disabled={sectionErrors.length > 0}
+                        />
+                    </div>
                 </div>
 
                 <QuickCreateHabitModal

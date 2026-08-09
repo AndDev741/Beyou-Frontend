@@ -3,7 +3,8 @@ import { screen, fireEvent } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { vi } from "vitest";
 import rootReducer from "@beyou/state/rootReducer";
-import TaskAndHabitSelector, { suggestSlots } from "./TaskAndHabitSelector";
+import TaskAndHabitSelector from "./TaskAndHabitSelector";
+import { suggestSlots } from "@beyou/state";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 
 vi.mock("./QuickCreateHabitModal", () => ({
@@ -67,22 +68,51 @@ function setup(section: RoutineSection) {
     return () => sections;
 }
 
-test("adds every selected habit at once, with times suggested in sequence", () => {
+test("each pick lands in the tray with the next free slot, and confirming commits them", () => {
     const read = setup(buildSection());
 
     fireEvent.click(screen.getByRole("checkbox", { name: /drink water/i }));
     fireEvent.click(screen.getByRole("checkbox", { name: /stretch/i }));
 
-    // O botão conta a seleção.
+    // Nada foi para a seção ainda — a bandeja é que segura.
+    expect(read()[0].habitGroup).toEqual([]);
+    // O botão conta o que está na bandeja.
     fireEvent.click(screen.getByRole("button", { name: "Add 2" }));
 
     expect(read()[0].habitGroup).toEqual([
-        expect.objectContaining({ habitId: "h1", startTime: "08:00", endTime: "08:30" }),
-        expect.objectContaining({ habitId: "h2", startTime: "08:30", endTime: "09:00" })
+        expect.objectContaining({ habitId: "h1", startTime: "08:00", endTime: "08:15" }),
+        expect.objectContaining({ habitId: "h2", startTime: "08:15", endTime: "08:30" })
     ]);
 });
 
-test("what is already in the section cannot be picked twice", () => {
+test("the time can be fixed in the tray before it reaches the section", () => {
+    const read = setup(buildSection());
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /drink water/i }));
+    fireEvent.change(screen.getByLabelText(/^End time Drink water$/), { target: { value: "08:45" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add 1" }));
+
+    expect(read()[0].habitGroup).toEqual([
+        expect.objectContaining({ habitId: "h1", startTime: "08:00", endTime: "08:45" })
+    ]);
+});
+
+/** O que já está na seção abre na bandeja: dá para corrigir o horário antigo
+ *  na mesma passada, em vez de fechar e reabrir pela lista da seção. */
+test("what the section already has opens in the tray", () => {
+    const section = buildSection();
+    section.habitGroup = [{ id: "g1", habitId: "h1", startTime: "08:00", endTime: "08:10" } as any];
+    const read = setup(section);
+
+    fireEvent.change(screen.getByLabelText(/^Start time Drink water$/), { target: { value: "08:05" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add 1" }));
+
+    expect(read()[0].habitGroup).toEqual([
+        expect.objectContaining({ id: "g1", habitId: "h1", startTime: "08:05", endTime: "08:10" })
+    ]);
+});
+
+test("what is already in the tray cannot be picked twice", () => {
     const section = buildSection();
     section.habitGroup = [{ habitId: "h1", startTime: "08:00", endTime: "08:10" } as any];
     setup(section);
@@ -101,11 +131,12 @@ test("search narrows the list", () => {
     expect(screen.queryByRole("checkbox", { name: /stretch/i })).not.toBeInTheDocument();
 });
 
-test("a quick-created habit goes straight into the section", () => {
+test("a quick-created habit lands in the tray, ready to confirm", () => {
     const read = setup(buildSection());
 
     fireEvent.click(screen.getByRole("button", { name: "NewHabit" }));
     fireEvent.click(screen.getByText("mock create habit"));
+    fireEvent.click(screen.getByRole("button", { name: "Add 1" }));
 
     expect(read()[0].habitGroup).toHaveLength(1);
     expect(read()[0].habitGroup?.[0]).toEqual(
