@@ -77,8 +77,8 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
         >
           <Trash2 size={15} color={theme.text3} />
         </IconButton>
-        {/* The chevron is always visible — it is what says the card expands
-            para mostrar onde a categoria é usada. */}
+        {/* The chevron is always visible — it is what says the card expands to show
+            where the category is used. */}
         <IconButton
           label={expanded ? t('Collapse') : t('Expand')}
           onPress={() => setExpanded((open) => !open)}

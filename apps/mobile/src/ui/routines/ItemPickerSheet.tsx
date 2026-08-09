@@ -298,7 +298,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
       ) : null}
 
       {/* Fixed footer: one action, always in sight. There is no "cancel" because
-          não há o que cancelar — nada saiu daqui para o servidor. */}
+          there is nothing to cancel — nothing left here for the server. */}
       <View className="mt-2 border-t border-border pt-3">
         <Button
           text={t('Done')}

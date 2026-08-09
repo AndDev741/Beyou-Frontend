@@ -350,9 +350,8 @@ function Feedback() {
                     </div>
 
                     {/* R7: the mailto is a standing alternative, not only a
-                        failure hatch. On desktop it shares the row with the
-                        enviar; no telefone desce para baixo do botão, que é a
-                        ação principal. */}
+                        failure hatch. On desktop it shares the row with submit; on a
+                        phone it drops below the button, which is the main action. */}
                     <div className="mt-1 flex flex-col-reverse items-center gap-3 lg:flex-row lg:justify-between">
                         <p className="text-[12.5px] text-text-3">
                             {t("FeedbackEmailPreference")}{" "}

@@ -192,8 +192,8 @@ export default function RoutineSection({ section, routineId}: { section: section
                             <XpFloat xp={xpFloats[itemObj.item.groupId]} />
                         )}
                         <label className="flex items-center justify-center min-w-[44px] min-h-[44px] -my-2 -ml-2 cursor-pointer">
-                        {/* The input stays the real target (keyboard, screen
-                            tela, e2e); o anel é o desenho por cima dele. */}
+                        {/* The input stays the real target (keyboard, screen reader,
+                            e2e); the ring is the drawing on top of it. */}
                         <input
                             type="checkbox"
                             aria-label={itemObj.name}
@@ -322,8 +322,8 @@ export default function RoutineSection({ section, routineId}: { section: section
                     </span>
                 )}
 
-                {/* Collapsing a section buys space back for the day; the state
-                    por dia no localStorage — amanhã ela abre como nova. */}
+                {/* Collapsing a section buys space back for the day; the state is kept
+                    per day in localStorage — tomorrow it opens fresh. */}
                 <button
                     type="button"
                     onClick={toggleCollapsed}

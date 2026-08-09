@@ -128,8 +128,8 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
-        {/* The web modal's header: title on the left, × on the right. The actions
-            ficam no pé, onde o polegar já está depois de preencher. */}
+        {/* The web modal's header: title on the left, × on the right. The actions sit
+            at the foot, where the thumb already is after filling the form. */}
         <View className="flex-row items-center gap-3 border-b border-border px-4 py-3">
           <Text
             accessibilityRole="header"
@@ -148,9 +148,9 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           contentContainerStyle={{ paddingBottom: bottomPad }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Only the daily routine exists; the list one is designed and shows
-              dimmed instead of hidden, as on the web. This replaces the
-              escolha que abria a criação com duas ilustrações. */}
+          {/* Only the daily routine exists; the list one is designed and shows dimmed
+              instead of hidden, as on the web. This replaces the chooser that opened
+              creation with two illustrations. */}
           <View>
             <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
               {t('RoutineTypeLabel')}

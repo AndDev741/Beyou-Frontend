@@ -90,8 +90,8 @@ export default function SectionCard({
           )}
         </View>
 
-        {/* The time drops to a second line: on one line the section name
-            sobrava em três letras. */}
+        {/* The time drops to a second line: on one line the section's name was left
+            with three letters. */}
         <View className="min-w-0 flex-1">
           <Pressable
             onPress={() => setOpen((prev) => !prev)}

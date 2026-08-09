@@ -617,9 +617,9 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 </AnimatePresence>
 
                                 {/* Messages / empty state */}
-                                {/* `overscroll-contain`: on reaching the end of
-                                    conversa, a rolagem PARA em vez de continuar
-                                    na página atrás do painel. */}
+                                {/* `overscroll-contain`: on reaching the end of the
+                                    conversation the scroll STOPS instead of carrying
+                                    on into the page behind the panel. */}
                                 <div
                                     className="flex-1 overflow-y-auto overscroll-contain"
                                     onClick={() => setHistoryOpen(false)}

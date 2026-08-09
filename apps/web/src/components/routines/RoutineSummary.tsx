@@ -339,7 +339,7 @@ function DatePickerBar({
         <div ref={rowRef} className="flex items-center gap-1.5 md:gap-2">
             <div className="flex min-w-0 items-center gap-1.5 md:gap-2">
                 {/* The last days ending today — today is the last box and comes
-                    selecionada. Mostra só o que cabe: o resto vive no calendário. */}
+                    selected. It shows only what fits: the rest lives in the calendar. */}
                 {week.slice(week.length - visibleDays).map((dateStr) => (
                     <DayChip
                         key={dateStr}
@@ -355,7 +355,7 @@ function DatePickerBar({
             </div>
 
             {/* The button sits OUTSIDE the strip: inside it, the overflow-x-auto
-                recortava o calendário e ele simplesmente não aparecia. */}
+                clipped the calendar and it simply never showed. */}
             <div className="relative shrink-0">
                     <button
                         ref={triggerRef}

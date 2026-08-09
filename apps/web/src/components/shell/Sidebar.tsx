@@ -93,8 +93,8 @@ export default function Sidebar() {
             {({ isActive }) => (
                 <>
                     <Icon size={18} className={isActive ? "text-accent" : "text-text-3"} aria-hidden="true" />
-                    {/* Collapsed, the label leaves the flow but stays in the
-                        DOM: o e2e seleciona os links por nome acessível. */}
+                    {/* Collapsed, the label leaves the flow but stays in the DOM: e2e
+                        selects the links by accessible name. */}
                     <span className={collapsed ? "sr-only" : ""}>{t(key)}</span>
                 </>
             )}

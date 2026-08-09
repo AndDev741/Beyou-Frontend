@@ -70,9 +70,9 @@ export default function ConfigSection({
           )}
         </View>
 
-        {/* Icon swapped instead of rotated: `transform: rotate` in the style of
-            um ícone lucide-react-native some com o SVG (react-native-svg não
-            aceita o transform assim), e o chevron simplesmente não aparecia. */}
+        {/* Icon swapped instead of rotated: `transform: rotate` in the style of a
+            lucide-react-native icon makes the SVG vanish (react-native-svg does not
+            accept the transform there), and the chevron simply never showed. */}
         {open ? (
           <ChevronUp size={18} color={theme.text3} />
         ) : (

@@ -67,9 +67,9 @@ export default function Configuration() {
             )}
 
             {/* Two columns on desktop (profile/widgets/account on the left,
-                aparência/preferências à direita). No telefone `contents` desfaz
-                the columns collapse and the order becomes the mockup's: profile,
-                preferências, widgets e, por último, sair. */}
+                appearance/preferences on the right). On a phone `contents` undoes the
+                columns and the order becomes the mockup's: profile, appearance,
+                preferences, widgets and, last, log out. */}
             <div className="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start">
                 <div className="contents lg:flex lg:flex-col lg:gap-4">
                     <ConfigSection

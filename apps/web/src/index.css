@@ -3,8 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Geist self-hosted: sem CDN de terceiro no caminho crítico do primeiro paint.
-   Arquivos variáveis — um por família cobre 400-700. */
+/* Geist self-hosted: no third-party CDN on the critical path of the first paint.
+   Variable files — one per family covers 400-700. */
 @font-face {
   font-family: "Geist";
   src: url("/fonts/geist-variable.woff2") format("woff2-variations");
@@ -24,25 +24,25 @@
 @layer base {
   /* Themed page background at the root so short pages (e.g. a loading gate
      smaller than the viewport) and overscroll never show the browser's white
-     body behind the app. `--bg` is the PAGE tone (mais escuro que o cartão);
-     cartões usam `--surface`. Ambos são setados por tema pelo ThemeContext. */
+     body behind the app. `--bg` is the PAGE tone (darker than the card); cards use
+     `--surface`. Both are set per theme by ThemeContext. */
   body {
     background-color: var(--bg);
     color: var(--text);
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Números (XP, nível, contagem, horário) sempre tabulares. */
+  /* Numbers (XP, level, counts, times) are always tabular. */
   .font-mono {
     font-variant-numeric: tabular-nums;
   }
 }
 
-/* NOTIFY: casca única para toda notificação. A cor do tom aparece só na
-   barra da esquerda e no ícone — o corpo continua na superfície do tema. */
+/* NOTIFY: a single shell for every notification. The tone's colour shows up only on
+   the left bar and on the icon — the body stays on the theme's surface. */
 .beyou-toast-container {
-  /* Os tokens do react-toastify são o ponto de extensão dele: mexer aqui vale
-     para largura, respiro e raio sem duelar por especificidade. */
+  /* react-toastify's tokens are its extension point: setting them here covers
+     width, padding and radius without duelling over specificity. */
   --toastify-toast-width: min(380px, calc(100vw - 24px));
   --toastify-toast-min-height: 0;
   --toastify-toast-padding: 12px 12px 12px 14px;
@@ -52,8 +52,8 @@
   padding: 0;
 }
 
-/* Duas classes de propósito: o tema claro do react-toastify pinta o fundo de
-   branco e vem depois no cascade — a superfície tem de ganhar dele. */
+/* Two classes on purpose: react-toastify's light theme paints the background white
+   and comes later in the cascade — the surface has to win against it. */
 .Toastify__toast.beyou-toast {
   background: var(--surface);
   color: var(--text);
@@ -94,7 +94,7 @@
   border-left-color: var(--flame);
 }
 
-/* Cronômetro: 2px, sem trilho por baixo. */
+/* The timer: 2px, with no track underneath. */
 .beyou-toast .Toastify__progress-bar--wrp {
   height: 2px;
   bottom: 0;
@@ -121,9 +121,9 @@
   background: var(--flame);
 }
 
-/* No celular o react-toastify vira faixa colada no topo (largura 100vw, canto
-   reto). A notificação continua sendo um cartão, com o mesmo respiro lateral
-   das telas. */
+/* On a phone react-toastify becomes a strip glued to the top (100vw wide, square
+   corners). The notification stays a card, with the same side padding as the
+   screens. */
 @media only screen and (max-width: 480px) {
   .Toastify__toast-container.beyou-toast-container {
     width: calc(100vw - 20px);

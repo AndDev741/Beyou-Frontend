@@ -91,8 +91,8 @@ export default function GoalCard({
           <BeyouIcon id={goal.iconId} size={18} showFallback />
         </IconTile>
 
-        {/* Title and badges share what is left: the chips wrap to the
-            linha de baixo em vez de espremer o nome da meta a três letras. */}
+        {/* Title and badges share what is left: the chips wrap to the line below
+            instead of squeezing the goal's name down to three letters. */}
         <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-x-2 gap-y-1">
           <Text
             className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug ${

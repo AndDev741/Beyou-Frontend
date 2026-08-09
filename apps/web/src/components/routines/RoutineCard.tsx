@@ -102,8 +102,8 @@ export const RoutineCard = ({
                             }`}
                         </span>
                     </span>
-                    {/* On phones the actions hide until it opens; the chevron
-                        avisa que o cartão expande. Vira 180° aberto. */}
+                    {/* On phones the actions hide until it opens; the chevron says the
+                        card expands. It turns 180° when open. */}
                     <FiChevronDown
                         aria-hidden="true"
                         className={`shrink-0 text-text-3 transition-transform duration-200 md:hidden ${
@@ -112,8 +112,8 @@ export const RoutineCard = ({
                     />
                 </button>
 
-                {/* On phones the card stays clean: the actions appear on opening
-                    pelo título. No desktop continuam sempre à vista. */}
+                {/* On phones the card stays clean: the actions appear on opening it
+                    through the title. On desktop they stay permanently in view. */}
                 <div
                     className={`${
                         expanded ? "flex" : "hidden"
@@ -129,8 +129,8 @@ export const RoutineCard = ({
                         {t("Schedule")}
                     </button>
 
-                    {/* Edit and delete only on desktop hover — on phones
-                        aparecem junto com o resto ao abrir o cartão. */}
+                    {/* Edit and delete only on desktop hover — on phones they arrive
+                        with the rest when the card opens. */}
                     <div className="flex items-center gap-1.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                     <button
                         type="button"
@@ -336,9 +336,9 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
 
     return (
         <div className="mt-3 first:mt-0">
-            {/* Same header as the day's routine: loose icon, 12.5px name in
-                text-2 e a hora em mono. O tile de 32px com nome de 13,5px pesava
-                mais que os itens que ele agrupa. */}
+            {/* Same header as the day's routine: loose icon, 12.5px name in text-2 and
+                the time in mono. The 32px tile with a 13.5px name weighed more than the
+                items it groups. */}
             <div className="flex items-center gap-2.5 py-1.5">
                 <span className="shrink-0 text-[15px] text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
@@ -407,9 +407,9 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                 key={`${item.type}-${item.id}-${idx}`}
                                 className="group flex items-center gap-2.5 rounded-control px-1.5 py-1.5 transition-colors duration-200 hover:bg-surface-2"
                             >
-                                {/* Same pattern as the day's routine: the input is
-                                    real (teclado, leitor de tela, e2e) e o anel é
-                                    o desenho por cima dele. */}
+                                {/* Same pattern as the day's routine: the input is the
+                                    real one (keyboard, screen reader, e2e) and the ring
+                                    is the drawing on top of it. */}
                                 <label className="-my-2 -ml-2 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
                                     <input
                                         type="checkbox"

@@ -34,8 +34,8 @@ export default function AppLayout() {
         <BottomNav />
         {/* No floating bubble: the bar above already carries the assistant's centre
             button, and it exists on EVERY screen in this group. Two triggers for the
-            same panel would be permanent furniture on a small screen —
-            o widget continua montado aqui porque é ele que guarda a conversa. */}
+            same panel would be permanent furniture on a small screen — the widget
+            stays mounted here because it is what holds the conversation. */}
         <AgentWidget showFab={false} />
       </TutorialOverlayHost>
     </View>

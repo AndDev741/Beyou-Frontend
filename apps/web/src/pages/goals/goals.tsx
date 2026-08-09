@@ -180,8 +180,8 @@ function Goals() {
         }
       />
       <main className="mt-4 flex flex-col gap-4 pb-4">
-        {/* A compact bar in place of the sorting card: search, status,
-            categoria e ordenação numa linha só. */}
+        {/* A compact bar in place of the sorting card: search, status, category and
+            sorting on a single row. */}
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
           <div className="relative min-w-0 flex-1">
             <Search

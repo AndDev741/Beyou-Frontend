@@ -121,10 +121,10 @@ export default function ProfileConfiguration() {
         // before this the photo stole 30% and squeezed every input.
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex items-center gap-3.5">
-                {/* This avatar belongs to desktop: on phones it already shows in
-                    cabeçalho da caixa, junto do nome e do nível. */}
-                {/* With no photo the `alt` leaked out of the circle; the fallback
-                    inicial, como no rodapé da sidebar. */}
+                {/* This avatar belongs to desktop: on phones it already shows in the
+                    box's header, next to the name and the level. */}
+                {/* With no photo the `alt` leaked out of the circle; the fallback is
+                    the initial, as in the sidebar's footer. */}
                 {currentPhoto ? (
                     <img
                         src={currentPhoto}

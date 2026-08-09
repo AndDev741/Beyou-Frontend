@@ -28,8 +28,8 @@ export default function WidgetCarousel({
 
   return (
     <View onLayout={onLayout} testID={testID}>
-      {/* Before the first measure there is no way to size a slide; render only
-          o primeiro widget para não piscar uma pilha de largura zero. */}
+      {/* Before the first measure there is no way to size a slide; render only the
+          first widget so a zero-width stack does not flash. */}
       {width > 0 ? (
         <ScrollView
           horizontal

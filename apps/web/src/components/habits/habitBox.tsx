@@ -55,9 +55,9 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                 </IconTile>
                 <h2 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h2>
 
-                {/* Edit and delete at the top, left of the chevron: on desktop
-                    aparecem no hover (ou no foco por teclado); no telefone
-                    ficam sempre visíveis. */}
+                {/* Edit and delete at the top, left of the chevron: on desktop they
+                    appear on hover (or on keyboard focus); on a phone they are always
+                    visible. */}
                 <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                     <IconButton label={t('Edit')} onClick={handleEditMode}>
                         <Pencil size={15} aria-hidden="true" />
@@ -112,7 +112,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                     {importancePhrase && (
                         <Chip size="sm" variant={attributeVariant(importance)}>
                             {/* The label rides along: "Medium" alone does not say
-                                importância ou dificuldade. */}
+                                importance or difficulty. */}
                             <span className="font-normal opacity-70">{t('Importance')}</span>
                             <span aria-hidden="true" className="opacity-50">·</span>
                             {importancePhrase}
@@ -138,8 +138,8 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
             {/* The row you read at a glance: level, XP and streak. */}
             <div className="mt-auto flex items-end gap-3 pt-1">
                 <XpBar className="min-w-0 flex-1" current={xp} target={nextLevelXp} level={level} />
-                {/* With no streak there is nothing to celebrate: a dim flame with
-                    zero ao lado lê como falha, não como estado neutro. */}
+                {/* With no streak there is nothing to celebrate: a dim flame with a
+                    zero beside it reads as failure, not as a neutral state. */}
                 {constance > 0 && (
                     <Chip
                         variant="flame"

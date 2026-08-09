@@ -93,11 +93,15 @@ describe("ThemeContext — OS detection, saved preference and legacy migration",
   // The 9 old themes were saved in the backend as a string. Nobody can end up with
   // no theme when the saved mode stops existing.
   it.each([
+    ["beYou", "light", "beyou"],
     ["beYouDark", "dark", "beyou"],
-    ["Cyberpunk", "dark", "cyber"],
-    ["Late Latte", "dark", "sunset"], // tema escuro apesar do acento caramelo
-    ["Mocha", "light", "sunset"],
+    ["Sunset", "light", "sunset"],
     ["Amethyst", "light", "amethyst"],
+    ["Midnight", "dark", "beyou"],
+    ["Cyberpunk", "dark", "cyber"],
+    ["Mocha", "light", "sunset"],
+    ["Polar", "dark", "beyou"],
+    ["Late Latte", "dark", "sunset"], // a dark theme despite the caramel accent
     ["a-theme-that-no-longer-exists", "light", "beyou"], // falls back to system + light OS
   ])("migrates the legacy mode %s", (legacy, base, pack) => {
     setOSPrefersDark(false);

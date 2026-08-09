@@ -174,8 +174,8 @@ export default function FeedbackScreen() {
           </View>
         ) : null}
 
-        {/* The whole form in one card: subject, text and attachments are one
-            coisa só, e a borda diz onde ela começa e termina. */}
+        {/* The whole form in one card: subject, text and attachments are one thing,
+            and the border says where it starts and ends. */}
         <View className="gap-4 rounded-card border border-border bg-surface p-4">
           <Controller
             control={control}
@@ -249,8 +249,8 @@ export default function FeedbackScreen() {
           />
         </View>
 
-        {/* Email is a standing alternative, not just the failure hatch —
-            uma linha só, abaixo do cartão. */}
+        {/* Email is a standing alternative, not just the failure hatch — one row,
+            below the card. */}
         <View className="flex-row flex-wrap items-center gap-1.5">
           <Text className="text-[12.5px] text-text-3">{t('FeedbackEmailPreference')}</Text>
           <Pressable onPress={openMail} accessibilityRole="button" testID="feedback-mailto-preference">

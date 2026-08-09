@@ -173,8 +173,8 @@ function Categories(){
                 }
             />
             <main className="mt-4 flex flex-col gap-4 pb-4">
-                {/* A compact bar in place of the sorting card: search on the
-                    esquerda, ordenação à direita. */}
+                {/* A compact bar in place of the sorting card: search on the left,
+                    sorting on the right. */}
                 <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
                     <div className="relative min-w-0 lg:flex-1">
                         <Search

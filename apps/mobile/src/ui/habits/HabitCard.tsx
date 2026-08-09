@@ -160,7 +160,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
       <View className="mt-3 flex-row items-end gap-3">
         <XpBar className="min-w-0 flex-1" current={habit.xp} target={habit.nextLevelXp} level={habit.level} />
         {/* With no streak there is nothing to celebrate: a dim flame with a zero
-            lado lê como falha, não como estado neutro. */}
+            beside it reads as failure, not as a neutral state. */}
         {habit.constance > 0 ? (
           <Chip variant="flame" size="sm" icon={<Flame size={12} color={theme.flame} />}>
             {habit.constance}

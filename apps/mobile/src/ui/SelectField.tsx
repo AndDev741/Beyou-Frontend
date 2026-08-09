@@ -56,8 +56,8 @@ export default function SelectField({
           {label}
         </Text>
         {/* Shrinks, does not grow: with the `flexGrow: 1` a ScrollView brings by
-            default, the sheet stretched to the cap even with four options and
-            sobrava um vão branco embaixo da última. */}
+            default, the sheet stretched to the cap even with four options and left a
+            white gap below the last one. */}
         <ScrollView style={{ flexGrow: 0, flexShrink: 1 }}>
           {options.map((option) => {
             const selected = option.value === value;

@@ -185,8 +185,8 @@ function GoalBox({
         <IconTile size={34}>
           <BeyouIcon id={iconId} size={18} />
         </IconTile>
-        {/* Title and badges share what is left: the chips wrap to the
-            linha de baixo em vez de espremer o nome da meta a três letras. */}
+        {/* Title and badges share what is left: the chips wrap to the line below
+            instead of squeezing the goal's name down to three letters. */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
           <h2
             className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug line-clamp-1 ${
@@ -264,9 +264,9 @@ function GoalBox({
         </div>
       )}
 
-      {/* Stepper: -/+ around the bar, with the value in mono on the right.
-          Batido o alvo, o + dá lugar ao Concluir (é ele que paga o XP); já
-          concluída, o mesmo botão vira Desfazer. */}
+      {/* Stepper: -/+ around the bar, with the value in mono on the right. Once the
+          target is met the + gives way to Complete (that is what pays the XP); once
+          completed, the same button becomes Undo. */}
       <div className="mt-auto flex items-center gap-2 pt-1">
         <IconButton
           label={t("Decrease")}

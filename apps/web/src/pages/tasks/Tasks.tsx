@@ -158,8 +158,8 @@ function Tasks() {
             />
 
             {/* On phones the search takes the whole row and the filters drop to
-                the line below, side by side — all three together squeezed the
-                busca até sobrar só a lupa (`sm` aqui é 350px). */}
+                the line below, side by side — all three together squeezed the search
+                down to just the magnifier (`sm` here is 350px). */}
             <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center">
                 <div className="relative min-w-0 lg:flex-1">
                     <Search

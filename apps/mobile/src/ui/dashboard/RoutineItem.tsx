@@ -123,8 +123,8 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         className="shrink-0 flex-row items-center"
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
-        {/* The system ring, not a little box: check-in, level and the brand are
-            a MESMA peça (ver Ring). Um checkbox de plataforma quebrava isso. */}
+        {/* The system ring, not a little box: check-in, level and the brand are the
+            SAME piece (see Ring). A platform checkbox broke that. */}
         <Ring size={26} state={checked ? 'done' : skipped ? 'skipped' : 'todo'} />
       </Pressable>
 
@@ -149,9 +149,9 @@ export default function RoutineItem({ routineId, item, name, iconId, motivationa
         </Text>
 
         <View className="flex-row items-center gap-1.5">
-          {/* The XP stays ON THE ROW once done (XpFloat only marks the
-              instante do check e some). Vem do próprio check, então sobrevive ao
-              reload e mostra o valor real, já com decaimento aplicado. */}
+          {/* The XP stays ON THE ROW once done (XpFloat only marks the instant of the
+              check and goes). It comes from the check itself, so it survives a reload
+              and shows the real value, decay already applied. */}
           {xpEarned > 0 ? (
             <Chip size="sm" variant="xp" testID={`routine-xp-${item.groupId}`}>
               {`+${xpEarned} XP`}

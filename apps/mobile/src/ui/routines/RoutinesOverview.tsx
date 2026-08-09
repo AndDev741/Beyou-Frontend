@@ -66,7 +66,7 @@ export default function RoutinesOverview({
   useEffect(() => {
     (async () => {
       const curMonth = monthOf(new Date());
-      const oldestChip = week[0]; // seis dias atrás
+      const oldestChip = week[0]; // six days ago
       const oldestMonth = oldestChip.slice(0, 7);
       const months = oldestMonth !== curMonth ? [curMonth, oldestMonth] : [curMonth];
       const calls = routines.flatMap((r) => months.map((m) => getSnapshotDatesForMonth(r.id as string, m, t)));
@@ -98,8 +98,8 @@ export default function RoutinesOverview({
 
   return (
     <View className="gap-3 px-4 pb-2">
-      {/* No card: title, context and action sit straight on the page — the
-          moldura competia com os cartões de rotina logo abaixo. */}
+      {/* No card: title, context and action sit straight on the page — the frame
+          competed with the routine cards right below it. */}
       <View className="flex-row items-center gap-3">
         <View className="min-w-0">
           <Text
@@ -158,7 +158,7 @@ export default function RoutinesOverview({
         </View>
 
         {/* A column, not a pill: it takes the width of a day box. The week is the
-            caminho normal; o calendário existe para alcançar o histórico. */}
+            normal path; the calendar exists to reach the history. */}
         <Pressable
           onPress={() => setShowPicker(true)}
           accessibilityRole="button"

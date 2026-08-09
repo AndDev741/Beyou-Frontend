@@ -164,8 +164,8 @@ export default function RenderRoutines({
                 />
             )}
 
-            {/* Delete uses the same modal as the other entities — the routine used
-                tinha uma confirmação inline própria dentro do cartão. */}
+            {/* Delete uses the same modal as the other entities — the routine used to
+                have an inline confirmation of its own inside the card. */}
             {routineToDelete && (
                 <DeleteModal
                     objectId={routineToDelete.id ?? ""}

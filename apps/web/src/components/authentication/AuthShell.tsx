@@ -57,10 +57,10 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
                         <span className="text-xl font-semibold tracking-[-0.02em] text-text">beyou</span>
                     </div>
 
-                    {/* The greeting belongs to desktop: on phones the brand
-                        topo e repetir "Bem-vindo de volta" ali empurrava o
-                        formulário para baixo da dobra. Fica no DOM (a página
-                        precisa de um h1) apenas invisível. */}
+                    {/* The greeting belongs to desktop: on phones the brand is
+                        already the header, and repeating "Welcome back" there pushed
+                        the form below the fold. It stays in the DOM (the page needs an
+                        h1), only invisible. */}
                     <h1 className="sr-only text-xl font-semibold tracking-[-0.015em] text-text lg:not-sr-only">
                         {title}
                     </h1>

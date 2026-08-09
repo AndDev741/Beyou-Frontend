@@ -65,8 +65,8 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                     </IconButton>
                 </div>
 
-                {/* The chevron is always visible — it is what says the card
-                    expande para mostrar onde a categoria é usada. */}
+                {/* The chevron is always visible — it is what says the card expands to
+                    show where the category is used. */}
                 <IconButton
                     label={expanded ? t('Collapse') : t('Expand')}
                     aria-expanded={expanded}

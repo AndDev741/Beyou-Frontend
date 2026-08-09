@@ -305,8 +305,8 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                 </span>
 
-                {/* On a phone the time drops to a second line: on
-                    linha só, o nome da seção sobrava em três letras. */}
+                {/* On a phone the time drops to a second line: on one line the
+                    section's name was left with three letters. */}
                 <div className="min-w-0 flex-1">
                     <button
                         type="button"

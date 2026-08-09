@@ -57,8 +57,8 @@ export default function BottomNav() {
 
     return (
         <>
-            {/* The scrim sits BELOW the bar: opening "More" must not black out
-                os atalhos, que são a orientação de onde se está. */}
+            {/* The scrim sits BELOW the bar: opening "More" must not black out the
+                shortcuts, which are the orientation for where you are. */}
             {sheetOpen && (
                 <button
                     type="button"
