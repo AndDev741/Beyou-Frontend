@@ -23,7 +23,7 @@ type CategoryFormProps = {
     mode: CategoryFormMode;
     dispatchFunction: any;
     generatedCategory?: categoryGeneratedByAi;
-    /** Usado pela criação rápida do seletor de categorias. */
+    /** Used by the category picker's quick-create. */
     onCreated?: (values: { name: string; description: string; iconId: string }) => void;
     onClose?: () => void;
 };
@@ -43,8 +43,8 @@ const defaultValues: CategoryFormValues = {
 };
 
 /**
- * O formulário do mockup: nome, descrição, ícone e experiência em segmentado
- * (só na criação — a edição não tem como mudar a curva de XP pela API).
+ * The mockup's form: name, description, icon and experience as a segmented control
+ * (creation only — an edit cannot change the XP curve through the API).
  */
 function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, onClose }: CategoryFormProps) {
     const { t } = useTranslation();
@@ -104,7 +104,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
         dispatch(descriptionEnter(""));
         dispatch(iconEnter(""));
         // Em modal, cancelar tem de fechar — a visibilidade do criar vive no
-        // estado da página, não no slice de edição.
+        // page state, not in the edit slice.
         onClose?.();
     };
 

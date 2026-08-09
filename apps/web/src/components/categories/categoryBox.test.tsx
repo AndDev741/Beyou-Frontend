@@ -23,12 +23,12 @@ test('Render collapsed compact card', () => {
     render(<CategoryBox {...defaultProps} />);
     expect(screen.getByText('Dance')).toBeInTheDocument();
     expect(screen.getByText('Dance with me')).toBeInTheDocument();
-    // As ações vivem no cabeçalho — no desktop só aparecem no hover, mas
-    // existem no DOM e no nome acessível.
+    // The actions live in the header — on desktop they only appear on hover, but
+    // they exist in the DOM and in the accessible name.
     expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
-    // O chevron de expandir fica sempre visível — é o que mostra onde a
-    // categoria é usada.
+    // The expand chevron is always visible — it is what shows where the category
+    // is used.
     expect(screen.getByRole('button', { name: /Expand/i })).toBeInTheDocument();
     expect(screen.getByText(/LV 2/i)).toBeInTheDocument();
 });

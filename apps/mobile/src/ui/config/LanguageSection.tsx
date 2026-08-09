@@ -11,12 +11,12 @@ import type { AppDispatch } from '../../store';
 const TRANSLATIONS_URL = 'https://github.com/AndDev741/Beyou-Frontend/tree/main/src/translations';
 
 /**
- * Idioma no mesmo controle segmentado do resto do app, com os nomes por
- * extenso (Português | English) como na web — "EN | PT" numa caixinha não
- * parecia da mesma família de nada.
+ * Language in the same segmented control as the rest of the app, with the names
+ * spelled out (Português | English) as on the web — "EN | PT" in a little box looked
+ * like it belonged to nothing.
  *
  * Trocar aplica na hora e persiste via editUser. Sem toast de sucesso: a troca
- * ao vivo é o próprio retorno; só o erro fala.
+ * live is the feedback itself; only an error speaks up.
  */
 export default function LanguageSection() {
   const { t, i18n } = useTranslation();

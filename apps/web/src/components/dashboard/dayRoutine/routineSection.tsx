@@ -242,11 +242,11 @@ export default function RoutineSection({ section, routineId}: { section: section
                     </span>
 
                     {/* On phones the row breaks in two: metadata on top, name
-                        embaixo em largura cheia. Numa linha só, nome + XP + hora
-                        + pular não cabem em 390px e a coluna da direita saía da
-                        tela. `flex-col-reverse` inverte só o VISUAL — o nome
-                        continua vindo antes no DOM, que é o que o leitor de tela
-                        e o e2e leem.
+                        below at full width. On one line, name + XP + time + skip do
+                        not fit in 390px and the right-hand column ran off screen.
+                        `flex-col-reverse` flips only the VISUAL — the name still
+                        comes first in the DOM, which is what the screen reader and
+                        the e2e suite read.
                         The skipped state is conveyed by the dimmed row, the
                         line-through name and the undo button — no extra label. */}
                     <div className="flex min-w-0 flex-1 flex-col-reverse gap-1 lg:flex-row lg:items-center lg:gap-3">

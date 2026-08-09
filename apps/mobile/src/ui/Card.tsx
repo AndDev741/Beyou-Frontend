@@ -5,9 +5,9 @@ interface CardProps extends ViewProps {
   children: ReactNode;
   /** Spotlight target for the tutorial — the cards that anchor a step pass it. */
   ref?: Ref<View>;
-  /** Reage ao toque — para cartões clicáveis de lista. Só tem efeito com `onPress`. */
+  /** Reacts to touch — for tappable list cards. Only does anything with `onPress`. */
   interactive?: boolean;
-  /** Destaca o cartão com o acento (item selecionado; meta concluída usa `tone`). */
+  /** Highlights the card with the accent (selected item; a done goal uses `tone`). */
   selected?: boolean;
   tone?: 'default' | 'success';
   padded?: boolean;
@@ -16,8 +16,8 @@ interface CardProps extends ViewProps {
 }
 
 /**
- * A superfície do sistema. Substitui o par `bg-surface + border-primary`
- * copiado em cada cartão — o redesign troca contorno azul por superfície.
+ * The system's surface. Replaces the `bg-surface + border-primary` pair copied into
+ * every card — the redesign trades a blue outline for a surface.
  */
 export default function Card({
   children,

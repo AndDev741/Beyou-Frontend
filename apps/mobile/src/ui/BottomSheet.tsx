@@ -37,15 +37,15 @@ export default function BottomSheet({
           onPress={dismissable ? onClose : undefined}
           accessibilityLabel={t(closeLabel)}
         />
-        {/* O teto vive AQUI e é ÚNICO. Porcentagem só resolve contra um pai de
-            altura definida: no painel ela não valia nada, e quando passou a
-            valer (85% no contêiner) um segundo teto no painel virava 70% DE
-            85% — a folha encolhia e descolava do rodapé, mostrando a tela por
-            baixo. */}
+        {/* The cap lives HERE and there is only ONE. A percentage only resolves
+            against a parent of definite height: on the panel it counted for
+            nothing, and once it did count (85% on the container) a second cap on
+            the panel became 70% OF 85% — the sheet shrank, came away from the
+            bottom and showed the screen underneath. */}
         <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '85%' }}>
-          {/* `flexShrink` no painel, senão o teto acima não o alcança: sem
-              encolher, ele fica do tamanho do conteúdo e o rodapé (onde mora o
-              botão de concluir) desce para fora da tela. */}
+          {/* `flexShrink` on the panel, or the cap above never reaches it: without
+              shrinking it takes the size of its content and the footer (where the
+              confirm button lives) drops off screen. */}
           <View
             className="rounded-t-2xl bg-surface px-4 pt-4"
             style={{ flexShrink: 1, paddingBottom: (insets?.bottom ?? 0) + 16 }}

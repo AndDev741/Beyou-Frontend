@@ -67,7 +67,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   const patchSection = (index: number, patch: Partial<RoutineSection>) =>
     setSections(working.routineSections.map((s, i) => (i === index ? { ...s, ...patch } : s)));
 
-  /** Tira o hábito/tarefa da seção — o grupo certo conforme o tipo do item. */
+  /** Drops the habit/task from the section — the right group for the item's type. */
   const removeItem = (index: number, item: MergedSectionItem) => {
     const section = working.routineSections[index];
     patchSection(
@@ -128,7 +128,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
-        {/* Cabeçalho do modal da web: título à esquerda, × à direita. As ações
+        {/* The web modal's header: title on the left, × on the right. The actions
             ficam no pé, onde o polegar já está depois de preencher. */}
         <View className="flex-row items-center gap-3 border-b border-border px-4 py-3">
           <Text
@@ -148,8 +148,8 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           contentContainerStyle={{ paddingBottom: bottomPad }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Só existe rotina diária; a de lista está desenhada e aparece
-              apagada em vez de escondida, como na web. Isso substitui a tela de
+          {/* Only the daily routine exists; the list one is designed and shows
+              dimmed instead of hidden, as on the web. This replaces the
               escolha que abria a criação com duas ilustrações. */}
           <View>
             <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">

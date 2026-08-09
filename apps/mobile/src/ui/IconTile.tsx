@@ -10,11 +10,11 @@ interface IconTileProps {
 }
 
 /**
- * O tile atrás do ícone de hábito/tarefa/meta. A centralização é do componente.
+ * The tile behind a habit/task/goal icon. Centring belongs to the component.
  *
- * Diferente da web, o tile NÃO tinge o ícone: não existe `currentColor` no RN e
- * cor de View não desce para os filhos. Quem usa passa `color` no ícone
- * (`theme.accent` para `tone="accent"`, `theme.text2` para `neutral`).
+ * Unlike the web, the tile does NOT tint the icon: there is no `currentColor` in RN
+ * and a View's colour does not cascade to children. The caller passes `color` on the
+ * icon (`theme.accent` for `tone="accent"`, `theme.text2` for `neutral`).
  */
 export default function IconTile({
   children,

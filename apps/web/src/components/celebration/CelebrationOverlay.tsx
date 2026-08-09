@@ -11,9 +11,9 @@ import Button from "../Button";
 const AUTO_DISMISS_MS = 4000;
 
 /**
- * A celebração do mockup: o anel do sistema cheio, com o número do nível no
- * centro, título, uma linha de corpo e "Continuar". É a mesma peça do check-in
- * e da marca — subir de nível é o anel fechando.
+ * The mockup's celebration: the system ring filled, with the level number in the
+ * centre, a title, one line of body and "Continue". It is the same piece as the
+ * check-in and the brand — levelling up is the ring closing.
  */
 export default function CelebrationOverlay() {
     const { t } = useTranslation();
@@ -69,7 +69,7 @@ export default function CelebrationOverlay() {
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
                 >
-                    {/* Halo: o anel cheio já é a mensagem, o brilho só o apoia. */}
+                    {/* Halo: the filled ring is the message, the glow only backs it. */}
                     <span aria-hidden="true" className="absolute inset-0 rounded-full bg-accent-soft" />
                     {isLevelUp ? (
                         <Ring

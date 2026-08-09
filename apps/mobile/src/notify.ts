@@ -5,14 +5,14 @@ import { TOAST_DURATION_MS, type ToastTone } from './ui/BeyouToast';
 type NotifyOptions = {
   /** Segunda linha: o detalhe, a frase motivacional. */
   subtitle?: string;
-  /** Ícone da entidade — o hábito marcado, a meta concluída. */
+  /** The entity's icon — the habit checked, the goal completed. */
   icon?: ReactNode;
 };
 
 /**
- * A casca do toast vive no `toastConfig` passado ao `<Toast />` do layout, então
- * as chamadas antigas de uma linha já saem no desenho novo. As opções existem
- * para quando a mensagem tem ícone próprio ou segunda linha.
+ * The toast shell lives in the `toastConfig` passed to the layout's `<Toast />`, so
+ * the older one-line calls already come out in the new design. The options exist for
+ * when the message has an icon of its own or a second line.
  */
 const show = (type: ToastTone, message: string, options?: NotifyOptions) =>
   Toast.show({

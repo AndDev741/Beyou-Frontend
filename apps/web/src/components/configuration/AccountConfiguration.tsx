@@ -6,11 +6,11 @@ import logoutRequest from "../../services/authentication/request/logoutRequest";
 import { persistor } from "../../redux/store";
 
 /**
- * Sair da conta — uma linha só, no tom destrutivo, como no mockup.
+ * Signing out — one row, in the destructive tone, as in the mockup.
  *
- * O botão vivia no `header.tsx`, apagado quando a sidebar nasceu: desde então
- * não havia como encerrar a sessão pela interface. O redux-persist é purgado
- * antes do redirect, senão o próximo usuário desta máquina veria os dados do
+ * The button lived in `header.tsx`, deleted when the sidebar was born: since then
+ * there was no way to end the session through the interface. redux-persist is purged
+ * before the redirect, or the next user of this machine would see the previous
  * anterior no primeiro paint.
  */
 export default function AccountConfiguration({ className = "" }: { className?: string }) {

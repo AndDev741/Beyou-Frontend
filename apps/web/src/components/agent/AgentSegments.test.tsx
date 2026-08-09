@@ -1,7 +1,7 @@
 /**
- * Os segmentos de um turno do assistente: leitura vira chip, escrita vira
- * cartão com link para a seção. O link NAVEGA E FECHA o painel — ir conferir o
- * que o agente fez com o chat por cima cobre exatamente o que se foi ver.
+ * The segments of an assistant turn: a read becomes a chip, a write becomes a card
+ * with a link to the section. The link NAVIGATES AND CLOSES the panel — going to
+ * check the agent's work with the chat on top covers exactly what you went to see.
  */
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -76,7 +76,7 @@ describe("destinationFor", () => {
 
     it("sends two-entity tools to the routine, not to the first regex that matches", () => {
         // `addTaskToRoutineSection` casaria /Task/ primeiro, e o que a pessoa
-        // quer conferir é a rotina onde a tarefa entrou.
+        // want to check is the routine the task went into.
         expect(destinationFor("addTaskToRoutineSection")?.route).toBe("/routines");
         expect(destinationFor("addHabitToRoutineSection")?.route).toBe("/routines");
     });

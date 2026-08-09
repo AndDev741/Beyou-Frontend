@@ -7,16 +7,16 @@ interface ListToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
   searchLabel: string;
-  /** Os selects (ordenação, categoria) — vão na segunda linha, lado a lado. */
+  /** The selects (sorting, category) — they go on the second row, side by side. */
   children?: ReactNode;
   testID?: string;
 }
 
 /**
- * Busca e filtros de uma listagem, no mesmo desenho da web.
+ * A list's search and filters, in the web's design.
  *
- * A busca fica com a linha inteira e os filtros descem para a de baixo: os
- * três juntos espremiam a busca até sobrar só a lupa numa tela de 360px.
+ * The search takes the whole row and the filters drop to the one below: all three
+ * together squeezed the search down to just the magnifier on a 360px screen.
  */
 export default function ListToolbar({
   search,

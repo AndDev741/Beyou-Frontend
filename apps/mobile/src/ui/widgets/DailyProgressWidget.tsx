@@ -18,11 +18,11 @@ const RADIUS = 30;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 /**
- * O widget "Hoje": anel grande com a porcentagem do dia e, ao lado, o que ela
- * significa em números — itens concluídos e XP ganho hoje.
+ * The "Today" widget: a big ring with the day's percentage and, beside it, what
+ * that means in numbers — items done and XP earned today.
  *
- * XP DO DIA, não o acumulado da conta: sai dos checks de hoje da rotina, igual
- * à web. `perfil.xp` mostraria o total de vida no lugar do ganho de hoje.
+ * TODAY's XP, not the account total: it comes from the routine's checks for today,
+ * same as the web. `perfil.xp` would show the lifetime total instead of today's.
  */
 export default function DailyProgressWidget({ checked, total }: DailyProgressWidgetProps) {
   const { t } = useTranslation();

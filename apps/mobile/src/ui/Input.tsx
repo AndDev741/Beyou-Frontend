@@ -17,12 +17,11 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   /** Multi-line textarea (taller, top-aligned) — e.g. a description field. */
   multiline?: boolean;
   /**
-   * A altura dos formulários (a da web): 1px de borda e 13.5px de texto. O
-   * padrão continua sendo o campo alto das telas de autenticação, onde ele é
-   * o único conteúdo da tela.
+   * The forms' height (the web's): a 1px border and 13.5px text. The default is
+   * still the tall field of the auth screens, where it is the only content.
    */
   compact?: boolean;
-  /** Rótulo visível acima do campo (padrão do sistema, igual à web). */
+  /** Visible label above the field (system default, same as the web). */
   label?: string;
 }
 

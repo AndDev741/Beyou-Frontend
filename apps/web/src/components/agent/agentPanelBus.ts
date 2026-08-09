@@ -1,8 +1,8 @@
 /**
- * O painel do assistente tem DOIS gatilhos: o balão flutuante (desktop) e o
- * botão central da barra inferior (mobile). O estado de aberto vive no
- * AgentWidget, então a barra pede a abertura por evento em vez de subir o
- * estado até o shell.
+ * The assistant panel has TWO triggers: the floating bubble (desktop) and the
+ * bottom bar's centre button (phones). The open state lives in AgentWidget, so the
+ * bar asks for the panel through an event instead of lifting the state up to the
+ * shell.
  */
 const OPEN_EVENT = "beyou:agent-open";
 

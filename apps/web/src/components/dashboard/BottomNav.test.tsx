@@ -4,8 +4,8 @@ import BottomNav from "./BottomNav";
 
 /**
  * A barra do mobile depois do redesign: cinco alvos (Hoje, Rotinas,
- * [Assistente], Hábitos, Mais). Os destinos que saíram da barra continuam a um
- * toque dentro da sheet do "Mais" — e com o mesmo rótulo, que é como o e2e os
+ * [Assistant], Habits, More). The destinations that left the bar are still one tap
+ * away inside the "More" sheet — with the same label, which is how the e2e suite
  * encontra.
  */
 const renderAt = (pathname: string) =>
@@ -51,8 +51,8 @@ describe("Bottom nav", () => {
 });
 
 describe("Bottom nav active item", () => {
-    // O item ativo marca ONDE VOCÊ ESTÁ — no máximo um por vez, e nenhum quando
-    // a rota não vive na barra (que agora tem só três links).
+    // The active item marks WHERE YOU ARE — at most one at a time, and none when
+    // the route does not live in the bar (which now has only three links).
     it.each([
         ["/habits", "Habits"],
         ["/routines", "Routines"],

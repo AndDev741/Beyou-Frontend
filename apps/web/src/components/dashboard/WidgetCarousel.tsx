@@ -1,9 +1,9 @@
 import { useRef, useState, type ReactNode } from "react";
 
 /**
- * Carrossel de widgets do mobile: altura fixa, um por vez, com pontos de
- * página. A rotina nunca desce conforme o usuário adiciona widget — que era o
- * problema de empilhá-los.
+ * The phone widget carousel: fixed height, one at a time, with page dots. The
+ * routine never slides further down as widgets are added — which was the problem
+ * with stacking them.
  */
 export default function WidgetCarousel({ children }: { children: ReactNode[] }) {
     const trackRef = useRef<HTMLDivElement>(null);
@@ -12,7 +12,7 @@ export default function WidgetCarousel({ children }: { children: ReactNode[] }) 
     const onScroll = () => {
         const track = trackRef.current;
         if (!track) return;
-        // O passo é a largura visível: cada slide ocupa a viewport do trilho.
+        // The step is the visible width: each slide fills the track's viewport.
         setActive(Math.round(track.scrollLeft / Math.max(1, track.clientWidth)));
     };
 
