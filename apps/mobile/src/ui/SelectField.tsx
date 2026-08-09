@@ -51,11 +51,14 @@ export default function SelectField({
         <ChevronDown size={15} color={theme.text3} />
       </Pressable>
 
-      <BottomSheet visible={open} onClose={() => setOpen(false)} closeLabel="Close" maxHeight="max-h-[70%]">
+      <BottomSheet visible={open} onClose={() => setOpen(false)} closeLabel="Close">
         <Text accessibilityRole="header" className="mb-2 text-[15px] font-semibold text-text">
           {label}
         </Text>
-        <ScrollView>
+        {/* Encolhe, não cresce: com o `flexGrow: 1` que o ScrollView traz de
+            fábrica, a folha esticava até o teto mesmo com quatro opções e
+            sobrava um vão branco embaixo da última. */}
+        <ScrollView style={{ flexGrow: 0, flexShrink: 1 }}>
           {options.map((option) => {
             const selected = option.value === value;
             return (

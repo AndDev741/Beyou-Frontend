@@ -7,8 +7,6 @@ interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
   children: ReactNode;
-  /** Tailwind max-height class for the panel; pass '' for no cap. */
-  maxHeight?: string;
   /** i18n key for the backdrop's accessibility label. */
   closeLabel?: string;
   /** When false, tapping the backdrop does nothing (e.g. a request is in flight). */
@@ -25,7 +23,6 @@ export default function BottomSheet({
   visible,
   onClose,
   children,
-  maxHeight = 'max-h-[85%]',
   closeLabel = 'Cancel',
   dismissable = true,
 }: BottomSheetProps) {
@@ -40,10 +37,18 @@ export default function BottomSheet({
           onPress={dismissable ? onClose : undefined}
           accessibilityLabel={t(closeLabel)}
         />
-        <KeyboardAvoidingView behavior="padding">
+        {/* O teto vive AQUI e é ÚNICO. Porcentagem só resolve contra um pai de
+            altura definida: no painel ela não valia nada, e quando passou a
+            valer (85% no contêiner) um segundo teto no painel virava 70% DE
+            85% — a folha encolhia e descolava do rodapé, mostrando a tela por
+            baixo. */}
+        <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '85%' }}>
+          {/* `flexShrink` no painel, senão o teto acima não o alcança: sem
+              encolher, ele fica do tamanho do conteúdo e o rodapé (onde mora o
+              botão de concluir) desce para fora da tela. */}
           <View
-            className={`${maxHeight} rounded-t-2xl bg-surface px-4 pt-4`}
-            style={{ paddingBottom: (insets?.bottom ?? 0) + 16 }}
+            className="rounded-t-2xl bg-surface px-4 pt-4"
+            style={{ flexShrink: 1, paddingBottom: (insets?.bottom ?? 0) + 16 }}
           >
             {children}
           </View>

@@ -74,7 +74,7 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
   if (!visible) return null;
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} closeLabel="Close" maxHeight="max-h-[80%]">
+    <BottomSheet visible={visible} onClose={onClose} closeLabel="Close">
         <View className="mb-3 flex-row items-center justify-between">
           <Text className="text-text text-lg font-semibold">{t('Icon')}</Text>
           <Pressable
