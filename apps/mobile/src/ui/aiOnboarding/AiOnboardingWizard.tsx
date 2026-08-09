@@ -383,7 +383,7 @@ export default function AiOnboardingWizard({
                       className={`h-1.5 rounded-full ${
                         index === currentIndex
                           ? 'w-6 bg-accent'
-                          : 'w-3 bg-description opacity-40'
+                          : 'w-3 bg-text-3 opacity-40'
                       }`}
                     />
                   ))}

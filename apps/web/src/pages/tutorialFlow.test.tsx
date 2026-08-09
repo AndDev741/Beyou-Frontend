@@ -34,10 +34,6 @@ vi.mock("../components/configuration/TutorialConfiguration", () => ({
     default: () => null
 }));
 
-vi.mock("../components/header", () => ({
-    default: () => null
-}));
-
 vi.mock("../components/useAuthGuard", () => ({
     default: () => null
 }));

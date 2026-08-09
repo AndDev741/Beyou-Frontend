@@ -305,7 +305,7 @@ function DotRow({
           <View
             key={level}
             className={`h-1.5 w-1.5 rounded-full ${
-              level <= count ? filledClass : 'bg-description opacity-30'
+              level <= count ? filledClass : 'bg-text-3 opacity-30'
             }`}
           />
         ))}

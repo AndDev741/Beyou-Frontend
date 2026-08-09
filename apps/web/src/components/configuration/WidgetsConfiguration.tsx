@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, type DropResult } from "react-beautiful-dnd";
 import { GripVertical, X, Plus, Target, Flame, Award, ChartPie, ArrowUpRight, Gauge, Lightbulb } from "lucide-react";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { widgetsIds } from "../widgets/utils/widgetsFabric";
@@ -60,12 +60,15 @@ export default function WidgetsConfiguration() {
         persist();
     }, [currentWidgets, dispatch, t]);
 
-    const handleOnDragEnd = (result: any) => {
-        if (!result.destination) return;
+    const handleOnDragEnd = (result: DropResult) => {
+        // Read before the setState closure: `destination` is nullable and the
+        // narrowing above does not survive into the callback.
+        const destination = result.destination;
+        if (!destination) return;
         setCurrentWidgets((prev) => {
             const items = Array.from(prev);
             const [moved] = items.splice(result.source.index, 1);
-            items.splice(result.destination.index, 0, moved);
+            items.splice(destination.index, 0, moved);
             return items;
         });
     };

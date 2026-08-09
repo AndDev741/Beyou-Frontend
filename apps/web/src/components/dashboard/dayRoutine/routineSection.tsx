@@ -53,6 +53,8 @@ export default function RoutineSection({ section, routineId}: { section: section
 
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
     const [xpFloats, setXpFloats] = useState<Record<string, number>>({});
+    // Guards check AND skip: both round-trip and both flip the same row.
+    const [pending, setPending] = useState(false);
     const xpFloatTimers = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
     useEffect(() => {
@@ -66,30 +68,44 @@ export default function RoutineSection({ section, routineId}: { section: section
     useUiRefresh(refreshUi);
 
     const getMergedItems = () => {
-        const tasks = section.taskGroup?.map(item => ({
-            type: 'task' as const,
-            id: item.taskId,
-            groupId: item.id,
-            startTime: item?.startTime,
-            endTime: item?.endTime,
-            check: item?.taskGroupChecks
-        })) || [];
+        // Only groups the backend knows: checking needs the group id, so one
+        // without it could not round-trip anyway. Filtering here is also what
+        // lets the rest of this function drop `any`.
+        const tasks = (section.taskGroup ?? [])
+            .filter((item): item is typeof item & { id: string } => Boolean(item.id))
+            .map(item => ({
+                type: 'task' as const,
+                id: item.taskId,
+                groupId: item.id,
+                startTime: item?.startTime,
+                endTime: item?.endTime,
+                check: item?.taskGroupChecks
+            }));
 
-        const habits = section.habitGroup?.map(item => ({
-            type: 'habit' as const,
-            id: item.habitId,
-            groupId: item.id,
-            startTime: item?.startTime,
-            endTime: item?.endTime,
-            check: item?.habitGroupChecks
-        })) || [];
+        const habits = (section.habitGroup ?? [])
+            .filter((item): item is typeof item & { id: string } => Boolean(item.id))
+            .map(item => ({
+                type: 'habit' as const,
+                id: item.habitId,
+                groupId: item.id,
+                startTime: item?.startTime,
+                endTime: item?.endTime,
+                check: item?.habitGroupChecks
+            }));
 
         return [...tasks, ...habits].sort((a, b) =>
             a?.startTime ? a.startTime.localeCompare(b.startTime) : 0 - (b?.startTime ? b.startTime.localeCompare(a.startTime) : 0)
         );
     };
 
+     /**
+      * One toggle in flight at a time. A double click on the ring ran it twice:
+      * XP granted then revoked, two toasts, the item back unchecked, and the two
+      * XpFloat timers racing. The native item guards the same way (`pending`).
+      */
      const handleCheck = async (groupToCheck: itemGroupToCheck) => {
+        if (pending) return;
+        setPending(true);
         const refreshUiReponse = await checkRoutine(groupToCheck, t);
         if(refreshUiReponse?.success){
             setRefreshUi(refreshUiReponse.success);
@@ -110,15 +126,19 @@ export default function RoutineSection({ section, routineId}: { section: section
         } else if (refreshUiReponse?.error) {
             toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }
+        setPending(false);
      }
 
      const handleSkip = async (groupToSkip: itemGroupToSkip) => {
+        if (pending) return;
+        setPending(true);
         const refreshUiReponse = await skipRoutine(groupToSkip, t);
         if(refreshUiReponse?.success){
             setRefreshUi(refreshUiReponse.success);
         } else if (refreshUiReponse?.error) {
             toast.error(getFriendlyErrorMessage(t, refreshUiReponse.error));
         }
+        setPending(false);
      }
 
     const mergedItems = getMergedItems();
@@ -151,7 +171,7 @@ export default function RoutineSection({ section, routineId}: { section: section
 
             if (!found) return null;
 
-            const itemObj: any = { ...found, item };
+            const itemObj = { ...found, item };
 
             let currentDate = new Date().toJSON().slice(0, 10);
             const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
@@ -161,7 +181,9 @@ export default function RoutineSection({ section, routineId}: { section: section
             // instante do check e some). Vem do próprio check, então sobrevive
             // ao reload e mostra o valor real, já com decaimento aplicado.
             const xpEarned: number = checked ? (ItemCheck?.xpGenerated ?? 0) : 0;
-            const motivationalPhrase = item.type === "habit" ? itemObj?.motivationalPhrase : "";
+            // Only habits carry one; `in` narrows the union without a cast.
+            const motivationalPhrase =
+                'motivationalPhrase' in itemObj ? itemObj.motivationalPhrase : '';
 
             return (
                 <div key={`${item.type}-${item.id}-${index}`} className={`group mt-1 flex w-full items-center gap-2.5 rounded-control px-1.5 py-1.5 transition-colors duration-200 hover:bg-surface-2 lg:px-2 ${skipped ? "opacity-60" : ""}`}>

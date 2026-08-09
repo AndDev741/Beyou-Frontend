@@ -234,7 +234,7 @@ function CalendarPopover({
                                 isFuture ? "text-text-2/30 cursor-not-allowed" : "cursor-pointer",
                                 isSelected
                                     ? isSnapshotMode
-                                        ? "bg-description/20 text-text font-bold ring-2 ring-description/30"
+                                        ? "bg-surface-2 text-text font-bold ring-2 ring-border"
                                         : "bg-accent text-on-accent font-bold shadow-sm"
                                     : isTodayCell
                                     ? "ring-2 ring-accent/40 text-accent font-bold"

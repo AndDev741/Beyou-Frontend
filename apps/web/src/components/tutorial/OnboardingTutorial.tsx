@@ -180,7 +180,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
         </button>
 
         <div className="bg-surface text-text rounded-frame border border-border shadow-lg overflow-hidden max-h-[92vh] md:max-h-[85vh] md:min-h-[650px] flex flex-col">
-          <div className="h-1 bg-description/20">
+          <div className="h-1 bg-surface-2">
             <motion.div
               className="h-full bg-accent"
               initial={{ width: 0 }}
@@ -286,7 +286,7 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                       ? "bg-accent scale-125"
                       : index < currentStep
                       ? "bg-accent/50"
-                      : "bg-description/40 hover:bg-description/70"
+                      : "bg-text-3/40 hover:bg-text-3/70"
                   )}
                   aria-label={t(s.titleKey)}
                 />

@@ -59,7 +59,7 @@ export default function Input({
             : compact
               ? 'min-h-[42px] items-center'
               : 'h-[56px] items-center'
-        } ${disabled ? 'bg-description/10' : 'bg-surface'} ${
+        } ${disabled ? 'bg-surface-2' : 'bg-surface'} ${
           error ? 'border-danger' : disabled ? 'border-border/40' : 'border-border'
         }`}
       >

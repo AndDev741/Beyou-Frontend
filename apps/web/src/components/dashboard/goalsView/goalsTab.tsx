@@ -73,8 +73,8 @@ export default function GoalsTab() {
             <div className="relative">
                 {canScroll && (
                     <>
-                        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background via-background/70 to-transparent" />
-                        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background via-background/70 to-transparent" />
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-bg via-bg/70 to-transparent" />
+                        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-bg via-bg/70 to-transparent" />
                         <div className="md:hidden absolute -top-3 right-2 flex items-center gap-1 rounded-full bg-surface/80 px-3 py-1 text-xs font-semibold text-text-2 shadow-sm backdrop-blur">
                             <FiArrowRight className="text-sm" />
                             {t("Swipe to scroll")}

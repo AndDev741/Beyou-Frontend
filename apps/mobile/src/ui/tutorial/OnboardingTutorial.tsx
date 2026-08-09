@@ -182,7 +182,7 @@ export default function OnboardingTutorial({
               <View
                 key={s.id}
                 className={`h-2 w-2 rounded-full ${
-                  idx === i ? 'bg-accent' : idx < i ? 'bg-accent/50' : 'bg-description/30'
+                  idx === i ? 'bg-accent' : idx < i ? 'bg-accent/50' : 'bg-text-3/30'
                 }`}
               />
             ))}

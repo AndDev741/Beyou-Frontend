@@ -375,7 +375,7 @@ export default function AiOnboardingWizard({
                                         ? "w-8 bg-accent"
                                         : index < currentIndex
                                           ? "w-4 bg-accent opacity-50"
-                                          : "w-4 bg-description opacity-30"
+                                          : "w-4 bg-text-3 opacity-30"
                                 )}
                             />
                         ))}

@@ -7,6 +7,7 @@ import { ActivityIndicator, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { neutrals } from '@beyou/theme';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import '../src/i18n';
@@ -133,13 +134,18 @@ export default function RootLayout() {
     if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
   }, [fontsLoaded]);
 
-  // Enquanto a fonte carrega, a tela é do MESMO tom do splash (o do sistema,
-  // que é o que o splash nativo usou — o tema do usuário só chega depois). Sem
-  // isto o `null` deixava um frame preto entre a marca e o app.
+  // While the font loads the screen is the SAME tone as the splash — the system
+  // one, which is what the native splash used (the account theme only arrives
+  // with the profile). Returning `null` here left a black frame between the mark
+  // and the app. The colours come from the token source, not from a literal:
+  // `app.json` still repeats them because a config file cannot import.
   if (!fontsLoaded) {
     return (
       <View
-        style={{ flex: 1, backgroundColor: systemScheme === 'dark' ? '#0E1218' : '#F5F7FA' }}
+        style={{
+          flex: 1,
+          backgroundColor: neutrals[systemScheme === 'dark' ? 'dark' : 'light'].bg,
+        }}
       />
     );
   }

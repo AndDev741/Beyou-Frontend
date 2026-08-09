@@ -184,13 +184,24 @@ export default function SpotlightTutorial({
         target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }, [isActive, step?.id, step?.targetSelector]);
 
+    // Tracked so unmounting mid-transition cannot advance a step on a gone tree.
+    const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(
+        () => () => {
+            if (advanceTimer.current) clearTimeout(advanceTimer.current);
+        },
+        [],
+    );
+
     const goNext = () => {
         if (step?.disableNext) return;
         if (isLast) {
             onComplete();
         } else {
             setIsVisible(false);
-            setTimeout(() => {
+            if (advanceTimer.current) clearTimeout(advanceTimer.current);
+            advanceTimer.current = setTimeout(() => {
+                advanceTimer.current = null;
                 setStep(stepIndex + 1);
             }, 200);
         }
@@ -373,7 +384,7 @@ export default function SpotlightTutorial({
                                             className={cn(
                                                 "flex items-center gap-1 px-3 md:py-2 rounded-control text-sm font-semibold transition-all",
                                                 step.disableNext
-                                                    ? "bg-description/30 text-text-2 cursor-not-allowed"
+                                                    ? "bg-surface-2 text-text-2 cursor-not-allowed"
                                                     : "bg-accent text-on-accent hover:bg-accent/90"
                                             )}
                                         >
@@ -393,7 +404,7 @@ export default function SpotlightTutorial({
                                                     ? "bg-accent w-4"
                                                     : index < stepIndex
                                                     ? "bg-accent/50"
-                                                    : "bg-description/40"
+                                                    : "bg-text-3/40"
                                             )}
                                         />
                                     ))}

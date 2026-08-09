@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable, type DropResult } from "react-beautiful-dnd";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import Droppable from "../../utils/StrictModeDroppable";
 import GhostAdd from "../../../ui/GhostAdd";
@@ -36,7 +36,7 @@ export default function SectionsEditor({
 }: SectionsEditorProps) {
     const { t } = useTranslation();
 
-    const handleDragEnd = (result: any) => {
+    const handleDragEnd = (result: DropResult) => {
         if (!result.destination) return;
         const items = Array.from(sections);
         const [moved] = items.splice(result.source.index, 1);

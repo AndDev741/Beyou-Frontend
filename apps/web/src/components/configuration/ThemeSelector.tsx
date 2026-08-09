@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next"
+import { toast } from "react-toastify";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useTheme } from "../../context/ThemeContext";
 import { accentPacks, buildTheme, type ThemeMode } from "@beyou/theme";
 import editUser from "@beyou/api/user/editUser";
@@ -21,11 +23,25 @@ export default function ThemeSelector() {
     const { theme, preference, setPreference } = useTheme();
     const dispatch = useDispatch();
 
-    const apply = (next: { mode: ThemeMode; accentPack: string }) => {
+    /**
+     * Applies at once and rolls back if the server refuses.
+     *
+     * The response used to be dropped: a failed PUT left the new theme on
+     * screen and the account still on the old one, so the next boot silently
+     * undid the choice (the account value always wins on profile load).
+     */
+    const apply = async (next: { mode: ThemeMode; accentPack: string }) => {
+        const previous = preference;
         setPreference(next);
         const resolved = buildTheme(next, theme.base === "dark");
         dispatch(themeInUseEnter(resolved));
-        editUser({ theme: resolved.mode });
+
+        const response = await editUser({ theme: resolved.mode });
+        if (response?.error) {
+            setPreference(previous);
+            dispatch(themeInUseEnter(buildTheme(previous, theme.base === "dark")));
+            toast.error(getFriendlyErrorMessage(t, response.error));
+        }
     };
 
     return (
