@@ -1,92 +1,91 @@
-# Redesign Beyou — plano de implementação
+# Beyou redesign — implementation plan
 
-Plano de execução do redesign visual aprovado. O desenho de referência é o mockup
-(`beyou-redesign-mockup.html`, artifact publicado); o card de acompanhamento é
+Execution plan for the approved visual redesign. The reference drawing is the mockup
+(`beyou-redesign-mockup.html`, published as an artifact); the tracking card is
 ["Pensar em uma logo melhor e atualizar app background e web favicon"](https://app.notion.com/p/3962c12010f08010b806fa2ad2532ba4).
 
-Este documento é a especificação para quem implementa. Cada PR abaixo é fechado em si:
-descreve o objetivo, os arquivos, as guardas que não podem quebrar e como verificar.
+This document is the spec for whoever implements it. Every PR below is self-contained: it
+states the goal, the files, the guards that must not break and how to verify.
 
 ---
 
-## Decisões assumidas
+## Assumed decisions
 
-Três decisões estavam em aberto. O plano assume as respostas abaixo; onde a resposta
-muda o trabalho, está anotado no PR correspondente.
+Three decisions were open. The plan assumes the answers below; where an answer changes the
+work, it is noted on the matching PR.
 
-| Decisão | Assumido | Se mudar |
+| Decision | Assumed | If it changes |
 |---|---|---|
-| Modelo de temas | Os 9 temas viram 2 bases (claro/escuro) + packs de acento | Só o PR 1.2 muda de forma |
-| Sequência mobile | Pareado por domínio: web e mobile da mesma página em sequência | Reordena a Fase 6, nada mais |
-| Superfícies sem mockup | Tudo fechado no mockup (v1.19: cobertura 100%) | — |
+| Theme model | The 9 themes become 2 bases (light/dark) + accent packs | Only PR 1.2 changes shape |
+| Mobile sequencing | Paired by domain: web and mobile of the same page back to back | Reorders phase 6, nothing else |
+| Surfaces with no mockup | Everything is settled in the mockup (v1.19: 100% coverage) | — |
 
-Pendências de desenho: **todas resolvidas no mockup v1.19 (2026-08-02)** — snapshot e
-item picker (6.2), cartões dos 3 widgets com spec de cores de gráfico (6.1), estados de
-carregamento (3.2), auth do Expo + sheet do assistente (4.4/6.8), "Abrir no app" nos cards
-de reset/verify. Nenhum PR está bloqueado por desenho.
+Open design questions: **all resolved in mockup v1.19 (2026-08-02)** — snapshot and item
+picker (6.2), the cards of the 3 widgets with a chart-colour spec (6.1), loading states (3.2),
+Expo auth + the assistant sheet (4.4/6.8), "Open in the app" on the reset/verify cards. No PR
+is blocked on design.
 
 ---
 
-## Dependências de dados
+## Data dependencies
 
-O desenho está fechado, mas quatro detalhes dele mostram informação que a API não devolve
-hoje. Nenhum bloqueia o redesign: são adições de backend que podem vir depois, desde que o
-componente seja escrito para degradar sem o dado (esconder o elemento, não quebrar).
+The design is settled, but four of its details show information the API does not return today.
+None of them blocks the redesign: they are backend additions that can land later, as long as
+the component is written to degrade without the data (hide the element, do not break).
 
-| O que o mockup mostra | Onde | Estado hoje | Saída |
+| What the mockup shows | Where | State today | Way out |
 |---|---|---|---|
-| Barras da semana em Melhor área e Pior área | PR 6.1 | Não existe XP por categoria por dia. O widget atual só mostra ícone, nome, nível e barra de XP — não tem gráfico nenhum | Endpoint de série semanal por categoria, ou entregar o cartão sem as barras na v1 |
-| "melhor: 9" (recorde de constância do hábito) | PR 6.3, hábito estendido | `HabitResponseDTO` devolve só `constance`. `maxConstance` existe, mas é do **usuário**, não do hábito | Campo novo no DTO do hábito |
-| "Check-ins 32 desde 12 jun" | PR 6.3, hábito estendido | Nem o total nem a data do primeiro check-in existem no DTO | Dois campos novos no DTO do hábito |
-| Heatmap de 16 semanas | PR 5.3 | Não existe histórico diário de conclusão exposto | Endpoint de histórico (já estava fora do caminho crítico) |
+| Weekly bars in Better area and Worst area | PR 6.1 | There is no per-category daily XP. The current widget only shows icon, name, level and an XP bar — no chart at all | An endpoint for a weekly per-category series, or ship the card without the bars in v1 |
+| "best: 9" (the habit's streak record) | PR 6.3, expanded habit | `HabitResponseDTO` returns only `constance`. `maxConstance` exists, but belongs to the **user**, not the habit | A new field on the habit DTO |
+| "Check-ins 32 since Jun 12" | PR 6.3, expanded habit | Neither the total nor the first check-in's date exists on the DTO | Two new fields on the habit DTO |
+| A 16-week heatmap | PR 5.3 | No daily completion history is exposed | A history endpoint (it was already off the critical path) |
 
-O que **existe** e pode ser usado à vontade: `maxConstance` do usuário (backend
-`UserResponseDTO` e `RefreshUserDTO` → frontend `UserType` e `perfilSlice`), então o
-"melhor: 21" do widget de Constância e do perfil está coberto. E o XP decaído do check
-atrasado que o modo snapshot mostra é real: a estratégia de decaimento de XP existe e é
-configurável em Configuração.
+What **does** exist and can be used freely: the user's `maxConstance` (backend
+`UserResponseDTO` and `RefreshUserDTO` → frontend `UserType` and `perfilSlice`), so the
+"best: 21" on the Streak widget and on the profile is covered. And the decayed XP of a late
+check that snapshot mode shows is real: the XP decay strategy exists and is configurable in
+Configuration.
 
 ---
 
-## Guardas — valem para todo PR
+## Guards — they hold for every PR
 
-1. **Rótulos de navegação não mudam.** A suíte e2e usa 68 seletores por texto/role
-   contra 2 por testId. `Routines`, `Habits`, `Config`, `Categories`, `Next`,
-   `Continue`, `Skip`, `Get Started` e os headings de página têm que sobreviver.
-   Se um texto precisar mudar, adicione `data-testid` **antes** e atualize a spec
-   no mesmo PR.
-2. **Âncoras do tutorial migram junto.** `data-tutorial-id` (`dashboard-shortcuts`,
+1. **Navigation labels do not change.** The e2e suite uses 68 selectors by text/role against
+   2 by testId. `Routines`, `Habits`, `Config`, `Categories`, `Next`, `Continue`, `Skip`,
+   `Get Started` and the page headings have to survive. If a text must change, add a
+   `data-testid` **first** and update the spec in the same PR.
+2. **Tutorial anchors travel along.** `data-tutorial-id` (`dashboard-shortcuts`,
    `shortcut-*`, `dashboard-routine-today`, `dashboard-profile`, `habits-grid`,
-   `categories-grid`, `routine-*`, `agent-fab`, `feedback-fab`) precisa continuar
-   montando em algum elemento visível. Quebrou o âncora, quebrou `tutorial.spec.ts`.
-3. **Nada de hex hardcoded.** Hoje são 24 ocorrências na web (8 no `themes.css`) e 23
-   no mobile. Esse número não sobe. Cor vem de token.
-4. **Nada de `dark:` do Tailwind.** Nada no app adiciona a classe `.dark` — as 14
-   ocorrências atuais são código morto e o PR 1.4 as remove. Tema é resolvido por CSS
-   var em runtime pelo `ThemeProvider`, não por variante de classe.
-5. **Texto em `en` e `pt`.** Chaves novas entram nos dois arquivos
-   (`packages/i18n/src/{en,pt}/translation.json`). `translationKeys.test.ts` cobre a paridade.
-6. **`prefers-reduced-motion` respeitado** em qualquer animação nova.
-7. **Verificação mínima por PR:** `npm run test` na raiz (turbo roda web + mobile) e
-   `npm run typecheck`. PRs das fases 4 e 6 rodam também a suíte e2e contra a stack e2e.
+   `categories-grid`, `routine-*`, `agent-fab`, `feedback-fab`) has to keep mounting on some
+   visible element. Break the anchor and you break `tutorial.spec.ts`.
+3. **No hardcoded hex.** Today that is 24 occurrences on the web (8 in `themes.css`) and 23
+   on mobile. That number does not go up. Colour comes from a token.
+4. **No Tailwind `dark:`.** Nothing in the app adds the `.dark` class — the 14 current
+   occurrences are dead code and PR 1.4 removes them. The theme resolves through CSS vars at
+   runtime in `ThemeProvider`, not through a class variant.
+5. **Text in `en` and `pt`.** New keys go into both files
+   (`packages/i18n/src/{en,pt}/translation.json`). `translationKeys.test.ts` covers parity.
+6. **`prefers-reduced-motion` respected** in any new animation.
+7. **Minimum verification per PR:** `npm run test` at the root (turbo runs web + mobile) and
+   `npm run typecheck`. PRs in phases 4 and 6 also run the e2e suite against the e2e stack.
 
 ---
 
-## Fase 1 — Fundação
+## Phase 1 — Foundation
 
-### PR 1.1 — Camada de tokens
+### PR 1.1 — The token layer
 
-**Objetivo:** o app inteiro passa a usar a paleta nova sem que nenhum componente seja tocado.
+**Goal:** the whole app moves onto the new palette without a single component being touched.
 
-O modelo atual tem 8 tokens; o novo tem 13, e a semântica muda (hoje `secondary` é a cor do
-texto e não existe `surface` nem `border`). A ponte é manter os 8 nomes antigos como
-**aliases** dos novos. Como um componente sozinho não sabe se `bg-background` era cartão ou
-página, o alias escolhe o caso dominante:
+The current model has 8 tokens; the new one has 13, and the semantics change (today
+`secondary` is the text colour and neither `surface` nor `border` exists). The bridge is to
+keep the 8 old names as **aliases** of the new ones. Since a component on its own cannot know
+whether `bg-background` meant card or page, the alias picks the dominant case:
 
-| Token antigo | Vira | Porquê |
+| Old token | Becomes | Why |
 |---|---|---|
-| `background` | `--surface` | 110 dos 136 usos são cartão, input ou modal |
-| `secondary` | `--text` | é a cor de texto principal hoje |
+| `background` | `--surface` | 110 of the 136 uses are a card, an input or a modal |
+| `secondary` | `--text` | it is the main text colour today |
 | `description` | `--text-2` | |
 | `placeholder` | `--text-3` | |
 | `icon` | `--text-2` | |
@@ -94,270 +93,279 @@ página, o alias escolhe o caso dominante:
 | `success` | `--success` | |
 | `error` | `--danger` | |
 
-O fundo de página (`--bg`) passa a ser aplicado explicitamente no `body`
-(`apps/web/src/index.css`) e no wrapper do `App.tsx`, que hoje usam `bg-background` — são os
-26 usos em `pages/` que precisam de revisão manual neste PR.
+The page background (`--bg`) starts being applied explicitly on the `body`
+(`apps/web/src/index.css`) and on the `App.tsx` wrapper, which use `bg-background` today —
+those are the 26 uses in `pages/` that need a manual review in this PR.
 
-**Arquivos:**
-- `packages/theme/src/theme.ts` — interface `Theme` com os 13 campos novos; os 8 antigos
-  permanecem no tipo, marcados como `@deprecated`, para os 219 usos de `theme.*` em JS.
-- `packages/theme/src/listOfThemes.ts` — as duas bases (`beYou`, `beYouDark`) ganham os
-  campos novos; os outros 7 temas recebem valores derivados provisórios (o modelo definitivo
-  é o PR 1.2).
-- `apps/web/src/context/ThemeContext.tsx` — o bloco de `root.style.setProperty` passa a
-  emitir os 13 tokens **e** os 8 aliases.
-- `apps/web/src/themes.css` — mesmas variáveis no `:root` (fallback antes do JS rodar).
-- `apps/mobile/src/theme/ThemeProvider.tsx` — `themeToVars` emite os 13 + aliases.
-- `apps/web/tailwind.config.js` e `apps/mobile/tailwind.config.js` — cores novas, escala de
-  raio (`frame: 24px`, `card: 16px`, `control: 10px`) e os nomes antigos mantidos.
-- `apps/web/src/components/widgets/utils/chartColors.ts` — passa a ler os tokens novos.
-  Canvas não resolve CSS var: o widget continua lendo cor concreta do objeto `theme`.
-- `apps/web/src/components/habits/utils/useColors.tsx` — os 4 hex saem.
+**Files:**
+- `packages/theme/src/theme.ts` — the `Theme` interface with the 13 new fields; the 8 old ones
+  stay on the type, marked `@deprecated`, for the 219 `theme.*` uses in JS.
+- `packages/theme/src/listOfThemes.ts` — the two bases (`beYou`, `beYouDark`) gain the new
+  fields; the other 7 themes get provisional derived values (the definitive model is PR 1.2).
+- `apps/web/src/context/ThemeContext.tsx` — the `root.style.setProperty` block starts emitting
+  the 13 tokens **and** the 8 aliases.
+- `apps/web/src/themes.css` — the same variables on `:root` (a fallback before JS runs).
+- `apps/mobile/src/theme/ThemeProvider.tsx` — `themeToVars` emits the 13 + aliases.
+- `apps/web/tailwind.config.js` and `apps/mobile/tailwind.config.js` — new colours, a radius
+  scale (`frame: 24px`, `card: 16px`, `control: 10px`) and the old names kept.
+- `apps/web/src/components/widgets/utils/chartColors.ts` — starts reading the new tokens.
+  Canvas cannot resolve a CSS var: the widget keeps reading a concrete colour off the `theme`
+  object.
+- `apps/web/src/components/habits/utils/useColors.tsx` — the 4 hex values go.
 
-**Definition of done:** o diff não toca nenhum arquivo em `components/` além dos dois
-consumidores de cor citados. Se tocou, o alias está errado. Screenshot do dashboard e de
-Hábitos nos dois temas, web e Expo, anexado ao PR.
+**Definition of done:** the diff touches no file under `components/` beyond the two colour
+consumers named above. If it did, the alias is wrong. A screenshot of the dashboard and of
+Habits in both themes, web and Expo, attached to the PR.
 
-### PR 1.2 — Bases + packs de acento
+### PR 1.2 — Bases + accent packs
 
-**Objetivo:** trocar os 9 temas por 2 bases + packs, sem deixar usuário órfão.
+**Goal:** trade the 9 themes for 2 bases + packs, without orphaning any user.
 
-`themeInUse` é uma string persistida no backend (`UserType`, `perfilSlice`). Todo modo antigo
-precisa de destino:
+`themeInUse` is a string persisted in the backend (`UserType`, `perfilSlice`). Every old mode
+needs a destination:
 
-| Modo salvo | Vira |
+| Saved mode | Becomes |
 |---|---|
-| beYou | base clara + pack Beyou |
-| beYouDark | base escura + pack Beyou |
-| Sunset | base clara + pack Pôr do sol |
-| Amethyst | base clara + pack Ametista |
-| Midnight, Polar | base escura + pack Beyou |
-| Cyberpunk | base escura + pack Cyber |
-| Mocha | base clara + pack Pôr do sol |
-| Late Latte | base escura + pack Pôr do sol (é um tema ESCURO: bg #2c1e1e) |
-| desconhecido | base pela preferência do SO + pack Beyou |
+| beYou | light base + Beyou pack |
+| beYouDark | dark base + Beyou pack |
+| Sunset | light base + Sunset pack |
+| Amethyst | light base + Amethyst pack |
+| Midnight, Polar | dark base + Beyou pack |
+| Cyberpunk | dark base + Cyber pack |
+| Mocha | light base + Sunset pack |
+| Late Latte | dark base + Sunset pack (it is a DARK theme: bg #2c1e1e) |
+| unknown | base from the OS preference + Beyou pack |
 
-**Arquivos:** `packages/theme/src/listOfThemes.ts` (bases + `accentPacks`),
-`apps/web/src/services/user/hydratePerfil.ts` (fallback ao ler o perfil),
+**Files:** `packages/theme/src/listOfThemes.ts` (bases + `accentPacks`),
+`apps/web/src/services/user/hydratePerfil.ts` (the fallback when reading the profile),
 `apps/web/src/components/configuration/ThemeSelector.tsx`,
 `apps/web/src/components/authentication/ThemeSelectorInline.tsx`,
 `apps/mobile/src/ui/ThemeSelector.tsx`, `apps/mobile/src/theme/ThemeSync.tsx`,
-nomes dos temas em `packages/i18n`.
+the theme names in `packages/i18n`.
 
-**Guarda:** `ThemeContext.test.tsx` cobre a precedência conta → localStorage → SO. Os quatro
-casos continuam passando, mais um caso novo: modo desconhecido cai no fallback.
+**Guard:** `ThemeContext.test.tsx` covers the account → localStorage → OS precedence. The four
+cases keep passing, plus a new one: an unknown mode falls back.
 
-**Se a decisão mudar** (manter os 9 temas): este PR vira "expressar os 9 temas nos 13 tokens"
-e o mapa de migração some.
+**If the decision changes** (keep the 9 themes): this PR becomes "express the 9 themes in the
+13 tokens" and the migration map goes away.
 
-### PR 1.3 — Tipografia Geist
+### PR 1.3 — Geist typography
 
-**Objetivo:** Geist na interface, Geist Mono em número, XP e horário.
+**Goal:** Geist in the interface, Geist Mono on numbers, XP and times.
 
-Hoje a web carrega Inter pelo CDN do Google (`apps/web/index.html`) e usa
-`fontFamily.mainFont` via a classe `font-mainFont` no `App.tsx`.
+Today the web loads Inter from Google's CDN (`apps/web/index.html`) and uses
+`fontFamily.mainFont` through the `font-mainFont` class in `App.tsx`.
 
-**Arquivos:**
-- `apps/web/public/fonts/` — woff2 self-hosted (evita a dependência de terceiro e o FOUT do CDN).
-- `apps/web/index.html` — sai o `<link>` do Google, entra `<link rel="preload">` do peso crítico.
-- `apps/web/src/index.css` — `@font-face` com `font-display: swap`.
-- `apps/web/tailwind.config.js` — `sans: Geist`, `mono: Geist Mono`; `mainFont` vira alias
-  de `sans` para não quebrar o `App.tsx` de imediato.
-- `apps/mobile/` — fontes em `assets/fonts/`, `useFonts` no `app/_layout.tsx` com gate de
-  splash até carregar, `fontFamily` no `tailwind.config.js`.
+**Files:**
+- `apps/web/public/fonts/` — self-hosted woff2 (avoids the third-party dependency and the
+  CDN's FOUT).
+- `apps/web/index.html` — the Google `<link>` goes, a `<link rel="preload">` of the critical
+  weight arrives.
+- `apps/web/src/index.css` — `@font-face` with `font-display: swap`.
+- `apps/web/tailwind.config.js` — `sans: Geist`, `mono: Geist Mono`; `mainFont` becomes an
+  alias of `sans` so `App.tsx` does not break right away.
+- `apps/mobile/` — fonts in `assets/fonts/`, `useFonts` in `app/_layout.tsx` with a splash gate
+  until they load, `fontFamily` in `tailwind.config.js`.
 
-**Guarda:** número tabular. Onde houver XP, nível, contagem ou horário, a classe é `font-mono`.
+**Guard:** tabular numbers. Wherever there is XP, a level, a count or a time, the class is
+`font-mono`.
 
-### PR 1.4 — Superfícies no lugar de bordas
+### PR 1.4 — Surfaces instead of borders
 
-**Objetivo:** matar a borda azul, que é o traço mais datado do visual atual.
+**Goal:** kill the blue border, the most dated trait of the current look.
 
-São 204 ocorrências de `border-primary` na web e 134 no mobile. A maioria é divisa neutra e
-vira `border-border`; ficam em acento apenas os estados de seleção (opção ativa, chip marcado,
-input em foco). O PR também normaliza o raio para a escala de uma família por camada
-(cartão 16, controle 10, frame 24, pill full) — hoje convivem `rounded-md`, `lg`, `xl`, `2xl`
-e `[20px]` sem critério — e remove as 14 variantes `dark:` mortas.
+That is 204 occurrences of `border-primary` on the web and 134 on mobile. Most are a neutral
+divider and become `border-border`; only the selection states stay on the accent (active
+option, ticked chip, focused input). The PR also normalizes the radius to a one-family-per-layer
+scale (card 16, control 10, frame 24, pill full) — today `rounded-md`, `lg`, `xl`, `2xl` and
+`[20px]` coexist with no criterion — and removes the 14 dead `dark:` variants.
 
-**Guarda:** é um sweep grande mas mecânico. Revise o diff procurando os casos em que a borda
-azul era intencional; eles são poucos e o mockup mostra quais.
+**Guard:** it is a large but mechanical sweep. Review the diff looking for the cases where the
+blue border was deliberate; they are few and the mockup shows which.
 
 ---
 
-## Fase 2 — Marca (paralela à Fase 1)
+## Phase 2 — Brand (parallel to phase 1)
 
-### PR 2.1 — Marca na web
+### PR 2.1 — The brand on the web
 
-Símbolo: anel a 83% com abertura no nordeste e o check apontando para a abertura. A variante
-de 16px tem traço mais grosso (`r=23`, `stroke-width=11`) porque o traço de 8 some nesse tamanho.
+The symbol: a ring at 83% with the gap to the north-east and the check pointing at the gap. The
+16px variant has a thicker stroke (`r=23`, `stroke-width=11`) because a stroke of 8 disappears
+at that size.
 
 `apps/web/public/favicon.svg`, `apps/web/index.html` (`theme-color`),
 `apps/web/src/components/authentication/logo.tsx`,
-`apps/web/src/components/authentication/MobileBrand.tsx`. Wordmark unificado em minúsculo:
-"beyou" — hoje o app alterna entre "Be you" e "Beyou", inclusive nas traduções.
+`apps/web/src/components/authentication/MobileBrand.tsx`. The wordmark unified in lowercase:
+"beyou" — today the app alternates between "Be you" and "Beyou", translations included.
 
-### PR 2.2 — Marca no Expo
+### PR 2.2 — The brand on Expo
 
 `apps/mobile/src/ui/Logo.tsx`, `apps/mobile/src/ui/MobileBrand.tsx`,
 `apps/mobile/assets/{icon,splash-icon,android-icon-foreground,android-icon-background,android-icon-monochrome}.png`,
-e o `backgroundColor` do adaptive icon no `app.json` (hoje `#0082E1`).
+and the adaptive icon's `backgroundColor` in `app.json` (today `#0082E1`).
 
-**Atenção:** o ícone do Android é adaptativo — a marca precisa caber na área segura (66% do
-canvas), senão o launcher corta o anel.
-
----
-
-## Fase 3 — Componentes
-
-O mockup tem uma seção de inventário; ela é o contrato. Um componente por peça, e a mesma
-peça em todo lugar.
-
-### PR 3.1 — Primitivos web
-
-- **Ring** — um componente só para o logo, o check-in, o anel de nível e o progresso do dia
-  (`size`, `progress`, `state`, `showCheck`). Se divergirem, a assinatura da marca quebra.
-  Absorve o `progressRing.tsx` atual.
-- **Chip** — variantes `flame`, `xp`, `time`, `cat`, `ok`, mais tamanho `sm`. `time` e `xp` em mono.
-- **Card / Surface** — o fim do `bg-background + border-primary` copiado.
-- **IconTile** (o tile do ícone do hábito) e **IconButton** (as ações discretas de editar e excluir).
-- **Button** — refatorar os 4 modos do mockup (primary, tonal, ghost, danger) com estados
-  desenhados, e matar as larguras fixas `w-[250px]` / `w-[120px]`. São 42 importadores: o
-  componente mantém a API atual (`text`, `size`, `mode`) e ganha os modos novos, para o sweep
-  ser incremental.
-- **Skeleton** — decisão de loading do mockup (atom "Carregamento"): o skeleton espelha o
-  cartão que substitui, shimmer 1.6s desligado sob `prefers-reduced-motion`; spinner central
-  **apenas** no gate de autenticação do boot.
-
-### PR 3.2 — Compostos web
-
-**PageHeader**, **Toolbar** (busca + ordenar + filtrar, hoje refeita em cada listagem),
-**SegmentedControl** (importância, dificuldade, experiência, modo), **Stepper** (progresso de
-meta), **StatTile**, **XpBar** + **LevelChip**, **OptionCard**, **GhostAdd**.
-`Modal` e `EmptyState` já existem e só se alinham ao sistema — o `Modal` já tem foco, Escape e
-`aria-labelledby`, não regrida isso.
-
-Estados de carregamento: resolvido — usar o primitivo `Skeleton` do PR 3.1 nas cinco páginas
-web com gate de loading (e no mobile, no 3.3).
-
-### PR 3.3 — Espelho no mobile
-
-Mesmas peças em React Native (`apps/mobile/src/ui/`). Não dá para compartilhar componente entre
-DOM e RN; o que é compartilhado é o token. Mantenha nome e props iguais aos da web para o
-próximo desenvolvedor não ter que aprender dois vocabulários.
+**Careful:** the Android icon is adaptive — the mark has to fit inside the safe area (66% of
+the canvas), or the launcher crops the ring.
 
 ---
 
-## Fase 4 — Shell e navegação
+## Phase 3 — Components
 
-### PR 4.1 — Sidebar web
+The mockup has an inventory section; that section is the contract. One component per piece, and
+the same piece everywhere.
 
-Sidebar colapsável na ordem confirmada: Hoje, Categorias, Hábitos, Tarefas, Rotinas, Metas;
-no rodapé, **Feedback** (decisão v1.16: item próprio, acima de Configuração) e Configuração,
-junto do usuário. Substitui a barra azul (`components/header.tsx`) e a coluna de atalhos
-(`components/dashboard/shortcuts.tsx`).
+### PR 3.1 — Web primitives
 
-O item de menu substitui o `FeedbackLauncher` flutuante — a bolha de feedback morre neste PR
-(só o balão do assistente continua flutuando). O âncora `feedback-fab` do tutorial migra do
-launcher para o item da sidebar.
+- **Ring** — a single component for the logo, the check-in, the level ring and the day's
+  progress (`size`, `progress`, `state`, `showCheck`). If they drift apart, the brand's
+  signature breaks. It absorbs today's `progressRing.tsx`.
+- **Chip** — variants `flame`, `xp`, `time`, `cat`, `ok`, plus an `sm` size. `time` and `xp` in
+  mono.
+- **Card / Surface** — the end of `bg-background + border-primary` copied around.
+- **IconTile** (the tile behind a habit's icon) and **IconButton** (the quiet edit and delete
+  actions).
+- **Button** — refactor the mockup's 4 modes (primary, tonal, ghost, danger) with drawn states,
+  and kill the fixed `w-[250px]` / `w-[120px]` widths. There are 42 importers: the component
+  keeps its current API (`text`, `size`, `mode`) and gains the new modes, so the sweep can be
+  incremental.
+- **Skeleton** — the mockup's loading decision (the "Loading" atom): the skeleton mirrors the
+  card it replaces, a 1.6s shimmer switched off under `prefers-reduced-motion`; a centred
+  spinner **only** on the boot's auth gate.
 
-**Colisão de rótulo prevista:** o mockup escreve "Configuração" por extenso e o e2e seleciona
-"Config" por texto — aplicar o procedimento da guarda nº 1 (testId antes + spec no mesmo PR).
+### PR 3.2 — Web composites
 
-**Doze arquivos renderizam `<Header>` hoje** — 7 páginas do app, 4 de autenticação e o admin.
-As páginas do app param de renderizar header próprio: o shell passa a ser montado uma vez, no
-`ProtectedRoute.tsx`, que já monta `BottomNav`, `AgentWidget` e `FeedbackLauncher`. As páginas
-de autenticação mantêm o header próprio delas.
+**PageHeader**, **Toolbar** (search + sort + filter, rebuilt in every listing today),
+**SegmentedControl** (importance, difficulty, experience, mode), **Stepper** (goal progress),
+**StatTile**, **XpBar** + **LevelChip**, **OptionCard**, **GhostAdd**.
+`Modal` and `EmptyState` already exist and only align with the system — `Modal` already has
+focus handling, Escape and `aria-labelledby`; do not regress that.
 
-**Guarda crítica:** `data-tutorial-id="dashboard-shortcuts"` e os seis `shortcut-*` vivem hoje
-no `shortcuts.tsx`. Eles precisam montar na sidebar nova, ou o tutorial e o `tutorial.spec.ts`
-quebram. Rode `tutorial.spec.ts` neste PR.
+Loading states: settled — use the `Skeleton` primitive from PR 3.1 on the five web pages with a
+loading gate (and on mobile, in 3.3).
 
-### PR 4.2 — Bottom nav da web responsiva
+### PR 3.3 — The mobile mirror
 
-De 6 itens para 5, com o Assistente no centro e uma sheet "Mais" para Tarefas, Metas,
-Categorias, Perfil, Configuração e **Feedback** (6 tiles, v1.16). `components/dashboard/BottomNav.tsx`.
-`getByRole("link", { name: ... })` precisa continuar achando os itens que saíram da barra —
-eles passam a viver na sheet, então a spec pode precisar de um passo a mais para abri-la.
-
-### PR 4.3 — Bottom nav do Expo
-
-Mesma mudança em `apps/mobile/src/ui/dashboard/BottomNav.tsx` e `app/(app)/_layout.tsx`.
-
-### PR 4.4 — Painel do assistente
-
-O balão flutuante vira painel lateral de altura cheia na web e sheet quase de tela cheia no
-mobile. Cabeçalho com o assunto da conversa em mono, histórico, nova conversa, expandir e
-fechar. Ferramentas executadas viram chips discretos; entidades criadas ou alteradas viram
-cartões com ícone e link "ver".
-
-**Requisito de produto, não negociável:** o balão existe em toda página autenticada, web e
-mobile, e é o único ponto de acesso ao agente. Não existe página nem aba de navegação para ele.
-
-A sheet do mobile está desenhada no mockup (v1.19): 86% da tela, aberta pelo botão central.
+The same pieces in React Native (`apps/mobile/src/ui/`). A component cannot be shared between
+DOM and RN; what is shared is the token. Keep names and props identical to the web's so the
+next developer does not have to learn two vocabularies.
 
 ---
 
-## Fase 5 — Momentos de jogo
+## Phase 4 — Shell and navigation
 
-### PR 5.1 (web) e 5.2 (mobile)
+### PR 4.1 — Web sidebar
 
-`XpFloat` (chip flutua 1.2s e some), `CelebrationOverlay` (level-up e marcos de constância em
-7, 14, 21, 30, 60, 90 e 100), `RoutineCompleteSummary` (itens, XP do dia, streak) e os quatro
-estados do anel de check-in: a fazer, hover, feito, pulado.
+A collapsible sidebar in the confirmed order: Today, Categories, Habits, Tasks, Routines,
+Goals; in the footer, **Feedback** (decision v1.16: its own item, above Configuration) and
+Configuration, next to the user. It replaces the blue bar (`components/header.tsx`) and the
+shortcut column (`components/dashboard/shortcuts.tsx`).
 
-**Observação da revisão:** o contraste do estado "pulado" foi corrigido no mockup v1.19
-(borda `text-3`, ícone `text-2`); implemente com esses tokens e verifique nos dois temas.
+The menu item replaces the floating `FeedbackLauncher` — the feedback bubble dies in this PR
+(only the assistant's bubble keeps floating). The tutorial's `feedback-fab` anchor moves from
+the launcher to the sidebar item.
 
-Check-in de snapshot (dia passado) **não** dispara celebração — o `useUiRefresh` já recebe
-`skipCelebrations`. Não regrida isso.
+**Expected label collision:** the mockup spells "Configuration" out and the e2e suite selects
+"Config" by text — apply the procedure from guard #1 (testId first + spec in the same PR).
 
-### PR 5.3 — Heatmap de constância
+**Twelve files render `<Header>` today** — 7 app pages, 4 auth pages and the admin. The app
+pages stop rendering a header of their own: the shell is mounted once, in `ProtectedRoute.tsx`,
+which already mounts `BottomNav`, `AgentWidget` and `FeedbackLauncher`. The auth pages keep
+their own header.
 
-Feature nova, precisa de endpoint de histórico de check-ins (ver "Dependências de dados").
-Fora do caminho crítico: só entre depois de alinhar com o backend.
+**Critical guard:** `data-tutorial-id="dashboard-shortcuts"` and the six `shortcut-*` live in
+`shortcuts.tsx` today. They need to mount on the new sidebar, or the tutorial and
+`tutorial.spec.ts` break. Run `tutorial.spec.ts` in this PR.
+
+### PR 4.2 — The web's responsive bottom nav
+
+From 6 items to 5, with the Assistant in the centre and a "More" sheet for Tasks, Goals,
+Categories, Profile, Configuration and **Feedback** (6 tiles, v1.16).
+`components/dashboard/BottomNav.tsx`. `getByRole("link", { name: ... })` has to keep finding
+the items that left the bar — they move into the sheet, so the spec may need one extra step to
+open it.
+
+### PR 4.3 — Expo's bottom nav
+
+The same change in `apps/mobile/src/ui/dashboard/BottomNav.tsx` and `app/(app)/_layout.tsx`.
+
+### PR 4.4 — The assistant panel
+
+The floating bubble becomes a full-height side panel on the web and a near-full-screen sheet on
+mobile. A header with the conversation's subject in mono, history, new conversation, expand and
+close. Executed tools become quiet chips; created or changed entities become cards with an icon
+and a "view" link.
+
+**A product requirement, not negotiable:** the bubble exists on every authenticated page, web
+and mobile, and it is the only way into the agent. There is no page and no navigation tab for
+it.
+
+The mobile sheet is drawn in the mockup (v1.19): 86% of the screen, opened by the centre
+button.
 
 ---
 
-## Fase 6 — Páginas
+## Phase 5 — Game moments
 
-Uma PR por domínio, web e mobile em sequência para a decisão de design não esfriar entre as
-duas plataformas.
+### PR 5.1 (web) and 5.2 (mobile)
 
-| PR | Página | Observação |
+`XpFloat` (the chip floats for 1.2s and goes), `CelebrationOverlay` (level-ups and streak
+milestones at 7, 14, 21, 30, 60, 90 and 100), `RoutineCompleteSummary` (items, the day's XP,
+streak) and the check-in ring's four states: to do, hover, done, skipped.
+
+**Note from the review:** the "skipped" state's contrast was fixed in mockup v1.19 (`text-3`
+border, `text-2` icon); implement it with those tokens and check both themes.
+
+A snapshot check-in (a past day) does **not** fire a celebration — `useUiRefresh` already
+receives `skipCelebrations`. Do not regress that.
+
+### PR 5.3 — Streak heatmap
+
+A new feature; it needs a check-in history endpoint (see "Data dependencies"). Off the critical
+path: it only lands after aligning with the backend.
+
+---
+
+## Phase 6 — Pages
+
+One PR per domain, web and mobile back to back so the design decision does not go cold between
+the two platforms.
+
+| PR | Page | Note |
 |---|---|---|
-| 6.1 | Dashboard / Hoje | Widgets completos no mockup, com spec de cores de gráfico para o chartColors.ts. **As barras da semana em Melhor/Pior área dependem de dado que não existe** — ver "Dependências de dados" |
-| 6.2 | Rotinas | Modo snapshot e TaskAndHabitSelector desenhados (v1.19) |
-| 6.3 | Hábitos | Biblioteca separada do formulário; descrição fica no cartão. **O hábito estendido pede melhor constância e total de check-ins, que o `HabitResponseDTO` não devolve** |
-| 6.4 | Tarefas | Esqueleto de Hábitos sem XP nem streak |
-| 6.5 | Metas | Stepper no cartão; "Concluir" só com o alvo batido; o editor não tem campo de progresso atual |
-| 6.6 | Categorias | |
-| 6.7 | Configuração | Seções agrupadas; a lista de widgets vira a ordenação por arraste |
-| 6.8 | Autenticação | Login, criar conta, esqueci, redefinir, verificar; phone Expo desenhado; "Abrir no app" em reset/verify |
-| 6.9 | Feedback e admin | Admin é rota `ROLE_ADMIN`; teste com conta de admin de verdade |
-| 6.10 | Onboarding e tutorial | Reskin, sem redesenho estrutural — são 7,4 mil linhas testadas de ponta a ponta |
+| 6.1 | Dashboard / Today | Widgets complete in the mockup, with a chart-colour spec for chartColors.ts. **The weekly bars in Better/Worst area depend on data that does not exist** — see "Data dependencies" |
+| 6.2 | Routines | Snapshot mode and TaskAndHabitSelector drawn (v1.19) |
+| 6.3 | Habits | The library separated from the form; the description sits on the card. **The expanded habit asks for the best streak and the check-in total, which `HabitResponseDTO` does not return** |
+| 6.4 | Tasks | Habits' skeleton with no XP and no streak |
+| 6.5 | Goals | A stepper on the card; "Complete" only once the target is met; the editor has no current-progress field |
+| 6.6 | Categories | |
+| 6.7 | Configuration | Grouped sections; the widget list becomes drag-to-reorder |
+| 6.8 | Authentication | Log in, create account, forgot, reset, verify; the Expo phone drawn; "Open in the app" on reset/verify |
+| 6.9 | Feedback and admin | The admin is a `ROLE_ADMIN` route; test with a real admin account |
+| 6.10 | Onboarding and tutorial | A reskin, no structural redesign — that is 7.4k lines tested end to end |
 
-Cada PR de página: remove o que restou de token antigo naquele escopo, troca os cartões
-ad-hoc pelos componentes da Fase 3, e roda a spec e2e do domínio.
-
----
-
-## Fase 7 — Limpeza
-
-- Remover os 8 aliases de token; a partir daqui só existem os 13.
-- Apagar `components/header.tsx` e `components/dashboard/shortcuts.tsx`.
-- Remover `mainFont` do Tailwind e a classe do `App.tsx`.
-- Atualizar `CLAUDE.md`: a seção de design system fala em 9 temas e em
-  "nunca hardcode `#0082E1`, use `var(--primary)`" — as duas frases envelhecem neste redesign.
+Every page PR: removes whatever old token is left in that scope, trades the ad-hoc cards for
+the phase 3 components, and runs the domain's e2e spec.
 
 ---
 
-## Ordem e dependências
+## Phase 7 — Cleanup
+
+- Remove the 8 token aliases; from here on only the 13 exist.
+- Delete `components/header.tsx` and `components/dashboard/shortcuts.tsx`.
+- Remove `mainFont` from Tailwind and the class from `App.tsx`.
+- Update `CLAUDE.md`: the design-system section talks about 9 themes and about
+  "never hardcode `#0082E1`, use `var(--primary)`" — both sentences age out in this redesign.
+
+---
+
+## Order and dependencies
 
 ```
 1.1 tokens ─┬─ 1.2 packs ──┐
             ├─ 1.3 Geist ──┤
-            └─ 1.4 bordas ─┴─→ 3.1 → 3.2 → 3.3 → 4.1 → 4.2 → 4.3 → 4.4 → 5.x → 6.x → 7
-2.1 / 2.2 marca ─ paralelas, sem dependência
+            └─ 1.4 borders ┴─→ 3.1 → 3.2 → 3.3 → 4.1 → 4.2 → 4.3 → 4.4 → 5.x → 6.x → 7
+2.1 / 2.2 brand ─ parallel, no dependency
 ```
 
-A Fase 1 é o único gargalo real: nada da 3 em diante faz sentido antes dos tokens existirem.
-2.1 e 2.2 podem sair a qualquer momento.
+Phase 1 is the only real bottleneck: nothing from 3 onwards makes sense before the tokens
+exist. 2.1 and 2.2 can ship at any point.

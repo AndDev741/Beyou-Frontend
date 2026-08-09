@@ -1,911 +1,839 @@
-# Redesign — notas de implementação para revisão
+# Redesign — implementation notes for review
 
-Registro do que foi feito fora do previsto, do que ficou pendente e das dúvidas
-que precisam de decisão. Complemento do
-[plano](implementation-plan.md); a ordem segue as fases do plano.
-
----
-
-## Achados que valem revisão antes do merge
-
-### 1. Bug pré-existente: variantes de opacidade não geravam CSS
-
-Cor declarada no Tailwind como `var(--x)` faz o **Tailwind v3 descartar o
-modificador de barra**. `bg-primary/10`, `border-primary/20` e companhia nunca
-emitiram regra nenhuma — o elemento ficava sem fundo e sem borda, silenciosamente.
-Isso já era assim antes do redesign, em dezenas de lugares.
-
-Corrigido emitindo cada token também em canais crus (`--accent-rgb: 29 107 243`)
-e declarando as cores como `rgb(var(--accent-rgb) / <alpha-value>)`. O hex
-continua sendo emitido para o CSS puro e para o objeto de tema do React Native.
-
-**A conferir:** o mesmo vale para o NativeWind no mobile. Lá as cores continuam
-como `var(--x)` puro, então `bg-accent/10` no app nativo provavelmente também não
-funciona. Não mexi porque o NativeWind resolve variáveis por conta própria e a
-troca precisa de teste em device.
-
-### 1b. Texto branco fixo sobre o acento
-
-No tema escuro o acento é claro (`#5C9DFF`), então todo `text-white` sobre ele
-ficava ilegível. Eram 20 ocorrências na web e seis constantes
-`ON_PRIMARY = '#FFFFFF'` no mobile; todas passaram a usar `on-accent`, que é o
-par correto por tema.
-
-**Atenção no mobile:** `style={{ color: 'var(--x)' }}` NÃO funciona no React
-Native — só o `className` passa pelo NativeWind. A escala de
-importância/dificuldade, que era hex cru num style inline, virou classe
-(`bg-accent`, `bg-flame`, …) por causa disso.
-
-### 2. `userInterfaceStyle` do Expo estava fixo em `light`
-
-Com isso `useColorScheme()` responderia claro para sempre e o modo "sistema"
-nunca escureceria no app nativo. Passou para `automatic` no `app.json`.
-
-### 3. Dependências de dados continuam de pé
-
-Nada mudou desde a auditoria: as barras semanais de Melhor/Pior área, o recorde
-de constância por hábito, o total de check-ins e o heatmap seguem sem dado na
-API. Os componentes que os exibiriam foram escritos para **degradar sem o dado**
-(escondem o elemento), não para inventar número.
-
-Duas decisões concretas nos widgets, ambas comentadas no código:
-
-- **Faixa de constância** (widget Constância): sem histórico diário, a faixa de
-  28 dias destaca apenas a sequência ATUAL — que é dado real — e deixa o resto
-  neutro, com legenda dizendo isso. Quadrado apagado não significa "falhei",
-  significa "não sabemos"; a legenda existe para ninguém ler errado.
-- **Melhor/Pior área**: entram sem as barras da semana do mockup. Mostram
-  ícone, nome, nível e a barra de XP do nível, que é o que a API devolve.
+A record of what was done beyond the plan, what is still pending and which questions need a
+decision. A companion to the [plan](implementation-plan.md); the order follows the plan's
+phases.
 
 ---
 
-## Decisões tomadas durante a implementação
+## Findings worth reviewing before the merge
 
-| Decisão | Por quê |
+### 1. Pre-existing bug: opacity variants generated no CSS
+
+A colour declared in Tailwind as `var(--x)` makes **Tailwind v3 drop the slash modifier**.
+`bg-primary/10`, `border-primary/20` and company never emitted a single rule — the element was
+left with no background and no border, silently. That was already the case before the redesign,
+in dozens of places.
+
+Fixed by emitting every token in raw channels as well (`--accent-rgb: 29 107 243`) and declaring
+the colours as `rgb(var(--accent-rgb) / <alpha-value>)`. The hex is still emitted for plain CSS
+and for the React Native theme object.
+
+**To check:** the same holds for NativeWind on mobile. There the colours are still plain
+`var(--x)`, so `bg-accent/10` in the native app probably does not work either. I did not touch
+it because NativeWind resolves variables on its own and the swap needs a test on a device.
+
+### 1b. Fixed white text on top of the accent
+
+In the dark theme the accent is light (`#5C9DFF`), so every `text-white` on top of it was
+unreadable. That was 20 occurrences on the web and six `ON_PRIMARY = '#FFFFFF'` constants on
+mobile; all of them moved to `on-accent`, which is the correct per-theme pair.
+
+**Careful on mobile:** `style={{ color: 'var(--x)' }}` does NOT work in React Native — only
+`className` goes through NativeWind. The importance/difficulty scale, which was a raw hex in an
+inline style, became a class (`bg-accent`, `bg-flame`, …) because of that.
+
+### 2. Expo's `userInterfaceStyle` was pinned to `light`
+
+With that, `useColorScheme()` would answer light forever and "system" mode would never go dark
+in the native app. Changed to `automatic` in `app.json`.
+
+### 3. The data dependencies still stand
+
+Nothing changed since the audit: the weekly bars in Better/Worst area, the per-habit streak
+record, the check-in total and the heatmap are all still without data in the API. The components
+that would display them were written to **degrade without the data** (they hide the element),
+not to invent a number.
+
+Two concrete decisions in the widgets, both commented in the code:
+
+- **Streak strip** (Streak widget): with no daily history, the 28-day strip highlights only the
+  CURRENT run — which is real data — and leaves the rest neutral, with a legend saying so. A
+  dimmed square does not mean "I failed", it means "we do not know"; the legend exists so nobody
+  reads it wrong.
+- **Better/Worst area**: they ship without the mockup's weekly bars. They show icon, name, level
+  and the level's XP bar, which is what the API returns.
+
+---
+
+## Decisions taken during implementation
+
+| Decision | Why |
 |---|---|
-| `background` (alias antigo) aponta para `--surface` | 110 dos 136 usos eram cartão/input/modal; o fundo de página virou `bg-bg` explícito no body, no wrapper do App e nas páginas |
-| Preferência de tema é uma string `"<modo>:<pack>"` | O backend guarda `themeInUse` como texto livre; assim modo e acento viajam juntos sem migração de schema |
-| Modo desconhecido cai em `system:beyou` | Nenhuma conta pode ficar sem tema quando um modo antigo deixa de existir |
-| Sweep de borda por heurística de linha | Linha com ternário = estado de seleção (fica no acento); linha sem = divisa neutra (vira `border-border`). Depois passei manualmente nos cartões e inputs que tinham ternário na mesma linha |
-| Rótulo da sidebar recolhida vai para `sr-only` | O e2e acha os links pelo nome acessível; some do DOM e a suíte quebra |
-| Cada peso do Geist é uma família própria no mobile | O RN não sintetiza peso a partir de um arquivo só |
+| `background` (the old alias) points at `--surface` | 110 of the 136 uses were card/input/modal; the page background became an explicit `bg-bg` on the body, on the App wrapper and on the pages |
+| The theme preference is a `"<mode>:<pack>"` string | The backend stores `themeInUse` as free text; this way mode and accent travel together with no schema migration |
+| An unknown mode falls back to `system:beyou` | No account can be left with no theme when an old mode stops existing |
+| The border sweep ran on a per-line heuristic | A line with a ternary = a selection state (stays on the accent); a line without = a neutral divider (becomes `border-border`). Afterwards I went through the cards and inputs that had a ternary on the same line by hand |
+| The collapsed sidebar's label goes to `sr-only` | The e2e suite finds the links by accessible name; drop it from the DOM and the suite breaks |
+| Every Geist weight is a family of its own on mobile | RN does not synthesize weight from a single file |
 
 ---
 
-## Pendências
+## Pending
 
-### Não implementado nesta rodada
+### Not implemented in this round
 
-- **Heatmap de constância** (PR 5.3 do plano): depende de endpoint de histórico.
-- **Telas estendidas** (hábito, tarefa e meta abertos em detalhe, com stat
-  tiles e heatmap) não existem: o cartão expande no lugar, como antes.
-- **App Expo**: recebeu tokens, tipografia, marca, primitivos e a shell nova
-  (barra de 5 alvos, sheet do assistente), mas as TELAS em si (hábitos,
-  tarefas, metas, categorias, rotinas, configuração) ainda têm o layout
-  antigo. A revisão página a página desta rodada cobriu só a web.
-- **Onboarding e tutorial**: herdaram tokens e componentes, mas o reskin
-  desenhado (scrim + anel do acento no spotlight, wizard com Ring de seleção)
-  não foi feito.
-- **Admin de feedback**: só tokens; os StatTiles e o split lista/detalhe do
-  mockup não entraram.
-- **Modo snapshot da página Rotinas e o seletor de hábito/tarefa**: herdaram
-  tokens, mas a faixa de contexto, o estado vazio próprio e o modal de busca
-  com seleção múltipla desenhados na v1.19 não foram implementados.
+- **Streak heatmap** (plan PR 5.3): depends on a history endpoint.
+- **Expanded screens** (a habit, task or goal opened in detail, with stat tiles and a heatmap)
+  do not exist: the card expands in place, as before.
+- **Expo app**: it received tokens, typography, the brand, primitives and the new shell (the
+  5-target bar, the assistant sheet), but the SCREENS themselves (habits, tasks, goals,
+  categories, routines, configuration) still carry the old layout. This round's page-by-page
+  review covered the web only.
+- **Onboarding and tutorial**: they inherited tokens and components, but the designed reskin
+  (scrim + accent ring on the spotlight, wizard with a selection Ring) was not done.
+- **Feedback admin**: tokens only; the StatTiles and the mockup's list/detail split did not land.
+- **The Routines page's snapshot mode and the habit/task picker**: they inherited tokens, but the
+  context strip, the dedicated empty state and the multi-select search modal drawn in v1.19 were
+  not implemented.
 
-### Dívida deixada de propósito
+### Debt left on purpose
 
-- Os **aliases dos 8 tokens antigos continuam emitidos**. A fase de limpeza
-  (PR 7.1 do plano) ainda não rodou; enquanto isso, código novo pode usar sem
-  perceber um nome antigo.
-- `apps/web/src/components/ActionButton.tsx` referencia cores que não existem no
-  tema (`primary-foreground`, `destructive`, `accent-foreground`) — é um resto de
-  shadcn com um único importador. Não mexi: merece decidir se some.
-- O cache do Vite (`apps/web/node_modules/.vite`) tem arquivos de root de alguma
-  execução em container, e o dev server não sobe por isso. Validei tudo por
-  `npm run build` + servidor estático. Precisa de um `sudo rm -rf` fora daqui.
+- The **aliases of the 8 old tokens are still emitted**. The cleanup phase (plan PR 7.1) has not
+  run yet; until it does, new code can use an old name without noticing.
+- `apps/web/src/components/ActionButton.tsx` references colours that do not exist in the theme
+  (`primary-foreground`, `destructive`, `accent-foreground`) — it is a shadcn leftover with a
+  single importer. I did not touch it: it deserves a decision on whether it goes.
+- The Vite cache (`apps/web/node_modules/.vite`) holds root-owned files from some container run,
+  and the dev server will not come up because of it. I validated everything through
+  `npm run build` + a static server. It needs a `sudo rm -rf` from outside here.
 
 ---
 
-### O que o e2e precisa adaptar (repo Beyou-e2e-tests, fora deste PR)
+### What e2e has to adapt (Beyou-e2e-tests repo, outside this PR)
 
-O formulário de criação saiu de junto dos cartões e virou modal nas quatro
-listagens. Isso muda o caminho, não os nomes:
+The create form left the card area and became a modal in the four listings. That changes the
+path, not the names:
 
-1. `HabitFormPage.expectCreateFormVisible()` depois de `habits.goto()` falha —
-   o formulário só existe depois de abrir o modal. Basta clicar antes:
-   `authedPage.getByTestId("create-habit").click()`. Título, campos, rádios e o
-   botão de submit continuam com os mesmos nomes.
-2. `submitCreate()` agora fecha o modal ao salvar (antes deixava o formulário
-   vazio na tela).
-3. `HabitsPage.cardOf()` já estava quebrado antes desta rodada: procura
-   `ancestor::div[contains(@class,'border-primary')]` e o cartão novo usa
-   `border-border`. Sugestão: `ancestor::div[contains(@class,'rounded-card')][1]`.
-4. `profile-persistence.spec.ts`: "Sunset" agora resolve para `#E45A0B` (ver
-   acima).
-5. `tutorial.spec.ts` passa sem mudança — os âncoras migraram para os botões de
-   criar e os passos seguem válidos.
+1. `HabitFormPage.expectCreateFormVisible()` after `habits.goto()` fails — the form only exists
+   once the modal is open. A click before it is enough:
+   `authedPage.getByTestId("create-habit").click()`. Title, fields, radios and the submit button
+   keep the same names.
+2. `submitCreate()` now closes the modal on save (it used to leave an empty form on screen).
+3. `HabitsPage.cardOf()` was already broken before this round: it looks for
+   `ancestor::div[contains(@class,'border-primary')]` and the new card uses `border-border`.
+   Suggestion: `ancestor::div[contains(@class,'rounded-card')][1]`.
+4. `profile-persistence.spec.ts`: "Sunset" now resolves to `#E45A0B` (see above).
+5. `tutorial.spec.ts` passes unchanged — the anchors moved onto the create buttons and the steps
+   stay valid.
 
-### Dúvidas que quero revisadas
+### Questions I want reviewed
 
-1. **O painel de marca do login no tema escuro** usa `bg-accent`, que no escuro
-   é o azul claro — vira uma área muito luminosa ao lado de um cartão escuro. O
-   contraste do texto está correto (`on-accent` é o navy), mas talvez o desenho
-   peça um acento profundo nesse painel específico. Precisa de olho de designer.
-2. **Sweep de borda por heurística.** A regra "linha com ternário = seleção"
-   acertou na maioria, e eu revisei cartões e inputs à mão, mas vale passar o
-   olho em telas menos óbvias (agendar rotina, seletor de ícones, wizard de IA).
-3. **O radar do Equilíbrio saiu do chart.js para SVG.** Ganhou tema e pack de
-   acento de graça (canvas não resolve CSS var) e tirou uma dependência do
-   caminho do dashboard, mas perdeu o tooltip nativo da biblioteca. Se o
-   tooltip fizer falta, é reimplementável em cima do SVG.
-4. **`CategoryForm` ficou com `<select>` na experiência** enquanto o formulário
-   de hábito virou segmented. Trocar é mudança de lógica (o select devolve
-   string, o segmented devolve número), então parei — é um follow-up de uma
-   linha se quiser igualar.
-5. **Geometria do botão central da barra no Android.** O disco é posicionado
-   absoluto e sobra 14px para fora do pai; comportamento de toque fora do pai
-   no Android merece um teste em device.
+1. **The login brand panel in the dark theme** uses `bg-accent`, which in dark is the light blue
+   — it becomes a very luminous area next to a dark card. The text contrast is correct
+   (`on-accent` is the navy), but perhaps the design calls for a deep accent in that particular
+   panel. This needs a designer's eye.
+2. **The border sweep's heuristic.** The "a line with a ternary = selection" rule was right most
+   of the time, and I reviewed cards and inputs by hand, but the less obvious screens are worth a
+   look (schedule routine, icon picker, AI wizard).
+3. **The Balance radar moved off chart.js to SVG.** It gained theme and accent-pack support for
+   free (canvas cannot resolve a CSS var) and took a dependency off the dashboard's path, but it
+   lost the library's native tooltip. If the tooltip is missed, it can be reimplemented on top of
+   the SVG.
+4. **`CategoryForm` kept a `<select>` for experience** while the habit form became segmented.
+   Swapping it is a logic change (the select returns a string, the segmented returns a number),
+   so I stopped — it is a one-line follow-up if you want them matched.
+5. **The geometry of the bar's centre button on Android.** The disc is absolutely positioned and
+   14px of it sticks out of the parent; touch behaviour outside the parent on Android deserves a
+   test on a device.
 
-## Revisão visual logada (2026-08-03)
+## Logged-in visual review (2026-08-03)
 
-Com credencial válida contra a stack de dev, revisei as páginas renderizadas.
-Achados corrigidos na mesma passada:
+With a valid credential against the dev stack, I reviewed the rendered pages. Findings fixed in
+the same pass:
 
-- **"+1490 XP ganhos hoje"** no widget Hoje: ele lia `perfil.xp`, que é o
-  acumulado de vida. Agora soma os checks de hoje da rotina.
-- **Chips de dias do cartão de rotina não acendiam**: o backend grava
-  `"Monday"` e a comparação era com `"MONDAY"`.
-- **Cabeçalho de Rotinas** eram três blocos soltos e o seletor mostrava os
-  últimos cinco dias corridos; virou um cartão só com a semana de segunda a
-  domingo.
-- **Perfil na Configuração** com rótulo de 18px e o `alt` da foto vazando do
-  círculo ("erfil" na tela).
-- **Mobile de Rotinas**: semana quebrava em duas linhas e as ações espremiam o
-  nome da rotina.
+- **"+1490 XP earned today"** on the Today widget: it was reading `perfil.xp`, which is the
+  lifetime total. It now sums today's routine checks.
+- **The routine card's day chips did not light up**: the backend stores `"Monday"` and the
+  comparison was against `"MONDAY"`.
+- **The Routines header** was three loose blocks and the picker showed the last five rolling
+  days; it became a single card with the week from Monday to Sunday.
+- **The profile in Configuration** had an 18px label and the photo's `alt` leaked out of the
+  circle ("erfil" on screen).
+- **Routines on mobile**: the week broke into two rows and the actions squeezed the routine's
+  name.
 
-Lembrete que custou tempo: neste projeto `sm` é **350px**, não 640 — o corte
-útil para telefone é `md` (712px).
+A reminder that cost me time: in this project `sm` is **350px**, not 640 — the useful phone
+breakpoint is `md` (712px).
 
-## Passada de telefone em Rotinas (2026-08-03)
+## A phone pass over Routines (2026-08-03)
 
-- **Contagem de dias é medida, não fixa.** O seletor lê a largura da linha e
-  mostra de 3 a 7 caixas conforme o aparelho (5 em 360px, 6 em 390px, 7 a
-  partir de ~430px). Com isso caiu o `overflow-x-auto` — era ele que recortava
-  o popover do calendário.
-- **"Mais datas" virou coluna** (ícone sobre o rótulo) para ocupar a largura de
-  uma caixa em vez de uma pílula larga.
-- **Botão de criar colapsa para um disco com "+"** abaixo de `md`. O rótulo
-  continua no DOM em `sr-only`, então o nome acessível segue "Criar rotina" —
-  é por ele que o e2e acha o botão.
-- **Cartão de rotina no telefone**: nome, cadência, chips de dias e uma barra
-  só. Duas barras iguais empilhadas não diziam qual importava agora; a que
-  aparece é a do dia quando a rotina roda nele, e a de nível quando não roda.
-  As ações só aparecem ao abrir pelo título.
-- **Interior expandido saiu do visual antigo**: usava checkbox nativo,
-  preenchimento verde e a classe `bg-ligthGray/40` (token que não existe mais).
-  Agora usa o mesmo anel de check da rotina do dia.
+- **The day count is measured, not fixed.** The picker reads the row's width and shows 3 to 7
+  boxes depending on the device (5 at 360px, 6 at 390px, 7 from ~430px). That let `overflow-x-auto`
+  go — it was what clipped the calendar popover.
+- **"More dates" became a column** (icon above the label) so it takes the width of one box
+  instead of a wide pill.
+- **The create button collapses to a "+" disc** below `md`. The label stays in the DOM as
+  `sr-only`, so the accessible name is still "Create routine" — that is how e2e finds the button.
+- **The routine card on a phone**: name, cadence, day chips and one bar. Two identical bars
+  stacked never said which one mattered now; the one shown is the day's when the routine runs
+  today, and the level's when it does not. The actions only appear on opening through the title.
+- **The expanded interior left the old look**: it used a native checkbox, a green fill and the
+  class `bg-ligthGray/40` (a token that no longer exists). It now uses the same check ring as the
+  day's routine.
 
-## Formulário de rotina e balão do assistente (2026-08-03)
+## The routine form and the assistant bubble (2026-08-03)
 
-- **O balão do assistente comia o fim da página no desktop.** O espaçador do
-  `ProtectedRoute` era `h-20 lg:hidden` — existia só para a barra inferior do
-  mobile. No desktop o balão é `fixed bottom-6` e caía sobre o último cartão;
-  com uma rotina expandida, sobre a borda inferior e a última linha. Virou
-  `h-20 lg:h-24`.
-- **Criar/editar rotina** ganhou o desenho do mockup (Tipo · Nome · Seções ·
-  rodapé). A bifurcação de duas ilustrações foi removida: pedia uma escolha
-  entre "diária" e um formato que não existe. O tipo agora é campo, com "em
-  lista" desabilitado e visível.
-- **`SectionsEditor`** passou a ser o dono da lista de seções; criar e editar
-  mantinham a mesma árvore de drag-and-drop copiada.
-- **Seletor de ícone (`iconsBoxSmall`)** tinha largura fixa (45vw / 160px /
-  12rem) e um campo de busca de 90px que cortava o placeholder. Agora acompanha
-  a largura do formulário. Usado também nos modais de criação rápida de hábito
-  e tarefa.
-- **Agendar** virou a fileira de sete quadrados do mockup, com os atalhos
-  (Seg–Sex, fim de semana, toda semana) em pílula e o conflito de dia resolvido
-  numa faixa com "Liberar dia" em vez de tooltip no hover.
-- **Não implementado do mockup:** o link "Prefere datas específicas?". O modelo
-  de agenda é só dia-da-semana (`schedule.days`); datas avulsas exigem backend.
-  Entra na lista de dependências de dados.
-- **`addRoutineButton.tsx` ficou órfão** (nenhum importador) desde que criar
-  virou modal, e ainda carrega o âncora `routine-add-button`. Não apaguei
-  porque está fora do que foi pedido; candidato à fase de limpeza.
+- **The assistant bubble ate the end of the page on desktop.** `ProtectedRoute`'s spacer was
+  `h-20 lg:hidden` — it only existed for the mobile bottom bar. On desktop the bubble is
+  `fixed bottom-6` and it fell over the last card; with a routine expanded, over the bottom edge
+  and the last row. It became `h-20 lg:h-24`.
+- **Create/edit routine** got the mockup's design (Type · Name · Sections · footer). The
+  two-illustration fork was removed: it asked for a choice between "daily" and a format that does
+  not exist. The type is now a field, with "as a list" disabled and visible.
+- **`SectionsEditor`** became the owner of the section list; create and edit each kept a copy of
+  the same drag-and-drop tree.
+- **The icon picker (`iconsBoxSmall`)** had a fixed width (45vw / 160px / 12rem) and a 90px
+  search field that cut the placeholder. It now follows the form's width. Also used in the quick
+  create modals for habit and task.
+- **Schedule** became the mockup's row of seven squares, with the shortcuts (Mon–Fri, weekend,
+  every week) as pills and the day conflict resolved in a strip with "Free the day" instead of a
+  hover tooltip.
+- **Not implemented from the mockup:** the "Prefer specific dates?" link. The schedule model is
+  day-of-week only (`schedule.days`); one-off dates need backend work. It joins the data
+  dependencies list.
+- **`addRoutineButton.tsx` was orphaned** (no importers) once create became a modal, and it still
+  carries the `routine-add-button` anchor. I did not delete it because it is outside what was
+  asked; a candidate for the cleanup phase.
 
-## Seletor de hábito/tarefa (2026-08-04)
+## The habit/task picker (2026-08-04)
 
-Substituiu as duas fileiras de scroll horizontal e os dois campos de horário
-que vinham ANTES da escolha do item. O novo seletor tem busca, alternância
-Hábitos/Tarefas, seleção múltipla com o anel, estado "já na seção" e contagem
-no botão.
+It replaced the two horizontal scroll rows and the two time fields that came BEFORE picking an
+item. The new picker has search, a Habits/Tasks toggle, multi-select with the ring, an "already
+in the section" state and a count on the button.
 
-- **Horários sugeridos em sequência** (`suggestSlots`, exportada e coberta por
-  teste): retomam do fim do último item da seção e dividem o restante da janela
-  entre os itens escolhidos; sem hora de término na seção, 15 minutos por item.
-  A sugestão nunca cai fora da seção, então `getItemTimeErrorKeys` passa por
-  construção — antes o usuário digitava dois horários e descobria o erro depois.
-- **Não implementado do mockup:** a criação rápida "pede só nome e ícone". Hoje
-  `habitCreateSchema` exige importância, dificuldade, ícone **e ao menos uma
-  categoria** — e categoria não tem padrão razoável para escolher no lugar do
-  usuário. Reduzir o formulário exige decidir o que a conta ganha por omissão
-  (produto), então os modais de criação rápida seguem completos.
-- `HabitOrTaskGroup.tsx` era o cartão da fileira antiga e foi removido junto.
+- **Times suggested in sequence** (`suggestSlots`, exported and covered by a test): they resume
+  from the end of the section's last item and split what is left of the window between the chosen
+  items; with no end time on the section, 15 minutes per item. The suggestion never lands outside
+  the section, so `getItemTimeErrorKeys` passes by construction — before, the user typed two times
+  and found out about the error afterwards.
+- **Not implemented from the mockup:** quick create "asks only for name and icon". Today
+  `habitCreateSchema` requires importance, difficulty, an icon **and at least one category** — and
+  a category has no reasonable default to pick on the user's behalf. Trimming the form means
+  deciding what the account gets by omission (product), so the quick create modals stay complete.
+- `HabitOrTaskGroup.tsx` was the old row's card and went with it.
 
-**Nota de ambiente:** o container do dev server (`beyou-dev-env-frontend-1`)
-serviu por um tempo um bundle antigo de `packages/i18n` — as chaves novas
-apareciam cruas na tela mesmo já presentes no arquivo dentro do container. Um
-`docker restart` do serviço resolveu; vale lembrar disso antes de caçar um bug
-de i18n que não existe.
+**Environment note:** the dev server container (`beyou-dev-env-frontend-1`) served a stale
+`packages/i18n` bundle for a while — new keys showed up raw on screen even though they were
+already in the file inside the container. A `docker restart` of the service fixed it; worth
+remembering before hunting an i18n bug that does not exist.
 
-## Ajustes finos (2026-08-04)
+## Fine adjustments (2026-08-04)
 
-- **Scrollbar fantasma.** Toda página autenticada media `min-h-screen` e a
-  shell acrescentava o espaçador de 80/96px — o documento ficava sempre
-  `100vh + espaçador`, e até uma página vazia rolava. As páginas sob a shell
-  passaram a medir `calc(100vh - espaçador)`; login, boot e erro continuam
-  `min-h-screen` porque não têm shell.
-- **Chevron de expandir no mobile.** O cartão de rotina e o cabeçalho de seção
-  do formulário escondem as ações até abrir, mas nada indicava que expandiam.
-  Entrou o chevron ao lado do nome (só abaixo de `md`, gira 180° aberto). O
-  cartão de snapshot já tinha o dele.
+- **A ghost scrollbar.** Every authenticated page measured `min-h-screen` and the shell added the
+  80/96px spacer — the document was always `100vh + spacer`, and even an empty page scrolled. The
+  pages under the shell now measure `calc(100vh - spacer)`; login, boot and error stay
+  `min-h-screen` because they have no shell.
+- **The expand chevron on mobile.** The routine card and the form's section header hide the
+  actions until opened, but nothing said they expanded. The chevron arrived next to the name (only
+  below `md`, rotating 180° when open). The snapshot card already had its own.
 
-## Seções recolhíveis do dashboard + menu (2026-08-04)
+## Collapsible dashboard sections + menu (2026-08-04)
 
-- **"Hoje" vira "Dashboard"** na sidebar e na barra inferior. Chave nova
-  (`NavDashboard`): o "Today" antigo continua sendo usado nos chips de dia, no
-  widget Hoje e nos títulos do tutorial — mexer nele quebraria o e2e.
-- **Seções da rotina do dia recolhíveis** por chevron, com o estado salvo no
-  localStorage por dia (`beyou-routine-collapsed` → `{ data: [ids] }`). A
-  seção recolhida mostra ícone, nome, horário e o chip de XP do dia — o
-  usuário que completou a seção economiza o espaço dela. Amanhã abre de novo.
-  Coberto por 3 testes (recolher persiste, começa recolhida, é por dia).
+- **"Today" becomes "Dashboard"** in the sidebar and the bottom bar. A new key
+  (`NavDashboard`): the old "Today" is still used on the day chips, the Today widget and the
+  tutorial's titles — touching it would break e2e.
+- **The day's routine sections collapse** through a chevron, with the state saved in localStorage
+  per day (`beyou-routine-collapsed` → `{ date: [ids] }`). A collapsed section shows icon, name,
+  time and the day's XP chip — someone who finished the section buys back its space. Tomorrow it
+  opens again. Covered by 3 tests (collapse persists, starts collapsed, is per day).
 
-## Categorias (2026-08-04)
+## Categories (2026-08-04)
 
-- **Ações no topo do cartão.** Editar e excluir saíram do rodapé (só aparecia
-  expandido, separado por `border-t`) e foram para o cabeçalho, à esquerda do
-  chevron: `md:opacity-0` com revelação em `group-hover`/`group-focus-within`
-  no desktop e sempre visíveis no telefone. Verificado com hover real: 0 → 1 e
-  de volta a 0 ao sair.
-- **"Usando em" acima da barra de nível.** O rodapé com borda que fazia o
-  conteúdo expandido terminar cortado saiu; o cartão expandido termina na
-  própria barra de XP.
-- **Expansão isolada.** A grade esticava os cartões vizinhos à altura do
-  expandido (`items-stretch` padrão), então a fileira inteira "crescia junto"
-  com um clique. `items-start` na grade: só o cartão clicado muda (medido:
-  165 → 261px no aberto, vizinho estável em 165px).
+- **Actions at the top of the card.** Edit and delete left the footer (they only showed when
+  expanded, separated by a `border-t`) and moved to the header, left of the chevron:
+  `md:opacity-0` revealed on `group-hover`/`group-focus-within` on desktop and always visible on
+  a phone. Verified with a real hover: 0 → 1 and back to 0 on leaving.
+- **"Used in" above the level bar.** The bordered footer that made the expanded content end
+  clipped is gone; the expanded card ends on its own XP bar.
+- **Isolated expansion.** The grid stretched the neighbouring cards to the expanded one's height
+  (the default `items-stretch`), so the whole row "grew along" with one click. `items-start` on
+  the grid: only the clicked card changes (measured: 165 → 261px when open, the neighbour steady
+  at 165px).
 
-## Metas (2026-08-04)
+## Goals (2026-08-04)
 
-- **Formulário no desenho do mockup** (criar e editar): Nome, Descrição,
-  Motivação, Ícone, Alvo + Unidade (com a legenda de que o progresso nasce em
-  0 e sobe pelo stepper), Período (início/término lado a lado), Prazo em
-  segmentado e Categorias, rodapé Cancelar/Salvar meta. "Progresso atual" e
-  "status" saíram do formulário: em edição preservam o valor real, em criação
-  nascem zerados. O modal passou de `max-w-4xl` para `max-w-xl` e ganhou
-  título próprio (antes o título morava dentro do form).
-- **Botão Deletar**: já estava ligado ao DeleteModal no código — verificado ao
-  vivo de ponta a ponta (criar meta descartável → Deletar → confirmar → some
-  da grade). Quem via o botão morto estava num bundle antigo do dev container,
-  mesmo sintoma das chaves de i18n cruas.
-- **`t` de módulo vs hook**: `goals.tsx` usava `import { t } from "i18next"`,
-  que funciona no app mas devolve `undefined` nos testes unitários (o i18n só
-  é inicializado no boot do app). Passou para `useTranslation()` — idêntico no
-  app e testável. Vale conferir outras páginas com o mesmo padrão.
+- **The form in the mockup's design** (create and edit): Name, Description, Motivation, Icon,
+  Target + Unit (with the note that progress starts at 0 and rises through the stepper), Period
+  (start/end side by side), Deadline as a segmented control and Categories, footer
+  Cancel/Save goal. "Current progress" and "status" left the form: on edit they preserve the real
+  value, on create they start at zero. The modal went from `max-w-4xl` to `max-w-xl` and got a
+  title of its own (the title used to live inside the form).
+- **The Delete button**: it was already wired to DeleteModal in the code — verified live end to
+  end (create a throwaway goal → Delete → confirm → it leaves the grid). Whoever saw a dead
+  button was on a stale bundle in the dev container, the same symptom as the raw i18n keys.
+- **Module `t` vs the hook**: `goals.tsx` used `import { t } from "i18next"`, which works in the
+  app but returns `undefined` in unit tests (i18n is only initialized during the app's boot). It
+  moved to `useTranslation()` — identical in the app and testable. Worth checking other pages
+  with the same pattern.
 
-## Categorias — cartão compacto e formulário (2026-08-04)
+## Categories — the compact card and the form (2026-08-04)
 
-- **Cartão no desenho do mockup**: ícone, nome, ações no topo (hover no
-  desktop, sempre no telefone), descrição e barra de XP com LV. O mockup não
-  tem expansão nem "usando em", então a expansão adicionada na rodada
-  anterior saiu — o cartão era 165–261px e virou 152px fixo.
-- **Formulário**: Nome, Descrição, Ícone (o mesmo seletor compacto) e, só na
-  criação, Experiência em segmentado com a legenda "ajusta a curva de XP da
-  categoria". Edição não mostra experiência — `editCategory` não aceita o
-  campo. Modal em `max-w-xl` com título próprio.
-- O `onCreated` do `CategoryForm` continua vivo para a criação rápida do
-  seletor de categorias (ChooseCategories), que também usa o formulário.
+- **The card in the mockup's design**: icon, name, actions at the top (hover on desktop, always
+  on a phone), description and an XP bar with LV. The mockup has neither expansion nor "used in",
+  so the expansion added in the previous round is gone — the card was 165–261px and became a
+  fixed 152px.
+- **The form**: Name, Description, Icon (the same compact picker) and, on create only,
+  Experience as a segmented control with the note "adjusts the category's XP curve". Edit does
+  not show experience — `editCategory` does not accept the field. The modal is `max-w-xl` with a
+  title of its own.
+- `CategoryForm`'s `onCreated` is still alive for the category selector's quick create
+  (ChooseCategories), which also uses the form.
 
-## Modal de deleção novo + chevron da categoria (2026-08-04)
+## A new delete modal + the category chevron (2026-08-04)
 
-- **DeleteModal no desenho do mockup** (compartilhado pelos quatro domínios):
-  pergunta como título à esquerda, item entre aspas no corpo ("X" e tudo o que
-  está ligado a ele serão removidos) e ações à direita — Cancelar (ghost)
-  antes de Excluir (destrutivo). O corpo genérico substitui o nome sublinhado
-  que existia; não inventamos contagens (o mockup citava "32 check-ins", dado
-  que a API não devolve por domínio).
-- **Chevron da categoria de volta**: o cartão compacto ganhou o chevron sempre
-  visível; aberto, revela o "usando em" (hábitos/tarefas/metas em chips) ou a
-  dica de adicionar a categoria em algum lugar. Fechado, segue o cartão do
-  mockup.
+- **DeleteModal in the mockup's design** (shared by the four domains): the question as a
+  left-aligned title, the item in quotes in the body ("X" and everything linked to it will be
+  removed) and the actions on the right — Cancel (ghost) before Delete (destructive). The generic
+  body replaces the underlined name that used to be there; we do not invent counts (the mockup
+  cited "32 check-ins", data the API does not return per domain).
+- **The category chevron is back**: the compact card got an always-visible chevron; open, it
+  reveals "used in" (habits/tasks/goals as chips) or the hint to add the category somewhere.
+  Closed, it is still the mockup's card.
 
-## Hábitos, tarefas e o seletor de categorias (2026-08-04)
+## Habits, tasks and the category selector (2026-08-04)
 
-- **Formulários de hábito e tarefa no desenho do mockup**, mesmo esqueleto das
-  outras bibliotecas: campo por campo em coluna, importância/dificuldade em
-  segmentado (1..4, valores que o backend valida), experiência segmentada só
-  na criação, ícone pelo seletor compacto e o rodapé Cancelar/Salvar hábito
-  (ou tarefa). A tarefa ganhou o switch de "única conclusão" com legenda.
-  Modais em `max-w-xl`.
-- **Seletor de categorias virou a catrow do mockup**: chips de ícone + nome
-  (selecionado = acento suave) e o "Nova categoria" como chip tracejado na
-  própria fileira — antes era um título com botão de adicionar acima, o que
-  duplicava o rótulo "Categorias" no formulário de meta.
-- **e2e precisa acompanhar** (repo separado): o submit dos formulários de
-  hábito e tarefa passou de "Create"/"Edit" para "Salvar hábito"/"Salvar
-  tarefa"; os rádios de importância/dificuldade/experiência continuam com os
-  mesmos nomes (o segmentado usa role=radio); a categoria agora é um
-  `role=checkbox` com o nome da categoria.
+- **The habit and task forms in the mockup's design**, the same skeleton as the other libraries:
+  field by field in a column, importance/difficulty as segmented controls (1..4, the values the
+  backend validates), experience segmented on create only, the icon through the compact picker
+  and the footer Cancel/Save habit (or task). The task got the "single completion" switch with a
+  note. Modals at `max-w-xl`.
+- **The category selector became the mockup's catrow**: chips of icon + name (selected = a soft
+  accent) and "New category" as a dashed chip in the row itself — it used to be a title with an
+  add button above, which duplicated the "Categories" label on the goal form.
+- **e2e has to follow** (separate repo): the habit and task forms' submit went from
+  "Create"/"Edit" to "Save habit"/"Save task"; the importance/difficulty/experience radios keep
+  the same names (the segmented control uses role=radio); a category is now a `role=checkbox`
+  carrying the category's name.
 
-## Ações no topo e expansão isolada (2026-08-04)
+## Actions at the top and isolated expansion (2026-08-04)
 
-Mesmo tratamento de Categorias aplicado a hábito, tarefa e cartão de rotina:
+The same treatment as Categories, applied to the habit, task and routine cards:
 
-- **Editar/excluir no topo**, à esquerda do chevron, revelados no hover
-  (`md:group-hover`) e sempre visíveis no telefone. No cartão de rotina o
-  Agendar continua sempre à vista — é a ação principal.
-- **Tarefa perdeu o chevron.** Importância e dificuldade já apareciam no cartão
-  fechado; expandir só revelava as ações, que agora moram no topo. Sem conteúdo
-  escondido, o controle não tinha função.
-- **`items-start` nas grades** de hábitos, tarefas e metas. Sem isso a fileira
-  estica os cartões à altura do expandido e parece que a linha inteira abriu
-  junto — mesmo bug que Categorias tinha. Medido em Hábitos: expandido 197 →
-  457px, vizinhos parados em 197.
-- Rotinas já era lista de coluna única, então lá não havia o que corrigir na
-  expansão; só o hover das ações entrou.
+- **Edit/delete at the top**, left of the chevron, revealed on hover (`md:group-hover`) and
+  always visible on a phone. On the routine card, Schedule stays permanently in view — it is the
+  main action.
+- **The task lost its chevron.** Importance and difficulty already showed on the closed card;
+  expanding only revealed the actions, which now live at the top. With no hidden content, the
+  control had no purpose.
+- **`items-start` on the habit, task and goal grids.** Without it the row stretches the cards to
+  the expanded one's height and it looks like the whole line opened together — the same bug
+  Categories had. Measured on Habits: expanded 197 → 457px, the neighbours steady at 197.
+- Routines was already a single-column list, so there was nothing to fix in its expansion; only
+  the actions' hover landed there.
 
-## Exclusão de rotina e o "+" no telefone (2026-08-04)
+## Deleting a routine and the "+" on a phone (2026-08-04)
 
-- **Rotina passou a usar o DeleteModal compartilhado.** Era a única entidade
-  com confirmação inline (uma faixa "Confirmar exclusão? Sim / Não" dentro do
-  cabeçalho do cartão, que empurrava as outras ações). O modal ganhou o modo
-  `routine`; como não existe slice de edição por id para limpar nesse caso, o
-  switch não faz nada e a lista se atualiza por `enterRoutines`.
-- **Criar vira só o "+" no telefone nas cinco listagens.** Só Rotinas tinha o
-  `collapseLabel`; Hábitos, Tarefas, Categorias e Metas mostravam o botão
-  inteiro e comiam a largura do cabeçalho. Medido: 40×40px em 390px e 142px
-  com rótulo em 1440px. O submit do Feedback ficou como estava — é botão de
-  formulário, não o criar da listagem.
+- **The routine moved onto the shared DeleteModal.** It was the only entity with an inline
+  confirmation (a "Confirm deletion? Yes / No" strip inside the card's header, which pushed the
+  other actions around). The modal gained a `routine` mode; since there is no per-id edit slice
+  to clear in that case, the switch does nothing and the list refreshes through `enterRoutines`.
+- **Create becomes just the "+" on a phone in all five listings.** Only Routines had
+  `collapseLabel`; Habits, Tasks, Categories and Goals showed the whole button and ate the
+  header's width. Measured: 40×40px at 390px and 142px with the label at 1440px. Feedback's
+  submit was left as it was — it is a form button, not a listing's create.
 
-## Cartão de meta (2026-08-04)
+## The goal card (2026-08-04)
 
-- **Anel de porcentagem removido** do canto superior direito: a barra do
-  stepper já mostra o mesmo progresso, e o anel ocupava justamente o canto das
-  ações. Lá entraram editar/excluir (hover no desktop, sempre no telefone) e o
-  chevron.
-- **Fechado**: ícone, nome, descrição, categoria, stepper e rodapé com prazo +
-  data-limite. **Aberto**: motivação, status e o período completo.
-- **"Concluir" só com o alvo batido** — e nesse momento o `+` sai de cena, já
-  que o que resta a fazer é concluir (é ele que paga o XP). Alvo 0 nunca conta
-  como batido.
-- **Meta concluída** troca o stepper por **Desfazer** e mostra data + XP ganho
+- **The percentage ring was removed** from the top right corner: the stepper's bar already shows
+  the same progress, and the ring was occupying exactly the actions' corner. Edit/delete (hover
+  on desktop, always on a phone) and the chevron moved in there.
+- **Closed**: icon, name, description, category, stepper and a footer with the deadline + the
+  cut-off date. **Open**: motivation, status and the full period.
+- **"Complete" only once the target is met** — and at that point the `+` leaves the stage, since
+  what is left to do is complete it (that is what pays the XP). A target of 0 never counts as
+  met.
+- **A completed goal** trades the stepper for **Undo** and shows the date + the XP earned
   (`Undo`/`Desfazer`, `+N XP earned`/`ganhos`).
-- Testes: os dois de divisão por zero passaram a olhar o contador do stepper
-  (o anel não existe mais) e entraram três novos — Concluir só no alvo,
-  Desfazer na concluída e a expansão revelando a motivação.
+- Tests: the two division-by-zero cases moved to reading the stepper's counter (the ring no
+  longer exists) and three new ones arrived — Complete only at target, Undo on a completed goal,
+  and expansion revealing the motivation.
 
-## Página de Configuração (2026-08-06)
+## The Configuration page (2026-08-06)
 
-- **Cartões sem ladrilho de ícone e sem descrição** — o mockup tem só o título.
-  Quatro ícones de acento competindo entre si empurravam o conteúdo para baixo.
-- **Grid do desenho**: perfil + preferências à esquerda, aparência + widgets à
-  direita. Antes a direita só tinha os widgets. No telefone empilha em coluna.
-- **Perfil**: foto e "Trocar foto" numa linha no topo, campos em largura
-  inteira, "Salvar perfil" à direita. A foto ocupava 30% da largura e espremia
-  os inputs.
-- **Sem cartão dentro de cartão**: os blocos de preferências perderam a
-  superfície própria e a tipografia caiu para a gramática de rótulo (havia
-  títulos de 18–20px dentro de um cartão cujo título tem 15px).
-- **Idioma** virou o segmentado do sistema (eram dois quadrados EN/PT de 24px);
-  os "Salvar" de cada bloco viraram tonais à direita.
-- **Zona de soltar dos widgets** ficou discreta: fundo rebaixado e tracejado
-  fino no lugar da moldura de 2px sobre superfície.
+- **Cards with no icon tile and no description** — the mockup has only the title. Four accent
+  icons competing with each other pushed the content down.
+- **The drawing's grid**: profile + preferences on the left, appearance + widgets on the right.
+  The right column used to hold only the widgets. On a phone it stacks in a column.
+- **Profile**: the photo and "Change photo" on one row at the top, full-width fields, "Save
+  profile" on the right. The photo took 30% of the width and squeezed the inputs.
+- **No card inside a card**: the preference blocks lost their own surface and the typography fell
+  back to the label grammar (there were 18–20px titles inside a card whose title is 15px).
+- **Language** became the system's segmented control (it was two 24px EN/PT squares); each
+  block's "Save" became tonal, on the right.
+- **The widgets' drop zone** went quiet: a lowered background and a thin dashed line in place of
+  the 2px frame over a surface.
 
-### Segunda passada na Configuração (2026-08-06)
+### A second pass over Configuration (2026-08-06)
 
-- **Widgets viraram lista compacta** (alça, posição, ícone, nome, ×) com chips
-  "+ nome" para os disponíveis. Antes eram duas zonas tracejadas com os
-  widgets renderizados de verdade: impossível ordenar no telefone e sem
-  mostrar a ordem. Cada mudança grava sozinha (`editUser({ widgetsId })`).
-- **Seção Conta com Logout** — o botão vivia no `header.tsx`, apagado quando a
-  sidebar nasceu; **desde então não havia como sair da conta pela interface**.
-  Purga o redux-persist antes do redirect.
-- **Caixas dobráveis no telefone**: cada seção abre ao toque (perfil já vem
-  aberto); no desktop as duas colunas seguem abertas.
-- **Ordem do mockup**: perfil, widgets e conta à esquerda; aparência e
-  preferências à direita.
-- **Salvar só no perfil**: constância e configurações de rotina passaram a
-  gravar no clique, como tema e idioma já faziam. Os testes do botão de salvar
-  do RoutineSettings viraram testes de gravação automática.
+- **Widgets became a compact list** (handle, position, icon, name, ×) with "+ name" chips for the
+  available ones. It used to be two dashed zones with the widgets actually rendered: impossible
+  to reorder on a phone and it never showed the order. Every change writes itself
+  (`editUser({ widgetsId })`).
+- **An Account section with Logout** — the button used to live in `header.tsx`, deleted when the
+  sidebar was born; **since then there was no way to log out through the interface**. It purges
+  redux-persist before the redirect.
+- **Foldable boxes on a phone**: every section opens on tap (the profile starts open); on desktop
+  the two columns stay open.
+- **The mockup's order**: profile, widgets and account on the left; appearance and preferences on
+  the right.
+- **Save only on the profile**: streak and routine settings moved to writing on click, as theme
+  and language already did. RoutineSettings' save-button tests became automatic-save tests.
 
-### Menu do telefone na Configuração (2026-08-07)
+### The phone menu in Configuration (2026-08-07)
 
-- As caixas viraram o menu do mockup: ladrilho de acento com ícone, nome e o
-  chevron para o lado. O perfil mostra avatar, nome e "nível N · xp/next XP"
-  em vez da palavra "Perfil".
-- **Ordem por breakpoint sem duplicar markup**: as colunas usam
-  `display: contents` abaixo de `lg`, então as seções viram filhas diretas do
-  flex e a ordem do telefone (perfil, aparência, preferências, widgets, sair)
-  sai de classes `order-*`. No desktop as colunas voltam a ser colunas.
-- **Conta virou a linha vermelha de "Sair"**, sem o e-mail — ele já está no
-  formulário de perfil.
+- The boxes became the mockup's menu: an accent tile with an icon, the name and the chevron on
+  the side. The profile shows an avatar, the name and "level N · xp/next XP" instead of the word
+  "Profile".
+- **Order per breakpoint without duplicating markup**: the columns use `display: contents` below
+  `lg`, so the sections become direct children of the flex container and the phone's order
+  (profile, appearance, preferences, widgets, log out) comes out of `order-*` classes. On desktop
+  the columns are columns again.
+- **Account became the red "Log out" row**, with no e-mail — it is already in the profile form.
 
-## Página de Feedback (2026-08-07)
+## The Feedback page (2026-08-07)
 
-- **Assunto virou segmentado de três** (ícone só na opção escolhida). Em
-  pílulas soltas as três opções pareciam filtros acumuláveis, quando são
-  exclusivas.
-- **Imagens ganharam zona de soltar**; os anexos viraram chips com o nome do
-  arquivo. A grade de miniaturas de 96px empurrava o enviar para fora da tela
-  no telefone com dois ou três prints.
-- **Formulário dentro de um cartão**, rótulos na gramática do sistema e rodapé
-  de uma linha: "prefere e-mail?" à esquerda, enviar à direita (no telefone o
-  enviar ocupa a largura e o e-mail desce).
-- A intro longa virou o **subtítulo do cabeçalho**.
-- Testes ajustados: a intro agora é o subtítulo, o input de imagens é achado
-  pelo `aria-label` e os anexos são chips, não `img[alt]`.
+- **The subject became a segmented control of three** (the icon only on the chosen option). As
+  loose pills the three options looked like filters that stack, when they are exclusive.
+- **Images got a drop zone**; attachments became chips with the file name. The 96px thumbnail
+  grid pushed submit off screen on a phone with two or three screenshots.
+- **The form inside a card**, labels in the system's grammar and a one-line footer: "prefer
+  e-mail?" on the left, submit on the right (on a phone submit takes the width and the e-mail
+  drops below).
+- The long intro became the **header's subtitle**.
+- Tests adjusted: the intro is now the subtitle, the image input is found by `aria-label` and the
+  attachments are chips, not `img[alt]`.
 
-## Painel do Assistente (2026-08-07)
+## The Assistant panel (2026-08-07)
 
-- **Desktop: painel lateral de altura cheia** encostado à direita, no lugar do
-  popover de 440px flutuando no canto. Expandido continua o overlay central
-  com a coluna de histórico.
-- **Telefone: sheet de 86%** ancorada embaixo, topo arredondado (medido 726 de
-  844px), no lugar da tela cheia.
-- **Cabeçalho separa identidade de contexto**: "Assistente IA" fixo e o assunto
-  da conversa em mono embaixo. Antes o título era o nome do chat, que o agente
-  renomeia sozinho.
-- **Ferramentas viraram chips** discretos (mono, contorno leve) em vez de
-  caixas com fundo de acento.
-- **Sugestões acima do input**, numa linha rolável, sempre que há conversa —
-  antes só existiam no estado vazio.
-- **Ajustes na sequência**: painel de 420 → 520px, sheet de 86% → 92%, e o
-  **modo tela cheia foi removido** junto da coluna de histórico que só existia
-  nele (o histórico continua no botão do cabeçalho). As sugestões voltaram a
-  quebrar linha, limitadas a duas — em linha rolável a terceira ficava cortada
-  na borda do painel.
-- **Não implementado do mockup:** os cartões de entidade criada com link "ver".
-  `agentSegment` só carrega `tool`, `error` e `domains` — não vem id nem nome
-  da entidade. Precisa de backend; entra na lista de dependências de dados.
+- **Desktop: a full-height side panel** flush to the right, in place of the 440px popover
+  floating in the corner. Expanded is still the central overlay with the history column.
+- **Phone: an 86% sheet** anchored at the bottom, rounded at the top (measured 726 of 844px), in
+  place of full screen.
+- **The header separates identity from context**: "AI Assistant" fixed and the conversation's
+  subject in mono below. The title used to be the chat's name, which the agent renames on its
+  own.
+- **Tools became quiet chips** (mono, a light outline) instead of boxes with an accent
+  background.
+- **Suggestions above the input**, in a scrollable row, whenever there is a conversation — they
+  only existed in the empty state before.
+- **Adjustments along the way**: the panel from 420 → 520px, the sheet from 86% → 92%, and
+  **full-screen mode was removed** along with the history column that only existed in it (the
+  history is still on the header's button). The suggestions went back to wrapping, limited to two
+  — in a scrollable row the third one was clipped at the panel's edge.
+- **Not implemented from the mockup:** the created-entity cards with a "view" link. `agentSegment`
+  only carries `tool`, `error` and `domains` — neither the entity's id nor its name arrives. It
+  needs backend work; it joins the data dependencies list.
 
-## Console de feedback do admin (2026-08-07)
+## The admin feedback console (2026-08-07)
 
-- **Contagens viraram StatTile**; filtros viraram dois selects compactos numa
-  linha, com o rótulo dentro da opção "todos".
-- **Lista e detalhe dividem a tela** (`lg:grid-cols-2`): abrir um item não
-  empurra a lista para fora. No telefone o detalhe desce; no desktop ele fica
-  `sticky` enquanto a lista rola.
-- **Linha escaneável**: ícone por categoria, título em uma linha, autor e data
-  em mono, status em pílula à direita. O e-mail saiu da lista — vive no
-  detalhe, onde a resposta é escrita (o teste passou a olhar o nome).
-- **Cores semânticas de status**: `FEEDBACK_STATUS_BADGE_CLASSES` ainda usava
-  `text-primary` e `border-description`, aliases do modelo antigo.
-- O contexto capturado virou linhas mono chave/valor, como no mockup.
+- **The counts became StatTiles**; the filters became two compact selects on one row, with the
+  label inside the "all" option.
+- **List and detail split the screen** (`lg:grid-cols-2`): opening an item does not push the list
+  out. On a phone the detail drops below; on desktop it stays `sticky` while the list scrolls.
+- **A scannable row**: an icon per category, the title on one line, author and date in mono,
+  status as a pill on the right. The e-mail left the list — it lives in the detail, where the
+  reply is written (the test moved to reading the name).
+- **Semantic status colours**: `FEEDBACK_STATUS_BADGE_CLASSES` still used `text-primary` and
+  `border-description`, aliases of the old model.
+- The captured context became mono key/value rows, as in the mockup.
 
-## Vazios, notificações e celebração (2026-08-07)
+## Empty states, notifications and celebration (2026-08-07)
 
 ### EmptyState
 
-- O `emoji` virou `icon: ReactNode`: uma IconTile com o ícone da entidade
-  (`Folder`, `Repeat`, `ListChecks`, `CalendarDays`, `Trophy`, `LayoutGrid`,
-  `History`), os mesmos da barra lateral. Emoji não escala com o tema nem tem
-  peso de traço; o vazio é parte do sistema, não um adesivo.
-- Ganhou `onAction` (para vazios que abrem modal, não navegam),
-  `secondaryLabel`/`onSecondary` e `variant="ghost"`.
-- **Busca sem resultado usa `ghost`**: título "Nada encontrado", uma linha de
-  ajuda e "Limpar filtros" sem peso de botão primário — não há o que criar ali.
-  As quatro listagens passaram a mandar `onClearFilters` (a de categorias limpa
-  só a busca, que é o único filtro dela).
-- **Rotinas ganharam os dois vazios que faltavam**: na página, "Nenhuma rotina
-  ainda" com "Criar rotina" (abre o modal, via `onAction`) e o secundário "ou
-  peça ao Assistente", que dispara `openAgentPanel()`; no dashboard, a CTA
-  passou a ser "Agendar rotina" em vez do genérico "Rotinas".
-- `SnapshotEmptyState` deixou de ter markup próprio e passou pelo componente
-  compartilhado.
+- `emoji` became `icon: ReactNode`: an IconTile with the entity's icon (`Folder`, `Repeat`,
+  `ListChecks`, `CalendarDays`, `Trophy`, `LayoutGrid`, `History`), the same ones as the sidebar.
+  An emoji does not scale with the theme and has no stroke weight; the empty state is part of the
+  system, not a sticker.
+- It gained `onAction` (for empty states that open a modal instead of navigating),
+  `secondaryLabel`/`onSecondary` and `variant="ghost"`.
+- **A search with no result uses `ghost`**: the title "Nothing found", one line of help and
+  "Clear filters" with no primary-button weight — there is nothing to create there. The four
+  listings started passing `onClearFilters` (the categories one clears only the search, its only
+  filter).
+- **Routines got the two empty states it was missing**: on the page, "No routines yet" with
+  "Create routine" (opens the modal, through `onAction`) and the secondary "or ask the Assistant",
+  which fires `openAgentPanel()`; on the dashboard, the CTA became "Schedule routine" instead of
+  the generic "Routines".
+- `SnapshotEmptyState` stopped having markup of its own and went through the shared component.
 
 ### NOTIFY
 
-- `lib/notify.tsx` é a casca única. O `ToastContainer` do `App` recebe
-  `icon={ToastTypeIcon}` e `closeButton={ToastCloseButton}`, então **os
-  `toast.*` antigos herdam o desenho novo sem precisar migrar chamada por
-  chamada**; `notify.*` existe para quando há ícone da entidade ou subtítulo.
-- Posição: `top-right` no desktop e `top-center` no telefone (`useIsDesktop`),
-  no máximo `limit={3}`. O `closeOnClick` saiu: com × explícito, fechar sem
-  querer ao tentar ler é pior que um clique a mais.
-- O check-in do dashboard passou a mandar o **ícone do próprio hábito** com o
-  nome no título e a frase motivacional no subtítulo. Antes era um check verde
-  genérico com a frase solta, e a posição mudava por media query na mão.
-- CSS: o `react-toastify` v11 se estende pelos tokens dele
-  (`--toastify-toast-width`, `-padding`, `-bd-radius`, `-shadow`), então o
-  bloco no `index.css` seta as variáveis no container em vez de duelar por
-  especificidade. Duas exceções precisam de duas classes:
-  `.Toastify__toast.beyou-toast` para o fundo (o tema claro dele pinta branco e
-  vem depois no cascade) e o bloco `@media (max-width: 480px)`, que
-  transformava a notificação em faixa colada no topo, de canto reto.
-- Cronômetro: 2px, sem trilho (`--wrp` com altura 2px e `--bg` invisível), na
-  cor do tom.
-
-### Celebração
-
-- O balão de 96px com "LV 3" dentro virou **o anel do sistema fechado com o
-  número do nível no centro** — a mesma peça do check-in e da marca. Marco de
-  sequência usa o mesmo anel com a chama e a contagem de dias.
-- Ganhou "Continuar". O fechamento automático em 4s continua: o botão é uma
-  saída, não a única.
-
-## Convite dispensável e barra do celular (2026-08-07)
-
-- **Convite de widgets fecha de vez**: `useDismissed(key)` guarda a recusa em
-  `localStorage` sob `beyou-dismissed:<key>`. Preferência de tela não é dado de
-  conta — não vale uma ida ao backend, e o `perfil` nem persiste. O × vive no
-  `EmptyState` (`onDismiss`), então qualquer outro convite pode usá-lo.
-- **O "Mais" parou de cobrir os atalhos**: painel e barra dividem o mesmo
-  container fixo, empilhados; o escurecido fica atrás dos dois. A barra é a
-  orientação de onde se está e some junto era desorientador. Veio com alça no
-  topo, ícone em tile e o gatilho alternando (e aceso enquanto aberto).
-- **Assistente mais alto**: `-mt-6` → `-mt-8`, com halo desfocado atrás. É o
-  único alvo da barra que não é navegação, e o desenho tem de dizer isso.
-- **Não seguido do mockup**: o ladrilho "Perfil" da sheet. A web não tem rota
-  de perfil — ele é uma seção da configuração. Entraria como link morto.
-
-## Expo: a passagem do redesign para o mobile (2026-08-07)
-
-O app nativo tinha só a fundação do redesign (tokens, tipografia, marca,
-primitivos, autenticação e a casca). As telas ainda eram do modelo anterior.
-Esta rodada levou o desenho da web para elas, tela por tela.
-
-### O que mudou de regra, não só de pixel
-
-- **Hover não existe no toque.** Onde a web revela editar/excluir no hover, o
-  mobile os deixa SEMPRE visíveis — que é o que a própria web faz abaixo de
-  `md`. Vale para hábito, tarefa, categoria e meta.
-- **O Alert nativo saiu de toda exclusão.** Ele não carrega tema, nem
-  tipografia, nem o nome do item, e a ordem dos botões é da plataforma. O
-  `DeleteModal` do mobile é o mesmo desenho da web. Ficou só o Alert de "dia já
-  agendado" no `ScheduleSheet`, que não é exclusão.
-- **A barra inferior não pode sumir.** O painel do "Mais" era um `Modal` —
-  outra janela, que cobria os atalhos. Agora é irmão da barra, ancorado em
-  `bottom: '100%'`, com o escurecido atrás dos dois.
-- **Persistência local usa `expo-secure-store`.** Mesma escolha do
-  `viewFiltersStore`: é a dependência nativa que já estava instalada, e trazer
-  AsyncStorage forçaria rebuild. Vale para o convite de widgets dispensado e
-  para as seções recolhidas por dia. Como a leitura é assíncrona, o
-  `useDismissed` começa DISPENSADO e só libera depois de ler — ao contrário, um
-  convite recusado piscaria a cada abertura.
-- **Sem blur no RN.** O halo do assistente são dois discos translúcidos.
-- **Sem `<select>`.** O `SelectField` é um controle com a casca dos inputs que
-  abre uma sheet — mais confortável que um picker de roda numa lista de treze
-  ordenações.
-
-### Peças novas do lado nativo
-
-`EmptyState`, `DeleteModal`, `SelectField`, `ListToolbar`, `AttributeChip`,
-`BeyouToast` (+ o host que lê o inset de dentro do SafeAreaProvider),
-`form/FormModal`, `form/FormField`, `ProfileHeaderRow`, `useDismissed`,
-`lib/dismissedStore`, `lib/collapsedSections`, `ui/sortOptions` e a cópia de
-`routineMetrics`.
-
-`routineMetrics` é cópia literal da web: lógica pura sobre os tipos
-compartilhados, vivendo nos dois apps até alguém movê-la para um pacote. Mexeu
-num, mexa no outro.
-
-### O que ficou de fora
-
-- O ladrilho "Perfil" da sheet do "Mais" (nem web nem mobile têm rota de
-  perfil — ele é uma seção da configuração).
-- O `RoutineBuilder` e o `SectionCard` continuam no desenho anterior; só o
-  seletor de itens da seção foi alinhado.
-- O console de feedback do admin não existe no mobile.
-
-## Paridade web ⟷ mobile, tela por tela (2026-08-08)
-
-Passagem comparando a web a 390px (agent-browser) com o app no emulador,
-página por página. O que apareceu só quando as duas ficaram lado a lado:
-
-- **O chevron dos cartões não renderizava.** `transform: rotate` no `style` de
-  um ícone `lucide-react-native` faz o SVG sumir — o `react-native-svg` não
-  aceita o transform por ali. Onde a web rotaciona um chevron, o mobile agora
-  TROCA o ícone (`ChevronRight`/`ChevronUp`). Valia para configuração, seção do
-  dia e cartão de rotina.
-- **O Hermes deste build não tem `Intl.PluralRules`.** Sem ele o i18next não
-  acha `_one`/`_other` e cai na chave base — que em várias é só o rótulo, então
-  "1 rotina" virava "Rotinas". `src/lib/pluralRulesPolyfill.ts` cobre os dois
-  idiomas (en: one só para 1; pt: one para 0 e 1, como o CLDR) e é instalado
-  antes do init. Só cardinal: nada no app usa ordinal.
-- **O `Button` engolia `className`.** Ela caía no `...rest` e o spread
-  substituía a className calculada, então quem passasse largura perdia o fundo
-  junto. Silencioso e fácil de repetir; agora é desestruturada e mesclada.
-- **O ícone de ação em repouso é `text-3` nos dois tons.** A lixeira vermelha
-  no mobile gritava; na web o tom destrutivo só aparece no hover, e aqui só no
-  fundo do toque.
-- **Telas que ainda eram do modelo antigo**: perfil (campos sem rótulo, salvar
-  centrado), idioma (caixinha EN|PT), rotinas (quatro números grandes + pílula
-  de ordenação que a web não tem) e o cabeçalho do dashboard (avatar + anel de
-  nível dentro de um cartão). Todas passaram para o desenho da web.
-- **Duas coisas que faltavam nos dois lados**: metas sem o filtro de status no
-  mobile, e o cartão de entidade criada do agente sem equivalente na web. O
-  cartão foi PORTADO PARA A WEB — o mobile já resolvia o que eu havia anotado
-  como inviável, derivando o destino do nome da ferramenta em vez do id da
-  entidade.
-
-### Diferenças que ficam de propósito
-
-- O mobile tem um chevron de voltar no cabeçalho das telas; a web não precisa
-  (sidebar no desktop, barra no telefone).
-- O seletor de ícone é grade inline na web e sheet no mobile — a grade de seis
-  colunas dentro de um formulário rolável não é o padrão do toque.
-- O botão do assistente ficou mais alto na web (`-mt-8` → `-mt-11`) e mais
-  baixo no nativo (`top: -18` → `-12`), a pedido.
-
-## Tokens de cor do mobile: a forma importa (2026-08-08)
-
-`bg-success` não pintava nada no app nativo — a barra da meta concluída ficava
-com só o trilho, e o chip "Concluído" saía sem fundo. `bg-flame` e `bg-accent`,
-no mesmo arquivo e na mesma linha, pintavam.
-
-A causa era a forma do token no `tailwind.config.js` do mobile: `var(--x)` em
-vez de `rgb(var(--x-rgb) / <alpha-value>)`. Sem os canais crus o Tailwind v3 não
-emite as classes com barra, e o elemento fica SEM FUNDO — é literalmente o que
-o comentário do `cssVars.ts` já avisava, e por isso o `themeToVars` publica cada
-cor duas vezes. A web já usava a forma com canais; o mobile ficou para trás.
-
-O config do mobile agora espelha o da web. Isso conserta de uma vez todas as
-49 classes com barra que existiam no app (`bg-accent/10`, `bg-danger/10`,
-`border-border/40`, …) e que silenciosamente não pintavam.
-
-Lição para a próxima cor que nascer: token novo entra nos DOIS configs na forma
-com canais, senão a variante de opacidade morre calada.
-
-## Widgets do dashboard no nativo (2026-08-08)
-
-Os sete widgets nativos ainda eram do desenho antigo: título grande centralizado,
-pilha de largura cheia, e conteúdo que não batia com nada da web. Agora eles são
-o espelho do `baseDiv`: cabeçalho de 12,5px em `text-2` com o ícone à esquerda,
-`px-[18px] py-4`, e o dado abaixo.
-
-O que mudou por widget:
-
-- **Constância** — número em mono, "dias seguidos · melhor: N" e a faixa dos
-  últimos 28 dias em duas fileiras de 14.
-- **Hoje** (progresso diário) — anel de 108px com a porcentagem e "do dia", e ao
-  lado o que ela significa: itens concluídos e **XP do dia** (de
-  `getRoutineStats`, não `perfil.xp`, que é o acumulado da conta).
-- **Melhor / Pior área** — tile colorido com o ícone da categoria, nome,
-  `LV n · xp/next XP` em mono e a barra do nível (verde / chama).
-- **Nível** — a barra fina com `xp` e `nextLevelXp` em mono nas pontas. Sem
-  gradiente: no RN isso pediria uma lib de svg só para o degradê de 8px.
-- **Dicas rápidas** — tile de lâmpada, a dica, e o rodapé "dica N de 8".
-- **Equilíbrio de vida** — o mesmo radar da web (malha de dois anéis, série em
-  acento translúcido, rótulos por fora com âncora dependendo do lado).
-
-E os widgets viraram **carrossel com pontos de página**, como a web faz no
-telefone: empilhados, cada widget novo empurrava a rotina e as metas para baixo.
-
-Dois detalhes que só apareceram no aparelho:
-
-- A faixa de constância saía **vazia**. Largura em porcentagem + `aspect-square`
-  não dá altura ao quadrado no RN. O lado agora vem do `onLayout` da faixa — e
-  arredondado PARA BAIXO no pixel físico, porque com valor fracionário o RN
-  arredonda cada quadrado para cima, a fileira estoura a largura e o 14º cai para
-  a linha de baixo (era 13 por fileira).
-- Tentei fazer os cartões curtos crescerem até a altura do trilho com `flex-1`;
-  `flex-1` traz `flex-basis: 0%` e, com o pai de altura automática, o cartão
-  colapsou para nada. Ficou como na web: o trilho tem a altura do slide mais alto
-  (o radar) e os curtos deixam um vão embaixo.
-
-O carrossel mede a largura no `onLayout` em vez de usar `Dimensions`: o bloco
-vive dentro do padding do dashboard, então a tela inteira daria um slide largo
-demais. Isso torna a medida obrigatória no teste — `DashboardWidgets.test.tsx`
-dispara o evento `layout` depois de montar.
-
-## Autenticação no nativo (2026-08-09)
-
-As cinco telas de autenticação eram de outro app: abas grandes "Login | Registro"
-no topo, saudação de 30px, campos sem rótulo e de 56px, botões de largura fixa,
-seletor EN|PT e a marca no PÉ da tela.
-
-Agora existe `src/ui/auth/AuthShell.tsx`, espelho do ramo mobile do `AuthShell`
-da web: marca no topo (símbolo em acento, wordmark em cor de texto), coluna de
-360px centrada, ancorada no topo, e o rodapé de uma linha que leva à tela irmã.
-Login, registro, recuperação, redefinição e verificação passaram todas por ela.
-
-O que veio junto:
-
-- `Input` ganhou `label` — o rótulo de 12,5px acima do campo, que é o padrão do
-  sistema. Nas telas de auth os campos usam `compact` (42px), como na web.
-- `src/ui/auth/FormNotice.tsx`, espelho do da web. Antes cada tela desenhava seu
-  próprio aviso: caixa de borda dupla no registro, ícone de 48px centralizado na
-  recuperação, parágrafo solto no login. Mesmo aviso, três formas.
-- O botão do Google virou largura cheia de 44px com o separador "ou" acima, como
-  na web — e o separador mora no componente do botão, também como na web.
-- Os CTAs viraram `size="auto" className="w-full"`: largura cheia em vez dos
-  250px fixos.
-
-Três remoções deliberadas:
-
-- **Abas Login|Registro** (`AuthTabs`) — a web troca de tela por um link no
-  rodapé. Duas abas de 24px no topo empurravam o formulário para baixo da dobra.
-- **Seletor de idioma** (`LanguageToggle`) — antes de existir conta o app segue o
-  aparelho (`src/i18n.ts` lê `getLocales()`), como a web segue o navegador.
-  Trocar idioma é coisa de usuário logado, na Configuração.
-- **`MobileBrand`** no pé — a marca agora é o cabeçalho da casca.
-
-Um desvio consciente da web: em recuperação, redefinição e verificação o título
-APARECE no nativo, embora na web ele seja `sr-only` nesta largura. O navegador
-tem barra de endereço para dizer onde você está; o app não tem, e "um campo de
-e-mail sob o logo" não diz para que serve a tela. Login e registro seguem sem
-título, como na web.
-
-## Rotinas: as duas superfícies se encontrando no meio (2026-08-09)
-
-Nem toda diferença entre web e nativo era a web estar certa. Nesta passada duas
-telas foram para cada lado.
-
-**O nativo seguiu a web em duas:**
-
-- **Agendar** era sete linhas de largura cheia, uma por dia — a semana não caía
-  numa olhada e o painel passava da metade da tela. Agora é a fileira de sete
-  quadrados do modal da web, com os chips de grupo (Seg a Sex / Final de semana /
-  Toda a semana) e as ações no pé. O dia que outra rotina já ocupa fica marcado
-  no próprio quadrado e ganha uma linha com "Substituir dia", em vez do
-  `Alert.alert` do sistema: a decisão acontece onde está escrito de quem é o dia.
-- **Criar / editar rotina** era um cartão alto por seção com três links de texto
-  embaixo ("Editar · Atribuir hábitos e tarefas (3) · Deletar") e a lista sempre
-  aberta — três seções não cabiam na tela. Agora é o formulário da web: Tipo
-  (segmentado, com "Em lista" apagado em vez de escondido), Nome, e as seções
-  como linhas fechadas com ícone, nome, o par de chips de horário, favoritar,
-  editar e excluir. Aberta, a seção mostra os itens em pílula com × e o convite
-  "Adicionar hábito ou tarefa".
-
-  Duas diferenças que ficam de propósito: as setas de ordem moram DENTRO da seção
-  aberta (no cabeçalho seriam cinco alvos numa linha de 390px, e o cabeçalho é o
-  que precisa ficar igual ao da web); e o campo de ÍCONE da rotina saiu, porque a
-  web nunca o teve e nada na interface desenha esse ícone.
-
-  Isso aposentou a tela de escolha de tipo (`RoutineTypePicker`), que abria a
-  criação com duas ilustrações antes do primeiro campo.
-
-  A folha de SEÇÃO veio junto, no mesmo modal da web: nome com o placeholder
-  "Manhã tranquila", os dois horários lado a lado, ícone e — só na criação — a
-  lista **"Suas seções favoritas"** com o botão Usar, que faltava inteira no
-  nativo. A biblioteca é toda seção favoritada de QUALQUER rotina (a fatia de
-  rotinas achatada, mesma fonte da web), e a cópia sai com id novo na seção e
-  nos grupos: carregar o id de origem faria a edição escrever por cima dela.
-
-**A web seguiu o nativo em duas** (o desenho nativo estava melhor, e o usuário
-escolheu ele):
-
-- **Visualização histórica** tinha três medalhas (Seções / Concluído /
-  Progresso), barra de porcentagem, a data repetida num chip e um chevron para
-  abrir. Muita moldura para dizer "2 de 10". Agora é a faixa de resumo do nativo
-  (Concluído · Pulada · XP ganho) e uma ficha por seção, tudo aberto. De quebra,
-  a lista passou a percorrer a ESTRUTURA e achar o check de cada item pelo
-  `originalGroupId` — a duplicação de hábito entre seções de mesmo nome fica
-  impossível por construção, e item sem check ainda aparece.
-- **Rotina expandida** na página de rotinas tinha cabeçalho de seção com tile de
-  32px e linhas de uma linha só, sem hora no telefone e sem pular. Agora usa o
-  mesmo desenho da rotina do dashboard e do nativo: cabeçalho de uma linha
-  (ícone solto, nome de 12,5px, hora em mono) e a linha do item quebrando em duas
-  no telefone, com o chip de hora e o botão de pular. **Pular passou a existir
-  ali** — antes só a rotina do dashboard tinha, e o mesmo item na página de
-  rotinas ficava sem saída.
-
-## Escolher itens para a seção: as duas telas no mesmo modelo (2026-08-09)
-
-As duas faziam metade do trabalho. A web deixava marcar vários, mas os horários
-só apareciam DEPOIS, na lista da seção — corrigir um era outra viagem. O nativo
-tinha a bandeja com os horários editáveis, mas o item entrava sem horário
-nenhum, e ainda pedia um segundo toque num botão "Adicionar (N)".
-
-Agora as duas fazem o mesmo: **um toque manda o item para a bandeja com um
-horário sugerido, ali o horário ainda se ajusta, e só ao confirmar a bandeja
-vira a seção.** Na web a bandeja abre com o que a seção já tem, então dá para
-consertar o horário de um item antigo na mesma passada.
-
-O cálculo do horário (`suggestSlots`) saiu do componente da web e foi para
-`packages/state/src/routine/suggestSlots.ts` — as duas telas usam o mesmo.
-
-Uma regra mudou junto: dividir o que sobra da janela só faz sentido quando se
-sabe QUANTOS itens entram de uma vez. Escolhendo um por vez, dividir por 1 dava
-a janela inteira ao primeiro e sobrava zero para o próximo. Item avulso passa a
-levar a fatia padrão de 15 min, no teto do que resta; a divisão em partes iguais
-continua valendo para `count > 1`.
-
-### O que se escolhe não se perde mais
-
-Depois de trocar o modelo, apareceu o pior tipo de bug: adicionar cinco itens,
-sair, e nada ter acontecido. Duas causas, as duas consertadas:
-
-- O painel da folha não encolhia (só o miolo tinha `flexShrink`), então ele
-  ficava do tamanho do conteúdo e o rodapé — com o botão de concluir — descia
-  para FORA da tela. Ninguém apertava um botão que não dava para ver.
-- Fechar pelo backdrop ou pelo voltar do sistema descartava tudo. Agora fechar
-  SALVA: o que se escolhe ali só mexe na cópia de trabalho da rotina, e quem
-  grava de verdade é o botão da rotina — descartar em silêncio era só armadilha.
-  Some o "Cancelar" da folha junto: não havia o que cancelar.
-
-Na web a linha da bandeja também empilhou (nome em cima, horários embaixo, como
-no nativo): em uma linha só, nome + dois campos de hora + remover não cabiam nos
-448px do modal e o nome sobrava em uma letra.
-
-### Um teto só por folha
-
-Pôr o teto de 85% na `KeyboardAvoidingView` fez as porcentagens começarem a
-valer — e aí o `max-h-[70%]` que o `SelectField` ainda passava para o painel
-virou 70% DE 85%: a folha de opções encolhia, descolava do rodapé e mostrava a
-tela por baixo. O `maxHeight` saiu do `BottomSheet`; o teto agora é um só, do
-contêiner, para todas as folhas.
-
-Junto: a lista de opções cresce por padrão (`flexGrow: 1` vem de fábrica no
-`ScrollView`), então a folha esticava até o teto mesmo com quatro opções e
-sobrava um vão branco embaixo da última. Agora ela encolhe — a folha tem a
-altura das opções, e só rola quando elas não cabem.
-
-## Dois acertos de acabamento (2026-08-09)
-
-- **Chevron duplicado no cartão de rotina da web.** No telefone a fileira de
-  ações só aparece com o cartão aberto — e é exatamente aí que o chevron do
-  título também está visível. Dois botões, mesma função, um embaixo do outro. O
-  da fileira virou `hidden md:flex`; no desktop, onde a fileira vive sempre à
-  mostra e o do título some, ele continua sendo o único.
-- **Chevron da seção desalinhado (web e nativo).** Ele morava dentro da coluna
-  do nome, então colava na primeira linha enquanto estrela, lápis e lixeira se
-  centravam no bloco de duas linhas (nome + chips de horário). Saiu para a
-  fileira, onde o `items-center` o centraliza junto com o resto.
-- **Folha de seção pedindo scroll para achar o Salvar.** O rodapé saiu do
-  scroller e a lista de favoritas ganhou teto próprio (três linhas). E o teto de
-  85% do painel foi para a `KeyboardAvoidingView`: porcentagem só resolve contra
-  um pai de altura definida, e ela se dimensionava pelo conteúdo — o
-  `max-h-[85%]` do painel não valia nada, e o miolo encolhia sem precisar.
-
-## Configuração: widgets e a frase do tema (2026-08-09)
-
-O seletor de widgets do nativo era a última seção da Configuração fora do
-desenho da web: linhas de nome puro com três controles soltos à direita, e um
-botão Salvar no fim. Agora é a lista da web — posição em mono, ícone do widget,
-nome, e o × para tirar; os que sobraram viram chips de "+ nome". **E cada mudança
-persiste sozinha**: o Salvar não existe mais, igual à web.
-
-A alça de arraste da web continua sendo par de setas aqui (arrasto não existe no
-nativo, ver AGENTS.md), e por isso o texto de ajuda ganhou chave própria
-(`WidgetsHintMobile`) — o da web fala em arrastar pela alça.
-
-Fora daqui, saiu a legenda `ThemeHint` ("Duas bases feitas com capricho…") do
-seletor de tema nas duas telas, e a chave junto.
-
-## Abertura do app nativo (2026-08-09)
-
-Antes do primeiro frame aparecia o placeholder do Expo — uma grade cinza com
-círculos concêntricos, esticada como `windowBackground`. O `app.json` não tinha
-splash nenhum configurado, então o prebuild gerava o padrão.
-
-Agora o splash é a marca, centrada, sobre o fundo do tema: `#F5F7FA` no claro e
-`#0E1218` no escuro (o do sistema — o tema do usuário só chega depois do
-perfil).
-
-Só a MARCA, sem o wordmark: no Android 12+ o ícone do splash é mascarado num
-círculo, e um lockup vertical seria cortado no meio da palavra. A marca já é um
-círculo e cai perfeita na máscara.
-
-E o splash agora SEGURA até a tipografia carregar
-(`preventAutoHideAsync` + `hideAsync`). Antes ele saía assim que a view do RN
-montava e apareciam três telas na abertura: marca → branco com spinner → app.
-O gate de fonte também pinta o mesmo tom do splash em vez de devolver `null`,
-que deixava um frame preto no meio.
-
-## Verificação feita
-
-- `npx tsc --noEmit` limpo nos dois apps.
-- Suíte web e suíte mobile verdes a cada commit (contagem varia conforme testes
-  foram atualizados junto do que mudou de propósito).
-- `npm run build` do web gerando bundle, e a tela de login conferida por
-  screenshot contra a seção Login do mockup.
-- **`profile-persistence.spec.ts` vai falhar e precisa ser atualizada** (repo
-  Beyou-e2e-tests, fora deste PR): ela semeia `theme: "Sunset"` e afirma que
-  `--primary` fica `#FB923C`. Com o modelo novo, "Sunset" migra para
-  `light:sunset` e o acento passa a ser **`#E45A0B`** — o valor do pack no
-  mockup. A asserção precisa do valor novo; o comportamento testado (tema salvo
-  sobrevive ao reload) continua válido.
-- **Não rodei a suíte e2e** (`Beyou-e2e-tests`): ela precisa da stack completa
-  (backend em perfil e2e + Postgres `beyou_e2e`) subida. É o próximo passo de
-  verificação, e o risco mora nos seletores por texto da navegação.
+- `lib/notify.tsx` is the single shell. The `App`'s `ToastContainer` receives
+  `icon={ToastTypeIcon}` and `closeButton={ToastCloseButton}`, so **the old `toast.*` calls
+  inherit the new design without migrating call by call**; `notify.*` exists for when there is an
+  entity icon or a subtitle.
+- Position: `top-right` on desktop and `top-center` on a phone (`useIsDesktop`), at most
+  `limit={3}`. `closeOnClick` is gone: with an explicit ×, closing by accident while trying to
+  read is worse than one extra click.
+- The dashboard's check-in started sending **the habit's own icon** with its name in the title
+  and the motivational phrase in the subtitle. It used to be a generic green check with the
+  phrase loose, and the position changed through a hand-written media query.
+- CSS: `react-toastify` v11 extends through its own tokens (`--toastify-toast-width`,
+  `-padding`, `-bd-radius`, `-shadow`), so the block in `index.css` sets the variables on the
+  container instead of duelling over specificity. Two exceptions need two classes:
+  `.Toastify__toast.beyou-toast` for the background (its light theme paints white and comes later
+  in the cascade) and the `@media (max-width: 480px)` block, which turned the notification into a
+  strip glued to the top with square corners.
+- The timer: 2px, no track (`--wrp` with a height of 2px and an invisible `--bg`), in the tone's
+  colour.
+
+### Celebration
+
+- The 96px bubble with "LV 3" inside became **the system ring, filled, with the level number in
+  the centre** — the same piece as the check-in and the brand. A streak milestone uses the same
+  ring with the flame and the day count.
+- It gained "Continue". The automatic close at 4s stays: the button is a way out, not the only
+  one.
+
+## A dismissable invitation and the phone bar (2026-08-07)
+
+- **The widgets invitation closes for good**: `useDismissed(key)` keeps the dismissal in
+  `localStorage` under `beyou-dismissed:<key>`. A screen preference is not account data — it is
+  not worth a round trip to the backend, and `perfil` is not even persisted. The × lives in
+  `EmptyState` (`onDismiss`), so any other invitation can use it.
+- **"More" stopped covering the shortcuts**: the panel and the bar share the same fixed
+  container, stacked; the scrim sits behind both. The bar is the orientation for where you are,
+  and having it vanish along was disorienting. It arrived with a handle at the top, the icon in a
+  tile and the trigger toggling (and lit while open).
+- **A taller Assistant**: `-mt-6` → `-mt-8`, with a blurred halo behind it. It is the only target
+  on the bar that is not navigation, and the drawing has to say so.
+- **Not followed from the mockup**: the sheet's "Profile" tile. The web has no profile route — it
+  is a section of the configuration. It would land as a dead link.
+
+## Expo: carrying the redesign to mobile (2026-08-07)
+
+The native app had only the redesign's foundation (tokens, typography, brand, primitives,
+authentication and the shell). The screens were still from the previous model. This round took
+the web's design to them, screen by screen.
+
+### What changed as a rule, not just as pixels
+
+- **Hover does not exist on touch.** Where the web reveals edit/delete on hover, mobile leaves
+  them ALWAYS visible — which is what the web itself does below `md`. It holds for habit, task,
+  category and goal.
+- **The native Alert left every deletion.** It carries no theme, no typography and not the item's
+  name, and the button order belongs to the platform. Mobile's `DeleteModal` is the same design as
+  the web's. Only the "day already scheduled" Alert in `ScheduleSheet` remains, and that is not a
+  deletion.
+- **The bottom bar cannot vanish.** The "More" panel was a `Modal` — another window, which
+  covered the shortcuts. It is now a sibling of the bar, anchored at `bottom: '100%'`, with the
+  scrim behind both.
+- **Local persistence uses `expo-secure-store`.** The same call as `viewFiltersStore`: it is the
+  native dependency already installed, and bringing in AsyncStorage would force a rebuild. It
+  holds for the dismissed widgets invitation and for the per-day collapsed sections. Since the
+  read is asynchronous, `useDismissed` starts DISMISSED and only opens up after reading — the
+  other way round, a dismissed invitation would blink on every launch.
+- **No blur in RN.** The assistant's halo is two translucent discs.
+- **No `<select>`.** `SelectField` is a control with the inputs' shell that opens a sheet — more
+  comfortable than a wheel picker over a list of thirteen sort options.
+
+### New pieces on the native side
+
+`EmptyState`, `DeleteModal`, `SelectField`, `ListToolbar`, `AttributeChip`, `BeyouToast` (+ the
+host that reads the inset from inside SafeAreaProvider), `form/FormModal`, `form/FormField`,
+`ProfileHeaderRow`, `useDismissed`, `lib/dismissedStore`, `lib/collapsedSections`,
+`ui/sortOptions` and the copy of `routineMetrics`.
+
+`routineMetrics` is a literal copy of the web's: pure logic over the shared types, living in both
+apps until somebody moves it into a package. Touch one, touch the other.
+
+### What was left out
+
+- The "Profile" tile in the "More" sheet (neither web nor mobile has a profile route — it is a
+  section of the configuration).
+- `RoutineBuilder` and `SectionCard` are still in the previous design; only the section's item
+  picker was aligned.
+- The admin feedback console does not exist on mobile.
+
+## Web ⟷ mobile parity, screen by screen (2026-08-08)
+
+A pass comparing the web at 390px (agent-browser) with the app on the emulator, page by page.
+What only showed up once the two sat side by side:
+
+- **The cards' chevron did not render.** `transform: rotate` in the `style` of a
+  `lucide-react-native` icon makes the SVG vanish — `react-native-svg` does not accept the
+  transform there. Where the web rotates a chevron, mobile now SWAPS the icon
+  (`ChevronRight`/`ChevronUp`). It held for configuration, the day's section and the routine card.
+- **This build's Hermes has no `Intl.PluralRules`.** Without it i18next cannot find
+  `_one`/`_other` and falls back to the base key — which in several cases is just the label, so
+  "1 rotina" became "Rotinas". `src/lib/pluralRulesPolyfill.ts` covers both languages (en: one
+  only for 1; pt: one for 0 and 1, as CLDR has it) and is installed before init. Cardinal only:
+  nothing in the app uses ordinal.
+- **`Button` swallowed `className`.** It fell into `...rest` and the spread replaced the computed
+  className, so anyone passing a width lost the background along with it. Silent and easy to
+  repeat; it is now destructured and merged.
+- **A resting action icon is `text-3` in both tones.** The red bin on mobile was shouting; on the
+  web the destructive tone only appears on hover, and here only in the touch's background.
+- **Screens that were still on the old model**: profile (fields with no labels, a centred save),
+  language (the little EN|PT box), routines (four big numbers + a sort pill the web does not have)
+  and the dashboard's header (an avatar + a level ring inside a card). All of them moved to the
+  web's design.
+- **Two things missing on both sides**: goals with no status filter on mobile, and the agent's
+  created-entity card with no equivalent on the web. The card was PORTED TO THE WEB — mobile had
+  already solved what I had noted as unfeasible, deriving the destination from the tool's name
+  instead of the entity's id.
+
+### Differences kept on purpose
+
+- Mobile has a back chevron in the screens' header; the web does not need one (a sidebar on
+  desktop, a bar on a phone).
+- The icon picker is an inline grid on the web and a sheet on mobile — a six-column grid inside a
+  scrollable form is not the touch pattern.
+- The assistant's button went higher on the web (`-mt-8` → `-mt-11`) and lower on native
+  (`top: -18` → `-12`), as requested.
+
+## Mobile colour tokens: the shape matters (2026-08-08)
+
+`bg-success` painted nothing in the native app — the completed goal's bar was left with only its
+track, and the "Completed" chip came out with no background. `bg-flame` and `bg-accent`, in the
+same file and on the same line, painted fine.
+
+The cause was the token's shape in mobile's `tailwind.config.js`: `var(--x)` instead of
+`rgb(var(--x-rgb) / <alpha-value>)`. Without the raw channels Tailwind v3 emits no slash classes,
+and the element is left WITH NO BACKGROUND — which is literally what the comment in `cssVars.ts`
+already warned about, and why `themeToVars` publishes every colour twice. The web already used the
+channel shape; mobile had been left behind.
+
+Mobile's config now mirrors the web's. That fixes, in one go, all 49 slash classes that existed in
+the app (`bg-accent/10`, `bg-danger/10`, `border-border/40`, …) and silently painted nothing.
+
+The lesson for the next colour born here: a new token goes into BOTH configs in the channel shape,
+or its opacity variant dies quietly.
+
+## The dashboard's widgets on native (2026-08-08)
+
+The seven native widgets were still in the old design: a big centred title, a full-width stack,
+and content that matched nothing on the web. They are now a mirror of `baseDiv`: a 12.5px header
+in `text-2` with the icon on the left, `px-[18px] py-4`, and the data below.
+
+What changed per widget:
+
+- **Streak** — the number in mono, "days in a row · best: N" and the last 28 days as a strip in
+  two rows of 14.
+- **Today** (daily progress) — a 108px ring with the percentage and "of the day", and beside it
+  what that means: items completed and **the day's XP** (from `getRoutineStats`, not `perfil.xp`,
+  which is the account's lifetime total).
+- **Better / Worst area** — a coloured tile with the category's icon, the name,
+  `LV n · xp/next XP` in mono and the level's bar (green / flame).
+- **Level** — the thin bar with `xp` and `nextLevelXp` in mono at the ends. No gradient: in RN
+  that would need an svg library just for an 8px ramp.
+- **Fast tips** — a lightbulb tile, the tip, and the footer "tip N of 8".
+- **Life balance** — the same radar as the web (a two-ring mesh, the series in a translucent
+  accent, labels outside with the anchor depending on the side).
+
+And the widgets became a **carousel with page dots**, the way the web does it on a phone: stacked,
+every new widget pushed the routine and the goals further down.
+
+Two details that only showed up on the device:
+
+- The streak strip came out **empty**. A percentage width plus `aspect-square` gives a square no
+  height in RN. The side now comes from the strip's `onLayout` — and is rounded DOWN to the
+  physical pixel, because with a fractional value RN rounds every square up, the row overflows the
+  width and the 14th drops to the line below (it was 13 per row).
+- I tried making the short cards grow to the track's height with `flex-1`; `flex-1` brings
+  `flex-basis: 0%` and, with an auto-height parent, the card collapsed to nothing. It stayed as on
+  the web: the track has the height of the tallest slide (the radar) and the short ones leave a gap
+  below.
+
+The carousel measures the width in `onLayout` instead of using `Dimensions`: the block lives
+inside the dashboard's padding, so the full screen would give a slide that is too wide. That makes
+the measurement mandatory in the test — `DashboardWidgets.test.tsx` fires the `layout` event after
+mounting.
+
+## Authentication on native (2026-08-09)
+
+The five auth screens belonged to another app: big "Login | Register" tabs at the top, a 30px
+greeting, unlabelled 56px fields, fixed-width buttons, an EN|PT picker and the brand at the FOOT
+of the screen.
+
+Now there is `src/ui/auth/AuthShell.tsx`, a mirror of the mobile branch of the web's `AuthShell`:
+the brand at the top (the symbol in the accent, the wordmark in the text colour), a centred 360px
+column anchored to the top, and the one-line footer that leads to the sibling screen. Login,
+register, recovery, reset and verify all went through it.
+
+What came along:
+
+- `Input` gained `label` — the 12.5px label above the field, which is the system's default. On the
+  auth screens the fields use `compact` (42px), as on the web.
+- `src/ui/auth/FormNotice.tsx`, a mirror of the web's. Every screen used to draw its own notice: a
+  double-bordered box on register, a centred 48px icon on recovery, a loose paragraph on login.
+  Same notice, three shapes.
+- The Google button became full width at 44px with the "or" divider above, as on the web — and the
+  divider lives in the button's component, also as on the web.
+- The CTAs became `size="auto" className="w-full"`: full width instead of a fixed 250px.
+
+Three deliberate removals:
+
+- **The Login|Register tabs** (`AuthTabs`) — the web switches screens through a footer link. Two
+  24px tabs at the top pushed the form below the fold.
+- **The language picker** (`LanguageToggle`) — before an account exists the app follows the device
+  (`src/i18n.ts` reads `getLocales()`), as the web follows the browser. Switching language is
+  something a logged-in user does, in Configuration.
+- **`MobileBrand`** at the foot — the brand is the shell's header now.
+
+One conscious departure from the web: on recovery, reset and verify the title DOES show on native,
+even though on the web it is `sr-only` at this width. A browser has an address bar to say where you
+are; the app does not, and "an e-mail field under the logo" does not say what the screen is for.
+Login and register stay title-less, as on the web.
+
+## Routines: the two surfaces meeting in the middle (2026-08-09)
+
+Not every difference between web and native was the web being right. In this pass two screens went
+each way.
+
+**Native followed the web on two:**
+
+- **Schedule** was seven full-width rows, one per day — the week did not fit in a glance and the
+  panel took more than half the screen. It is now the row of seven squares from the web's modal,
+  with the group chips (Mon to Fri / Weekend / Every week) and the actions in the footer. The day
+  another routine already holds is marked on the square itself and gains a row with "Replace day",
+  instead of the system's `Alert.alert`: the decision happens where it is written whose day it is.
+- **Create / edit routine** was a tall card per section with three text links below ("Edit ·
+  Assign habits and tasks (3) · Delete") and the list always open — three sections did not fit on
+  screen. It is now the web's form: Type (segmented, with "As a list" dimmed instead of hidden),
+  Name, and the sections as closed rows with an icon, the name, the pair of time chips, favourite,
+  edit and delete. Open, a section shows its items as pills with × and the invitation "Add habit or
+  task".
+
+  Two differences kept on purpose: the order arrows live INSIDE the open section (in the header
+  they would be five targets on a 390px row, and the header is what needs to match the web's); and
+  the routine's ICON field is gone, because the web never had one and nothing in the interface
+  draws that icon.
+
+  This retired the type-choice screen (`RoutineTypePicker`), which opened creation with two
+  illustrations before the first field.
+
+  The SECTION sheet came along, in the same modal as the web's: a name with the placeholder "Calm
+  morning", the two times side by side, an icon and — on create only — the **"Your favourite
+  sections"** list with a Use button, which was missing entirely on native. The library is every
+  favourited section of ANY routine (the routines slice flattened, the same source as the web), and
+  the copy comes out with a new id on the section and on the groups: carrying the source id over
+  would make an edit write on top of it.
+
+**The web followed native on two** (the native design was better, and the user picked it):
+
+- **The historical view** had three medals (Sections / Completed / Progress), a percentage bar, the
+  date repeated in a chip and a chevron to open it. A lot of frame to say "2 of 10". It is now
+  native's summary strip (Completed · Skipped · XP earned) and one card per section, all open. As a
+  bonus, the list started walking the STRUCTURE and finding each item's check by `originalGroupId`
+  — duplicating a habit across sections with the same name becomes impossible by construction, and
+  an item with no check still shows.
+- **The expanded routine** on the routines page had a section header with a 32px tile and
+  single-line rows, with no time on a phone and no skip. It now uses the same design as the
+  dashboard's routine and native's: a one-line header (a loose icon, a 12.5px name, the time in
+  mono) and the item's row breaking into two on a phone, with the time chip and the skip button.
+  **Skip started existing there** — only the dashboard's routine had it before, and the same item on
+  the routines page had no way out.
+
+## Picking items for a section: both screens on one model (2026-08-09)
+
+Each did half the job. The web let you tick several, but the times only showed up AFTERWARDS, in
+the section's list — fixing one was another trip. Native had the tray with editable times, but the
+item arrived with no time at all, and it still asked for a second tap on an "Add (N)" button.
+
+Now both do the same: **one tap sends the item to the tray with a suggested time, the time can
+still be adjusted there, and only on confirming does the tray become the section.** On the web the
+tray opens with whatever the section already has, so an old item's time can be fixed in the same
+pass.
+
+The time calculation (`suggestSlots`) left the web's component and moved to
+`packages/state/src/routine/suggestSlots.ts` — both screens use the same one.
+
+One rule changed along with it: splitting what is left of the window only makes sense when you
+know HOW MANY items arrive at once. Picking one at a time, dividing by 1 gave the whole window to
+the first and left zero for the next. A single item now takes the default 15-minute slice, capped
+at what remains; the equal split still holds for `count > 1`.
+
+### What you pick no longer gets lost
+
+After the model changed, the worst kind of bug showed up: add five items, leave, and nothing
+happened. Two causes, both fixed:
+
+- The sheet's panel did not shrink (only the middle had `flexShrink`), so it sat at the content's
+  size and the footer — with the done button — dropped OFF screen. Nobody presses a button they
+  cannot see.
+- Closing through the backdrop or the system back discarded everything. Closing now SAVES: what
+  you pick there only touches the routine's working copy, and what really writes is the routine's
+  button — discarding in silence was just a trap. The sheet's "Cancel" goes with it: there was
+  nothing to cancel.
+
+On the web the tray's row also stacked (name on top, times below, as on native): on a single row,
+name + two time fields + remove did not fit the modal's 448px and the name was left with one
+letter.
+
+### One cap per sheet
+
+Putting the 85% cap on the `KeyboardAvoidingView` made the percentages start counting — and then
+the `max-h-[70%]` that `SelectField` was still passing to the panel became 70% OF 85%: the options
+sheet shrank, detached from the bottom and showed the screen behind it. `maxHeight` left
+`BottomSheet`; there is one cap now, the container's, for every sheet.
+
+Along with it: the options list grows by default (`flexGrow: 1` is factory-set on `ScrollView`), so
+the sheet stretched to the cap even with four options and left a white gap below the last one. It
+shrinks now — the sheet has the options' height, and only scrolls when they do not fit.
+
+## Two finishing fixes (2026-08-09)
+
+- **A duplicate chevron on the web's routine card.** On a phone the actions row only appears with
+  the card open — and that is exactly when the title's chevron is visible too. Two buttons, one
+  function, one below the other. The row's became `hidden md:flex`; on desktop, where the row is
+  always in view and the title's is gone, it is still the only one.
+- **A misaligned section chevron (web and native).** It lived inside the name's column, so it stuck
+  to the first line while the star, pencil and bin centred on the two-line block (name + time
+  chips). It moved out into the row, where `items-center` centres it along with the rest.
+- **The section sheet asking for a scroll to find Save.** The footer left the scroller and the
+  favourites list got a cap of its own (three rows). And the panel's 85% cap moved to the
+  `KeyboardAvoidingView`: a percentage only resolves against a parent with a definite height, and
+  the view sized itself by its content — the panel's `max-h-[85%]` counted for nothing, and the
+  middle shrank when it did not need to.
+
+## Configuration: widgets and the theme's sentence (2026-08-09)
+
+Native's widget picker was the last Configuration section outside the web's design: rows of plain
+names with three loose controls on the right, and a Save button at the end. It is now the web's
+list — position in mono, the widget's icon, the name, and the × to remove; the ones left over
+become "+ name" chips. **And every change persists by itself**: Save no longer exists, same as the
+web.
+
+The web's drag handle is still a pair of arrows here (dragging does not exist on native, see
+AGENTS.md), and because of that the help text got a key of its own (`WidgetsHintMobile`) — the
+web's talks about dragging by the handle.
+
+Elsewhere, the `ThemeHint` caption ("Two bases made with care…") left the theme picker on both
+screens, and the key with it.
+
+## The native app's launch (2026-08-09)
+
+Before the first frame the Expo placeholder appeared — a grey grid with concentric circles,
+stretched as `windowBackground`. `app.json` had no splash configured at all, so prebuild generated
+the default.
+
+The splash is now the brand, centred, over the theme's background: `#F5F7FA` in light and
+`#0E1218` in dark (the system's — the user's theme only arrives after the profile).
+
+The MARK only, no wordmark: on Android 12+ the splash icon is masked into a circle, and a vertical
+lockup would be cut through the middle of the word. The mark is already a circle and lands
+perfectly in the mask.
+
+And the splash now HOLDS until the typography loads (`preventAutoHideAsync` + `hideAsync`). It used
+to leave as soon as the RN view mounted and three screens appeared at launch: mark → white with a
+spinner → app. The font gate also paints the splash's own tone instead of returning `null`, which
+left a black frame in the middle.
+
+## Verification done
+
+- `npx tsc --noEmit` clean on both apps.
+- The web suite and the mobile suite green on every commit (the counts vary as tests were updated
+  alongside deliberate changes).
+- The web's `npm run build` producing a bundle, and the login screen checked by screenshot against
+  the mockup's Login section.
+- **`profile-persistence.spec.ts` will fail and needs updating** (Beyou-e2e-tests repo, outside
+  this PR): it seeds `theme: "Sunset"` and asserts `--primary` becomes `#FB923C`. Under the new
+  model, "Sunset" migrates to `light:sunset` and the accent becomes **`#E45A0B`** — the pack's value
+  in the mockup. The assertion needs the new value; the behaviour under test (a saved theme survives
+  a reload) is still valid.
+- **I did not run the e2e suite** (`Beyou-e2e-tests`): it needs the full stack up (the backend on
+  the e2e profile + the `beyou_e2e` Postgres). That is the next verification step, and the risk sits
+  in navigation's by-text selectors.
