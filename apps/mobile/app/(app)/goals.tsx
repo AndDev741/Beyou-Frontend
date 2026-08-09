@@ -55,8 +55,8 @@ export default function GoalsScreen() {
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
 
-  // Só as categorias que ALGUM item usa: um filtro cheio de opções que não
-  // devolvem nada é ruído.
+  // Only the categories SOME item uses: a filter full of options that return
+  // nothing is noise.
   const categoriesInUse = useMemo(
     () => categories.filter((category) => goals.some((item) => Object.keys(item.categories ?? {}).includes(category.id))),
     [categories, goals],
@@ -118,8 +118,8 @@ export default function GoalsScreen() {
   }, [load]);
 
   /**
-   * O dashboard manda para cá com `expand=<id>`: a lista rola até a meta e a
-   * destaca. Sem isso a pessoa cai numa lista e tem de procurar a meta que
+   * The dashboard sends you here with `expand=<id>`: the list scrolls to the goal
+   * and highlights it. Without that you land in a list and have to hunt for the
    * acabou de tocar.
    */
   useEffect(() => {
@@ -133,8 +133,8 @@ export default function GoalsScreen() {
     return () => clearTimeout(timer);
   }, [expand, loading, visibleItems]);
 
-  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
-  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  // Delete uses the system's own modal: the native Alert carries no theme, no
+  // typography and no item name, and brings the OS button order.
   const [deleteTarget, setDeleteTarget] = useState<goal | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -195,8 +195,8 @@ export default function GoalsScreen() {
           data={visibleItems}
           keyExtractor={(item) => item.id}
           onScrollToIndexFailed={({ index }) => {
-            // A lista ainda não mediu esse item (janela de render). Vai até o
-            // fim e tenta de novo — sem isto o scroll simplesmente não acontece
+            // The list has not measured that item yet (render window). Go to the
+            // end and try again — without this the scroll simply never happens
             // para metas fora da primeira janela.
             listRef.current?.scrollToEnd({ animated: false });
             setTimeout(() => listRef.current?.scrollToIndex({ index, viewPosition: 0.5 }), 80);

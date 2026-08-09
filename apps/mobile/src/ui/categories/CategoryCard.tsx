@@ -15,7 +15,7 @@ interface CategoryCardProps {
   category: category;
   onEdit: (category: category) => void;
   onDelete: (category: category) => void;
-  /** Alvo do tutorial — só o primeiro cartão recebe (`category-first`). */
+  /** Tutorial target — only the first card gets one (`category-first`). */
   viewRef?: RefObject<View | null>;
 }
 
@@ -26,12 +26,12 @@ const namesOf = (source?: Record<string, string> | Map<string, string>): string[
 };
 
 /**
- * Cartão de categoria — o compacto do mockup, espelho do `categoryBox`.
- * Fechado mostra ícone, nome, ações, descrição e a barra de XP; expandir
- * revela onde a categoria é usada (hábitos, tarefas, metas).
+ * Category card — the mockup's compact one, mirror of `categoryBox`. Closed it
+ * shows icon, name, actions, description and the XP bar; expanding reveals where
+ * the category is used (habits, tasks, goals).
  *
- * Editar e excluir ficam à esquerda do chevron. Na web aparecem no hover; aqui
- * ficam sempre visíveis, como na própria web abaixo de `md`.
+ * Edit and delete sit left of the chevron. On the web they appear on hover; here
+ * they are always visible, as the web itself does below `md`.
  */
 export default function CategoryCard({ category, onEdit, onDelete, viewRef }: CategoryCardProps) {
   const { t } = useTranslation();
@@ -77,7 +77,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
         >
           <Trash2 size={15} color={theme.text3} />
         </IconButton>
-        {/* O chevron fica sempre visível — é o que avisa que o cartão expande
+        {/* The chevron is always visible — it is what says the card expands
             para mostrar onde a categoria é usada. */}
         <IconButton
           label={expanded ? t('Collapse') : t('Expand')}
@@ -124,7 +124,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
         )
       ) : null}
 
-      {/* Categoria acumula o XP dos hábitos: nível e progresso, sem sequência. */}
+      {/* A category accumulates its habits' XP: level and progress, no streak. */}
       <View className="mt-3">
         <View className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
           <View className="h-full rounded-full bg-accent" style={{ width: `${xpPct}%` }} />

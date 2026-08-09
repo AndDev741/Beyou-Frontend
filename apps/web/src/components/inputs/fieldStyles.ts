@@ -1,17 +1,17 @@
 /**
- * A gramática de campo do sistema, em um lugar só: rótulo em cima, foco com
- * borda de acento + halo suave, erro com borda de perigo e mensagem embaixo.
+ * The system's field grammar, in one place: label on top, accent border plus a
+ * soft halo on focus, danger border with the message below on error.
  *
- * Antes cada input carregava sua própria cópia de `borderCss/labelCss/errorCss`
- * — e elas já tinham divergido (rótulo `text-2xl` em um, `text-xl` em outro,
- * altura 50px brigando com 40px no mesmo elemento).
+ * Every input used to carry its own copy of `borderCss/labelCss/errorCss` — and
+ * they had already drifted (a `text-2xl` label in one, `text-xl` in another, a
+ * 50px height fighting 40px on the same element).
  *
- * Nota: modificador de opacidade (`ring-accent/25`) NÃO gera CSS aqui — os
- * tokens são `var(--x)` sem `<alpha-value>`, então o halo usa o token
- * `accent-soft`, que já é a versão translúcida do acento.
+ * Note: an opacity modifier (`ring-accent/25`) does NOT emit CSS here — the tokens
+ * are `var(--x)` without `<alpha-value>`, so the halo uses the `accent-soft`
+ * token, which already is the translucent accent.
  */
 
-/** Largura herdada do layout atual dos formulários. Mudar aqui reflui todos. */
+/** Width inherited from the current form layout. Change here, every form follows. */
 export const FIELD_WIDTH = "w-[45vw] md:w-[320px] lg:w-[15rem]";
 
 export const FIELD_LABEL = "mb-1 text-sm font-semibold text-text";
@@ -21,7 +21,7 @@ export const FIELD_ERROR = "mt-1 break-words whitespace-normal text-sm leading-s
 const FIELD_BASE =
     "rounded-control border bg-surface text-base text-text placeholder:text-text-3 outline-none transition-colors duration-200 focus:ring-4 focus:ring-accent-soft";
 
-/** Borda: acento no foco, perigo quando há erro. */
+/** Border: accent on focus, danger when there is an error. */
 export function fieldControl(hasError: boolean): string {
     return `${FIELD_BASE} ${hasError ? "border-danger" : "border-border focus:border-accent"}`;
 }

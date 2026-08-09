@@ -32,7 +32,7 @@ const WEEKDAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 // Parse at noon so the local weekday + day-number match the ISO date (no tz day-shift).
 const dateAtNoon = (dateStr: string) => new Date(`${dateStr}T12:00:00`);
 
-/** Largura de uma caixa de dia + gap, e o espaço do botão de calendário. */
+/** Width of a day box plus the gap, and the room the calendar button takes. */
 const DAY_BOX = 40 + 6;
 const CALENDAR_SLOT = 52 + 6;
 
@@ -41,7 +41,7 @@ export default function RoutinesOverview({
   action,
 }: {
   routines: Routine[];
-  /** Ação primária da página (criar), à direita do título — como na web. */
+  /** The page's primary action (create), right of the title — as on the web. */
   action?: ReactNode;
 }) {
   const { t } = useTranslation();
@@ -54,9 +54,9 @@ export default function RoutinesOverview({
   const [snapshotPairs, setSnapshotPairs] = useState<SnapshotPair[]>([]);
 
   const today = iso(new Date());
-  // Os últimos sete dias terminando HOJE, como na web — hoje é a última caixa.
+  // The last seven days ending TODAY, as on the web — today is the last box.
   const week = useMemo(() => Array.from({ length: 7 }, (_, i) => iso(daysBack(6 - i))), []);
-  // Quantos cabem de fato: sem isto a fileira quebrava em duas linhas em 360px.
+  // How many actually fit: without this the row broke into two lines at 360px.
   const [rowWidth, setRowWidth] = useState(0);
   const visibleDays = rowWidth > 0 ? Math.max(3, Math.min(7, Math.floor((rowWidth - CALENDAR_SLOT) / DAY_BOX))) : 5;
   const chips = week.slice(week.length - visibleDays);
@@ -88,7 +88,7 @@ export default function RoutinesOverview({
 
   const onPick = (e: DateTimePickerEvent, d?: Date) => { setShowPicker(false); if (e.type === 'set' && d) load(iso(d)); };
 
-  // Quantos dias da semana têm alguma rotina agendada.
+  // How many weekdays have any routine scheduled.
   const activeDays = useMemo(() => {
     const days = new Set<string>();
     routines.forEach((routine) => routine.schedule?.days?.forEach((day) => days.add(day)));
@@ -98,7 +98,7 @@ export default function RoutinesOverview({
 
   return (
     <View className="gap-3 px-4 pb-2">
-      {/* Sem cartão: título, contexto e ação ficam direto sobre a página — a
+      {/* No card: title, context and action sit straight on the page — the
           moldura competia com os cartões de rotina logo abaixo. */}
       <View className="flex-row items-center gap-3">
         <View className="min-w-0">
@@ -143,7 +143,7 @@ export default function RoutinesOverview({
                 <Text
                   className={`font-mono text-[9px] font-semibold ${sel ? 'text-on-accent' : 'text-text-3'}`}
                 >
-                  {/* Hoje se anuncia pelo nome, não por um ponto discreto. */}
+                  {/* Today announces itself by name, not by a subtle dot. */}
                   {(date === today ? t('Today') : t(WEEKDAY_KEYS[dateAtNoon(date).getDay()])).toUpperCase()}
                 </Text>
                 <Text
@@ -157,7 +157,7 @@ export default function RoutinesOverview({
           })}
         </View>
 
-        {/* Coluna, não pílula: ocupa a largura de uma caixa de dia. A semana é o
+        {/* A column, not a pill: it takes the width of a day box. The week is the
             caminho normal; o calendário existe para alcançar o histórico. */}
         <Pressable
           onPress={() => setShowPicker(true)}

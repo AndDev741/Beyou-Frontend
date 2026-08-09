@@ -6,10 +6,10 @@ import { checkSnapshotItem, skipSnapshotItem } from '@beyou/api/routine/snapshot
 import { Snapshot, SnapshotCheck, SnapshotStructureSection } from '@beyou/types/routine/snapshot';
 
 /**
- * O cartão do histórico no desenho do nativo: a faixa de resumo em cima e uma
- * ficha por seção, tudo aberto. As medalhas (Seções / Concluído / Progresso), a
- * barra de porcentagem e o chevron saíram — a página já diz, no cabeçalho, que
- * se está olhando o histórico.
+ * The history card in the native design: the summary strip on top and one card
+ * per section, all open. The badges (Sections / Done / Progress), the percentage
+ * bar and the chevron are gone — the page header already says you are looking at
+ * history.
  */
 
 // Mock modules that the component depends on
@@ -90,7 +90,7 @@ const buildSnapshot = (overrides: Partial<Snapshot> = {}): Snapshot => ({
     ...overrides,
 });
 
-/** Duas seções, um item em cada, para os casos de contagem. */
+/** Two sections, one item each, for the counting cases. */
 const twoSections = (checks: SnapshotCheck[]) =>
     buildSnapshot({
         checks,
@@ -140,8 +140,8 @@ describe('SnapshotRoutineCard', () => {
 
         expect(screen.getByText('Completed: 1')).toBeInTheDocument();
         expect(screen.getByText('Skipped: 1')).toBeInTheDocument();
-        // Só o que foi CONCLUÍDO conta XP — pular não paga. O `t()` do setup
-        // devolve a própria chave, então a asserção mira o número.
+        // Only what was COMPLETED counts XP — skipping pays nothing. The setup's
+        // `t()` returns the key itself, so the assertion targets the number.
         expect(screen.getByText(/^30\s/)).toBeInTheDocument();
     });
 
@@ -192,7 +192,7 @@ describe('SnapshotRoutineCard', () => {
         expect(screen.getByRole('button', { name: 'Undo skip' })).toBeInTheDocument();
     });
 
-    /** Item concluído não tem o que pular. */
+    /** A completed item has nothing to skip. */
     it('hides the skip button once the item is done', () => {
         const snapshot = buildSnapshot({ checks: [buildCheck({ checked: true })] });
 
@@ -201,7 +201,7 @@ describe('SnapshotRoutineCard', () => {
         expect(screen.queryByRole('button', { name: /skip/i })).not.toBeInTheDocument();
     });
 
-    /** Item da estrutura sem check ainda aparece — só não tem controles. */
+    /** A structure item with no check still shows — it just has no controls. */
     it('lists a structure item that has no check', () => {
         const snapshot = buildSnapshot({ checks: [] });
 

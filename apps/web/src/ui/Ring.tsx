@@ -5,22 +5,23 @@ export type RingState = "todo" | "done" | "skipped" | "progress";
 type RingProps = {
     /** Lado em px. */
     size?: number;
-    /** 0..1 — só usado quando `state` é "progress". */
+    /** 0..1 — only used when `state` is "progress". */
     progress?: number;
     state?: RingState;
-    /** Rótulo central (nível, porcentagem). Ignorado quando há check. */
+    /** Centre label (level, percentage). Ignored when a check is drawn. */
     label?: string;
     className?: string;
     title?: string;
 };
 
 /**
- * O anel do sistema: check-in, nível, progresso do dia e logo são a MESMA peça.
- * Se divergirem, a assinatura da marca quebra (ver `BrandMark`, que usa a mesma
+ * The system's ring: check-in, level, day progress and the logo are the SAME
+ * piece. If they drift apart the brand signature breaks (see `BrandMark`, which
+ * uses the same
  * geometria com a abertura no nordeste).
  *
- * O traço acompanha o tamanho — um anel de 20px com traço fixo de 3 vira uma
- * bolha; um de 96 com o mesmo traço vira um fio.
+ * The stroke follows the size — a 20px ring with a fixed stroke of 3 turns into a
+ * blob; a 96px one with the same stroke turns into a thread.
  */
 export default function Ring({
     size = 24,
@@ -80,8 +81,8 @@ export default function Ring({
                 />
             )}
             {state === "skipped" && (
-                // Contraste conferido nos dois temas: borda em text-3 e ícone em
-                // text-2 (no mockup v1.18 o ícone sumia no escuro).
+                // Contrast checked in both themes: border in text-3 and icon in
+                // text-2 (in mockup v1.18 the icon vanished in the dark).
                 <X
                     size={Math.round(size * 0.44)}
                     strokeWidth={3}

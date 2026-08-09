@@ -21,20 +21,19 @@ type SnapshotRoutineCardProps = {
     routineId: string;
 };
 
-/** Itens sem horário vão para o fim. */
+/** Items with no time go last. */
 const byStart = (
     a: { startTime: string | null; name: string },
     b: { startTime: string | null; name: string },
 ) => (a.startTime || "~~~~~").localeCompare(b.startTime || "~~~~~") || a.name.localeCompare(b.name);
 
 /**
- * Um dia passado, no desenho do nativo: a faixa de resumo em cima e uma
- * ficha por seção, tudo aberto.
+ * A past day, in the native design: the summary strip on top and one card per
+ * section, all open.
  *
- * O que saiu: as três medalhas (Seções / Concluído / Progresso), a barra de
- * porcentagem, a data repetida em chip e o chevron para abrir. Era muita
- * moldura para dizer "2 de 10" — e a página já diz, no cabeçalho, que se está
- * olhando o histórico.
+ * What left: the three badges (Sections / Done / Progress), the percentage bar,
+ * the date repeated in a chip and the chevron to open. That was a lot of frame to
+ * say "2 of 10" — and the page header already says you are looking at history.
  */
 export const SnapshotRoutineCard = ({ snapshot, routineId }: SnapshotRoutineCardProps) => {
     const { t } = useTranslation();
@@ -132,9 +131,9 @@ type SnapshotSectionProps = {
 const SnapshotSection = ({ section, checks, onCheck, onSkip }: SnapshotSectionProps) => {
     const { t } = useTranslation();
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
-    // Percorre a ESTRUTURA e busca o check de cada item pelo `groupId` — que é
-    // único por posição. Filtrar os checks pelo NOME da seção duplicava hábito
-    // sempre que duas seções se chamavam igual.
+    // Walks the STRUCTURE and finds each item's check by `groupId`, which is
+    // unique per placement. Filtering the checks by section NAME duplicated a
+    // habit whenever two sections shared a name.
     const items = useMemo(() => [...section.items].sort(byStart), [section.items]);
 
     return (

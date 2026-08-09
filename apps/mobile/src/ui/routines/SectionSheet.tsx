@@ -22,7 +22,7 @@ interface SectionSheetProps {
   onClose: () => void;
 }
 
-/** Três linhas de favorita (44px + 6px de vão) antes de a lista rolar. */
+/** Three favourite rows (44px + a 6px gap) before the list starts scrolling. */
 const FAVORITES_MAX_HEIGHT = 150;
 
 const fmt = (s?: string) => (s ? s.slice(0, 5) : '');
@@ -38,8 +38,8 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
   const [endTime, setEndTime] = useState('');
   const [error, setError] = useState<string | undefined>();
 
-  // Toda seção favoritada de QUALQUER rotina — é uma biblioteca, não só as
-  // desta rotina. Mesma fonte da web (a fatia de rotinas, achatada).
+  // Every favourited section from ANY routine — it is a library, not just this
+  // routine's. Same source as the web (the routines slice, flattened).
   const favorites = useMemo(
     () => routines.flatMap((r) => r.routineSections ?? []).filter((s) => s.favorite),
     [routines],
@@ -78,8 +78,8 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
   };
 
   /**
-   * Copia a favorita para dentro desta rotina. Id novo na seção E nos grupos:
-   * carregar o id da seção de origem faria a edição escrever por cima dela.
+   * Copies the favourite into this routine. A fresh id on the section AND on its
+   * groups: carrying the source ids would make an edit write over the original.
    */
   const useFavorite = (favorite: RoutineSection) => {
     onSave({
@@ -106,9 +106,9 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
         </IconButton>
       </View>
 
-      {/* O scroller ENCOLHE (flexShrink) e não leva o rodapé junto: assim o
-          botão de salvar fica sempre à vista e só o miolo rola, e só quando
-          precisa. */}
+      {/* The scroller SHRINKS (flexShrink) and does not take the footer with it:
+          the save button stays in sight, and only the middle scrolls, only when it
+          has to. */}
       <ScrollView
         className="mt-3.5"
         style={{ flexGrow: 0, flexShrink: 1 }}
@@ -134,16 +134,16 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
 
         <IconPickerField label={t('Icon')} value={iconId} onChange={setIconId} testID="section-icon" />
 
-        {/* Seções favoritas viram modelo: reaproveitar uma pronta é o caminho
-            mais rápido para montar a rotina seguinte. Só na criação — editando,
-            trocar a seção por outra não é "editar". */}
+        {/* Favourite sections become templates: reusing a finished one is the
+            fastest way to build the next routine. Creation only — while editing,
+            swapping the section for another is not "editing". */}
         {section == null && favorites.length > 0 ? (
           <View>
             <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
               {t('Your favorite sections')}
             </Text>
-            {/* Três cabem inteiras; da quarta em diante rola aqui dentro, sem
-                empurrar o resto do formulário para fora da tela. */}
+            {/* Three fit whole; from the fourth on it scrolls in here, without
+                pushing the rest of the form off screen. */}
             <ScrollView
               style={{ maxHeight: FAVORITES_MAX_HEIGHT }}
               contentContainerClassName="gap-1.5"

@@ -19,8 +19,8 @@ import { openAgentPanel } from "../agent/agentPanelBus";
 type NavItem = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
 
 // Barra do mobile (lg:hidden). Cinco alvos: Hoje, Rotinas, [Assistente],
-// Hábitos e Mais. O assistente ocupa o centro porque é o ÚNICO acesso ao
-// agente e ele existe em toda página autenticada.
+// Habits and More. The assistant takes the middle because it is the ONLY way
+// into the agent, and it exists on every authenticated page.
 const LEFT: NavItem[] = [
     { key: "NavDashboard", to: "/dashboard", Icon: House },
     { key: "Routines", to: "/routines", Icon: CalendarDays, tutorial: "shortcut-routines" },
@@ -29,8 +29,8 @@ const RIGHT: NavItem[] = [
     { key: "Habits", to: "/habits", Icon: Repeat, tutorial: "shortcut-habits" },
 ];
 
-// Quem saiu da barra continua a um toque, dentro da sheet — com o mesmo rótulo
-// de antes, que é como o e2e encontra estes destinos.
+// What left the bar is still one tap away, inside the sheet — with the same label
+// as before, which is how the e2e suite finds these destinations.
 const SHEET: NavItem[] = [
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
@@ -57,7 +57,7 @@ export default function BottomNav() {
 
     return (
         <>
-            {/* O escurecido fica ABAIXO da barra: abrir o "Mais" não pode apagar
+            {/* The scrim sits BELOW the bar: opening "More" must not black out
                 os atalhos, que são a orientação de onde se está. */}
             {sheetOpen && (
                 <button
@@ -107,11 +107,11 @@ export default function BottomNav() {
                 >
                     {LEFT.map(renderLink)}
 
-                    {/* Sobe um pouco acima dos vizinhos e carrega um halo
-                        discreto: o assistente é o único alvo que não é
-                        navegação. `-translate-y` e não margem negativa — a
-                        margem dentro de uma linha com `items-end` era
-                        reabsorvida pelo alinhamento e o disco não subia. */}
+                    {/* Rises a little above its neighbours and carries a quiet
+                        halo: the assistant is the only target that is not
+                        navigation. `-translate-y` and not a negative margin — a
+                        margin inside a row with `items-end` was reabsorbed by the
+                        alignment and the disc never rose. */}
                     <span className="relative flex h-12 w-12 shrink-0 -translate-y-2.5 items-center justify-center">
                         <span
                             aria-hidden="true"

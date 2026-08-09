@@ -4,30 +4,31 @@ import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
 type EmptyStateProps = {
-    /** Ícone da entidade (Lucide). Nunca emoji: o vazio é parte do sistema. */
+    /** The entity's icon (Lucide). Never an emoji: the empty state is system. */
     icon: ReactNode;
     title: string;
     description?: string;
     actionLabel?: string;
-    /** Rota da CTA. Sem ela, use `onAction`. */
+    /** The CTA's route. Without it, use `onAction`. */
     actionTo?: string;
     onAction?: () => void;
-    /** Ação secundária discreta ("ou peça ao Assistente"). */
+    /** Quiet secondary action ("or ask the Assistant"). */
     secondaryLabel?: string;
     onSecondary?: () => void;
     /**
-     * Busca ou filtro sem resultado: a CTA vira ghost. Não há o que criar —
-     * o caminho é limpar o filtro, não um botão primário chamando atenção.
+     * A search or filter with no result: the CTA turns ghost. There is nothing
+     * to create — the way out is clearing the filter, not a primary button
+     * demanding attention.
      */
     variant?: "default" | "ghost";
-    /** Quando dado, mostra o × que dispensa o convite de vez. */
+    /** When given, shows the × that dismisses the invitation for good. */
     onDismiss?: () => void;
     testId?: string;
 };
 
 /**
- * Um componente, uma regra: IconTile com o ícone da entidade, título curto,
- * uma linha dizendo como preencher e uma única CTA.
+ * One component, one rule: an IconTile with the entity's icon, a short title, one
+ * line saying how to fill it, and a single CTA.
  */
 export default function EmptyState({
     icon,

@@ -25,18 +25,18 @@ function ProtectedRoute({ authState }: Props) {
         return <Navigate to="/" replace />;
     }
     return (
-        // A shell é montada UMA vez para toda rota autenticada: sidebar no
-        // desktop, barra inferior no mobile. As páginas não renderizam mais
-        // cabeçalho próprio, e a bolha de feedback virou item da sidebar —
-        // só o balão do assistente continua flutuando.
+        // The shell mounts ONCE for every authenticated route: sidebar on desktop,
+        // bottom bar on phones. Pages no longer render a header of their own, and
+        // the feedback bubble became a sidebar item — only the assistant's bubble
+        // still floats.
         <div className="flex min-h-screen bg-bg">
             <Sidebar />
             <div className="min-w-0 flex-1">
                 <Outlet />
-                {/* `BottomNav` (mobile) e o balão do assistente (desktop) são
-                    fixed e cobririam o fim da página — no desktop o balão comia
-                    a borda inferior do último cartão. O espaçador mora aqui
-                    junto deles: escrito uma vez, nenhuma página precisa saber
+                {/* `BottomNav` (phones) and the assistant's bubble (desktop) are
+                    fixed and would cover the end of the page — on desktop the
+                    bubble ate the last card's bottom border. The spacer lives here
+                    with them: written once, so no page needs to know
                     que existem. */}
                 <div className="h-20 lg:h-24" aria-hidden="true" data-testid="bottom-nav-spacer" />
             </div>

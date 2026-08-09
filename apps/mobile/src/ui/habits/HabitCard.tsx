@@ -19,17 +19,17 @@ interface HabitCardProps {
   habit: habit;
   onEdit: (habit: habit) => void;
   onDelete: (habit: habit) => void;
-  /** Alvo do tutorial — só o primeiro cartão recebe (`habit-first`). */
+  /** Tutorial target — only the first card gets one (`habit-first`). */
   viewRef?: RefObject<View | null>;
 }
 
 /**
- * Cartão de hábito — espelho do `habitBox` da web. Fechado mostra ícone, nome,
- * descrição em duas linhas, categorias e a linha de nível/XP/sequência.
- * Expandir solta o clamp e revela rotinas, frase, atributos e os números.
+ * Habit card — mirror of the web's `habitBox`. Closed it shows icon, name, a
+ * two-line description, categories and the level/XP/streak row. Expanding releases
+ * the clamp and reveals routines, phrase, attributes and the numbers.
  *
- * Editar e excluir ficam no topo, à esquerda do chevron. Na web eles aparecem
- * no hover; aqui não existe hover, então ficam sempre visíveis — a mesma regra
+ * Edit and delete sit at the top, left of the chevron. On the web they appear on
+ * hover; there is no hover here, so they stay visible — the same rule
  * que a web aplica abaixo de `md`.
  */
 export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCardProps) {
@@ -156,10 +156,10 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         </View>
       ) : null}
 
-      {/* A linha que se lê de relance: nível, XP e sequência. */}
+      {/* The row you read at a glance: level, XP and streak. */}
       <View className="mt-3 flex-row items-end gap-3">
         <XpBar className="min-w-0 flex-1" current={habit.xp} target={habit.nextLevelXp} level={habit.level} />
-        {/* Sem sequência não há o que celebrar: uma chama apagada com zero ao
+        {/* With no streak there is nothing to celebrate: a dim flame with a zero
             lado lê como falha, não como estado neutro. */}
         {habit.constance > 0 ? (
           <Chip variant="flame" size="sm" icon={<Flame size={12} color={theme.flame} />}>

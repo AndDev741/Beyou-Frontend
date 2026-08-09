@@ -60,8 +60,8 @@ function EmptyRoutine() {
 }
 
 /**
- * Uma seção do dia. Fechada mostra o essencial — ícone, nome, horário e o XP
- * que ela rendeu; é o suficiente para decidir se vale abrir. Espelha o
+ * One section of the day. Closed it shows the essentials — icon, name, time and
+ * the XP it paid; enough to decide whether to open it. Mirrors the
  * `routineSection` da web.
  */
 function Section({
@@ -110,7 +110,7 @@ function Section({
           className="ml-auto"
           testID={`routine-section-toggle-${sectionId}`}
         >
-          {/* Ícone trocado em vez de rotacionado: rotate no style de um ícone
+          {/* Icon swapped instead of rotated: a rotate in the style of an icon
               lucide some com o SVG (ver ConfigSection). */}
           {collapsed ? (
             <ChevronRight size={16} color={theme.text3} />
@@ -155,8 +155,8 @@ export default function RoutineDay() {
   const today = new Date().toJSON().slice(0, 10);
   const checked = useSelector((s: RootState) => s.perfil.checkedItemsInScheduledRoutine);
   const total = useSelector((s: RootState) => s.perfil.totalItemsInScheduledRoutine);
-  // Recolher a seção economiza espaço no dia; a escolha é salva POR DIA, então
-  // amanhã ela abre como nova.
+  // Collapsing a section buys space back for the day; the choice is saved PER
+  // DAY, so tomorrow it opens fresh.
   const [collapsedIds, setCollapsedIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ export default function RoutineDay() {
           </Text>
         </View>
 
-        {/* O progresso do dia vive no cabeçalho: é o número que responde
+        {/* The day's progress lives in the header: it is the number that answers
             "quanto falta" sem percorrer a lista. */}
         {total > 0 ? (
           <View className="shrink-0 items-end">
@@ -216,8 +216,8 @@ export default function RoutineDay() {
             <View className="mt-1.5 h-1.5 w-[92px] overflow-hidden rounded-full bg-surface-2">
               <View
                 className="h-full rounded-full bg-accent"
-                // O bloco só existe com `total > 0` (linha acima), então aqui
-                // não há divisão por zero a defender.
+                // The block only exists with `total > 0` (line above), so there is
+                // no division by zero to defend against here.
                 style={{ width: `${Math.round((checked / total) * 100)}%` }}
               />
             </View>

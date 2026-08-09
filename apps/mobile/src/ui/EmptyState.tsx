@@ -6,28 +6,29 @@ import { useBeyouTheme } from '../theme/ThemeProvider';
 import IconTile from './IconTile';
 
 interface EmptyStateProps {
-  /** Ícone da entidade (lucide). Nunca emoji: o vazio é parte do sistema. */
+  /** The entity's icon (lucide). Never an emoji: the empty state is system. */
   icon: ReactNode;
   title: string;
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
-  /** Ação secundária discreta ("ou peça ao Assistente"). */
+  /** Quiet secondary action ("or ask the Assistant"). */
   secondaryLabel?: string;
   onSecondary?: () => void;
   /**
-   * Busca ou filtro sem resultado: a CTA vira ghost. Não há o que criar — o
-   * caminho é limpar o filtro, não um botão primário chamando atenção.
+   * A search or filter with no result: the CTA turns ghost. There is nothing to
+   * create — the way out is clearing the filter, not a primary button demanding
+   * attention.
    */
   variant?: 'default' | 'ghost';
-  /** Quando dado, mostra o × que dispensa o convite de vez. */
+  /** When given, shows the × that dismisses the invitation for good. */
   onDismiss?: () => void;
   testID?: string;
 }
 
 /**
- * Espelho do EmptyState da web: IconTile com o ícone da entidade, título curto,
- * uma linha dizendo como preencher e uma única CTA.
+ * Mirror of the web's EmptyState: an IconTile with the entity's icon, a short
+ * title, one line saying how to fill it, and a single CTA.
  */
 export default function EmptyState({
   icon,

@@ -17,7 +17,7 @@ import type { RootState } from '../../store';
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const WEEKEND = ['Saturday', 'Sunday'];
 const ALL = DAYS.map((d) => d.wire);
-// Ordem de exibição: domingo primeiro, igual aos chips do cartão de rotina.
+// Display order: Sunday first, like the chips on the routine card.
 const WEEK_ORDER = [
   'Sunday',
   'Monday',
@@ -35,7 +35,7 @@ interface ScheduleSheetProps {
   onSaved: () => void;
 }
 
-/** Chip de grupo (Seg a Sex / Final de semana / Toda a semana). */
+/** Group chip (Mon-Fri / Weekend / All week). */
 function GroupChip({
   label,
   active,
@@ -65,14 +65,14 @@ function GroupChip({
 }
 
 /**
- * Agendar rotina, no desenho do modal da web: a semana inteira numa fileira de
- * sete quadrados, os chips de grupo abaixo e as ações no pé.
+ * Schedule a routine, in the web modal's design: the whole week in one row of
+ * seven squares, the group chips below and the actions at the foot.
  *
- * Eram sete linhas de largura cheia, uma por dia — a semana não caía numa
- * olhada e o painel passava da metade da tela. O dia que outra rotina já ocupa
- * fica marcado no próprio quadrado e ganha uma linha com "Substituir dia", em
- * vez do `Alert.alert` do sistema (que não carrega tema nem o nome da rotina no
- * mesmo lugar em que a decisão é tomada).
+ * It used to be seven full-width rows, one per day — the week did not land in one
+ * glance and the panel ran past half the screen. A day another routine already
+ * owns is marked on the square itself and gains a row with "Override day",
+ * instead of the system `Alert.alert` (which carries no theme, and not the
+ * routine's name in the place where the decision is made).
  */
 export default function ScheduleSheet({ visible, routine, onClose, onSaved }: ScheduleSheetProps) {
   const { t } = useTranslation();
@@ -174,8 +174,8 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
         </Pressable>
       </View>
 
-      {/* Uma fileira de sete: a semana inteira cabe numa olhada, e o dia já
-          tomado por outra rotina fica marcado no próprio quadrado. */}
+      {/* One row of seven: the whole week lands in a glance, and a day another
+          routine already owns is marked on the square itself. */}
       <View className="mt-3.5 flex-row" style={{ gap: 6 }}>
         {WEEK_ORDER.map((day) => {
           const blocked = isBlocked(day);

@@ -64,8 +64,8 @@ export default function ProfileConfiguration() {
         });
     }, [name, phrase, phrase_author, reset]);
 
-    // Mesma gramática de campo das outras telas: rótulo pequeno em text-2 e
-    // input de 13.5px. Aqui era rótulo de 18px, que gritava mais que o título
+    // Same field grammar as the other screens: small label in text-2 and a
+    // 13.5px input. Here the label was 18px, shouting louder than the title
     // da seção.
     const labelStyle = "mb-1.5 block self-start text-[12.5px] font-semibold text-text-2";
     const inputStyle =
@@ -116,14 +116,14 @@ export default function ProfileConfiguration() {
     const currentPhoto = resolvePhotoUrl(photo);
 
     return (
-        // Sem cartão próprio: quem desenha a moldura é a seção da página. A
-        // foto e o botão ficam numa linha no topo e os campos ocupam a largura
-        // inteira — antes a foto roubava 30% e espremia todos os inputs.
+        // No card of its own: the page section draws the frame. The photo and the
+        // button sit on one row at the top and the fields take the full width —
+        // before this the photo stole 30% and squeezed every input.
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex items-center gap-3.5">
-                {/* O avatar aqui é do desktop: no telefone ele já aparece no
+                {/* This avatar belongs to desktop: on phones it already shows in
                     cabeçalho da caixa, junto do nome e do nível. */}
-                {/* Sem foto o `alt` vazava do círculo ("erfil"); o fallback é a
+                {/* With no photo the `alt` leaked out of the circle; the fallback
                     inicial, como no rodapé da sidebar. */}
                 {currentPhoto ? (
                     <img
@@ -333,12 +333,12 @@ function EditPhoto({
                 <h3 className="text-lg font-semibold text-text mb-4">{t('ChangePhoto')}</h3>
 
                 <div className="flex flex-col items-center gap-4">
-                    {/* Passa pelo whitelist de esquema no PRÓPRIO sink, não só na
-                        origem: o valor chega de uma prop e o CodeQL — com razão —
-                        não enxerga o saneamento lá atrás. `resolvePhotoUrl` é
-                        idempotente (https:, blob: e data:image/ passam intactos),
-                        então isto não muda o comportamento, só torna a defesa
-                        local ao lugar onde ela importa. */}
+                    {/* Runs the scheme whitelist at the SINK itself, not only at
+                        the source: the value arrives as a prop and the analyser —
+                        fairly — cannot see the sanitising behind it.
+                        `resolvePhotoUrl` is idempotent (https:, blob: and
+                        data:image/ pass through), so this changes no behaviour;
+                        it just puts the defence where it matters. */}
                     <img
                         src={resolvePhotoUrl(previewUrl)}
                         alt={t('PhotoPreview')}

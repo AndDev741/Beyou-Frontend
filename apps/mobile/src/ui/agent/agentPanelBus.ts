@@ -1,20 +1,20 @@
 /**
- * O chat do assistente tem dois gatilhos possíveis — o botão central da barra
- * inferior e o balão flutuante do próprio widget — mas o estado de aberto vive
- * no `AgentWidget` (junto da conversa, que não pode se perder). A barra pede a
- * abertura por evento em vez de subir esse estado até o layout.
+ * The assistant chat has two possible triggers — the bottom bar's centre button
+ * and the widget's own floating bubble — but the open state lives in `AgentWidget`
+ * (next to the conversation, which must not be lost). The bar asks for the panel
+ * through an event instead of lifting that state up to the layout.
  *
- * Espelha `apps/web/src/components/agent/agentPanelBus.ts`. Não existe `window`
- * no React Native, então o barramento é um Set de handlers no escopo do módulo
+ * Mirrors `apps/web/src/components/agent/agentPanelBus.ts`. There is no `window`
+ * in React Native, so the bus is a Set of handlers in module scope
  * — mesma API (`openAgentPanel` / `onAgentPanelOpen` devolvendo o unsubscribe).
  */
 type OpenHandler = () => void;
 
 const handlers = new Set<OpenHandler>();
 
-/** Pede a abertura do chat. No-op enquanto ninguém estiver inscrito. */
+/** Asks for the chat to open. A no-op while nobody is subscribed. */
 export const openAgentPanel = (): void => {
-  // Cópia: um handler pode se desinscrever durante a iteração.
+  // Copy: a handler may unsubscribe during the iteration.
   [...handlers].forEach((handler) => handler());
 };
 

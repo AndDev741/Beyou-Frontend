@@ -4,24 +4,24 @@ import Button from './Button';
 
 interface DeleteModalProps {
   visible: boolean;
-  /** Pergunta do título: "Excluir este hábito?" */
+  /** The title question: "Delete this habit?" */
   deletePhrase: string;
   /** Nome do item, citado no corpo. */
   name: string;
   onCancel: () => void;
   onConfirm: () => void;
-  /** Enquanto a chamada está no ar. */
+  /** While the call is in flight. */
   pending?: boolean;
   testID?: string;
 }
 
 /**
- * O desenho do mockup, igual ao da web: pergunta como título à esquerda, o item
- * entre aspas no corpo e as ações à direita — Cancelar (ghost) antes de Excluir
- * (destrutivo), que é a última e mais forte.
+ * The mockup's design, same as the web: the question as a left-aligned title, the
+ * item quoted in the body and the actions on the right — Cancel (ghost) before
+ * Delete (destructive), which is last and strongest.
  *
- * Substitui o `Alert.alert` nativo, que não carrega tema, nem tipografia, nem o
- * nome do item — e vinha com a ordem de botões do sistema, não a nossa.
+ * Replaces the native `Alert.alert`, which carries no theme, no typography and not
+ * the item's name — and came with the OS button order, not ours.
  */
 export default function DeleteModal({
   visible,
