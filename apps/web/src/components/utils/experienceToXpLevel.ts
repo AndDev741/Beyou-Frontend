@@ -22,7 +22,7 @@ export const experienceToXpLevel = (experience: ExperienceInput) => {
 
     switch (Number(experience)) {
         case 1:
-            level += 5
+            level += 5;
             xp += 750;
             break;
         case 2:

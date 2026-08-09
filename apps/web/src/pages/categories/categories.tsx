@@ -248,7 +248,7 @@ function Categories(){
                 </Modal>
             )}
         </div>
-    )
+    );
 }
 
 export default Categories;

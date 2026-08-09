@@ -146,7 +146,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                 return {...sectionItem, favorite: !sectionItem?.favorite}
             })
         )
-    }
+    };
 
     // Função para deletar um item
     const handleDeleteItem = (itemType: 'task' | 'habit', itemIndex: number) => {

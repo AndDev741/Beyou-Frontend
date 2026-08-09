@@ -81,7 +81,7 @@ function DeleteModal<T>({objectId, onDelete, setOnDelete, t, name, setObjects, d
                 if(goalIdInEdit === objectId){
                     dispatch(editGoalMode(false));
                 }
-                break
+                break;
             default:
                 break;
         }

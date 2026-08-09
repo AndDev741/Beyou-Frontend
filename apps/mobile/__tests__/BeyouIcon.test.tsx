@@ -15,7 +15,10 @@ describe('BeyouIcon', () => {
   it('renders nothing for unresolvable ids (legacy react-icons / empty)', async () => {
     const r = await render(<BeyouIcon id="ri:md/MdHome" />);
     expect(r.toJSON()).toBeNull();
-    const empty = await render(<BeyouIcon id="" />);
+    // Via variável: o literal vazio no atributo fazia o CodeQL ler isto como
+    // um `id` de HTML malformado. O caso sob teste é justamente o id vazio.
+    const emptyId = '';
+    const empty = await render(<BeyouIcon id={emptyId} />);
     expect(empty.toJSON()).toBeNull();
   });
 

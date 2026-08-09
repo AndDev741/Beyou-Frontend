@@ -54,7 +54,7 @@ export default function ConstanceConfiguration({
 
         const editUserRequest: EditUser = {
             constanceConfiguration: config
-        }
+        };
 
         const userResponse = await editUser(editUserRequest);
 

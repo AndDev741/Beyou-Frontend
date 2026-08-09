@@ -249,7 +249,7 @@ function Habits(){
                 </Modal>
             )}
         </div>
-    )
+    );
 }
 
 export default Habits;

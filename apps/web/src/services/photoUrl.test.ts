@@ -26,4 +26,15 @@ describe("resolvePhotoUrl", () => {
         expect(resolvePhotoUrl("data:text/html,<script>alert(1)</script>")).toBe("");
         expect(resolvePhotoUrl("vbscript:msgbox(1)")).toBe("");
     });
+
+    it("keeps a data: URL only when it is an image", () => {
+        const png = "data:image/png;base64,iVBORw0KGgo=";
+        expect(resolvePhotoUrl(png)).toBe(png);
+    });
+
+    /** Antes a regex deixava passar qualquer coisa que começasse com o esquema. */
+    it("drops a malformed URL", () => {
+        expect(resolvePhotoUrl("https://")).toBe("");
+        expect(resolvePhotoUrl("http:")).toBe("");
+    });
 });

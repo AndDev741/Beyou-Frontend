@@ -110,7 +110,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         <ThemeContext.Provider value={value}>
             {children}
         </ThemeContext.Provider>
-    )
+    );
 
 }
 

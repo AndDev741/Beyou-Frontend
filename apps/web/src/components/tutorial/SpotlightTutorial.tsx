@@ -201,7 +201,9 @@ export default function SpotlightTutorial({
                 : preferred;
         let top = 0;
         let left = 0;
-        let arrow: TooltipPosition["arrow"] = "top";
+        // Sem valor inicial: o `switch` abaixo tem `default`, então todo caminho
+        // atribui — e o inicializador só escondia isso.
+        let arrow: TooltipPosition["arrow"];
 
         switch (position) {
             case "top":

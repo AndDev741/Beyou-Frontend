@@ -106,7 +106,7 @@ export default function RenderRoutines({
 
     useEffect(() => {
         dispatch(editModeEnter(false));
-    }, [])
+    }, []);
 
     if (isSnapshotMode) {
         if (snapshotList.length > 0) {
