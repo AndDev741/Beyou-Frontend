@@ -656,6 +656,48 @@ O config do mobile agora espelha o da web. Isso conserta de uma vez todas as
 Lição para a próxima cor que nascer: token novo entra nos DOIS configs na forma
 com canais, senão a variante de opacidade morre calada.
 
+## Widgets do dashboard no nativo (2026-08-08)
+
+Os sete widgets nativos ainda eram do desenho antigo: título grande centralizado,
+pilha de largura cheia, e conteúdo que não batia com nada da web. Agora eles são
+o espelho do `baseDiv`: cabeçalho de 12,5px em `text-2` com o ícone à esquerda,
+`px-[18px] py-4`, e o dado abaixo.
+
+O que mudou por widget:
+
+- **Constância** — número em mono, "dias seguidos · melhor: N" e a faixa dos
+  últimos 28 dias em duas fileiras de 14.
+- **Hoje** (progresso diário) — anel de 108px com a porcentagem e "do dia", e ao
+  lado o que ela significa: itens concluídos e **XP do dia** (de
+  `getRoutineStats`, não `perfil.xp`, que é o acumulado da conta).
+- **Melhor / Pior área** — tile colorido com o ícone da categoria, nome,
+  `LV n · xp/next XP` em mono e a barra do nível (verde / chama).
+- **Nível** — a barra fina com `xp` e `nextLevelXp` em mono nas pontas. Sem
+  gradiente: no RN isso pediria uma lib de svg só para o degradê de 8px.
+- **Dicas rápidas** — tile de lâmpada, a dica, e o rodapé "dica N de 8".
+- **Equilíbrio de vida** — o mesmo radar da web (malha de dois anéis, série em
+  acento translúcido, rótulos por fora com âncora dependendo do lado).
+
+E os widgets viraram **carrossel com pontos de página**, como a web faz no
+telefone: empilhados, cada widget novo empurrava a rotina e as metas para baixo.
+
+Dois detalhes que só apareceram no aparelho:
+
+- A faixa de constância saía **vazia**. Largura em porcentagem + `aspect-square`
+  não dá altura ao quadrado no RN. O lado agora vem do `onLayout` da faixa — e
+  arredondado PARA BAIXO no pixel físico, porque com valor fracionário o RN
+  arredonda cada quadrado para cima, a fileira estoura a largura e o 14º cai para
+  a linha de baixo (era 13 por fileira).
+- Tentei fazer os cartões curtos crescerem até a altura do trilho com `flex-1`;
+  `flex-1` traz `flex-basis: 0%` e, com o pai de altura automática, o cartão
+  colapsou para nada. Ficou como na web: o trilho tem a altura do slide mais alto
+  (o radar) e os curtos deixam um vão embaixo.
+
+O carrossel mede a largura no `onLayout` em vez de usar `Dimensions`: o bloco
+vive dentro do padding do dashboard, então a tela inteira daria um slide largo
+demais. Isso torna a medida obrigatória no teste — `DashboardWidgets.test.tsx`
+dispara o evento `layout` depois de montar.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.

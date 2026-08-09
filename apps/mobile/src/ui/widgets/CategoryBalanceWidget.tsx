@@ -1,6 +1,8 @@
 import { View, Text } from 'react-native';
-import Svg, { Polygon, Line, Text as SvgText } from 'react-native-svg';
+import Svg, { Polygon, Text as SvgText } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
+import { ChartPie } from 'lucide-react-native';
+import { withAlpha } from '@beyou/theme';
 import type category from '@beyou/types/category/categoryType';
 import WidgetCard from './WidgetCard';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -10,45 +12,45 @@ export interface CategoryBalanceWidgetProps {
 }
 
 const MIN_CATEGORIES = 3;
-const SVG_SIZE = 240;
-const CENTER = SVG_SIZE / 2;
-// Leave room around the polygon for the point labels.
-const RADIUS = SVG_SIZE / 2 - 44;
+const MAX_AXES = 6;
+const CENTER = 60;
+const RADIUS = 42;
+/** Onde o rótulo fica, em múltiplos do raio. */
+const LABEL_RATIO = 1.3;
 
-/** Normalize a theme color to 6-digit hex so appending an alpha suffix (e.g. "33")
- *  yields a valid #RRGGBBAA — theme colors may already be 8-digit (#RRGGBBAA). */
-function toHex6(color: string): string {
-  if (/^#[0-9a-fA-F]{8}$/.test(color)) return color.slice(0, 7);
-  return color;
-}
-
-/** Vertex on the unit circle for axis `i` of `count`, starting at the top (12 o'clock). */
-function axisPoint(i: number, count: number, magnitude: number): { x: number; y: number } {
-  const angle = (Math.PI * 2 * i) / count - Math.PI / 2;
+/** Ponto do eixo `index` (de `count`) a uma fração `ratio` do raio. */
+function point(index: number, count: number, ratio: number) {
+  const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
   return {
-    x: CENTER + Math.cos(angle) * RADIUS * magnitude,
-    y: CENTER + Math.sin(angle) * RADIUS * magnitude,
+    x: CENTER + Math.cos(angle) * RADIUS * ratio,
+    y: CENTER + Math.sin(angle) * RADIUS * ratio,
   };
 }
 
+const polygon = (count: number, ratio: number) =>
+  Array.from({ length: count }, (_, i) => point(i, count, ratio))
+    .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+    .join(' ');
+
 /**
- * "Life balance" radar — one axis per category, the polygon plots each category's
- * XP scaled to the max XP. Renders the radar only with >= 3 categories (a polygon
- * needs 3 points); otherwise a fallback message. Mirrors the web CategoryBalance
- * widget (which uses chart.js); here it's hand-drawn with react-native-svg.
+ * Equilíbrio de vida: XP por categoria num radar — o mesmo desenho da web, com
+ * a malha de dois anéis, a série em acento translúcido e os rótulos por fora.
+ *
+ * A escala é relativa ao maior XP: o radar mostra EQUILÍBRIO entre áreas, não
+ * valor absoluto.
  */
 export default function CategoryBalanceWidget({ categories }: CategoryBalanceWidgetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
 
-  const cats = categories ?? [];
-  const hasEnough = cats.length >= MIN_CATEGORIES;
+  const axes = (categories ?? []).slice(0, MAX_AXES);
+  const icon = <ChartPie size={14.5} color={theme.text3} />;
 
-  if (!hasEnough) {
+  if (axes.length < MIN_CATEGORIES) {
     return (
-      <WidgetCard title={t('LifeBalance')} bigSize testID="widget-category-balance">
+      <WidgetCard title={t('LifeBalance')} icon={icon} testID="widget-category-balance">
         <Text
-          className="text-text-2 text-center text-sm"
+          className="mt-3 text-center text-[12.5px] text-text-2"
           testID="category-balance-fallback"
         >
           {t('LifeBalanceFallback')}
@@ -57,48 +59,59 @@ export default function CategoryBalanceWidget({ categories }: CategoryBalanceWid
     );
   }
 
-  const maxXp = Math.max(1, ...cats.map((c) => c.xp));
-  const count = cats.length;
-
-  // Outer axis spokes (full magnitude) + the data polygon (xp-scaled magnitude).
-  const axisEnds = cats.map((_, i) => axisPoint(i, count, 1));
-  const dataPoints = cats.map((c, i) => axisPoint(i, count, c.xp / maxXp));
-  const polygonPoints = dataPoints.map((p) => `${p.x},${p.y}`).join(' ');
-  const primary6 = toHex6(theme.primary);
-  const axisColor = `${toHex6(theme.secondary)}33`;
+  const maxXp = Math.max(...axes.map((c) => c.xp), 1);
+  const series = axes
+    .map((c, i) => {
+      const p = point(i, axes.length, Math.max(0.08, c.xp / maxXp));
+      return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+    })
+    .join(' ');
 
   return (
-    <WidgetCard title={t('LifeBalance')} bigSize testID="widget-category-balance">
-      <Svg width={SVG_SIZE} height={SVG_SIZE} testID="category-balance-radar">
-        {/* Axis spokes */}
-        {axisEnds.map((p, i) => (
-          <Line key={`axis-${i}`} x1={CENTER} y1={CENTER} x2={p.x} y2={p.y} stroke={axisColor} strokeWidth={1} />
-        ))}
-        {/* Data polygon */}
-        <Polygon
-          points={polygonPoints}
-          fill={`${primary6}33`}
-          stroke={theme.primary}
-          strokeWidth={2}
-        />
-        {/* Category name labels at the axis ends */}
-        {cats.map((c, i) => {
-          const p = axisPoint(i, count, 1.12);
-          return (
-            <SvgText
-              key={`label-${i}`}
-              x={p.x}
-              y={p.y}
-              fill={theme.secondary}
-              fontSize={10}
-              textAnchor="middle"
-              alignmentBaseline="middle"
-            >
-              {c.name}
-            </SvgText>
-          );
-        })}
-      </Svg>
+    <WidgetCard title={t('LifeBalance')} icon={icon} testID="widget-category-balance">
+      <View className="mt-1.5 items-center">
+        {/* O viewBox tem folga negativa nas laterais e no topo: o polígono ocupa
+            0..120, mas os rótulos crescem para fora dele e eram cortados. */}
+        <Svg
+          width={196}
+          height={150}
+          viewBox="-34 -14 188 148"
+          accessibilityRole="image"
+          accessibilityLabel={t('LifeBalance')}
+          testID="category-balance-radar"
+        >
+          <Polygon points={polygon(axes.length, 1)} fill="none" stroke={theme.border} />
+          <Polygon points={polygon(axes.length, 0.5)} fill="none" stroke={theme.border} />
+          <Polygon
+            points={series}
+            fill={withAlpha(theme.accent, 0.2)}
+            stroke={theme.accent}
+            strokeWidth={1.5}
+          />
+          {axes.map((c, i) => {
+            const label = point(i, axes.length, LABEL_RATIO);
+            // O texto cresce PARA FORA do polígono: à direita começa no ponto,
+            // à esquerda termina nele. Com "middle" fixo, os rótulos laterais
+            // entravam por cima do gráfico.
+            const dx = label.x - CENTER;
+            const anchor = Math.abs(dx) < 6 ? 'middle' : dx > 0 ? 'start' : 'end';
+            return (
+              <SvgText
+                key={c.id}
+                x={label.x}
+                y={label.y}
+                textAnchor={anchor}
+                alignmentBaseline="middle"
+                fill={theme.text3}
+                fontFamily="GeistMono"
+                fontSize={8.5}
+              >
+                {c.name.length > 12 ? `${c.name.slice(0, 11)}…` : c.name}
+              </SvgText>
+            );
+          })}
+        </Svg>
+      </View>
     </WidgetCard>
   );
 }

@@ -1,7 +1,9 @@
 import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { calculateLevelProgress } from '@beyou/state/dashboard/helpers';
+import { Award } from 'lucide-react-native';
 import WidgetCard from './WidgetCard';
+import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 export interface LevelProgressWidgetProps {
   level: number;
@@ -18,26 +20,31 @@ export default function LevelProgressWidget({
   actualLevelXp,
 }: LevelProgressWidgetProps) {
   const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
   const progress = calculateLevelProgress(xp, actualLevelXp, nextLevelXp);
 
   return (
-    <WidgetCard title={t('Your life progress')} testID="widget-level-progress">
-      <Text className="text-accent text-2xl font-bold">LV {level}</Text>
-
+    <WidgetCard
+      title={`${t('Level')} ${level}`}
+      icon={<Award size={14.5} color={theme.text3} />}
+      testID="widget-level-progress"
+    >
       <View
-        className="bg-accent/10 mt-1 h-4 w-full overflow-hidden rounded-full border border-border"
+        className="mt-3 h-2 overflow-hidden rounded-[5px] bg-surface-2"
         testID="level-progress-track"
       >
+        {/* Sem gradiente: o RN não tem `bg-gradient-to-r` sem uma lib de svg
+            para isto. O acento cheio lê igual num bloco de 8px de altura. */}
         <View
-          className="h-full rounded-full bg-accent"
+          className="h-full rounded-[5px] bg-accent"
           style={{ width: `${progress}%` }}
           testID="level-progress-fill"
         />
       </View>
 
-      <View className="mt-1 w-full flex-row items-center justify-between">
-        <Text className="text-text-2 text-xs">{xp} XP</Text>
-        <Text className="text-text-2 text-xs">{nextLevelXp} XP</Text>
+      <View className="mt-[7px] flex-row items-center justify-between">
+        <Text className="font-mono text-[11px] font-medium text-text-3">{`${xp} XP`}</Text>
+        <Text className="font-mono text-[11px] font-medium text-text-3">{nextLevelXp}</Text>
       </View>
     </WidgetCard>
   );

@@ -12,6 +12,7 @@ import { BetterAreaWidget, WorstAreaWidget } from './AreaWidget';
 import FastTipsWidget from './FastTipsWidget';
 import DailyProgressWidget from './DailyProgressWidget';
 import CategoryBalanceWidget from './CategoryBalanceWidget';
+import WidgetCarousel from './WidgetCarousel';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import EmptyState from '../EmptyState';
 import { useDismissed } from '../useDismissed';
@@ -51,10 +52,9 @@ function NoWidgets() {
 }
 
 /**
- * Renders the user's configured dashboard widgets (perfil.widgetsIdsInUse order),
- * stacked full-width. Reads all widget data straight from redux (perfil + the
- * categories slice). Unknown ids are skipped; an empty list shows the NoWidgets
- * CTA. Mirrors the web dashboard widget board, minus the wrap/bigSize layout.
+ * Os widgets configurados (ordem de `perfil.widgetsIdsInUse`), num carrossel de
+ * um por vez — como a web faz no telefone. Todo dado sai do redux (perfil + a
+ * fatia de categorias). Id desconhecido é pulado; lista vazia mostra o convite.
  */
 export default function DashboardWidgets() {
   const widgetsIdsInUse = useSelector((s: RootState) => s.perfil.widgetsIdsInUse);
@@ -91,13 +91,13 @@ export default function DashboardWidgets() {
     return <NoWidgets />;
   }
 
-  return (
-    <View className="w-full gap-3" testID="dashboard-widgets">
-      {widgetsIdsInUse.map((id) => {
-        const render = widgetMap[id as WidgetId];
-        if (!render) return null; // unknown id → skip
-        return <View key={id}>{render()}</View>;
-      })}
-    </View>
-  );
+  const slides = widgetsIdsInUse
+    .map((id) => {
+      const render = widgetMap[id as WidgetId];
+      if (!render) return null; // unknown id → skip
+      return <View key={id}>{render()}</View>;
+    })
+    .filter((slide): slide is React.ReactElement => slide !== null);
+
+  return <WidgetCarousel testID="dashboard-widgets">{slides}</WidgetCarousel>;
 }
