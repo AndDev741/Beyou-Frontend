@@ -113,8 +113,8 @@ describe('RegisterRoute (branded)', () => {
     expect(screen.getByTestId('register-password-input')).toBeTruthy();
     expect(screen.getByTestId('register-submit')).toBeTruthy();
     expect(screen.getByTestId('password-hints')).toBeTruthy();
-    // Wordmark do cabeçalho da AuthShell (literal, não passa por i18n) — a
-    // saudação "Welcome to BeYou" saiu com as abas.
+    // The AuthShell header's wordmark (a literal, it does not go through i18n) — the
+    // "Welcome to BeYou" greeting went out with the tabs.
     expect(screen.getByText('beyou')).toBeTruthy();
     expect(screen.getByTestId('register-to-login')).toBeTruthy();
   });

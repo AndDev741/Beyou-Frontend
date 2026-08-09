@@ -22,9 +22,9 @@ export function resolvePhotoUrl(photo: string): string {
     if (photo.startsWith('/')) return `${API_ORIGIN}${photo}`;
 
     // Parseia de verdade em vez de casar com regex: o parser normaliza a string
-    // e devolve `href` NOVO, então nada do valor original chega ao `src` sem
-    // passar por aqui. Uma URL malformada estoura e cai fora — antes a regex
-    // deixava passar qualquer coisa que começasse com um esquema conhecido.
+    // and returns a NEW `href`, so nothing of the original value reaches `src`
+    // without passing through here. A malformed URL throws and is dropped — the old
+    // regex let through anything that started with a known scheme.
     let url: URL;
     try {
         url = new URL(photo);
@@ -32,7 +32,7 @@ export function resolvePhotoUrl(photo: string): string {
         return '';
     }
 
-    // `data:` só para imagem — `data:text/html` é injeção de HTML com outro nome.
+    // `data:` for images only — `data:text/html` is HTML injection by another name.
     if (url.protocol === 'data:') {
         return url.pathname.startsWith('image/') ? url.href : '';
     }

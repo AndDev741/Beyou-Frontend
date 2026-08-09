@@ -19,8 +19,8 @@ type RenderGoalsProps = {
 function RenderGoals({ goals, emptyTitle, onClearFilters }: RenderGoalsProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  // O dashboard linka para cá com ?goal=<id>: a lista rola até ela e destaca,
-  // senão o usuário cai numa grade e tem de procurar a meta que acabou de tocar.
+  // The dashboard links here with ?goal=<id>: the list scrolls to it and highlights
+  // it, otherwise the user lands in a grid and has to hunt for the goal just tapped.
   const [searchParams] = useSearchParams();
   const focusedId = searchParams.get("goal");
 
@@ -36,7 +36,7 @@ function RenderGoals({ goals, emptyTitle, onClearFilters }: RenderGoalsProps) {
   }, [focusedId, goals]);
 
   return (
-    // 3 colunas no desktop, 1 no mobile — grade escaneável, sem formulário ao lado.
+    // 3 columns on desktop, 1 on mobile — a scannable grid, no side-by-side form.
     <div className="grid grid-cols-1 items-start gap-4 text-text md:grid-cols-2 lg:grid-cols-3">
       {goals.length > 0 ? (
         goals.map((g) => (

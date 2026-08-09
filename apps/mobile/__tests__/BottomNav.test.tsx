@@ -255,9 +255,9 @@ describe('BottomNav active item', () => {
 });
 
 /**
- * O painel do "Mais" cobria a barra quando era um Modal. Agora ele mora acima
- * dela, e os atalhos continuam visíveis e tocáveis — é a barra que responde
- * "onde estou".
+ * The "More" panel covered the bar back when it was a Modal. It now lives above the
+ * bar, and the shortcuts stay visible and tappable — the bar is what answers "where
+ * am I".
  */
 describe('BottomNav "More" panel placement', () => {
   beforeEach(() => {

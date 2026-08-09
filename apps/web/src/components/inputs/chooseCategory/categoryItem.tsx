@@ -13,9 +13,9 @@ type categoryItemProps = {
 }
 
 /**
- * O chip do seletor de categorias (catrow do mockup): ícone + nome em pílula;
- * selecionado fica com o acento suave. É um botão de verdade com estado de
- * checkbox no nome acessível.
+ * The category selector's chip (the mockup's catrow): icon + name in a pill; the
+ * selected one takes the soft accent. It is a real button carrying checkbox state in
+ * its accessible name.
  */
 function CategoryItem({name, iconId, categoryId, categoriesIdList, setCategoriesIdList, chosenCategories, chosenCategoriesId}: categoryItemProps){
     const [alreadyChosen, setAlreadyChosen] = useState(false);

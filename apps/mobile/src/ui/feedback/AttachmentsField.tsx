@@ -59,8 +59,8 @@ export default function AttachmentsField({ images, onChange }: Props) {
         {t('FeedbackImagesLabelOptional')}
       </Text>
 
-      {/* Zona de soltar em vez de um botão: no telefone o toque abre o mesmo
-          seletor, e o alvo grande é mais fácil de acertar que uma pílula. */}
+      {/* A drop zone instead of a button: on a phone the tap opens the same picker,
+          and the big target is easier to hit than a pill. */}
       <Pressable
         onPress={pick}
         accessibilityRole="button"
@@ -71,8 +71,8 @@ export default function AttachmentsField({ images, onChange }: Props) {
         }`}
       >
         <ImageIcon size={18} color={theme.text3} />
-        {/* A web esconde a linha de limites no telefone (`lg:block`): o rótulo
-            curto basta, e os limites reaparecem no erro se algo for rejeitado. */}
+        {/* The web hides the limits line on a phone (`lg:block`): the short label is
+            enough, and the limits come back in the error if something is rejected. */}
         <Text className="text-[12.5px] text-text-2">{t('FeedbackDropzoneMobile')}</Text>
       </Pressable>
 

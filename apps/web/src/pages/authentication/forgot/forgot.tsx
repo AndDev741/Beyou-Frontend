@@ -83,9 +83,9 @@ function ForgotPassword() {
                             )}
                         />
 
-                        {/* O botão some do estado "clicável" enquanto a
-                            requisição corre: sem isso dava para disparar o
-                            e-mail várias vezes sem nenhum sinal de que algo
+                        {/* The button leaves the "clickable" state while the request
+                            is in flight: without that you could fire the e-mail
+                            several times with no sign that anything
                             estava acontecendo. */}
                         <Button
                             text={isSubmitting ? t("Sending") : t("SendResetLink")}

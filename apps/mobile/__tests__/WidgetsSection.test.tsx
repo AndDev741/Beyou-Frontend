@@ -1,8 +1,8 @@
 /**
  * WidgetsSection — o seletor de widgets do dashboard, no desenho da web:
- * posição, ícone, nome e ×; disponíveis como chips. Não há botão Salvar — cada
- * mudança persiste sozinha via editUser + widgetsIdInUseEnter. Fronteira
- * mockada: notify e o HttpClient do @beyou/api.
+ * position, icon, name and ×; the available ones as chips. There is no Save button —
+ * every change persists by itself through editUser + widgetsIdInUseEnter. Boundary
+ * mocked: notify and the @beyou/api HttpClient.
  */
 jest.mock('../src/notify', () => ({
   notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
@@ -67,7 +67,7 @@ describe('WidgetsSection', () => {
     store.dispatch(widgetsIdInUseEnter(['constance', 'fastTips']));
     await renderWith(store);
 
-    // Abrir a seção não grava nada.
+    // Opening the section writes nothing.
     expect(putSpy).not.toHaveBeenCalled();
 
     // Move "constance" down → order becomes [fastTips, constance].

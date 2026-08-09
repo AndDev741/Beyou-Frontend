@@ -121,8 +121,8 @@ export default function ProfileSection() {
   };
 
   return (
-    // Sem cartão próprio: quem desenha a moldura é a seção. O botão da foto fica
-    // no topo e os campos ocupam a largura inteira, como na web.
+    // No card of its own: the section draws the frame. The photo button sits at the
+    // top and the fields take the full width, as on the web.
     <View testID="config-profile">
       <Pressable
         onPress={() => {
@@ -205,8 +205,8 @@ export default function ProfileSection() {
         />
       </FormField>
 
-      {/* O perfil é a ÚNICA seção com botão de salvar; o resto persiste ao
-          escolher. Alinhado à direita, como na web. */}
+      {/* The profile is the ONLY section with a save button; everything else persists
+          on pick. Right-aligned, as on the web. */}
       <View className="mt-[18px] flex-row justify-end">
         <Button
           text={t('SaveProfile')}

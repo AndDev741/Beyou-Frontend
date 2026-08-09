@@ -1,7 +1,7 @@
 /**
- * O vazio compartilhado do mobile — espelho do da web. A regra é uma só:
- * IconTile com o ícone da entidade (nunca emoji), título curto, uma linha
- * dizendo como preencher e uma única CTA. Busca sem resultado usa ghost.
+ * The shared mobile empty state — mirror of the web's. There is one rule: an
+ * IconTile with the entity's icon (never an emoji), a short title, one line saying
+ * how to fill it, and a single CTA. A search with no result uses ghost.
  */
 import { Provider } from 'react-redux';
 import { View } from 'react-native';

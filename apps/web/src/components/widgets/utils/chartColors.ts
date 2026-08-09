@@ -10,15 +10,15 @@ import type { Theme } from "@beyou/theme";
 export const toHex6 = (raw: string): string =>
     raw.replace(/^(#[0-9a-fA-F]{6})[0-9a-fA-F]{2}$/, "$1");
 
-/** #RRGGBB + alpha → rgba(), para preenchimentos translúcidos no canvas. */
+/** #RRGGBB + alpha → rgba(), for translucent fills on the canvas. */
 export const withAlpha = (raw: string, alpha: number): string => {
     const int = parseInt(toHex6(raw).replace("#", ""), 16);
     return `rgba(${(int >> 16) & 255},${(int >> 8) & 255},${int & 255},${alpha})`;
 };
 
 /**
- * Paleta de gráfico do redesign (seção "Widgets restantes" do mockup): melhor
- * área em `success`, pior em `flame` (atenção, não erro), demais séries no
+ * The redesign's chart palette (the mockup's "remaining widgets" section): the best
+ * area in `success`, the worst in `flame` (attention, not error), the other series in
  * acento; grade em `border`, eixos em `text-3`.
  */
 export const chartPalette = (theme: Theme) => ({

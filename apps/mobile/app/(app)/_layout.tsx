@@ -32,9 +32,9 @@ export default function AppLayout() {
             screen can move sideways in one tap, instead of routing back through
             the dashboard first. */}
         <BottomNav />
-        {/* Sem balão flutuante: a barra acima já carrega o botão central do
-            assistente, e ela existe em TODA tela deste grupo. Dois gatilhos
-            para o mesmo painel seriam mobília permanente numa tela pequena —
+        {/* No floating bubble: the bar above already carries the assistant's centre
+            button, and it exists on EVERY screen in this group. Two triggers for the
+            same panel would be permanent furniture on a small screen —
             o widget continua montado aqui porque é ele que guarda a conversa. */}
         <AgentWidget showFab={false} />
       </TutorialOverlayHost>

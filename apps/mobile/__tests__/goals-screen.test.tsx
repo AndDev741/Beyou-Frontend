@@ -75,8 +75,9 @@ describe('GoalsScreen', () => {
 });
 
 /**
- * Vindo do dashboard com `expand=<id>`, a meta abre expandida E destacada — sem
- * isso a pessoa cai numa lista e tem de procurar a que acabou de tocar.
+ * Arriving from the dashboard with `expand=<id>`, the goal opens expanded AND
+ * highlighted — without that you land in a list and have to hunt for the one you just
+ * tapped.
  */
 test('focuses the goal handed over by the dashboard', async () => {
   mockParams = { expand: 'g1' };
@@ -84,7 +85,7 @@ test('focuses the goal handed over by the dashboard', async () => {
   await renderScreen();
   await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
 
-  // Expandida: o status só aparece aberto.
+  // Expanded: the status only shows when open.
   expect(screen.getByText('In Progress')).toBeTruthy();
   mockParams = {};
 });

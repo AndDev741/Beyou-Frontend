@@ -90,15 +90,15 @@ describe("ThemeContext — OS detection, saved preference and legacy migration",
     expect(getByTestId("pack").textContent).toBe("cyber");
   });
 
-  // Os 9 temas antigos foram salvos no backend como string. Ninguém pode ficar
-  // sem tema quando o modo salvo deixa de existir.
+  // The 9 old themes were saved in the backend as a string. Nobody can end up with
+  // no theme when the saved mode stops existing.
   it.each([
     ["beYouDark", "dark", "beyou"],
     ["Cyberpunk", "dark", "cyber"],
     ["Late Latte", "dark", "sunset"], // tema escuro apesar do acento caramelo
     ["Mocha", "light", "sunset"],
     ["Amethyst", "light", "amethyst"],
-    ["um-tema-que-nao-existe-mais", "light", "beyou"], // cai no system + OS claro
+    ["a-theme-that-no-longer-exists", "light", "beyou"], // falls back to system + light OS
   ])("migrates the legacy mode %s", (legacy, base, pack) => {
     setOSPrefersDark(false);
     store.dispatch(themeInUseEnter(themeFromStoredMode(legacy)));

@@ -28,8 +28,8 @@ async function wrap() {
 }
 
 /**
- * O desenho de telefone da web: fechado o cartão fica limpo — nome, contagem,
- * a fileira de dias e UMA barra. Agendar, editar e excluir vêm ao abrir.
+ * The web's phone design: closed, the card stays clean — name, count, the row of
+ * days and ONE bar. Schedule, edit and delete arrive on opening.
  */
 test('keeps the closed card clean, with the week row and a single bar', async () => {
   await wrap();

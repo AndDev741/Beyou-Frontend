@@ -1,7 +1,7 @@
 /**
- * DeleteModal — o desenho do mockup, igual ao da web: a pergunta como título, o
- * item citado no corpo e Cancelar (ghost) antes de Excluir (destrutivo).
- * Substitui o Alert.alert nativo, que não carregava tema nem o nome do item.
+ * DeleteModal — the mockup's design, same as the web's: the question as the title,
+ * the item quoted in the body and Cancel (ghost) before Delete (destructive).
+ * Replaces the native Alert.alert, which carried neither theme nor the item's name.
  */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';

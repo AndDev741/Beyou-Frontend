@@ -106,9 +106,9 @@ function DeleteModal<T>({objectId, onDelete, setOnDelete, t, name, setObjects, d
     }
 
     return(
-        // O desenho do mockup: pergunta como título à esquerda, o item entre
-        // aspas no corpo e as ações à direita — Cancelar (ghost) antes de
-        // Excluir (destrutivo), que é a última e mais forte.
+        // The mockup's design: the question as a left-aligned title, the item in
+        // quotes in the body and the actions on the right — Cancel (ghost) before
+        // Delete (destructive), which comes last and reads strongest.
         <Modal isOpen={onDelete} onClose={handleClose} labelledBy={titleId} className="max-w-md">
             <div className="text-text">
                 <h1 id={titleId} className="text-[15px] font-semibold tracking-[-0.01em] text-text">

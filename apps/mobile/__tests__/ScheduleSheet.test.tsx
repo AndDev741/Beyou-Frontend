@@ -58,8 +58,8 @@ test('a day owned by another routine is blocked until the override is tapped', a
     { id: 'r2', name: 'Evening', iconId: '', routineSections: [], schedule: { id: 'sc2', days: ['Monday'], routine: {} } },
   ]);
 
-  // Tocar no quadrado bloqueado não faz nada — a liberação é explícita, na
-  // linha que diz de quem o dia é.
+  // Tapping a blocked square does nothing — freeing it is explicit, on the row that
+  // says whose day it is.
   await act(async () => { fireEvent.press(screen.getByTestId('day-Monday')); });
   expect(screen.getByTestId('day-Monday').props.accessibilityState.selected).toBe(false);
   expect(screen.getByText(/Evening/)).toBeTruthy();

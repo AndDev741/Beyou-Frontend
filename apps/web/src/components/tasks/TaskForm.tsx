@@ -35,11 +35,11 @@ export type TaskFormMode = "create" | "edit";
 type TaskFormProps = {
     mode: TaskFormMode;
     setTasks: React.Dispatch<React.SetStateAction<task[]>>;
-    /** O formulário vive num modal: fechar é responsabilidade de quem abriu. */
+    /** The form lives in a modal: closing belongs to whoever opened it. */
     onClose?: () => void;
 };
 
-/** id do título — o modal aponta o aria-labelledby para ele. */
+/** The title's id — the modal points aria-labelledby at it. */
 export const TASK_FORM_TITLE_ID = "task-form-title";
 
 type TaskFormValues = {
@@ -203,7 +203,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
 
     return (
         <div className="w-full text-text">
-            {/* Cabeçalho do modal: título + fechar. */}
+            {/* Modal header: title + close. */}
             <div className="flex items-center gap-3">
                 <h2 id={TASK_FORM_TITLE_ID} className="text-base font-semibold tracking-[-0.01em] text-text">
                     {t(mode === "edit" ? "Edit Task" : "Create Task")}
@@ -332,7 +332,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                     />
                 </div>
 
-                {/* Tarefa de única conclusão: sai da lista depois de concluída
+                {/* A one-time task: it leaves the list once completed
                     uma vez — o switch do mockup. */}
                 <div className="mt-4 flex items-center gap-3">
                     <input

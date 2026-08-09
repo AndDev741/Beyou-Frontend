@@ -14,9 +14,9 @@ const MODES: { value: ThemeMode; labelKey: string }[] = [
 ];
 
 /**
- * Aparência = modo (sistema/claro/escuro) + pack de acento, no lugar dos 9
- * temas soltos. As duas escolhas viajam juntas numa string só ("dark:cyber"),
- * que é o que o backend guarda em `themeInUse`.
+ * Appearance = mode (system/light/dark) + accent pack, in place of the 9 loose
+ * themes. Both choices travel together in a single string ("dark:cyber"), which is
+ * what the backend keeps in `themeInUse`.
  */
 export default function ThemeSelector() {
     const { t } = useTranslation();

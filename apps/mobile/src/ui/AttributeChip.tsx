@@ -4,8 +4,8 @@ import Chip from './Chip';
 import { attributeVariant } from './habits/levelLabels';
 
 /**
- * O rótulo vem junto do valor: "Média" sozinho não diz se é importância ou
- * dificuldade. Mesma regra dos cartões da web.
+ * The label rides along with the value: "Medium" alone does not say whether it is
+ * importance or difficulty. Same rule as the web's cards.
  */
 export default function AttributeChip({
   label,

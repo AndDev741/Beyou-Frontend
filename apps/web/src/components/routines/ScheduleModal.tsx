@@ -24,7 +24,7 @@ interface ScheduleModalProps {
 const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const WEEKDAY_GROUP = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const WEEKEND_GROUP = ["Saturday", "Sunday"];
-// Ordem de exibição: domingo primeiro, igual aos chips do cartão de rotina.
+// Display order: Sunday first, same as the routine card's chips.
 const WEEK_ORDER = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 type ScheduleFormValues = {
@@ -139,7 +139,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         onClose();
     };
 
-    // Dias que outra rotina já ocupa e ainda não foram liberados.
+    // Days another routine already holds and that have not been freed yet.
     const blockedDays = WEEK_ORDER.filter((day) => blockedSet.has(day) && !overrides.has(day));
 
     return (
@@ -172,7 +172,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                 </div>
 
                 {/* Uma fileira de sete: a semana inteira cabe numa olhada, e o
-                    dia já tomado por outra rotina fica marcado no próprio
+                    a day already taken by another routine is marked on the
                     quadrado em vez de num aviso separado. */}
                 <div className="mt-3.5 flex gap-1.5">
                     {WEEK_ORDER.map((day) => {

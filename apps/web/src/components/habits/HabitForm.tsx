@@ -35,11 +35,11 @@ export type HabitFormMode = "create" | "edit";
 type HabitFormProps = {
     mode: HabitFormMode;
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>;
-    /** O formulário vive num modal: fechar é responsabilidade de quem abriu. */
+    /** The form lives in a modal: closing belongs to whoever opened it. */
     onClose?: () => void;
 };
 
-/** id do título — o modal aponta o aria-labelledby para ele. */
+/** The title's id — the modal points aria-labelledby at it. */
 export const HABIT_FORM_TITLE_ID = "habit-form-title";
 
 type HabitFormValues = {
@@ -205,7 +205,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
 
     return (
         <div className="text-text">
-            {/* Cabeçalho do modal: título + fechar. */}
+            {/* Modal header: title + close. */}
             <div className="flex items-center gap-3">
                 <h2 id={HABIT_FORM_TITLE_ID} className="text-base font-semibold tracking-[-0.01em] text-text">
                     {t(mode === "edit" ? "EditHabit" : "CreateHabit")}

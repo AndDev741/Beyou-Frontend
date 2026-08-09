@@ -10,9 +10,9 @@ const MODES: { value: ThemeMode; labelKey: string }[] = [
 ];
 
 /**
- * Aparência = modo + pack de acento (espelha o seletor da web). `onSelect`
- * recebe a preferência serializada ("dark:cyber") para o chamador persistir
- * via editUser.
+ * Appearance = mode + accent pack (mirrors the web's selector). `onSelect` receives
+ * the serialized preference ("dark:cyber") for the caller to persist through
+ * editUser.
  */
 export default function ThemeSelector({ onSelect }: { onSelect?: (mode: string) => void }) {
   const { t } = useTranslation();

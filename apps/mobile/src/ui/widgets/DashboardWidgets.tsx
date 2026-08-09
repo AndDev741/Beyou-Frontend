@@ -28,7 +28,7 @@ function pickExtremeCategory(categories: category[], pick: 'more' | 'less'): cat
 }
 
 /**
- * Sem widgets a coluna vira um convite; quem não quiser fecha e ele não volta.
+ * With no widgets the column becomes an invitation; dismiss it and it stays gone.
  * Espelha o EmptyState da web, inclusive o × persistido.
  */
 function NoWidgets() {
@@ -53,8 +53,9 @@ function NoWidgets() {
 
 /**
  * Os widgets configurados (ordem de `perfil.widgetsIdsInUse`), num carrossel de
- * um por vez — como a web faz no telefone. Todo dado sai do redux (perfil + a
- * fatia de categorias). Id desconhecido é pulado; lista vazia mostra o convite.
+ * one at a time — the way the web does it on a phone. Every piece of data comes from
+ * redux (perfil + the categories slice). An unknown id is skipped; an empty list shows
+ * the invitation.
  */
 export default function DashboardWidgets() {
   const widgetsIdsInUse = useSelector((s: RootState) => s.perfil.widgetsIdsInUse);

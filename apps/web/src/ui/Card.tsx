@@ -2,17 +2,17 @@ import type { HTMLAttributes, ReactNode } from "react";
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
     children: ReactNode;
-    /** Reage a hover/foco — para cartões clicáveis de lista. */
+    /** Reacts to hover/focus — for clickable list cards. */
     interactive?: boolean;
-    /** Destaca o cartão com o acento (item selecionado, meta concluída usa `tone`). */
+    /** Highlights the card with the accent (selected item; a done goal uses `tone`). */
     selected?: boolean;
     tone?: "default" | "success";
     padded?: boolean;
 };
 
 /**
- * A superfície do sistema. Substitui o par `bg-surface + border-primary`
- * copiado em cada cartão — o redesign troca contorno azul por superfície.
+ * The system's surface. Replaces the `bg-surface + border-primary` pair copied into
+ * every card — the redesign trades a blue outline for a surface.
  */
 export default function Card({
     children,

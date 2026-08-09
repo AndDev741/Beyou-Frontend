@@ -53,9 +53,9 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
       </View>
 
       {/* A 14-column grid built by hand: `grid-cols-14` does not exist in RN.
-          O lado do quadrado vem da largura MEDIDA — com largura em porcentagem
-          + `aspect-square` os quadrados saíam sem altura e a faixa ficava um
-          vão vazio no cartão. */}
+          The square's side comes from the MEASURED width — with a percentage width
+          plus `aspect-square` the squares came out with no height and the strip was
+          an empty gap in the card. */}
       <View
         className="mt-3 flex-row flex-wrap"
         style={{ gap: GAP }}

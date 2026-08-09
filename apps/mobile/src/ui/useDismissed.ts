@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { loadDismissed, saveDismissed } from '../lib/dismissedStore';
 
 /**
- * Convites que o usuário já recusou não voltam.
+ * Invitations the user has already dismissed do not come back.
  *
- * Diferente da web, o armazenamento aqui é assíncrono — então o estado começa
- * DISPENSADO e só libera depois da leitura. Ao contrário, um convite recusado
+ * Unlike the web, storage here is asynchronous — so the state starts DISMISSED and
+ * only opens up after the read. The other way round, a dismissed invitation
  * piscaria na tela a cada abertura do app.
  */
 export function useDismissed(key: string): [boolean, () => void] {

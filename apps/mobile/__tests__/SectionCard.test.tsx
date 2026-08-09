@@ -1,7 +1,7 @@
 /**
- * A seção dentro do formulário de rotina, no desenho da web: fechada mostra só
- * o cabeçalho (nome, horários, favoritar/editar/excluir); os itens e as setas
- * de ordem vêm ao abrir.
+ * The section inside the routine form, in the web's design: closed it shows only the
+ * header (name, times, favourite/edit/delete); the items and the order arrows arrive
+ * on opening.
  */
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import '../src/i18n';

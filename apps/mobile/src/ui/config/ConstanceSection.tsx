@@ -42,8 +42,8 @@ export default function ConstanceSection({
   const { t } = useTranslation();
   const [selectedMode, setSelectedMode] = useState<ConstanceMode>(initialMode);
 
-  // Salva ao escolher: só o perfil tem botão de salvar. Uma escolha única
-  // não precisa de confirmação — o toast já diz que foi.
+  // Saves on pick: only the profile has a save button. A single choice needs no
+  // confirmation — the toast already says it went through.
   const select = async (mode: ConstanceMode) => {
     setSelectedMode(mode);
     const res = await editUser({ constanceConfiguration: mode });

@@ -1,7 +1,7 @@
 /**
- * CelebrationOverlay — sobe de nível e marco de sequência, lidos da fila
- * compartilhada; nada quando ela está vazia. O nível mora DENTRO do anel do
- * sistema (mesma peça do check-in e da marca), não num badge à parte.
+ * CelebrationOverlay — level-ups and streak milestones, read from the shared queue;
+ * nothing at all when it is empty. The level lives INSIDE the system ring (the same
+ * piece as the check-in and the brand), not in a badge of its own.
  */
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';

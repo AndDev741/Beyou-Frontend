@@ -293,9 +293,9 @@ describe('AgentChatModal shell', () => {
   });
 
   /**
-   * A sheet abre em 92% e fica: o modo tela cheia saiu junto com o botão que o
-   * ligava. Em 86% sobrava uma faixa de fundo sem função e cabia menos
-   * mensagem; 100% perdia a borda que lembra que aquilo é uma sheet.
+   * The sheet opens at 92% and stays: full-screen mode went out with the button
+   * that turned it on. At 86% a useless band of background was left and fewer
+   * messages fit; at 100% it lost the edge that reminds you this is a sheet.
    */
   it('opens as a sheet at a fixed height, with no fullscreen toggle', async () => {
     const { getByTestId, queryByTestId } = await wrap();

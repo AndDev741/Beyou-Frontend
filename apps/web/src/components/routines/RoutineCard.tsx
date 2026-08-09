@@ -151,8 +151,8 @@ export const RoutineCard = ({
                     </div>
 
                     {/* Desktop only: on phones this row exists only with the
-                        cartão aberto, e aí este chevron seria o SEGUNDO — o do
-                        título já está ali em cima fazendo a mesma coisa. */}
+                        card open, and then this chevron would be the SECOND — the
+                        one in the title is already up there doing the same. */}
                     <button
                         type="button"
                         className="hidden rounded-lg p-[7px] text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 md:flex"
@@ -166,8 +166,8 @@ export const RoutineCard = ({
             </header>
 
             {/* The routine's identity in three blocks: when it runs, its level
-                dela e como está hoje. Os quatro cartões de estatística que
-                existiam aqui eram mais interface que informação. */}
+                its level and how today is going. The four stat cards that used to
+                live here were more interface than information. */}
             <div className="mt-3 flex flex-wrap items-start gap-x-6 gap-y-3 md:mt-4 md:gap-y-4">
                 <div className="w-full md:w-auto">
                     <span className="mb-1.5 hidden text-[11px] font-semibold text-text-3 md:block">{t("Days")}</span>
@@ -228,8 +228,8 @@ export const RoutineCard = ({
                     </div>
                 )}
                 {/* Phone: one bar only — the day's progress when the routine
-                    roda nele, senão o nível. Duas barras iguais empilhadas em
-                    tela estreita não diziam qual importava agora. */}
+                    runs on it, otherwise the level. Two identical bars stacked on a
+                    narrow screen never said which one mattered now. */}
                 <div className="w-full md:hidden">
                     <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
                         <div
@@ -430,10 +430,10 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                 </span>
 
                                 {/* On phones the row breaks in two: metadata on
-                                    cima, nome embaixo em largura cheia — igual à
-                                    rotina do dia e ao nativo. `flex-col-reverse`
-                                    inverte só o VISUAL; no DOM o nome vem antes,
-                                    que é o que leitor de tela e e2e leem. */}
+                                    top, name below at full width — same as the day's
+                                    routine and as native. `flex-col-reverse` flips
+                                    only the VISUAL; in the DOM the name comes first,
+                                    which is what the screen reader and e2e read. */}
                                 <div className="flex min-w-0 flex-1 flex-col-reverse gap-1 lg:flex-row lg:items-center lg:gap-3">
                                     <span
                                         className={`line-clamp-2 text-[13.5px] font-medium lg:line-clamp-1 ${

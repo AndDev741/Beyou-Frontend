@@ -53,8 +53,8 @@ test('the + button opens the type picker, then the builder', async () => {
 });
 
 /**
- * A pílula de ordenação saiu: a web não tem ordenação nesta página, e o
- * contexto (quantas rotinas, quantos dias ativos) mora na linha do título.
+ * The sort pill is gone: the web has no sorting on this page, and the context (how
+ * many routines, how many active days) lives on the title's row.
  */
 test('today mode lists the routine card under the title and its context line', async () => {
   setHttp([routine]);

@@ -54,9 +54,9 @@ export default function CategorySelector({ categories, value, onChange, error }:
 
   return (
     <View className="w-full">
-      {/* O rótulo vem do FormField que envolve o seletor. Aqui só ficam os
-          chips — e o convite de nova categoria mora na própria fileira, como
-          no mockup: chip tracejado que abre a criação rápida. */}
+      {/* The label comes from the FormField wrapping the selector. Only the chips
+          live here — and the new-category invitation sits in the row itself, as in
+          the mockup: a dashed chip that opens the quick create. */}
       <View className="flex-row flex-wrap gap-1.5">
         {list.map((cat) => {
           const selected = value.includes(cat.id);

@@ -19,9 +19,9 @@ function RenderCategories({categories, emptyTitle, onClearFilters}: props){
     const {t} = useTranslation();
 
     return(
-        // 3 colunas no desktop, 1 no mobile — grade escaneável, sem formulário ao lado.
-        // items-start: sem isso a fileira estica os cartões vizinhos à altura
-        // do expandido — a row inteira "crescia junto" com quem foi aberto.
+        // 3 columns on desktop, 1 on mobile — a scannable grid, no side-by-side form.
+        // items-start: without it the row stretches the neighbouring cards to the
+        // expanded one's height — the whole row "grew along" with whatever was open.
         <div
             className="grid grid-cols-1 items-start gap-4 text-text md:grid-cols-2 lg:grid-cols-3"
             data-tutorial-id="categories-grid"

@@ -5,14 +5,14 @@ import { useBeyouTheme } from '../theme/ThemeProvider';
 interface BrandMarkProps {
   size?: number;
   withWordmark?: boolean;
-  /** Cor do símbolo; por padrão o acento do tema. */
+  /** The mark's colour; the theme's accent by default. */
   color?: string;
 }
 
 /**
- * Espelho nativo do `BrandMark` da web: anel a 83% com abertura no nordeste e
- * check apontando para ela. Mesmo desenho do check-in e do nível — se
- * divergirem, a assinatura da marca quebra.
+ * The native mirror of the web's `BrandMark`: a ring at 83% with the gap to the
+ * north-east and a check pointing at it. Same drawing as the check-in and the level —
+ * if they drift apart, the brand's signature breaks.
  */
 export default function BrandMark({ size = 32, withWordmark = false, color }: BrandMarkProps) {
   const { theme } = useBeyouTheme();

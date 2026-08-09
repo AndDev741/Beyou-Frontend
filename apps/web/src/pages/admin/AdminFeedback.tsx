@@ -36,7 +36,7 @@ type CountTile = {
     labelKey: string;
 };
 
-/** Ícone por categoria — a lista se lê pelo tipo antes do texto. */
+/** Icon per category — the list reads by type before it reads the text. */
 const CATEGORY_ICONS: Record<string, typeof Bug> = {
     BUG: Bug,
     FEATURE_REQUEST: Lightbulb,
@@ -233,9 +233,9 @@ function AdminFeedback() {
                     <p className="text-sm text-text-2">{t("AdminFeedbackEmpty")}</p>
                 )}
 
-                {/* Lista à esquerda, detalhe à direita: abrir um item não pode
-                    empurrar a lista para fora da tela — quem triagem lê um,
-                    responde e volta para o próximo. No telefone o detalhe
+                {/* List on the left, detail on the right: opening an item must not
+                    push the list off screen — whoever triages reads one, replies and
+                    moves to the next. On a phone the detail
                     aparece embaixo do item escolhido. */}
                 <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
                     <div className="flex flex-col gap-3">

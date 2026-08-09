@@ -13,7 +13,7 @@ describe('themeToVars', () => {
 
   it('keeps emitting the legacy aliases while components migrate', () => {
     const v = themeToVars(defaultLight);
-    // `background` aponta para a SUPERFÍCIE (cartão), não para o fundo da página.
+    // `background` points at the SURFACE (card), not at the page's background.
     expect(v['--background']).toBe(defaultLight.surface);
     expect(v['--primary']).toBe(defaultLight.accent);
     expect(v['--secondary']).toBe(defaultLight.text);
@@ -35,7 +35,7 @@ describe('themeToVars', () => {
 
   it('migrates a legacy saved mode instead of dropping the theme', () => {
     const lateLatte = themeFromStoredMode('Late Latte');
-    // Late Latte era um tema ESCURO (fundo #2c1e1e) com acento caramelo.
+    // Late Latte was a DARK theme (background #2c1e1e) with a caramel accent.
     expect(lateLatte.base).toBe('dark');
     expect(lateLatte.accentPack).toBe('sunset');
   });

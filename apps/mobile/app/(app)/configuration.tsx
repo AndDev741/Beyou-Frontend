@@ -81,8 +81,8 @@ export default function ConfigurationScreen() {
           </View>
         </View>
 
-        {/* A ordem do mockup: perfil, aparência, preferências, widgets e, por
-            último, sair. O e-mail não aparece em lugar nenhum. */}
+        {/* The mockup's order: profile, appearance, preferences, widgets and, last,
+            log out. The e-mail shows up nowhere. */}
         <ConfigSection
           title={t('ConfigSectionProfile')}
           header={<ProfileHeaderRow />}
@@ -128,7 +128,7 @@ export default function ConfigurationScreen() {
           <WidgetsSection />
         </ConfigSection>
 
-        {/* Sair fecha a lista, no tom destrutivo e numa linha só — como na web. */}
+        {/* Log out closes the list, in the destructive tone and on one row — as on the web. */}
         <Pressable
           onPress={() => dispatch(logout())}
           accessibilityRole="button"

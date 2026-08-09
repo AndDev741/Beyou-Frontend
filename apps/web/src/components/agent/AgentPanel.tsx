@@ -544,10 +544,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
                                         <Sparkles size={16} className="text-accent" />
                                     </span>
-                                    {/* Fixed name on top, the thread's subject
-                                        mono embaixo — o título mudava sozinho
-                                        quando o agente renomeava o chat e a
-                                        pessoa perdia a referência de onde está. */}
+                                    {/* Fixed name on top, the thread's subject in
+                                        mono below — the title used to change on its
+                                        own when the agent renamed the chat and you
+                                        lost track of where you were. */}
                                     <div className="min-w-0 flex-1">
                                         <h2 className="truncate text-[15px] font-semibold leading-tight">
                                             {t("AiAssistant")}
@@ -636,9 +636,9 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             </div>
                                             <div className="mt-1 flex flex-wrap justify-center gap-2">
                                                 {/* Only at the start: after the first
-                                                    troca a pessoa já sabe o que
-                                                    pedir, e o atalho vira ruído
-                                                    em cima do input. */}
+                                                    exchange you already know what to
+                                                    ask, and the shortcut turns into
+                                                    noise above the input. */}
                                                 {suggestions.map((suggestion) => (
                                                     <button
                                                         key={suggestion}

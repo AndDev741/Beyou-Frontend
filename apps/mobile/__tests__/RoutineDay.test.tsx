@@ -120,9 +120,9 @@ describe('RoutineDay', () => {
 });
 
 /**
- * Recolher a seção economiza espaço no dia. Fechada, sobra o essencial —
- * ícone, nome, horário e o XP que ela rendeu — e a escolha é salva POR DIA,
- * então amanhã ela abre como nova.
+ * Collapsing a section buys space back for the day. Closed, the essentials remain —
+ * icon, name, time and the XP it paid — and the choice is saved PER DAY, so tomorrow
+ * it opens fresh.
  */
 describe('RoutineDay collapsible sections', () => {
   it('collapses a section and keeps its header readable', async () => {

@@ -1,8 +1,8 @@
 import type { SpotlightStep } from "../SpotlightTutorial";
 
-// O passo do perfil saiu: no dashboard redesenhado ele é só a saudação com a
-// data e a frase — não há cartão de perfil para apontar, e o holofote caía
-// num bloco de texto sem nada a explicar.
+// The profile step is gone: on the redesigned dashboard it is just the greeting with
+// the date and the phrase — there is no profile card to point at, and the spotlight
+// landed on a block of text with nothing to explain.
 export const getDashboardSteps = (): SpotlightStep[] => [
     {
         id: "shortcuts",

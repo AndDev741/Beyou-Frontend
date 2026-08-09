@@ -1,7 +1,7 @@
 /**
- * A resposta de um formulário de autenticação, agora uma só peça. Antes cada
- * tela desenhava a sua: caixa de borda dupla no registro, ícone de 48px na
- * recuperação, parágrafo solto no login.
+ * An auth form's answer, now a single piece. Every screen used to draw its own: a
+ * double-bordered box on register, a 48px icon on recovery, a loose paragraph on
+ * login.
  */
 import { Provider } from 'react-redux';
 import { render, screen, act } from '@testing-library/react-native';
@@ -36,7 +36,7 @@ it('works without a title', async () => {
   expect(screen.getByText('That link is invalid')).toBeTruthy();
 });
 
-/** Erro interrompe o leitor de tela; o resto espera a vez. */
+/** An error interrupts the screen reader; everything else waits its turn. */
 it('announces an error assertively and the other tones politely', async () => {
   await renderIt(<FormNotice tone="error" message="boom" testID="error-notice" />);
   expect(screen.getByTestId('error-notice').props.accessibilityLiveRegion).toBe('assertive');

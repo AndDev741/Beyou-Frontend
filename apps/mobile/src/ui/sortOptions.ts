@@ -1,7 +1,7 @@
 /**
- * As mesmas opções de ordenação das listagens da web, guardadas como
- * `value` + chave de i18n. Ficam num módulo só porque o toolbar de cada tela
- * pede a lista já traduzida — e porque a ordem tem de bater com a web.
+ * The same sort options as the web listings, kept as `value` + i18n key. They live
+ * in a module of their own because each screen's toolbar asks for the list already
+ * translated — and because the order has to match the web.
  */
 export interface SortOptionKey {
   value: string;

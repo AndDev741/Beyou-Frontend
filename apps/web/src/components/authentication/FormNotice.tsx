@@ -24,9 +24,8 @@ const ICONS: Record<Tone, typeof Info> = {
 };
 
 /**
- * A resposta de um formulário de autenticação. Antes cada tela imprimia um
- * parágrafo colorido de 20px no meio do fluxo — sem hierarquia, sem ícone e
- * sem papel de status para leitor de tela.
+ * An auth form's answer. Every screen used to print a coloured 20px paragraph in the
+ * middle of the flow — no hierarchy, no icon and no status role for a screen reader.
  */
 export default function FormNotice({ tone, title, message, className = "" }: FormNoticeProps) {
     const Icon = ICONS[tone];

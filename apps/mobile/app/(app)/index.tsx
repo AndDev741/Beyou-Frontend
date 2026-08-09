@@ -66,9 +66,9 @@ export default function AppHome() {
       <ScrollView
         className="flex-1 bg-bg"
         // O disco do assistente sobe 18px para fora da barra e cobriria a
-        // última linha do conteúdo; o respiro extra devolve esse espaço.
-        // 12 de lado e não 16: a rotina é o conteúdo mais denso da tela e
-        // ganha 8dp de largura útil. É a mesma medida da web no telefone (px-3).
+        // the content's last row; the extra breathing room gives that space back.
+        // 12 at the sides and not 16: the routine is the densest content on screen and
+        // gains 8dp of usable width. Same measure as the web on phones (px-3).
         contentContainerStyle={{
           paddingHorizontal: 12,
           paddingTop: 56,

@@ -1,7 +1,7 @@
 /**
- * A casca das telas de autenticação. Substitui as antigas AuthTabs +
- * MobileBrand: a marca é o cabeçalho, a troca de tela é um link no rodapé, e o
- * título só aparece quando a tela pede (login e registro não pedem).
+ * The shell of the auth screens. Replaces the old AuthTabs + MobileBrand: the brand
+ * is the header, switching screens is a footer link, and the title only shows when
+ * the screen asks for it (login and register do not).
  */
 import { Provider } from 'react-redux';
 import { Text } from 'react-native';

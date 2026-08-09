@@ -25,7 +25,7 @@ function renderProfile() {
     renderWithProviders(<ProfileConfiguration />, { storeOverride });
 }
 
-/** Abre o modal da foto pelo botão "Trocar foto" ao lado do avatar. */
+/** Opens the photo modal through the "Change photo" button next to the avatar. */
 function openPhotoModal() {
     fireEvent.click(screen.getByRole("button", { name: /ChangePhotoShort/i }));
 }
@@ -40,7 +40,7 @@ test("shows Save and Cancel buttons in photo modal", () => {
     renderProfile();
     openPhotoModal();
 
-    // O botão do formulário agora é "SaveProfile"; o "Save" solto é o do modal.
+    // The form's button is now "SaveProfile"; the bare "Save" is the modal's.
     expect(screen.getByText("Save")).toBeInTheDocument();
     expect(screen.getByText("Cancel")).toBeInTheDocument();
 });
@@ -49,7 +49,7 @@ test("Save button in modal is disabled when no file is selected", () => {
     renderProfile();
     openPhotoModal();
 
-    // Só existe um "Save" solto agora: o do modal (o do formulário virou
+    // Only one bare "Save" exists now: the modal's (the form's became
     // "SaveProfile").
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
 });

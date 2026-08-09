@@ -61,8 +61,8 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 </IconTile>
                 <h2 className="min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text line-clamp-1">{name}</h2>
 
-                {/* A tarefa não expande: importância e dificuldade já aparecem
-                    no cartão fechado, e expandir só revelava estas ações. Elas
+                {/* A task does not expand: importance and difficulty already show
+                    on the closed card, and expanding only revealed these actions.
                     sobem para o topo — hover no desktop, sempre no telefone. */}
                 <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                     <IconButton label={t('Edit')} onClick={handleEditMode}>
@@ -93,12 +93,12 @@ function TaskBox({id, iconId, name, description, categories, importance, dificul
                 </div>
             )}
 
-            {/* Tarefa não tem nível: o rodapé do cartão são importância e dificuldade. */}
+            {/* A task has no level: the card's footer is importance and difficulty. */}
             {(importancePhrase || dificultyPhrase) && (
                 <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
                     {importancePhrase && (
                         <Chip size="sm" variant={attributeVariant(importance)}>
-                            {/* O rótulo vem junto: "Média" sozinho não diz se é
+                            {/* The label rides along: "Medium" alone does not say
                                 importância ou dificuldade. */}
                             <span className="font-normal opacity-70">{t('Importance')}</span>
                             <span aria-hidden="true" className="opacity-50">·</span>

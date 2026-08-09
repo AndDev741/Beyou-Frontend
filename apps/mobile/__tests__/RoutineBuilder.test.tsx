@@ -10,8 +10,8 @@ import RoutineBuilder from '../src/ui/routines/RoutineBuilder';
 import { notify } from '../src/notify';
 
 const habits = [{ id: 'h1', name: 'Meditate', iconId: 'lucide:brain' }] as never[];
-// A folha de seção lê as favoritas da fatia de rotinas, então o builder
-// precisa do Provider.
+// The section sheet reads the favourites from the routines slice, so the builder
+// needs the Provider.
 const wrap = (n: React.ReactElement) =>
   render(
     <Provider store={makeStore()}>
@@ -30,7 +30,7 @@ beforeEach(() => {
 
 test('opens straight on the form, with the list type shown but disabled', async () => {
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
-  // Sem tela de escolha: o tipo é um segmentado no topo do próprio formulário.
+  // No chooser screen: the type is a segmented control at the top of the form itself.
   expect(screen.getByTestId('routine-name')).toBeTruthy();
   expect(screen.getByTestId('routine-type-daily').props.accessibilityState.selected).toBe(true);
   expect(screen.getByTestId('routine-type-list').props.accessibilityState.disabled).toBe(true);

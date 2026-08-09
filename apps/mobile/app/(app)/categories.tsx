@@ -85,8 +85,8 @@ export default function CategoriesScreen() {
     };
   }, [load]);
 
-  // Excluir usa o modal do sistema: o Alert nativo não carrega tema, nem
-  // tipografia, nem o nome do item, e traz a ordem de botões do sistema.
+  // Delete uses the system modal: the native Alert carries no theme, no typography
+  // and no item name, and brings the platform's button order.
   const [deleteTarget, setDeleteTarget] = useState<category | null>(null);
   const [deleting, setDeleting] = useState(false);
 

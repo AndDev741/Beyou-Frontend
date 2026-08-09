@@ -28,7 +28,7 @@ type RenderRoutinesProps = {
     selectedDate: string;
     routines?: Routine[];
     onScheduleModalChange?: (isOpen: boolean) => void;
-    /** Abre o formulário de criação a partir do estado vazio. */
+    /** Opens the create form from the empty state. */
     onCreateRoutine?: () => void;
 };
 
@@ -92,8 +92,8 @@ export default function RenderRoutines({
         dispatch(enterRoutines(routinesResponse?.success));
     };
 
-    // Pular existia só na rotina do dashboard; a página de rotinas mostrava o
-    // mesmo item sem saída. Mesma chamada, mesma releitura.
+    // Skip existed only on the dashboard routine; the routines page showed the same
+    // item with no way out. Same call, same refetch.
     const handleSkip = async (payload: itemGroupToSkip) => {
         const response = await skipRoutine(payload, t, selectedDate);
         if (response.error) {
@@ -164,7 +164,7 @@ export default function RenderRoutines({
                 />
             )}
 
-            {/* Excluir usa o mesmo modal das outras entidades — antes a rotina
+            {/* Delete uses the same modal as the other entities — the routine used
                 tinha uma confirmação inline própria dentro do cartão. */}
             {routineToDelete && (
                 <DeleteModal

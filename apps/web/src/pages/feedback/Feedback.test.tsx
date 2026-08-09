@@ -193,9 +193,9 @@ describe("Feedback screen", () => {
             target: { files: [first, second] }
         });
 
-        // Os anexos agora são chips com o nome do arquivo, não miniaturas: a
-        // grade de 96px empurrava o botão de enviar para fora da tela no
-        // telefone com dois ou três prints.
+        // Attachments are chips with the file name now, not thumbnails: the 96px
+        // grid pushed the submit button off screen on a phone with two or three
+        // screenshots.
         const chips = await screen.findAllByText(/screenshot-\d/);
         expect(chips).toHaveLength(2);
         expect(chips[0]).toHaveTextContent("screenshot-1.png");

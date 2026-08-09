@@ -3,7 +3,7 @@ import { View, Pressable, Text } from 'react-native';
 interface Option<T extends string | number> {
   value: T;
   label: string;
-  /** Opção desenhada mas ainda não implementada — aparece apagada, não some. */
+  /** An option that is designed but not implemented yet — shows dimmed, never hidden. */
   disabled?: boolean;
 }
 
@@ -18,8 +18,8 @@ interface SegmentedControlProps<T extends string | number> {
 }
 
 /**
- * Escolha única e curta (importância, dificuldade, experiência, modo). Troca os
- * pickers e as fileiras de botões soltos que cada formulário reinventava.
+ * A short single choice (importance, difficulty, experience, mode). Replaces the
+ * pickers and the loose button rows every form used to reinvent.
  */
 export default function SegmentedControl<T extends string | number>({
   options,

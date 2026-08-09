@@ -10,7 +10,7 @@ import {
   type ThemePreference,
 } from '@beyou/theme';
 
-/** Reexportado por compatibilidade: a fonte do mapa agora é packages/theme. */
+/** Re-exported for compatibility: the map's source is packages/theme now. */
 export { themeToVars };
 
 interface ThemeCtx {
@@ -42,7 +42,7 @@ export function BeyouThemeProvider({
   const [preference, setPreference] = useState<ThemePreference>(() =>
     parseThemePreference(initialMode),
   );
-  // `system` segue o SO em tempo real — o usuário pode trocar sem sair do app.
+  // `system` follows the OS live — the user can switch without leaving the app.
   const prefersDark = useColorScheme() === 'dark';
 
   const theme = useMemo(() => buildTheme(preference, prefersDark), [preference, prefersDark]);

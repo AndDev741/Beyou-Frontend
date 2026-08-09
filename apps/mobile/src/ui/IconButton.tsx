@@ -3,14 +3,14 @@ import { Pressable, type PressableProps } from 'react-native';
 
 interface IconButtonProps extends Omit<PressableProps, 'children'> {
   children: ReactNode;
-  /** Obrigatório: o botão não tem texto visível. */
+  /** Required: the button has no visible text. */
   label: string;
   tone?: 'default' | 'danger';
   className?: string;
   testID?: string;
 }
 
-/** Ação discreta (editar, excluir, fechar). Sempre com rótulo acessível. */
+/** A quiet action (edit, delete, close). Always with an accessible label. */
 export default function IconButton({
   children,
   label,

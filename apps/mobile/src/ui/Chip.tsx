@@ -13,10 +13,10 @@ interface ChipProps {
 }
 
 /**
- * Etiqueta de dado: streak, XP, horário, categoria, status.
+ * A data label: streak, XP, time, category, status.
  *
- * XP e horário são NÚMERO, então vão em mono — é o que mantém a coluna da
- * direita dos itens de rotina alinhada.
+ * XP and time are NUMBERS, so they go in mono — that is what keeps the right-hand
+ * column of the routine items aligned.
  */
 const VARIANTS: Record<ChipVariant, { box: string; text: string }> = {
   neutral: { box: 'bg-surface-2', text: 'text-text-2 font-semibold' },

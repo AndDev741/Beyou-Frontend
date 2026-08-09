@@ -3,8 +3,9 @@ import { useCallback, useState } from "react";
 const STORAGE_PREFIX = "beyou-dismissed:";
 
 /**
- * Convites que o usuário já recusou não voltam. Guardado no localStorage e não
- * no perfil de propósito: é preferência de tela, não dado de conta, e não vale
+ * Invitations the user has already dismissed do not come back. Kept in localStorage
+ * and not in the profile on purpose: it is a screen preference, not account data, and
+ * is not worth
  * uma ida ao backend.
  */
 export function useDismissed(key: string): [boolean, () => void] {
@@ -24,8 +25,8 @@ export function useDismissed(key: string): [boolean, () => void] {
         try {
             window.localStorage.setItem(storageKey, "1");
         } catch {
-            // Sem persistência, o convite volta no próximo carregamento — o
-            // fechamento desta sessão continua valendo.
+            // With no storage the invitation returns on the next load — the dismissal
+            // still holds for this session.
         }
     }, [storageKey]);
 

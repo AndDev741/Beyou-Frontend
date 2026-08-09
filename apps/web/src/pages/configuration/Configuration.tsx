@@ -29,7 +29,7 @@ export default function Configuration() {
     const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
     const currentPhoto = resolvePhotoUrl(photo);
 
-    /** No telefone o perfil é a identidade: avatar, nome e o nível de relance. */
+    /** On a phone the profile is the identity: avatar, name and the level at a glance. */
     const profileHeader = (
         <span className="flex items-center gap-3">
             {currentPhoto ? (
@@ -66,9 +66,9 @@ export default function Configuration() {
                 />
             )}
 
-            {/* Duas colunas no desktop (perfil/widgets/conta à esquerda,
+            {/* Two columns on desktop (profile/widgets/account on the left,
                 aparência/preferências à direita). No telefone `contents` desfaz
-                as colunas e a ordem vira a do mockup: perfil, aparência,
+                the columns collapse and the order becomes the mockup's: profile,
                 preferências, widgets e, por último, sair. */}
             <div className="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start">
                 <div className="contents lg:flex lg:flex-col lg:gap-4">

@@ -1,7 +1,7 @@
 /**
- * ProfileHeader — saudação, data por extenso, frase e a pílula de sequência,
- * lidas da slice de perfil. Sem avatar e sem anel de nível: quem você é já está
- * na configuração e o nível tem widget próprio (mesma decisão da web).
+ * ProfileHeader — greeting, the date spelled out, the phrase and the streak pill,
+ * read from the perfil slice. No avatar and no level ring: who you are already lives
+ * in configuration and the level has a widget of its own (same call as the web).
  */
 import { render, screen } from '@testing-library/react-native';
 import { Provider } from 'react-redux';

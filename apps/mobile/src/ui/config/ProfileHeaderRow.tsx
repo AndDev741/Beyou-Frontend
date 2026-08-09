@@ -5,9 +5,9 @@ import { resolvePhotoUrl } from '../../lib/photoUrl';
 import type { RootState } from '../../store';
 
 /**
- * A linha fechada do cartão de perfil: avatar, nome e o nível de relance.
- * O e-mail não entra — é o dado mais sensível da tela e não ajuda a decidir
- * se vale abrir.
+ * The profile card's closed row: avatar, name and the level at a glance. The e-mail
+ * stays out — it is the screen's most sensitive piece of data and it does not help
+ * you decide whether opening is worth it.
  */
 export default function ProfileHeaderRow() {
   const { t } = useTranslation();
