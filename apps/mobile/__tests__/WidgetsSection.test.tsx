@@ -1,7 +1,8 @@
 /**
- * WidgetsSection (P5-B4) — the dashboard widget picker. Add/remove/reorder edit a
- * local working copy; Save persists { widgetsId } via editUser and dispatches
- * widgetsIdInUseEnter. Boundary mocked: notify, the @beyou/api HttpClient.
+ * WidgetsSection — o seletor de widgets do dashboard, no desenho da web:
+ * posição, ícone, nome e ×; disponíveis como chips. Não há botão Salvar — cada
+ * mudança persiste sozinha via editUser + widgetsIdInUseEnter. Fronteira
+ * mockada: notify e o HttpClient do @beyou/api.
  */
 jest.mock('../src/notify', () => ({
   notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
@@ -61,22 +62,23 @@ describe('WidgetsSection', () => {
     expect(screen.getByTestId('widget-add-constance')).toBeTruthy();
   });
 
-  it('reorders with the down control and Save persists the new order', async () => {
+  it('reorders with the down control and persists the new order by itself', async () => {
     const store = makeStore();
     store.dispatch(widgetsIdInUseEnter(['constance', 'fastTips']));
     await renderWith(store);
 
+    // Abrir a seção não grava nada.
+    expect(putSpy).not.toHaveBeenCalled();
+
     // Move "constance" down → order becomes [fastTips, constance].
     await act(async () => {
       fireEvent.press(screen.getByTestId('widget-down-constance'));
-    });
-    await act(async () => {
-      fireEvent.press(screen.getByTestId('save-widgets'));
     });
 
     await waitFor(() =>
       expect(putSpy).toHaveBeenCalledWith('/user', { widgetsId: ['fastTips', 'constance'] }),
     );
     expect(store.getState().perfil.widgetsIdsInUse).toEqual(['fastTips', 'constance']);
+    expect(screen.queryByTestId('save-widgets')).toBeNull();
   });
 });

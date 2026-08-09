@@ -698,6 +698,181 @@ vive dentro do padding do dashboard, então a tela inteira daria um slide largo
 demais. Isso torna a medida obrigatória no teste — `DashboardWidgets.test.tsx`
 dispara o evento `layout` depois de montar.
 
+## Autenticação no nativo (2026-08-09)
+
+As cinco telas de autenticação eram de outro app: abas grandes "Login | Registro"
+no topo, saudação de 30px, campos sem rótulo e de 56px, botões de largura fixa,
+seletor EN|PT e a marca no PÉ da tela.
+
+Agora existe `src/ui/auth/AuthShell.tsx`, espelho do ramo mobile do `AuthShell`
+da web: marca no topo (símbolo em acento, wordmark em cor de texto), coluna de
+360px centrada, ancorada no topo, e o rodapé de uma linha que leva à tela irmã.
+Login, registro, recuperação, redefinição e verificação passaram todas por ela.
+
+O que veio junto:
+
+- `Input` ganhou `label` — o rótulo de 12,5px acima do campo, que é o padrão do
+  sistema. Nas telas de auth os campos usam `compact` (42px), como na web.
+- `src/ui/auth/FormNotice.tsx`, espelho do da web. Antes cada tela desenhava seu
+  próprio aviso: caixa de borda dupla no registro, ícone de 48px centralizado na
+  recuperação, parágrafo solto no login. Mesmo aviso, três formas.
+- O botão do Google virou largura cheia de 44px com o separador "ou" acima, como
+  na web — e o separador mora no componente do botão, também como na web.
+- Os CTAs viraram `size="auto" className="w-full"`: largura cheia em vez dos
+  250px fixos.
+
+Três remoções deliberadas:
+
+- **Abas Login|Registro** (`AuthTabs`) — a web troca de tela por um link no
+  rodapé. Duas abas de 24px no topo empurravam o formulário para baixo da dobra.
+- **Seletor de idioma** (`LanguageToggle`) — antes de existir conta o app segue o
+  aparelho (`src/i18n.ts` lê `getLocales()`), como a web segue o navegador.
+  Trocar idioma é coisa de usuário logado, na Configuração.
+- **`MobileBrand`** no pé — a marca agora é o cabeçalho da casca.
+
+Um desvio consciente da web: em recuperação, redefinição e verificação o título
+APARECE no nativo, embora na web ele seja `sr-only` nesta largura. O navegador
+tem barra de endereço para dizer onde você está; o app não tem, e "um campo de
+e-mail sob o logo" não diz para que serve a tela. Login e registro seguem sem
+título, como na web.
+
+## Rotinas: as duas superfícies se encontrando no meio (2026-08-09)
+
+Nem toda diferença entre web e nativo era a web estar certa. Nesta passada duas
+telas foram para cada lado.
+
+**O nativo seguiu a web em duas:**
+
+- **Agendar** era sete linhas de largura cheia, uma por dia — a semana não caía
+  numa olhada e o painel passava da metade da tela. Agora é a fileira de sete
+  quadrados do modal da web, com os chips de grupo (Seg a Sex / Final de semana /
+  Toda a semana) e as ações no pé. O dia que outra rotina já ocupa fica marcado
+  no próprio quadrado e ganha uma linha com "Substituir dia", em vez do
+  `Alert.alert` do sistema: a decisão acontece onde está escrito de quem é o dia.
+- **Criar / editar rotina** era um cartão alto por seção com três links de texto
+  embaixo ("Editar · Atribuir hábitos e tarefas (3) · Deletar") e a lista sempre
+  aberta — três seções não cabiam na tela. Agora é o formulário da web: Tipo
+  (segmentado, com "Em lista" apagado em vez de escondido), Nome, e as seções
+  como linhas fechadas com ícone, nome, o par de chips de horário, favoritar,
+  editar e excluir. Aberta, a seção mostra os itens em pílula com × e o convite
+  "Adicionar hábito ou tarefa".
+
+  Duas diferenças que ficam de propósito: as setas de ordem moram DENTRO da seção
+  aberta (no cabeçalho seriam cinco alvos numa linha de 390px, e o cabeçalho é o
+  que precisa ficar igual ao da web); e o campo de ÍCONE da rotina saiu, porque a
+  web nunca o teve e nada na interface desenha esse ícone.
+
+  Isso aposentou a tela de escolha de tipo (`RoutineTypePicker`), que abria a
+  criação com duas ilustrações antes do primeiro campo.
+
+  A folha de SEÇÃO veio junto, no mesmo modal da web: nome com o placeholder
+  "Manhã tranquila", os dois horários lado a lado, ícone e — só na criação — a
+  lista **"Suas seções favoritas"** com o botão Usar, que faltava inteira no
+  nativo. A biblioteca é toda seção favoritada de QUALQUER rotina (a fatia de
+  rotinas achatada, mesma fonte da web), e a cópia sai com id novo na seção e
+  nos grupos: carregar o id de origem faria a edição escrever por cima dela.
+
+**A web seguiu o nativo em duas** (o desenho nativo estava melhor, e o usuário
+escolheu ele):
+
+- **Visualização histórica** tinha três medalhas (Seções / Concluído /
+  Progresso), barra de porcentagem, a data repetida num chip e um chevron para
+  abrir. Muita moldura para dizer "2 de 10". Agora é a faixa de resumo do nativo
+  (Concluído · Pulada · XP ganho) e uma ficha por seção, tudo aberto. De quebra,
+  a lista passou a percorrer a ESTRUTURA e achar o check de cada item pelo
+  `originalGroupId` — a duplicação de hábito entre seções de mesmo nome fica
+  impossível por construção, e item sem check ainda aparece.
+- **Rotina expandida** na página de rotinas tinha cabeçalho de seção com tile de
+  32px e linhas de uma linha só, sem hora no telefone e sem pular. Agora usa o
+  mesmo desenho da rotina do dashboard e do nativo: cabeçalho de uma linha
+  (ícone solto, nome de 12,5px, hora em mono) e a linha do item quebrando em duas
+  no telefone, com o chip de hora e o botão de pular. **Pular passou a existir
+  ali** — antes só a rotina do dashboard tinha, e o mesmo item na página de
+  rotinas ficava sem saída.
+
+## Escolher itens para a seção: as duas telas no mesmo modelo (2026-08-09)
+
+As duas faziam metade do trabalho. A web deixava marcar vários, mas os horários
+só apareciam DEPOIS, na lista da seção — corrigir um era outra viagem. O nativo
+tinha a bandeja com os horários editáveis, mas o item entrava sem horário
+nenhum, e ainda pedia um segundo toque num botão "Adicionar (N)".
+
+Agora as duas fazem o mesmo: **um toque manda o item para a bandeja com um
+horário sugerido, ali o horário ainda se ajusta, e só ao confirmar a bandeja
+vira a seção.** Na web a bandeja abre com o que a seção já tem, então dá para
+consertar o horário de um item antigo na mesma passada.
+
+O cálculo do horário (`suggestSlots`) saiu do componente da web e foi para
+`packages/state/src/routine/suggestSlots.ts` — as duas telas usam o mesmo.
+
+Uma regra mudou junto: dividir o que sobra da janela só faz sentido quando se
+sabe QUANTOS itens entram de uma vez. Escolhendo um por vez, dividir por 1 dava
+a janela inteira ao primeiro e sobrava zero para o próximo. Item avulso passa a
+levar a fatia padrão de 15 min, no teto do que resta; a divisão em partes iguais
+continua valendo para `count > 1`.
+
+### O que se escolhe não se perde mais
+
+Depois de trocar o modelo, apareceu o pior tipo de bug: adicionar cinco itens,
+sair, e nada ter acontecido. Duas causas, as duas consertadas:
+
+- O painel da folha não encolhia (só o miolo tinha `flexShrink`), então ele
+  ficava do tamanho do conteúdo e o rodapé — com o botão de concluir — descia
+  para FORA da tela. Ninguém apertava um botão que não dava para ver.
+- Fechar pelo backdrop ou pelo voltar do sistema descartava tudo. Agora fechar
+  SALVA: o que se escolhe ali só mexe na cópia de trabalho da rotina, e quem
+  grava de verdade é o botão da rotina — descartar em silêncio era só armadilha.
+  Some o "Cancelar" da folha junto: não havia o que cancelar.
+
+Na web a linha da bandeja também empilhou (nome em cima, horários embaixo, como
+no nativo): em uma linha só, nome + dois campos de hora + remover não cabiam nos
+448px do modal e o nome sobrava em uma letra.
+
+### Um teto só por folha
+
+Pôr o teto de 85% na `KeyboardAvoidingView` fez as porcentagens começarem a
+valer — e aí o `max-h-[70%]` que o `SelectField` ainda passava para o painel
+virou 70% DE 85%: a folha de opções encolhia, descolava do rodapé e mostrava a
+tela por baixo. O `maxHeight` saiu do `BottomSheet`; o teto agora é um só, do
+contêiner, para todas as folhas.
+
+Junto: a lista de opções cresce por padrão (`flexGrow: 1` vem de fábrica no
+`ScrollView`), então a folha esticava até o teto mesmo com quatro opções e
+sobrava um vão branco embaixo da última. Agora ela encolhe — a folha tem a
+altura das opções, e só rola quando elas não cabem.
+
+## Dois acertos de acabamento (2026-08-09)
+
+- **Chevron duplicado no cartão de rotina da web.** No telefone a fileira de
+  ações só aparece com o cartão aberto — e é exatamente aí que o chevron do
+  título também está visível. Dois botões, mesma função, um embaixo do outro. O
+  da fileira virou `hidden md:flex`; no desktop, onde a fileira vive sempre à
+  mostra e o do título some, ele continua sendo o único.
+- **Chevron da seção desalinhado (web e nativo).** Ele morava dentro da coluna
+  do nome, então colava na primeira linha enquanto estrela, lápis e lixeira se
+  centravam no bloco de duas linhas (nome + chips de horário). Saiu para a
+  fileira, onde o `items-center` o centraliza junto com o resto.
+- **Folha de seção pedindo scroll para achar o Salvar.** O rodapé saiu do
+  scroller e a lista de favoritas ganhou teto próprio (três linhas). E o teto de
+  85% do painel foi para a `KeyboardAvoidingView`: porcentagem só resolve contra
+  um pai de altura definida, e ela se dimensionava pelo conteúdo — o
+  `max-h-[85%]` do painel não valia nada, e o miolo encolhia sem precisar.
+
+## Configuração: widgets e a frase do tema (2026-08-09)
+
+O seletor de widgets do nativo era a última seção da Configuração fora do
+desenho da web: linhas de nome puro com três controles soltos à direita, e um
+botão Salvar no fim. Agora é a lista da web — posição em mono, ícone do widget,
+nome, e o × para tirar; os que sobraram viram chips de "+ nome". **E cada mudança
+persiste sozinha**: o Salvar não existe mais, igual à web.
+
+A alça de arraste da web continua sendo par de setas aqui (arrasto não existe no
+nativo, ver AGENTS.md), e por isso o texto de ajuda ganhou chave própria
+(`WidgetsHintMobile`) — o da web fala em arrastar pela alça.
+
+Fora daqui, saiu a legenda `ThemeHint` ("Duas bases feitas com capricho…") do
+seletor de tema nas duas telas, e a chave junto.
+
 ## Verificação feita
 
 - `npx tsc --noEmit` limpo nos dois apps.

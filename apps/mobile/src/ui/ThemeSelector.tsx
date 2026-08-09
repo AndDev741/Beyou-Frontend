@@ -74,7 +74,6 @@ export default function ThemeSelector({ onSelect }: { onSelect?: (mode: string) 
         })}
       </View>
 
-      <Text className="mt-3 text-xs text-text-3">{t('ThemeHint')}</Text>
     </View>
   );
 }

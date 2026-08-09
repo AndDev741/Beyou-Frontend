@@ -1,33 +1,52 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import {
+  ArrowUpRight,
+  Award,
+  ChartPie,
+  ChevronDown,
+  ChevronUp,
+  Flame,
+  Gauge,
+  Lightbulb,
+  Plus,
+  Target,
+  X,
+} from 'lucide-react-native';
 import { WIDGET_IDS, type WidgetId } from '@beyou/state';
 import { widgetsIdInUseEnter } from '@beyou/state/user/perfilSlice';
 import editUser from '@beyou/api/user/editUser';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
+import IconButton from '../IconButton';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import type { RootState, AppDispatch } from '../../store';
 
-/** Human-readable i18n key per widget id (reuses the widget title keys). */
-const WIDGET_LABEL_KEY: Record<WidgetId, string> = {
-  worstArea: 'Worst Area',
-  constance: 'Constance',
-  betterArea: 'Better Area',
-  dailyProgress: 'Daily Progress',
-  fastTips: 'Fast Tips',
-  levelProgress: 'Your life progress',
-  categoryBalance: 'LifeBalance',
+/** Nome e ícone de cada widget — a lista mostra a identidade, não o widget. */
+const WIDGET_META: Record<WidgetId, { labelKey: string; Icon: typeof Target }> = {
+  dailyProgress: { labelKey: 'Today', Icon: Target },
+  constance: { labelKey: 'Constance', Icon: Flame },
+  levelProgress: { labelKey: 'Level', Icon: Award },
+  categoryBalance: { labelKey: 'LifeBalance', Icon: ChartPie },
+  betterArea: { labelKey: 'Better Area', Icon: ArrowUpRight },
+  worstArea: { labelKey: 'Worst Area', Icon: Gauge },
+  fastTips: { labelKey: 'Fast Tips', Icon: Lightbulb },
 };
 
 const isKnownWidget = (id: string): id is WidgetId => (WIDGET_IDS as readonly string[]).includes(id);
 
 /**
- * Dashboard widget picker: a "Current" list (remove + reorder ↑/↓) and an
- * "Available" list (add). Edits a local working copy of the order; Save persists
- * { widgetsId } via editUser and dispatches widgetsIdInUseEnter. Mirrors the web
- * widget configuration.
+ * A lista da web: cada widget do dashboard é uma linha compacta com a posição, o
+ * ícone, o nome e o × para tirar; os que sobraram viram chips de "+ nome".
+ *
+ * Duas coisas mudaram para bater com a web: as linhas passaram a mostrar posição
+ * e ícone (eram só nome com três controles soltos à direita), e **cada mudança
+ * persiste sozinha** — o botão Salvar no fim da seção não existe mais.
+ *
+ * A alça de arraste da web virou par de setas: reordenar por arrasto não existe
+ * aqui (ver AGENTS.md), e por isso o texto de ajuda é uma chave própria.
  */
 export default function WidgetsSection() {
   const { t } = useTranslation();
@@ -36,11 +55,28 @@ export default function WidgetsSection() {
 
   const savedWidgets = useSelector((s: RootState) => s.perfil.widgetsIdsInUse);
 
-  // Local working copy — only the known widget ids, in saved order.
+  // Cópia de trabalho — só os ids conhecidos, na ordem salva.
   const [current, setCurrent] = useState<WidgetId[]>(() =>
     (savedWidgets ?? []).filter(isKnownWidget),
   );
-  const [saving, setSaving] = useState(false);
+  // A primeira renderização não deve disparar um PUT.
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const persist = async () => {
+      const res = await editUser({ widgetsId: current });
+      if (res.error) {
+        notify.error(getFriendlyErrorMessage(t, res.error));
+        return;
+      }
+      dispatch(widgetsIdInUseEnter(current));
+    };
+    persist();
+  }, [current, dispatch, t]);
 
   const available = WIDGET_IDS.filter((id) => !current.includes(id));
 
@@ -58,107 +94,93 @@ export default function WidgetsSection() {
     });
   };
 
-  const onSave = async () => {
-    setSaving(true);
-    const res = await editUser({ widgetsId: current });
-    if (res.error) {
-      notify.error(getFriendlyErrorMessage(t, res.error));
-    } else {
-      dispatch(widgetsIdInUseEnter(current));
-      notify.success(t('SuccessEditWidgets'));
-    }
-    setSaving(false);
-  };
+  const labelOf = (id: WidgetId) => t(WIDGET_META[id].labelKey);
 
   return (
     <View className="gap-3" testID="config-widgets-section">
-      {/* Current */}
+      <Text className="text-xs text-text-3">{t('WidgetsHintMobile')}</Text>
+
       <View>
-        <Text className="text-text mb-2 font-medium">{t('Current')}</Text>
+        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
+          {t('WidgetsInDashboard')}
+        </Text>
+
         {current.length === 0 ? (
-          <Text className="text-text-2 text-sm italic" testID="widgets-current-empty">
+          <Text
+            className="rounded-control border border-dashed border-border px-3 py-4 text-center text-xs text-text-3"
+            testID="widgets-current-empty"
+          >
             {t('No widgets added yet')}
           </Text>
         ) : (
-          <View className="gap-2">
-            {current.map((id, index) => (
-              <View
-                key={id}
-                className="flex-row items-center justify-between rounded-control border border-border px-3 py-2"
-                testID={`widget-current-${id}`}
-              >
-                <Text className="text-text flex-1" numberOfLines={1}>
-                  {t(WIDGET_LABEL_KEY[id])}
-                </Text>
-                <View className="flex-row items-center gap-3">
-                  <Pressable
+          <View className="gap-1.5">
+            {current.map((id, index) => {
+              const { Icon } = WIDGET_META[id];
+              return (
+                <View
+                  key={id}
+                  className="flex-row items-center gap-2.5 rounded-control border border-border bg-surface px-2.5 py-2"
+                  testID={`widget-current-${id}`}
+                >
+                  <Text className="w-3 shrink-0 font-mono text-[11px] text-text-3">{index + 1}</Text>
+                  <Icon size={14} color={theme.accent} />
+                  <Text
+                    className="min-w-0 flex-1 text-[12.5px] font-semibold text-text"
+                    numberOfLines={1}
+                  >
+                    {labelOf(id)}
+                  </Text>
+                  <IconButton
+                    label={`${t('MoveUp')} ${labelOf(id)}`}
                     onPress={() => move(index, -1)}
                     disabled={index === 0}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${t(WIDGET_LABEL_KEY[id])} up`}
                     testID={`widget-up-${id}`}
-                    className={index === 0 ? 'opacity-30' : ''}
                   >
-                    <Text className="text-accent text-lg font-bold">↑</Text>
-                  </Pressable>
-                  <Pressable
+                    <ChevronUp size={14} color={theme.text3} />
+                  </IconButton>
+                  <IconButton
+                    label={`${t('MoveDown')} ${labelOf(id)}`}
                     onPress={() => move(index, 1)}
                     disabled={index === current.length - 1}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${t(WIDGET_LABEL_KEY[id])} down`}
                     testID={`widget-down-${id}`}
-                    className={index === current.length - 1 ? 'opacity-30' : ''}
                   >
-                    <Text className="text-accent text-lg font-bold">↓</Text>
-                  </Pressable>
-                  <Pressable
+                    <ChevronDown size={14} color={theme.text3} />
+                  </IconButton>
+                  <IconButton
+                    label={`${t('Remove')} ${labelOf(id)}`}
+                    tone="danger"
                     onPress={() => remove(id)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Remove ${t(WIDGET_LABEL_KEY[id])}`}
                     testID={`widget-remove-${id}`}
                   >
-                    <Text className="text-danger font-semibold">✕</Text>
-                  </Pressable>
+                    <X size={14} color={theme.text3} />
+                  </IconButton>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
       </View>
 
-      {/* Available */}
-      <View>
-        <Text className="text-text mb-2 font-medium">{t('Availables')}</Text>
-        <View className="gap-2">
-          {available.map((id) => (
-            <Pressable
-              key={id}
-              onPress={() => add(id)}
-              accessibilityRole="button"
-              accessibilityLabel={`Add ${t(WIDGET_LABEL_KEY[id])}`}
-              testID={`widget-add-${id}`}
-              className="flex-row items-center justify-between rounded-control border border-border px-3 py-2"
-            >
-              <Text className="text-text flex-1" numberOfLines={1}>
-                {t(WIDGET_LABEL_KEY[id])}
-              </Text>
-              <Text className="text-accent text-lg font-bold">＋</Text>
-            </Pressable>
-          ))}
+      {available.length > 0 ? (
+        <View>
+          <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('Availables')}</Text>
+          <View className="flex-row flex-wrap gap-1.5">
+            {available.map((id) => (
+              <Pressable
+                key={id}
+                onPress={() => add(id)}
+                accessibilityRole="button"
+                accessibilityLabel={`${t('Add')} ${labelOf(id)}`}
+                testID={`widget-add-${id}`}
+                className="flex-row items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5 active:opacity-70"
+              >
+                <Plus size={13} color={theme.text3} />
+                <Text className="text-[11.5px] font-semibold text-text-3">{labelOf(id)}</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
-      </View>
-
-      <Pressable
-        onPress={onSave}
-        disabled={saving}
-        accessibilityRole="button"
-        testID="save-widgets"
-        className={`mt-4 items-center rounded-control bg-accent px-6 py-3 ${saving ? 'opacity-60' : ''}`}
-      >
-        <Text style={{ color: theme.background }} className="text-base font-semibold">
-          {saving ? t('Saving...') : t('Save')}
-        </Text>
-      </Pressable>
+      ) : null}
     </View>
   );
 }
