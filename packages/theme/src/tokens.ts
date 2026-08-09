@@ -1,14 +1,14 @@
 /**
- * Design tokens do redesign 2026.
+ * Design tokens for the 2026 redesign.
  *
- * Duas bases (clara/escura) desenhadas com capricho + packs de acento que
- * trocam SÓ a cor de marca, mantendo superfícies e neutros. Componentes nunca
- * leem cor concreta: leem token. Valores vindos da seção Tokens do mockup.
+ * Two hand-tuned bases (light/dark) plus accent packs that swap ONLY the brand
+ * colour, keeping surfaces and neutrals. Components never read a concrete
+ * colour — they read a token. Values come from the mockup's Tokens section.
  */
 
 export type ThemeBase = "light" | "dark";
 
-/** Superfícies e neutros — o que o pack de acento NÃO mexe. */
+/** Surfaces and neutrals — what an accent pack does NOT touch. */
 export interface NeutralTokens {
     bg: string;
     surface: string;
@@ -26,7 +26,7 @@ export interface NeutralTokens {
     shadow: string;
 }
 
-/** As quatro linhas que um pack de acento redefine. */
+/** The four lines an accent pack redefines. */
 export interface AccentTokens {
     accent: string;
     accentStrong: string;
@@ -36,7 +36,7 @@ export interface AccentTokens {
 
 export type Tokens = NeutralTokens & AccentTokens;
 
-/** #RRGGBB + alpha → rgba(). Aceita 8 dígitos e descarta o alpha existente. */
+/** #RRGGBB + alpha → rgba(). Accepts 8 digits and drops the existing alpha. */
 export const withAlpha = (hex: string, alpha: number): string => {
     const clean = hex.replace("#", "").slice(0, 6);
     const int = parseInt(clean, 16);
@@ -81,19 +81,19 @@ export const neutrals: Record<ThemeBase, NeutralTokens> = {
     },
 };
 
-/** Texto/ícone SOBRE o acento. Claro usa branco; escuro usa um azul quase preto. */
+/** Text/icon ON TOP of the accent. Light uses white; dark uses a near-black blue. */
 const ON_ACCENT: Record<ThemeBase, string> = { light: "#FFFFFF", dark: "#0B1526" };
 
-/** Opacidade do accent-soft por base (fundo de seleção e tiles). */
+/** accent-soft opacity per base (selection background and tiles). */
 const SOFT_ALPHA: Record<ThemeBase, number> = { light: 0.09, dark: 0.13 };
 
 export interface AccentPack {
-    /** id persistido (parte do themeInUse). */
+    /** Persisted id (part of themeInUse). */
     id: string;
-    /** chave de i18n do nome exibido. */
+    /** i18n key for the displayed name. */
     labelKey: string;
     accent: Record<ThemeBase, string>;
-    /** hover/pressed do acento. */
+    /** Accent hover/pressed. */
     accentStrong: Record<ThemeBase, string>;
 }
 
@@ -136,7 +136,7 @@ export const findAccentPack = (id: string | undefined | null): AccentPack =>
     accentPacks.find((pack) => pack.id === id) ??
     accentPacks.find((pack) => pack.id === DEFAULT_ACCENT_PACK)!;
 
-/** Compõe os 18 tokens concretos de uma base + um pack. */
+/** Composes the 18 concrete tokens from a base + a pack. */
 export function buildTokens(base: ThemeBase, packId: string): Tokens {
     const pack = findAccentPack(packId);
     return {
@@ -148,7 +148,7 @@ export function buildTokens(base: ThemeBase, packId: string): Tokens {
     };
 }
 
-/** Uma família de raio por camada — frame, cartão, controle, pill. */
+/** One radius family per layer — frame, card, control, pill. */
 export const radii = {
     frame: "24px",
     card: "16px",

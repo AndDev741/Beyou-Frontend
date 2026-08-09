@@ -25,9 +25,10 @@ import type { RootState } from '../../store';
 
 type NavItemConfig = { key: string; route: string; Icon: LucideIcon; targetId?: string };
 
-// Cinco alvos, como no mockup: Hoje, Rotinas, [Assistente], Hábitos e Mais.
-// O assistente fica no centro porque passou a ser o ÚNICO acesso ao agente no
-// mobile (o balão flutuante saiu) e ele existe em toda tela autenticada.
+// Five targets, as in the mockup: Today, Routines, [Assistant], Habits, More.
+// The assistant sits in the middle because it became the ONLY way into the agent
+// on mobile (the floating bubble is gone) and it exists on every signed-in
+// screen.
 const LEFT: NavItemConfig[] = [
   { key: 'NavDashboard', route: '/', Icon: House },
   { key: 'Routines', route: '/routines', Icon: CalendarDays, targetId: 'nav-routines' },
@@ -36,9 +37,10 @@ const RIGHT: NavItemConfig[] = [
   { key: 'Habits', route: '/habits', Icon: Repeat, targetId: 'nav-habits' },
 ];
 
-// Quem saiu da barra continua a um toque, dentro da sheet — com as MESMAS
-// chaves de i18n de antes, que é como os testes (e o usuário) encontram estes
-// destinos. Não há rota de Perfil no mobile: o perfil vive em Configuração.
+// What left the bar is still one tap away, inside the sheet — with the SAME
+// i18n keys as before, which is how the tests (and the user) find these
+// destinations. There is no Profile route on mobile: the profile lives in
+// Configuration.
 const SHEET: NavItemConfig[] = [
   { key: 'Tasks', route: '/tasks', Icon: ListChecks, targetId: 'nav-tasks' },
   { key: 'Goals', route: '/goals', Icon: Trophy, targetId: 'nav-goals' },
@@ -47,15 +49,15 @@ const SHEET: NavItemConfig[] = [
   { key: 'FeedbackShortcutLabel', route: '/feedback', Icon: MessageSquare, targetId: 'nav-feedback' },
 ];
 
-// Uma rota aninhada (ex.: /routines/123) ainda acende a sua seção. O separador
-// impede que /goals case com /goals-archive — e mantém '/' (Hoje) exato, já que
-// todo caminho começa com barra.
+// A nested route (say /routines/123) still lights its section. The separator
+// keeps /goals from matching /goals-archive — and keeps '/' (Today) exact, since
+// every path starts with a slash.
 const isRouteActive = (pathname: string, route: string): boolean =>
   pathname === route || pathname.startsWith(`${route}/`);
 
 /**
- * Componente extraído para que cada item possa chamar `useTutorialTarget`
- * condicionalmente sem violar as Rules of Hooks (hook dentro de `.map()` não).
+ * Extracted so each item can call `useTutorialTarget` conditionally without
+ * breaking the Rules of Hooks (never a hook inside `.map()`).
  */
 function NavItemButton({
   item,
@@ -82,7 +84,7 @@ function NavItemButton({
       testID={`nav-${item.key.toLowerCase()}`}
       className="flex-1 items-center justify-center gap-0.5 rounded-control py-1.5 active:bg-surface-2"
     >
-      {/* Tamanho fixo: crescer o ícone ativo redimensionaria dois itens a cada
+      {/* Fixed size: growing the active icon would resize two items on every
           navegação e empurraria os vizinhos — muito visível a 360px. A cor é
           quem responde "onde estou". */}
       <Icon size={20} color={color} />
@@ -93,7 +95,7 @@ function NavItemButton({
   );
 }
 
-/** Um destino da sheet "Mais": tile com ícone, rótulo e o alvo de tutorial. */
+/** A destination in the "More" sheet: tile, label and the tutorial target. */
 function SheetTile({
   item,
   theme,
@@ -131,15 +133,16 @@ export default function BottomNav() {
   const { theme } = useBeyouTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  // Um hook aqui em vez de um por item — o pathname é o mesmo para todos.
+  // One hook here instead of one per item — the pathname is the same for all.
   const pathname = usePathname() ?? '';
   const [sheetOpen, setSheetOpen] = useState(false);
-  // Mesmo portão do AgentWidget: durante o onboarding o
-  // spotlight é dono da tela, e um botão que não abre nada seria só ruído.
+  // Same gate as AgentWidget: during onboarding the spotlight owns the screen,
+  // and a button that opens nothing would be noise.
   const isTutorialCompleted = useSelector((state: RootState) => state.perfil.isTutorialCompleted);
 
-  // "Mais" acende quando a sheet está aberta OU quando a tela atual mora nela —
-  // senão a barra ficaria muda em /tasks, /goals, /categories e /configuration.
+  // "More" lights up when the sheet is open OR when the current screen lives in
+  // it — otherwise the bar went mute on /tasks, /goals, /categories and
+  // /configuration.
   const moreActive = sheetOpen || SHEET.some((item) => isRouteActive(pathname, item.route));
 
   const goTo = (route: string) => {
@@ -147,15 +150,15 @@ export default function BottomNav() {
     router.push(route);
   };
 
-  // `nav-categories` é o alvo do passo 2 do tutorial do dashboard. Categorias
-  // agora mora atrás de "Mais", então o alvo acompanha o CAMINHO até ela: é
-  // este botão que o spotlight precisa iluminar, e ele está sempre montado
-  // (um alvo dentro da sheet fechada não teria retângulo para medir).
+  // `nav-categories` is the target of dashboard tutorial step 2. Categories now
+  // lives behind "More", so the target follows the PATH to it: this button is
+  // what the spotlight has to light up, and it is always mounted (a target
+  // inside the closed sheet would have no rect to measure).
   const moreRef = useTutorialTarget('nav-categories');
 
   return (
     <>
-      {/* O escurecido fica ABAIXO da barra: abrir o "Mais" não pode apagar os
+      {/* The scrim sits BELOW the bar: opening "More" must not black out the
           atalhos, que são a orientação de onde se está. Sem Modal de propósito
           — um Modal é outra janela e cobriria a barra junto. */}
       {sheetOpen ? (
@@ -190,7 +193,7 @@ export default function BottomNav() {
             <Text accessibilityRole="header" className="mb-3 text-[15px] font-semibold text-text">
               {t('More')}
             </Text>
-            {/* 31% + gap de 8px = três por linha em qualquer largura de celular;
+            {/* 31% + an 8px gap = three per row at any phone width;
                 a segunda linha alinha à esquerda em vez de esticar os dois
                 últimos tiles. */}
             <View className="flex-row flex-wrap gap-2">
@@ -216,7 +219,7 @@ export default function BottomNav() {
             />
           ))}
 
-          {/* Vaga do disco central. Ele é posicionado em absoluto (abaixo) para
+          {/* Slot for the centre disc. It is absolutely positioned (below) so
               subir uma altura EXATA para fora da barra; um filho em fluxo teria
               essa altura decidida pela altura dos rótulos, que muda com a fonte
               do sistema. O espaçador é quem reserva o buraco no meio da linha. */}
@@ -251,7 +254,7 @@ export default function BottomNav() {
           </Pressable>
 
           {isTutorialCompleted ? (
-            /* Uma faixa de largura cheia centraliza o disco com flexbox. Antes
+            /* A full-width strip centres the disc with flexbox. Before
                era `left: '50%'` + `marginLeft`, e a porcentagem resolvia contra
                a caixa de conteúdo (a barra tem px-2), então o disco caía 10dp à
                esquerda do meio da tela. `box-none` deixa o toque passar pela
@@ -260,7 +263,7 @@ export default function BottomNav() {
               pointerEvents="box-none"
               style={{ position: 'absolute', left: 0, right: 0, top: -12, alignItems: 'center' }}
             >
-              {/* Halo: dois discos translúcidos em vez de blur (o RN não tem
+              {/* Halo: two translucent discs instead of a blur (RN has no
                   filtro). É o único alvo da barra que não é navegação, e o
                   desenho precisa dizer isso antes do rótulo. */}
               <View

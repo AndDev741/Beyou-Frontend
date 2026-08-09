@@ -17,13 +17,13 @@ interface GoalCardProps {
   goal: goal;
   onEdit: (goal: goal) => void;
   onDelete: (goal: goal) => void;
-  /** Refaz a busca depois de concluir (o status muda no servidor). */
+  /** Refetches after completing (the status changes on the server). */
   onChanged: () => void;
-  /** Abre já expandida — ex.: vindo de um toque na meta do dashboard. */
+  /** Opens already expanded — e.g. arriving from a dashboard goal tap. */
   initialExpanded?: boolean;
-  /** Destaca a meta que veio do dashboard, para ela não se perder na lista. */
+  /** Highlights the goal that came from the dashboard, so it is not lost. */
   focused?: boolean;
-  /** Cartão do carrossel do dashboard: sem editar, excluir nem chevron. */
+  /** Dashboard carousel card: no edit, no delete, no chevron. */
   readonly?: boolean;
 }
 
@@ -39,12 +39,12 @@ const TERM_KEY: Record<string, string> = {
 };
 
 /**
- * Cartão de meta — espelho do `goalBox` da web.
+ * Goal card — mirror of the web `goalBox`.
  *
- * Fechado: ícone, título, selos, descrição, categorias e o stepper. Batido o
- * alvo, o + dá lugar a "Concluir" (é ele que paga o XP); já concluída, o mesmo
- * botão vira "Desfazer" e o cartão MANTÉM o desenho inteiro, só com os chips
- * de XP e concluído no topo.
+ * Closed: icon, title, badges, description, categories and the stepper. Once the
+ * target is reached the + gives way to "Complete" (that is what pays the XP);
+ * once complete, the same button becomes "Undo" and the card KEEPS its whole
+ * design, only gaining the XP and done chips up top.
  */
 export default function GoalCard({
   goal,
@@ -62,8 +62,9 @@ export default function GoalCard({
   const [pending, setPending] = useState(false);
 
   const isCompleted = goal.status === 'COMPLETED';
-  // "Concluir" é quem paga o XP, então só aparece com o alvo batido; antes
-  // dele o cartão mostra o + do stepper. targetValue 0 nunca "chega ao alvo".
+  // "Complete" is what pays the XP, so it only shows once the target is hit;
+  // before that the card shows the stepper's +. A targetValue of 0 never
+  // "reaches the target".
   const targetReached = goal.targetValue > 0 && goal.currentValue >= goal.targetValue;
   const statusVariant: ChipVariant =
     goal.status === 'COMPLETED' ? 'ok' : goal.status === 'IN_PROGRESS' ? 'accent' : 'neutral';
@@ -90,7 +91,7 @@ export default function GoalCard({
           <BeyouIcon id={goal.iconId} size={18} showFallback />
         </IconTile>
 
-        {/* Título e selos dividem o espaço que sobra: os chips quebram para a
+        {/* Title and badges share what is left: the chips wrap to the
             linha de baixo em vez de espremer o nome da meta a três letras. */}
         <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-x-2 gap-y-1">
           <Text
@@ -102,7 +103,7 @@ export default function GoalCard({
             {goal.name}
           </Text>
 
-          {/* O XP entra em jogo quando o alvo chega; a concluída mostra os dois
+          {/* XP comes into play when the target lands; a completed goal shows
               — o que rendeu e o selo. */}
           {targetReached || isCompleted ? (
             <Chip size="sm" variant="xp" testID={`goal-xp-${goal.id}`}>
@@ -164,7 +165,7 @@ export default function GoalCard({
         </View>
       ) : null}
 
-      {/* O detalhe só ao abrir: motivação, status e o período completo. */}
+      {/* Detail only on open: motivation, status and the full period. */}
       {expanded ? (
         <View className="gap-2">
           {goal.motivation ? (
@@ -189,7 +190,7 @@ export default function GoalCard({
         </View>
       ) : null}
 
-      {/* Stepper: -/+ em volta da barra, com o valor em mono à direita. */}
+      {/* Stepper: -/+ around the bar, with the value in mono on the right. */}
       <View className="flex-row items-center gap-2">
         <IconButton
           label={t('Decrease')}
@@ -245,7 +246,7 @@ export default function GoalCard({
         )}
       </View>
 
-      {/* O rodapé de relance: prazo à esquerda, data-limite à direita. */}
+      {/* The at-a-glance footer: term on the left, deadline on the right. */}
       <View className="flex-row items-center justify-between gap-2">
         <Text className="font-mono text-[11px] text-text-3">{termPhrase}</Text>
         <Text className="font-mono text-[11px] text-text-3">

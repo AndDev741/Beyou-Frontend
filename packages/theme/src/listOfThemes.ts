@@ -8,20 +8,20 @@ import {
 } from './tokens';
 
 /**
- * O modelo de temas do redesign: duas bases × cinco packs de acento, no lugar
- * dos 9 temas soltos. A preferência é persistida como `"<modo>:<pack>"` — o
- * modo pode ser `system`, e nesse caso a base sai da preferência do SO.
+ * The redesign's theme model: two bases × five accent packs, replacing the nine
+ * standalone themes. The preference persists as `"<mode>:<pack>"` — the mode can
+ * be `system`, in which case the base comes from the OS preference.
  */
 
 export const serializeThemePreference = ({ mode, accentPack }: ThemePreference): string =>
     `${mode}:${accentPack}`;
 
 /**
- * Modos salvos antes do redesign. Nenhum usuário pode ficar órfão: o que não
- * casar cai em `system:beyou`.
+ * Modes saved before the redesign. No account may be left orphaned: anything
+ * that does not match falls back to `system:beyou`.
  *
- * Late Latte é um tema ESCURO (fundo #2c1e1e) apesar do acento caramelo — vai
- * para a base escura, não para a clara.
+ * Late Latte is a DARK theme (background #2c1e1e) despite the caramel accent —
+ * it goes to the dark base, not the light one.
  */
 export const LEGACY_MODE_MAP: Record<string, string> = {
     beYou: 'light:beyou',
@@ -41,8 +41,8 @@ export const DEFAULT_PREFERENCE: ThemePreference = {
 };
 
 /**
- * Lê a string persistida (formato novo OU um modo legado) e devolve a
- * preferência. Entrada desconhecida cai no padrão em vez de explodir.
+ * Reads the persisted string (new format OR a legacy mode) and returns the
+ * preference. An unknown value falls back to the default instead of throwing.
  */
 export function parseThemePreference(raw: string | null | undefined): ThemePreference {
     if (!raw) return DEFAULT_PREFERENCE;
@@ -56,11 +56,11 @@ export function parseThemePreference(raw: string | null | undefined): ThemePrefe
     return { mode: validMode, accentPack: findAccentPack(pack).id };
 }
 
-/** Resolve `system` contra a preferência do SO. */
+/** Resolves `system` against the OS preference. */
 export const resolveBase = (mode: ThemeMode, prefersDark: boolean): ThemeBase =>
     mode === 'system' ? (prefersDark ? 'dark' : 'light') : mode;
 
-/** Monta o objeto Theme (tokens novos + aliases do modelo antigo). */
+/** Builds the Theme object (new tokens + old-model aliases). */
 export function buildTheme(pref: ThemePreference, prefersDark = false): Theme {
     const base = resolveBase(pref.mode, prefersDark);
     const tokens = buildTokens(base, pref.accentPack);
@@ -71,9 +71,9 @@ export function buildTheme(pref: ThemePreference, prefersDark = false): Theme {
         base,
         accentPack: pref.accentPack,
 
-        // Aliases do modelo antigo. `background` aponta para `surface` porque
-        // 110 dos 136 usos de bg-background são cartão, input ou modal; o fundo
-        // de página passou a usar `bg` explicitamente.
+        // Old-model aliases. `background` points at `surface` because 110 of the
+        // 136 `bg-background` uses are a card, an input or a modal; the page
+        // background switched to an explicit `bg`.
         background: tokens.surface,
         primary: tokens.accent,
         secondary: tokens.text,
@@ -84,7 +84,7 @@ export function buildTheme(pref: ThemePreference, prefersDark = false): Theme {
     };
 }
 
-/** Atalho: string persistida → tema pronto para aplicar. */
+/** Shortcut: persisted string → theme ready to apply. */
 export const themeFromStoredMode = (raw: string | null | undefined, prefersDark = false): Theme =>
     buildTheme(parseThemePreference(raw), prefersDark);
 
@@ -92,8 +92,8 @@ export const defaultLight: Theme = buildTheme({ mode: 'light', accentPack: DEFAU
 export const defaultDark: Theme = buildTheme({ mode: 'dark', accentPack: DEFAULT_ACCENT_PACK });
 
 /**
- * Todas as combinações concretas. O seletor de tema real mostra modo e pack
- * separados; esta lista existe para telas que precisam iterar temas prontos.
+ * Every concrete combination. The real theme selector shows mode and pack
+ * separately; this list exists for screens that need to iterate ready themes.
  */
 export const themes: Theme[] = (['light', 'dark'] as ThemeBase[]).flatMap((mode) =>
     accentPacks.map((pack) => buildTheme({ mode, accentPack: pack.id })),

@@ -1,22 +1,22 @@
 import type { ThemeBase, Tokens } from "./tokens";
 
 /**
- * Um tema resolvido: a preferência do usuário (`mode`) já traduzida em tokens
- * concretos.
+ * A resolved theme: the user's preference (`mode`) already turned into concrete
+ * tokens.
  *
- * Os campos do modelo antigo continuam aqui como ALIASES dos tokens novos. São
- * ~2.500 usos entre classes Tailwind e `theme.*` em JS; eles saem aos poucos,
- * componente a componente, e os campos desaparecem na fase de limpeza.
+ * The old-model fields stay here as ALIASES of the new tokens. There are ~2,500
+ * uses across Tailwind classes and `theme.*` in JS; they go component by
+ * component, and the fields disappear in the cleanup phase.
  */
 export interface Theme extends Tokens {
-  /** Preferência persistida: `"<system|light|dark>:<pack>"`. Ex.: `"system:beyou"`. */
+  /** Persisted preference: `"<system|light|dark>:<pack>"`, e.g. `"system:beyou"`. */
   mode: string;
-  /** Base efetivamente aplicada depois de resolver `system` contra o SO. */
+  /** The base actually applied, after resolving `system` against the OS. */
   base: ThemeBase;
-  /** Pack de acento em uso. */
+  /** Accent pack in use. */
   accentPack: string;
 
-  /** @deprecated use `surface` (cartões) ou `bg` (fundo de página). */
+  /** @deprecated use `surface` (cards) or `bg` (page background). */
   background: string;
   /** @deprecated use `accent`. */
   primary: string;
@@ -32,7 +32,7 @@ export interface Theme extends Tokens {
   error: string;
 }
 
-/** Modo escolhido pelo usuário, antes de resolver `system` contra o SO. */
+/** Mode chosen by the user, before resolving `system` against the OS. */
 export type ThemeMode = "system" | ThemeBase;
 
 export interface ThemePreference {

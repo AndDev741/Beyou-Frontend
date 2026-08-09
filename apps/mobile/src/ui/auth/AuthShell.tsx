@@ -4,31 +4,31 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BrandMark from '../BrandMark';
 
 interface AuthShellProps {
-  /** Título da tela. Login e registro não mostram: a marca é o cabeçalho. */
+  /** Screen title. Login and register skip it: the brand is the header. */
   title?: string;
   subtitle?: string;
   children: ReactNode;
-  /** Última linha da coluna ("Novo por aqui? Registrar"). */
+  /** Last line of the column ("New here? Register"). */
   footer?: ReactNode;
   testID?: string;
 }
 
 /**
- * A casca das telas de autenticação, no desenho da web em largura de telefone:
- * marca no topo (símbolo em acento, wordmark em cor de texto), a coluna de
- * 360px no centro e o rodapé de uma linha que leva à tela irmã.
+ * The shell of the auth screens, in the web's phone-width design: brand on top
+ * (symbol in accent, wordmark in text colour), the 360px column centred, and the
+ * one-line footer that leads to the sibling screen.
  *
- * Sem abas Login|Registro: a web troca de tela por um link no rodapé, e duas
- * abas grandes no topo empurravam o formulário para baixo da dobra.
+ * No Login|Register tabs: the web switches screens through a footer link, and
+ * two big tabs up top pushed the form below the fold.
  *
- * Sem seletor de idioma: antes de existir conta o app segue o aparelho (o
- * `i18n.ts` lê `getLocales()`), como a web segue o navegador. Trocar idioma é
- * coisa de usuário logado, na Configuração.
+ * No language selector: before an account exists the app follows the device
+ * (`i18n.ts` reads `getLocales()`), the way the web follows the browser.
+ * Switching language is something a signed-in user does, in Configuration.
  *
- * `title` é opcional porque na web ele é `sr-only` nesta largura. Login e
- * registro não passam — quem passa são as telas de recuperação e verificação,
- * onde o título é a única coisa que diz para que serve a tela (o app não tem
- * barra de endereço para contar isso).
+ * `title` is optional because on the web it is `sr-only` at this width. Login
+ * and register pass none — the recovery and verification screens do, where the
+ * title is the only thing that says what the screen is for (the app has no
+ * address bar to tell you).
  */
 export default function AuthShell({ title, subtitle, children, footer, testID }: AuthShellProps) {
   return (
@@ -36,9 +36,9 @@ export default function AuthShell({ title, subtitle, children, footer, testID }:
       <ScrollView
         testID={testID}
         keyboardShouldPersistTaps="handled"
-        // Ancorado no TOPO, como o mockup: centrado verticalmente a marca
-        // caía no meio da tela com um vão enorme em cima, e o teclado
-        // empurrava o formulário inteiro a cada foco.
+        // Anchored at the TOP, like the mockup: centred vertically, the brand
+        // landed mid-screen with a huge gap above it, and the keyboard shoved
+        // the whole form on every focus.
         contentContainerStyle={{
           flexGrow: 1,
           paddingHorizontal: 20,
