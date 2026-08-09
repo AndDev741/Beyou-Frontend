@@ -39,8 +39,10 @@ function writeCollapsed(date: string, sectionId: string, collapsed: boolean) {
         const map = raw ? (JSON.parse(raw) as Record<string, string[]>) : {};
         const list = (map[date] ?? []).filter((id) => id !== sectionId);
         if (collapsed) list.push(sectionId);
-        map[date] = list;
-        localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(map));
+        // Only today is kept: past days have no reader, and letting the map grow
+        // forever eventually blows the storage quota (it bites the native side
+        // first, where the whole map shares one ~2KB SecureStore value).
+        localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify({ [date]: list }));
     } catch {
         /* storage indisponível — a escolha vale só nesta sessão */
     }

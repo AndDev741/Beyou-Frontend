@@ -70,3 +70,19 @@ test("marks a goal that reached its target so it stands out from the rest", () =
     // O XP prometido só aparece quando o alvo foi batido.
     expect(screen.getByText("+40")).toBeInTheDocument();
 });
+
+/**
+ * `[]` persisted means "hide them all", and it has to survive a remount. It used
+ * to collapse into `null` — indistinguishable from "never chose" — so the three
+ * defaults came back and undid the choice.
+ */
+test("a stored empty selection keeps every horizon hidden", () => {
+    localStorage.setItem("beyou-goal-horizons", JSON.stringify([]));
+    const thisWeek = new Date();
+    thisWeek.setDate(thisWeek.getDate() + 1);
+
+    renderWithProviders(<GoalsHorizon />, { storeOverride: storeWith([goal("a", thisWeek)]) });
+
+    expect(screen.queryByText("Goal a")).not.toBeInTheDocument();
+    localStorage.removeItem("beyou-goal-horizons");
+});

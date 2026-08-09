@@ -16,7 +16,13 @@ export const getDashboardSteps = (): SpotlightStep[] => [
     },
     {
         id: "categories-shortcut",
-        targetSelector: "[data-tutorial-id='shortcut-categories']",
+        // Below lg the sidebar (`hidden lg:flex`) is gone and the sheet items
+        // are unmounted, so `shortcut-categories` measured 0x0 and the
+        // spotlight highlighted nothing. `nav-more` is the phone anchor — the
+        // path to Categories — and the desktop selector still wins when the
+        // sidebar is there.
+        targetSelector:
+            "[data-tutorial-id='shortcut-categories'], [data-tutorial-id='nav-more']",
         titleKey: "TutorialSpotlightCategoriesTitle",
         descriptionKey: "TutorialSpotlightCategoriesDescription",
         position: "auto",

@@ -52,6 +52,22 @@ const pickAutoPosition = (rect: DOMRect) => {
     return entries.sort((a, b) => b[1] - a[1])[0][0] as SpotlightPosition;
 };
 
+/**
+ * First VISIBLE match for a step's selector.
+ *
+ * A step can list more than one anchor (the desktop sidebar link and the phone
+ * "More" button, say) — whichever is mounted at this width is the real target,
+ * and a `display:none` sibling measures 0x0.
+ */
+const findVisibleTarget = (selector: string): HTMLElement | null => {
+    const targets = Array.from(document.querySelectorAll(selector)) as HTMLElement[];
+    const visible = targets.find((item) => {
+        const rect = item.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    });
+    return visible ?? targets[0] ?? null;
+};
+
 export default function SpotlightTutorial({
     steps,
     onComplete,
@@ -99,12 +115,7 @@ export default function SpotlightTutorial({
         // one-shot measure would miss it and the spotlight would only appear once
         // the user scrolled. We poll until it's found (then stop).
         const findTarget = (): boolean => {
-            const targets = Array.from(document.querySelectorAll(step.targetSelector)) as HTMLElement[];
-            const visible = targets.find((item) => {
-                const rect = item.getBoundingClientRect();
-                return rect.width > 0 && rect.height > 0;
-            });
-            const target = visible ?? targets[0];
+            const target = findVisibleTarget(step.targetSelector);
             if (!target) {
                 setIsVisible(false);
                 return false;
@@ -122,7 +133,9 @@ export default function SpotlightTutorial({
             if (isOutside && !(isMobile && (isCreateFormStep || isRoutineStep))) {
                 target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
             }
-            return Boolean(visible);
+            // Only a MEASURED target ends the poll; a 0x0 fallback means the
+            // real anchor has not mounted yet.
+            return rect.width > 0 && rect.height > 0;
         };
 
         frame = window.requestAnimationFrame(findTarget);
@@ -149,11 +162,7 @@ export default function SpotlightTutorial({
 
     useEffect(() => {
         if (!isActive || !step || step.action !== "click") return;
-        const targets = Array.from(document.querySelectorAll(step.targetSelector)) as HTMLElement[];
-        const target = targets.find((item) => {
-            const rect = item.getBoundingClientRect();
-            return rect.width > 0 && rect.height > 0;
-        }) ?? targets[0];
+        const target = findVisibleTarget(step.targetSelector);
         if (!target) return;
 
         const handleClick = () => {
@@ -170,7 +179,7 @@ export default function SpotlightTutorial({
         if (!isActive || !step) return;
         if (typeof window === "undefined" || window.innerWidth >= 768) return;
         if (!step.id.includes("shortcut")) return;
-        const target = document.querySelector(step.targetSelector) as HTMLElement | null;
+        const target = findVisibleTarget(step.targetSelector);
         if (!target) return;
         target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }, [isActive, step?.id, step?.targetSelector]);

@@ -39,13 +39,20 @@ function horizonContext(key: HorizonKey, locale: string, t: (k: string) => strin
     return t("NoDeadline");
 }
 
+/**
+ * `null` means "never chose"; `[]` means "chose to hide them all".
+ *
+ * Collapsing the empty array to `null` made those two indistinguishable, so
+ * hiding every horizon came back with the three defaults on the next mount and
+ * silently undid the choice.
+ */
 function readStoredHorizons(): HorizonKey[] | null {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return null;
-        const parsed = JSON.parse(raw) as string[];
-        const valid = parsed.filter((key): key is HorizonKey => HORIZONS.includes(key as HorizonKey));
-        return valid.length > 0 ? valid : null;
+        const parsed = JSON.parse(raw) as unknown;
+        if (!Array.isArray(parsed)) return null;
+        return parsed.filter((key): key is HorizonKey => HORIZONS.includes(key as HorizonKey));
     } catch {
         return null;
     }

@@ -130,8 +130,14 @@ export default function BottomNav() {
 
                     {RIGHT.map(renderLink)}
 
+                    {/* Anchor for dashboard tutorial step 2. Categories lives
+                        behind "More" at this width, so the spotlight follows the
+                        PATH to it — and this button is always mounted, while a
+                        target inside the closed sheet has no rect to measure.
+                        Mirrors the native bar. */}
                     <button
                         type="button"
+                        data-tutorial-id="nav-more"
                         onClick={() => setSheetOpen((open) => !open)}
                         aria-expanded={sheetOpen}
                         className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-control py-1.5 transition-colors duration-200 active:bg-surface-2 ${

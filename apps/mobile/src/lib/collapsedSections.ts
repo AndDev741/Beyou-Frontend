@@ -1,11 +1,14 @@
 import * as SecureStore from 'expo-secure-store';
 
 /**
- * Seções recolhidas por dia: { "2026-08-04": ["seção-a", "seção-b"] }.
+ * Collapsed sections, per day: { "2026-08-04": ["section-a", "section-b"] }.
  *
- * Mesmo contrato do `beyou-routine-collapsed` da web. Amanhã a seção abre como
- * nova — recolher é uma decisão sobre o dia de hoje, não uma preferência
- * permanente.
+ * Same contract as the web's `beyou-routine-collapsed`. Tomorrow the section
+ * opens fresh — collapsing is a decision about today, not a lasting preference.
+ *
+ * Only the day being written survives. The map used to keep every day forever
+ * in a single SecureStore value (~2048 byte limit), so after a month or two of
+ * use every save started failing, silently and for good.
  */
 const KEY = 'beyou.routineCollapsed';
 
@@ -22,12 +25,12 @@ async function read(): Promise<CollapsedMap> {
   }
 }
 
-/** Ids recolhidos de um dia. Best-effort: sem storage, nada vem recolhido. */
+/** A day's collapsed ids. Best-effort: with no storage, nothing is collapsed. */
 export async function loadCollapsedSections(date: string): Promise<string[]> {
   return (await read())[date] ?? [];
 }
 
-/** Best-effort: sem persistência a escolha vale só nesta sessão. */
+/** Best-effort: with no storage the choice lasts only for this session. */
 export async function saveCollapsedSection(
   date: string,
   sectionId: string,
@@ -37,9 +40,10 @@ export async function saveCollapsedSection(
     const map = await read();
     const list = (map[date] ?? []).filter((id) => id !== sectionId);
     if (collapsed) list.push(sectionId);
-    map[date] = list;
-    await SecureStore.setItemAsync(KEY, JSON.stringify(map));
+    // Prunes as it writes: yesterday's entry has no reader, and the whole map
+    // shares one storage value.
+    await SecureStore.setItemAsync(KEY, JSON.stringify({ [date]: list }));
   } catch {
-    // swallow — preferência de tela não é dado crítico
+    // swallow — a screen preference is not critical data
   }
 }
