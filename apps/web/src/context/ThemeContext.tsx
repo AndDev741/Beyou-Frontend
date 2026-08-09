@@ -14,10 +14,10 @@ import { logger } from "../utils/logger";
 export type ThemeType = Theme;
 type ThemeContextType = {
     theme: ThemeType;
-    /** Preferência crua (modo + pack), antes de resolver `system`. */
+    /** Raw preference (mode + pack), before resolving `system`. */
     preference: ThemePreference;
     setPreference: (next: ThemePreference) => void;
-    /** @deprecated aplica um tema já resolvido; prefira `setPreference`. */
+    /** @deprecated applies an already-resolved theme; prefer `setPreference`. */
     setTheme: (next: ThemeType) => void;
 };
 
@@ -40,9 +40,9 @@ function readStoredPreference(): ThemePreference | null {
     try {
         const raw = localStorage.getItem(THEME_STORAGE_KEY);
         if (!raw) return null;
-        // Formato atual: a string da preferência ("system:beyou"). Instalações
-        // antigas guardaram o objeto Theme inteiro — aproveitamos o `mode` dele,
-        // que o parse migra dos nomes legados ("Cyberpunk", "Late Latte", ...).
+        // Current format: the preference string ("system:beyou"). Older installs
+        // stored the whole Theme object — we take its `mode`, which the parser
+        // migrates from the legacy names ("Cyberpunk", "Late Latte", ...).
         if (raw.startsWith("{")) {
             const parsed = JSON.parse(raw) as { mode?: string };
             return parsed.mode ? parseThemePreference(parsed.mode) : null;
@@ -58,8 +58,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const [preference, setPreference] = useState<ThemePreference>(
         () => readStoredPreference() ?? parseThemePreference(userTheme?.mode),
     );
-    // `system` acompanha o SO em tempo real: quem troca o tema do sistema com o
-    // app aberto vê a mudança sem recarregar.
+    // `system` follows the OS live: switching the system theme with the app open
+    // shows up without a reload.
     const [prefersDark, setPrefersDark] = useState(() => prefersDarkQuery().matches);
 
     useEffect(() => {
@@ -69,9 +69,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         return () => query.removeEventListener?.("change", onChange);
     }, []);
 
-    // A preferência da conta vence assim que o perfil carrega. Quando ela não
-    // existe, mantemos a escolha local (feita na tela de login) em vez de
-    // resetar para o padrão do SO.
+    // The account preference wins as soon as the profile loads. When there is
+    // none, the local choice (made on the login screen) is kept instead of
+    // resetting to the OS default.
     useEffect(() => {
         if (userTheme?.mode) setPreference(parseThemePreference(userTheme.mode));
     }, [userTheme?.mode]);
@@ -84,8 +84,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         Object.entries(themeToVars(theme)).forEach(([name, value]) =>
             root.style.setProperty(name, value),
         );
-        // A base entra como atributo para o CSS puro poder reagir (scrollbar,
-        // seleção de texto) e como color-scheme para os controles nativos.
+        // The base goes in as an attribute so plain CSS can react (scrollbar,
+        // text selection) and as color-scheme for the native controls.
         root.dataset.theme = theme.base;
         root.style.colorScheme = theme.base;
 

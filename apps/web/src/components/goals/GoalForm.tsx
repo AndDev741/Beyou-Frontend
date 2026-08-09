@@ -22,7 +22,7 @@ export type GoalFormMode = "create" | "edit";
 
 type GoalFormProps = {
     mode: GoalFormMode;
-    /** Fecha o modal que embrulha o formulário (undefined fora dele). */
+    /** Closes the modal wrapping the form (undefined outside one). */
     onClose?: () => void;
 };
 
@@ -57,12 +57,12 @@ const defaultValues: GoalFormValues = {
 };
 
 /**
- * O formulário do mockup: nome, descrição, motivação, ícone, alvo + unidade,
- * período (início/término), prazo em segmentado e categorias.
+ * The mockup's form: name, description, motivation, icon, target + unit, period
+ * (start/end), term as a segmented control, and categories.
  *
- * "Progresso atual" e "status" ficam de fora de propósito: o progresso nasce
- * em 0 e sobe pelo stepper do cartão, e o status é derivado dele — editar os
- * dois à mão quebraria a integridade do XP.
+ * "Current progress" and "status" stay out on purpose: progress starts at 0 and
+ * climbs through the card's stepper, and the status derives from it — editing
+ * either by hand would break the integrity of the XP.
  */
 function GoalForm({ mode, onClose }: GoalFormProps) {
     const dispatch = useDispatch();
@@ -145,8 +145,8 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
         clearErrors("root");
         setApiError(null);
 
-        // O progresso e o status não têm campo: em edição preservam o valor
-        // real (o stepper do cartão é quem move), em criação nascem zerados.
+        // Progress and status have no field: on edit they keep the real value
+        // (the card's stepper is what moves them), on create they start at zero.
         const currentValue = mode === "edit" ? Number(values.currentValue) : 0;
         const status = mode === "edit" ? values.status : "NOT_STARTED";
 
@@ -208,9 +208,9 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
         }
     };
 
-    // Sem largura: quem usa decide (w-full nos campos soltos, flex nas linhas
-    // de dois campos). Com `w-full` aqui dentro, o `flex-1` da unidade e o
-    // `w-28` do alvo perdiam para a ordem do CSS e o campo sumia.
+    // No width here: the caller decides (w-full on loose fields, flex on
+    // two-field rows). With `w-full` baked in, the unit's `flex-1` and the
+    // target's `w-28` lost to CSS order and the field collapsed.
     const controlClass =
         "rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
     const fieldClass = `w-full ${controlClass}`;

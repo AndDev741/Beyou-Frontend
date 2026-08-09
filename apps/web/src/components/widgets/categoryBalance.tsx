@@ -69,8 +69,8 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
         <BaseDiv title={t("LifeBalance")} icon={<ChartPie size={14.5} aria-hidden="true" />}>
             <div className="mt-1.5 flex justify-center">
                 {/* The viewBox has negative slack at the sides and top: the
-                    polígono ocupa 0..120, mas os rótulos crescem para fora dele
-                    e eram cortados pela borda. */}
+                    polygon takes 0..120, but the labels grow outside it and were
+                    clipped by the edge. */}
                 <svg
                     width="196"
                     height="150"

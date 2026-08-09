@@ -15,10 +15,10 @@ const MIN_CATEGORIES = 3;
 const MAX_AXES = 6;
 const CENTER = 60;
 const RADIUS = 42;
-/** Onde o rótulo fica, em múltiplos do raio. */
+/** Where the label sits, in multiples of the radius. */
 const LABEL_RATIO = 1.3;
 
-/** Ponto do eixo `index` (de `count`) a uma fração `ratio` do raio. */
+/** Point on axis `index` (of `count`) at a `ratio` fraction of the radius. */
 function point(index: number, count: number, ratio: number) {
   const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
   return {
@@ -33,11 +33,11 @@ const polygon = (count: number, ratio: number) =>
     .join(' ');
 
 /**
- * Equilíbrio de vida: XP por categoria num radar — o mesmo desenho da web, com
- * a malha de dois anéis, a série em acento translúcido e os rótulos por fora.
+ * Life balance: XP per category on a radar — the same drawing as the web, with the
+ * two-ring mesh, the series in translucent accent and the labels outside.
  *
- * A escala é relativa ao maior XP: o radar mostra EQUILÍBRIO entre áreas, não
- * valor absoluto.
+ * The scale is relative to the highest XP: the radar shows BALANCE between areas,
+ * not absolute value.
  */
 export default function CategoryBalanceWidget({ categories }: CategoryBalanceWidgetProps) {
   const { t } = useTranslation();
@@ -70,8 +70,8 @@ export default function CategoryBalanceWidget({ categories }: CategoryBalanceWid
   return (
     <WidgetCard title={t('LifeBalance')} icon={icon} testID="widget-category-balance">
       <View className="mt-1.5 items-center">
-        {/* O viewBox tem folga negativa nas laterais e no topo: o polígono ocupa
-            0..120, mas os rótulos crescem para fora dele e eram cortados. */}
+        {/* The viewBox has negative slack at the sides and top: the polygon takes
+            0..120, but the labels grow outside it and were being clipped. */}
         <Svg
           width={196}
           height={150}
@@ -90,9 +90,9 @@ export default function CategoryBalanceWidget({ categories }: CategoryBalanceWid
           />
           {axes.map((c, i) => {
             const label = point(i, axes.length, LABEL_RATIO);
-            // O texto cresce PARA FORA do polígono: à direita começa no ponto,
-            // à esquerda termina nele. Com "middle" fixo, os rótulos laterais
-            // entravam por cima do gráfico.
+            // The text grows OUTWARD from the polygon: on the right it starts at
+            // the point, on the left it ends there. With a fixed "middle", the side
+            // labels ran over the chart.
             const dx = label.x - CENTER;
             const anchor = Math.abs(dx) < 6 ? 'middle' : dx > 0 ? 'start' : 'end';
             return (

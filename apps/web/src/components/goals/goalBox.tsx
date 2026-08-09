@@ -85,8 +85,9 @@ function GoalBox({
   const [statusPhrase, setStatusPhrase] = useState("");
   const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
 
-  // "Concluir" é quem paga o XP, então só aparece com o alvo batido; antes
-  // dele o cartão mostra o + do stepper. targetValue 0 nunca "chega ao alvo".
+  // "Complete" is what pays the XP, so it only shows once the target is hit;
+  // before that the card shows the stepper's +. A targetValue of 0 never
+  // "reaches the target".
   const targetReached = targetValue > 0 && currentValue >= targetValue;
   const statusVariant: ChipVariant =
     status === "COMPLETED" ? "ok" : status === "IN_PROGRESS" ? "accent" : "neutral";
@@ -144,8 +145,8 @@ function GoalBox({
 
   }, [iconId, term, status]);
 
-  // Prazo compartilhado com o mobile: dia e mês, com o ano quando ele não é o
-  // corrente — "até Jul 24 - 2027" não se confunde com julho deste ano.
+  // Deadline shared with mobile: day and month, plus the year when it is not the
+  // current one — "by Jul 24 - 2027" cannot be read as this July.
   const formatDate = (dateString: string) => formatGoalDeadline(dateString, i18n.language);
 
   const completeTask = async (id: string) => {
@@ -184,7 +185,7 @@ function GoalBox({
         <IconTile size={34}>
           <BeyouIcon id={iconId} size={18} />
         </IconTile>
-        {/* Título e selos dividem o espaço que sobra: os chips quebram para a
+        {/* Title and badges share what is left: the chips wrap to the
             linha de baixo em vez de espremer o nome da meta a três letras. */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
           <h2
@@ -195,7 +196,7 @@ function GoalBox({
             {title}
           </h2>
 
-          {/* O XP entra em jogo quando o alvo chega; a concluída mostra os dois
+          {/* XP comes into play when the target lands; a completed goal shows
               — o que rendeu e o selo. */}
           {(targetReached || isCompleted) && (
             <Chip size="sm" variant="xp" className="shrink-0" title={t("XP Reward")}>
@@ -209,7 +210,7 @@ function GoalBox({
 
         {!readonly && (
           <>
-            {/* Editar e excluir no hover do desktop, sempre visíveis no telefone. */}
+            {/* Edit and delete on desktop hover, always visible on phones. */}
             <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
               <IconButton label={t('Edit')} onClick={handleEditMode}>
                 <Pencil size={15} aria-hidden="true" />
@@ -244,7 +245,7 @@ function GoalBox({
         </div>
       )}
 
-      {/* O detalhe só ao abrir: motivação, status e o período completo. */}
+      {/* Detail only on open: motivation, status and the full period. */}
       {expanded && (
         <div className="flex flex-col gap-2">
           {motivation && (
@@ -263,7 +264,7 @@ function GoalBox({
         </div>
       )}
 
-      {/* Stepper: -/+ em volta da barra, com o valor em mono à direita.
+      {/* Stepper: -/+ around the bar, with the value in mono on the right.
           Batido o alvo, o + dá lugar ao Concluir (é ele que paga o XP); já
           concluída, o mesmo botão vira Desfazer. */}
       <div className="mt-auto flex items-center gap-2 pt-1">
@@ -307,7 +308,7 @@ function GoalBox({
         )}
       </div>
 
-      {/* O rodapé de relance: prazo à esquerda, data-limite à direita. */}
+      {/* The at-a-glance footer: term on the left, deadline on the right. */}
       <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-text-3">
         <span>{termPhrase}</span>
         <span>{t("Until")} {formatDate(endDate.toString())}</span>

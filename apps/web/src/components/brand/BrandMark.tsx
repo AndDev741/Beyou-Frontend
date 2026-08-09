@@ -1,20 +1,21 @@
 type BrandMarkProps = {
-    /** Lado do símbolo em px. Ignorado quando `fluid`. */
+    /** The symbol's side in px. Ignored when `fluid`. */
     size?: number;
-    /** O símbolo acompanha a largura do container em vez de um lado fixo. */
+    /** The symbol follows the container width instead of a fixed side. */
     fluid?: boolean;
-    /** Mostra o wordmark "beyou" ao lado do símbolo. */
+    /** Shows the "beyou" wordmark beside the symbol. */
     withWordmark?: boolean;
     className?: string;
 };
 
 /**
- * O símbolo da marca: anel a 83% com a abertura no nordeste e o check
- * apontando para ela — o dia fechado, aberto para amanhã.
+ * The brand symbol: a ring at 83% with the opening to the north-east and the check
+ * pointing at it — the day closed, open for tomorrow.
  *
- * É o MESMO anel do check-in, do nível e do progresso do dia (ver `Ring`); se
- * os dois divergirem, a assinatura visual quebra. Abaixo de 20px o traço de 8
- * some, então a variante pequena engrossa o traço e reduz o raio.
+ * It is the SAME ring as the check-in, the level and the day's progress (see
+ * `Ring`); if the two drift apart, the visual signature breaks. Below 20px the
+ * stroke of 8 disappears, so the small variant thickens the stroke and shrinks the
+ * radius.
  */
 export default function BrandMark({ size = 32, fluid = false, withWordmark = false, className = "" }: BrandMarkProps) {
     const isSmall = size < 20;
@@ -53,8 +54,8 @@ export default function BrandMark({ size = 32, fluid = false, withWordmark = fal
                 />
             </svg>
             {withWordmark && (
-                // Wordmark unificado em minúsculo — o app alternava "Be you" e
-                // "Beyou" dependendo da tela.
+                // Wordmark unified in lower case — the app alternated between
+                // "Be you" and "Beyou" depending on the screen.
                 <span
                     className="font-semibold tracking-[-0.02em]"
                     style={{ fontSize: Math.round(size * 0.86) }}

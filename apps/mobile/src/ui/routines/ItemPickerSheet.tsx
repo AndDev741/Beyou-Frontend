@@ -89,10 +89,10 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   }, [tab, search, allHabits, allTasks, habitGroup, taskGroup]);
 
   /**
-   * O horário do próximo item: retoma de onde os já atribuídos pararam e divide
-   * o que sobra da janela da seção. Mesmo cálculo da web (`suggestSlots`), que
-   * agora mora no pacote compartilhado — antes o item entrava sem horário
-   * nenhum e cada linha tinha de ser preenchida à mão.
+   * The next item's time: resumes where the assigned ones stopped and splits what
+   * is left of the section's window. Same maths as the web (`suggestSlots`), which
+   * now lives in the shared package — before this the item arrived with no time at
+   * all and every row had to be filled by hand.
    */
   const nextSlot = () =>
     suggestSlots({ ...section, habitGroup, taskGroup }, 1)[0] ?? { startTime: '', endTime: '' };
@@ -155,9 +155,9 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   }, [allHabits, allTasks, pending, habitGroup, taskGroup]);
 
   /**
-   * Fechar SALVA. O que se escolhe aqui só mexe na cópia de trabalho da rotina
-   * — quem decide gravar de verdade é o botão da rotina — então sair pelo
-   * backdrop ou pelo voltar do sistema e perder tudo era só armadilha.
+   * Closing SAVES. What you pick here only touches the routine's working copy —
+   * the routine's own button is what really writes — so leaving through the
+   * backdrop or the system back button and losing everything was just a trap.
    */
   const finish = () => {
     onSave({ ...section, habitGroup, taskGroup });
@@ -240,7 +240,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           </Text>
         ) : (
           <View className="gap-1.5">
-            {/* Um toque já atribui: o item sobe para a bandeja com o horário
+            {/* One tap assigns: the item rises into the tray with the suggested
                 sugerido e some daqui. Marcar para depois confirmar era um passo
                 a mais sem nada em troca. */}
             {available.map((it) => (
@@ -297,7 +297,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         />
       ) : null}
 
-      {/* Rodapé fixo: uma ação só, sempre à vista. Não há "cancelar" porque
+      {/* Fixed footer: one action, always in sight. There is no "cancel" because
           não há o que cancelar — nada saiu daqui para o servidor. */}
       <View className="mt-2 border-t border-border pt-3">
         <Button

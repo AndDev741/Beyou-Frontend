@@ -21,9 +21,9 @@ import { resolvePhotoUrl } from "../../services/photoUrl";
 type Item = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
 
 /**
- * Ordem confirmada no mockup: Hoje, Categorias, Hábitos, Tarefas, Rotinas,
- * Metas. Rotinas antes de Metas de propósito — a rotina é o que se faz hoje,
- * a meta é o porquê.
+ * Order confirmed in the mockup: Today, Categories, Habits, Tasks, Routines,
+ * Goals. Routines before Goals on purpose — the routine is what you do today, the
+ * goal is why.
  */
 const MAIN: Item[] = [
     { key: "NavDashboard", to: "/dashboard", Icon: House },
@@ -35,8 +35,8 @@ const MAIN: Item[] = [
 ];
 
 const FOOT: Item[] = [
-    // O item substitui a bolha flutuante de feedback (v1.16 do mockup); o
-    // âncora do tutorial veio junto do launcher que morreu.
+    // This item replaces the floating feedback bubble (mockup v1.16); the
+    // tutorial anchor came along from the launcher that died with it.
     { key: "FeedbackShortcutLabel", to: "/feedback", Icon: MessageSquare, tutorial: "shortcut-feedback" },
     { key: "Config", to: "/configuration", Icon: Settings, tutorial: "shortcut-configuration" },
 ];
@@ -44,11 +44,11 @@ const FOOT: Item[] = [
 const STORAGE_KEY = "beyou-sidebar-collapsed";
 
 /**
- * A navegação do app no desktop. Substitui a barra azul (`Header`) e a coluna
- * de atalhos do dashboard (`Shortcuts`) por uma sidebar persistente.
+ * The app's desktop navigation. Replaces the blue bar (`Header`) and the
+ * dashboard's shortcut column (`Shortcuts`) with a persistent sidebar.
  *
- * Os `data-tutorial-id` dos atalhos migraram para cá: o tutorial mede o
- * elemento pelo id, e sem eles `tutorial.spec.ts` quebra.
+ * The shortcuts' `data-tutorial-id` attributes moved here: the tutorial measures
+ * the element by id, and without them `tutorial.spec.ts` breaks.
  */
 export default function Sidebar() {
     const { t } = useTranslation();
@@ -70,7 +70,7 @@ export default function Sidebar() {
             try {
                 localStorage.setItem(STORAGE_KEY, String(next));
             } catch {
-                /* storage indisponível — a escolha vale só nesta sessão */
+                /* storage unavailable — the choice lasts only for this session */
             }
             return next;
         });
@@ -93,7 +93,7 @@ export default function Sidebar() {
             {({ isActive }) => (
                 <>
                     <Icon size={18} className={isActive ? "text-accent" : "text-text-3"} aria-hidden="true" />
-                    {/* No modo recolhido o rótulo sai do fluxo mas continua no
+                    {/* Collapsed, the label leaves the flow but stays in the
                         DOM: o e2e seleciona os links por nome acessível. */}
                     <span className={collapsed ? "sr-only" : ""}>{t(key)}</span>
                 </>

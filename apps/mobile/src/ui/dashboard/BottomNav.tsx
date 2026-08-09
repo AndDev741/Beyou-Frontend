@@ -85,8 +85,8 @@ function NavItemButton({
       className="flex-1 items-center justify-center gap-0.5 rounded-control py-1.5 active:bg-surface-2"
     >
       {/* Fixed size: growing the active icon would resize two items on every
-          navegação e empurraria os vizinhos — muito visível a 360px. A cor é
-          quem responde "onde estou". */}
+          navigation and shove its neighbours — very visible at 360px. Colour is
+          what answers "where am I". */}
       <Icon size={20} color={color} />
       <Text className="text-[10px] font-semibold" style={{ color }} numberOfLines={1}>
         {t(item.key)}
@@ -159,8 +159,8 @@ export default function BottomNav() {
   return (
     <>
       {/* The scrim sits BELOW the bar: opening "More" must not black out the
-          atalhos, que são a orientação de onde se está. Sem Modal de propósito
-          — um Modal é outra janela e cobriria a barra junto. */}
+          shortcuts, which are how you know where you are. No Modal on purpose —
+          a Modal is another window and would cover the bar with it. */}
       {sheetOpen ? (
         <Pressable
           accessibilityRole="button"
@@ -193,9 +193,8 @@ export default function BottomNav() {
             <Text accessibilityRole="header" className="mb-3 text-[15px] font-semibold text-text">
               {t('More')}
             </Text>
-            {/* 31% + an 8px gap = three per row at any phone width;
-                a segunda linha alinha à esquerda em vez de esticar os dois
-                últimos tiles. */}
+            {/* 31% + an 8px gap = three per row at any phone width; the second
+                row aligns left instead of stretching the last two tiles. */}
             <View className="flex-row flex-wrap gap-2">
               {SHEET.map((item) => (
                 <SheetTile key={item.key} item={item} theme={theme} onPress={() => goTo(item.route)} />
@@ -219,10 +218,10 @@ export default function BottomNav() {
             />
           ))}
 
-          {/* Slot for the centre disc. It is absolutely positioned (below) so
-              subir uma altura EXATA para fora da barra; um filho em fluxo teria
-              essa altura decidida pela altura dos rótulos, que muda com a fonte
-              do sistema. O espaçador é quem reserva o buraco no meio da linha. */}
+          {/* Slot for the centre disc. It is absolutely positioned (below) so it
+              can rise an EXACT height out of the bar; a child in flow would have
+              that height decided by the labels, which change with the system
+              font. This spacer is what reserves the hole mid-row. */}
           <View className="w-14 shrink-0" />
 
           {RIGHT.map((item) => (
@@ -254,18 +253,18 @@ export default function BottomNav() {
           </Pressable>
 
           {isTutorialCompleted ? (
-            /* A full-width strip centres the disc with flexbox. Before
-               era `left: '50%'` + `marginLeft`, e a porcentagem resolvia contra
-               a caixa de conteúdo (a barra tem px-2), então o disco caía 10dp à
-               esquerda do meio da tela. `box-none` deixa o toque passar pela
-               faixa e chegar aos atalhos por baixo. */
+            /* A full-width strip centres the disc with flexbox. It used to be
+               `left: '50%'` + `marginLeft`, and the percentage resolved against
+               the content box (the bar has px-2), so the disc landed 10dp left of
+               centre. `box-none` lets touches pass through the strip and reach the
+               shortcuts underneath. */
             <View
               pointerEvents="box-none"
               style={{ position: 'absolute', left: 0, right: 0, top: -12, alignItems: 'center' }}
             >
               {/* Halo: two translucent discs instead of a blur (RN has no
-                  filtro). É o único alvo da barra que não é navegação, e o
-                  desenho precisa dizer isso antes do rótulo. */}
+                  filter). It is the only target in the bar that is not navigation,
+                  and the design has to say so before the label does. */}
               <View
                 pointerEvents="none"
                 style={{

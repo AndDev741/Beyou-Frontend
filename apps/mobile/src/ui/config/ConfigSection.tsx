@@ -7,23 +7,23 @@ import IconTile from '../IconTile';
 interface ConfigSectionProps {
   title: string;
   children: ReactNode;
-  /** Ícone do cartão, num tile de acento. */
+  /** The card's icon, in an accent tile. */
   icon?: ReactNode;
-  /** Substitui o título na linha fechada (o perfil mostra avatar, nome, nível). */
+  /** Replaces the title on the closed row (profile shows avatar, name, level). */
   header?: ReactNode;
-  /** Começa aberta. */
+  /** Starts open. */
   defaultOpen?: boolean;
   testID?: string;
-  /** Alvo do spotlight do tutorial (fica na raiz do cartão). */
+  /** Tutorial spotlight target (sits on the card root). */
   viewRef?: RefObject<View | null>;
-  /** Reporta o layout para o tutorial rolar a seção até a vista. */
+  /** Reports its layout so the tutorial can scroll the section into view. */
   onLayout?: (e: LayoutChangeEvent) => void;
 }
 
 /**
- * Cada assunto da configuração é um cartão que abre ao toque — a página inteira
- * aberta dava umas seis rolagens até os widgets. Espelha o ConfigSection da
- * web abaixo de `lg`, que é exatamente o caso do celular.
+ * Every configuration topic is a card that opens on tap — the whole page open took
+ * about six scrolls to reach the widgets. Mirrors the web's ConfigSection below
+ * `lg`, which is exactly the phone case.
  */
 export default function ConfigSection({
   title,
@@ -70,7 +70,7 @@ export default function ConfigSection({
           )}
         </View>
 
-        {/* Ícone trocado em vez de rotacionado: `transform: rotate` no style de
+        {/* Icon swapped instead of rotated: `transform: rotate` in the style of
             um ícone lucide-react-native some com o SVG (react-native-svg não
             aceita o transform assim), e o chevron simplesmente não aparecia. */}
         {open ? (

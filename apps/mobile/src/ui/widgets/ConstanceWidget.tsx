@@ -21,12 +21,12 @@ const floorToPixel = (value: number) => {
 };
 
 /**
- * Constância: o número grande, o recorde ao lado e a faixa dos últimos 28 dias.
+ * Streak: the big number, the record beside it and the strip of the last 28 days.
  *
- * A API não devolve histórico diário — o que sabemos com certeza é o tamanho da
- * sequência ATUAL. A faixa então destaca só esses dias e deixa o resto neutro; o
- * rótulo diz isso em voz alta para ninguém ler quadrado apagado como "falhei".
- * Quando existir endpoint de histórico, é aqui que ele entra.
+ * The API returns no daily history — what we know for certain is the length of the
+ * CURRENT streak. So the strip highlights only those days and leaves the rest
+ * neutral; the label says so out loud, so nobody reads a dim square as "I failed".
+ * When a history endpoint exists, this is where it plugs in.
  */
 export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
   const { t } = useTranslation();
@@ -34,9 +34,9 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
   const best = useSelector((s: RootState) => s.perfil.maxConstance);
   const streakDays = Math.min(constance, DAYS_SHOWN);
   const [stripWidth, setStripWidth] = useState(0);
-  // Arredonda o lado PARA BAIXO no pixel físico: com valor fracionário o RN
-  // arredonda cada quadrado para cima e a linha estourava a largura, jogando
-  // o 14º para a linha de baixo.
+  // Rounds the side DOWN to the physical pixel: with a fractional value RN rounds
+  // each square up, the row overflows the width and the 14th drops to the line
+  // below.
   const cell = stripWidth > 0 ? floorToPixel((stripWidth - GAP * (COLUMNS - 1)) / COLUMNS) : 0;
 
   return (
@@ -52,7 +52,7 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
         </Text>
       </View>
 
-      {/* Grade de 14 colunas montada à mão: `grid-cols-14` não existe no RN.
+      {/* A 14-column grid built by hand: `grid-cols-14` does not exist in RN.
           O lado do quadrado vem da largura MEDIDA — com largura em porcentagem
           + `aspect-square` os quadrados saíam sem altura e a faixa ficava um
           vão vazio no cartão. */}
@@ -66,7 +66,7 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
       >
         {cell > 0 &&
           Array.from({ length: DAYS_SHOWN }, (_, index) => {
-            // A sequência atual termina hoje, então ela ocupa o FIM da faixa.
+            // The current streak ends today, so it occupies the END of the strip.
             const inStreak = index >= DAYS_SHOWN - streakDays;
             return (
               <View
