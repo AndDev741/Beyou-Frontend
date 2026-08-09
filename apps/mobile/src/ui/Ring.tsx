@@ -6,32 +6,33 @@ import { useBeyouTheme } from '../theme/ThemeProvider';
 export type RingState = 'todo' | 'done' | 'skipped' | 'progress';
 
 interface RingProps {
-  /** Lado em px. */
+  /** Side in px. */
   size?: number;
-  /** 0..1 — só usado quando `state` é "progress". */
+  /** 0..1 — only used when `state` is "progress". */
   progress?: number;
   state?: RingState;
-  /** Rótulo central (nível, porcentagem). Ignorado quando há check. */
+  /** Centre label (level, percentage). Ignored when a check is drawn. */
   label?: string;
   className?: string;
-  /** Rótulo acessível; sem ele o anel é decorativo. */
+  /** Accessible label; without one the ring is decorative. */
   title?: string;
   testID?: string;
 }
 
 /**
- * Espaço de coordenadas do `BrandMark` — o check do check-in é literalmente o
- * mesmo traçado da marca. Se divergirem, a assinatura quebra.
+ * `BrandMark`'s coordinate space — the check-in tick is literally the same path
+ * as the brand's. If they drift apart, the signature breaks.
  */
 const VIEWBOX = 64;
 const CHECK_PATH = 'M22 33l7 7 14-14';
 const CROSS_PATH = 'M25 25l14 14M39 25l-14 14';
 
 /**
- * O anel do sistema: check-in, nível, progresso do dia e logo são a MESMA peça.
+ * The system's ring: check-in, level, day progress and the logo are the SAME
+ * piece.
  *
- * O traço acompanha o tamanho — um anel de 20px com traço fixo de 3 vira uma
- * bolha; um de 96 com o mesmo traço vira um fio.
+ * The stroke follows the size — a 20px ring with a fixed stroke of 3 turns into a
+ * blob; a 96px one with the same stroke turns into a thread.
  */
 export default function Ring({
   size = 24,
@@ -44,8 +45,8 @@ export default function Ring({
 }: RingProps) {
   const { theme } = useBeyouTheme();
 
-  // Traço calculado em px (mesma regra da web) e convertido para o viewBox de
-  // 64, que é o espaço do BrandMark.
+  // Stroke computed in px (same rule as the web) and converted into the 64
+  // viewBox, which is BrandMark's space.
   const strokePx = Math.max(2, Math.round(size * 0.11));
   const stroke = (strokePx * VIEWBOX) / size;
   const radius = (VIEWBOX - stroke) / 2;
@@ -101,8 +102,8 @@ export default function Ring({
           />
         )}
         {state === 'skipped' && (
-          // Contraste conferido nos dois temas: borda em text-3 e ícone em
-          // text-2 (com o ícone em text-3 ele sumia no escuro).
+          // Contrast checked in both themes: border in text-3 and icon in
+          // text-2 (with the icon in text-3 it vanished in the dark).
           <Path
             testID={testID ? `${testID}-cross` : undefined}
             d={CROSS_PATH}

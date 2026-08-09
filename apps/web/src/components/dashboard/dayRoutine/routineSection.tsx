@@ -21,7 +21,7 @@ import Ring from "../../../ui/Ring";
 const XP_FLOAT_DURATION_MS = 1200;
 const COLLAPSED_STORAGE_KEY = "beyou-routine-collapsed";
 
-/** Seções recolhidas por dia: { "2026-08-04": ["seção-a", "seção-b"] }. */
+/** Collapsed sections, per day: { "2026-08-04": ["section-a", "section-b"] }. */
 function readCollapsed(date: string, sectionId: string): boolean {
     try {
         const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
@@ -44,7 +44,7 @@ function writeCollapsed(date: string, sectionId: string, collapsed: boolean) {
         // first, where the whole map shares one ~2KB SecureStore value).
         localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify({ [date]: list }));
     } catch {
-        /* storage indisponível — a escolha vale só nesta sessão */
+        /* storage unavailable — the choice lasts only for this session */
     }
 }
 
@@ -143,8 +143,8 @@ export default function RoutineSection({ section, routineId}: { section: section
 
     const mergedItems = getMergedItems();
 
-    // Recolher é por dia: quem completou a seção de manhã economiza o espaço
-    // dela hoje, mas amanhã a seção volta aberta.
+    // Collapsing is per day: finishing the morning section buys back its space
+    // today, and tomorrow the section is open again.
     const today = new Date().toJSON().slice(0, 10);
     const sectionId = section.id || section.name;
     const [collapsed, setCollapsed] = useState(() => readCollapsed(today, sectionId));
@@ -159,11 +159,11 @@ export default function RoutineSection({ section, routineId}: { section: section
 
     const renderItems = () => {
         return mergedItems.map((item, index) => {
-            // A guarda tinha de vir ANTES do spread. Do jeito que estava, o
-            // `itemObj` era reatribuído a `{ ...undefined, item }` quando o
-            // hábito/tarefa não estava na store — um objeto truthy — então o
-            // `if (!itemObj)` nunca disparava e a linha renderizava sem nome
-            // nem ícone em vez de ser pulada.
+            // The guard had to come BEFORE the spread. As it was, `itemObj` was
+            // reassigned to `{ ...undefined, item }` when the habit or task was
+            // not in the store — a truthy object — so `if (!itemObj)` never
+            // fired and the row rendered with no name and no icon instead of
+            // being skipped.
             const found =
                 item.type === 'task'
                     ? allTasks?.find(task => task.id === item.id)
@@ -177,9 +177,9 @@ export default function RoutineSection({ section, routineId}: { section: section
             const ItemCheck = item.check?.find((check) => check?.checkDate === currentDate);
             const checked: boolean = ItemCheck?.checked === true ? true : false;
             const skipped: boolean = ItemCheck?.skipped === true && !checked;
-            // O XP fica NA LINHA depois de concluído (o XpFloat só marca o
-            // instante do check e some). Vem do próprio check, então sobrevive
-            // ao reload e mostra o valor real, já com decaimento aplicado.
+            // The XP stays ON THE ROW once done (XpFloat only marks the moment
+            // of the check and leaves). It comes from the check itself, so it
+            // survives a reload and shows the real value, decay included.
             const xpEarned: number = checked ? (ItemCheck?.xpGenerated ?? 0) : 0;
             // Only habits carry one; `in` narrows the union without a cast.
             const motivationalPhrase =
@@ -192,7 +192,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                             <XpFloat xp={xpFloats[itemObj.item.groupId]} />
                         )}
                         <label className="flex items-center justify-center min-w-[44px] min-h-[44px] -my-2 -ml-2 cursor-pointer">
-                        {/* O input continua sendo o alvo real (teclado, leitor de
+                        {/* The input stays the real target (keyboard, screen
                             tela, e2e); o anel é o desenho por cima dele. */}
                         <input
                             type="checkbox"
@@ -219,9 +219,9 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 };
                                 handleCheck(groupToCheck);
                                 if (!checked) {
-                                    // A frase motivacional vem com o ícone do
-                                    // próprio hábito: o check genérico não diz
-                                    // o que foi concluído.
+                                    // The motivational phrase comes with the
+                                    // habit's own icon: a generic check does not
+                                    // say what got done.
                                     notify.success(itemObj.name || t("Item completed"), {
                                         subtitle: motivationalPhrase || undefined,
                                         icon: <BeyouIcon id={itemObj.iconId} size={16} />,
@@ -241,7 +241,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                         <BeyouIcon id={itemObj.iconId} />
                     </span>
 
-                    {/* No mobile a linha quebra em duas: metadados em cima, nome
+                    {/* On phones the row breaks in two: metadata on top, name
                         embaixo em largura cheia. Numa linha só, nome + XP + hora
                         + pular não cabem em 390px e a coluna da direita saía da
                         tela. `flex-col-reverse` inverte só o VISUAL — o nome
@@ -322,7 +322,7 @@ export default function RoutineSection({ section, routineId}: { section: section
                     </span>
                 )}
 
-                {/* Recolher a seção economiza espaço no dia; o estado fica salvo
+                {/* Collapsing a section buys space back for the day; the state
                     por dia no localStorage — amanhã ela abre como nova. */}
                 <button
                     type="button"

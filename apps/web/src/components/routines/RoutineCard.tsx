@@ -54,8 +54,8 @@ export const RoutineCard = ({
 
     const handleDeleteClick = () => onRequestDelete(routine);
 
-    // O backend guarda "Monday", "Tuesday"…; a comparação é case-insensitive
-    // porque o agendamento já gravou variações ao longo do tempo.
+    // The backend stores "Monday", "Tuesday"…; the comparison is
+    // case-insensitive because scheduling has written variants over time.
     const scheduledDays = new Set(scheduleDays.map((day) => day.toLowerCase()));
     const weekDays = [
         { key: "sunday", short: "D" },
@@ -66,7 +66,7 @@ export const RoutineCard = ({
         { key: "friday", short: "S" },
         { key: "saturday", short: "S" },
     ];
-    // A rotina roda no dia aberto? Sem agenda, assume que sim (rotina avulsa).
+    // Does the routine run on the open day? With no schedule, assume yes.
     const selectedWeekday = selectedDate
         ? new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" }).toLowerCase()
         : "";
@@ -102,7 +102,7 @@ export const RoutineCard = ({
                             }`}
                         </span>
                     </span>
-                    {/* No telefone as ações ficam escondidas até abrir; o chevron
+                    {/* On phones the actions hide until it opens; the chevron
                         avisa que o cartão expande. Vira 180° aberto. */}
                     <FiChevronDown
                         aria-hidden="true"
@@ -112,7 +112,7 @@ export const RoutineCard = ({
                     />
                 </button>
 
-                {/* No telefone o cartão fica limpo: as ações aparecem ao abrir
+                {/* On phones the card stays clean: the actions appear on opening
                     pelo título. No desktop continuam sempre à vista. */}
                 <div
                     className={`${
@@ -129,7 +129,7 @@ export const RoutineCard = ({
                         {t("Schedule")}
                     </button>
 
-                    {/* Editar e excluir só no hover do desktop — no telefone
+                    {/* Edit and delete only on desktop hover — on phones
                         aparecem junto com o resto ao abrir o cartão. */}
                     <div className="flex items-center gap-1.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                     <button
@@ -150,7 +150,7 @@ export const RoutineCard = ({
                     </button>
                     </div>
 
-                    {/* Só no desktop: no telefone esta fileira só existe com o
+                    {/* Desktop only: on phones this row exists only with the
                         cartão aberto, e aí este chevron seria o SEGUNDO — o do
                         título já está ali em cima fazendo a mesma coisa. */}
                     <button
@@ -165,7 +165,7 @@ export const RoutineCard = ({
                 </div>
             </header>
 
-            {/* A identidade da rotina em três blocos: quando ela roda, o nível
+            {/* The routine's identity in three blocks: when it runs, its level
                 dela e como está hoje. Os quatro cartões de estatística que
                 existiam aqui eram mais interface que informação. */}
             <div className="mt-3 flex flex-wrap items-start gap-x-6 gap-y-3 md:mt-4 md:gap-y-4">
@@ -227,7 +227,7 @@ export const RoutineCard = ({
                         </span>
                     </div>
                 )}
-                {/* Telefone: uma barra só — o progresso do dia quando a rotina
+                {/* Phone: one bar only — the day's progress when the routine
                     roda nele, senão o nível. Duas barras iguais empilhadas em
                     tela estreita não diziam qual importava agora. */}
                 <div className="w-full md:hidden">
@@ -336,7 +336,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
 
     return (
         <div className="mt-3 first:mt-0">
-            {/* Mesmo cabeçalho da rotina do dia: ícone solto, nome de 12,5px em
+            {/* Same header as the day's routine: loose icon, 12.5px name in
                 text-2 e a hora em mono. O tile de 32px com nome de 13,5px pesava
                 mais que os itens que ele agrupa. */}
             <div className="flex items-center gap-2.5 py-1.5">
@@ -407,7 +407,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                 key={`${item.type}-${item.id}-${idx}`}
                                 className="group flex items-center gap-2.5 rounded-control px-1.5 py-1.5 transition-colors duration-200 hover:bg-surface-2"
                             >
-                                {/* Mesmo padrão da rotina do dia: o input é o alvo
+                                {/* Same pattern as the day's routine: the input is
                                     real (teclado, leitor de tela, e2e) e o anel é
                                     o desenho por cima dele. */}
                                 <label className="-my-2 -ml-2 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center">
@@ -429,7 +429,7 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                     {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
                                 </span>
 
-                                {/* No telefone a linha quebra em duas: metadados em
+                                {/* On phones the row breaks in two: metadata on
                                     cima, nome embaixo em largura cheia — igual à
                                     rotina do dia e ao nativo. `flex-col-reverse`
                                     inverte só o VISUAL; no DOM o nome vem antes,

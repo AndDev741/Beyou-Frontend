@@ -12,12 +12,12 @@ import { useAgentChat } from './useAgentChat';
 
 interface AgentWidgetProps {
   /**
-   * Desenha o balão flutuante. O host que já oferece um gatilho próprio — o
-   * botão central da `BottomNav`, que é o caso de toda tela autenticada no
-   * mobile — passa `false` e deixa a barra ser a porta de entrada; a conversa
-   * continua morando aqui. Padrão `true` para quem montar o widget sozinho,
-   * sem barra (é o mesmo corte do web, onde o balão só aparece a partir de
-   * `lg`, largura em que a barra inferior não existe).
+   * Draws the floating bubble. A host that already offers its own trigger — the
+   * centre button of `BottomNav`, which is every signed-in screen on mobile —
+   * passes `false` and lets the bar be the way in; the conversation still lives
+   * here. Defaults to `true` for anyone mounting the widget on its own, with no
+   * bar (the same cut as the web, where the bubble only appears from `lg`, the
+   * width at which the bottom bar does not exist).
    */
   showFab?: boolean;
 }
@@ -42,12 +42,13 @@ export default function AgentWidget({ showFab = true }: AgentWidgetProps) {
     setOpen(true);
   };
 
-  // O botão central da barra inferior é o gatilho do mobile; ele pede a
-  // abertura por evento porque o estado de aberto vive aqui. A inscrição
-  // respeita o mesmo portão do balão: durante o onboarding nada abre.
-  // Deps só o portão: `openPanel` é recriado a cada render, e reinscrever a
-  // cada render não mudaria nada — a closure só usa `setOpen` e
-  // `chat.ensureLoaded`, ambos estáveis (useCallback sem deps mutáveis).
+  // The bottom bar's centre button is the phone trigger; it asks for the panel
+  // through an event because the open state lives here. The subscription obeys
+  // the same gate as the bubble: during onboarding nothing opens.
+  // Deps are the gate alone: `openPanel` is recreated every render, and
+  // resubscribing every render would change nothing — the closure only uses
+  // `setOpen` and `chat.ensureLoaded`, both stable (useCallback with no mutable
+  // deps).
   useEffect(() => {
     if (!isTutorialCompleted) return;
     return onAgentPanelOpen(openPanel);

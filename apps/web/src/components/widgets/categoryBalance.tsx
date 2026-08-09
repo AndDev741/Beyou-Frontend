@@ -15,10 +15,10 @@ const MIN_CATEGORIES = 3;
 const MAX_AXES = 6;
 const CENTER = 60;
 const RADIUS = 42;
-/** Onde o rótulo fica, em múltiplos do raio. */
+/** Where the label sits, in multiples of the radius. */
 const LABEL_RATIO = 1.3;
 
-/** Ponto do eixo `index` (de `count`) a uma fração `ratio` do raio. */
+/** Point on axis `index` (of `count`) at a `ratio` fraction of the radius. */
 function point(index: number, count: number, ratio: number) {
     const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
     return {
@@ -33,11 +33,12 @@ const polygon = (count: number, ratio: number) =>
         .join(" ");
 
 /**
- * Equilíbrio de vida: XP por categoria num radar.
+ * Life balance: XP per category on a radar.
  *
- * SVG em vez de chart.js — o canvas não resolve CSS var, então a cor tinha de
- * ser lida do objeto de tema e ainda ficava errada até o tema aplicar. Aqui a
- * malha e a série são classes de token e acompanham tema e pack de acento.
+ * SVG instead of chart.js — a canvas cannot resolve a CSS var, so the colour had
+ * to be read from the theme object and was still wrong until the theme applied.
+ * Here the mesh and the series are token classes and follow theme and accent
+ * pack.
  */
 export default function CategoryBalance({ categories }: categoryBalanceProps) {
     const { t } = useTranslation();
@@ -54,8 +55,8 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
         );
     }
 
-    // A escala é relativa ao maior XP: o radar mostra EQUILÍBRIO entre áreas,
-    // não valor absoluto.
+    // The scale is relative to the highest XP: the radar shows BALANCE between
+    // areas, not absolute value.
     const maxXp = Math.max(...axes.map((c) => c.xp), 1);
     const series = axes
         .map((c, i) => {
@@ -67,7 +68,7 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
     return (
         <BaseDiv title={t("LifeBalance")} icon={<ChartPie size={14.5} aria-hidden="true" />}>
             <div className="mt-1.5 flex justify-center">
-                {/* O viewBox tem folga negativa nas laterais e no topo: o
+                {/* The viewBox has negative slack at the sides and top: the
                     polígono ocupa 0..120, mas os rótulos crescem para fora dele
                     e eram cortados pela borda. */}
                 <svg
@@ -87,9 +88,9 @@ export default function CategoryBalance({ categories }: categoryBalanceProps) {
                     />
                     {axes.map((c, i) => {
                         const label = point(i, axes.length, LABEL_RATIO);
-                        // O texto cresce PARA FORA do polígono: à direita começa
-                        // no ponto, à esquerda termina nele. Com "middle" fixo,
-                        // os rótulos laterais entravam por cima do gráfico.
+                        // The text grows OUTWARD from the polygon: on the right it
+                        // starts at the point, on the left it ends there. With a
+                        // fixed "middle", the side labels ran over the chart.
                         const dx = label.x - CENTER;
                         const anchor = Math.abs(dx) < 6 ? "middle" : dx > 0 ? "start" : "end";
                         return (

@@ -45,7 +45,7 @@ interface RoutineCardProps {
   scheduleRef?: React.RefObject<View | null>;
 }
 
-/** Domingo→sábado, com a inicial em pt/en resolvida pelo i18n do chamador. */
+/** Sunday→Saturday, with the initial resolved by the caller's i18n. */
 const WEEK_DAYS = [
   { key: 'sunday', short: 'D' },
   { key: 'monday', short: 'S' },
@@ -57,13 +57,13 @@ const WEEK_DAYS = [
 ] as const;
 
 /**
- * Cartão de rotina no desenho de telefone da web: cabeçalho enxuto (ícone,
- * nome, contagem, chevron), a fileira de dias e UMA barra — o progresso do dia
- * quando a rotina roda nele, senão o nível. Duas barras iguais empilhadas em
- * tela estreita não diziam qual importava agora.
+ * Routine card in the web's phone design: a lean header (icon, name, counts,
+ * chevron), the row of days and ONE bar — the day's progress when the routine
+ * runs on it, otherwise the level. Two identical bars stacked on a narrow screen
+ * never said which one mattered now.
  *
- * Agendar/editar/excluir aparecem ao abrir o cartão, como na web abaixo de
- * `md`: fechado ele fica limpo.
+ * Schedule/edit/delete appear when the card opens, as on the web below `md`:
+ * closed, it stays clean.
  */
 export default function RoutineCard({ routine, today, onSchedule, onEdit, onDelete, onChanged, scheduleRef }: RoutineCardProps) {
   const { t } = useTranslation();
@@ -79,7 +79,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const levelPct = calculateLevelProgress(routine.xp ?? 0, routine.actualLevelXp ?? 0, routine.nextLevelXp ?? 0);
 
   const scheduledDays = new Set((routine.schedule?.days ?? []).map((day) => day.toLowerCase()));
-  // A rotina roda no dia aberto? Sem agenda, assume que sim (rotina avulsa).
+  // Does the routine run on the open day? With no schedule, assume yes (a loose one).
   const weekday = new Date(`${today}T12:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
   const runsToday = scheduledDays.size === 0 || scheduledDays.has(weekday);
 
@@ -117,7 +117,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           onPress={() => setExpanded((open) => !open)}
           testID={`routine-expand-${routine.id}`}
         >
-          {/* Ícone trocado em vez de rotacionado (ver ConfigSection). */}
+          {/* Icon swapped instead of rotated (see ConfigSection). */}
           {expanded ? (
             <ChevronUp size={18} color={theme.text3} />
           ) : (
@@ -126,7 +126,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
         </IconButton>
       </View>
 
-      {/* Quando ela roda: sete quadradinhos, os agendados no acento. */}
+      {/* When it runs: seven little squares, the scheduled ones in accent. */}
       <View className="mt-3 flex-row gap-1">
         {WEEK_DAYS.map((day, index) => {
           const on = scheduledDays.has(day.key);
@@ -147,7 +147,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
         })}
       </View>
 
-      {/* Uma barra só: hoje quando a rotina roda hoje, senão o nível. */}
+      {/* One bar only: today when the routine runs today, otherwise the level. */}
       <View className="mt-3">
         <View className="h-1.5 overflow-hidden rounded-full bg-surface-2">
           <View
@@ -164,7 +164,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
 
       {expanded ? (
         <View className="mt-3 border-t border-border pt-3">
-          {/* Fechado o cartão fica limpo; as ações vêm com o resto ao abrir. */}
+          {/* Closed, the card stays clean; the actions arrive with the rest. */}
           <View className="mb-3 flex-row items-center gap-1.5">
             <Pressable
               ref={scheduleRef}

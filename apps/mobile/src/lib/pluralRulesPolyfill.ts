@@ -1,16 +1,17 @@
 /**
- * O Hermes deste build vem SEM `Intl.PluralRules`. Sem ele o i18next não acha
- * as chaves `_one`/`_other` e cai na chave base — que em várias delas é só o
- * rótulo, então "1 rotina" virava "Rotinas" e "3 seções" virava "Seções".
+ * This Hermes build ships WITHOUT `Intl.PluralRules`. Without it i18next never
+ * finds the `_one`/`_other` keys and falls back to the base key — which in
+ * several of them is just the label, so "1 routine" read as "Routines" and
+ * "3 sections" as "Sections".
  *
- * O app fala dois idiomas e os dois têm regra cardinal simples, então o
- * polyfill cabe aqui em vez de uma dependência nova:
+ * The app speaks two languages and both have a simple cardinal rule, so the
+ * polyfill fits here instead of a new dependency:
  *
- * - en → `one` quando n é exatamente 1 (CLDR: i = 1 and v = 0)
- * - pt → `one` quando n é 0 ou 1 (CLDR: i = 0..1)
+ * - en → `one` when n is exactly 1 (CLDR: i = 1 and v = 0)
+ * - pt → `one` when n is 0 or 1 (CLDR: i = 0..1)
  *
- * Só cardinal. Nada no app usa ordinal ("1º"), e prometer uma categoria que
- * não sabemos calcular seria pior que não ter o polyfill.
+ * Cardinal only. Nothing in the app uses ordinals ("1st"), and promising a
+ * category we cannot compute would be worse than having no polyfill.
  */
 
 type Category = 'one' | 'other';
@@ -49,7 +50,7 @@ class MinimalPluralRules {
   }
 }
 
-/** Instala o polyfill só quando o runtime não traz o próprio. */
+/** Installs the polyfill only when the runtime does not bring its own. */
 export function installPluralRulesPolyfill(): void {
   const intl = globalThis.Intl as { PluralRules?: unknown } | undefined;
   if (!intl || typeof intl.PluralRules !== 'undefined') return;

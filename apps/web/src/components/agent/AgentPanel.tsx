@@ -46,10 +46,10 @@ function TypingDots() {
 }
 
 /**
- * The chat surface behind the FAB. Two shells, same content: telefone = sheet
- * de 86% ancorada embaixo, desktop = painel lateral de altura cheia à direita.
- * O modo tela cheia saiu — o painel lateral já dá espaço de conversa, e o
- * overlay central escondia a página que a conversa está falando sobre.
+ * The chat surface behind the FAB. Two shells, same content: phone = a sheet at
+ * 86% anchored to the bottom, desktop = a full-height side panel on the right.
+ * Fullscreen mode is gone — the side panel already gives room to talk, and the
+ * centred overlay hid the very page the conversation is about.
  * Stays mounted once opened so the conversation survives page changes.
  */
 function AgentPanel({ open, onClose }: AgentPanelProps) {
@@ -60,9 +60,9 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     const isDesktop = useIsDesktop();
 
     /**
-     * Link interno sugerido pelo agente: navega E fecha o painel. Ir ver o que
-     * o agente fez com o painel ainda aberto por cima da tela não ajuda —
-     * ele cobre exatamente o que a pessoa foi conferir.
+     * An internal link the agent suggested: navigates AND closes the panel.
+     * Going to see what the agent did with the panel still covering the screen
+     * does not help — it hides exactly what you went to check.
      */
     const goToPage = (href: string) => {
         onClose();
@@ -216,9 +216,9 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     }, [open, onClose]);
 
     /**
-     * No telefone o painel é uma sheet que cobre a tela: a página atrás não pode
-     * rolar por baixo dela. No desktop ele é uma coluna lateral e a página
-     * continua visível, então travar a rolagem ali seria tirar algo que funciona.
+     * On a phone the panel is a sheet that covers the screen: the page behind
+     * must not scroll under it. On desktop it is a side column and the page stays
+     * visible, so locking the scroll there would take away something that works.
      */
     useEffect(() => {
         if (!open || isDesktop) return;
@@ -527,10 +527,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.92, y: reducedMotion ? 0 : 12 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
                         style={{ transformOrigin: "right center" }}
-                        // Telefone: sheet de 86% da tela, ancorada embaixo.
-                        // Desktop: painel lateral de altura cheia encostado à
-                        // direita — o popover flutuante de 440px sobrava espaço
-                        // de conversa e ainda tampava o canto do conteúdo.
+                        // Phone: a sheet at 86% of the screen, anchored bottom.
+                        // Desktop: a full-height side panel against the right —
+                        // the floating 440px popover was short on room to talk
+                        // and still covered a corner of the content.
                         className="fixed inset-x-0 bottom-0 top-[8%] z-50 flex flex-col overflow-hidden
                         rounded-t-card bg-surface text-text shadow-2xl shadow-black/20
                         lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[520px] lg:rounded-none
@@ -544,7 +544,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
                                         <Sparkles size={16} className="text-accent" />
                                     </span>
-                                    {/* Nome fixo em cima, assunto da conversa em
+                                    {/* Fixed name on top, the thread's subject
                                         mono embaixo — o título mudava sozinho
                                         quando o agente renomeava o chat e a
                                         pessoa perdia a referência de onde está. */}
@@ -617,7 +617,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 </AnimatePresence>
 
                                 {/* Messages / empty state */}
-                                {/* `overscroll-contain`: chegando ao fim da
+                                {/* `overscroll-contain`: on reaching the end of
                                     conversa, a rolagem PARA em vez de continuar
                                     na página atrás do painel. */}
                                 <div
@@ -635,7 +635,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                 <p className="mt-1 max-w-md text-sm text-text-2">{t("AgentEmptySubtitle")}</p>
                                             </div>
                                             <div className="mt-1 flex flex-wrap justify-center gap-2">
-                                                {/* Só no começo: depois da primeira
+                                                {/* Only at the start: after the first
                                                     troca a pessoa já sabe o que
                                                     pedir, e o atalho vira ruído
                                                     em cima do input. */}

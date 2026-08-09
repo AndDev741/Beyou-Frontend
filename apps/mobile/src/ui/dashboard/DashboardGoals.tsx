@@ -15,7 +15,7 @@ type HorizonKey = 'thisWeek' | 'thisMonth' | 'thisYear' | 'beyond';
 
 const HORIZONS: HorizonKey[] = ['thisWeek', 'thisMonth', 'thisYear', 'beyond'];
 
-/** Quanto do prazo cabe em cada horizonte: perto, só o dia; longe, só o mês. */
+/** How much of the deadline each horizon shows: near, the day; far, the month. */
 const DEADLINE_SHAPE: Record<HorizonKey, DeadlineShape> = {
   thisWeek: 'weekday',
   thisMonth: 'dayMonth',
@@ -31,16 +31,15 @@ const LABELS: Record<HorizonKey, { title: string; chip: string }> = {
 };
 
 /**
- * "Suas metas" no dashboard: o porquê dos checks do dia, agrupado por horizonte.
- * Espelha o `GoalsHorizon` da web no telefone.
+ * "Your goals" on the dashboard: the why behind the day's checks, grouped by
+ * horizon. Mirrors the web's `GoalsHorizon` at phone width.
  *
- * Os cartões são compactos de propósito — aqui a meta é ver o que está à frente
- * numa olhada; o detalhe (stepper, motivação, período) mora na página de Metas,
- * para onde o toque leva já destacando a meta escolhida.
+ * The cards are compact on purpose — the point here is seeing what lies ahead at
+ * a glance; the detail (stepper, motivation, period) lives on the Goals page,
+ * where a tap takes you with the chosen goal already highlighted.
  *
- * O filtro é um toggle por horizonte com contagem, atrás de um resumo
- * ("mês · ano") porque os chips não cabem no cabeçalho de um telefone. A escolha
- * fica salva.
+ * The filter is a per-horizon toggle with a count, behind a summary ("month ·
+ * year") because the chips do not fit in a phone header. The choice is saved.
  */
 export default function DashboardGoals() {
   const { t, i18n } = useTranslation();
@@ -73,8 +72,8 @@ export default function DashboardGoals() {
     });
   };
 
-  // Abre a página de Metas já com a meta em foco — `expand` é o nome que a tela
-  // de metas lê (a web usa `?goal=`; aqui não há barra de endereço para casar).
+  // Opens the Goals page with the goal in focus — `expand` is the name the goals
+  // screen reads (the web uses `?goal=`; there is no address bar to match here).
   const openGoal = (id: string) => router.push({ pathname: '/goals', params: { expand: id } });
 
   const visible = HORIZONS.filter((key) => active.includes(key) && grouped[key].length > 0);
@@ -101,7 +100,7 @@ export default function DashboardGoals() {
           className="ml-auto flex-row items-center gap-1 rounded-full px-2 py-1 active:bg-surface-2"
         >
           <Text className="text-xs text-text-3">{activeSummary || t('Filter')}</Text>
-          {/* Ícone trocado em vez de rotacionado (ver ConfigSection). */}
+          {/* Icon swapped instead of rotated (see ConfigSection). */}
           {filterOpen ? (
             <ChevronUp size={13} color={theme.text3} />
           ) : (

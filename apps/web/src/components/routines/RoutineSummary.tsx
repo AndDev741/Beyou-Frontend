@@ -9,19 +9,19 @@ type RoutineSummaryProps = {
     routines: Routine[];
     selectedDate: string;
     onDateChange: (value: string) => void;
-    /** Ação primária da página (criar rotina), no topo direito do cartão. */
+    /** The page's primary action (create routine), top right of the card. */
     action?: ReactNode;
 };
 
 /** Returns ISO date string YYYY-MM-DD for N days ago (0 = today). */
 /** Returns the last 5 days including today, oldest→newest. */
 /**
- * Os sete últimos dias, TERMINANDO HOJE — hoje é sempre a última caixa e a
- * selecionada por padrão.
+ * The last seven days, ENDING TODAY — today is always the last box and the one
+ * selected by default.
  *
- * Assim ontem e os dias recentes ficam a um toque, sem passar pelo calendário.
- * A semana civil (seg→dom) colocaria dias futuros na fila numa segunda-feira, e
- * dia futuro não tem rotina para ver.
+ * That keeps yesterday and the recent days one tap away, without the calendar. A
+ * civil week (Mon→Sun) would put future days in the row on a Monday, and a future
+ * day has no routine to look at.
  */
 function getLastSevenDays(): string[] {
     const now = new Date();
@@ -72,7 +72,7 @@ function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick
                     isSelected && !isSnapshotMode ? "text-on-accent" : "text-text-3"
                 }`}
             >
-                {/* Hoje se anuncia pelo nome, não por um ponto discreto. */}
+                {/* Today announces itself by name, not by a subtle dot. */}
                 {isToday ? todayLabel : shortDay}
             </span>
             <b
@@ -264,7 +264,7 @@ interface DatePickerBarProps {
     t: (key: string) => string;
 }
 
-/** Largura de uma caixa de dia + o gap, e o espaço do botão de calendário. */
+/** Width of a day box plus the gap, and the room the calendar button takes. */
 const DAY_BOX = { compact: 40 + 6, full: 58 + 8 };
 const CALENDAR_SLOT = { compact: 52 + 6, full: 118 + 8 };
 
@@ -281,8 +281,8 @@ function DatePickerBar({
     const popoverRef = useRef<HTMLDivElement>(null);
     const rowRef = useRef<HTMLDivElement>(null);
     const week = useMemo(() => getLastSevenDays(), []);
-    // Quantos dias cabem de fato na tela. Sem isto, o trilho ou rolava
-    // escondendo dias ou quebrava em duas linhas no telefone.
+    // How many days actually fit on screen. Without this the strip either
+    // scrolled days out of sight or broke into two lines on a phone.
     const [visibleDays, setVisibleDays] = useState(7);
 
     useEffect(() => {
@@ -338,7 +338,7 @@ function DatePickerBar({
     return (
         <div ref={rowRef} className="flex items-center gap-1.5 md:gap-2">
             <div className="flex min-w-0 items-center gap-1.5 md:gap-2">
-                {/* Os últimos dias terminando hoje — hoje é a última caixa e vem
+                {/* The last days ending today — today is the last box and comes
                     selecionada. Mostra só o que cabe: o resto vive no calendário. */}
                 {week.slice(week.length - visibleDays).map((dateStr) => (
                     <DayChip
@@ -354,7 +354,7 @@ function DatePickerBar({
                 ))}
             </div>
 
-            {/* O botão fica FORA do trilho: dentro dele, o overflow-x-auto
+            {/* The button sits OUTSIDE the strip: inside it, the overflow-x-auto
                 recortava o calendário e ele simplesmente não aparecia. */}
             <div className="relative shrink-0">
                     <button
@@ -364,10 +364,10 @@ function DatePickerBar({
                         aria-expanded={calendarOpen}
                         aria-label={t("More dates")}
                         className={[
-                            // Discreto de propósito: a semana é o caminho normal;
-                            // o calendário existe para alcançar o histórico antigo.
-                            // No telefone vira coluna (ícone sobre o rótulo) para
-                            // ocupar a largura de uma caixa de dia em vez de uma pílula larga.
+                            // Quiet on purpose: the week is the normal path; the
+                            // calendar exists to reach older history. On a phone it
+                            // becomes a column (icon over label) so it takes the
+                            // width of a day box instead of a wide pill.
                             "flex shrink-0 flex-col items-center gap-0.5 whitespace-nowrap rounded-control px-1.5 py-1.5 text-[9px] font-medium leading-tight transition-colors duration-200 md:ml-1 md:w-auto md:flex-row md:gap-1.5 md:px-2.5 md:py-2 md:text-xs",
                             "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                             calendarBtnActive
@@ -430,7 +430,7 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }:
 
     return (
         <div className="w-full">
-            {/* Sem cartão: título, contexto, ação e seletor ficam direto sobre a
+            {/* No card: title, context, action and picker sit straight on the
                 página. A moldura competia com os cartões de rotina logo abaixo e
                 pesava a primeira impressão. */}
             <div className="flex items-center gap-3">

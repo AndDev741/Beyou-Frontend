@@ -24,7 +24,7 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import type { RootState, AppDispatch } from '../../store';
 
-/** Nome e ícone de cada widget — a lista mostra a identidade, não o widget. */
+/** Each widget's name and icon — the list shows the identity, not the widget. */
 const WIDGET_META: Record<WidgetId, { labelKey: string; Icon: typeof Target }> = {
   dailyProgress: { labelKey: 'Today', Icon: Target },
   constance: { labelKey: 'Constance', Icon: Flame },
@@ -38,15 +38,15 @@ const WIDGET_META: Record<WidgetId, { labelKey: string; Icon: typeof Target }> =
 const isKnownWidget = (id: string): id is WidgetId => (WIDGET_IDS as readonly string[]).includes(id);
 
 /**
- * A lista da web: cada widget do dashboard é uma linha compacta com a posição, o
- * ícone, o nome e o × para tirar; os que sobraram viram chips de "+ nome".
+ * The web's list: every dashboard widget is a compact row with its position, icon,
+ * name and the × to remove it; the leftovers become "+ name" chips.
  *
- * Duas coisas mudaram para bater com a web: as linhas passaram a mostrar posição
- * e ícone (eram só nome com três controles soltos à direita), e **cada mudança
- * persiste sozinha** — o botão Salvar no fim da seção não existe mais.
+ * Two things changed to match the web: the rows now show position and icon (they
+ * were name-only with three loose controls on the right), and **every change
+ * persists by itself** — the Save button at the end of the section is gone.
  *
- * A alça de arraste da web virou par de setas: reordenar por arrasto não existe
- * aqui (ver AGENTS.md), e por isso o texto de ajuda é uma chave própria.
+ * The web's drag handle became a pair of arrows: drag reordering does not exist
+ * here (see AGENTS.md), which is why the help text has a key of its own.
  */
 export default function WidgetsSection() {
   const { t } = useTranslation();
@@ -55,11 +55,11 @@ export default function WidgetsSection() {
 
   const savedWidgets = useSelector((s: RootState) => s.perfil.widgetsIdsInUse);
 
-  // Cópia de trabalho — só os ids conhecidos, na ordem salva.
+  // Working copy — known ids only, in the saved order.
   const [current, setCurrent] = useState<WidgetId[]>(() =>
     (savedWidgets ?? []).filter(isKnownWidget),
   );
-  // A primeira renderização não deve disparar um PUT.
+  // The first render must not fire a PUT.
   const isFirstRender = useRef(true);
 
   useEffect(() => {

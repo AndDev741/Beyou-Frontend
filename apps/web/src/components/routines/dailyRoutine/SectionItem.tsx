@@ -19,11 +19,11 @@ interface SectionItemProps {
     onDelete: () => void;
     setRoutineSection?: React.Dispatch<React.SetStateAction<RoutineSection[]>>;
     index: number;
-    /** Punho de arraste do react-beautiful-dnd, aplicado no ícone da seção. */
+    /** react-beautiful-dnd drag handle, applied to the section icon. */
     dragHandleProps?: DraggableProvidedDragHandleProps;
 }
 
-/** Chip de horário do cabeçalho da seção (mono, recuado). */
+/** Section header time chip (mono, inset). */
 const TimeChip = ({ children }: { children: React.ReactNode }) => (
     <span className="rounded-[7px] border border-border bg-surface-2 px-2 py-1 font-mono text-[11.5px] font-medium text-text-2">
         {children}
@@ -35,8 +35,8 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
     const [openTaskSelector, setOpenTaskSelector] = useState(false);
     const itemCount = (section.taskGroup?.length ?? 0) + (section.habitGroup?.length ?? 0);
-    // Seção vazia nasce aberta: acabou de ser criada e o passo seguinte é
-    // colocar hábito ou tarefa dentro dela.
+    // An empty section starts open: it was just created and the next step is
+    // putting a habit or task inside it.
     const [open, setOpen] = useState(itemCount === 0);
     const isOvernight = isOvernightRange(section.startTime, section.endTime);
 
@@ -91,7 +91,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
         endTime?: string;
     } | null>(null);
 
-    // Função para iniciar a edição de um item
+    // Starts editing an item
     const handleStartEditItem = (
         itemType: 'task' | 'habit',
         itemIndex: number,
@@ -106,7 +106,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
         });
     };
 
-    // Função para salvar a edição de um item
+    // Saves the edit of an item
     const handleSaveEditItem = (newStartTime: string, newEndTime?: string) => {
         if (!setRoutineSection || !editingItem) return;
 
@@ -131,7 +131,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
         setEditingItem(null);
     };
 
-    // Função para cancelar a edição
+    // Cancels the edit
     const handleCancelEdit = () => {
         setEditingItem(null);
     };
@@ -148,7 +148,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
         )
     };
 
-    // Função para deletar um item
+    // Deletes an item
     const handleDeleteItem = (itemType: 'task' | 'habit', itemIndex: number) => {
         if (!setRoutineSection) return;
 
@@ -178,7 +178,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
 
             if (!itemObj) return null;
 
-            // Verifica se este item está sendo editado
+            // Is this the item being edited?
             const isEditing = editingItem?.type === item.type && editingItem?.index === originalIndex;
             const itemTimeErrors = isEditing
                 ? getItemTimeErrorKeys(section.startTime, section.endTime, editingItem?.startTime, editingItem?.endTime)
@@ -289,8 +289,8 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
     };
 
     return (
-        // A seção aberta ganha a borda de acento: é o cartão em que você está
-        // mexendo. As fechadas ficam neutras, como no mockup.
+        // The open section takes the accent border: it is the card being worked
+        // on. Closed ones stay neutral, as in the mockup.
         <div
             className={`rounded-control border transition-colors duration-200 ${
                 open ? "border-accent bg-bg" : "border-border bg-bg"
@@ -305,7 +305,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                 </span>
 
-                {/* No telefone o horário desce para uma segunda linha: numa
+                {/* On a phone the time drops to a second line: on
                     linha só, o nome da seção sobrava em três letras. */}
                 <div className="min-w-0 flex-1">
                     <button
@@ -322,7 +322,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                     </span>
                 </div>
 
-                {/* Fora da coluna do nome: ali ele ficava colado na primeira
+                {/* Outside the name column: in there it stuck to the first
                     linha enquanto estrela, lápis e lixeira se centravam no
                     bloco de duas. Mesmo aviso do cartão de rotina: expande ao
                     tocar. */}
@@ -379,7 +379,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
 
                     <GhostAdd label={t("Add Habit or task")} onClick={() => setOpenTaskSelector(true)} />
 
-                    {/* O seletor abre por cima do editor, como no mockup. */}
+                    {/* The picker opens over the editor, as in the mockup. */}
                     {openTaskSelector && (
                         <TaskAndHabitSelector
                             setRoutineSection={setRoutineSection}

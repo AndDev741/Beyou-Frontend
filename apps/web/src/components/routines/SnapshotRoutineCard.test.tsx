@@ -4,17 +4,17 @@ import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
 import { Snapshot, SnapshotCheck, SnapshotStructureSection } from "@beyou/types/routine/snapshot";
 
 /**
- * Bug 3 — hábito duplicado só na visualização de histórico.
+ * Bug 3 — a habit duplicated in the history view only.
  *
- * O cartão agrupava os checks por NOME de seção, e nome de seção não é único:
- * com duas seções chamadas igual, todo check caía nas duas. Hoje ele percorre a
- * ESTRUTURA e busca o check de cada item pelo `originalGroupId` (a PK do
- * HabitGroup, única por posição), então a duplicação é impossível por
- * construção. O segundo teste tranca o caso legítimo: o mesmo hábito posto de
- * verdade em duas seções aparece uma vez em cada.
+ * The card grouped checks by section NAME, and a section name is not unique: with
+ * two sections called the same, every check landed in both. It now walks the
+ * STRUCTURE and finds each item's check by `originalGroupId` (the HabitGroup PK,
+ * unique per placement), so duplication is impossible by construction. The second
+ * test locks in the legitimate case: the same habit genuinely placed in two
+ * sections shows once in each.
  *
- * Os nomes vêm da estrutura (`item.name`), não do check — é o que o nativo
- * mostra, e assim um item sem check ainda aparece na lista.
+ * The names come from the structure (`item.name`), not from the check — that is
+ * what native shows, and it keeps an item without a check in the list.
  */
 
 function check(overrides: Partial<SnapshotCheck> & Pick<SnapshotCheck, "id" | "itemName" | "originalGroupId" | "sectionName">): SnapshotCheck {
@@ -100,8 +100,8 @@ test("renders a habit once per section when it is genuinely in two sections", as
 
     renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r1" />);
 
-    // Uma ocorrência em Manhã, outra em Noite — os itens da estrutura têm o
-    // mesmo nome nas duas seções.
+    // One under Morning, one under Evening — the structure items carry the same
+    // name in both sections.
     expect(screen.getAllByText("name-g1")).toHaveLength(1);
     expect(screen.getAllByText("name-g2")).toHaveLength(1);
 });

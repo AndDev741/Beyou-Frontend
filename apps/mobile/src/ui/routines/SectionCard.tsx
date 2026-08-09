@@ -31,12 +31,12 @@ interface SectionCardProps {
   onAssign: () => void;
   onMove: (dir: -1 | 1) => void;
   onRemove: () => void;
-  /** Tira um hábito/tarefa da seção sem abrir o seletor. */
+  /** Drops a habit/task from the section without opening the picker. */
   onRemoveItem: (item: MergedSectionItem) => void;
   onToggleFavorite: () => void;
 }
 
-/** Chip de horário do cabeçalho — o mesmo par da web. */
+/** Header time chip — the same pair the web shows. */
 function TimeChip({ children }: { children: string }) {
   if (!children) return null;
   return (
@@ -47,17 +47,17 @@ function TimeChip({ children }: { children: string }) {
 }
 
 /**
- * Uma seção dentro do formulário, no desenho da web: ícone, nome com chevron,
- * o par de chips de horário, favoritar, editar e excluir. Aberta, mostra os
- * itens atribuídos e o convite para adicionar mais.
+ * A section inside the form, in the web's design: icon, name with a chevron, the
+ * pair of time chips, favourite, edit and delete. Open, it shows the assigned
+ * items and the invitation to add more.
  *
- * Era um cartão alto com três links de texto embaixo ("Editar · Atribuir
- * hábitos e tarefas (3) · Deletar") e a lista sempre aberta — três seções não
- * cabiam na tela.
+ * It used to be a tall card with three text links underneath ("Edit · Assign
+ * habits and tasks (3) · Delete") and the list always open — three sections did
+ * not fit on screen.
  *
- * As setas de ordem ficam DENTRO da seção aberta: no cabeçalho seriam cinco
- * alvos numa linha de 390px, e o cabeçalho é o que precisa ficar igual ao da
- * web. Reordenar por arrasto não existe aqui (ver AGENTS.md).
+ * The order arrows live INSIDE the open section: in the header they would be a
+ * fifth and sixth target on a 390px row, and the header is what has to match the
+ * web. Drag reordering does not exist here (see AGENTS.md).
  */
 export default function SectionCard({
   section,
@@ -78,8 +78,8 @@ export default function SectionCard({
   const items = mergeSectionItems(section, habits, tasks);
 
   return (
-    // A seção aberta ganha a borda de acento: é o cartão em que você está
-    // mexendo. As fechadas ficam neutras, como no mockup.
+    // The open section takes the accent border: it is the card being worked on.
+    // Closed ones stay neutral, as in the mockup.
     <View className={`rounded-control border bg-bg ${open ? 'border-accent' : 'border-border'}`}>
       <View className="flex-row items-center gap-2.5 p-2.5">
         <View className="shrink-0">
@@ -90,7 +90,7 @@ export default function SectionCard({
           )}
         </View>
 
-        {/* O horário desce para a segunda linha: numa linha só o nome da seção
+        {/* The time drops to a second line: on one line the section name
             sobrava em três letras. */}
         <View className="min-w-0 flex-1">
           <Pressable
@@ -110,7 +110,7 @@ export default function SectionCard({
           </View>
         </View>
 
-        {/* Fora da coluna do nome: ali ele ficava colado na primeira linha
+        {/* Outside the name column: in there it stuck to the first line
             enquanto estrela, lápis e lixeira se centravam no bloco de duas.
             Ícone trocado em vez de rotacionado (ver ConfigSection). */}
         <IconButton

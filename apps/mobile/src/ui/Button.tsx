@@ -12,27 +12,28 @@ interface Props extends Omit<PressableProps, 'children'> {
   submitting?: boolean;
   icon?: ReactNode;
   /**
-   * Classes extras (largura, alinhamento). Precisa ser DESTRUTURADA: caindo no
-   * `...rest` ela substituía a className calculada e o botão perdia o fundo.
+   * Extra classes (width, alignment). It MUST be destructured: falling into
+   * `...rest` it replaced the computed className and the button lost its
+   * background.
    */
   className?: string;
   testID?: string;
 }
 
 /**
- * Os quatro modos do sistema: primário (a ação da tela), tonal (secundária de
- * peso), ghost (discreta) e destrutivo.
+ * The system's four modes: primary (the screen's action), tonal (a secondary with
+ * weight), ghost (quiet) and destructive.
  *
- * `cancel`, `create` e `default` são os nomes antigos, mantidos porque 19
- * arquivos importam este botão; cada um aponta para o modo novo equivalente e
- * some conforme as telas migram.
+ * `cancel`, `create` and `default` are the old names, kept because 19 files
+ * import this button; each points at its new equivalent and disappears as the
+ * screens migrate.
  */
 const MODE: Record<Mode, string> = {
   primary: 'bg-accent active:bg-accent-strong',
   tonal: 'bg-accent-soft active:opacity-80',
   ghost: 'bg-transparent active:bg-surface-2',
   danger: 'bg-danger/10 active:opacity-80',
-  // aliases do modelo antigo
+  // old-model aliases
   cancel: 'bg-surface-2 active:opacity-80',
   create: 'bg-accent active:bg-accent-strong',
   default: 'bg-surface border border-border active:bg-surface-2',
@@ -48,9 +49,9 @@ const MODE_TEXT: Record<Mode, string> = {
   default: 'text-text',
 };
 
-// Ao contrário da web, a largura fixa FICA: as telas nativas empilham o CTA numa
-// coluna centrada e um botão que encolhe com o texto quebraria esse ritmo.
-// `auto` é a saída para quem quiser o comportamento da web (cresce com o texto).
+// Unlike the web, the fixed width STAYS: native screens stack the CTA in a
+// centred column, and a button that shrinks with its text would break that
+// rhythm. `auto` is the way out for anyone wanting the web behaviour.
 const SIZE: Record<Size, string> = {
   big: 'w-[250px] h-[52px]',
   medium: 'w-[180px] h-[48px]',
@@ -71,8 +72,8 @@ export default function Button({
 }: Props) {
   const { theme } = useBeyouTheme();
   const isDisabled = disabled || submitting;
-  // O spinner só pode ser onAccent sobre o acento cheio; nos modos claros ele
-  // sumiria — por isso cai no acento.
+  // The spinner can only be onAccent over the solid accent; on the light modes it
+  // would vanish — hence it falls back to the accent.
   const spinner = mode === 'primary' || mode === 'create' ? theme.onAccent : theme.accent;
 
   return (

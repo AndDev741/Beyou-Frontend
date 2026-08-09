@@ -10,44 +10,44 @@ type buttonProps = {
     testId?: string;
     disabled?: boolean;
     className?: string;
-    /** Âncora do tutorial (data-tutorial-id). */
+    /** Tutorial anchor (data-tutorial-id). */
     tutorialId?: string;
     /**
-     * No telefone o botão vira um disco só com o ícone; o rótulo continua no
-     * DOM (`sr-only`), então leitor de tela e testes por nome seguem achando.
+     * On phones the button becomes an icon-only disc; the label stays in the DOM
+     * (`sr-only`), so screen readers and name-based tests still find it.
      */
     collapseLabel?: boolean;
 }
 
 /**
- * Os quatro modos do sistema: primário (a ação da tela), tonal (secundária de
- * peso), ghost (discreta) e destrutivo.
+ * The system's four modes: primary (the page's action), tonal (a secondary with
+ * weight), ghost (quiet) and destructive.
  *
- * `cancel`, `create` e `default` são os nomes antigos, mantidos porque 42
- * arquivos importam este botão; cada um aponta para o modo novo equivalente e
- * some conforme as páginas migram.
+ * `cancel`, `create` and `default` are the old names, kept because 42 files
+ * import this button; each points at its new equivalent and disappears as the
+ * pages migrate.
  */
 const MODES: Record<ButtonMode, string> = {
     primary: "bg-accent text-on-accent hover:bg-accent-strong active:scale-[.98] shadow-sm",
     tonal: "bg-accent-soft text-accent hover:bg-accent/15 active:scale-[.98]",
     ghost: "bg-transparent text-text-2 hover:bg-surface-2 hover:text-text active:scale-[.98]",
     danger: "bg-danger/10 text-danger hover:bg-danger/15 active:scale-[.98]",
-    // aliases do modelo antigo
+    // old-model aliases
     cancel: "bg-surface-2 text-text-2 hover:text-text active:scale-[.98]",
     create: "bg-accent text-on-accent hover:bg-accent-strong active:scale-[.98] shadow-sm",
     default: "bg-surface text-text border border-border hover:bg-surface-2 active:scale-[.98]",
 };
 
 const SIZES: Record<buttonProps["size"], string> = {
-    // Largura fixa saiu: o botão cresce com o texto — as traduções em pt são
-    // mais longas que as em en e cortavam rótulo no layout antigo.
+    // The fixed width is gone: the button grows with its text — the pt strings
+    // are longer than the en ones and clipped labels in the old layout.
     big: "h-11 px-6 text-base",
     medium: "h-10 px-5 text-sm",
     small: "h-9 px-4 text-sm",
     auto: "h-10 px-5 text-sm",
 };
 
-/** Disco só de ícone abaixo de `md`, botão com rótulo a partir daí. */
+/** Icon-only disc below `md`, labelled button from there up. */
 const COLLAPSED = "h-10 w-10 shrink-0 rounded-full px-0 text-sm md:w-auto md:rounded-control md:px-5";
 
 function Button({ text, size, mode, onClick, type, icon, testId, disabled, className = "", tutorialId, collapseLabel = false }: buttonProps) {

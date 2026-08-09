@@ -20,9 +20,9 @@ import AgentMarkdown from './AgentMarkdown';
 type OnInternalLink = (href: string) => void;
 
 /**
- * Ferramentas de LEITURA: viram um chip discreto ("Rotinas consultadas"), que é
- * tudo o que o usuário precisa saber sobre elas. Todo o resto escreve algo, e
- * escrita vira cartão com link para conferir o que o agente fez.
+ * READ tools: they become a quiet chip ("Routines read"), which is all anyone
+ * needs to know about them. Everything else writes something, and a write
+ * becomes a card with a link to check what the agent did.
  */
 const READ_TOOLS = new Set([
   'getUserHabits',
@@ -35,7 +35,7 @@ const READ_TOOLS = new Set([
   'getUserConfiguration',
 ]);
 
-/** Destino de cada ferramenta de escrita: rota + ícone + rótulo do link. */
+/** Where each write tool points: route + icon + link label. */
 type Destination = { route: string; Icon: LucideIcon; labelKey: string };
 
 const DESTINATIONS: { match: RegExp; destination: Destination }[] = [
@@ -53,10 +53,10 @@ const DESTINATIONS: { match: RegExp; destination: Destination }[] = [
   },
 ];
 
-// Nomes que citam DUAS entidades (`addTaskToRoutineSection`) casariam a regex
-// errada primeiro; o que o usuário quer conferir nesses casos é a rotina.
-// `updateGlobalContext` / `updateChatContext` ficam de fora de propósito: a
-// memória do agente não tem tela para "ver", então elas viram chip.
+// Names that mention TWO entities (`addTaskToRoutineSection`) would match the
+// wrong regex first; what you want to check in those cases is the routine.
+// `updateGlobalContext` / `updateChatContext` stay out on purpose: the agent's
+// memory has no screen to "see", so they become a chip.
 const ROUTINE_ITEM_TOOLS = new Set([
   'addTaskToRoutineSection',
   'addHabitToRoutineSection',
@@ -71,7 +71,7 @@ export function destinationFor(tool: string | undefined): Destination | null {
   return DESTINATIONS.find(({ match }) => match.test(tool))?.destination ?? null;
 }
 
-/** Ferramenta de leitura, em andamento ou falha: um chip discreto. */
+/** A read tool, in flight or failed: a quiet chip. */
 function ToolChip({ segment }: { segment: agentSegment }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
@@ -101,12 +101,12 @@ function ToolChip({ segment }: { segment: agentSegment }) {
 }
 
 /**
- * Entidade criada ou alterada: cartão com ícone, o que aconteceu e o link para
- * a seção onde ela vive — o usuário confere o que o agente fez num toque.
+ * An entity created or changed: a card with the icon, what happened, and a link
+ * to the section it lives in — one tap to check the agent's work.
  *
- * O rótulo do link é o nome da seção de destino porque a ferramenta só reporta
- * o DOMÍNIO que tocou, não o nome da entidade: prometer "ver a meta X" com um
- * dado que não temos seria inventar.
+ * The link label is the destination section's name because the tool only reports
+ * the DOMAIN it touched, not the entity's name: promising "see goal X" with data
+ * we do not have would be making it up.
  */
 function ToolActionCard({
   segment,

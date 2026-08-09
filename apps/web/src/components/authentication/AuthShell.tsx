@@ -6,29 +6,29 @@ type AuthShellProps = {
     title: string;
     subtitle?: string;
     children: ReactNode;
-    /** Linha final do cartão ("Novo por aqui? Criar conta"). */
+    /** Last line of the card ("New here? Create account"). */
     footer?: ReactNode;
 };
 
 /**
- * A casca das telas de autenticação: painel de marca à esquerda e o formulário
- * à direita. Registro, recuperação e verificação herdam daqui — só o conteúdo
- * muda.
+ * The shell of the auth screens: brand panel on the left, form on the right.
+ * Register, recovery and verification inherit from here — only the content
+ * changes.
  *
- * O formulário NÃO fica dentro de um cartão com borda: o painel é a superfície
- * e o lado do formulário é o tom de página, separados pela divisa. Uma moldura
- * ali dentro seria caixa dentro de caixa.
+ * The form is NOT inside a bordered card: the panel is the surface and the form
+ * side is the page tone, split by the divider. A frame in there would be a box
+ * inside a box.
  *
- * Sem seletor de tema e sem seletor de idioma: antes de existir conta o app
- * segue o padrão do sistema (tema pelo SO, idioma pelo navegador). Trocar é
- * coisa de usuário logado, na Configuração.
+ * No theme selector and no language selector: before an account exists the app
+ * follows the system default (theme from the OS, language from the browser).
+ * Switching is something a signed-in user does, in Configuration.
  */
 export default function AuthShell({ title, subtitle, children, footer }: AuthShellProps) {
     const { t } = useTranslation();
 
     return (
         <div className="min-h-screen bg-bg text-text lg:grid lg:grid-cols-[1fr_1.1fr]">
-            {/* O símbolo ocupa quase toda a largura do painel e sangra pelo canto
+            {/* The symbol takes almost the panel's full width and bleeds off the
                 superior direito a 7%: é textura, não ilustração. O conteúdo
                 ancora no rodapé esquerdo. */}
             <aside className="relative hidden overflow-hidden border-r border-border bg-surface p-9 lg:flex lg:flex-col lg:justify-end">
@@ -49,7 +49,7 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
 
             <main className="flex flex-col items-center justify-center px-5 py-10">
                 <div className="w-full max-w-[360px]">
-                    {/* No mobile a marca é o cabeçalho: símbolo em cima,
+                    {/* On phones the brand is the header: symbol on top,
                         wordmark embaixo em cor de texto. O painel de marca não
                         existe nessa largura. */}
                     <div className="mb-8 flex flex-col items-center gap-2 lg:hidden">
@@ -57,7 +57,7 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
                         <span className="text-xl font-semibold tracking-[-0.02em] text-text">beyou</span>
                     </div>
 
-                    {/* A saudação é do desktop: no mobile a marca já ocupa o
+                    {/* The greeting belongs to desktop: on phones the brand
                         topo e repetir "Bem-vindo de volta" ali empurrava o
                         formulário para baixo da dobra. Fica no DOM (a página
                         precisa de um h1) apenas invisível. */}

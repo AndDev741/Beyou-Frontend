@@ -15,20 +15,20 @@ import { useBeyouTheme } from '../theme/ThemeProvider';
 
 export type ToastTone = 'success' | 'error' | 'info' | 'warning';
 
-/** Extras que o `notify` empacota em `props`. */
+/** Extras that `notify` packs into `props`. */
 export type BeyouToastProps = {
-  /** Ícone da entidade — o hábito marcado, a meta concluída. */
+  /** The entity's icon — the habit checked, the goal completed. */
   icon?: ReactNode;
-  /** Quanto tempo a barra do tempo leva para esvaziar. */
+  /** How long the time bar takes to empty. */
   duration?: number;
 };
 
 export const TOAST_DURATION_MS = 4000;
 
 /**
- * O cronômetro do mockup: 2px, sem trilho por baixo. Reanimated porque a
- * largura anima no thread de UI — o toast aparece durante uma navegação ou um
- * fetch, e uma animação no JS engasgaria justo aí.
+ * The mockup's timer: 2px, no track underneath. Reanimated because the width
+ * animates on the UI thread — a toast shows up during a navigation or a fetch,
+ * and a JS-driven animation would stutter exactly then.
  */
 function ToastTimer({ color, duration }: { color: string; duration: number }) {
   const progress = useSharedValue(1);
@@ -66,10 +66,10 @@ function ToneIcon({ tone, color }: { tone: ToastTone; color: string }) {
 }
 
 /**
- * NOTIFY do mockup: borda esquerda no tom, ícone da entidade, título e um
- * subtítulo opcional. Espelha `apps/web/src/lib/notify.tsx` — inclusive a
- * regra de que o corpo fica na superfície do tema e só a barra da esquerda e o
- * ícone carregam a cor.
+ * The mockup's NOTIFY: left border in the tone, the entity's icon, a title and an
+ * optional subtitle. Mirrors `apps/web/src/lib/notify.tsx` — including the rule
+ * that the body stays on the theme surface and only the left bar and the icon
+ * carry the colour.
  */
 function BeyouToast({ tone, params }: { tone: ToastTone; params: ToastConfigParams<BeyouToastProps> }) {
   const { theme } = useBeyouTheme();
@@ -126,7 +126,7 @@ function BeyouToast({ tone, params }: { tone: ToastTone; params: ToastConfigPara
   );
 }
 
-/** Passado ao `<Toast />` no layout raiz: toda notificação usa esta casca. */
+/** Passed to `<Toast />` in the root layout: every notification uses this shell. */
 export const toastConfig: ToastConfig = {
   success: (params) => <BeyouToast tone="success" params={params as ToastConfigParams<BeyouToastProps>} />,
   error: (params) => <BeyouToast tone="error" params={params as ToastConfigParams<BeyouToastProps>} />,
@@ -135,9 +135,9 @@ export const toastConfig: ToastConfig = {
 };
 
 /**
- * O host que vai no layout raiz. Precisa ser um componente próprio para ler o
- * inset do topo de DENTRO do SafeAreaProvider — quem renderiza o provider não
- * enxerga o próprio contexto.
+ * The host that goes in the root layout. It has to be its own component to read
+ * the top inset from INSIDE the SafeAreaProvider — whoever renders the provider
+ * cannot see its own context.
  */
 export function BeyouToastHost() {
   const insets = useContext(SafeAreaInsetsContext);

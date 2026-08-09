@@ -22,7 +22,7 @@ const LABELS: Record<HorizonKey, { title: string; chip: string }> = {
 
 const STORAGE_KEY = "beyou-goal-horizons";
 
-/** Quanto do prazo cabe em cada horizonte: perto, só o dia; longe, só o mês. */
+/** How much of the deadline each horizon shows: near, the day; far, the month. */
 const DEADLINE_SHAPE: Record<HorizonKey, DeadlineShape> = {
     thisWeek: "weekday",
     thisMonth: "dayMonth",
@@ -30,7 +30,7 @@ const DEADLINE_SHAPE: Record<HorizonKey, DeadlineShape> = {
     beyond: "month",
 };
 
-/** Contexto curto ao lado do título do grupo: "até domingo", "agosto", "2026". */
+/** Short context beside the group title: "by Sunday", "August", "2026". */
 function horizonContext(key: HorizonKey, locale: string, t: (k: string) => string): string {
     const now = new Date();
     if (key === "thisWeek") return t("UntilSunday");
@@ -59,14 +59,15 @@ function readStoredHorizons(): HorizonKey[] | null {
 }
 
 /**
- * "Suas metas" no dashboard: o porquê dos checks do dia, agrupado por horizonte.
+ * "Your goals" on the dashboard: the why behind the day's checks, grouped by
+ * horizon.
  *
- * Os cartões são compactos de propósito — a meta aqui é ver o que está à frente
- * numa olhada; o detalhe (stepper, motivação, período) mora na página de Metas,
- * para onde o clique leva já destacando a meta escolhida.
+ * The cards are compact on purpose — the point here is seeing what lies ahead at
+ * a glance; the detail (stepper, motivation, period) lives on the Goals page,
+ * where a click takes you with the chosen goal already highlighted.
  *
- * O filtro é um toggle por horizonte com contagem, e a escolha fica salva: quem
- * só se importa com a semana não quer refiltrar todo dia.
+ * The filter is a per-horizon toggle with a count, and the choice is saved:
+ * someone who only cares about this week should not re-filter every day.
  */
 export default function GoalsHorizon() {
     const { t, i18n } = useTranslation();
@@ -75,8 +76,8 @@ export default function GoalsHorizon() {
     const [active, setActive] = useState<HorizonKey[]>(
         () => readStoredHorizons() ?? ["thisWeek", "thisMonth", "thisYear"],
     );
-    // No mobile os chips não cabem no cabeçalho; viram um dropdown que resume a
-    // escolha ("semana · mês") e abre a mesma lista de horizontes.
+    // On phones the chips do not fit in the header; they become a dropdown that
+    // summarises the choice ("week · month") and opens the same horizon list.
     const [filterOpen, setFilterOpen] = useState(false);
 
     const grouped = useMemo(() => sortGoalsByTime(goals || []), [goals]);
@@ -87,13 +88,13 @@ export default function GoalsHorizon() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
             } catch {
-                /* storage indisponível — a escolha vale só nesta sessão */
+                /* storage unavailable — the choice lasts only for this session */
             }
             return next;
         });
     };
 
-    // Abre a página de Metas já com a meta em foco (ela rola até lá e destaca).
+    // Opens the Goals page with the goal in focus (it scrolls there and highlights).
     const openGoal = (id: string) => navigate(`/goals?goal=${id}`);
 
     const visible = HORIZONS.filter((key) => active.includes(key) && grouped[key].length > 0);
@@ -128,7 +129,7 @@ export default function GoalsHorizon() {
 
     return (
         <section className="rounded-card border border-border bg-surface p-4 lg:p-5" data-testid="goals-horizon">
-            {/* Mobile: título compacto com o filtro num dropdown à direita. */}
+            {/* Phone: compact title with the filter in a dropdown on the right. */}
             <div className="flex items-center gap-2 lg:hidden">
                 <Trophy size={15} className="shrink-0 text-text-3" aria-hidden="true" />
                 <h2 className="text-sm font-semibold text-text">{t("Goals")}</h2>

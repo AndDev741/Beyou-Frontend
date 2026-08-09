@@ -26,17 +26,17 @@ type Candidate = {
     id: string;
     name: string;
     iconId: string;
-    /** Categoria mostrada à direita da linha. */
+    /** Category shown on the right of the row. */
     category: string;
     alreadyIn: boolean;
 };
 
 
-/** Uma linha da bandeja: o item escolhido com o horário ainda editável. */
+/** A tray row: the picked item, with its time still editable. */
 type TrayItem = {
     kind: Kind;
     refId: string;
-    /** Id do grupo, quando a linha já existia na seção. */
+    /** Group id, when the row was already in the section. */
     groupId?: string;
     startTime: string;
     endTime: string;
@@ -62,12 +62,12 @@ const toGroups = (tray: TrayItem[]) => ({
 });
 
 /**
- * Escolher itens para a seção: um clique manda o item para a BANDEJA com um
- * horário sugerido dentro da janela da seção, e ali o horário ainda se ajusta.
- * Só ao confirmar a bandeja vira a seção.
+ * Picking items for the section: a click sends the item to the TRAY with a time
+ * suggested inside the section's window, and there the time can still be tuned.
+ * The tray only becomes the section on confirm.
  *
- * Antes era marcar tudo e adicionar no escuro: os horários só apareciam depois,
- * na lista da seção, e corrigi-los era outra viagem. Mesmo modelo do nativo.
+ * It used to be tick-everything-and-add-blind: the times appeared afterwards, in
+ * the section list, and fixing one meant another trip. Same model as native.
  */
 const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSelector }: TaskSelectorProps) => {
     const { t } = useTranslation();
@@ -76,8 +76,8 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
 
     const [kind, setKind] = useState<Kind>("habit");
     const [search, setSearch] = useState("");
-    // A bandeja começa com o que a seção já tem: assim dá para corrigir o
-    // horário de um item antigo na mesma passada.
+    // The tray opens with what the section already holds, so an old item's time
+    // can be fixed in the same pass.
     const [tray, setTray] = useState<TrayItem[]>(() => [
         ...(section.habitGroup ?? []).map((group) => ({
             kind: "habit" as Kind,
@@ -97,8 +97,8 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
     const [showQuickHabit, setShowQuickHabit] = useState(false);
     const [showQuickTask, setShowQuickTask] = useState(false);
 
-    // A seção precisa de nome e hora de início para receber item — sem isso não
-    // existe janela onde encaixar o horário sugerido.
+    // The section needs a name and a start time before it can take an item —
+    // without them there is no window to fit a suggested time into.
     const sectionErrors = getSectionErrorKeys(section.name, section.startTime);
     const errorMessage = sectionErrors.length > 0 ? t(sectionErrors[0]) : "";
 
@@ -138,7 +138,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
         return query ? list.filter((item) => item.name.toLowerCase().includes(query)) : list;
     }, [habits, tasks, kind, search, tray]);
 
-    /** Manda o item para a bandeja com o horário que sobra da janela da seção. */
+    /** Sends the item to the tray with whatever is left of the section window. */
     const pick = (id: string, itemKind: Kind) => {
         setTray((prev) => {
             if (prev.some((item) => item.kind === itemKind && item.refId === id)) return prev;
@@ -174,7 +174,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
         close();
     };
 
-    // A criação rápida cai na bandeja: quem cria dali já queria o item aqui.
+    // Quick-create lands in the tray: creating from here means wanting it here.
     const handleQuickCreated = (itemKind: Kind) => (id?: string) => {
         if (!id) return;
         pick(id, itemKind);
@@ -209,7 +209,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                     </button>
                 </div>
 
-                {/* A bandeja: o que vai entrar na seção, com o horário à mão. */}
+                {/* The tray: what will enter the section, time within reach. */}
                 <div className="mt-3.5">
                     <span className="text-[11px] font-semibold uppercase tracking-wide text-text-3">
                         {t("Assigned")} ({tray.length})
@@ -218,7 +218,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
                         <p className="mt-1.5 text-[12.5px] text-text-3">{t("NothingAssignedYet")}</p>
                     ) : (
                         <div className="mt-1.5 flex max-h-[30vh] flex-col gap-1.5 overflow-y-auto">
-                            {/* Nome em cima, horários embaixo — como no nativo.
+                            {/* Name on top, times below — as on native.
                                 Numa linha só, nome + dois campos de hora + o
                                 remover não cabem nos 448px do modal e o nome
                                 sobrava em uma letra. */}
