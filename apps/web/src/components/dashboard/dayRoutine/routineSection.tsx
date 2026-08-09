@@ -10,7 +10,7 @@ import skipRoutine from "@beyou/api/routine/skipItem";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../../hooks/useUiRefresh";
-import { formatTimeRange, getSectionStats } from "../../routines/routineMetrics";
+import { formatTimeRange, getSectionStats } from "@beyou/state";
 import { FiSlash, FiChevronDown } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { notify } from "../../../lib/notify";

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, Flame, Pencil, Trash2 } from 'lucide-react-native';
 import type { habit } from '@beyou/types/habit/habitType';
 import BeyouIcon from '../BeyouIcon';
+import Card from '../Card';
 import Chip from '../Chip';
 import IconButton from '../IconButton';
 import IconTile from '../IconTile';
@@ -38,7 +39,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
   const routineNames = Object.values(habit.routines ?? {});
 
   return (
-    <View ref={viewRef} className="rounded-card border border-border bg-surface p-4">
+    <Card ref={viewRef}>
       <View className="flex-row items-start gap-2.5">
         <IconTile size={38}>
           <BeyouIcon id={habit.iconId} size={20} showFallback />
@@ -166,6 +167,6 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
           </Chip>
         ) : null}
       </View>
-    </View>
+    </Card>
   );
 }

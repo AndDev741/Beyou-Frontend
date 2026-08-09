@@ -9,8 +9,9 @@ import { enterSnapshot } from "@beyou/state/routine/snapshotSlice";
 import useUiRefresh from "../../hooks/useUiRefresh";
 import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
+import Card from "../../ui/Card";
 import Ring from "../../ui/Ring";
-import { formatTimeRange } from "./routineMetrics";
+import { formatTimeRange } from "@beyou/state";
 import { parseLocalDate } from "@beyou/state";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -137,7 +138,7 @@ const SnapshotSection = ({ section, checks, onCheck, onSkip }: SnapshotSectionPr
     const items = useMemo(() => [...section.items].sort(byStart), [section.items]);
 
     return (
-        <div className="rounded-card border border-border bg-surface p-4">
+        <Card>
             <div className="flex items-center gap-1.5">
                 <span className="shrink-0 text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock aria-hidden="true" />}
@@ -203,6 +204,6 @@ const SnapshotSection = ({ section, checks, onCheck, onSkip }: SnapshotSectionPr
                     </div>
                 );
             })}
-        </div>
+        </Card>
     );
 };

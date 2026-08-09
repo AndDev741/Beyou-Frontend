@@ -10,7 +10,7 @@ import GhostAdd from "../../../ui/GhostAdd";
 import { useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import { formatTime, formatTimeRange } from "../routineMetrics";
+import { formatTime, formatTimeRange } from "@beyou/state";
 import { getItemTimeErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "@beyou/validation/routineValidation";
 
 interface SectionItemProps {

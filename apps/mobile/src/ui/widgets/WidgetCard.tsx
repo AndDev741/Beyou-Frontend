@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { View, Text } from 'react-native';
+import Card from '../Card';
 
 interface WidgetCardProps {
   title: string;
@@ -18,8 +19,9 @@ interface WidgetCardProps {
  */
 export default function WidgetCard({ title, icon, children, testID }: WidgetCardProps) {
   return (
-    <View
-      className="w-full rounded-card border border-border bg-surface px-[18px] py-4"
+    <Card
+      padded={false}
+      className="w-full px-[18px] py-4"
       testID={testID}
     >
       <View className="flex-row items-center gap-2">
@@ -27,6 +29,6 @@ export default function WidgetCard({ title, icon, children, testID }: WidgetCard
         <Text className="text-[12.5px] font-semibold text-text-2">{title}</Text>
       </View>
       {children}
-    </View>
+    </Card>
   );
 }

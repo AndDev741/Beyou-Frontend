@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import { useSelector } from "react-redux"
 import { Target } from "lucide-react"
 import type { RootState } from "@beyou/state/rootReducer"
-import { getRoutineStats } from "../routines/routineMetrics"
+import { getRoutineStats } from "@beyou/state"
 import BaseDiv from "./baseDiv"
 
 export type dailyProgressProps = {

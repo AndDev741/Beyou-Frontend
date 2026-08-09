@@ -1,8 +1,10 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { View, Pressable, type ViewProps } from 'react-native';
 
 interface CardProps extends ViewProps {
   children: ReactNode;
+  /** Spotlight target for the tutorial — the cards that anchor a step pass it. */
+  ref?: Ref<View>;
   /** Reage ao toque — para cartões clicáveis de lista. Só tem efeito com `onPress`. */
   interactive?: boolean;
   /** Destaca o cartão com o acento (item selecionado; meta concluída usa `tone`). */
@@ -25,6 +27,7 @@ export default function Card({
   padded = true,
   onPress,
   className = '',
+  ref,
   ...rest
 }: CardProps) {
   const border = selected ? 'border-accent' : tone === 'success' ? 'border-success' : 'border-border';
@@ -44,7 +47,7 @@ export default function Card({
   }
 
   return (
-    <View className={base} {...rest}>
+    <View ref={ref} className={base} {...rest}>
       {children}
     </View>
   );

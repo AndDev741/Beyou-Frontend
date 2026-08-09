@@ -8,8 +8,9 @@ import { calculateLevelProgress, getRoutineStats } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import BeyouIcon from '../BeyouIcon';
+import Card from '../Card';
 import IconButton from '../IconButton';
-import { formatTimeRange } from './routineMetrics';
+import { formatTimeRange } from '@beyou/state';
 import RoutineItem, { type MergedItem } from '../dashboard/RoutineItem';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
@@ -83,7 +84,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const runsToday = scheduledDays.size === 0 || scheduledDays.has(weekday);
 
   return (
-    <View className="rounded-card border border-border bg-surface p-4">
+    <Card>
       <View className="flex-row items-center gap-2.5">
         <Pressable
           onPress={() => setExpanded((open) => !open)}
@@ -228,6 +229,6 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           ))}
         </View>
       ) : null}
-    </View>
+    </Card>
   );
 }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
 import BeyouIcon from '../BeyouIcon';
+import Card from '../Card';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 const fmt = (s?: string | null) => (s ? s.slice(0, 5) : '');
@@ -35,7 +36,7 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
       {[...snapshot.structure.sections]
         .sort((a, b) => a.orderIndex - b.orderIndex)
         .map((section, i) => (
-        <View key={`${section.name}-${i}`} className="rounded-card border border-border bg-surface p-4">
+        <Card key={`${section.name}-${i}`}>
           <View className="flex-row items-center gap-1.5">
             <BeyouIcon id={section.iconId} size={18} />
             <Text className="text-accent shrink text-lg font-bold">{section.name}</Text>
@@ -62,7 +63,7 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
               </View>
             );
           })}
-        </View>
+        </Card>
       ))}
     </View>
   );

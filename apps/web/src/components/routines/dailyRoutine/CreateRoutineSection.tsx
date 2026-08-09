@@ -5,7 +5,7 @@ import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { v4 as uuidv4 } from "uuid";
 import BeyouIcon from "../../../ui/BeyouIcon";
 import { resolveIcon } from "@beyou/icons";
-import { formatTimeRange } from "../routineMetrics";
+import { formatTimeRange } from "@beyou/state";
 import { FiX } from "react-icons/fi";
 import Button from "../../Button";
 import { Controller, useForm } from "react-hook-form";

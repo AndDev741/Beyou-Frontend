@@ -5,8 +5,9 @@ import { Routine } from "@beyou/types/routine/routine";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
+import Card from "../../ui/Card";
 import Ring from "../../ui/Ring";
-import { formatTimeRange, getSectionStats, getRoutineStats } from "./routineMetrics";
+import { formatTimeRange, getSectionStats, getRoutineStats } from "@beyou/state";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import { parseLocalDate } from "@beyou/state";
@@ -79,7 +80,7 @@ export const RoutineCard = ({
     );
 
     return (
-        <div className="group rounded-card border border-border bg-surface p-4 lg:px-5 lg:py-[18px]">
+        <Card className="group lg:px-5 lg:py-[18px]">
             <header className="flex flex-col gap-3 md:flex-row md:items-start">
                 <button
                     type="button"
@@ -260,7 +261,7 @@ export const RoutineCard = ({
                         ))}
                 </div>
             )}
-        </div>
+        </Card>
     );
 };
 

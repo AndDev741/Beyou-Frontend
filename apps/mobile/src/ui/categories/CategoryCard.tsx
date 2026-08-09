@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react-native';
 import type category from '@beyou/types/category/categoryType';
 import BeyouIcon from '../BeyouIcon';
+import Card from '../Card';
 import Chip from '../Chip';
 import IconButton from '../IconButton';
 import IconTile from '../IconTile';
@@ -49,7 +50,7 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
       : 0;
 
   return (
-    <View ref={viewRef} className="rounded-card border border-border bg-surface p-4">
+    <Card ref={viewRef}>
       <View className="flex-row items-center gap-2.5" testID={`category-card-${category.id}`}>
         <IconTile size={34}>
           <BeyouIcon id={category.iconId} size={18} showFallback />
@@ -135,6 +136,6 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
           </Text>
         </View>
       </View>
-    </View>
+    </Card>
   );
 }

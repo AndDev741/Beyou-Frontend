@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Pencil, TriangleAlert, Trash2 } from 'lucide-react-native';
 import type { task } from '@beyou/types/tasks/taskType';
 import BeyouIcon from '../BeyouIcon';
+import Card from '../Card';
 import AttributeChip from '../AttributeChip';
 import Chip from '../Chip';
 import IconButton from '../IconButton';
@@ -29,7 +30,7 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   const categoryEntries = Object.entries(task.categories ?? {});
 
   return (
-    <View className="rounded-card border border-border bg-surface p-4" testID={`task-card-${task.id}`}>
+    <Card testID={`task-card-${task.id}`}>
       <View className="flex-row items-start gap-2.5">
         <IconTile size={38}>
           <BeyouIcon id={task.iconId} size={20} showFallback />
@@ -100,6 +101,6 @@ export default function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           phraseKey={difficultyKey(task.difficulty ?? 0)}
         />
       </View>
-    </View>
+    </Card>
   );
 }

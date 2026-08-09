@@ -13,7 +13,7 @@ import {
 import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { loadCollapsedSections, saveCollapsedSection } from '../../lib/collapsedSections';
-import { formatTimeRange, getSectionStats } from '../routines/routineMetrics';
+import { formatTimeRange, getSectionStats } from '@beyou/state';
 import Chip from '../Chip';
 import EmptyState from '../EmptyState';
 import BeyouIcon from '../BeyouIcon';

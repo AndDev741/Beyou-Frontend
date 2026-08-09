@@ -123,6 +123,13 @@ export { sortCategories, CATEGORY_SORT_KEYS } from './viewFilters/sortCategories
 export type { CategorySortKey } from './viewFilters/sortCategories';
 export { sortTasks, TASK_SORT_KEYS } from './viewFilters/sortTasks';
 export type { TaskSortKey } from './viewFilters/sortTasks';
-export { getRoutineStats, countItemsInRoutine } from './routine/routineMetrics';
+export {
+    getRoutineStats,
+    getSectionStats,
+    countItemsInRoutine,
+    formatTime,
+    formatTimeRange,
+    getTimeOfDay,
+} from './routine/routineMetrics';
 export { suggestSlots } from './routine/suggestSlots';
-export type { RoutineStats } from './routine/routineMetrics';
+export type { RoutineStats, SectionStats } from './routine/routineMetrics';
