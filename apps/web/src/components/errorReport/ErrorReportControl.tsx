@@ -140,12 +140,12 @@ export default function ErrorReportControl({
             <div
                 data-testid="error-report-success"
                 role="status"
-                className={`mt-3 rounded-xl border border-success bg-background p-3 text-left ${className}`}
+                className={`mt-3 rounded-card border border-success bg-surface p-3 text-left ${className}`}
             >
                 <p className="text-sm font-semibold text-success">{t("FeedbackSuccessTitle")}</p>
-                <p className="mt-1 text-xs text-description">{t("FeedbackSuccessBody")}</p>
+                <p className="mt-1 text-xs text-text-2">{t("FeedbackSuccessBody")}</p>
                 {phase.failedAttachments > 0 && (
-                    <p className="mt-2 text-xs font-medium text-error">
+                    <p className="mt-2 text-xs font-medium text-danger">
                         {t("FeedbackPartialAttachmentWarning", { count: phase.failedAttachments })}
                     </p>
                 )}
@@ -158,14 +158,14 @@ export default function ErrorReportControl({
             <div
                 data-testid="error-report-failure"
                 role="alert"
-                className={`mt-3 rounded-xl border border-error bg-background p-3 text-left ${className}`}
+                className={`mt-3 rounded-card border border-danger bg-surface p-3 text-left ${className}`}
             >
-                <p className="text-sm font-semibold text-error">{t("FeedbackFailedTitle")}</p>
-                <p className="mt-1 text-xs text-description">{t("FeedbackFailedBody")}</p>
+                <p className="text-sm font-semibold text-danger">{t("FeedbackFailedTitle")}</p>
+                <p className="mt-1 text-xs text-text-2">{t("FeedbackFailedBody")}</p>
                 <a
                     data-testid="error-report-mailto-fallback"
                     href={mailtoHref}
-                    className="mt-2 inline-flex items-center gap-2 rounded-[20px] border border-primary px-3 py-1.5 text-xs font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                    className="mt-2 inline-flex items-center gap-2 rounded-[20px] border border-border px-3 py-1.5 text-xs font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent"
                 >
                     <Mail size={14} aria-hidden="true" />
                     {t("FeedbackEmailLink")}
@@ -180,7 +180,7 @@ export default function ErrorReportControl({
                 type="button"
                 data-testid="error-report-open"
                 onClick={() => setPhase({ kind: "composing" })}
-                className={`mt-2 inline-flex items-center gap-2 rounded-[20px] border border-primary px-3 py-1.5 text-xs font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background ${className}`}
+                className={`mt-2 inline-flex items-center gap-2 rounded-[20px] border border-border px-3 py-1.5 text-xs font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent ${className}`}
             >
                 <Bug size={14} aria-hidden="true" />
                 {t("FeedbackReportProblem")}
@@ -193,9 +193,9 @@ export default function ErrorReportControl({
     return (
         <div
             data-error-report-panel=""
-            className={`mt-3 rounded-xl border border-primary bg-background p-3 text-left ${className}`}
+            className={`mt-3 rounded-card border border-border bg-surface p-3 text-left ${className}`}
         >
-            <label htmlFor="error-report-note" className="text-xs font-semibold text-secondary">
+            <label htmlFor="error-report-note" className="text-xs font-semibold text-text">
                 {t("FeedbackReportNoteLabel")}
             </label>
             <textarea
@@ -204,9 +204,9 @@ export default function ErrorReportControl({
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={t("FeedbackReportNotePlaceholder")}
-                className="mt-1 w-full rounded-lg border border-primary bg-background p-2 text-xs text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 w-full rounded-control border border-border bg-surface p-2 text-xs text-text placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent"
             />
-            <p className="mt-1 text-xs text-description">{t("FeedbackReportAttachedHint")}</p>
+            <p className="mt-1 text-xs text-text-2">{t("FeedbackReportAttachedHint")}</p>
 
             <div className="mt-2 flex flex-wrap gap-2">
                 <button
@@ -214,7 +214,7 @@ export default function ErrorReportControl({
                     data-testid="error-report-submit"
                     onClick={send}
                     disabled={isSending}
-                    className="inline-flex items-center gap-2 rounded-[20px] bg-primary px-3 py-1.5 text-xs font-semibold text-background transition-opacity duration-200 hover:opacity-90 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-[20px] bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent transition-opacity duration-200 hover:opacity-90 disabled:opacity-60"
                 >
                     {isSending ? t("FeedbackSubmitting") : t("FeedbackReportSend")}
                 </button>
@@ -223,7 +223,7 @@ export default function ErrorReportControl({
                     data-testid="error-report-cancel"
                     onClick={() => setPhase({ kind: "idle" })}
                     disabled={isSending}
-                    className="inline-flex items-center gap-2 rounded-[20px] border border-description px-3 py-1.5 text-xs font-semibold text-description transition-colors duration-200 hover:border-primary hover:text-primary disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-[20px] border border-border px-3 py-1.5 text-xs font-semibold text-text-2 transition-colors duration-200 hover:border-border hover:text-accent disabled:opacity-60"
                 >
                     {t("FeedbackReportCancel")}
                 </button>

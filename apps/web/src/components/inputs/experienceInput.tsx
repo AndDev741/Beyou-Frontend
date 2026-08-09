@@ -1,4 +1,6 @@
 import { TFunction } from "i18next";
+import SegmentedControl from "../../ui/SegmentedControl";
+import { FIELD_ERROR, FIELD_LABEL, FIELD_WIDTH } from "./fieldStyles";
 
 type experienceInputProps= {
     experience: number,
@@ -8,24 +10,24 @@ type experienceInputProps= {
 }
 
 function ExperienceInput({experience, setExperience, experienceError, t}: experienceInputProps){
-    const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem]";
-    const labelCss = "text-lg md:text-2xl md:text-xl text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+    const label = t('YourExperience');
     return(
-        <>
-            <label htmlFor='experience' 
-            className={`${labelCss} mt-2`}>{t('YourExperience')}</label>
-            {experienceError ? <p className={errorCss} title={experienceError}>{experienceError}</p> : null}
-            <select id='experience'
-            name='experience'
-            value={experience}
-            onChange={(e) => setExperience(Number(e.target.value))}
-            className={`${borderCss} ${experienceError ? "border-error" : ""} h-[50px] text-xl pl-1 outline-none bg-background text-secondary transition-colors duration-200`}>
-                <option value={0}>{t("Beginner")}</option>
-                <option value={1}>{t('Intermediate')}</option>
-                <option value={2}>{t('Advanced')}</option>
-            </select>
-        </>
+        <div className={`mt-2 flex flex-col ${FIELD_WIDTH}`}>
+            <span className={FIELD_LABEL}>{label}</span>
+            <SegmentedControl
+                options={[
+                    { value: 0, label: t("Beginner") },
+                    { value: 1, label: t('Intermediate') },
+                    { value: 2, label: t('Advanced') }
+                ]}
+                value={experience}
+                onChange={setExperience}
+                label={label}
+                size="sm"
+                className={`w-full ${experienceError ? "ring-1 ring-danger" : ""}`}
+            />
+            {experienceError ? <p id="experience-error" className={FIELD_ERROR} title={experienceError}>{experienceError}</p> : null}
+        </div>
     )
 }
 

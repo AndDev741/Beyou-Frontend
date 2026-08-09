@@ -17,6 +17,8 @@ type InputProps = {
     errorMessage: string;
     testId?: string;
     autoComplete?: string;
+    /** A visible label above the field (the system's default). */
+    label?: string;
 };
 
 function Input({
@@ -31,6 +33,7 @@ function Input({
     errorMessage,
     testId,
     autoComplete,
+    label,
 }: InputProps) {
     const isPasswordField = useMemo(() => inputType === "password", [inputType]);
     const inputId = useId();
@@ -46,17 +49,27 @@ function Input({
     const ShouldRenderToggle = Boolean(IconToggleHidden && IconToggleVisible && isPasswordField);
 
     return (
-        <>
+        <div className="w-full">
+            {label && (
+                <label
+                    htmlFor={inputId}
+                    className="mb-1.5 block text-[12.5px] font-semibold text-text-2"
+                >
+                    {label}
+                </label>
+            )}
             <div
-                className={`flex items-center border-2 border-solid rounded-md w-[90vw] lg:w-[100%] h-[64px] bg-background transition-colors duration-200 ${
-                    errorMessage ? "border-error" : "border-primary"
+                className={`flex w-full items-center gap-2.5 rounded-control border bg-surface px-3 py-[9.5px] text-[13.5px] text-text transition-colors duration-200 focus-within:border-accent focus-within:ring-[3px] focus-within:ring-accent-soft ${
+                    errorMessage ? "border-danger" : "border-border"
                 }`}
             >
-                <label htmlFor={inputId} className="sr-only">
-                    {placeholder}
-                </label>
+                {!label && (
+                    <label htmlFor={inputId} className="sr-only">
+                        {placeholder}
+                    </label>
+                )}
                 <IconStart
-                    className="w-[35px] m-2 text-icon"
+                    className="h-[15px] w-[15px] shrink-0 text-text-3"
                     aria-hidden="true"
                     focusable="false"
                 />
@@ -69,7 +82,7 @@ function Input({
                     onChange={(e) => setData(e.target.value)}
                     data-testid={testId}
                     autoComplete={autoComplete}
-                    className="w-[100%] lg2:w-[400px] lg:w-[300px] text-2xl sm:text-3xl ml-5 rounded-md focus:outline-none bg-background text-secondary placeholder:text-placeholder"
+                    className="w-full min-w-0 bg-transparent text-[13.5px] text-text placeholder:text-text-3 focus:outline-none"
                 />
 
                 {ShouldRenderToggle && (
@@ -77,26 +90,26 @@ function Input({
                         type="button"
                         onClick={handlePasswordType}
                         aria-label={seePasswordIconAlt}
-                        className="mx-4 flex items-center justify-center"
+                        className="flex shrink-0 items-center justify-center text-text-3 hover:text-text-2"
                     >
                         {isPasswordVisible && IconToggleVisible ? (
-                            <IconToggleVisible className="w-[35px] h-[35px] text-icon" aria-hidden="true" focusable="false" />
+                            <IconToggleVisible className="h-[15px] w-[15px]" aria-hidden="true" focusable="false" />
                         ) : (
                             IconToggleHidden && (
-                                <IconToggleHidden className="w-[35px] h-[35px] text-icon" aria-hidden="true" focusable="false" />
+                                <IconToggleHidden className="h-[15px] w-[15px]" aria-hidden="true" focusable="false" />
                             )
                         )}
                     </button>
                 )}
             </div>
             {errorMessage && (
-                <div className="w-[90vw] lg:w-full max-w-[400px] mt-1">
-                    <p className="text-error text-sm leading-snug whitespace-pre-line">
+                <div className="mt-1.5 w-full">
+                    <p className="whitespace-pre-line text-xs leading-snug text-danger">
                         {errorMessage}
                     </p>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 

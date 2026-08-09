@@ -3,13 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import IconsBox from "../inputs/iconsBox";
-import DescriptionInput from "../inputs/descriptionInput";
-import GenericInput from "../inputs/genericInput";
-import ChooseInput from "../inputs/chooseInput";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
+import IconsBoxSmall from "../inputs/iconsBoxSmall";
+import SegmentedControl from "../../ui/SegmentedControl";
 import Button from "../Button";
-import { CgAddR } from "react-icons/cg";
+import IconButton from "../../ui/IconButton";
+import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -36,7 +35,12 @@ export type TaskFormMode = "create" | "edit";
 type TaskFormProps = {
     mode: TaskFormMode;
     setTasks: React.Dispatch<React.SetStateAction<task[]>>;
+    /** The form lives in a modal: closing belongs to whoever opened it. */
+    onClose?: () => void;
 };
+
+/** The title's id — the modal points aria-labelledby at it. */
+export const TASK_FORM_TITLE_ID = "task-form-title";
 
 type TaskFormValues = {
     name: string;
@@ -58,7 +62,7 @@ const defaultValues: TaskFormValues = {
     oneTimeTask: false
 };
 
-function TaskForm({ mode, setTasks }: TaskFormProps) {
+function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
@@ -133,6 +137,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
         dispatch(editDificultyEnter(""));
         dispatch(editCaegoriesIdEnter(""));
         dispatch(editOneTimeTaskEnter(false));
+        onClose?.();
     };
 
     const onSubmit = async (values: TaskFormValues) => {
@@ -175,6 +180,7 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                 reset(defaultValues);
                 setSearch("");
                 toast.success(t("created successfully"));
+                onClose?.();
             }
             return;
         }
@@ -191,103 +197,127 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
         }
     };
 
+    const fieldClass =
+        "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
+    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
+
     return (
-        <div className="w-full bg-background text-secondary">
-            <div className="flex items-center justify-center mt-5 mb-3 text-3xl">
-                <CgAddR className="w-[40px] h-[40px] mr-1" />
-                <h1>{t(mode === "edit" ? "Edit Task" : "Create Task")}</h1>
+        <div className="w-full text-text">
+            {/* Modal header: title + close. */}
+            <div className="flex items-center gap-3">
+                <h2 id={TASK_FORM_TITLE_ID} className="text-base font-semibold tracking-[-0.01em] text-text">
+                    {t(mode === "edit" ? "Edit Task" : "Create Task")}
+                </h2>
+                {onClose && (
+                    <IconButton label={t("Close")} onClick={onClose} className="ml-auto">
+                        <X size={18} aria-hidden="true" />
+                    </IconButton>
+                )}
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center">
-                <div className="flex md:items-start md:flex-row justify-center">
-                    <div className="flex flex-col md:items-start md:justify-start">
-                        <Controller
-                            control={control}
-                            name="name"
-                            render={({ field }) => (
-                                <GenericInput
-                                    name="Name"
-                                    data={field.value}
-                                    placeholder="Clean the house"
-                                    setData={field.onChange}
-                                    dataError={errors.name?.message ?? ""}
-                                    t={t}
-                                />
-                            )}
-                        />
 
-                        <Controller
-                            control={control}
-                            name="description"
-                            render={({ field }) => (
-                                <DescriptionInput
-                                    t={t}
-                                    description={field.value}
-                                    setDescription={field.onChange}
-                                    descriptionError={errors.description?.message ?? ""}
-                                    placeholder="Important to keep things organized"
-                                    minH={mode === "edit" ? 134 : 99}
-                                />
-                            )}
-                        />
-                    </div>
-
-                    <div className="mx-2"></div>
-
-                    <div className="flex flex-col md:flex-col md:mt-0">
-                        <Controller
-                            control={control}
-                            name="iconId"
-                            render={({ field }) => (
-                                <IconsBox
-                                    search={search}
-                                    setSearch={setSearch}
-                                    iconError={errors.iconId?.message ?? ""}
-                                    selectedIcon={field.value}
-                                    setSelectedIcon={field.onChange}
-                                    minLgH={mode === "edit" ? 194 : 158}
-                                    minHSmallScreen={mode === "edit" ? 192 : undefined}
-                                    t={t}
-                                />
-                            )}
-                        />
-                    </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-3.5">
+                <div>
+                    <label htmlFor="task-name" className={labelClass}>{t("Name")}</label>
+                    <Controller
+                        control={control}
+                        name="name"
+                        render={({ field }) => (
+                            <input
+                                id="task-name"
+                                type="text"
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("TaskNamePlaceholder")}
+                                className={`${fieldClass} ${errors.name ? "border-danger" : ""}`}
+                            />
+                        )}
+                    />
+                    {errors.name?.message && <p className="mt-1.5 text-xs text-danger">{errors.name.message}</p>}
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center justify-center md:gap-10 w-full md:w-[80%]">
+                <div className="mt-4">
+                    <label htmlFor="task-description" className={labelClass}>{t("Description")}</label>
+                    <Controller
+                        control={control}
+                        name="description"
+                        render={({ field }) => (
+                            <textarea
+                                id="task-description"
+                                rows={3}
+                                value={field.value}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                placeholder={t("TaskDescriptionPlaceholder")}
+                                className={`${fieldClass} resize-none`}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <Controller
+                        control={control}
+                        name="iconId"
+                        render={({ field }) => (
+                            <IconsBoxSmall
+                                search={search}
+                                setSearch={setSearch}
+                                t={t}
+                                iconError={errors.iconId?.message ?? ""}
+                                setSelectedIcon={field.onChange}
+                                selectedIcon={field.value || ""}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Importance")}</span>
                     <Controller
                         control={control}
                         name="importance"
                         render={({ field }) => (
-                            <ChooseInput
-                                choosedLevel={field.value}
-                                setLevel={field.onChange}
-                                title="Importance"
-                                levels={[t("Low"), t("Medium"), t("High"), t("Max")]}
-                                error={errors.importance?.message ?? ""}
-                                name="importance"
-                                t={t}
-                            />
-                        )}
-                    />
-
-                    <Controller
-                        control={control}
-                        name="difficulty"
-                        render={({ field }) => (
-                            <ChooseInput
-                                choosedLevel={field.value}
-                                error={errors.difficulty?.message ?? ""}
-                                setLevel={field.onChange}
-                                title="Difficulty"
-                                levels={[t("Easy"), t("Normal"), t("Hard"), t("Terrible")]}
-                                name="difficulty"
-                                t={t}
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Importance")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 1, label: t("Low") },
+                                    { value: 2, label: t("Medium") },
+                                    { value: 3, label: t("High") },
+                                    { value: 4, label: t("Max") },
+                                ]}
                             />
                         )}
                     />
                 </div>
 
-                <div>
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Difficulty")}</span>
+                    <Controller
+                        control={control}
+                        name="difficulty"
+                        render={({ field }) => (
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Difficulty")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={[
+                                    { value: 1, label: t("Easy") },
+                                    { value: 2, label: t("Normal") },
+                                    { value: 3, label: t("Hard") },
+                                    { value: 4, label: t("Terrible") },
+                                ]}
+                            />
+                        )}
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Categories")}</span>
                     <Controller
                         control={control}
                         name="categoriesId"
@@ -300,34 +330,46 @@ function TaskForm({ mode, setTasks }: TaskFormProps) {
                             />
                         )}
                     />
-                    <div className="flex items-center justify-center mt-2">
-                        <input
-                            id="oneTimeTask"
-                            type="checkbox"
-                            {...register("oneTimeTask")}
-                            className="accent-primary border border-primary w-8 h-8 rounded-xl cursor-pointer bg-background transition-colors duration-200"
-                        />
-                        <label htmlFor="oneTimeTask" className="ml-2 text-xl text-secondary">
-                            {t(mode === "edit" ? "One-time Task" : "One Time Task")}
+                </div>
+
+                {/* A one-time task: it leaves the list once completed
+                    uma vez — o switch do mockup. */}
+                <div className="mt-4 flex items-center gap-3">
+                    <input
+                        id="oneTimeTask"
+                        type="checkbox"
+                        {...register("oneTimeTask")}
+                        className="h-4 w-4 shrink-0 cursor-pointer rounded-control accent-accent"
+                    />
+                    <div>
+                        <label htmlFor="oneTimeTask" className="block text-[12.5px] font-semibold text-text">
+                            {t("OneTimeTaskLabel")}
                         </label>
+                        <span className="mt-0.5 block font-mono text-[10.5px] text-text-3">
+                            {t("OneTimeTaskCaption")}
+                        </span>
                     </div>
                 </div>
 
-                {errors.root?.message && (
-                    <p className="text-error text-center mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center" />
+                {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+                <ErrorNotice error={apiError} className="mt-2" />
 
-                {mode === "edit" ? (
-                    <div className="flex w-full items-center justify-evenly mt-6">
-                        <Button text={t("Cancel")} mode="cancel" size="medium" type="button" onClick={handleCancel} />
-                        <Button text={t("Edit")} mode="create" size="medium" disabled={isSubmitting} />
-                    </div>
-                ) : (
-                    <div className="mb-3 mt-3">
-                        <Button text={t("Create")} mode="create" size="big" disabled={isSubmitting} />
-                    </div>
-                )}
+                <div className="mt-[18px] flex justify-end gap-2">
+                    <Button
+                        text={t("Cancel")}
+                        mode="ghost"
+                        size="medium"
+                        type="button"
+                        onClick={mode === "edit" ? handleCancel : onClose}
+                    />
+                    <Button
+                        text={t("Save task")}
+                        mode="primary"
+                        size="medium"
+                        type="submit"
+                        disabled={isSubmitting}
+                    />
+                </div>
             </form>
         </div>
     );

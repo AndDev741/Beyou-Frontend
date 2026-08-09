@@ -78,7 +78,7 @@ describe('HabitForm create', () => {
     });
 
     await act(async () => {
-      fireEvent.press(screen.getByTestId('habit-submit'));
+      fireEvent.press(screen.getByTestId('habit-form-submit'));
     });
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
@@ -102,7 +102,7 @@ describe('HabitForm create', () => {
   it('blocks submit when required fields are missing', async () => {
     await wrap(<HabitForm visible mode="create" categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
     await act(async () => {
-      fireEvent.press(screen.getByTestId('habit-submit'));
+      fireEvent.press(screen.getByTestId('habit-form-submit'));
     });
     expect(post).not.toHaveBeenCalled();
   });
@@ -121,7 +121,7 @@ describe('HabitForm edit', () => {
       fireEvent.changeText(screen.getByTestId('habit-name'), 'Read more');
     });
     await act(async () => {
-      fireEvent.press(screen.getByTestId('habit-submit'));
+      fireEvent.press(screen.getByTestId('habit-form-submit'));
     });
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));

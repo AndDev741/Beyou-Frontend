@@ -27,7 +27,7 @@ beforeEach(() => {
 });
 
 describe('ConstanceSection', () => {
-  it('persists the selected constance mode via editUser and toasts success', async () => {
+  it('persists the constance mode as soon as it is picked', async () => {
     await render(
       <Provider store={makeStore()}>
         <BeyouThemeProvider>
@@ -36,12 +36,9 @@ describe('ConstanceSection', () => {
       </Provider>,
     );
 
-    // Default is ANY; pick COMPLETE then save.
+    // Picking already saves: only the profile has a save button.
     await act(async () => {
       fireEvent.press(screen.getByTestId('constance-COMPLETE'));
-    });
-    await act(async () => {
-      fireEvent.press(screen.getByTestId('save-constance'));
     });
 
     await waitFor(() =>

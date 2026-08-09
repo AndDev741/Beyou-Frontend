@@ -29,7 +29,7 @@ export default function PasswordHints({ password }: PasswordHintsProps) {
       {hints.map((h) => (
         <Text
           key={h.key}
-          className={h.ok ? 'text-success text-xs' : 'text-description text-xs'}
+          className={h.ok ? 'text-success text-xs' : 'text-text-2 text-xs'}
           testID={`${h.key}-${h.ok ? 'ok' : 'pending'}`}
         >
           {h.ok ? '✓ ' : '• '}

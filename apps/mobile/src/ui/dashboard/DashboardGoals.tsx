@@ -1,125 +1,200 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
-import { sortGoalsByTime } from '@beyou/state';
+import { Check, ChevronDown, ChevronUp, Trophy } from 'lucide-react-native';
+import { sortGoalsByTime, formatGoalDeadline, type DeadlineShape } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import BeyouIcon from '../BeyouIcon';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { loadGoalHorizons, saveGoalHorizons } from '../../lib/goalHorizonsStore';
 import type { RootState } from '../../store';
 
-const BUCKETS = [
-  { key: 'thisWeek', title: 'This Week' },
-  { key: 'thisMonth', title: 'This Month' },
-  { key: 'thisYear', title: 'This Year' },
-  { key: 'beyond', title: 'Future Goals' },
-  { key: 'past', title: 'Past Goals' },
-] as const;
+type HorizonKey = 'thisWeek' | 'thisMonth' | 'thisYear' | 'beyond';
 
-const fmtDate = (v: Date | string | undefined) =>
-  !v ? '' : typeof v === 'string' ? v.slice(0, 10) : new Date(v).toISOString().slice(0, 10);
+const HORIZONS: HorizonKey[] = ['thisWeek', 'thisMonth', 'thisYear', 'beyond'];
 
-function GoalRow({ goal, onPress }: { goal: goal; onPress: () => void }) {
-  const { theme } = useBeyouTheme();
-  const pct = goal.targetValue > 0 ? Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100)) : 0;
-  const steps = `${goal.currentValue} / ${goal.targetValue}${goal.unit ? ` ${goal.unit}` : ''}`;
-  const dateRange = [fmtDate(goal.startDate), fmtDate(goal.endDate)].filter(Boolean).join(' → ');
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={goal.name}
-      testID={`dash-goal-${goal.id}`}
-      className="flex-row items-center gap-3 rounded-xl border border-primary/15 bg-background p-3 active:opacity-80"
-    >
-      <BeyouIcon id={goal.iconId} size={20} showFallback />
-      <View className="flex-1 gap-1">
-        <View className="flex-row items-center justify-between gap-2">
-          <Text className="text-secondary flex-1 text-sm font-semibold" numberOfLines={1}>{goal.name}</Text>
-          <Text className="text-description text-xs">{steps}</Text>
-        </View>
-        <View className="h-1.5 overflow-hidden rounded-full bg-primary/15">
-          <View className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
-        </View>
-        {dateRange ? <Text className="text-description text-[11px]">{dateRange}</Text> : null}
-      </View>
-      {goal.complete ? (
-        <Ionicons name="checkmark-circle" size={18} color={theme.primary} />
-      ) : (
-        <Text className="text-description text-xs">{pct}%</Text>
-      )}
-    </Pressable>
-  );
-}
+/** How much of the deadline each horizon shows: near, the day; far, the month. */
+const DEADLINE_SHAPE: Record<HorizonKey, DeadlineShape> = {
+  thisWeek: 'weekday',
+  thisMonth: 'dayMonth',
+  thisYear: 'month',
+  beyond: 'month',
+};
+
+const LABELS: Record<HorizonKey, { title: string; chip: string }> = {
+  thisWeek: { title: 'This Week', chip: 'Week' },
+  thisMonth: { title: 'This Month', chip: 'Month' },
+  thisYear: { title: 'This Year', chip: 'Year' },
+  beyond: { title: 'Future Goals', chip: 'Future' },
+};
 
 /**
- * Dashboard goals view (mirrors the web GoalsTab): goals from the slice bucketed by
- * end date (this week / month / year / future / past), with filter chips, rendered
- * read-only. Tapping a goal — or the header — opens the Goals screen. Renders
- * nothing when the user has no goals.
+ * "Your goals" on the dashboard: the why behind the day's checks, grouped by
+ * horizon. Mirrors the web's `GoalsHorizon` at phone width.
+ *
+ * The cards are compact on purpose — the point here is seeing what lies ahead at
+ * a glance; the detail (stepper, motivation, period) lives on the Goals page,
+ * where a tap takes you with the chosen goal already highlighted.
+ *
+ * The filter is a per-horizon toggle with a count, behind a summary ("month ·
+ * year") because the chips do not fit in a phone header. The choice is saved.
  */
 export default function DashboardGoals() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { theme } = useBeyouTheme();
   const goals = useSelector((s: RootState) => s.goals.goals);
-  const sorted = useMemo(() => sortGoalsByTime(goals ?? []), [goals]);
-  const [tags, setTags] = useState<string[]>(['all']);
 
-  const sections = useMemo(
-    () => BUCKETS.map((b) => ({ ...b, goals: sorted[b.key] })).filter((s) => s.goals.length > 0),
-    [sorted],
-  );
+  const [active, setActive] = useState<HorizonKey[]>(['thisWeek', 'thisMonth', 'thisYear']);
+  const [filterOpen, setFilterOpen] = useState(false);
 
-  if (!goals?.length || sections.length === 0) return null;
-
-  const isAll = tags.includes('all');
-  const toggle = (key: string) =>
-    setTags((prev) => {
-      if (key === 'all') return ['all'];
-      const without = prev.filter((x) => x !== 'all');
-      const next = without.includes(key) ? without.filter((x) => x !== key) : [...without, key];
-      return next.length ? next : ['all'];
+  useEffect(() => {
+    let alive = true;
+    loadGoalHorizons().then((stored) => {
+      if (!alive || !stored) return;
+      const valid = stored.filter((key): key is HorizonKey => HORIZONS.includes(key as HorizonKey));
+      if (valid.length > 0) setActive(valid);
     });
-  const visible = sections.filter((s) => isAll || tags.includes(s.key));
-  const goToGoals = () => router.push('/goals');
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const grouped = useMemo(() => sortGoalsByTime(goals ?? []), [goals]);
+
+  const toggle = (key: HorizonKey) => {
+    setActive((prev) => {
+      const next = prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key];
+      void saveGoalHorizons(next);
+      return next;
+    });
+  };
+
+  // Opens the Goals page with the goal in focus — `expand` is the name the goals
+  // screen reads (the web uses `?goal=`; there is no address bar to match here).
   const openGoal = (id: string) => router.push({ pathname: '/goals', params: { expand: id } });
 
-  return (
-    <View className="gap-3">
-      <Pressable onPress={goToGoals} accessibilityRole="button" testID="dash-goals-header" className="flex-row items-center justify-between">
-        <Text className="text-secondary text-xl font-bold">{t('Goals')}</Text>
-        <Ionicons name="chevron-forward" size={20} color={theme.primary} />
-      </Pressable>
+  const visible = HORIZONS.filter((key) => active.includes(key) && grouped[key].length > 0);
+  const hasAnyGoal = HORIZONS.some((key) => grouped[key].length > 0);
 
-      <View className="flex-row flex-wrap gap-2">
-        {[{ key: 'all', title: 'All' }, ...sections].map((tag) => {
-          const active = tags.includes(tag.key);
-          return (
-            <Pressable
-              key={tag.key}
-              onPress={() => toggle(tag.key)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-              testID={`dash-goals-tag-${tag.key}`}
-              className={`rounded-full border px-3 py-1 ${active ? 'border-primary bg-primary/10' : 'border-primary/20'}`}
-            >
-              <Text className={`text-xs font-semibold ${active ? 'text-primary' : 'text-secondary'}`}>{t(tag.title)}</Text>
-            </Pressable>
-          );
-        })}
+  if (!hasAnyGoal) return null;
+
+  const activeSummary = HORIZONS.filter((key) => active.includes(key) && grouped[key].length > 0)
+    .map((key) => t(LABELS[key].chip).toLowerCase())
+    .join(' · ');
+
+  return (
+    <View className="rounded-card border border-border bg-surface p-4" testID="goals-horizon">
+      <View className="flex-row items-center gap-2">
+        <Trophy size={15} color={theme.text3} />
+        <Text accessibilityRole="header" className="text-sm font-semibold text-text">
+          {t('Goals')}
+        </Text>
+        <Pressable
+          onPress={() => setFilterOpen((open) => !open)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: filterOpen }}
+          testID="dash-goals-filter"
+          className="ml-auto flex-row items-center gap-1 rounded-full px-2 py-1 active:bg-surface-2"
+        >
+          <Text className="text-xs text-text-3">{activeSummary || t('Filter')}</Text>
+          {/* Icon swapped instead of rotated (see ConfigSection). */}
+          {filterOpen ? (
+            <ChevronUp size={13} color={theme.text3} />
+          ) : (
+            <ChevronDown size={13} color={theme.text3} />
+          )}
+        </Pressable>
       </View>
 
-      {visible.map((section) => (
-        <View key={section.key} className="gap-2">
-          <Text className="text-description text-sm font-semibold">{t(section.title)}</Text>
-          {section.goals.map((g) => (
-            <GoalRow key={g.id} goal={g} onPress={() => openGoal(g.id)} />
-          ))}
+      {filterOpen ? (
+        <View className="mt-3 flex-row flex-wrap gap-2">
+          {HORIZONS.filter((key) => grouped[key].length > 0).map((key) => {
+            const isOn = active.includes(key);
+            return (
+              <Pressable
+                key={key}
+                onPress={() => toggle(key)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isOn }}
+                testID={`dash-goals-tag-${key}`}
+                className={`flex-row items-center gap-1.5 rounded-full border px-3 py-1 ${
+                  isOn ? 'border-accent bg-accent-soft' : 'border-border'
+                }`}
+              >
+                {isOn ? <Check size={12} color={theme.accent} /> : null}
+                <Text className={`text-xs font-semibold ${isOn ? 'text-accent' : 'text-text-3'}`}>
+                  {t(LABELS[key].chip)}
+                </Text>
+                <Text className="font-mono text-[11px] text-text-3">{grouped[key].length}</Text>
+              </Pressable>
+            );
+          })}
         </View>
-      ))}
+      ) : null}
+
+      {visible.length === 0 ? (
+        <Text className="mt-6 text-center text-sm text-text-3">{t('GoalsHorizonAllHidden')}</Text>
+      ) : (
+        visible.map((key) => (
+          <View key={key} className="mt-3 gap-2">
+            {grouped[key].map((item: goal) => {
+              const target = item.targetValue > 0 ? item.targetValue : 1;
+              const percent = Math.min(100, Math.round((item.currentValue / target) * 100));
+              const reached = item.currentValue >= item.targetValue;
+              return (
+                <Pressable
+                  key={item.id}
+                  onPress={() => openGoal(item.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={item.name}
+                  testID={`dash-goal-${item.id}`}
+                  className={`rounded-control border p-3 active:bg-surface-2 ${
+                    reached ? 'border-success' : 'border-border'
+                  }`}
+                >
+                  <View className="flex-row items-center gap-2.5">
+                    <View className="h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft">
+                      <BeyouIcon id={item.iconId} size={15} showFallback />
+                    </View>
+                    <Text
+                      className="min-w-0 flex-1 text-[13.5px] font-semibold text-text"
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                    {reached ? (
+                      <View className="shrink-0 rounded-full bg-xp-soft px-2 py-0.5">
+                        <Text className="font-mono-semibold text-[11px] text-xp">
+                          {`+${item.xpReward}`}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <View className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                    <View
+                      className={`h-full rounded-full ${reached ? 'bg-success' : 'bg-accent'}`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </View>
+
+                  <View className="mt-2 flex-row items-center justify-between">
+                    <Text className="font-mono text-[11px] text-text-3">
+                      {`${item.currentValue}/${item.targetValue} ${item.unit ?? ''}`}
+                    </Text>
+                    <Text className="font-mono text-[11px] text-text-3">
+                      {`${t('Until')} ${formatGoalDeadline(item.endDate, i18n.language, DEADLINE_SHAPE[key])}`}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
+        ))
+      )}
     </View>
   );
 }

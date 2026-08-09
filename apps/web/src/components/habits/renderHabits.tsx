@@ -7,13 +7,18 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { editModeEnter } from "@beyou/state/habit/editHabitSlice";
 import EmptyState from "../EmptyState";
+import { Repeat, Search } from "lucide-react";
 
 type renderHabitsProps = {
     habits: habit[],
-    setHabits: React.Dispatch<React.SetStateAction<habit[]>>
+    setHabits: React.Dispatch<React.SetStateAction<habit[]>>,
+    /** Overrides the empty state when search/filter emptied the list, not a lack of habits. */
+    emptyTitle?: string,
+    /** Clears search and filters from the empty state. */
+    onClearFilters?: () => void
 }
 
-function RenderHabits({habits, setHabits}: renderHabitsProps){
+function RenderHabits({habits, setHabits, emptyTitle, onClearFilters}: renderHabitsProps){
     const dispatch = useDispatch();
     const { t: tRhf } = useTranslation();
 
@@ -32,12 +37,16 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
         returnHabits();
     }, [])
 
+    const hasHabits = habits.length > 0;
+
     return(
+        // A scannable grid: 3 columns on desktop, 1 on mobile. The empty state takes
+        // the full width instead of becoming one squeezed column.
         <div
-            className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3 text-secondary"
+            className={`text-text ${hasHabits ? "grid grid-cols-1 items-start gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}
             data-tutorial-id="habits-grid"
         >
-            {habits.length > 0 ? (
+            {hasHabits ? (
                 habits.map((habit, index) => (
                     <div key={habit.id} data-tutorial-id={index === 0 ? "habit-card" : undefined}>
                         <HabitBox
@@ -61,9 +70,18 @@ function RenderHabits({habits, setHabits}: renderHabitsProps){
                         />
                     </div>
                 ))
+            ) : emptyTitle ? (
+                <EmptyState
+                    icon={<Search size={20} aria-hidden="true" />}
+                    title={emptyTitle}
+                    description={tRhf('NoResultsDescription')}
+                    actionLabel={onClearFilters ? tRhf('ClearFilters') : undefined}
+                    onAction={onClearFilters}
+                    variant="ghost"
+                />
             ) : (
                 <EmptyState
-                    emoji="🌱"
+                    icon={<Repeat size={20} aria-hidden="true" />}
                     title={tRhf('0HabitsTitle')}
                     description={tRhf('0HabitsDescription')}
                 />

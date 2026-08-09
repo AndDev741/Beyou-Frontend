@@ -1,27 +1,34 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { ChevronLeft, Trophy, Plus, Search } from 'lucide-react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getGoals from '@beyou/api/goals/getGoals';
 import getCategories from '@beyou/api/categories/getCategories';
 import deleteGoal from '@beyou/api/goals/deleteGoal';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
-import { sortGoals } from '@beyou/state';
+import { setViewSort, sortGoals } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import GoalCard from '../../src/ui/goals/GoalCard';
 import GoalForm from '../../src/ui/goals/GoalForm';
-import GoalsSortSheet from '../../src/ui/goals/GoalsSortSheet';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
+import DeleteModal from '../../src/ui/DeleteModal';
+import EmptyState from '../../src/ui/EmptyState';
+import ListToolbar from '../../src/ui/ListToolbar';
+import SelectField from '../../src/ui/SelectField';
+import { GOAL_SORT_OPTIONS } from '../../src/ui/sortOptions';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null };
 const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
+const ALL_CATEGORIES = 'all';
+type StatusFilter = 'all' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
 /**
  * Goals section screen: self-fetches goals + categories, lists them as cards with
@@ -33,6 +40,7 @@ export default function GoalsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { expand } = useLocalSearchParams<{ expand?: string }>();
+  const listRef = useRef<FlatList<goal>>(null);
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
 
@@ -41,8 +49,56 @@ export default function GoalsScreen() {
   const sortBy = useSelector((s: RootState) => s.viewFilters.goals);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
+
+  // Only the categories SOME item uses: a filter full of options that return
+  // nothing is noise.
+  const categoriesInUse = useMemo(
+    () => categories.filter((category) => goals.some((item) => Object.keys(item.categories ?? {}).includes(category.id))),
+    [categories, goals],
+  );
+
+  const visibleItems = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return sortedGoals.filter((item) => {
+      const matchesTerm =
+        !term ||
+        item.name?.toLowerCase().includes(term) ||
+        (item.description ?? '').toLowerCase().includes(term);
+      const matchesCategory =
+        categoryFilter === ALL_CATEGORIES || Object.keys(item.categories ?? {}).includes(categoryFilter);
+      const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+      return matchesTerm && matchesCategory && matchesStatus;
+    });
+  }, [sortedGoals, search, categoryFilter, statusFilter]);
+
+  const isFiltered =
+    search.trim() !== '' || categoryFilter !== ALL_CATEGORIES || statusFilter !== 'all';
+  const completedCount = useMemo(() => goals.filter((g) => g.status === 'COMPLETED').length, [goals]);
+  const statusOptions = useMemo(
+    () => [
+      { value: 'all', label: t('All') },
+      { value: 'NOT_STARTED', label: t('Not Started') },
+      { value: 'IN_PROGRESS', label: t('In Progress') },
+      { value: 'COMPLETED', label: t('Completed') },
+    ],
+    [t],
+  );
+  const sortOptions = useMemo(
+    () => GOAL_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.key) })),
+    [t],
+  );
+  const categoryOptions = useMemo(
+    () => [
+      { value: ALL_CATEGORIES, label: t('All') },
+      ...categoriesInUse.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categoriesInUse, t],
+  );
 
   const load = useCallback(async () => {
     const [g, c] = await Promise.all([getGoals(t), getCategories(t)]);
@@ -61,48 +117,71 @@ export default function GoalsScreen() {
     };
   }, [load]);
 
-  const handleDelete = useCallback(
-    (target: goal) => {
-      Alert.alert(t('DeleteGoal'), t('ConfirmDeleteOfGoalPhrase'), [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: async () => {
-            const res = await deleteGoal(target.id, t);
-            if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
-            else {
-              notify.success(t('deleted successfully'));
-              await load();
-            }
-          },
-        },
-      ]);
-    },
-    [t, load],
-  );
+  /**
+   * The dashboard sends you here with `expand=<id>`: the list scrolls to the goal
+   * and highlights it. Without that you land in a list and have to hunt for the
+   * acabou de tocar.
+   */
+  useEffect(() => {
+    if (!expand || loading) return;
+    const index = visibleItems.findIndex((item) => item.id === expand);
+    if (index < 0) return;
+    const timer = setTimeout(
+      () => listRef.current?.scrollToIndex({ index, viewPosition: 0.5, animated: true }),
+      250,
+    );
+    return () => clearTimeout(timer);
+  }, [expand, loading, visibleItems]);
+
+  // Delete uses the system's own modal: the native Alert carries no theme, no
+  // typography and no item name, and brings the OS button order.
+  const [deleteTarget, setDeleteTarget] = useState<goal | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteGoal(deleteTarget.id, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
-        <View className="flex-row items-center gap-2">
+        <View className="min-w-0 flex-row items-center gap-2">
           <Pressable
             onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
             accessibilityRole="button"
             testID="back-button"
           >
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
+            <ChevronLeft size={24} color={theme.text2} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Goals')}</Text>
+          <View className="min-w-0">
+            <Text accessibilityRole="header" className="text-[22px] font-semibold text-text">
+              {t('YourGoals')}
+            </Text>
+            <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
+              {completedCount > 0
+                ? `${goals.length} ${t('Goals')} · ${completedCount} ${t('Completed')}`
+                : `${goals.length} ${t('Goals')}`}
+            </Text>
+          </View>
         </View>
         <Pressable
           onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
           accessibilityRole="button"
           accessibilityLabel={t('CreateGoal')}
           testID="create-goal"
-          className="h-10 w-10 items-center justify-center rounded-full bg-primary"
+          className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
         >
-          <Ionicons name="add" size={26} color={theme.background} />
+          <Plus size={22} color={theme.onAccent} />
         </Pressable>
       </View>
 
@@ -112,35 +191,99 @@ export default function GoalsScreen() {
         </View>
       ) : (
         <FlatList
-          data={sortedGoals}
+          ref={listRef}
+          data={visibleItems}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
-          ListHeaderComponent={goals.length > 0 ? <View className="mb-1"><GoalsSortSheet /></View> : null}
+          onScrollToIndexFailed={({ index }) => {
+            // The list has not measured that item yet (render window). Go to the
+            // end and try again — without this the scroll simply never happens for
+            // goals outside the first window.
+            listRef.current?.scrollToEnd({ animated: false });
+            setTimeout(() => listRef.current?.scrollToIndex({ index, viewPosition: 0.5 }), 80);
+          }}
+          contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 12 }}
+          ListHeaderComponent={
+            goals.length > 0 ? (
+              <ListToolbar
+                search={search}
+                onSearchChange={setSearch}
+                searchLabel={t('GoalSearchPlaceholder')}
+                testID="goals-toolbar"
+              >
+                <SelectField
+                  label={t('Status')}
+                  value={statusFilter}
+                  options={statusOptions}
+                  onChange={(value) => setStatusFilter(value as StatusFilter)}
+                  testID="goals-status-filter"
+                  className="flex-1"
+                />
+                <SelectField
+                  label={t('Sort by')}
+                  value={sortBy}
+                  options={sortOptions}
+                  onChange={(value) => dispatch(setViewSort({ view: 'goals', sortBy: value }))}
+                  testID="goals-sort"
+                  className="flex-1"
+                />
+                <SelectField
+                  label={t('Categories')}
+                  value={categoryFilter}
+                  options={categoryOptions}
+                  onChange={setCategoryFilter}
+                  testID="goals-category-filter"
+                  className="flex-1"
+                />
+              </ListToolbar>
+            ) : null
+          }
           renderItem={({ item }) => (
             <GoalCard
               goal={item}
               initialExpanded={item.id === expand}
+              focused={item.id === expand}
               onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
-              onDelete={handleDelete}
+              onDelete={setDeleteTarget}
               onChanged={load}
             />
           )}
           ListEmptyComponent={
-            <View className="mt-20 items-center gap-3 px-8">
-              <Text className="text-5xl">🎯</Text>
-              <Text className="text-description text-center text-base">{t('NoGoalsYet')}</Text>
-              <Pressable
-                onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
-                accessibilityRole="button"
+            isFiltered ? (
+              <EmptyState
+                icon={<Search size={20} color={theme.accent} />}
+                title={t('NoResultsTitle')}
+                description={t('NoResultsDescription')}
+                actionLabel={t('ClearFilters')}
+                onAction={() => {
+                  setSearch('');
+                  setCategoryFilter(ALL_CATEGORIES);
+                  setStatusFilter('all');
+                }}
+                variant="ghost"
+                testID="goals-no-results"
+              />
+            ) : (
+              <EmptyState
+                icon={<Trophy size={20} color={theme.accent} />}
+                title={t('0GoalsTitle')}
+                description={t('Start creating amazing goals to track your progress!')}
+                actionLabel={t('CreateGoal')}
+                onAction={() => setForm({ visible: true, mode: 'create', goal: null })}
                 testID="empty-create-goal"
-                className="rounded-full bg-primary px-5 py-2.5"
-              >
-                <Text style={{ color: theme.background }} className="font-semibold">{t('CreateGoal')}</Text>
-              </Pressable>
-            </View>
+              />
+            )
           }
         />
       )}
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfGoalPhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <GoalForm
         visible={form.visible}

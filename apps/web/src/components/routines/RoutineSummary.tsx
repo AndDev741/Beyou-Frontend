@@ -1,32 +1,41 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Routine } from "@beyou/types/routine/routine";
 import { RootState } from "@beyou/state/rootReducer";
-import { getRoutineStats } from "./routineMetrics";
 import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 type RoutineSummaryProps = {
     routines: Routine[];
     selectedDate: string;
     onDateChange: (value: string) => void;
+    /** The page's primary action (create routine), top right of the card. */
+    action?: ReactNode;
 };
 
 /** Returns ISO date string YYYY-MM-DD for N days ago (0 = today). */
-function getDateDaysAgo(n: number): string {
-    const d = new Date();
-    d.setDate(d.getDate() - n);
-    return d.toISOString().split("T")[0];
-}
-
 /** Returns the last 5 days including today, oldest→newest. */
-function getLast5Days(): string[] {
-    return [4, 3, 2, 1, 0].map(getDateDaysAgo);
+/**
+ * The last seven days, ENDING TODAY — today is always the last box and the one
+ * selected by default.
+ *
+ * That keeps yesterday and the recent days one tap away, without the calendar. A
+ * civil week (Mon→Sun) would put future days in the row on a Monday, and a future
+ * day has no routine to look at.
+ */
+function getLastSevenDays(): string[] {
+    const now = new Date();
+    return Array.from({ length: 7 }, (_, index) => {
+        const day = new Date(now);
+        day.setDate(now.getDate() - (6 - index));
+        return day.toISOString().split("T")[0];
+    });
 }
 
 // ─── DayChip ──────────────────────────────────────────────────────────────────
 
 interface DayChipProps {
+    todayLabel: string;
     dateStr: string;
     isSelected: boolean;
     isToday: boolean;
@@ -35,51 +44,44 @@ interface DayChipProps {
     onClick: () => void;
 }
 
-function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick }: DayChipProps) {
+function DayChip({ dateStr, isSelected, isToday, locale, isSnapshotMode, onClick, todayLabel }: DayChipProps) {
     // Parse at noon to avoid timezone day-shift issues
     const date = new Date(dateStr + "T12:00:00");
 
     const shortDay = new Intl.DateTimeFormat(locale, { weekday: "short" })
         .format(date)
         .replace(/\.$/, "")   // Portuguese adds a period: "seg." → "seg"
-        .slice(0, 3)
-        .toUpperCase();
-
-    const dayNum = date.getDate();
-
-    const baseClasses =
-        "relative flex flex-col items-center justify-center rounded-full border-2 w-10 h-10 md:w-12 md:h-12 " +
-        "transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 cursor-pointer";
-
-    const stateClasses = isSelected
-        ? isSnapshotMode
-            ? "bg-description/15 border-description text-description shadow-sm scale-110 ring-2 ring-description ring-offset-2 ring-offset-background"
-            : "bg-primary border-primary text-background shadow-sm scale-110 ring-2 ring-primary ring-offset-2 ring-offset-background"
-        : "border-primary/20 hover:border-primary/50 hover:bg-primary/5 hover:scale-105";
+        .slice(0, 3);
 
     return (
         <button
             type="button"
             onClick={onClick}
             aria-pressed={isSelected}
-            className={`${baseClasses} ${stateClasses}`}
+            aria-current={isToday ? "date" : undefined}
+            className={`w-10 shrink-0 rounded-xl border py-2 text-center transition-colors duration-200 md:w-[58px] md:py-[9px] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                isSelected
+                    ? isSnapshotMode
+                        ? "border-text-3 bg-surface-2"
+                        : "border-accent bg-accent"
+                    : "border-border bg-surface hover:border-text-3/60"
+            }`}
         >
             <span
-                className={`text-[9px] md:text-[10px] font-bold leading-none tracking-wide
-                    ${isSelected ? "" : "text-description"}`}
+                className={`block font-mono text-[9px] font-medium uppercase tracking-[0.04em] md:text-[9.5px] ${
+                    isSelected && !isSnapshotMode ? "text-on-accent" : "text-text-3"
+                }`}
             >
-                {shortDay}
+                {/* Today announces itself by name, not by a subtle dot. */}
+                {isToday ? todayLabel : shortDay}
             </span>
-            <span
-                className={`text-xs md:text-sm font-bold leading-none mt-0.5
-                    ${isSelected ? "" : "text-secondary"}`}
+            <b
+                className={`font-mono text-[13.5px] font-semibold md:text-[15px] ${
+                    isSelected && !isSnapshotMode ? "text-on-accent" : "text-text"
+                }`}
             >
-                {dayNum}
-            </span>
-            {/* Today indicator dot (only when not selected) */}
-            {isToday && !isSelected && (
-                <span className="absolute bottom-1 w-1 h-1 rounded-full bg-primary" />
-            )}
+                {date.getDate()}
+            </b>
         </button>
     );
 }
@@ -176,23 +178,23 @@ function CalendarPopover({
     };
 
     return (
-        <div className="w-[17rem] rounded-2xl border border-primary/20 bg-background p-4 shadow-2xl">
+        <div className="w-[17rem] rounded-card border border-border bg-surface p-4 shadow-2xl">
             {/* Month navigation header */}
             <div className="flex items-center justify-between mb-3">
                 <button
                     type="button"
                     onClick={goToPrev}
-                    className="rounded-lg p-1.5 text-secondary hover:bg-primary/10 hover:text-primary transition"
+                    className="rounded-control p-1.5 text-text hover:bg-accent/10 hover:text-accent transition"
                     aria-label="Previous month"
                 >
                     <FiChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm font-semibold text-secondary">{monthLabel}</span>
+                <span className="text-sm font-semibold text-text">{monthLabel}</span>
                 <button
                     type="button"
                     onClick={goToNext}
                     disabled={!canGoNext}
-                    className="rounded-lg p-1.5 text-secondary hover:bg-primary/10 hover:text-primary transition disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="rounded-control p-1.5 text-text hover:bg-accent/10 hover:text-accent transition disabled:opacity-30 disabled:cursor-not-allowed"
                     aria-label="Next month"
                 >
                     <FiChevronRight className="w-4 h-4" />
@@ -204,7 +206,7 @@ function CalendarPopover({
                 {dayHeaders.map((h, i) => (
                     <div
                         key={i}
-                        className="flex items-center justify-center h-7 text-[10px] font-semibold text-description uppercase"
+                        className="flex items-center justify-center h-7 text-[10px] font-semibold text-text-2 uppercase"
                     >
                         {h}
                     </div>
@@ -229,15 +231,15 @@ function CalendarPopover({
                             disabled={isFuture}
                             className={[
                                 "flex items-center justify-center rounded-full w-8 h-8 mx-auto text-xs font-medium transition-all duration-150",
-                                isFuture ? "text-description/30 cursor-not-allowed" : "cursor-pointer",
+                                isFuture ? "text-text-2/30 cursor-not-allowed" : "cursor-pointer",
                                 isSelected
                                     ? isSnapshotMode
-                                        ? "bg-description/20 text-secondary font-bold ring-2 ring-description/30"
-                                        : "bg-primary text-background font-bold shadow-sm"
+                                        ? "bg-surface-2 text-text font-bold ring-2 ring-border"
+                                        : "bg-accent text-on-accent font-bold shadow-sm"
                                     : isTodayCell
-                                    ? "ring-2 ring-primary/40 text-primary font-bold"
+                                    ? "ring-2 ring-accent/40 text-accent font-bold"
                                     : !isFuture
-                                    ? "hover:bg-primary/10 text-secondary"
+                                    ? "hover:bg-accent/10 text-text"
                                     : "",
                             ]
                                 .filter(Boolean)
@@ -251,7 +253,6 @@ function CalendarPopover({
         </div>
     );
 }
-
 // ─── DatePickerBar ────────────────────────────────────────────────────────────
 
 interface DatePickerBarProps {
@@ -262,6 +263,10 @@ interface DatePickerBarProps {
     onDateChange: (date: string) => void;
     t: (key: string) => string;
 }
+
+/** Width of a day box plus the gap, and the room the calendar button takes. */
+const DAY_BOX = { compact: 40 + 6, full: 58 + 8 };
+const CALENDAR_SLOT = { compact: 52 + 6, full: 118 + 8 };
 
 function DatePickerBar({
     selectedDate,
@@ -274,7 +279,26 @@ function DatePickerBar({
     const [calendarOpen, setCalendarOpen] = useState(false);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
-    const last5 = useMemo(() => getLast5Days(), []);
+    const rowRef = useRef<HTMLDivElement>(null);
+    const week = useMemo(() => getLastSevenDays(), []);
+    // How many days actually fit on screen. Without this the strip either
+    // scrolled days out of sight or broke into two lines on a phone.
+    const [visibleDays, setVisibleDays] = useState(7);
+
+    useEffect(() => {
+        const row = rowRef.current;
+        if (!row || typeof ResizeObserver === "undefined") return;
+        const measure = () => {
+            const wide = window.matchMedia("(min-width: 712px)").matches;
+            const box = wide ? DAY_BOX.full : DAY_BOX.compact;
+            const free = row.clientWidth - (wide ? CALENDAR_SLOT.full : CALENDAR_SLOT.compact);
+            setVisibleDays(Math.max(3, Math.min(7, Math.floor(free / box))));
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(row);
+        return () => observer.disconnect();
+    }, []);
 
     // Close on Escape
     useEffect(() => {
@@ -302,7 +326,7 @@ function DatePickerBar({
     }, [calendarOpen]);
 
     // When selected date is older than 5 days, show it formatted in the button
-    const isOlderDate = !last5.includes(selectedDate);
+    const isOlderDate = !week.includes(selectedDate);
     const formattedOlderDate = isOlderDate
         ? new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" }).format(
               new Date(selectedDate + "T12:00:00")
@@ -312,10 +336,11 @@ function DatePickerBar({
     const calendarBtnActive = calendarOpen || isOlderDate;
 
     return (
-        <div className="flex flex-col items-center md:items-end gap-1">
-            <div className="flex items-center gap-1.5">
-                {/* Quick day chips — last 5 days */}
-                {last5.map((dateStr) => (
+        <div ref={rowRef} className="flex items-center gap-1.5 md:gap-2">
+            <div className="flex min-w-0 items-center gap-1.5 md:gap-2">
+                {/* The last days ending today — today is the last box and comes
+                    selected. It shows only what fits: the rest lives in the calendar. */}
+                {week.slice(week.length - visibleDays).map((dateStr) => (
                     <DayChip
                         key={dateStr}
                         dateStr={dateStr}
@@ -323,12 +348,15 @@ function DatePickerBar({
                         isToday={dateStr === today}
                         locale={locale}
                         isSnapshotMode={isSnapshotMode}
+                        todayLabel={t("Today")}
                         onClick={() => onDateChange(dateStr)}
                     />
                 ))}
+            </div>
 
-                {/* Calendar button + popover — anchored right so it never clips */}
-                <div className="relative ml-1">
+            {/* The button sits OUTSIDE the strip: inside it, the overflow-x-auto
+                clipped the calendar and it simply never showed. */}
+            <div className="relative shrink-0">
                     <button
                         ref={triggerRef}
                         type="button"
@@ -336,13 +364,15 @@ function DatePickerBar({
                         aria-expanded={calendarOpen}
                         aria-label={t("More dates")}
                         className={[
-                            "flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-medium transition-all duration-200",
-                            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
+                            // Quiet on purpose: the week is the normal path; the
+                            // calendar exists to reach older history. On a phone it
+                            // becomes a column (icon over label) so it takes the
+                            // width of a day box instead of a wide pill.
+                            "flex shrink-0 flex-col items-center gap-0.5 whitespace-nowrap rounded-control px-1.5 py-1.5 text-[9px] font-medium leading-tight transition-colors duration-200 md:ml-1 md:w-auto md:flex-row md:gap-1.5 md:px-2.5 md:py-2 md:text-xs",
+                            "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                             calendarBtnActive
-                                ? isSnapshotMode
-                                    ? "border-description/50 bg-description/10 text-description"
-                                    : "border-primary/60 bg-primary/10 text-primary"
-                                : "border-primary/25 text-secondary hover:border-primary/50 hover:bg-primary/5",
+                                ? "bg-surface-2 text-text"
+                                : "text-text-3 hover:bg-surface-2 hover:text-text-2",
                         ].join(" ")}
                     >
                         <FiCalendar className="w-3.5 h-3.5 flex-shrink-0" />
@@ -370,14 +400,13 @@ function DatePickerBar({
                         </div>
                     )}
                 </div>
-            </div>
         </div>
     );
 }
 
 // ─── RoutineSummary ───────────────────────────────────────────────────────────
 
-export const RoutineSummary = ({ routines, selectedDate, onDateChange }: RoutineSummaryProps) => {
+export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }: RoutineSummaryProps) => {
     const { t, i18n } = useTranslation();
     const locale = i18n.language || "en";
 
@@ -387,23 +416,9 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
         loading: false,
         snapshotDates: [],
     };
-    const snapshots = snapshotState.snapshots || {};
-    const snapshotList = Object.values(snapshots);
 
     const today = new Date().toISOString().split("T")[0];
     const isSnapshotMode = selectedDate < today && snapshotState.selectedDate === selectedDate;
-
-    const selectedWeekday = useMemo(() => {
-        const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        const parsed = new Date(selectedDate);
-        const index = Number.isNaN(parsed.getDay()) ? 0 : parsed.getDay();
-        return weekDays[index];
-    }, [selectedDate]);
-
-    const allSections = useMemo(
-        () => routines.reduce((acc, routine) => acc + (routine.routineSections?.length || 0), 0),
-        [routines]
-    );
 
     const allActiveDays = useMemo(() => {
         const daySet = new Set<string>();
@@ -413,67 +428,32 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
         return daySet.size;
     }, [routines]);
 
-    const routinesForDay = useMemo(
-        () =>
-            routines.filter((routine) =>
-                routine.schedule?.days?.some((day) => day.toLowerCase() === selectedWeekday.toLowerCase())
-            ),
-        [routines, selectedWeekday]
-    );
-
-    const scheduleSummary = useMemo(() => {
-        if (isSnapshotMode && snapshotList.length > 0) {
-            const allChecks = snapshotList.flatMap((s) => s.checks);
-            return {
-                totalRoutines: snapshotList.length,
-                totalSections: snapshotList.reduce((acc, s) => acc + s.structure.sections.length, 0),
-                totalItems: allChecks.length,
-                completed: allChecks.filter((c) => c.checked).length,
-                xp: allChecks.reduce((sum, c) => sum + (c.xpGenerated || 0), 0),
-            };
-        }
-
-        return routinesForDay.reduce(
-            (acc, routine) => {
-                acc.totalRoutines += 1;
-                acc.totalSections += routine.routineSections?.length || 0;
-                const routineStats = getRoutineStats(routine, selectedDate);
-                acc.totalItems += routineStats.totalItems;
-                acc.completed += routineStats.completedItems;
-                acc.xp += routineStats.xpEarned;
-                return acc;
-            },
-            { totalRoutines: 0, totalSections: 0, totalItems: 0, completed: 0, xp: 0 }
-        );
-    }, [routinesForDay, selectedDate, isSnapshotMode, snapshotList]);
-
     return (
-        <div
-            className={`w-full rounded-xl border bg-background p-4 shadow-sm ${
-                isSnapshotMode ? "border-description/40" : "border-primary/20"
-            }`}
-        >
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                {/* Title & subtitle */}
-                <div className="text-center md:text-left">
-                    <div className="flex items-center justify-center md:justify-start gap-2">
-                        <p className="text-lg font-semibold">
-                            {t("Routines overview")}
+        <div className="w-full">
+            {/* No card: title, context, action and picker sit straight on the page.
+                The frame competed with the routine cards right below it and weighed
+                down the first impression. */}
+            <div className="flex items-center gap-3">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-semibold tracking-[-0.02em] text-text">
+                        {t("Routines")}
+                    </h1>
+                    {isSnapshotMode ? (
+                        <span className="mt-1 inline-flex items-center rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-text-2">
+                            {t("Historical view")}
+                        </span>
+                    ) : (
+                        <p className="mt-1 text-[13px] text-text-3">
+                            {t("RoutinesCount", { count: routines.length })} ·{" "}
+                            {t("ActiveDays", { count: allActiveDays })}
                         </p>
-                        {isSnapshotMode && (
-                            <span className="inline-flex items-center rounded-full border border-description/30 bg-description/10 px-2.5 py-0.5 text-xs font-semibold text-description">
-                                {t("Historical view")}
-                            </span>
-                        )}
-                    </div>
-                    <p className="text-sm text-description">
-                        {isSnapshotMode
-                            ? t("Viewing snapshot data for the selected date")
-                            : t("Stay on track with your daily sections and checks")}
-                    </p>
+                    )}
                 </div>
 
-                {/* Date picker: day chips + calendar */}
+                {action && <div className="ml-auto shrink-0">{action}</div>}
+            </div>
+
+            <div className="mt-5">
                 <DatePickerBar
                     selectedDate={selectedDate}
                     today={today}
@@ -483,45 +463,7 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange }: Routine
                     t={t}
                 />
             </div>
-
-            {/* Summary cards */}
-            <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-                <SummaryCard
-                    title={isSnapshotMode ? t("Snapshots") : t("Routines")}
-                    value={isSnapshotMode ? snapshotList.length : routines.length}
-                />
-                <SummaryCard
-                    title={t("Sections")}
-                    value={isSnapshotMode ? scheduleSummary.totalSections : allSections}
-                />
-                <SummaryCard
-                    title={t("Schedule items completed")}
-                    value={`${scheduleSummary.completed}/${scheduleSummary.totalItems || 0}`}
-                    accent="success"
-                />
-                <SummaryCard
-                    title={isSnapshotMode ? t("XP earned") : t("Active days")}
-                    value={isSnapshotMode ? `+${scheduleSummary.xp} XP` : allActiveDays}
-                />
-            </div>
         </div>
     );
 };
 
-// ─── SummaryCard ──────────────────────────────────────────────────────────────
-
-type SummaryCardProps = {
-    title: string;
-    value: string | number;
-    accent?: "primary" | "success";
-};
-
-const SummaryCard = ({ title, value, accent = "primary" }: SummaryCardProps) => {
-    const accentClass = accent === "success" ? "text-success" : "text-primary";
-    return (
-        <div className="rounded-lg border border-primary/15 bg-background p-3 shadow-sm">
-            <p className="text-sm text-description">{title}</p>
-            <p className={`text-xl font-semibold ${accentClass}`}>{value}</p>
-        </div>
-    );
-};

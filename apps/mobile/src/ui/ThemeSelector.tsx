@@ -1,45 +1,79 @@
-import { View, Pressable } from 'react-native';
-import { themes } from '@beyou/theme';
+import { View, Pressable, Text } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { accentPacks, serializeThemePreference, type ThemeMode } from '@beyou/theme';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 
+const MODES: { value: ThemeMode; labelKey: string }[] = [
+  { value: 'system', labelKey: 'ThemeModeSystem' },
+  { value: 'light', labelKey: 'ThemeModeLight' },
+  { value: 'dark', labelKey: 'ThemeModeDark' },
+];
+
 /**
- * Inline theme swatch picker, mirroring the web `authentication/ThemeSelectorInline`.
- * Always switches the live theme; `onSelect` lets a caller (e.g. the config
- * Appearance section) also persist the choice. Each swatch is a circle split
- * background / primary.
+ * Appearance = mode + accent pack (mirrors the web's selector). `onSelect` receives
+ * the serialized preference ("dark:cyber") for the caller to persist through
+ * editUser.
  */
 export default function ThemeSelector({ onSelect }: { onSelect?: (mode: string) => void }) {
-  const { theme, setThemeByMode } = useBeyouTheme();
+  const { t } = useTranslation();
+  const { theme, preference, setPreference } = useBeyouTheme();
+
+  const apply = (next: { mode: ThemeMode; accentPack: string }) => {
+    setPreference(next);
+    onSelect?.(serializeThemePreference(next));
+  };
 
   return (
-    <View className="w-full items-center mt-3" testID="theme-selector">
-      <View className="flex-row flex-wrap justify-center gap-3">
-        {themes.map((item) => {
-          const isActive = theme.mode === item.mode;
+    <View className="w-full mt-3" testID="theme-selector">
+      <Text className="mb-2 text-sm font-semibold text-text-2">{t('ThemeMode')}</Text>
+      <View className="flex-row rounded-control bg-surface-2 p-1">
+        {MODES.map(({ value, labelKey }) => {
+          const isActive = preference.mode === value;
           return (
             <Pressable
-              key={item.mode}
-              onPress={() => {
-                setThemeByMode(item.mode);
-                onSelect?.(item.mode);
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={item.mode}
+              key={value}
+              onPress={() => apply({ ...preference, mode: value })}
+              accessibilityRole="radio"
               accessibilityState={{ selected: isActive }}
-              testID={`theme-swatch-${item.mode}`}
-              className={`rounded-full p-0.5 ${isActive ? 'border-2 border-primary' : ''}`}
+              testID={`theme-mode-${value}`}
+              className={`flex-1 items-center rounded-control py-2 ${isActive ? 'bg-surface' : ''}`}
             >
-              <View
-                className="h-7 w-7 flex-row overflow-hidden rounded-full border"
-                style={{ borderColor: item.primary }}
-              >
-                <View className="flex-1" style={{ backgroundColor: item.background }} />
-                <View className="flex-1" style={{ backgroundColor: item.primary }} />
-              </View>
+              <Text className={`text-sm font-semibold ${isActive ? 'text-text' : 'text-text-2'}`}>
+                {t(labelKey)}
+              </Text>
             </Pressable>
           );
         })}
       </View>
+
+      <Text className="mb-2 mt-4 text-sm font-semibold text-text-2">{t('ThemeAccent')}</Text>
+      <View className="flex-row flex-wrap gap-2">
+        {accentPacks.map((pack) => {
+          const isActive = preference.accentPack === pack.id;
+          return (
+            <Pressable
+              key={pack.id}
+              onPress={() => apply({ ...preference, accentPack: pack.id })}
+              accessibilityRole="button"
+              accessibilityLabel={t(pack.labelKey)}
+              accessibilityState={{ selected: isActive }}
+              testID={`theme-accent-${pack.id}`}
+              className={`flex-row items-center gap-2 rounded-full border px-3 py-2 ${
+                isActive ? 'border-accent bg-accent-soft' : 'border-border'
+              }`}
+            >
+              <View
+                className="h-4 w-4 rounded-full"
+                style={{ backgroundColor: pack.accent[theme.base] }}
+              />
+              <Text className={`text-sm ${isActive ? 'text-text' : 'text-text-2'}`}>
+                {t(pack.labelKey)}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
     </View>
   );
 }

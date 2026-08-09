@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Plus } from 'lucide-react-native';
 import getCategories from '@beyou/api/categories/getCategories';
 import type category from '@beyou/types/category/categoryType';
 import BeyouIcon from '../BeyouIcon';
@@ -54,48 +54,52 @@ export default function CategorySelector({ categories, value, onChange, error }:
 
   return (
     <View className="w-full">
-      <View className="mb-1 flex-row items-center justify-between">
-        <Text className="text-secondary text-base font-semibold">{t('Categories')}</Text>
+      {/* The label comes from the FormField wrapping the selector. Only the chips
+          live here — and the new-category invitation sits in the row itself, as in
+          the mockup: a dashed chip that opens the quick create. */}
+      <View className="flex-row flex-wrap gap-1.5">
+        {list.map((cat) => {
+          const selected = value.includes(cat.id);
+          return (
+            <Pressable
+              key={cat.id}
+              onPress={() => toggle(cat.id)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: selected }}
+              accessibilityLabel={cat.name}
+              testID={`category-${cat.id}`}
+              className={`flex-row items-center gap-1.5 rounded-full border px-3 py-1.5 ${
+                selected ? 'border-transparent bg-accent-soft' : 'border-border'
+              }`}
+            >
+              <BeyouIcon id={cat.iconId} size={13} />
+              <Text
+                className={`text-[11.5px] font-semibold ${selected ? 'text-accent' : 'text-text-2'}`}
+                numberOfLines={1}
+              >
+                {cat.name}
+              </Text>
+            </Pressable>
+          );
+        })}
+
+        {list.length === 0 ? (
+          <Text className="text-[12.5px] text-text-3">{t('YouDontHaveCategories')}</Text>
+        ) : null}
+
         <Pressable
           onPress={() => setCreateOpen(true)}
           accessibilityRole="button"
           accessibilityLabel={t('AddCategory')}
           testID="category-add-new"
-          className="flex-row items-center gap-1 rounded-full border border-primary/40 px-2.5 py-1"
+          className="flex-row items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5"
         >
-          <Ionicons name="add" size={14} color={theme.primary} />
-          <Text className="text-primary text-xs font-semibold">{t('AddCategory')}</Text>
+          <Plus size={13} color={theme.text3} />
+          <Text className="text-[11.5px] font-semibold text-text-3">{t('New category')}</Text>
         </Pressable>
       </View>
 
-      {list.length === 0 ? (
-        <Text className="text-description text-sm">{t('NoCategories')}</Text>
-      ) : (
-        <View className="flex-row flex-wrap gap-2">
-          {list.map((cat) => {
-            const selected = value.includes(cat.id);
-            return (
-              <Pressable
-                key={cat.id}
-                onPress={() => toggle(cat.id)}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                accessibilityLabel={cat.name}
-                testID={`category-${cat.id}`}
-                className={`flex-row items-center gap-1.5 rounded-full border px-3 py-1.5 ${
-                  selected ? 'border-primary bg-primary/10' : 'border-primary/30'
-                }`}
-              >
-                <BeyouIcon id={cat.iconId} size={16} />
-                <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>
-                  {cat.name}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      )}
-      {error ? <Text className="text-error mt-1 text-sm">{error}</Text> : null}
+      {error ? <Text className="mt-1.5 text-xs text-danger">{error}</Text> : null}
 
       {createOpen ? (
         <CategoryForm

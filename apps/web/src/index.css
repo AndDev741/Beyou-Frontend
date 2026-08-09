@@ -3,64 +3,142 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Geist self-hosted: no third-party CDN on the critical path of the first paint.
+   Variable files — one per family covers 400-700. */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   /* Themed page background at the root so short pages (e.g. a loading gate
      smaller than the viewport) and overscroll never show the browser's white
-     body behind the app. --background is set per-theme by ThemeContext. */
+     body behind the app. `--bg` is the PAGE tone (darker than the card); cards use
+     `--surface`. Both are set per theme by ThemeContext. */
   body {
-    background-color: var(--background);
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Numbers (XP, level, counts, times) are always tabular. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
   }
 }
 
+/* NOTIFY: a single shell for every notification. The tone's colour shows up only on
+   the left bar and on the icon — the body stays on the theme's surface. */
 .beyou-toast-container {
-  padding: 0 12px 12px;
+  /* react-toastify's tokens are its extension point: setting them here covers
+     width, padding and radius without duelling over specificity. */
+  --toastify-toast-width: min(380px, calc(100vw - 24px));
+  --toastify-toast-min-height: 0;
+  --toastify-toast-padding: 12px 12px 12px 14px;
+  --toastify-toast-bd-radius: 14px;
+  --toastify-toast-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+  width: var(--toastify-toast-width);
+  padding: 0;
+}
+
+/* Two classes on purpose: react-toastify's light theme paints the background white
+   and comes later in the cascade — the surface has to win against it. */
+.Toastify__toast.beyou-toast {
+  background: var(--surface);
+  color: var(--text);
 }
 
 .beyou-toast {
-  background: var(--background);
-  color: var(--secondary);
-  border: 1px solid var(--primary);
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
-}
-
-.beyou-toast.Toastify__toast-theme--colored {
-  background: var(--background);
-  color: var(--secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
 }
 
 .beyou-toast .Toastify__toast-body {
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
   font-weight: 500;
   letter-spacing: 0.01em;
 }
 
+.beyou-toast .Toastify__toast-icon {
+  width: auto;
+  margin-inline-end: 0;
+}
+
 .beyou-toast.Toastify__toast--success {
-  border-color: var(--primary);
+  border-left-color: var(--success);
 }
 
 .beyou-toast.Toastify__toast--error {
-  border-color: var(--error);
+  border-left-color: var(--danger);
 }
 
 .beyou-toast.Toastify__toast--info {
-  border-color: var(--primary);
+  border-left-color: var(--accent);
 }
 
 .beyou-toast.Toastify__toast--warning {
-  border-color: var(--primary);
+  border-left-color: var(--flame);
+}
+
+/* The timer: 2px, with no track underneath. */
+.beyou-toast .Toastify__progress-bar--wrp {
+  height: 2px;
+  bottom: 0;
+}
+
+.beyou-toast .Toastify__progress-bar--bg {
+  opacity: 0;
 }
 
 .beyou-toast-progress {
-  background: var(--primary);
+  height: 2px;
+  background: var(--accent);
 }
 
-.beyou-toast .Toastify__close-button {
-  color: var(--secondary);
-  opacity: 0.85;
+.beyou-toast.Toastify__toast--success .beyou-toast-progress {
+  background: var(--success);
 }
 
-.beyou-toast .Toastify__close-button:hover {
-  opacity: 1;
+.beyou-toast.Toastify__toast--error .beyou-toast-progress {
+  background: var(--danger);
+}
+
+.beyou-toast.Toastify__toast--warning .beyou-toast-progress {
+  background: var(--flame);
+}
+
+/* On a phone react-toastify becomes a strip glued to the top (100vw wide, square
+   corners). The notification stays a card, with the same side padding as the
+   screens. */
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container.beyou-toast-container {
+    width: calc(100vw - 20px);
+    left: 10px;
+    right: 10px;
+    margin: 0;
+    padding-top: 10px;
+    transform: none;
+  }
+
+  .Toastify__toast.beyou-toast {
+    --toastify-toast-width: 100%;
+    margin-bottom: 10px;
+    border-radius: 14px;
+  }
 }
 
 /* Agent FAB breathing halo — slow, soft, killed by the reduced-motion block below. */

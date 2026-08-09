@@ -77,9 +77,9 @@ export default function ErrorReport({ error, componentStack, onSendingChange }: 
         onPress={() => setOpen(true)}
         accessibilityRole="button"
         testID="error-report-open"
-        className="rounded-full border border-primary px-5 py-2.5"
+        className="rounded-full border border-border px-5 py-2.5"
       >
-        <Text className="text-primary font-semibold">{t('FeedbackNavLabel')}</Text>
+        <Text className="text-accent font-semibold">{t('FeedbackNavLabel')}</Text>
       </Pressable>
     );
   }
@@ -90,7 +90,7 @@ export default function ErrorReport({ error, componentStack, onSendingChange }: 
         <Text className="text-success text-center text-base font-semibold">
           {t('FeedbackSuccessTitle')}
         </Text>
-        <Text className="text-description text-center text-sm">{t('FeedbackSuccessBody')}</Text>
+        <Text className="text-text-2 text-center text-sm">{t('FeedbackSuccessBody')}</Text>
       </View>
     );
   }
@@ -108,17 +108,17 @@ export default function ErrorReport({ error, componentStack, onSendingChange }: 
 
       {outcome?.kind === 'failed' ? (
         <View testID="error-report-failure" className="gap-1">
-          <Text className="text-error text-sm font-semibold">{t('FeedbackFailedTitle')}</Text>
-          <Text className="text-description text-sm">
+          <Text className="text-danger text-sm font-semibold">{t('FeedbackFailedTitle')}</Text>
+          <Text className="text-text-2 text-sm">
             {getFriendlyErrorMessage(t, outcome.error)}
           </Text>
           <Pressable
             onPress={openMail}
             accessibilityRole="button"
             testID="error-report-mailto"
-            className="mt-1 self-start rounded-full border border-primary px-4 py-2"
+            className="mt-1 self-start rounded-full border border-border px-4 py-2"
           >
-            <Text className="text-primary font-semibold">{t('FeedbackEmailLink')}</Text>
+            <Text className="text-accent font-semibold">{t('FeedbackEmailLink')}</Text>
           </Pressable>
         </View>
       ) : null}
@@ -128,7 +128,7 @@ export default function ErrorReport({ error, componentStack, onSendingChange }: 
         disabled={sending}
         accessibilityRole="button"
         testID="error-report-submit"
-        className={`flex-row items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 ${
+        className={`flex-row items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 ${
           sending ? 'opacity-60' : ''
         }`}
       >

@@ -59,7 +59,7 @@ describe('TaskForm create', () => {
     await act(async () => { fireEvent.press(screen.getByText('Easy')); });  // difficulty 1
     await act(async () => { fireEvent(screen.getByTestId('task-onetime'), 'valueChange', true); });
 
-    await act(async () => { fireEvent.press(screen.getByTestId('task-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('task-form-submit')); });
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     const [url, body] = post.mock.calls[0];
@@ -79,7 +79,7 @@ describe('TaskForm create', () => {
 
   it('blocks submit when required fields are missing', async () => {
     await wrap(<TaskForm visible mode="create" categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
-    await act(async () => { fireEvent.press(screen.getByTestId('task-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('task-form-submit')); });
     expect(post).not.toHaveBeenCalled();
   });
 });
@@ -92,7 +92,7 @@ describe('TaskForm edit', () => {
     expect(screen.getByDisplayValue('Email')).toBeTruthy();
 
     await act(async () => { fireEvent.changeText(screen.getByTestId('task-name'), 'Email everyone'); });
-    await act(async () => { fireEvent.press(screen.getByTestId('task-submit')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('task-form-submit')); });
 
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
     const [url, body] = put.mock.calls[0];

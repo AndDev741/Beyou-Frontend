@@ -42,10 +42,8 @@ test("renders item time range when endTime is provided", () => {
             onEdit={vi.fn()}
             onSchedule={vi.fn()}
             onCheckItem={vi.fn()}
+            onSkipItem={vi.fn()}
             onRequestDelete={vi.fn()}
-            onConfirmDelete={vi.fn()}
-            onCancelDelete={vi.fn()}
-            isConfirmingDelete={false}
         />
     );
 
@@ -53,4 +51,64 @@ test("renders item time range when endTime is provided", () => {
     fireEvent.click(expandButton);
 
     expect(screen.getByText("08:00 - 09:00")).toBeInTheDocument();
+});
+
+const renderCard = (routine: Routine) =>
+    renderWithProviders(
+        <RoutineCard
+            routine={routine}
+            selectedDate="2024-01-01"
+            taskLookup={{ "task-1": { name: "Test task" } }}
+            habitLookup={{}}
+            onEdit={vi.fn()}
+            onSchedule={vi.fn()}
+            onCheckItem={vi.fn()}
+            onSkipItem={vi.fn()}
+            onRequestDelete={vi.fn()}
+        />
+    );
+
+test("expands from the title, which is the only affordance on the phone", () => {
+    renderCard(buildRoutine());
+
+    const title = screen.getByRole("button", { name: /morning routine/i });
+    expect(title).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(title);
+
+    expect(title).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Test task")).toBeInTheDocument();
+});
+
+// The test environment's i18n returns the key itself, so the assertion is about
+// which key the cadence picks — which is the logic at play.
+test("states the cadence next to sections and items", () => {
+    const routine = buildRoutine();
+    routine.schedule = { days: ["Monday", "Wednesday"] } as Routine["schedule"];
+
+    renderCard(routine);
+
+    const title = screen.getByRole("button", { name: /morning routine/i });
+    expect(title.textContent).toContain("DaysPerWeek");
+});
+
+test("a routine scheduled every day says so instead of counting days", () => {
+    const routine = buildRoutine();
+    routine.schedule = {
+        days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    } as Routine["schedule"];
+
+    renderCard(routine);
+
+    const title = screen.getByRole("button", { name: /morning routine/i });
+    expect(title.textContent).toContain("EveryDay");
+    expect(title.textContent).not.toContain("DaysPerWeek");
+});
+
+test("checking an item is driven by a real checkbox named after it", () => {
+    renderCard(buildRoutine());
+
+    fireEvent.click(screen.getByRole("button", { name: /expand/i }));
+
+    expect(screen.getByRole("checkbox", { name: "Test task" })).toBeInTheDocument();
 });

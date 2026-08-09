@@ -1,73 +1,154 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Folder, ListChecks, Repeat, CalendarDays, Trophy, Settings } from "lucide-react";
+import {
+    House,
+    CalendarDays,
+    Repeat,
+    Sparkles,
+    Ellipsis,
+    Folder,
+    ListChecks,
+    Trophy,
+    Settings,
+    MessageSquare,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { openAgentPanel } from "../agent/agentPanelBus";
 
-type NavItem = { key: string; to: string; Icon: LucideIcon; tutorial: string };
+type NavItem = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
 
-// Mobile-only (lg:hidden) fixed action bar — mirrors the native app's BottomNav.
-// Order: Categories · Tasks · Habits · Routines · Goals · Config. Desktop keeps
-// the <Shortcuts/> sidebar.
-//
-// The filled-primary treatment marks WHERE YOU ARE — exactly one item at a time,
-// and none on the dashboard, which has no entry in this bar. It used to be a
-// static flag on Habits + Routines, which made the bar say the same thing on
-// every route. `NavLink` owns the match (so a nested path like /routines/:id
-// still lights Routines) and contributes aria-current="page" for free.
-//
-// Mounted by `ProtectedRoute`, NOT by any page: on mobile this bar is the
-// shortcuts affordance for every authenticated route, so a user can move
-// sideways in one tap instead of routing back through the dashboard. The
-// clearance spacer that stops the fixed bar covering page content is mounted
-// alongside it there. Six items is the agreed shape — a seventh (feedback) has
-// been declined twice; feedback is reached via Config, which carries the bubble.
-const ITEMS: NavItem[] = [
-    { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
-    { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
-    { key: "Habits", to: "/habits", Icon: Repeat, tutorial: "shortcut-habits" },
+// Barra do mobile (lg:hidden). Cinco alvos: Hoje, Rotinas, [Assistente],
+// Habits and More. The assistant takes the middle because it is the ONLY way
+// into the agent, and it exists on every authenticated page.
+const LEFT: NavItem[] = [
+    { key: "NavDashboard", to: "/dashboard", Icon: House },
     { key: "Routines", to: "/routines", Icon: CalendarDays, tutorial: "shortcut-routines" },
-    { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
-    { key: "Config", to: "/configuration", Icon: Settings, tutorial: "shortcut-configuration" },
 ];
+const RIGHT: NavItem[] = [
+    { key: "Habits", to: "/habits", Icon: Repeat, tutorial: "shortcut-habits" },
+];
+
+// What left the bar is still one tap away, inside the sheet — with the same label
+// as before, which is how the e2e suite finds these destinations.
+const SHEET: NavItem[] = [
+    { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
+    { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
+    { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
+    { key: "Config", to: "/configuration", Icon: Settings, tutorial: "shortcut-configuration" },
+    { key: "FeedbackShortcutLabel", to: "/feedback", Icon: MessageSquare, tutorial: "shortcut-feedback" },
+];
+
+const itemClass = ({ isActive }: { isActive: boolean }) =>
+    `flex flex-1 flex-col items-center justify-center gap-0.5 rounded-control py-1.5 transition-colors duration-200 ${
+        isActive ? "text-accent" : "text-text-3 active:bg-surface-2"
+    }`;
 
 export default function BottomNav() {
     const { t } = useTranslation();
+    const [sheetOpen, setSheetOpen] = useState(false);
+
+    const renderLink = ({ key, to, Icon, tutorial }: NavItem) => (
+        <NavLink key={key} to={to} data-tutorial-id={tutorial} className={itemClass}>
+            <Icon size={20} aria-hidden="true" />
+            <span className="text-[10px] font-semibold">{t(key)}</span>
+        </NavLink>
+    );
 
     return (
-        <nav
-            data-tutorial-id="dashboard-shortcuts"
-            aria-label={t("Shortcuts")}
-            className="fixed bottom-0 left-0 right-0 z-40 flex items-end justify-around border-t border-primary/20 bg-background px-2 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.08)] lg:hidden"
-        >
-            {ITEMS.map(({ key, to, Icon, tutorial }) => (
-                <NavLink
-                    key={key}
-                    to={to}
-                    data-tutorial-id={tutorial}
-                    aria-label={t(key)}
-                    className={({ isActive }) =>
-                        `flex flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1.5 transition-colors duration-200 ${
-                            isActive ? "bg-primary" : "hover:bg-primary/10 active:bg-primary/20"
-                        }`
-                    }
+        <>
+            {/* The scrim sits BELOW the bar: opening "More" must not black out the
+                shortcuts, which are the orientation for where you are. */}
+            {sheetOpen && (
+                <button
+                    type="button"
+                    aria-label={t("Close")}
+                    onClick={() => setSheetOpen(false)}
+                    className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+                />
+            )}
+
+            <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+                {sheetOpen && (
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={t("More")}
+                        className="mx-2 mb-2 rounded-frame border border-border bg-surface p-4 shadow-2xl"
+                    >
+                        <span
+                            aria-hidden="true"
+                            className="mx-auto mb-3 block h-1 w-9 rounded-full bg-border"
+                        />
+                        <h2 className="mb-3 text-[15px] font-semibold text-text">{t("More")}</h2>
+                        <div className="grid grid-cols-3 gap-2">
+                            {SHEET.map(({ key, to, Icon, tutorial }) => (
+                                <Link
+                                    key={key}
+                                    to={to}
+                                    data-tutorial-id={tutorial}
+                                    onClick={() => setSheetOpen(false)}
+                                    className="flex flex-col items-center gap-2 rounded-card border border-border bg-surface-2/40 px-2 py-4 text-center text-xs font-semibold text-text-2 active:bg-surface-2"
+                                >
+                                    <span className="flex h-9 w-9 items-center justify-center rounded-control bg-accent-soft text-accent">
+                                        <Icon size={17} aria-hidden="true" />
+                                    </span>
+                                    {t(key)}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <nav
+                    data-tutorial-id="dashboard-shortcuts"
+                    aria-label={t("Shortcuts")}
+                    className="flex items-end justify-around border-t border-border bg-surface px-2 pb-2 pt-1.5"
                 >
-                    {({ isActive }) => (
-                        <>
-                            {/* Size stays fixed. Growing the active icon would resize two
-                                items on every navigation and shift their neighbours — very
-                                visible across six items on a 360px viewport. */}
-                            <Icon size={20} className={isActive ? "text-background" : "text-icon"} />
-                            <span
-                                className={`text-[10px] font-semibold ${
-                                    isActive ? "text-background" : "text-secondary"
-                                }`}
-                            >
-                                {t(key)}
-                            </span>
-                        </>
-                    )}
-                </NavLink>
-            ))}
-        </nav>
+                    {LEFT.map(renderLink)}
+
+                    {/* Rises a little above its neighbours and carries a quiet
+                        halo: the assistant is the only target that is not
+                        navigation. `-translate-y` and not a negative margin — a
+                        margin inside a row with `items-end` was reabsorbed by the
+                        alignment and the disc never rose. */}
+                    <span className="relative flex h-12 w-12 shrink-0 -translate-y-2.5 items-center justify-center">
+                        <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute -inset-1.5 rounded-full bg-accent/20 blur-md"
+                        />
+                        <button
+                            type="button"
+                            onClick={openAgentPanel}
+                            data-tutorial-id="agent-fab"
+                            aria-label={t("OpenAssistant")}
+                            className="relative flex h-12 w-12 items-center justify-center rounded-full bg-accent text-on-accent shadow-lg shadow-accent/40 transition-transform duration-200 active:scale-95"
+                        >
+                            <Sparkles size={20} aria-hidden="true" />
+                        </button>
+                    </span>
+
+                    {RIGHT.map(renderLink)}
+
+                    {/* Anchor for dashboard tutorial step 2. Categories lives
+                        behind "More" at this width, so the spotlight follows the
+                        PATH to it — and this button is always mounted, while a
+                        target inside the closed sheet has no rect to measure.
+                        Mirrors the native bar. */}
+                    <button
+                        type="button"
+                        data-tutorial-id="nav-more"
+                        onClick={() => setSheetOpen((open) => !open)}
+                        aria-expanded={sheetOpen}
+                        className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-control py-1.5 transition-colors duration-200 active:bg-surface-2 ${
+                            sheetOpen ? "text-accent" : "text-text-3"
+                        }`}
+                    >
+                        <Ellipsis size={20} aria-hidden="true" />
+                        <span className="text-[10px] font-semibold">{t("More")}</span>
+                    </button>
+                </nav>
+            </div>
+        </>
     );
 }

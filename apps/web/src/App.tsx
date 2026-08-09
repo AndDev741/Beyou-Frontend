@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useSilentRefresh } from "./hooks/useSilentRefresh";
 import CelebrationOverlay from "./components/celebration/CelebrationOverlay";
+import { ToastCloseButton, ToastTypeIcon } from "./lib/notify";
+import { useIsDesktop } from "./hooks/useIsDesktop";
 
 // Route-level code splitting: each page is its own chunk, so the boot bundle
 // stays small. The auth pages don't touch the icon registry, which keeps the
@@ -32,9 +34,9 @@ const AdminFeedback = lazy(() => import("./pages/admin/AdminFeedback"));
 /** Full-screen spinner shared by the auth boot check and lazy route loads. */
 function FullScreenSpinner() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center text-secondary">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    <div className="flex min-h-screen items-center justify-center bg-bg">
+      <div className="text-center text-text">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
       </div>
     </div>
   );
@@ -42,6 +44,7 @@ function FullScreenSpinner() {
 
 function AppContent() {
   const authState = useSilentRefresh();
+  const isDesktop = useIsDesktop();
 
   if (authState === "checking") {
     return <FullScreenSpinner />;
@@ -72,13 +75,18 @@ function AppContent() {
         </Routes>
       </Suspense>
       <CelebrationOverlay />
+      {/* Top right on desktop, top on a phone; at most three stacked — the fourth
+          waits its turn instead of taking over the screen. */}
       <ToastContainer
-        position="bottom-center"
+        position={isDesktop ? "top-right" : "top-center"}
         autoClose={5000}
+        limit={3}
         hideProgressBar={false}
-        closeOnClick
+        closeOnClick={false}
         pauseOnHover
         draggable
+        icon={ToastTypeIcon}
+        closeButton={ToastCloseButton}
         className="beyou-toast-container"
         toastClassName="beyou-toast"
         progressClassName="beyou-toast-progress"
@@ -92,7 +100,7 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <ErrorBoundary>
-          <div className="font-mainFont bg-background">
+          <div className="font-sans bg-bg text-text">
             <AppContent />
           </div>
         </ErrorBoundary>

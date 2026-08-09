@@ -1,7 +1,9 @@
 import GoalForm from "./GoalForm";
 
-function CreateGoal() {
-    return <GoalForm mode="create" />;
+type Props = { onClose?: () => void };
+
+function CreateGoal({ onClose }: Props) {
+    return <GoalForm mode="create" onClose={onClose} />;
 }
 
 export default CreateGoal;

@@ -95,14 +95,14 @@ export default function HabitsTasksStep({
     <View className="w-full gap-6">
       {/* Header + teaching moment: what makes a habit different from a task */}
       <View className="items-center gap-3 px-2">
-        <Text className="text-secondary text-center text-2xl font-bold">
+        <Text className="text-text text-center text-2xl font-bold">
           {t('AiOnboardingHabitsTasksTitle')}
         </Text>
-        <View className="w-full flex-row items-start gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2.5">
+        <View className="w-full flex-row items-start gap-2 rounded-card border border-border bg-accent/10 px-4 py-2.5">
           <View className="pt-0.5">
             <Lightbulb size={16} color={theme.primary} />
           </View>
-          <Text className="text-secondary min-w-0 flex-1 text-sm">
+          <Text className="text-text min-w-0 flex-1 text-sm">
             {t('AiOnboardingHabitsTasksHint')}
           </Text>
         </View>
@@ -241,11 +241,11 @@ function SuggestionGroup({
     <View className="w-full gap-3">
       <View className="flex-row items-center justify-between gap-3">
         <View className="flex-row items-center gap-2">
-          <View className="h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+          <View className="h-7 w-7 items-center justify-center rounded-control bg-accent/10">
             {icon}
           </View>
-          <Text className="text-secondary text-lg font-semibold">{label}</Text>
-          <Text className="text-description text-xs font-medium">
+          <Text className="text-text text-lg font-semibold">{label}</Text>
+          <Text className="text-text-2 text-xs font-medium">
             {selectedCount}/{total}
           </Text>
         </View>
@@ -254,10 +254,10 @@ function SuggestionGroup({
           accessibilityLabel={t('AiOnboardingSelectAll')}
           onPress={onToggleAll}
           testID={toggleAllTestID}
-          className="flex-row items-center gap-1.5 rounded-lg px-2 py-1"
+          className="flex-row items-center gap-1.5 rounded-control px-2 py-1"
         >
           <CheckCheck size={16} color={theme.primary} />
-          <Text className="text-primary text-sm font-semibold">{t('AiOnboardingSelectAll')}</Text>
+          <Text className="text-accent text-sm font-semibold">{t('AiOnboardingSelectAll')}</Text>
         </Pressable>
       </View>
       <View className="w-full flex-row flex-wrap gap-3">{children}</View>
@@ -279,11 +279,11 @@ function CardMeta({
   const { theme } = useBeyouTheme();
   return (
     <View className="items-end gap-1">
-      <Text className="text-primary max-w-24 text-[10px] font-semibold uppercase" numberOfLines={1}>
+      <Text className="text-accent max-w-24 text-[10px] font-semibold uppercase" numberOfLines={1}>
         {category}
       </Text>
-      <DotRow icon={<Star size={12} color={theme.primary} />} count={importance} filledClass="bg-primary" />
-      <DotRow icon={<Zap size={12} color={theme.secondary} />} count={difficulty} filledClass="bg-secondary" />
+      <DotRow icon={<Star size={12} color={theme.primary} />} count={importance} filledClass="bg-accent" />
+      <DotRow icon={<Zap size={12} color={theme.secondary} />} count={difficulty} filledClass="bg-surface-2" />
     </View>
   );
 }
@@ -305,7 +305,7 @@ function DotRow({
           <View
             key={level}
             className={`h-1.5 w-1.5 rounded-full ${
-              level <= count ? filledClass : 'bg-description opacity-30'
+              level <= count ? filledClass : 'bg-text-3 opacity-30'
             }`}
           />
         ))}

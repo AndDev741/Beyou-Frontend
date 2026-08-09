@@ -1,5 +1,4 @@
 import { useState } from "react";
-import SmallButton from "../SmallButton";
 import { useTranslation } from "react-i18next";
 import editUser from "@beyou/api/user/editUser";
 import { EditUser } from "@beyou/types/user/EditUser";
@@ -45,6 +44,7 @@ export default function ConstanceConfiguration({
         setSelectedMode(mode);
         setError("");
         setSuccess("");
+        handleSave(mode);
     };
 
     const handleSave = async (config: "ANY" | "COMPLETE") => {
@@ -54,7 +54,7 @@ export default function ConstanceConfiguration({
 
         const editUserRequest: EditUser = {
             constanceConfiguration: config
-        }
+        };
 
         const userResponse = await editUser(editUserRequest);
 
@@ -71,9 +71,9 @@ export default function ConstanceConfiguration({
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary">
-            <h2 className="text-base font-semibold mb-2">{t("ConstanceTitle")}</h2>
-            <p className="text-sm text-description mb-4">
+        <div className="w-full">
+            <h3 className="mb-1.5 block text-[12.5px] font-semibold text-text-2">{t("ConstanceTitle")}</h3>
+            <p className="mb-3 text-xs text-text-3">
                 {t("ConstanceDescription")}
             </p>
 
@@ -85,34 +85,32 @@ export default function ConstanceConfiguration({
                             key={option.id}
                             type="button"
                             onClick={() => handleSelect(option.id)}
+                            disabled={saving}
                             className={`
-                                relative text-left rounded-lg border p-4 transition-all duration-200 h-full
-                                ${isActive ? "border-primary bg-primary/10 shadow-md" : "border-primary/20 hover:border-primary/60"}
+                                relative text-left rounded-control border p-4 transition-all duration-200 h-full
+                                ${isActive ? "border-accent bg-accent/10 shadow-md" : "border-border hover:border-border"}
                             `}
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <div>
-                                    <p className="text-lg font-semibold">{t(option.title)}</p>
-                                    <p className="text-sm text-description">{t(option.description)}</p>
+                                    <p className="text-[13.5px] font-semibold text-text">{t(option.title)}</p>
+                                    <p className="mt-0.5 text-xs text-text-3">{t(option.description)}</p>
                                 </div>
                                 <div
                                     className={`absolute right-3 top-3 h-5 w-5 rounded-full border-2 ${
-                                        isActive ? "border-primary bg-primary" : "border-description"
+                                        isActive ? "border-accent bg-accent" : "border-border"
                                     }`}
                                     aria-label={option.title}
                                 />
                             </div>
-                            <p className="text-xs text-description">{t(option.detail)}</p>
+                            <p className="text-xs text-text-2">{t(option.detail)}</p>
                         </button>
                     );
                 })}
             </div>
 
-            <div className="flex flex-col items-center justify-center  w-full">
-                <SmallButton text={saving ? t("Saving...") : t("Save")} disabled={saving} onClick={() => handleSave(selectedMode)} />
-                <span className="text-xs text-success mt-1">{success}</span>
-                <span className="text-xs text-error">{error}</span>
-            </div>
+            {success && <span className="mt-2 block text-xs text-success">{success}</span>}
+            {error && <span className="mt-2 block text-xs text-danger">{error}</span>}
         </div>
     );
 }

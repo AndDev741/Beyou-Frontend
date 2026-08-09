@@ -15,50 +15,42 @@ const dispatch = vi.fn();
 beforeEach(() => {
     vi.clearAllMocks();
     (useDispatch as unknown as Mock).mockReturnValue(dispatch);
-    (window as any).scrollTo = vi.fn();
 });
 
-const defaultProps = { id: '1', name: 'Dance', description: "Dance with me", iconId: "lucide:music", level: 2, xp: 50, nextLevelXp: 100, actualLevelXp: 50, setCategories: vi.fn() };
+const defaultProps = { id: '1', name: 'Dance', description: "Dance with me", iconId: "lucide:music", level: 2, xp: 50, nextLevelXp: 100, actualLevelXp: 50 };
 
-test('Render collapsed view', () => {
+test('Render collapsed compact card', () => {
     render(<CategoryBox {...defaultProps} />);
     expect(screen.getByText('Dance')).toBeInTheDocument();
     expect(screen.getByText('Dance with me')).toBeInTheDocument();
-    expect(screen.queryByText(/Edit/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Delete/i)).not.toBeInTheDocument();
+    // The actions live in the header — on desktop they only appear on hover, but
+    // they exist in the DOM and in the accessible name.
+    expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
+    // The expand chevron is always visible — it is what shows where the category
+    // is used.
+    expect(screen.getByRole('button', { name: /Expand/i })).toBeInTheDocument();
+    expect(screen.getByText(/LV 2/i)).toBeInTheDocument();
 });
 
-test('Expand the card when clicked', () => {
-    render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    expect(screen.getByText(/Edit/i)).toBeInTheDocument();
-    expect(screen.getByText(/Delete/i)).toBeInTheDocument();
-});
-
-test('renders using-in lists', () => {
+test('expanding reveals where the category is used', () => {
     const habits = new Map([['h1', 'Habit One']]);
     render(<CategoryBox {...defaultProps} habits={habits} />);
+
     fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
+
     expect(screen.getByText('Habit One')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Collapse/i })).toBeInTheDocument();
 });
 
-test('shows fallback when no references', () => {
+test('dispatches edit actions', () => {
     render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    expect(screen.getByText(/Add this category/i)).toBeInTheDocument();
-});
-
-test('dispatches edit actions and scrolls', () => {
-    render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    fireEvent.click(screen.getByText(/Edit/i));
-    //expect(dispatch).toHaveBeenCalled();
-    expect((window as any).scrollTo).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
+    expect(dispatch).toHaveBeenCalled();
 });
 
 test('sets delete modal on', () => {
     render(<CategoryBox {...defaultProps} />);
-    fireEvent.click(screen.getByRole('button', { name: /Expand/i }));
-    fireEvent.click(screen.getByText(/Delete/i));
+    fireEvent.click(screen.getByRole('button', { name: /Delete/i }));
     expect(DeleteModal).toHaveBeenCalledWith(expect.objectContaining({ onDelete: true }), expect.anything());
 });

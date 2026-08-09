@@ -3,7 +3,7 @@ import axios from "../services/axiosConfig";
 import type { AuthBootState } from "../hooks/useSilentRefresh";
 import AgentWidget from "./agent/AgentWidget";
 import BottomNav from "./dashboard/BottomNav";
-import FeedbackLauncher from "./feedback/FeedbackLauncher";
+import Sidebar from "./shell/Sidebar";
 
 type Props = {
     authState: AuthBootState;
@@ -25,29 +25,24 @@ function ProtectedRoute({ authState }: Props) {
         return <Navigate to="/" replace />;
     }
     return (
-        <>
-            <Outlet />
-            {/* `BottomNav` is `fixed`, so it overlays the page instead of
-                pushing it and would cover whatever ends each page. The spacer
-                belongs with the bar, not with the pages: mounted here it is
-                written once and no page has to know the bar exists — the
-                alternative is the same `h-20` repeated in all eight of them,
-                where the next page added would silently miss it. `lg:hidden`
-                on both, so desktop gets neither the bar nor the gap. */}
-            <div className="h-20 lg:hidden" aria-hidden="true" data-testid="bottom-nav-spacer" />
-            {/* On mobile this bar IS the shortcuts affordance — desktop keeps
-                the labelled <Shortcuts/> sidebar on the dashboard. It lives
-                here rather than on the dashboard so every authenticated page
-                can move sideways in one tap instead of routing back through
-                the dashboard first. */}
+        // The shell mounts ONCE for every authenticated route: sidebar on desktop,
+        // bottom bar on phones. Pages no longer render a header of their own, and
+        // the feedback bubble became a sidebar item — only the assistant's bubble
+        // still floats.
+        <div className="flex min-h-screen bg-bg">
+            <Sidebar />
+            <div className="min-w-0 flex-1">
+                <Outlet />
+                {/* `BottomNav` (phones) and the assistant's bubble (desktop) are
+                    fixed and would cover the end of the page — on desktop the
+                    bubble ate the last card's bottom border. The spacer lives here
+                    with them: written once, so no page needs to know
+                    que existem. */}
+                <div className="h-20 lg:h-24" aria-hidden="true" data-testid="bottom-nav-spacer" />
+            </div>
             <BottomNav />
             <AgentWidget />
-            {/* R1: mounted here, not per page, so feedback follows the user.
-                Which routes and widths it actually appears on is the component's
-                own decision — see the table in `FeedbackLauncher`. Mirrors the
-                mobile app's `(app)` layout. */}
-            <FeedbackLauncher />
-        </>
+        </div>
     );
 }
 

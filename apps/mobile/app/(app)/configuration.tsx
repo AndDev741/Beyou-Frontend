@@ -3,8 +3,10 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+import { ChevronLeft, LayoutGrid, LogOut, Palette, Settings } from 'lucide-react-native';
 import ConfigSection from '../../src/ui/config/ConfigSection';
+import ProfileHeaderRow from '../../src/ui/config/ProfileHeaderRow';
+import IconTile from '../../src/ui/IconTile';
 import ProfileSection from '../../src/ui/config/ProfileSection';
 import AppearanceSection from '../../src/ui/config/AppearanceSection';
 import LanguageSection from '../../src/ui/config/LanguageSection';
@@ -18,8 +20,6 @@ import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
-
-const ON_PRIMARY = '#FFFFFF';
 
 /**
  * Configuration / settings screen. Profile lands first (P5-A1); Appearance
@@ -56,28 +56,36 @@ export default function ConfigurationScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-bg">
       <ScrollView
         ref={scrollRef}
-        className="flex-1 bg-background"
-        contentContainerStyle={{ padding: 16, paddingTop: 48, paddingBottom: 40, gap: 28 }}
+        className="flex-1 bg-bg"
+        contentContainerStyle={{ padding: 16, paddingTop: 48, paddingBottom: 40, gap: 12 }}
         testID="config-screen"
       >
-        <View className="flex-row items-center gap-2">
+        <View className="mb-1 flex-row items-center gap-2">
           <Pressable
             onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
             accessibilityRole="button"
             testID="back-button"
           >
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
+            <ChevronLeft size={24} color={theme.text2} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Config')}</Text>
+          <View className="min-w-0">
+            <Text accessibilityRole="header" className="text-[22px] font-semibold text-text">
+              {t('Configuration')}
+            </Text>
+            <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
+              {t('ConfigSubtitle')}
+            </Text>
+          </View>
         </View>
 
+        {/* The mockup's order: profile, appearance, preferences, widgets and, last,
+            log out. The e-mail shows up nowhere. */}
         <ConfigSection
-          iconId="lucide:user"
           title={t('ConfigSectionProfile')}
-          description={t('ConfigSectionProfileDesc')}
+          header={<ProfileHeaderRow />}
           testID="section-profile"
           viewRef={profileRef}
           onLayout={onSectionLayout('config-profile')}
@@ -86,9 +94,8 @@ export default function ConfigurationScreen() {
         </ConfigSection>
 
         <ConfigSection
-          iconId="lucide:palette"
+          icon={<Palette size={16} color={theme.accent} />}
           title={t('ConfigSectionAppearance')}
-          description={t('ConfigSectionAppearanceDesc')}
           testID="section-appearance"
           viewRef={appearanceRef}
           onLayout={onSectionLayout('config-appearance')}
@@ -97,24 +104,23 @@ export default function ConfigurationScreen() {
         </ConfigSection>
 
         <ConfigSection
-          iconId="lucide:settings"
+          icon={<Settings size={16} color={theme.accent} />}
           title={t('ConfigSectionPreferences')}
-          description={t('ConfigSectionPreferencesDesc')}
           testID="section-preferences"
           viewRef={preferencesRef}
           onLayout={onSectionLayout('config-preferences')}
         >
           <View className="gap-6">
             <LanguageSection />
-            <RoutineSettingsSection />
             <ConstanceSection />
+            <RoutineSettingsSection />
+            <TutorialSection />
           </View>
         </ConfigSection>
 
         <ConfigSection
-          iconId="lucide:layout-grid"
-          title={t('ConfigSectionDashboard')}
-          description={t('ConfigSectionDashboardDesc')}
+          icon={<LayoutGrid size={16} color={theme.accent} />}
+          title={t('ConfigSectionWidgets')}
           testID="section-dashboard"
           viewRef={dashboardRef}
           onLayout={onSectionLayout('config-dashboard')}
@@ -122,26 +128,20 @@ export default function ConfigurationScreen() {
           <WidgetsSection />
         </ConfigSection>
 
-        <ConfigSection
-          iconId="lucide:graduation-cap"
-          title={t('Tutorial')}
-          description={t('TutorialDescription')}
-          testID="section-tutorial"
-          viewRef={tutorialRef}
-          onLayout={onSectionLayout('config-tutorial')}
-        >
-          <TutorialSection />
-        </ConfigSection>
-
+        {/* Log out closes the list, in the destructive tone and on one row — as on the web. */}
         <Pressable
           onPress={() => dispatch(logout())}
           accessibilityRole="button"
+          accessibilityLabel={t('Logout')}
           testID="logout-button"
-          className="mt-2 items-center rounded-md bg-error px-8 py-3"
+          ref={tutorialRef}
+          onLayout={onSectionLayout('config-tutorial')}
+          className="w-full flex-row items-center gap-3 rounded-card border border-border bg-surface p-4 active:bg-surface-2"
         >
-          <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
-            {t('Logout')}
-          </Text>
+          <IconTile tone="neutral" size={36} className="bg-danger/10">
+            <LogOut size={16} color={theme.danger} />
+          </IconTile>
+          <Text className="text-[14px] font-semibold text-danger">{t('Logout')}</Text>
         </Pressable>
       </ScrollView>
     </View>

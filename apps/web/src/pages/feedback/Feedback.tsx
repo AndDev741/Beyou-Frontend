@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, Paperclip, Send, X } from "lucide-react";
+import { Bug, Image as ImageIcon, Lightbulb, Mail, MessageSquare, Paperclip, Send, X } from "lucide-react";
 import buildFeedbackContext from "@beyou/api/feedback/feedbackContext";
 import submitFeedback from "@beyou/api/feedback/submitFeedback";
 import type {
@@ -11,7 +11,6 @@ import type {
     FeedbackContext
 } from "@beyou/api/feedback/feedbackTypes";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import ErrorNotice from "../../components/ErrorNotice";
 import Button from "../../components/Button";
@@ -25,8 +24,16 @@ import {
 } from "./feedbackAttachments";
 import { FEEDBACK_CATEGORY_LABEL_KEYS, buildFeedbackMailtoHref } from "./feedbackMailto";
 import { FEEDBACK_BODY_MAX_LENGTH, FeedbackFormValues, NO_CATEGORY, feedbackSchema } from "./feedbackSchema";
+import PageHeader from "../../ui/PageHeader";
 
 const CATEGORY_ORDER: FeedbackFormValues["category"][] = ["BUG", "FEATURE_REQUEST", "OTHER"];
+
+/** Each category's icon — shown only on the chosen option, as in the mockup. */
+const CATEGORY_ICONS: Record<FeedbackFormValues["category"], typeof Bug> = {
+    BUG: Bug,
+    FEATURE_REQUEST: Lightbulb,
+    OTHER: MessageSquare,
+};
 
 type SubmissionOutcome =
     | { kind: "sent"; failedAttachments: number }
@@ -154,22 +161,21 @@ function Feedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-background text-secondary">
-            <Header pageName="FeedbackPageTitle" />
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-3 py-5 text-text lg:px-7 lg:py-6">
+            <PageHeader title={t("FeedbackPageTitle")} subtitle={t("FeedbackSubtitle")} />
 
-            <div className="mx-auto w-full max-w-2xl px-3 py-6">
-                <p className="text-sm text-description">{t("FeedbackIntro")}</p>
+            <div className="mt-4 w-full max-w-2xl">
 
                 {outcome?.kind === "sent" && (
                     <div
                         data-testid="feedback-success"
                         role="status"
-                        className="mt-4 rounded-xl border-2 border-success bg-background p-4"
+                        className="mt-4 rounded-control border border-success/30 bg-success/10 p-3"
                     >
-                        <p className="text-base font-semibold text-success">{t("FeedbackSuccessTitle")}</p>
-                        <p className="mt-1 text-sm text-description">{t("FeedbackSuccessBody")}</p>
+                        <p className="text-[13px] font-semibold text-text">{t("FeedbackSuccessTitle")}</p>
+                        <p className="mt-1 text-sm text-text-2">{t("FeedbackSuccessBody")}</p>
                         {outcome.failedAttachments > 0 && (
-                            <p className="mt-2 text-sm font-medium text-error">
+                            <p className="mt-2 text-sm font-medium text-danger">
                                 {t("FeedbackPartialAttachmentWarning", { count: outcome.failedAttachments })}
                             </p>
                         )}
@@ -180,10 +186,10 @@ function Feedback() {
                     <div
                         data-testid="feedback-failure"
                         role="alert"
-                        className="mt-4 rounded-xl border-2 border-error bg-background p-4"
+                        className="mt-4 rounded-control border border-danger/30 bg-danger/10 p-3"
                     >
-                        <p className="text-base font-semibold text-error">{t("FeedbackFailedTitle")}</p>
-                        <p className="mt-1 text-sm text-description">{t("FeedbackFailedBody")}</p>
+                        <p className="text-base font-semibold text-danger">{t("FeedbackFailedTitle")}</p>
+                        <p className="mt-1 text-sm text-text-2">{t("FeedbackFailedBody")}</p>
                         {/* Already a feedback form: offering "report this problem"
                             here would just loop the user back to where they are.
                             The mailto below is the real way out. */}
@@ -191,7 +197,7 @@ function Feedback() {
                         <a
                             data-testid="feedback-mailto-fallback"
                             href={mailtoHref}
-                            className="mt-3 inline-flex items-center gap-2 rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                            className="mt-3 inline-flex items-center gap-2 rounded-[20px] border border-border px-4 py-2 text-sm font-semibold text-accent transition-colors duration-200 hover:bg-accent hover:text-on-accent"
                         >
                             <Mail size={16} aria-hidden="true" />
                             {t("FeedbackEmailLink")}
@@ -199,25 +205,33 @@ function Feedback() {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-6" noValidate>
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 lg:p-5"
+                    noValidate
+                >
                     <Controller
                         control={control}
                         name="category"
                         render={({ field }) => (
                             <fieldset className="border-0 p-0">
-                                <legend className="mb-2 text-base font-semibold text-secondary">
+                                <legend className="mb-1.5 text-[12.5px] font-semibold text-text-2">
                                     {t("FeedbackCategoryLabel")}
                                 </legend>
-                                <div className="flex flex-wrap gap-2">
+                                {/* Segmented, like the rest of the forms: the three
+                                    options are exclusive and fit in one
+                                    linha, inclusive no telefone. */}
+                                <div className="flex rounded-control border border-border bg-surface-2 p-[3px]">
                                     {CATEGORY_ORDER.map((category) => {
                                         const isChosen = field.value === category;
+                                        const Icon = CATEGORY_ICONS[category];
                                         return (
                                             <label
                                                 key={category}
-                                                className={`flex cursor-pointer items-center gap-2 rounded-[20px] border px-4 py-2 text-sm font-semibold transition-colors duration-200 ${
+                                                className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-[7px] px-2 py-2 text-[12.5px] font-semibold transition-colors duration-200 ${
                                                     isChosen
-                                                        ? "border-primary bg-primary text-background"
-                                                        : "border-description text-secondary hover:border-primary hover:text-primary"
+                                                        ? "bg-surface text-accent shadow-sm"
+                                                        : "text-text-3 hover:text-text-2"
                                                 }`}
                                             >
                                                 <input
@@ -229,13 +243,14 @@ function Feedback() {
                                                     onChange={() => field.onChange(category)}
                                                     onBlur={field.onBlur}
                                                 />
+                                                {isChosen && <Icon size={13} aria-hidden="true" />}
                                                 {t(FEEDBACK_CATEGORY_LABEL_KEYS[category])}
                                             </label>
                                         );
                                     })}
                                 </div>
                                 {errors.category?.message && (
-                                    <p className="mt-2 text-sm text-error">{errors.category.message}</p>
+                                    <p className="mt-2 text-sm text-danger">{errors.category.message}</p>
                                 )}
                             </fieldset>
                         )}
@@ -248,7 +263,7 @@ function Feedback() {
                             <div className="flex flex-col">
                                 <label
                                     htmlFor="feedback-body"
-                                    className="mb-2 text-base font-semibold text-secondary"
+                                    className="mb-1.5 text-[12.5px] font-semibold text-text-2"
                                 >
                                     {t("FeedbackBodyLabel")}
                                 </label>
@@ -260,31 +275,40 @@ function Feedback() {
                                     value={field.value}
                                     onChange={field.onChange}
                                     onBlur={field.onBlur}
-                                    className="w-full rounded-xl border-2 border-primary bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full resize-none rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40"
                                 />
                                 {errors.body?.message && (
-                                    <p className="mt-2 text-sm text-error">{errors.body.message}</p>
+                                    <p className="mt-2 text-sm text-danger">{errors.body.message}</p>
                                 )}
                             </div>
                         )}
                     />
 
                     <div className="flex flex-col">
-                        <span className="mb-1 text-base font-semibold text-secondary">
-                            {t("FeedbackImagesLabel")}
+                        <span className="mb-1.5 text-[12.5px] font-semibold text-text-2">
+                            {t("FeedbackImagesLabelOptional")}
                         </span>
-                        <span className="mb-2 text-xs text-description">{t("FeedbackImagesHint")}</span>
 
+                        {/* A drop zone instead of a button: dragging the shot is
+                            the natural desktop gesture, and on phones a tap
+                            abre o mesmo seletor. */}
                         <label
                             htmlFor="feedback-images"
-                            className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background"
+                            className="flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-control border border-dashed border-border px-4 py-6 text-center transition-colors duration-200 hover:border-accent"
                         >
-                            <Paperclip size={16} aria-hidden="true" />
-                            {t("FeedbackAddImages")}
+                            <ImageIcon size={18} aria-hidden="true" className="text-text-3" />
+                            <span className="text-[12.5px] text-text-2">
+                                <span className="hidden lg:inline">{t("FeedbackDropzone")}</span>
+                                <span className="lg:hidden">{t("FeedbackDropzoneMobile")}</span>
+                            </span>
+                            <span className="hidden font-mono text-[10.5px] text-text-3 lg:block">
+                                {t("FeedbackImagesHint")}
+                            </span>
                         </label>
                         <input
                             id="feedback-images"
                             type="file"
+                            aria-label={t("FeedbackImagesLabelOptional")}
                             multiple
                             accept={ATTACHMENT_ACCEPT}
                             onChange={onFilesChosen}
@@ -295,7 +319,7 @@ function Feedback() {
                         {attachmentErrors.length > 0 && (
                             <ul className="mt-2 flex flex-col gap-1">
                                 {attachmentErrors.map((message) => (
-                                    <li key={message} className="text-sm text-error">
+                                    <li key={message} className="text-sm text-danger">
                                         {message}
                                     </li>
                                 ))}
@@ -303,21 +327,21 @@ function Feedback() {
                         )}
 
                         {attachments.length > 0 && (
-                            <ul className="mt-3 flex flex-wrap gap-3">
+                            <ul className="mt-2.5 flex flex-wrap gap-1.5">
                                 {attachments.map(({ previewUrl, displayName }, index) => (
-                                    <li key={previewUrl} className="relative">
-                                        <img
-                                            src={previewUrl}
-                                            alt={displayName}
-                                            className="h-24 w-24 rounded-lg border border-primary object-cover"
-                                        />
+                                    <li
+                                        key={previewUrl}
+                                        className="flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1.5 text-[11.5px] font-semibold text-accent"
+                                    >
+                                        <Paperclip size={12} aria-hidden="true" />
+                                        <span className="max-w-[180px] truncate">{displayName}</span>
                                         <button
                                             type="button"
                                             aria-label={t("FeedbackRemoveImage", { name: displayName })}
                                             onClick={() => removeAttachment(index)}
-                                            className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-primary bg-background text-secondary transition-colors duration-200 hover:bg-primary hover:text-background"
+                                            className="rounded-full p-0.5 transition-colors duration-200 hover:bg-accent/20"
                                         >
-                                            <X size={14} aria-hidden="true" />
+                                            <X size={12} aria-hidden="true" />
                                         </button>
                                     </li>
                                 ))}
@@ -325,30 +349,32 @@ function Feedback() {
                         )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4">
+                    {/* R7: the mailto is a standing alternative, not only a
+                        failure hatch. On desktop it shares the row with submit; on a
+                        phone it drops below the button, which is the main action. */}
+                    <div className="mt-1 flex flex-col-reverse items-center gap-3 lg:flex-row lg:justify-between">
+                        <p className="text-[12.5px] text-text-3">
+                            {t("FeedbackEmailPreference")}{" "}
+                            <a
+                                data-testid="feedback-mailto-preference"
+                                href={mailtoHref}
+                                className="font-semibold text-accent"
+                            >
+                                {t("FeedbackEmailLink")}
+                            </a>
+                        </p>
                         <Button
                             text={isSubmitting ? t("FeedbackSubmitting") : t("FeedbackSubmit")}
-                            size="big"
-                            mode="create"
+                            size="medium"
+                            mode="primary"
                             type="submit"
                             disabled={isSubmitting}
                             testId="feedback-submit"
-                            icon={<Send size={20} />}
+                            icon={<Send size={16} aria-hidden="true" />}
+                            className="w-full lg:w-auto"
                         />
                     </div>
                 </form>
-
-                {/* R7: the mailto is a standing alternative, not only a failure hatch. */}
-                <p className="mt-6 text-sm text-description">
-                    {t("FeedbackEmailPreference")}{" "}
-                    <a
-                        data-testid="feedback-mailto-preference"
-                        href={mailtoHref}
-                        className="font-semibold text-primary underline underline-offset-2"
-                    >
-                        {t("FeedbackEmailLink")}
-                    </a>
-                </p>
             </div>
         </div>
     );

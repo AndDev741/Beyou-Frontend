@@ -14,12 +14,27 @@ const API_ORIGIN = API_URL.replace(/\/api\/v1\/?$/, '');
 // Only these schemes may reach an <img src>. Any other value the backend echoes
 // back (javascript:, data:text/html, vbscript:, ...) is dropped so a stored photo
 // string can never become a script/HTML-injection sink.
-const SAFE_ABSOLUTE = /^(?:https?:|blob:|data:image\/)/i;
+const SAFE_PROTOCOLS = new Set(["http:", "https:", "blob:"]);
 
 export function resolvePhotoUrl(photo: string): string {
     if (!photo) return '';
     // Root-relative API path we serve ourselves — prepend the backend origin.
     if (photo.startsWith('/')) return `${API_ORIGIN}${photo}`;
-    // Absolute Google CDN URL or a local object URL — allow only safe schemes.
-    return SAFE_ABSOLUTE.test(photo) ? photo : '';
+
+    // A real parse instead of a regex match: the parser normalizes the string and
+    // returns a NEW `href`, so nothing of the original value reaches `src`
+    // without passing through here. A malformed URL throws and is dropped — the old
+    // regex let through anything that started with a known scheme.
+    let url: URL;
+    try {
+        url = new URL(photo);
+    } catch {
+        return '';
+    }
+
+    // `data:` for images only — `data:text/html` is HTML injection by another name.
+    if (url.protocol === 'data:') {
+        return url.pathname.startsWith('image/') ? url.href : '';
+    }
+    return SAFE_PROTOCOLS.has(url.protocol) ? url.href : '';
 }

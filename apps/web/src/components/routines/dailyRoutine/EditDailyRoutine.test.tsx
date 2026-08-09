@@ -38,7 +38,7 @@ test("shows validation errors for missing name and sections", async () => {
 
     renderWithProviders(<EditDailyRoutine />, { storeOverride });
 
-    fireEvent.click(screen.getByRole("button", { name: /Edit/i }));
+    fireEvent.click(screen.getByRole("button", { name: /save routine/i }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("At least, 1 section need to be created")).toBeInTheDocument();

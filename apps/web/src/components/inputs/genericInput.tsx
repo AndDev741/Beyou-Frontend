@@ -1,4 +1,5 @@
 import { TFunction } from "i18next";
+import { FIELD_ERROR, FIELD_LABEL, FIELD_WIDTH, fieldControl } from "./fieldStyles";
 
 type genericInputProps = {
     t: TFunction,
@@ -10,26 +11,23 @@ type genericInputProps = {
     placeholder: string
 }
 function GenericInput({t, dataError, name, setData, data, placeholder, type = "text"}: genericInputProps){
-    const borderCss = "border border-primary rounded-md w-[45vw] h-[50px] md:w-[320px] lg:w-[15rem] bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
-    const labelCss = "text-lg md:text-2xl md:text-xl mt-2 text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+    const errorId = `${name}-error`;
     return(
-        <>
-            <div className="flex flex-col">
-                <label htmlFor={name} 
-                className={labelCss}>{t(`${name}`)}</label>
-                {dataError ? <p className={errorCss} title={dataError}>{dataError}</p> : null}
-                <input
-                value={data}
-                type={type}
-                onChange={(e) => setData(e.target.value)}
-                name={name} 
-                id={name} 
-                placeholder={t(`${placeholder}`)}
-                className={`${borderCss} ${dataError ? "border-error" : ""} h-[40px] outline-none pl-2 text-lg`}
-                />
-            </div>
-        </>
+        <div className="flex flex-col">
+            <label htmlFor={name} className={FIELD_LABEL}>{t(`${name}`)}</label>
+            <input
+            value={data}
+            type={type}
+            onChange={(e) => setData(e.target.value)}
+            name={name}
+            id={name}
+            placeholder={t(`${placeholder}`)}
+            aria-invalid={dataError ? true : undefined}
+            aria-describedby={dataError ? errorId : undefined}
+            className={`${fieldControl(!!dataError)} ${FIELD_WIDTH} h-11 px-3`}
+            />
+            {dataError ? <p id={errorId} className={`${FIELD_ERROR} ${FIELD_WIDTH}`} title={dataError}>{dataError}</p> : null}
+        </div>
     )
 }
 

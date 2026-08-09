@@ -1,13 +1,9 @@
 import type { SpotlightStep } from "../SpotlightTutorial";
 
+// The profile step is gone: on the redesigned dashboard it is just the greeting with
+// the date and the phrase — there is no profile card to point at, and the spotlight
+// landed on a block of text with nothing to explain.
 export const getDashboardSteps = (): SpotlightStep[] => [
-    {
-        id: "profile",
-        targetSelector: "[data-tutorial-id='dashboard-profile']",
-        titleKey: "TutorialSpotlightProfileTitle",
-        descriptionKey: "TutorialSpotlightProfileDescription",
-        position: "bottom"
-    },
     {
         id: "shortcuts",
         targetSelector: "[data-tutorial-id='dashboard-shortcuts']",
@@ -20,7 +16,13 @@ export const getDashboardSteps = (): SpotlightStep[] => [
     },
     {
         id: "categories-shortcut",
-        targetSelector: "[data-tutorial-id='shortcut-categories']",
+        // Below lg the sidebar (`hidden lg:flex`) is gone and the sheet items
+        // are unmounted, so `shortcut-categories` measured 0x0 and the
+        // spotlight highlighted nothing. `nav-more` is the phone anchor — the
+        // path to Categories — and the desktop selector still wins when the
+        // sidebar is there.
+        targetSelector:
+            "[data-tutorial-id='shortcut-categories'], [data-tutorial-id='nav-more']",
         titleKey: "TutorialSpotlightCategoriesTitle",
         descriptionKey: "TutorialSpotlightCategoriesDescription",
         position: "auto",

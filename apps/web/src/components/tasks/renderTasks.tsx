@@ -5,23 +5,32 @@ import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { editModeEnter } from "@beyou/state/task/editTaskSlice";
 import EmptyState from "../EmptyState";
+import { ListChecks, Search } from "lucide-react";
 
 type renderTasksProps = {
     tasks: task[],
-    setTasks: React.Dispatch<React.SetStateAction<task[]>>
+    setTasks: React.Dispatch<React.SetStateAction<task[]>>,
+    /** Overrides the empty state when search/filter emptied the list, not a lack of tasks. */
+    emptyTitle?: string,
+    /** Clears search and filters from the empty state. */
+    onClearFilters?: () => void
 }
 
-function RenderTasks({tasks, setTasks}: renderTasksProps){
+function RenderTasks({tasks, setTasks, emptyTitle, onClearFilters}: renderTasksProps){
     const {t} = useTranslation();
     const dispatch = useDispatch();
-  
+
     //When open the page
     useEffect(() => {
         dispatch(editModeEnter(false));
-    }, []); 
+    }, []);
+
+    const hasTasks = tasks.length > 0;
+
     return(
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(170px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-secondary">
-           {tasks.length > 0 ? (
+        // A scannable grid: 3 columns on desktop, 1 on mobile.
+        <div className={`text-text ${hasTasks ? "grid grid-cols-1 items-start gap-3 md:grid-cols-2 lg:grid-cols-3" : ""}`}>
+           {hasTasks ? (
                 tasks.map(task => (
                     <div key={task.id}>
                         <TaskBox
@@ -40,8 +49,21 @@ function RenderTasks({tasks, setTasks}: renderTasksProps){
                         />
                     </div>
                 ))
+            ) : emptyTitle ? (
+                <EmptyState
+                    icon={<Search size={20} aria-hidden="true" />}
+                    title={emptyTitle}
+                    description={t('NoResultsDescription')}
+                    actionLabel={onClearFilters ? t('ClearFilters') : undefined}
+                    onAction={onClearFilters}
+                    variant="ghost"
+                />
             ) : (
-                <EmptyState emoji="✅" title={t('Start creating amazing tasks to organize your day!')} />
+                <EmptyState
+                    icon={<ListChecks size={20} aria-hidden="true" />}
+                    title={t('0TasksTitle')}
+                    description={t('Start creating amazing tasks to organize your day!')}
+                />
             )}
         </div>
     )

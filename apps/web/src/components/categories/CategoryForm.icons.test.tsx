@@ -83,7 +83,7 @@ test("submits selected icon for category creation", async () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Icon: Icon A" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save category" }));
 
     await waitFor(() => {
         expect(vi.mocked(createCategory)).toHaveBeenCalled();

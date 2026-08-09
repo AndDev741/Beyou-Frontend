@@ -88,16 +88,16 @@ export default function GoalsStep({
             {/* Header */}
             <div className="space-y-3 text-center">
                 <span
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary rounded-full px-3 py-1"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent rounded-full px-3 py-1"
                     style={{ backgroundColor: "color-mix(in srgb, var(--primary) 12%, var(--background))" }}
                 >
                     <Sparkles className="w-3.5 h-3.5" />
                     {t("AiOnboardingStepGoals")}
                 </span>
-                <h2 className="text-2xl md:text-4xl font-semibold text-secondary leading-tight px-2">
+                <h2 className="text-2xl md:text-4xl font-semibold text-text leading-tight px-2">
                     {t("AiOnboardingGoalsTitle")}
                 </h2>
-                <p className="text-description max-w-xl mx-auto">{t("AiOnboardingGoalsHint")}</p>
+                <p className="text-text-2 max-w-xl mx-auto">{t("AiOnboardingGoalsHint")}</p>
             </div>
 
             {/* Goal cards */}
@@ -106,25 +106,25 @@ export default function GoalsStep({
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                             <span
-                                className="flex w-7 h-7 items-center justify-center rounded-lg"
+                                className="flex w-7 h-7 items-center justify-center rounded-control"
                                 style={{
                                     backgroundColor:
                                         "color-mix(in srgb, var(--primary) 12%, var(--background))"
                                 }}
                             >
-                                <Target className="w-4 h-4 text-primary" />
+                                <Target className="w-4 h-4 text-accent" />
                             </span>
-                            <h3 className="text-lg font-semibold text-secondary">
+                            <h3 className="text-lg font-semibold text-text">
                                 {t("AiOnboardingSummaryGoals")}
                             </h3>
-                            <span className="text-xs font-medium text-description tabular-nums">
+                            <span className="text-xs font-medium text-text-2 tabular-nums">
                                 {selected.size}/{goals.length}
                             </span>
                         </div>
                         <button
                             type="button"
                             onClick={toggleAll}
-                            className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-semibold text-primary hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            className="flex items-center gap-1.5 rounded-control px-2 py-1 text-sm font-semibold text-accent hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                         >
                             <CheckCheck className="w-4 h-4" aria-hidden="true" />
                             {t("AiOnboardingSelectAll")}
@@ -180,7 +180,7 @@ export default function GoalsStep({
                         }}
                         placeholder={t("AiOnboardingFreeInputPlaceholder")}
                         style={{ borderColor: "color-mix(in srgb, var(--primary) 22%, var(--background))" }}
-                        className="min-w-0 flex-1 rounded-xl border bg-background px-4 py-2.5 text-secondary placeholder:text-description focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                        className="min-w-0 flex-1 rounded-card border bg-surface px-4 py-2.5 text-text placeholder:text-text-2 focus:outline-none focus:ring-2 focus:ring-accent transition-shadow"
                     />
                     <button
                         type="button"
@@ -189,7 +189,7 @@ export default function GoalsStep({
                         aria-label={t("AiOnboardingAdd")}
                         style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 12%, var(--background))" }}
                         className={cn(
-                            "flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold text-secondary transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                            "flex shrink-0 items-center gap-1.5 rounded-card px-4 py-2.5 font-semibold text-text transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                             adding ? "opacity-60 cursor-wait" : "hover:brightness-95"
                         )}
                     >
@@ -207,16 +207,16 @@ export default function GoalsStep({
                     onClick={() => onContinue(goals.filter((g) => selected.has(g.name)))}
                     disabled={!canContinue}
                     className={cn(
-                        "flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all",
+                        "flex w-full items-center justify-center gap-2 rounded-card px-6 py-3 font-semibold text-on-accent transition-all",
                         canContinue
-                            ? "bg-primary hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
-                            : "bg-primary opacity-40 cursor-not-allowed"
+                            ? "bg-accent hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
+                            : "bg-accent opacity-40 cursor-not-allowed"
                     )}
                 >
                     {t("AiOnboardingContinue")}
                     {selected.size > 0 && (
                         <span
-                            className="flex min-w-5 h-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-primary bg-white"
+                            className="flex min-w-5 h-5 items-center justify-center rounded-full px-1.5 text-xs font-bold text-accent bg-white"
                             aria-hidden="true"
                         >
                             {selected.size}
@@ -242,15 +242,15 @@ function GoalMeta({
 }) {
     return (
         <span className="flex flex-col items-end gap-1" aria-hidden="true">
-            <span className="max-w-24 truncate text-[10px] font-semibold uppercase tracking-wide text-primary">
+            <span className="max-w-24 truncate text-[10px] font-semibold uppercase tracking-wide text-accent">
                 {category}
             </span>
-            <span className="flex items-center gap-1 text-xs font-semibold text-secondary tabular-nums">
-                <Target className="w-3 h-3 text-primary" />
+            <span className="flex items-center gap-1 text-xs font-semibold text-text tabular-nums">
+                <Target className="w-3 h-3 text-accent" />
                 {targetValue} {unit}
             </span>
             <span
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-secondary"
+                className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-text"
                 style={{ backgroundColor: "color-mix(in srgb, var(--secondary) 10%, var(--background))" }}
             >
                 {termLabel}

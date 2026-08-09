@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "react-toastify";
-import { Check, History, Maximize2, Minimize2, Pencil, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
+import { Check, History, Pencil, Plus, Send, Sparkles, Trash2, X } from "lucide-react";
 import { agentChat, agentMessage, agentSegment } from "@beyou/types/agent/chatType";
 import {
     createAgentChat,
@@ -34,9 +35,9 @@ function TypingDots() {
                 <span
                     key={delay}
                     // Theme colors are plain CSS-var strings, so Tailwind opacity
-                    // modifiers (bg-primary/60) silently compile to NOTHING —
+                    // modifiers (bg-accent/60) silently compile to NOTHING —
                     // use the solid color + opacity utility instead.
-                    className="h-2 w-2 animate-bounce rounded-full bg-primary opacity-70"
+                    className="h-2 w-2 animate-bounce rounded-full bg-accent opacity-70"
                     style={{ animationDelay: `${delay}ms` }}
                 />
             ))}
@@ -45,21 +46,33 @@ function TypingDots() {
 }
 
 /**
- * The chat surface behind the FAB. Three shells, same content:
- * mobile = fullscreen sheet, desktop = popover anchored to the FAB,
- * desktop expanded = centered overlay with a persistent history column.
+ * The chat surface behind the FAB. Two shells, same content: phone = a sheet at
+ * 86% anchored to the bottom, desktop = a full-height side panel on the right.
+ * Fullscreen mode is gone — the side panel already gives room to talk, and the
+ * centred overlay hid the very page the conversation is about.
  * Stays mounted once opened so the conversation survives page changes.
  */
 function AgentPanel({ open, onClose }: AgentPanelProps) {
     const { t, i18n } = useTranslation();
     const reducedMotion = useReducedMotion();
     const location = useLocation();
+    const navigate = useNavigate();
+    const isDesktop = useIsDesktop();
+
+    /**
+     * An internal link the agent suggested: navigates AND closes the panel.
+     * Going to see what the agent did with the panel still covering the screen
+     * does not help — it hides exactly what you went to check.
+     */
+    const goToPage = (href: string) => {
+        onClose();
+        navigate(href);
+    };
     const refreshDomains = useAgentRefresh();
     // Ref so an in-flight send captures the page the message was SENT from.
     const currentPageRef = useRef(location.pathname);
     currentPageRef.current = location.pathname;
 
-    const [expanded, setExpanded] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [chats, setChats] = useState<agentChat[]>([]);
     const [activeChatId, setActiveChatId] = useState<string | null>(null);
@@ -201,6 +214,20 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [open, onClose]);
+
+    /**
+     * On a phone the panel is a sheet that covers the screen: the page behind
+     * must not scroll under it. On desktop it is a side column and the page stays
+     * visible, so locking the scroll there would take away something that works.
+     */
+    useEffect(() => {
+        if (!open || isDesktop) return;
+        const previous = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previous;
+        };
+    }, [open, isDesktop]);
 
     const startNewChat = () => {
         // No server round-trip: the chat row is only created with the first message.
@@ -367,17 +394,17 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
 
     const chatList = (
         <div className="flex min-h-0 flex-1 flex-col">
-            <div className="flex-1 space-y-1 overflow-y-auto p-2">
+            <div className="flex-1 space-y-1 overflow-y-auto overscroll-contain p-2">
                 {chats.length === 0 && (
-                    <p className="px-3 py-6 text-center text-sm text-description">{t("NoChatsYet")}</p>
+                    <p className="px-3 py-6 text-center text-sm text-text-2">{t("NoChatsYet")}</p>
                 )}
                 {chats.map((chat) => (
                     <div
                         key={chat.id}
-                        className={`group flex items-center rounded-xl transition-colors duration-150 ${
+                        className={`group flex items-center rounded-card transition-colors duration-150 ${
                             chat.id === activeChatId
-                                ? "bg-primary/10 shadow-[inset_3px_0_0_0_var(--primary)]"
-                                : "hover:bg-primary/5"
+                                ? "bg-accent/10 shadow-[inset_3px_0_0_0_var(--primary)]"
+                                : "hover:bg-accent/5"
                         }`}
                     >
                         {editingChatId === chat.id ? (
@@ -391,8 +418,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     if (e.key === "Escape") setEditingChatId(null);
                                 }}
                                 onBlur={() => saveRename(chat.id)}
-                                className="min-w-0 flex-1 rounded-lg border border-primary/30 bg-background
-                                px-3 py-2 text-sm text-secondary outline-none focus:border-primary"
+                                className="min-w-0 flex-1 rounded-control border border-border bg-surface
+                                px-3 py-2 text-sm text-text outline-none focus:border-border"
                             />
                         ) : (
                             <button
@@ -401,7 +428,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-3 py-2.5 text-left"
                             >
                                 <span className="w-full truncate text-sm font-medium">{chat.title}</span>
-                                <span className="text-xs text-description">{formatDay(chat.updatedAt)}</span>
+                                <span className="text-xs text-text-2">{formatDay(chat.updatedAt)}</span>
                             </button>
                         )}
                         {editingChatId === chat.id ? (
@@ -414,7 +441,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                     e.preventDefault();
                                     saveRename(chat.id);
                                 }}
-                                className="mr-1 rounded-lg p-2 text-primary hover:bg-primary/10"
+                                className="mr-1 rounded-control p-2 text-accent hover:bg-accent/10"
                             >
                                 <Check size={16} />
                             </button>
@@ -424,7 +451,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 aria-label={t("RenameChat")}
                                 title={t("RenameChat")}
                                 onClick={() => startRename(chat)}
-                                className="rounded-lg p-2 text-description transition-colors duration-150 hover:text-primary"
+                                className="rounded-control p-2 text-text-2 transition-colors duration-150 hover:text-accent"
                             >
                                 <Pencil size={15} />
                             </button>
@@ -434,7 +461,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                             aria-label={t("DeleteChat")}
                             title={t("DeleteChat")}
                             onClick={() => setConfirm({ kind: "chat", chat })}
-                            className="mr-2 rounded-lg p-2 text-description transition-colors duration-150 hover:text-error"
+                            className="mr-2 rounded-control p-2 text-text-2 transition-colors duration-150 hover:text-danger"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -445,8 +472,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 <button
                     type="button"
                     onClick={() => setConfirm({ kind: "all" })}
-                    className="m-2 flex items-center justify-center gap-2 rounded-xl border border-primary/15
-                    px-3 py-2 text-sm text-description transition-colors duration-150 hover:text-error"
+                    className="m-2 flex items-center justify-center gap-2 rounded-card border border-border
+                    px-3 py-2 text-sm text-text-2 transition-colors duration-150 hover:text-danger"
                 >
                     <Trash2 size={15} />
                     {t("ClearAllChats")}
@@ -460,7 +487,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
             <h2 id="agent-confirm-title" className="text-lg font-semibold">
                 {confirm.kind === "all" ? t("ClearAllChats") : t("DeleteChat")}
             </h2>
-            <p className="mt-2 text-sm text-description">
+            <p className="mt-2 text-sm text-text-2">
                 {confirm.kind === "all"
                     ? t("ClearAllChatsConfirm")
                     : t("DeleteChatConfirm", { title: confirm.chat.title })}
@@ -469,7 +496,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 <button
                     type="button"
                     onClick={() => setConfirm(null)}
-                    className="rounded-xl px-4 py-2 text-sm font-medium text-secondary hover:bg-primary/10"
+                    className="rounded-card px-4 py-2 text-sm font-medium text-text hover:bg-accent/10"
                 >
                     {t("Cancel")}
                 </button>
@@ -477,7 +504,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     type="button"
                     autoFocus
                     onClick={runConfirm}
-                    className="rounded-xl bg-error px-4 py-2 text-sm font-semibold text-white
+                    className="rounded-card bg-danger px-4 py-2 text-sm font-semibold text-on-accent
                     transition-transform duration-150 hover:scale-105"
                 >
                     {t("Delete")}
@@ -486,24 +513,12 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         </Modal>
     );
 
-    const headerButton = "rounded-lg p-2 text-secondary transition-colors duration-150 hover:bg-primary/10";
+    const headerButton = "rounded-control p-2 text-text transition-colors duration-150 hover:bg-accent/10";
 
     return (
         <AnimatePresence>
             {open && (
                 <>
-                    {/* Backdrop — expanded desktop only */}
-                    {expanded && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={onClose}
-                            className="fixed inset-0 z-40 hidden bg-black/40 lg:block"
-                            aria-hidden
-                        />
-                    )}
-
                     <motion.div
                         role="dialog"
                         aria-label={t("AiAssistant")}
@@ -511,53 +526,45 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: reducedMotion ? 1 : 0.92, y: reducedMotion ? 0 : 12 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
-                        style={{ transformOrigin: expanded ? "center" : "bottom right" }}
-                        className={`fixed inset-0 z-50 flex flex-col overflow-hidden bg-background
-                        text-secondary shadow-2xl shadow-black/20 lg:rounded-2xl lg:border
-                        lg:border-primary/15 ${
-                            expanded
-                                ? "lg:inset-x-0 lg:top-[7.5vh] lg:bottom-auto lg:mx-auto lg:h-[85vh] lg:w-[min(920px,92vw)]"
-                                : "lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[min(720px,calc(100vh-48px))] lg:w-[440px]"
-                        }`}
+                        style={{ transformOrigin: "right center" }}
+                        // Phone: a sheet at 86% of the screen, anchored bottom.
+                        // Desktop: a full-height side panel against the right —
+                        // the floating 440px popover was short on room to talk
+                        // and still covered a corner of the content.
+                        className="fixed inset-x-0 bottom-0 top-[8%] z-50 flex flex-col overflow-hidden
+                        rounded-t-card bg-surface text-text shadow-2xl shadow-black/20
+                        lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[520px] lg:rounded-none
+                        lg:border-l lg:border-border"
                     >
                         <div className="flex min-h-0 flex-1">
-                            {/* Persistent history column — expanded desktop only */}
-                            {expanded && (
-                                <aside className="hidden w-72 flex-col border-r border-primary/15 lg:flex">
-                                    <div className="flex items-center justify-between p-4 pb-2">
-                                        <h2 className="text-lg font-semibold">{t("AgentChats")}</h2>
-                                        <button
-                                            type="button"
-                                            onClick={startNewChat}
-                                            className="flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2
-                                            text-sm font-semibold text-white transition-transform duration-200
-                                            hover:scale-105"
-                                        >
-                                            <Plus size={16} />
-                                            {t("NewChat")}
-                                        </button>
-                                    </div>
-                                    {chatList}
-                                </aside>
-                            )}
-
                             {/* Thread column */}
                             <div className="relative flex min-w-0 flex-1 flex-col">
                                 {/* Header */}
-                                <div className="flex items-center gap-2 border-b border-primary/10 px-3 py-2.5">
-                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                                        <Sparkles size={16} className="text-primary" />
+                                <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/10">
+                                        <Sparkles size={16} className="text-accent" />
                                     </span>
-                                    <h2 className="min-w-0 flex-1 truncate font-semibold">
-                                        {activeChat ? activeChat.title : t("AiAssistant")}
-                                    </h2>
+                                    {/* Fixed name on top, the thread's subject in
+                                        mono below — the title used to change on its
+                                        own when the agent renamed the chat and you
+                                        lost track of where you were. */}
+                                    <div className="min-w-0 flex-1">
+                                        <h2 className="truncate text-[15px] font-semibold leading-tight">
+                                            {t("AiAssistant")}
+                                        </h2>
+                                        {activeChat && (
+                                            <p className="truncate font-mono text-[11px] text-text-3">
+                                                {activeChat.title}
+                                            </p>
+                                        )}
+                                    </div>
 
                                     <button
                                         type="button"
                                         aria-label={t("ChatHistory")}
                                         title={t("ChatHistory")}
                                         onClick={() => setHistoryOpen((v) => !v)}
-                                        className={`${headerButton} ${expanded ? "lg:hidden" : ""}`}
+                                        className={headerButton}
                                     >
                                         <History size={18} />
                                     </button>
@@ -569,15 +576,6 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                         className={headerButton}
                                     >
                                         <Plus size={18} />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        aria-label={expanded ? t("MinimizeChat") : t("ExpandChat")}
-                                        title={expanded ? t("MinimizeChat") : t("ExpandChat")}
-                                        onClick={() => setExpanded((v) => !v)}
-                                        className={`${headerButton} hidden lg:block`}
-                                    >
-                                        {expanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                                     </button>
                                     <button
                                         type="button"
@@ -599,8 +597,8 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             exit={{ x: reducedMotion ? 0 : -320, opacity: reducedMotion ? 0 : 1 }}
                                             transition={{ duration: 0.2, ease: "easeOut" }}
                                             className={`absolute bottom-0 left-0 top-[53px] z-10 flex w-72 max-w-[85%]
-                                            flex-col border-r border-primary/15 bg-background shadow-xl
-                                            ${expanded ? "lg:hidden" : ""}`}
+                                            flex-col border-r border-border bg-surface shadow-xl
+                                            `}
                                         >
                                             <div className="flex items-center justify-between p-3 pb-1">
                                                 <h3 className="font-semibold">{t("AgentChats")}</h3>
@@ -619,26 +617,36 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 </AnimatePresence>
 
                                 {/* Messages / empty state */}
-                                <div className="flex-1 overflow-y-auto" onClick={() => setHistoryOpen(false)}>
+                                {/* `overscroll-contain`: on reaching the end of the
+                                    conversation the scroll STOPS instead of carrying
+                                    on into the page behind the panel. */}
+                                <div
+                                    className="flex-1 overflow-y-auto overscroll-contain"
+                                    onClick={() => setHistoryOpen(false)}
+                                >
                                     {messages.length === 0 && !isSending ? (
                                         <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
                                             <div className="flex h-14 w-14 items-center justify-center rounded-full
-                                            bg-primary/10 ring-8 ring-primary/5">
-                                                <Sparkles size={24} className="text-primary" />
+                                            bg-accent/10 ring-8 ring-accent/5">
+                                                <Sparkles size={24} className="text-accent" />
                                             </div>
                                             <div>
                                                 <h3 className="text-xl font-semibold">{t("AgentEmptyTitle")}</h3>
-                                                <p className="mt-1 max-w-md text-sm text-description">{t("AgentEmptySubtitle")}</p>
+                                                <p className="mt-1 max-w-md text-sm text-text-2">{t("AgentEmptySubtitle")}</p>
                                             </div>
                                             <div className="mt-1 flex flex-wrap justify-center gap-2">
+                                                {/* Only at the start: after the first
+                                                    exchange you already know what to
+                                                    ask, and the shortcut turns into
+                                                    noise above the input. */}
                                                 {suggestions.map((suggestion) => (
                                                     <button
                                                         key={suggestion}
                                                         type="button"
                                                         onClick={() => send(suggestion)}
-                                                        className="rounded-full border border-primary/30 px-3.5 py-1.5
-                                                        text-sm text-secondary transition-colors duration-200
-                                                        hover:bg-primary hover:text-white"
+                                                        className="rounded-full border border-border px-3.5 py-1.5
+                                                        text-sm text-text transition-colors duration-200
+                                                        hover:bg-accent hover:text-on-accent"
                                                     >
                                                         {suggestion}
                                                     </button>
@@ -653,21 +661,21 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ duration: 0.2 }}
-                                                    className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[15px]
+                                                    className={`max-w-[88%] rounded-card px-3.5 py-2.5 text-[15px]
                                                     leading-relaxed ${
                                                         message.role === "USER"
-                                                            ? "self-end whitespace-pre-wrap rounded-br-md bg-primary text-white shadow-sm"
-                                                            : "self-start rounded-bl-md border border-primary/10 bg-primary/5"
+                                                            ? "self-end whitespace-pre-wrap rounded-br-md bg-accent text-on-accent shadow-sm"
+                                                            : "self-start rounded-bl-md border border-border bg-accent/5"
                                                     }`}
                                                 >
                                                     {message.role === "USER"
                                                         ? message.segments[0]?.text
-                                                        : <AgentSegments segments={message.segments} />}
+                                                        : <AgentSegments segments={message.segments} onInternalLink={goToPage} />}
                                                 </motion.div>
                                             ))}
                                             {isSending && (
-                                                <div className={`self-start rounded-2xl rounded-bl-md border
-                                                border-primary/10 bg-primary/5 ${
+                                                <div className={`self-start rounded-card rounded-bl-md border
+                                                border-border bg-accent/5 ${
                                                     streamSegments.length > 0 ? "max-w-[88%] px-3.5 py-2.5 text-[15px] leading-relaxed" : "max-w-[75%]"
                                                 }`}
                                                     aria-label={t("AgentThinking")}
@@ -675,12 +683,12 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     {streamSegments.length > 0
                                                         ? (
                                                             <>
-                                                                <AgentSegments segments={streamSegments} />
+                                                                <AgentSegments segments={streamSegments} onInternalLink={goToPage} />
                                                                 {/* Blinking caret: the reply is still streaming. */}
                                                                 <span
                                                                     aria-hidden="true"
                                                                     className="mt-1.5 inline-block h-4 w-2
-                                                                    animate-pulse rounded-sm bg-primary"
+                                                                    animate-pulse rounded-sm bg-accent"
                                                                 />
                                                             </>
                                                         )
@@ -693,7 +701,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                 </div>
 
                                 {/* Composer */}
-                                <div className="border-t border-primary/10 p-2.5">
+                                <div className="border-t border-border p-2.5">
                                     <div className="mx-auto flex w-full max-w-3xl items-end gap-2">
                                         <textarea
                                             ref={inputRef}
@@ -711,10 +719,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             onKeyDown={onInputKeyDown}
                                             placeholder={t("AgentInputPlaceholder")}
                                             maxLength={4000}
-                                            className="max-h-32 flex-1 resize-none overflow-y-hidden rounded-2xl
-                                            border border-primary/25 bg-background px-4 py-2.5 text-[15px]
-                                            text-secondary outline-none placeholder:text-placeholder
-                                            focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                            className="max-h-32 flex-1 resize-none overflow-y-hidden rounded-card
+                                            border border-border bg-surface px-4 py-2.5 text-[15px]
+                                            text-text outline-none placeholder:text-text-3
+                                            focus:border-border focus:ring-2 focus:ring-accent/20"
                                         />
                                         <button
                                             type="button"
@@ -722,7 +730,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                             onClick={() => send()}
                                             disabled={!input.trim() || isSending}
                                             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full
-                                            bg-primary text-white transition-all duration-200 hover:scale-105
+                                            bg-accent text-on-accent transition-all duration-200 hover:scale-105
                                             disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
                                         >
                                             <Send size={18} />

@@ -118,3 +118,38 @@ describe('RoutineDay', () => {
     expect(screen.queryByTestId('routine-skip-hg1')).toBeNull();
   });
 });
+
+/**
+ * Collapsing a section buys space back for the day. Closed, the essentials remain —
+ * icon, name, time and the XP it paid — and the choice is saved PER DAY, so tomorrow
+ * it opens fresh.
+ */
+describe('RoutineDay collapsible sections', () => {
+  it('collapses a section and keeps its header readable', async () => {
+    fakeCheckHttp(null);
+    await renderDay(seedRoutineStore());
+
+    expect(screen.getByText('Read')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('routine-section-toggle-s1'));
+    });
+
+    expect(screen.queryByText('Read')).toBeNull();
+    expect(screen.getByText('Morning')).toBeTruthy();
+  });
+
+  it('expands it again from the same chevron', async () => {
+    fakeCheckHttp(null);
+    await renderDay(seedRoutineStore());
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('routine-section-toggle-s1'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('routine-section-toggle-s1'));
+    });
+
+    expect(screen.getByText('Read')).toBeTruthy();
+  });
+});

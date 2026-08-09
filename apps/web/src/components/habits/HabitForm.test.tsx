@@ -33,7 +33,7 @@ beforeEach(() => {
 test("shows required errors for create habit", async () => {
     renderWithProviders(<HabitForm mode="create" setHabits={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save habit" }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
@@ -52,20 +52,20 @@ test("does not double-submit while a create request is in flight", async () => {
     renderWithProviders(<HabitForm mode="create" setHabits={vi.fn()} />);
 
     // Fill a valid form (same recipe as the INVALID_REQUEST test below).
-    fireEvent.change(screen.getByPlaceholderText("CategoryNamePlaceholder"), {
+    fireEvent.change(screen.getByPlaceholderText("HabitNamePlaceholder"), {
         target: { value: "My Habit" }
     });
-    fireEvent.click(screen.getByLabelText("Low"));
-    fireEvent.click(screen.getByLabelText("Easy"));
-    fireEvent.change(screen.getByRole("combobox"), { target: { value: "0" } });
-    const categoryEl = await screen.findByText("Health");
-    fireEvent.click(categoryEl);
-    await waitFor(() => {
-        expect(document.querySelectorAll("button.cursor-pointer").length).toBeGreaterThan(0);
-    });
-    fireEvent.click(document.querySelectorAll("button.cursor-pointer")[0]);
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
+    const categoryChip = await screen.findByRole("checkbox", { name: /Health/i });
+    fireEvent.click(categoryChip);
 
-    const submit = screen.getByRole("button", { name: "Create" });
+    // Picks the first icon in the compact selector (tiles with aria-label "Icon: …").
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
+
+    const submit = screen.getByRole("button", { name: "Save habit" });
 
     // First click starts the request…
     fireEvent.click(submit);
@@ -94,34 +94,29 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
     renderWithProviders(<HabitForm mode="create" setHabits={vi.fn()} />);
 
     // Fill name (min 2 chars)
-    fireEvent.change(screen.getByPlaceholderText("CategoryNamePlaceholder"), {
+    fireEvent.change(screen.getByPlaceholderText("HabitNamePlaceholder"), {
         target: { value: "My Habit" }
     });
 
     // Select importance (click "Low" radio = value 1)
-    fireEvent.click(screen.getByLabelText("Low"));
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
 
     // Select difficulty (click "Easy" radio = value 1)
-    fireEvent.click(screen.getByLabelText("Easy"));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
 
-    // Select experience (select element)
-    fireEvent.change(screen.getByRole("combobox"), {
-        target: { value: "0" }
-    });
+    // Select experience (segmented control, "Beginner" = value 0)
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
 
-    // Wait for categories to load, then select one
-    const categoryEl = await screen.findByText("Health");
-    fireEvent.click(categoryEl);
+    // Wait for categories to load, then select the chip
+    const categoryChip = await screen.findByRole("checkbox", { name: /Health/i });
+    fireEvent.click(categoryChip);
 
-    // Click an icon from the icon grid (rendered as <button> tiles with cursor-pointer class)
-    await waitFor(() => {
-        const icons = document.querySelectorAll("button.cursor-pointer");
-        expect(icons.length).toBeGreaterThan(0);
-    });
-    fireEvent.click(document.querySelectorAll("button.cursor-pointer")[0]);
+    // Pick the first icon from the compact picker.
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
 
     // Submit the form
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save habit" }));
 
     // createHabit should be called since all fields are filled
     await waitFor(

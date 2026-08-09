@@ -1,29 +1,35 @@
 import { type ReactNode } from 'react';
 import { View, Text } from 'react-native';
+import Card from '../Card';
 
 interface WidgetCardProps {
   title: string;
-  /** Mirrors the web BaseDiv flag. On mobile every widget is full-width, so this
-   *  is accepted for parity but does not change the layout (see DashboardWidgets). */
-  bigSize?: boolean;
+  /** Header icon (14.5px, in text-3). */
+  icon?: ReactNode;
   children: ReactNode;
   testID?: string;
 }
 
 /**
- * Card shell for a dashboard widget — the native equivalent of the web BaseDiv:
- * a primary-bordered rounded card with a centered title. Width is owned by the
- * parent (DashboardWidgets stacks widgets full-width), so `bigSize` is accepted
- * for API parity but intentionally ignored here.
+ * Every widget's frame — mirror of the web's `baseDiv`: the surface, a quiet header
+ * with the icon on the left, and the content below.
+ *
+ * The title used to be centred and large; now it is the 12.5px line in `text-2`
+ * that the rest of the system uses for a label. The widget is the data, not the
+ * title.
  */
-export default function WidgetCard({ title, children, testID }: WidgetCardProps) {
+export default function WidgetCard({ title, icon, children, testID }: WidgetCardProps) {
   return (
-    <View
-      className="w-full items-center justify-center rounded-md border-2 border-primary p-3"
+    <Card
+      padded={false}
+      className="w-full px-[18px] py-4"
       testID={testID}
     >
-      <Text className="text-secondary mb-2 text-center text-lg font-semibold">{title}</Text>
+      <View className="flex-row items-center gap-2">
+        {icon}
+        <Text className="text-[12.5px] font-semibold text-text-2">{title}</Text>
+      </View>
       {children}
-    </View>
+    </Card>
   );
 }

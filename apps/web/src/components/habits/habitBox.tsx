@@ -1,43 +1,38 @@
 import { useState } from "react";
+import { ChevronDown, ChevronUp, Flame, Pencil, Trash2 } from "lucide-react";
 import BeyouIcon from "../../ui/BeyouIcon";
-import increaseIcon from '../../assets/categories/increaseIcon.svg'
-import decreaseIcon from '../../assets/categories/decreaseIcon.svg'
-import fireIcon from '../../assets/habit/fire.svg'
+import Card from "../../ui/Card";
+import Chip from "../../ui/Chip";
+import IconButton from "../../ui/IconButton";
+import IconTile from "../../ui/IconTile";
+import StatTile from "../../ui/StatTile";
+import XpBar from "../../ui/XpBar";
 import { useTranslation } from "react-i18next";
-import CategoryNameAndIcon from "./categoryNameAndIcon";
 import { useDispatch } from "react-redux";
 import { editIdEnter ,editCaegoriesIdEnter, editDescriptionEnter, editDificultyEnter, editIconIdEnter, editImportanceEnter, editModeEnter, editMotivationalPhraseEnter, editNameEnter } from "@beyou/state/habit/editHabitSlice";
 import { habit } from "@beyou/types/habit/habitType";
 import deleteHabit from "@beyou/api/habits/deleteHabit";
 import getHabits from "@beyou/api/habits/getHabits";
-import useColors from "./utils/useColors";
+import { attributePhrase, attributeVariant } from "./utils/attributeMeta";
 import DeleteModal from "../DeleteModal";
 
 interface HabitBoxProps extends habit {
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>
 }
 
-function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actualLevelXp, constance, categories, routines, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
+function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, constance, categories, routines, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
     const dispatch = useDispatch();
-    
+
     const {t} = useTranslation();
     const [expanded, setExpanded] = useState(false);
-    const [expandendIcon, setExpandedIcon] = useState(increaseIcon)
-    const [dificultyColor, setDificultyColor] = useState("");
-    const [dificultyPhrase, setDificultyPhrase] = useState("");
-    const [importanceColor, setImportanceColor] = useState("");
-    const [importancePhrase, setImportancePhrase] = useState("");
-
     const [onDelete, setOnDelete] = useState(false);
 
-    const actualProgress = Math.round(((xp - actualLevelXp) / (nextLevelXp - actualLevelXp)) * 100);
-
-    useColors(dificulty, importance, setDificultyColor, setDificultyPhrase, setImportanceColor, setImportancePhrase, t)
-    
+    const dificultyPhrase = attributePhrase("difficulty", dificulty, t);
+    const importancePhrase = attributePhrase("importance", importance, t);
+    const routineNames = Object.values(routines ?? {});
 
     const handleExpanded = () => {
         setExpanded(!expanded);
-        expanded ? setExpandedIcon(increaseIcon) : setExpandedIcon(decreaseIcon);
     }
 
     function handleEditMode(){
@@ -53,143 +48,124 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, actual
     }
 
     return(
-        <div className={`w-full relative flex flex-col justify-between ${expanded ? "min-h-[300px]" : "min-h-[176px]"} border border-primary rounded-md p-3 break-words my-1 mt-2 lg:mx-1 transition-all duration-500 ease-in-out bg-background text-secondary shadow-sm`}>
-            <div className="flex justify-between items-start">
-                <div className="flex items-start">
-                    <p className="text-icon text-[30px] md:text-[34px]">
-                        <BeyouIcon id={iconId} />
-                    </p>
-                    <h2 className={`text-lg md:text-xl ml-1 font-semibold ${expanded ? "line-clamp-none" : "line-clamp-1"}`}>{name}</h2>
+        <Card interactive className="group flex h-full flex-col gap-3 break-words">
+            <div className="flex items-start gap-2.5">
+                <IconTile size={38}>
+                    <BeyouIcon id={iconId} size={20} />
+                </IconTile>
+                <h2 className={`min-w-0 flex-1 pt-1 text-base font-semibold leading-snug text-text ${expanded ? "" : "line-clamp-1"}`}>{name}</h2>
+
+                {/* Edit and delete at the top, left of the chevron: on desktop they
+                    appear on hover (or on keyboard focus); on a phone they are always
+                    visible. */}
+                <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                    <IconButton label={t('Edit')} onClick={handleEditMode}>
+                        <Pencil size={15} aria-hidden="true" />
+                    </IconButton>
+                    <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                        <Trash2 size={15} aria-hidden="true" />
+                    </IconButton>
                 </div>
-                <button
-                    type="button"
-                    onClick={handleExpanded}
-                    aria-label={expanded ? t('Collapse') : t('Expand')}
+
+                <IconButton
+                    label={expanded ? t('Collapse') : t('Expand')}
                     aria-expanded={expanded}
-                    className="bg-transparent border-0 p-0 cursor-pointer hover:scale-105 transition-transform duration-150"
+                    onClick={handleExpanded}
                 >
-                    <img
-                        className="w-[25px] md:w-[30px]"
-                        alt=""
-                        aria-hidden="true"
-                        src={expandendIcon}
-                    />
-                </button>
+                    {expanded ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+                </IconButton>
             </div>
 
-            <div className={`${expanded ? "line-clamp-none" : "line-clamp-2"} leading-tight text-description`}>
-                <p>{description}</p>
-            </div>
+            {/* The description sits on the card in two lines — expanding only releases the clamp. */}
+            <p className={`text-sm leading-snug text-text-2 ${expanded ? "" : "line-clamp-2"}`}>{description}</p>
 
-            <div className={`${expanded ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-lg">{t('Categories')}:</h4>
-                <div className="flex flex-col">
+            {categories.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
                     {categories.map((category, index) => (
-                    <CategoryNameAndIcon key={index}
-                    name={category.name} iconId={category.iconId}/>
+                        <Chip key={`${category.id}-${index}`} size="sm" icon={<BeyouIcon id={category.iconId} size={12} />}>
+                            {category.name}
+                        </Chip>
                     ))}
                 </div>
-            </div>
+            )}
 
-            <div className={`${expanded && Object.values(routines)?.length > 0 ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-lg">{t('UsingIn')}:</h4>
-                <ul className="ml-6 text-description">
-                    {Object.values(routines).map((name) => (
-                         <li className="list-disc">{name}</li>
-                    ))}
-                </ul>
-            </div>
-
-            <div className={`${expanded && motivationalPhrase ? "flex flex-col" : "hidden"}`}>
-                <h4 className="font-semibold text-md">{t('MotivationPhrase')}:</h4>
-                <p className="text-description">{motivationalPhrase}</p>
-            </div>
-
-            <div className={`${expanded ? "flex" : "hidden"} justify-evenly items-center`}>
-                <div className="flex flex-col items-center mr-4">
-                    <img className="w-[45px]"
-                    alt={t('constanceFireIconAlt')}
-                    src={fireIcon} />
-                    <div className="flex font-medium">
-                        <p>{constance}</p>
-                        <p className="ml-2">{t('Days')}</p>
-                    </div>
-                </div>
-                <div className="flex flex-col justify-center">
-                    <div className="flex items-center">
-                        <div className={`w-[35px] h-[35px] rounded-full mr-1`} style={{backgroundColor: `${dificultyColor}` }}></div>
-                        <p>{dificultyPhrase}</p>
-                    </div>
-                    <div className="flex items-center">
-                        <div className={`w-[35px] h-[35px] rounded-full mr-1 my-1`} style={{backgroundColor: `${importanceColor}` }}></div>
-                        <p>{importancePhrase}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className={`${expanded ? "flex" : "hidden"} flex-col mb-1`}>
-                <div className="flex justify-between">
-                    <p>Level {level}</p>
-                    <p><span className="text-primary">{xp}</span>/{nextLevelXp}</p>
-                </div>
-                <div className="flex w-[100%]">
-                    <div className="border border-primary bg-primary h-[15px] rounded-l-xl"
-                    style={{width: `${actualProgress}%`}}></div>
-                    <div className="border border-primary/40 bg-description/20 h-[15px] rounded-r-xl"
-                    style={{width: `${100 - actualProgress}%`}}></div>
-                </div>
-            </div>
-
-            <div className={`${expanded ? "hidden" : "flex"} items-center justify-between`}>
+            {expanded && routineNames.length > 0 && (
                 <div>
-                    <div className="flex">
-                        <p>{t('Level')}</p>
-                        <p className="ml-2 font-semibold">{level}</p>
-                    </div>
-
-                    <div>
-                        <p><span className="text-primary">{xp}</span>/{nextLevelXp}xp</p>
+                    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-3">{t('UsingIn')}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                        {routineNames.map((routineName) => (
+                            <Chip key={routineName} size="sm">{routineName}</Chip>
+                        ))}
                     </div>
                 </div>
+            )}
 
-                <div className="flex flex-col items-center mr-2">
-                    <img className="w-[35px]"
-                    alt={t('constanceFireIconAlt')}
-                    src={fireIcon} />
-                    <div className="flex font-medium">
-                        <p>{constance}</p>
-                        <p className="ml-2">{t('Days')}</p>
-                    </div>
+            {expanded && motivationalPhrase && (
+                <div className="rounded-control border-l-2 border-accent bg-surface-2 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-text-3">{t('MotivationPhrase')}</p>
+                    <p className="mt-0.5 text-sm italic text-text-2">{motivationalPhrase}</p>
                 </div>
+            )}
 
-                 
+            {expanded && (importancePhrase || dificultyPhrase) && (
+                <div className="flex flex-wrap gap-1.5">
+                    {importancePhrase && (
+                        <Chip size="sm" variant={attributeVariant(importance)}>
+                            {/* The label rides along: "Medium" alone does not say
+                                importance or difficulty. */}
+                            <span className="font-normal opacity-70">{t('Importance')}</span>
+                            <span aria-hidden="true" className="opacity-50">·</span>
+                            {importancePhrase}
+                        </Chip>
+                    )}
+                    {dificultyPhrase && (
+                        <Chip size="sm" variant={attributeVariant(dificulty)}>
+                            <span className="font-normal opacity-70">{t('Difficulty')}</span>
+                            <span aria-hidden="true" className="opacity-50">·</span>
+                            {dificultyPhrase}
+                        </Chip>
+                    )}
+                </div>
+            )}
+
+            {expanded && (
+                <div className="grid grid-cols-2 gap-2">
+                    <StatTile label={t('Level')} value={level} hint={`${xp}/${nextLevelXp} XP`} />
+                    <StatTile label={t('Constance')} value={constance} hint={t('Days')} />
+                </div>
+            )}
+
+            {/* The row you read at a glance: level, XP and streak. */}
+            <div className="mt-auto flex items-end gap-3 pt-1">
+                <XpBar className="min-w-0 flex-1" current={xp} target={nextLevelXp} level={level} />
+                {/* With no streak there is nothing to celebrate: a dim flame with a
+                    zero beside it reads as failure, not as a neutral state. */}
+                {constance > 0 && (
+                    <Chip
+                        variant="flame"
+                        size="sm"
+                        className="font-mono"
+                        icon={<Flame size={12} aria-hidden="true" />}
+                        title={t('Constance')}
+                    >
+                        {constance}
+                    </Chip>
+                )}
             </div>
-            <div className={`${expanded ? "flex flex-col my-2" : "hidden"} items-center justify-center`}>
-                <button
-                onClick={handleEditMode}
-                className="bg-primary mb-2 hover:bg-primary/90 text-white font-semibold w-[110px] h-[32px] rounded-md transition-colors duration-200">
-                    {t('Edit')}
-                </button>
-                <button
-                onClick={() => setOnDelete(true)}
-                className="bg-error hover:bg-error/90 text-white font-semibold w-[110px] h-[32px] rounded-md transition-colors duration-200">
-                    {t('Delete')}
-                </button>
-                <DeleteModal
-                objectId={id}
-                onDelete={onDelete}
-                setOnDelete={setOnDelete}
-                t={t}
-                name={name}
-                setObjects={setHabits}
-                deleteObject={deleteHabit}
-                getObjects={getHabits}
-                deletePhrase={t('ConfirmDeleteOfHabitPhrase')}
-                mode="habit"
-                />
-                </div>
-           
-        </div>
+
+            <DeleteModal
+            objectId={id}
+            onDelete={onDelete}
+            setOnDelete={setOnDelete}
+            t={t}
+            name={name}
+            setObjects={setHabits}
+            deleteObject={deleteHabit}
+            getObjects={getHabits}
+            deletePhrase={t('ConfirmDeleteOfHabitPhrase')}
+            mode="habit"
+            />
+        </Card>
     )
 }
 

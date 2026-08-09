@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { EditUser } from "@beyou/types/user/EditUser";
 import editUser from "@beyou/api/user/editUser";
 import { nameEnter, phraseAuthorEnter, phraseEnter } from "@beyou/state/user/perfilSlice";
-import SmallButton from "../SmallButton";
+import Button from "../Button";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { Controller, useForm } from "react-hook-form";
@@ -64,9 +64,12 @@ export default function ProfileConfiguration() {
         });
     }, [name, phrase, phrase_author, reset]);
 
-    const labelStyle = "mb-1 font-medium text-lg self-start text-secondary";
+    // Same field grammar as the other screens: small label in text-2 and a
+    // 13.5px input. Here the label was 18px, shouting louder than the section's
+    // title.
+    const labelStyle = "mb-1.5 block self-start text-[12.5px] font-semibold text-text-2";
     const inputStyle =
-        "border border-primary rounded-md pl-2 outline-none w-full mb-2 bg-background text-secondary placeholder:text-placeholder transition-colors duration-200";
+        "w-full rounded-control border border-border bg-surface px-3 py-[9.5px] text-[13.5px] text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:border-accent focus:ring-[3px] focus:ring-accent-soft";
 
     const resetErrorAndSuccessMessage = () => {
         setErrorMessage("");
@@ -113,105 +116,125 @@ export default function ProfileConfiguration() {
     const currentPhoto = resolvePhotoUrl(photo);
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-2 md:p-4 bg-background text-secondary transition-colors duration-200 rounded-lg shadow-sm">
-            <form className="w-full flex items-center" onSubmit={handleSubmit(onSubmit)}>
-                <div
-                    className="w-[30%] lg:w-[25%] flex flex-col items-center mb-10 pr-2 md:pr-0"
-                    onClick={() => setEditPhotoModal(true)}
-                >
+        // No card of its own: the page section draws the frame. The photo and the
+        // button sit on one row at the top and the fields take the full width —
+        // before this the photo stole 30% and squeezed every input.
+        <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex items-center gap-3.5">
+                {/* This avatar belongs to desktop: on phones it already shows in the
+                    box's header, next to the name and the level. */}
+                {/* With no photo the `alt` leaked out of the circle; the fallback is
+                    the initial, as in the sidebar's footer. */}
+                {currentPhoto ? (
                     <img
                         src={currentPhoto}
                         alt={t("Profile")}
-                        className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-primary shadow-lg"
+                        className="hidden h-16 w-16 shrink-0 rounded-full border border-border object-cover lg:block"
                     />
+                ) : (
+                    <span className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xl font-semibold text-accent lg:flex">
+                        {(name || "?").charAt(0).toUpperCase()}
+                    </span>
+                )}
 
-                    <label className="font-medium text-center text-primary flex items-center gap-1 cursor-pointer underline">
-                        Change Photo <MdCreate />
-                    </label>
-                </div>
-
-                <div className="w-[80%] lg:w-[75%] flex flex-col items-end">
-                    <label className={labelStyle} htmlFor="name">
-                        {t("Name")}
-                    </label>
-                    <Controller
-                        control={control}
-                        name="name"
-                        render={({ field }) => (
-                            <input
-                                type="text"
-                                placeholder={t("NamePlaceholder")}
-                                value={field.value}
-                                onChange={field.onChange}
-                                id="name"
-                                className={inputStyle}
-                            />
-                        )}
-                    />
-                    {errors.name?.message && (
-                        <p className="text-xs text-error self-start mb-2">{errors.name?.message}</p>
-                    )}
-
-                    <label className={labelStyle} htmlFor="email">
-                        {t("Email")}
-                    </label>
-                    <input
-                        type="email"
-                        placeholder={t("EmailPlaceholder")}
-                        value={email}
-                        disabled
-                        onChange={() => {}}
-                        id="email"
-                        className={`${inputStyle} text-description cursor-not-allowed`}
-                    />
-
-                    <label className={labelStyle} htmlFor="phrase">
-                        {t("Phrase")}
-                    </label>
-                    <Controller
-                        control={control}
-                        name="phrase"
-                        render={({ field }) => (
-                            <textarea
-                                placeholder={t("PhrasePlaceholder")}
-                                id="phrase"
-                                value={field.value}
-                                onChange={field.onChange}
-                                className={inputStyle}
-                            />
-                        )}
-                    />
-                    {errors.phrase?.message && (
-                        <p className="text-xs text-error self-start mb-2">{errors.phrase?.message}</p>
-                    )}
-
-                    <label className={labelStyle} htmlFor="author">
-                        {t("Author")}
-                    </label>
-                    <Controller
-                        control={control}
-                        name="phrase_author"
-                        render={({ field }) => (
-                            <input
-                                type="text"
-                                placeholder={t("AuthorPlaceholder")}
-                                id="author"
-                                value={field.value}
-                                onChange={field.onChange}
-                                className={inputStyle}
-                            />
-                        )}
-                    />
-                    {errors.phrase_author?.message && (
-                        <p className="text-xs text-error self-start mb-2">{errors.phrase_author?.message}</p>
-                    )}
-                </div>
-            </form>
-            <div className="flex flex-col items-center justify-center w-full pt-2">
-                <SmallButton text={t("Save")} disabled={hasErrors} onClick={handleSubmit(onSubmit)} />
-                <p className="text-success">{successPhrase}</p>
-                {errorMessage && <p className="text-error text-xs">{errorMessage}</p>}
+                <button
+                    type="button"
+                    onClick={() => setEditPhotoModal(true)}
+                    className="flex items-center gap-1.5 rounded-control bg-accent-soft px-3.5 py-2 text-[12.5px] font-semibold text-accent transition-colors duration-200 hover:bg-accent/15"
+                >
+                    {t("ChangePhotoShort")} <MdCreate aria-hidden="true" />
+                </button>
             </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="name">{t("Name")}</label>
+                <Controller
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            placeholder={t("NamePlaceholder")}
+                            value={field.value}
+                            onChange={field.onChange}
+                            id="name"
+                            className={inputStyle}
+                        />
+                    )}
+                />
+                {errors.name?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.name?.message}</p>
+                )}
+            </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="email">{t("Email")}</label>
+                <input
+                    type="email"
+                    placeholder={t("EmailPlaceholder")}
+                    value={email}
+                    disabled
+                    onChange={() => {}}
+                    id="email"
+                    className={`${inputStyle} cursor-not-allowed text-text-3`}
+                />
+            </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="phrase">{t("Phrase")}</label>
+                <Controller
+                    control={control}
+                    name="phrase"
+                    render={({ field }) => (
+                        <textarea
+                            placeholder={t("PhrasePlaceholder")}
+                            id="phrase"
+                            rows={2}
+                            value={field.value}
+                            onChange={field.onChange}
+                            className={`${inputStyle} resize-none`}
+                        />
+                    )}
+                />
+                {errors.phrase?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.phrase?.message}</p>
+                )}
+            </div>
+
+            <div className="mt-4">
+                <label className={labelStyle} htmlFor="author">{t("Author")}</label>
+                <Controller
+                    control={control}
+                    name="phrase_author"
+                    render={({ field }) => (
+                        <input
+                            type="text"
+                            placeholder={t("AuthorPlaceholder")}
+                            id="author"
+                            value={field.value}
+                            onChange={field.onChange}
+                            className={inputStyle}
+                        />
+                    )}
+                />
+                {errors.phrase_author?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.phrase_author?.message}</p>
+                )}
+            </div>
+
+            {successPhrase && <p className="mt-2 text-xs text-success">{successPhrase}</p>}
+            {errorMessage && <p className="mt-2 text-xs text-danger">{errorMessage}</p>}
+
+            <div className="mt-[18px] flex justify-end">
+                <Button
+                    text={t("SaveProfile")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    disabled={hasErrors}
+                />
+            </div>
+
             {editPhotoModal && (
                 <EditPhoto
                     currentPhotoUrl={currentPhoto}
@@ -223,7 +246,7 @@ export default function ProfileConfiguration() {
                     onClose={() => setEditPhotoModal(false)}
                 />
             )}
-        </div>
+        </form>
     );
 }
 
@@ -306,17 +329,23 @@ function EditPhoto({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-background rounded-2xl p-6 w-[90%] max-w-md shadow-2xl">
-                <h3 className="text-lg font-semibold text-secondary mb-4">{t('ChangePhoto')}</h3>
+            <div className="bg-surface rounded-card p-6 w-[90%] max-w-md shadow-2xl">
+                <h3 className="text-lg font-semibold text-text mb-4">{t('ChangePhoto')}</h3>
 
                 <div className="flex flex-col items-center gap-4">
+                    {/* Runs the scheme whitelist at the SINK itself, not only at
+                        the source: the value arrives as a prop and the analyser —
+                        fairly — cannot see the sanitising behind it.
+                        `resolvePhotoUrl` is idempotent (https:, blob: and
+                        data:image/ pass through), so this changes no behaviour;
+                        it just puts the defence where it matters. */}
                     <img
-                        src={previewUrl}
+                        src={resolvePhotoUrl(previewUrl)}
                         alt={t('PhotoPreview')}
                         onError={(e) => {
                             e.currentTarget.src = 'https://placehold.co/128x128/ccc/333?text=No+Image';
                         }}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-primary shadow-lg"
+                        className="w-32 h-32 rounded-full object-cover border-4 border-border shadow-lg"
                     />
 
                     <input
@@ -330,13 +359,13 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
+                        className="px-4 py-2 bg-accent text-on-accent rounded-control hover:opacity-90 transition"
                     >
                         {t('ChooseFile')}
                     </button>
 
                     {error && (
-                        <p className="text-error text-sm text-center">{error}</p>
+                        <p className="text-danger text-sm text-center">{error}</p>
                     )}
                 </div>
 
@@ -344,7 +373,7 @@ function EditPhoto({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-secondary hover:bg-surface rounded-lg transition"
+                        className="px-4 py-2 text-text hover:bg-surface rounded-control transition"
                     >
                         {t('Cancel')}
                     </button>
@@ -352,7 +381,7 @@ function EditPhoto({
                         type="button"
                         onClick={handleUpload}
                         disabled={uploading || !selectedFile}
-                        className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
+                        className="px-4 py-2 bg-accent text-on-accent rounded-control hover:opacity-90 transition disabled:opacity-50"
                     >
                         {uploading ? t('PhotoUploading') : t('Save')}
                     </button>

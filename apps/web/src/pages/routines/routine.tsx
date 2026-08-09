@@ -1,6 +1,4 @@
 import { useTranslation } from "react-i18next";
-import Header from "../../components/header";
-import AddRoutineButton from "../../components/routines/addRoutineButton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
 import getHabits from "@beyou/api/habits/getHabits";
@@ -14,15 +12,12 @@ import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import RenderRoutines from "../../components/routines/renderRoutines";
 import { RootState } from "@beyou/state/rootReducer";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
-import { CgAddR } from "react-icons/cg";
 import { RoutineSummary } from "../../components/routines/RoutineSummary";
-import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
 import {
     compareNumbers,
     compareStrings,
     sortItems
 } from "../../components/utils/sortHelpers";
-import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useRoutinesTutorial } from "../../components/tutorial/hooks/useRoutinesTutorial";
@@ -34,6 +29,10 @@ import {
     setSnapshotLoading,
 } from "@beyou/state/routine/snapshotSlice";
 
+import { editModeEnter } from "@beyou/state/routine/editRoutineSlice";
+import Modal from "../../components/modals/Modal";
+import Button from "../../components/Button";
+import { FiPlus, FiX } from "react-icons/fi";
 const Routine = () => {
     useAuthGuard();
     const { t } = useTranslation();
@@ -60,16 +59,6 @@ const Routine = () => {
         routine.schedule?.days?.includes(todayName)
     );
 
-    const sortOptions: SortOption[] = [
-        { value: "default", label: t("Default order") },
-        { value: "name-asc", label: t("Name (A-Z)") },
-        { value: "name-desc", label: t("Name (Z-A)") },
-        { value: "level-desc", label: t("Level (High to Low)") },
-        { value: "level-asc", label: t("Level (Low to High)") },
-        { value: "xp-desc", label: t("XP (High to Low)") },
-        { value: "xp-asc", label: t("XP (Low to High)") }
-    ];
-
     const sortedRoutines = useMemo(() => {
         switch (sortBy) {
             case "name-asc":
@@ -88,10 +77,6 @@ const Routine = () => {
                 return routines;
         }
     }, [routines, sortBy]);
-
-    const handleSortChange = (value: string) => {
-        dispatch(setViewSort({ view: "routines", sortBy: value }));
-    };
 
     const handleDateChange = useCallback(async (newDate: string) => {
         setSelectedDateLocal(newDate);
@@ -157,7 +142,7 @@ const Routine = () => {
     });
 
     return (
-        <div className="bg-background text-secondary min-h-screen pb-4">
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 pb-4 text-text lg:px-7">
             {showRoutineSpotlight && (
                 <SpotlightTutorial
                     steps={routineSteps}
@@ -168,74 +153,89 @@ const Routine = () => {
                     onSkip={onSkip}
                 />
             )}
-            <Header pageName="Your Routines" />
-            <main className="flex flex-col gap-6 min-h-[80vh] mt-4 mx-2 md:mx-4">
+            <main className="mt-1 flex min-h-[80vh] flex-col gap-5">
                 <RoutineSummary
                     routines={routines}
                     selectedDate={selectedDateLocal}
                     onDateChange={handleDateChange}
+                    action={
+                        !isSnapshotMode && !onCreateRoutine ? (
+                            <Button
+                                text={t("Create routine")}
+                                mode="primary"
+                                size="medium"
+                                icon={<FiPlus aria-hidden="true" />}
+                                onClick={() => setOnCreateRoutine(true)}
+                                testId="create-routine"
+                                tutorialId="routine-add-button"
+                                collapseLabel
+                            />
+                        ) : undefined
+                    }
                 />
 
-                <div className="flex flex-col lg:flex-row items-center lg:items-start justify-start lg:justify-between gap-6">
-                    <div className="w-full lg:w-[50%]">
-                        {!isSnapshotMode && (
-                            <SortFilterBar
-                                title={t("Routines list")}
-                                description={t("Sort results")}
-                                options={sortOptions}
-                                value={sortBy}
-                                onChange={handleSortChange}
-                                quickValues={["name-asc", "level-desc", "xp-desc"]}
-                                className="mb-4"
-                            />
-                        )}
-                        {snapshotLoading ? (
-                            <div className="flex items-center justify-center py-16">
-                                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                            </div>
-                        ) : (
-                            <RenderRoutines
-                                selectedDate={selectedDateLocal}
-                                routines={sortedRoutines}
-                                onScheduleModalChange={setIsScheduleModalOpen}
-                            />
-                        )}
+                {snapshotLoading ? (
+                    <div className="flex items-center justify-center py-16">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                     </div>
+                ) : (
+                    <RenderRoutines
+                        selectedDate={selectedDateLocal}
+                        routines={sortedRoutines}
+                        onScheduleModalChange={setIsScheduleModalOpen}
+                        onCreateRoutine={isSnapshotMode ? undefined : () => setOnCreateRoutine(true)}
+                    />
+                )}
 
-                    {!isSnapshotMode && (
-                        <div className="w-full flex lg:w-[50%] lg:flex flex-col items-center justify-center">
-                            {editMode === false ? (
-                                <>
-                                    <AddRoutineButton
-                                        setOnCreateRoutine={setOnCreateRoutine}
-                                        setRoutineType={setRoutineType}
-                                    />
-
-                                    {onCreateRoutine && (
-                                        <div className='flex items-center mt-6'>
-                                            <CgAddR className='w-[30px] h-[30px] mr-1' />
-                                            <h1 className='text-3xl font-semibold text-secondary'>{t("Create routine")}</h1>
-                                        </div>
-                                    )}
-
-                                    {onCreateRoutine && (
-                                        <div className="mt-4 w-full">
-                                            <CreateRoutine
-                                                setRoutineType={setRoutineType}
-                                                onDailySectionChange={setHasDailySection}
-                                                onSectionModalChange={setIsSectionModalOpen}
-                                                routineType={routineType} />
-                                        </div>
-                                    )}
-                                </>
+                {/* Create and edit happen in a modal: the list keeps the full width
+                    instead of splitting the screen with a form that is only used now
+                    and then. */}
+                {!isSnapshotMode && (onCreateRoutine || editMode) && (
+                    <Modal
+                        isOpen
+                        onClose={() => {
+                            setOnCreateRoutine(false);
+                            dispatch(editModeEnter(false));
+                        }}
+                        labelledBy="routine-form-title"
+                        dataTutorialId="routine-create-area"
+                        className="max-w-3xl"
+                    >
+                        <div className="flex items-center gap-3">
+                            <h2
+                                id="routine-form-title"
+                                className="text-base font-semibold tracking-[-0.01em] text-text"
+                            >
+                                {editMode ? t("Edit routine") : t("Create routine")}
+                            </h2>
+                            <button
+                                type="button"
+                                aria-label={t("Close")}
+                                className="ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                                onClick={() => {
+                                    setOnCreateRoutine(false);
+                                    dispatch(editModeEnter(false));
+                                }}
+                            >
+                                <FiX />
+                            </button>
+                        </div>
+                        <div className="mt-3.5">
+                            {editMode ? (
+                                <EditDailyRoutine />
                             ) : (
-                                <>
-                                    <EditDailyRoutine />
-                                </>
+                                <CreateRoutine
+                                    setRoutineType={setRoutineType}
+                                    onDailySectionChange={setHasDailySection}
+                                    onSectionModalChange={setIsSectionModalOpen}
+                                    routineType={routineType}
+                                    onCancel={() => setOnCreateRoutine(false)}
+                                    onCreated={() => setOnCreateRoutine(false)}
+                                />
                             )}
                         </div>
-                    )}
-                </div>
+                    </Modal>
+                )}
             </main>
         </div>
     );

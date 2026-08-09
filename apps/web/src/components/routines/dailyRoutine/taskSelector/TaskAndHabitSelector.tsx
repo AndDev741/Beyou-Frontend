@@ -1,14 +1,18 @@
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { FiSearch, FiX, FiPlus } from "react-icons/fi";
 import { RootState } from "@beyou/state/rootReducer";
-import HabitOrTaskGroup from "./HabitOrTaskGroup";
-import { useDragScroll } from "../../../../hooks/useDragScroll";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
-import { useState } from "react";
-import { getItemTimeErrorKeys, getSectionErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "@beyou/validation/routineValidation";
-import { toast } from "react-toastify";
+import { getSectionErrorKeys } from "@beyou/validation/routineValidation";
+import { suggestSlots } from "@beyou/state";
+import BeyouIcon from "../../../../ui/BeyouIcon";
+import Ring from "../../../../ui/Ring";
+import Button from "../../../Button";
+import SegmentedControl from "../../../../ui/SegmentedControl";
 import QuickCreateHabitModal from "./QuickCreateHabitModal";
 import QuickCreateTaskModal from "./QuickCreateTaskModal";
+
 interface TaskSelectorProps {
     setRoutineSection?: React.Dispatch<React.SetStateAction<RoutineSection[]>>;
     index: number;
@@ -16,221 +20,354 @@ interface TaskSelectorProps {
     setOpenTaskSelector?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+type Kind = "habit" | "task";
+
+type Candidate = {
+    id: string;
+    name: string;
+    iconId: string;
+    /** Category shown on the right of the row. */
+    category: string;
+    alreadyIn: boolean;
+};
+
+
+/** A tray row: the picked item, with its time still editable. */
+type TrayItem = {
+    kind: Kind;
+    refId: string;
+    /** Group id, when the row was already in the section. */
+    groupId?: string;
+    startTime: string;
+    endTime: string;
+};
+
+const toGroups = (tray: TrayItem[]) => ({
+    habitGroup: tray
+        .filter((item) => item.kind === "habit")
+        .map(({ groupId, refId, startTime, endTime }) => ({
+            ...(groupId ? { id: groupId } : {}),
+            habitId: refId,
+            startTime,
+            endTime,
+        })),
+    taskGroup: tray
+        .filter((item) => item.kind === "task")
+        .map(({ groupId, refId, startTime, endTime }) => ({
+            ...(groupId ? { id: groupId } : {}),
+            taskId: refId,
+            startTime,
+            endTime,
+        })),
+});
+
+/**
+ * Picking items for the section: a click sends the item to the TRAY with a time
+ * suggested inside the section's window, and there the time can still be tuned.
+ * The tray only becomes the section on confirm.
+ *
+ * It used to be tick-everything-and-add-blind: the times appeared afterwards, in
+ * the section list, and fixing one meant another trip. Same model as native.
+ */
 const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSelector }: TaskSelectorProps) => {
     const { t } = useTranslation();
     const habits = useSelector((state: RootState) => state.habits.habits);
     const tasks = useSelector((state: RootState) => state.tasks.tasks);
-    const [startTime, setStartTime] = useState<string>("");
-    const [endTime, setEndTime] = useState<string>("");
+
+    const [kind, setKind] = useState<Kind>("habit");
+    const [search, setSearch] = useState("");
+    // The tray opens with what the section already holds, so an old item's time
+    // can be fixed in the same pass.
+    const [tray, setTray] = useState<TrayItem[]>(() => [
+        ...(section.habitGroup ?? []).map((group) => ({
+            kind: "habit" as Kind,
+            refId: group.habitId,
+            groupId: group.id,
+            startTime: group.startTime ?? "",
+            endTime: group.endTime ?? "",
+        })),
+        ...(section.taskGroup ?? []).map((group) => ({
+            kind: "task" as Kind,
+            refId: group.taskId,
+            groupId: group.id,
+            startTime: group.startTime ?? "",
+            endTime: group.endTime ?? "",
+        })),
+    ]);
     const [showQuickHabit, setShowQuickHabit] = useState(false);
     const [showQuickTask, setShowQuickTask] = useState(false);
 
-    const isOvernight = isOvernightRange(section.startTime, section.endTime);
-
-    const toMinutes = (time: string) => {
-        const [hours, minutes] = time.split(":").map(Number);
-        return hours * 60 + minutes;
-    };
-
-    const fromMinutes = (minutes: number) => {
-        const total = (minutes + 1440) % 1440;
-        const hours = Math.floor(total / 60);
-        const mins = total % 60;
-        return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-    };
-
-    const addMinutes = (time: string, delta: number) => fromMinutes(toMinutes(time) + delta);
-
-    const minStart = !isOvernight && section.startTime ? addMinutes(section.startTime, -ITEM_TIME_TOLERANCE_MINUTES) : undefined;
-    const maxEnd = !isOvernight && section.endTime ? addMinutes(section.endTime, ITEM_TIME_TOLERANCE_MINUTES) : undefined;
-
-    const habitScroll = useDragScroll();
-    const taskScroll = useDragScroll();
-
+    // The section needs a name and a start time before it can take an item —
+    // without them there is no window to fit a suggested time into.
     const sectionErrors = getSectionErrorKeys(section.name, section.startTime);
-    const itemTimeErrors = getItemTimeErrorKeys(section.startTime, section.endTime, startTime, endTime);
-    const blockingErrors = [...sectionErrors, ...itemTimeErrors];
-    const errorMessage = blockingErrors.length > 0 ? t(blockingErrors[0]) : "";
-    const isAddBlocked = blockingErrors.length > 0;
+    const errorMessage = sectionErrors.length > 0 ? t(sectionErrors[0]) : "";
 
-    const addHabitToSection = (habitId: string) => {
-        if (!setRoutineSection) return;
-        setRoutineSection((prev) =>
-            prev.map((sectionItem, idx) =>
-                idx === index
-                    ? {
-                          ...sectionItem,
-                          habitGroup: [
-                              ...(sectionItem.habitGroup || []),
-                              { habitId, startTime, endTime: endTime || undefined }
-                          ]
-                      }
-                    : sectionItem
-            )
+    const close = () => setOpenTaskSelector?.(false);
+
+    const nameOf = (item: TrayItem) =>
+        item.kind === "habit"
+            ? habits.find((habit) => habit.id === item.refId)?.name ?? ""
+            : tasks.find((task) => task.id === item.refId)?.name ?? "";
+
+    const iconOf = (item: TrayItem) =>
+        item.kind === "habit"
+            ? habits.find((habit) => habit.id === item.refId)?.iconId ?? ""
+            : tasks.find((task) => task.id === item.refId)?.iconId ?? "";
+
+    const candidates = useMemo<Candidate[]>(() => {
+        const query = search.trim().toLowerCase();
+        const inTray = (id: string, itemKind: Kind) =>
+            tray.some((item) => item.kind === itemKind && item.refId === id);
+        const list: Candidate[] =
+            kind === "habit"
+                ? habits.map((habit) => ({
+                      id: habit.id,
+                      name: habit.name,
+                      iconId: habit.iconId,
+                      category: habit.categories?.[0]?.name ?? "",
+                      alreadyIn: inTray(habit.id, "habit"),
+                  }))
+                : tasks.map((task) => ({
+                      id: task.id,
+                      name: task.name,
+                      iconId: task.iconId,
+                      category: Object.values(task.categories ?? {})[0]?.name ?? "",
+                      alreadyIn: inTray(task.id, "task"),
+                  }));
+
+        return query ? list.filter((item) => item.name.toLowerCase().includes(query)) : list;
+    }, [habits, tasks, kind, search, tray]);
+
+    /** Sends the item to the tray with whatever is left of the section window. */
+    const pick = (id: string, itemKind: Kind) => {
+        setTray((prev) => {
+            if (prev.some((item) => item.kind === itemKind && item.refId === id)) return prev;
+            const slot = suggestSlots({ ...section, ...toGroups(prev) }, 1)[0];
+            return [
+                ...prev,
+                {
+                    kind: itemKind,
+                    refId: id,
+                    startTime: slot?.startTime ?? "",
+                    endTime: slot?.endTime ?? "",
+                },
+            ];
+        });
+    };
+
+    const drop = (item: TrayItem) =>
+        setTray((prev) => prev.filter((row) => !(row.kind === item.kind && row.refId === item.refId)));
+
+    const setTime = (item: TrayItem, field: "startTime" | "endTime", value: string) =>
+        setTray((prev) =>
+            prev.map((row) =>
+                row.kind === item.kind && row.refId === item.refId ? { ...row, [field]: value } : row,
+            ),
         );
-        setOpenTaskSelector?.(false);
-    };
 
-    const addTaskToSection = (taskId: string) => {
+    const confirm = () => {
         if (!setRoutineSection) return;
+        const groups = toGroups(tray);
         setRoutineSection((prev) =>
-            prev.map((sectionItem, idx) =>
-                idx === index
-                    ? {
-                          ...sectionItem,
-                          taskGroup: [
-                              ...(sectionItem.taskGroup || []),
-                              { taskId, startTime, endTime: endTime || undefined }
-                          ]
-                      }
-                    : sectionItem
-            )
+            prev.map((sectionItem, idx) => (idx === index ? { ...sectionItem, ...groups } : sectionItem)),
         );
-        setOpenTaskSelector?.(false);
+        close();
     };
 
-    const handleQuickHabitCreated = (habitId?: string) => {
-        if (!habitId) return;
-        if (isAddBlocked) {
-            toast.info(t("SelectTimeToAdd"));
-            return;
-        }
-        addHabitToSection(habitId);
+    // Quick-create lands in the tray: creating from here means wanting it here.
+    const handleQuickCreated = (itemKind: Kind) => (id?: string) => {
+        if (!id) return;
+        pick(id, itemKind);
     };
 
-    const handleQuickTaskCreated = (taskId?: string) => {
-        if (!taskId) return;
-        if (isAddBlocked) {
-            toast.info(t("SelectTimeToAdd"));
-            return;
-        }
-        addTaskToSection(taskId);
-    };
+    const timeInputClass =
+        "w-full rounded-control border border-border bg-surface px-2.5 py-1.5 font-mono text-[12.5px] text-text outline-none focus:ring-2 focus:ring-accent/40";
 
     return (
-        <div className="flex flex-col items-center justify-start w-full md:max-w-full min-w-0 overflow-hidden border-2 border-primary rounded-lg p-2 mt-2 bg-background text-secondary shadow-sm transition-colors duration-200">
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 p-4" onClick={close}>
+            <div
+                className="flex max-h-[85vh] w-full max-w-md flex-col rounded-card border border-border bg-surface p-5 text-text shadow-surface"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="item-selector-title"
+                onClick={(event) => event.stopPropagation()}
+            >
+                <div className="flex items-center gap-3">
+                    <h2
+                        id="item-selector-title"
+                        className="min-w-0 truncate text-base font-semibold tracking-[-0.01em]"
+                    >
+                        {t("AddToSection", { name: section.name })}
+                    </h2>
+                    <button
+                        type="button"
+                        aria-label={t("Close")}
+                        onClick={close}
+                        className="ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                    >
+                        <FiX />
+                    </button>
+                </div>
 
-                <div className="w-full max-w-full min-w-0 flex flex-col items-start justify-evenly">
-                <div className="flex flex-col items-center justify-start w-full my-1 px-2">
-                    <h2 className="font-medium text-secondary">{t("Put the start and end time of this item")}</h2>
-                    <p className="text-sm text-center text-description">{t('Need to fit between the section time')}</p>
-                    <div className="flex flex-wrap items-center justify-center gap-3">
-                        <input
-                            type="time"
-                            className={`border-2 rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-primary"}`}
-                            min={minStart}
-                            max={maxEnd}
-                            value={startTime}
-                            onChange={(e) => {
-                                const newTime = e.target.value;
-                                setStartTime(newTime);
-                                if (!isOvernight && endTime && newTime && endTime < newTime) {
-                                    setEndTime(newTime);
-                                }
-                            }}
-                        />
-                        <input
-                            type="time"
-                            className={`border-2 rounded-lg p-1 mt-1 font-medium bg-background text-secondary transition-colors duration-200 color-scheme ${itemTimeErrors.length > 0 ? "border-error" : "border-primary"}`}
-                            min={!isOvernight ? startTime || minStart : undefined}
-                            max={maxEnd}
-                            value={endTime}
-                            onChange={(e) => {
-                                const newTime = e.target.value;
-                                setEndTime(newTime);
-                            }}
-                        />
-                    </div>
-                    {errorMessage && (
-                        <p className="text-error text-sm mt-1 text-center">{errorMessage}</p>
+                {/* The tray: what will enter the section, time within reach. */}
+                <div className="mt-3.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wide text-text-3">
+                        {t("Assigned")} ({tray.length})
+                    </span>
+                    {tray.length === 0 ? (
+                        <p className="mt-1.5 text-[12.5px] text-text-3">{t("NothingAssignedYet")}</p>
+                    ) : (
+                        <div className="mt-1.5 flex max-h-[30vh] flex-col gap-1.5 overflow-y-auto">
+                            {/* Name on top, times below — as on native. On a single
+                                row the name plus two time fields plus remove do not
+                                fit the modal's 448px, and the name was left with one
+                                letter. */}
+                            {tray.map((item) => (
+                                <div
+                                    key={`${item.kind}-${item.refId}`}
+                                    className="rounded-control border border-border bg-accent/5 px-2.5 py-2"
+                                    data-testid={`tray-${item.kind}-${item.refId}`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] bg-accent-soft text-[13px] text-accent">
+                                            <BeyouIcon id={iconOf(item)} />
+                                        </span>
+                                        <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-text">
+                                            {nameOf(item)}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            aria-label={`${t("Remove")} ${nameOf(item)}`}
+                                            onClick={() => drop(item)}
+                                            className="shrink-0 rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-danger/10 hover:text-danger"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    </div>
+
+                                    <div className="mt-2 grid grid-cols-2 gap-2">
+                                        <label className="flex flex-col gap-1">
+                                            <span className="text-[11px] font-semibold text-text-3">{t("Start")}</span>
+                                            <input
+                                                type="time"
+                                                aria-label={`${t("Start time")} ${nameOf(item)}`}
+                                                value={item.startTime}
+                                                onChange={(event) => setTime(item, "startTime", event.target.value)}
+                                                className={timeInputClass}
+                                            />
+                                        </label>
+                                        <label className="flex flex-col gap-1">
+                                            <span className="text-[11px] font-semibold text-text-3">{t("End")}</span>
+                                            <input
+                                                type="time"
+                                                aria-label={`${t("End time")} ${nameOf(item)}`}
+                                                value={item.endTime}
+                                                onChange={(event) => setTime(item, "endTime", event.target.value)}
+                                                className={timeInputClass}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
 
-                <div className="flex items-center justify-between w-full px-2 mt-1">
-                    <h3 className="text-lg font-semibold text-secondary">{t("Habits")}</h3>
+                <div className="relative mt-3">
+                    <FiSearch
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-3"
+                    />
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder={t("SearchHabitOrTask")}
+                        aria-label={t("SearchHabitOrTask")}
+                        className="w-full rounded-control border border-border bg-surface py-2.5 pl-9 pr-3 text-[13.5px] text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:ring-2 focus:ring-accent/40"
+                    />
+                </div>
+
+                <SegmentedControl
+                    className="mt-2.5 w-full"
+                    label={t("RoutineTypeLabel")}
+                    value={kind}
+                    onChange={setKind}
+                    options={[
+                        { value: "habit" as Kind, label: t("Habits") },
+                        { value: "task" as Kind, label: t("Tasks") },
+                    ]}
+                />
+
+                {errorMessage && <p className="mt-2.5 text-xs text-danger">{errorMessage}</p>}
+
+                <div className="-mx-1 mt-3 flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-1">
+                    {candidates.length === 0 ? (
+                        <p className="py-6 text-center text-[13px] text-text-3">
+                            {search ? t("IconNoResults") : t("No habits or task available, create one")}
+                        </p>
+                    ) : (
+                        candidates.map((item) => (
+                            <button
+                                key={item.id}
+                                type="button"
+                                role="checkbox"
+                                aria-checked={item.alreadyIn}
+                                disabled={item.alreadyIn || sectionErrors.length > 0}
+                                onClick={() => pick(item.id, kind)}
+                                className={`flex items-center gap-2.5 rounded-[9px] border border-border bg-surface px-2.5 py-[7px] text-left transition-colors duration-200 hover:border-text-3/60 disabled:cursor-not-allowed disabled:opacity-50`}
+                            >
+                                <Ring size={20} state={item.alreadyIn ? "done" : "todo"} />
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[7px] bg-accent-soft text-[13px] text-accent">
+                                    <BeyouIcon id={item.iconId} />
+                                </span>
+                                <span
+                                    className={`min-w-0 flex-1 truncate text-[12.5px] font-medium ${
+                                        item.alreadyIn ? "text-text" : "text-text-3"
+                                    }`}
+                                >
+                                    {item.name}
+                                </span>
+                                <span className="shrink-0 font-mono text-[11px] text-text-3">
+                                    {item.alreadyIn ? t("AlreadyInSection", { name: section.name }) : item.category}
+                                </span>
+                            </button>
+                        ))
+                    )}
+                </div>
+
+                <div className="mt-[18px] flex items-center justify-between gap-2">
                     <button
                         type="button"
-                        onClick={() => setShowQuickHabit(true)}
-                        className="text-primary font-semibold text-sm px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
+                        onClick={() => (kind === "habit" ? setShowQuickHabit(true) : setShowQuickTask(true))}
+                        className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-[12.5px] font-semibold text-text-2 transition-colors duration-200 hover:bg-surface-2 hover:text-text"
                     >
-                        + {t("NewHabit")}
+                        <FiPlus aria-hidden="true" />
+                        {kind === "habit" ? t("NewHabit") : t("NewTask")}
                     </button>
-                </div>
-
-                <div className="w-full max-w-full min-w-0 flex flex-nowrap overflow-x-auto items-start gap-2 justify-start"
-                    ref={habitScroll.ref}
-                    onMouseDown={habitScroll.onMouseDown}
-                    onMouseLeave={habitScroll.onMouseLeave}
-                    onMouseUp={habitScroll.onMouseUp}
-                    onMouseMove={habitScroll.onMouseMove}
-                    onTouchStart={habitScroll.onTouchStart}
-                    onTouchMove={habitScroll.onTouchMove}
-                >
-                    {habits.map((habit) => (
-                        <HabitOrTaskGroup
-                            habit={habit}
-                            key={habit.id}
-                            setRoutineSection={setRoutineSection!}
-                            index={index}
-                            setOpenTaskSelector={setOpenTaskSelector!}
-                            startTime={startTime}
-                            endTime={endTime}
-                            section={section}
-                            disabled={isAddBlocked}
+                    <div className="flex items-center gap-2">
+                        <Button text={t("Cancel")} mode="ghost" size="small" onClick={close} />
+                        <Button
+                            text={`${t("Add")}${tray.length > 0 ? ` ${tray.length}` : ""}`}
+                            mode="primary"
+                            size="small"
+                            onClick={confirm}
+                            disabled={sectionErrors.length > 0}
                         />
-                    ))}
+                    </div>
                 </div>
 
-                <div className="flex items-center justify-between w-full px-2 mt-3">
-                    <h3 className="text-lg font-semibold text-secondary">{t("Tasks")}</h3>
-                    <button
-                        type="button"
-                        onClick={() => setShowQuickTask(true)}
-                        className="text-primary font-semibold text-sm px-2 py-1 rounded-md hover:bg-primary/10 transition-colors duration-200"
-                    >
-                        + {t("NewTask")}
-                    </button>
-                </div>
-
-                <div className="w-full max-w-full min-w-0 flex flex-nowrap overflow-x-auto items-start gap-2 justify-start"
-                    ref={taskScroll.ref}
-                    onMouseDown={taskScroll.onMouseDown}
-                    onMouseLeave={taskScroll.onMouseLeave}
-                    onMouseUp={taskScroll.onMouseUp}
-                    onMouseMove={taskScroll.onMouseMove}
-                    onTouchStart={taskScroll.onTouchStart}
-                    onTouchMove={taskScroll.onTouchMove}
-                >
-                    {tasks.map((task) => (
-                        <HabitOrTaskGroup
-                            task={task}
-                            key={task.id}
-                            setRoutineSection={setRoutineSection!}
-                            index={index}
-                            setOpenTaskSelector={setOpenTaskSelector!}
-                            startTime={startTime}
-                            endTime={endTime}
-                            section={section}
-                            disabled={isAddBlocked}
-                        />
-                    ))}
-                </div>
-
-                {habits.length === 0 && tasks.length === 0 && (
-                    <span className="text-description">{t("No habits or task available, create one")}</span>
-                )}
-
+                <QuickCreateHabitModal
+                    isOpen={showQuickHabit}
+                    onClose={() => setShowQuickHabit(false)}
+                    onCreated={handleQuickCreated("habit")}
+                />
+                <QuickCreateTaskModal
+                    isOpen={showQuickTask}
+                    onClose={() => setShowQuickTask(false)}
+                    onCreated={handleQuickCreated("task")}
+                />
             </div>
-            <QuickCreateHabitModal
-                isOpen={showQuickHabit}
-                onClose={() => setShowQuickHabit(false)}
-                onCreated={handleQuickHabitCreated}
-            />
-            <QuickCreateTaskModal
-                isOpen={showQuickTask}
-                onClose={() => setShowQuickTask(false)}
-                onCreated={handleQuickTaskCreated}
-            />
         </div>
     );
 };

@@ -14,7 +14,7 @@ vi.mock("@beyou/api/categories/getCategories", () => ({
 test("shows required errors for create category", async () => {
     renderWithProviders(<CategoryForm mode="create" dispatchFunction={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save category" }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();

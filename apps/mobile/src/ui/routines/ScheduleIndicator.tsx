@@ -14,10 +14,10 @@ export const DAYS = [
 export default function ScheduleIndicator({ days }: { days?: string[] }) {
   const { t } = useTranslation();
   if (!days || days.length === 0) {
-    return <Text className="text-description text-sm">{t('No schedule set')}</Text>;
+    return <Text className="text-text-2 text-sm">{t('No schedule set')}</Text>;
   }
   const label = DAYS.filter((d) => days.includes(d.wire))
     .map((d) => t(d.key))
     .join(' · ');
-  return <Text className="text-secondary text-sm font-semibold">{label}</Text>;
+  return <Text className="text-text text-sm font-semibold">{label}</Text>;
 }

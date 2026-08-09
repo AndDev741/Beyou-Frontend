@@ -24,7 +24,6 @@ import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import Input from '../Input';
 
-const ON_PRIMARY = '#FFFFFF';
 
 type ItemKind = 'habits' | 'tasks';
 
@@ -229,22 +228,22 @@ export default function RoutineStep({
     <View className="w-full gap-6">
       {/* Header: title, routine name and the "you can edit this" hint */}
       <View className="items-center gap-3 px-2">
-        <Text className="text-secondary text-center text-2xl font-bold">
+        <Text className="text-text text-center text-2xl font-bold">
           {t('AiOnboardingRoutineTitle')}
         </Text>
         <View className="flex-row items-center gap-2">
-          <View className="h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+          <View className="h-8 w-8 items-center justify-center rounded-card bg-accent/10">
             <BeyouIcon id={draft.iconId} size={18} color={theme.primary} showFallback />
           </View>
-          <Text className="text-secondary text-lg font-semibold" numberOfLines={1}>
+          <Text className="text-text text-lg font-semibold" numberOfLines={1}>
             {draft.name}
           </Text>
         </View>
-        <View className="w-full flex-row items-start gap-2 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-2.5">
+        <View className="w-full flex-row items-start gap-2 rounded-card border border-border bg-accent/10 px-4 py-2.5">
           <View className="pt-0.5">
             <Lightbulb size={16} color={theme.primary} />
           </View>
-          <Text className="text-secondary min-w-0 flex-1 text-sm">
+          <Text className="text-text min-w-0 flex-1 text-sm">
             {t('AiOnboardingRoutineHint')}
           </Text>
         </View>
@@ -255,18 +254,18 @@ export default function RoutineStep({
         {draft.sections.map((section, sectionIndex) => (
           <View
             key={`${section.name}-${section.startTime}`}
-            className="rounded-3xl border border-primary/20 bg-secondary/5 p-4"
+            className="rounded-frame border border-border bg-surface-2/5 p-4"
           >
             <View className="flex-row items-center gap-2.5">
-              <View className="h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+              <View className="h-9 w-9 items-center justify-center rounded-card bg-accent/10">
                 <BeyouIcon id={section.iconId} size={18} color={theme.primary} showFallback />
               </View>
-              <Text className="text-secondary min-w-0 flex-1 font-semibold" numberOfLines={1}>
+              <Text className="text-text min-w-0 flex-1 font-semibold" numberOfLines={1}>
                 {section.name}
               </Text>
-              <Text className="text-primary text-sm font-semibold">
+              <Text className="text-accent text-sm font-semibold">
                 {section.startTime}
-                <Text className="text-description font-normal"> – </Text>
+                <Text className="text-text-2 font-normal"> – </Text>
                 {section.endTime}
               </Text>
             </View>
@@ -299,7 +298,7 @@ export default function RoutineStep({
       <View className="items-center gap-3">
         <View className="flex-row items-center gap-1.5">
           <CalendarDays size={16} color={theme.primary} />
-          <Text className="text-description text-sm font-semibold">
+          <Text className="text-text-2 text-sm font-semibold">
             {t('AiOnboardingScheduleDays')}
           </Text>
         </View>
@@ -314,12 +313,12 @@ export default function RoutineStep({
                 accessibilityState={{ selected: active }}
                 onPress={() => toggleDay(day.wire)}
                 className={`h-11 w-11 items-center justify-center rounded-full ${
-                  active ? 'bg-primary' : 'bg-secondary/10'
+                  active ? 'bg-accent' : 'bg-surface-2/10'
                 }`}
               >
                 <Text
-                  className={`text-xs font-bold ${active ? '' : 'text-secondary'}`}
-                  style={active ? { color: ON_PRIMARY } : undefined}
+                  className={`text-xs font-bold ${active ? '' : 'text-text'}`}
+                  style={active ? { color: theme.onAccent } : undefined}
                 >
                   {t(day.key)}
                 </Text>
@@ -353,7 +352,7 @@ export default function RoutineStep({
             disabled={loading}
             onPress={() => onRegenerate(feedback.trim())}
             testID="ai-onboarding-regenerate"
-            className={`h-[48px] flex-row items-center justify-center gap-1.5 rounded-xl bg-secondary/10 px-4 ${
+            className={`h-[48px] flex-row items-center justify-center gap-1.5 rounded-card bg-surface-2/10 px-4 ${
               loading ? 'opacity-60' : ''
             }`}
           >
@@ -362,7 +361,7 @@ export default function RoutineStep({
             ) : (
               <Wand2 size={16} color={theme.secondary} />
             )}
-            <Text className="text-secondary text-sm font-semibold">
+            <Text className="text-text text-sm font-semibold">
               {t(loading ? 'AiOnboardingLoading' : 'AiOnboardingRoutineRegenerate')}
             </Text>
           </Pressable>
@@ -386,7 +385,7 @@ export default function RoutineStep({
 
       {/* Move-to-section picker */}
       <BottomSheet visible={moveTarget !== null} onClose={() => setMoveTarget(null)}>
-        <Text className="text-secondary mb-3 text-lg font-semibold">
+        <Text className="text-text mb-3 text-lg font-semibold">
           {t('AiOnboardingMoveToSection')}
         </Text>
         <View className="gap-1 pb-2">
@@ -404,15 +403,15 @@ export default function RoutineStep({
                   }
                   setMoveTarget(null);
                 }}
-                className={`flex-row items-center gap-2.5 rounded-xl px-3 py-3 ${
-                  current ? 'bg-primary/10' : ''
+                className={`flex-row items-center gap-2.5 rounded-card px-3 py-3 ${
+                  current ? 'bg-accent/10' : ''
                 }`}
               >
                 <BeyouIcon id={section.iconId} size={16} color={theme.primary} showFallback />
-                <Text className="text-secondary min-w-0 flex-1 font-medium" numberOfLines={1}>
+                <Text className="text-text min-w-0 flex-1 font-medium" numberOfLines={1}>
                   {section.name}
                 </Text>
-                <Text className="text-description text-xs">
+                <Text className="text-text-2 text-xs">
                   {section.startTime} – {section.endTime}
                 </Text>
               </Pressable>
@@ -465,17 +464,17 @@ function ItemCard({
   const idSuffix = `${kind}-${sectionIndex}-${itemIndex}`;
 
   return (
-    <View className="gap-2 rounded-xl bg-background/60 px-2.5 py-2">
+    <View className="gap-2 rounded-card bg-surface/60 px-2.5 py-2">
       {/* Tier 1: kind glyph + name + remove */}
       <View className="flex-row items-center gap-2">
         <View
-          className={`h-7 w-7 items-center justify-center rounded-lg ${
-            kind === 'habits' ? 'bg-primary/10' : 'bg-secondary/10'
+          className={`h-7 w-7 items-center justify-center rounded-control ${
+            kind === 'habits' ? 'bg-accent/10' : 'bg-surface-2/10'
           }`}
         >
           <Glyph size={14} color={kind === 'habits' ? theme.primary : theme.secondary} />
         </View>
-        <Text className="text-secondary min-w-0 flex-1 text-sm font-medium" numberOfLines={1}>
+        <Text className="text-text min-w-0 flex-1 text-sm font-medium" numberOfLines={1}>
           {item.name}
         </Text>
         <Pressable
@@ -483,7 +482,7 @@ function ItemCard({
           accessibilityLabel={t('AiOnboardingRemoveItem')}
           onPress={() => onRemove(kind, sectionIndex, itemIndex)}
           testID={`ai-onboarding-item-remove-${idSuffix}`}
-          className="h-7 w-7 items-center justify-center rounded-lg"
+          className="h-7 w-7 items-center justify-center rounded-control"
         >
           <X size={16} color={theme.description} />
         </Pressable>
@@ -496,7 +495,7 @@ function ItemCard({
           onChange={(hhmm) => onTimeChange(kind, sectionIndex, itemIndex, 'startTime', hhmm)}
           testID={`ai-onboarding-start-${idSuffix}`}
         />
-        <Text className="text-description text-xs">–</Text>
+        <Text className="text-text-2 text-xs">–</Text>
         <TimeField
           value={item.endTime}
           onChange={(hhmm) => onTimeChange(kind, sectionIndex, itemIndex, 'endTime', hhmm)}
@@ -512,7 +511,7 @@ function ItemCard({
             accessibilityLabel={t('AiOnboardingMoveEarlier')}
             disabled={!canMoveEarlier}
             onPress={() => onReorder(kind, sectionIndex, itemIndex, -1)}
-            className={`h-7 w-7 items-center justify-center rounded-lg ${
+            className={`h-7 w-7 items-center justify-center rounded-control ${
               canMoveEarlier ? '' : 'opacity-30'
             }`}
           >
@@ -523,7 +522,7 @@ function ItemCard({
             accessibilityLabel={t('AiOnboardingMoveLater')}
             disabled={!canMoveLater}
             onPress={() => onReorder(kind, sectionIndex, itemIndex, 1)}
-            className={`h-7 w-7 items-center justify-center rounded-lg ${
+            className={`h-7 w-7 items-center justify-center rounded-control ${
               canMoveLater ? '' : 'opacity-30'
             }`}
           >
@@ -535,9 +534,9 @@ function ItemCard({
           accessibilityLabel={t('AiOnboardingMoveToSection')}
           onPress={() => onOpenMove({ kind, sectionIndex, itemIndex })}
           testID={`ai-onboarding-move-section-${idSuffix}`}
-          className="max-w-[45%] rounded-lg border border-primary/20 px-2 py-1"
+          className="max-w-[45%] rounded-control border border-border px-2 py-1"
         >
-          <Text className="text-secondary text-xs" numberOfLines={1}>
+          <Text className="text-text text-xs" numberOfLines={1}>
             {sectionName}
           </Text>
         </Pressable>

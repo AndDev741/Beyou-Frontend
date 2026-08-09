@@ -1,13 +1,156 @@
+/* A static fallback for the tokens: it holds on the first paint, before
+   ThemeProvider applies the user's preference at runtime. The source of truth is
+   packages/theme (tokens.ts + cssVars.ts) — change it there, mirror it here. */
 :root {
-    --background: #ffffff;
-    --primary: #0082e1;
-    --secondary: #000000;
-    --description: #7f8b99ff;
+    --bg: #F5F7FA;
+    --bg-rgb: 245 247 250;
+    --surface: #FFFFFF;
+    --surface-rgb: 255 255 255;
+    --surface-2: #EDF0F4;
+    --surface-2-rgb: 237 240 244;
+    --border: #E2E6EC;
+    --border-rgb: 226 230 236;
+    --text: #171B22;
+    --text-rgb: 23 27 34;
+    --text-2: #566070;
+    --text-2-rgb: 86 96 112;
+    --text-3: #8792A2;
+    --text-3-rgb: 135 146 162;
+    --accent: #1D6BF3;
+    --accent-rgb: 29 107 243;
+    --accent-strong: #1558D6;
+    --accent-strong-rgb: 21 88 214;
+    --on-accent: #FFFFFF;
+    --on-accent-rgb: 255 255 255;
+    --accent-soft: rgba(29, 107, 243, .09);
+    --xp: #B45309;
+    --xp-rgb: 180 83 9;
+    --xp-soft: rgba(217, 119, 6, .13);
+    --flame: #EA580C;
+    --flame-rgb: 234 88 12;
+    --flame-soft: rgba(234, 88, 12, .12);
+    --success: #0E9F6E;
+    --success-rgb: 14 159 110;
+    --danger: #DC2626;
+    --danger-rgb: 220 38 38;
+    --shadow: 0 1px 2px rgba(23, 27, 34, .05), 0 8px 24px rgba(23, 27, 34, .06);
+
+    /* aliases do modelo antigo — saem na fase de limpeza */
+    --background: #FFFFFF;
+    --background-rgb: 255 255 255;
+    --primary: #1D6BF3;
+    --primary-rgb: 29 107 243;
+    --secondary: #171B22;
+    --secondary-rgb: 23 27 34;
+    --description: #566070;
+    --description-rgb: 86 96 112;
+    --icon: #566070;
+    --icon-rgb: 86 96 112;
+    --placeholder: #8792A2;
+    --placeholder-rgb: 135 146 162;
+    --error: #DC2626;
+    --error-rgb: 220 38 38;
 }
 
-.dark {
-    --background: #000000;
-    --primary: #0082e1;
-    --secondary: #ffffff;
-    --description: #7f8b99ff;
+:root[data-theme="dark"] {
+    --bg: #0E1218;
+    --bg-rgb: 14 18 24;
+    --surface: #151A22;
+    --surface-rgb: 21 26 34;
+    --surface-2: #1D242E;
+    --surface-2-rgb: 29 36 46;
+    --border: #29313D;
+    --border-rgb: 41 49 61;
+    --text: #F0F4F9;
+    --text-rgb: 240 244 249;
+    --text-2: #A3AEBD;
+    --text-2-rgb: 163 174 189;
+    --text-3: #6C7889;
+    --text-3-rgb: 108 120 137;
+    --accent: #5C9DFF;
+    --accent-rgb: 92 157 255;
+    --accent-strong: #7AB0FF;
+    --accent-strong-rgb: 122 176 255;
+    --on-accent: #0B1526;
+    --on-accent-rgb: 11 21 38;
+    --accent-soft: rgba(92, 157, 255, .13);
+    --xp: #FBBF24;
+    --xp-rgb: 251 191 36;
+    --xp-soft: rgba(251, 191, 36, .14);
+    --flame: #FB923C;
+    --flame-rgb: 251 146 60;
+    --flame-soft: rgba(251, 146, 60, .14);
+    --success: #34D399;
+    --success-rgb: 52 211 153;
+    --danger: #F87171;
+    --danger-rgb: 248 113 113;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .35);
+
+    --background: #151A22;
+    --background-rgb: 21 26 34;
+    --primary: #5C9DFF;
+    --primary-rgb: 92 157 255;
+    --secondary: #F0F4F9;
+    --secondary-rgb: 240 244 249;
+    --description: #A3AEBD;
+    --description-rgb: 163 174 189;
+    --icon: #A3AEBD;
+    --icon-rgb: 163 174 189;
+    --placeholder: #6C7889;
+    --placeholder-rgb: 108 120 137;
+    --error: #F87171;
+    --error-rgb: 248 113 113;
+}
+
+/* With no saved preference, the first paint follows the OS. */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #0E1218;
+        --bg-rgb: 14 18 24;
+        --surface: #151A22;
+        --surface-rgb: 21 26 34;
+        --surface-2: #1D242E;
+        --surface-2-rgb: 29 36 46;
+        --border: #29313D;
+        --border-rgb: 41 49 61;
+        --text: #F0F4F9;
+        --text-rgb: 240 244 249;
+        --text-2: #A3AEBD;
+        --text-2-rgb: 163 174 189;
+        --text-3: #6C7889;
+        --text-3-rgb: 108 120 137;
+        --accent: #5C9DFF;
+        --accent-rgb: 92 157 255;
+        --accent-strong: #7AB0FF;
+        --accent-strong-rgb: 122 176 255;
+        --on-accent: #0B1526;
+        --on-accent-rgb: 11 21 38;
+        --accent-soft: rgba(92, 157, 255, .13);
+        --xp: #FBBF24;
+        --xp-rgb: 251 191 36;
+        --xp-soft: rgba(251, 191, 36, .14);
+        --flame: #FB923C;
+        --flame-rgb: 251 146 60;
+        --flame-soft: rgba(251, 146, 60, .14);
+        --success: #34D399;
+        --success-rgb: 52 211 153;
+        --danger: #F87171;
+        --danger-rgb: 248 113 113;
+        --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 12px 32px rgba(0, 0, 0, .35);
+
+        --background: #151A22;
+        --background-rgb: 21 26 34;
+        --primary: #5C9DFF;
+        --primary-rgb: 92 157 255;
+        --secondary: #F0F4F9;
+        --secondary-rgb: 240 244 249;
+        --description: #A3AEBD;
+        --description-rgb: 163 174 189;
+        --icon: #A3AEBD;
+        --icon-rgb: 163 174 189;
+        --placeholder: #6C7889;
+        --placeholder-rgb: 108 120 137;
+        --error: #F87171;
+        --error-rgb: 248 113 113;
+    }
 }

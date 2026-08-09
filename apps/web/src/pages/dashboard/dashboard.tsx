@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import Perfil from "../../components/dashboard/perfil";
-import Shortcuts from "../../components/dashboard/shortcuts";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import { useEffect, useMemo, useState } from "react";
@@ -13,7 +12,8 @@ import { enterTasks } from "@beyou/state/task/tasksSlice";
 import getHabits from "@beyou/api/habits/getHabits";
 import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
-import GoalsTab from "../../components/dashboard/goalsView/goalsTab";
+import GoalsHorizon from "../../components/dashboard/goalsView/GoalsHorizon";
+import WidgetCarousel from "../../components/dashboard/WidgetCarousel";
 import getGoals from "@beyou/api/goals/getGoals";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import isItemChecked from "../../components/utils/verifyIfAItemItsChecked";
@@ -29,9 +29,14 @@ import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboa
 import AiOnboardingWizard from "../../components/tutorial/aiOnboarding/AiOnboardingWizard";
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
+import { LayoutGrid } from "lucide-react";
+import { useDismissed } from "../../hooks/useDismissed";
 
 function Dashboard() {
     useAuthGuard();
+    // With no widgets the column becomes an invitation; whoever does not want it
+    // closes it and it stays closed — configuration is still one click away.
+    const [widgetsInviteDismissed, dismissWidgetsInvite] = useDismissed("widgets-invite");
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const [isDashboardLoading, setIsDashboardLoading] = useState(true);
@@ -191,25 +196,30 @@ function Dashboard() {
             {showFinale && <TutorialFinale onDone={completeTutorial} />}
             {isDashboardLoading ? (
                 <div
-                    className="flex min-h-screen items-center justify-center"
+                    className="flex min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] items-center justify-center"
                     data-testid="dashboard-loading"
                 >
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
                 </div>
             ) : (
-            <div>
-                <div className="lg:flex lg:justify-between items-start">
-                    <div className="flex flex-col lg:w-full">
-                        <header className="md:flex md:justify-center lg:justify-start m-1.5 md:m-0">
-                            <Perfil />
-                        </header>
+            <>
+            {/* Two columns as in the mockup: the main one (greeting, routine) and
+                the widget rail, which starts at the top and runs the full height
+                da direita. */}
+            <div className="w-full lg:flex lg:items-start lg:gap-6">
+                <div className="min-w-0 flex-1 px-3 py-5 lg:px-7 lg:py-6">
+                    <Perfil />
 
-                        {/* Desktop */}
-                        <div className="hidden lg:flex justify-between">
-                            <Shortcuts />
+                    <div className="mt-5">
+                        <RoutineDay routine={routine ? routine : null} />
+                    </div>
 
-                            <div className="hidden lg:flex flex-wrap justify-evenly items-center py-3 mt-7 w-full mr-3 gap-4">
-                                {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
+                    {/* Mobile: a fixed-height carousel between the routine and the
+                        goals, with page dots. */}
+                    <div className="mt-5" data-testid="mobile-widget-board">
+                        {widgetsIdsInUse?.length > 0 ? (
+                            <WidgetCarousel>
+                                {widgetsIdsInUse.map((id: string) => (
                                     <WidgetsFabric
                                         key={id}
                                         widgetId={id as keyof WidgetProps}
@@ -224,61 +234,62 @@ function Dashboard() {
                                         actualLevelXp={actualLevelXp}
                                         draggable
                                     />
-                                )) : (
-                                    <EmptyState
-                                        emoji="🧩"
-                                        title={t('NoWidgetsTitle')}
-                                        description={t('NoWidgetsDescription')}
-                                        actionLabel={t('AddWidgets')}
-                                        actionTo="/configuration"
-                                        testId="no-widgets-empty-state-desktop"
-                                    />
-                                )}
+                                ))}
+                            </WidgetCarousel>
+                        ) : widgetsInviteDismissed ? null : (
+                            <div className="lg:hidden">
+                                <EmptyState
+                                    icon={<LayoutGrid size={20} aria-hidden="true" />}
+                                    title={t('NoWidgetsTitle')}
+                                    description={t('NoWidgetsDescription')}
+                                    actionLabel={t('AddWidgets')}
+                                    actionTo="/configuration"
+                                    onDismiss={dismissWidgetsInvite}
+                                    testId="no-widgets-empty-state-mobile"
+                                />
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="lg:w-full">
-                        <RoutineDay routine={routine ? routine : null} />
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="flex flex-wrap items-center justify-evenly gap-3 p-1 md:p-2 py-3 mt-5 lg:hidden" data-testid="mobile-widget-board">
-                        {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
-                            <WidgetsFabric
-                                key={id}
-                                widgetId={id as keyof WidgetProps}
-                                categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
-                                categories={categories}
-                                constance={constance}
-                                checked={checkedItemsInScheduledRoutine}
-                                total={totalItemsInScheduledRoutine}
-                                xp={xp}
-                                level={level}
-                                nextLevelXp={nextLevelXp}
-                                actualLevelXp={actualLevelXp}
-                                draggable
-                            />
-                        )) : (
-                            <EmptyState
-                                emoji="🧩"
-                                title={t('NoWidgetsTitle')}
-                                description={t('NoWidgetsDescription')}
-                                actionLabel={t('AddWidgets')}
-                                actionTo="/configuration"
-                                testId="no-widgets-empty-state-mobile"
-                            />
                         )}
                     </div>
-                </div>
-                <div className="mt-12 min-h-[50vh]">
-                    <GoalsTab />
+
                 </div>
 
-                {/* The mobile bottom bar and its clearance spacer used to be
-                    rendered here. They moved to `ProtectedRoute` so every
-                    authenticated page gets them — see the comment there. */}
+                <aside className="hidden w-[320px] shrink-0 flex-col gap-3.5 py-6 pr-6 lg:flex">
+                    {widgetsIdsInUse?.length > 0 ? widgetsIdsInUse.map((id: string) => (
+                        <WidgetsFabric
+                                    key={id}
+                                    widgetId={id as keyof WidgetProps}
+                                    categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                    categories={categories}
+                                    constance={constance}
+                                    checked={checkedItemsInScheduledRoutine}
+                                    total={totalItemsInScheduledRoutine}
+                                    xp={xp}
+                                    level={level}
+                                    nextLevelXp={nextLevelXp}
+                                    actualLevelXp={actualLevelXp}
+                                    draggable
+                                />
+                    )) : widgetsInviteDismissed ? null : (
+                        <EmptyState
+                            icon={<LayoutGrid size={20} aria-hidden="true" />}
+                            title={t('NoWidgetsTitle')}
+                            description={t('NoWidgetsDescription')}
+                            actionLabel={t('AddWidgets')}
+                            actionTo="/configuration"
+                            onDismiss={dismissWidgetsInvite}
+                            testId="no-widgets-empty-state-desktop"
+                        />
+                    )}
+                </aside>
             </div>
+
+            {/* Goals close the screen at full width, below the routine and the rail:
+                they are the why behind the day's checks, and they were hidden in a
+                narrow column. */}
+            <div className="px-3 pb-6 lg:px-7">
+                <GoalsHorizon />
+            </div>
+            </>
             )}
         </>
     )

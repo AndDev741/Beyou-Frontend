@@ -10,10 +10,10 @@ jest.mock('../src/notify', () => ({
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockParams,
 }));
+let mockParams: Record<string, string> = {};
 
-import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
@@ -62,18 +62,30 @@ describe('GoalsScreen', () => {
     expect(screen.queryByTestId('goals-sort')).toBeNull();
   });
 
-  it('deletes a goal after Alert confirmation', async () => {
+  it('deletes a goal from the shared delete modal', async () => {
     setHttp([goal]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      (buttons ?? []).find((b) => b.style === 'destructive')?.onPress?.();
-    });
     await renderScreen();
     await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
 
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-g1')); }); // expand
     await act(async () => { fireEvent.press(screen.getByTestId('goal-delete-g1')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('delete-modal-confirm')); });
 
     await waitFor(() => expect(del).toHaveBeenCalledWith('/goal/g1'));
-    alertSpy.mockRestore();
   });
+});
+
+/**
+ * Arriving from the dashboard with `expand=<id>`, the goal opens expanded AND
+ * highlighted — without that you land in a list and have to hunt for the one you just
+ * tapped.
+ */
+test('focuses the goal handed over by the dashboard', async () => {
+  mockParams = { expand: 'g1' };
+  setHttp([goal]);
+  await renderScreen();
+  await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
+
+  // Expanded: the status only shows when open.
+  expect(screen.getByText('In Progress')).toBeTruthy();
+  mockParams = {};
 });

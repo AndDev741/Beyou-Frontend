@@ -6,10 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import getRoutines from "@beyou/api/routine/getRoutines";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import editSchedule from "@beyou/api/schedule/editSchedule";
-import { FiX, FiCalendar, FiCheck } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import { RootState } from "@beyou/state/rootReducer";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
+import Button from "../Button";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +24,8 @@ interface ScheduleModalProps {
 const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const WEEKDAY_GROUP = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 const WEEKEND_GROUP = ["Saturday", "Sunday"];
+// Display order: Sunday first, same as the routine card's chips.
+const WEEK_ORDER = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 type ScheduleFormValues = {
     days: string[];
@@ -136,150 +139,117 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         onClose();
     };
 
-    const resetSelection = () => setValue("days", routine?.schedule?.days || [], { shouldValidate: true });
+    // Days another routine already holds and that have not been freed yet.
+    const blockedDays = WEEK_ORDER.filter((day) => blockedSet.has(day) && !overrides.has(day));
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
             <div
-                className="relative z-10 w-full max-w-xl rounded-2xl border border-primary/25 bg-background p-2 md:p-6 shadow-2xl"
+                className="relative z-10 w-full max-w-sm rounded-card border border-border bg-surface p-5 text-text shadow-surface"
                 data-tutorial-id="routine-schedule-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="schedule-modal-title"
             >
-                <header className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <div className="rounded-full bg-primary/10 p-2 text-primary">
-                            <FiCalendar />
-                        </div>
-                        <div>
-                            <p className="text-xs uppercase tracking-wide text-description">{t("Schedule")}</p>
-                            <h2 className="text-xl font-semibold text-secondary">{routine.name}</h2>
-                        </div>
+                <div className="flex items-start gap-3">
+                    <div className="min-w-0">
+                        <h2 id="schedule-modal-title" className="text-base font-semibold tracking-[-0.01em] text-text">
+                            {t("ScheduleRoutineTitle")}
+                        </h2>
+                        <p className="mt-1 text-[13px] text-text-3">
+                            {t("ScheduleRoutineSubtitle", { name: routine.name })}
+                        </p>
                     </div>
                     <button
                         type="button"
-                        className="rounded-full p-2 text-description transition hover:bg-primary/10 hover:text-primary"
+                        className="-mr-1 ml-auto rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
                         onClick={onClose}
                         aria-label={t("Close")}
                     >
-                        <FiX className="h-5 w-5" />
+                        <FiX />
                     </button>
-                </header>
-
-                <div className="mt-6 grid gap-4 md:grid-cols-[2fr,1fr]">
-                    <div className="rounded-xl border border-primary/20 bg-background/80 p-4">
-                        <p className="text-sm font-semibold text-secondary mb-3 text-center">{t("Pick your days")}</p>
-                        <div className="flex flex-wrap justify-center gap-3 md:grid grid-cols-2 sm:grid-cols-4 md:grid-cols-3 md:gap-3">
-                            {ALL_DAYS.map((day) => {
-                                const isBlocked = blockedSet.has(day) && !overrides.has(day);
-                                const active = selectedDays.includes(day);
-                                const names = blockedByDay[day] || [];
-
-                                return (
-                                    <div key={day} className="relative group">
-                                        <button
-                                            type="button"
-                                            className={`flex w-full items-center justify-between rounded-lg border p-2 text-sm font-medium transition
-                                                ${active
-                                                    ? "border-primary bg-primary/10 text-primary shadow-sm"
-                                                    : isBlocked
-                                                        ? "border-error/30 bg-error/5 text-error cursor-not-allowed"
-                                                        : "border-primary/20 bg-background text-secondary hover:border-primary/50"
-                                                }
-                                        `}
-                                            onClick={() => toggleDay(day)}
-                                            aria-disabled={isBlocked && !selectedDays.includes(day)}
-                                        >
-                                            <span>{t(day)}</span>
-                                            {active && <FiCheck className="h-4 w-4" />}
-                                        </button>
-
-                                        {isBlocked && (
-                                            <div
-                                                className="
-                                                        pointer-events-auto
-                                                        absolute left-1/2 top-full z-20 w-56
-                                                        -translate-x-1/2 translate-y-0
-                                                        rounded-md border border-error/30 bg-background
-                                                        p-3 text-xs shadow-lg
-
-                                                        invisible opacity-0
-                                                        group-hover:visible group-hover:opacity-100
-                                                        group-focus-within:visible group-focus-within:opacity-100
-                                                        hover:visible hover:opacity-100
-
-                                                        transition-opacity duration-150
-                                                        "
-                                            >
-                                                <p className="font-semibold text-error">{t("Already scheduled for")}</p>
-
-                                                <p className="mt-1 text-description">{names.join(", ")}</p>
-
-                                                <button
-                                                    type="button"
-                                                    className="mt-2 w-full rounded-md bg-primary px-3 py-2 text-xs font-semibold text-background transition hover:bg-primary/90"
-                                                    onClick={() => handleOverrideDay(day)}
-                                                >
-                                                    {t("Override day")}
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        <div className="flex flex-col items-center rounded-xl border border-primary/20 bg-background/80 p-4 space-y-3">
-                            <p className="text-sm font-semibold text-secondary text-center">{t("Quick select")}</p>
-                            <GroupButton
-                                label={t("Mon - Fri")}
-                                active={WEEKDAY_GROUP.every((d) => selectedDays.includes(d))}
-                                onClick={() => toggleGroup(WEEKDAY_GROUP)}
-                            />
-                            <GroupButton
-                                label={t("Weekend")}
-                                active={WEEKEND_GROUP.every((d) => selectedDays.includes(d))}
-                                onClick={() => toggleGroup(WEEKEND_GROUP)}
-                            />
-                            <GroupButton
-                                label={t("All week")}
-                                active={ALL_DAYS.every((d) => selectedDays.includes(d))}
-                                onClick={() => toggleGroup(ALL_DAYS)}
-                            />
-                            <button
-                                type="button"
-                                className="mt-3 flex items-center gap-2 text-xs text-description hover:text-primary"
-                                onClick={resetSelection}
-                            >
-                                {t("Reset")}
-                            </button>
-                        </div>
-
-                    </div>
                 </div>
 
-                {errors.days?.message && (
-                    <p className="text-error text-sm mt-2">{errors.days?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center mt-2" />
+                {/* One row of seven: the whole week fits in a glance, and a day
+                    already taken by another routine is marked on the square itself
+                    rather than in a separate notice. */}
+                <div className="mt-3.5 flex gap-1.5">
+                    {WEEK_ORDER.map((day) => {
+                        const isBlocked = blockedSet.has(day) && !overrides.has(day);
+                        const active = selectedDays.includes(day);
+                        return (
+                            <button
+                                key={day}
+                                type="button"
+                                aria-pressed={active}
+                                aria-label={t(day)}
+                                title={isBlocked ? `${t("Already scheduled for")}: ${(blockedByDay[day] || []).join(", ")}` : t(day)}
+                                onClick={() => toggleDay(day)}
+                                className={`h-8 flex-1 rounded-[10px] font-mono text-[11.5px] font-semibold transition-colors duration-200 ${
+                                    active
+                                        ? "bg-accent text-on-accent"
+                                        : isBlocked
+                                          ? "cursor-not-allowed bg-danger/10 text-danger"
+                                          : "bg-surface-2 text-text-3 hover:text-text-2"
+                                }`}
+                            >
+                                {t(day).charAt(0).toUpperCase()}
+                            </button>
+                        );
+                    })}
+                </div>
 
-                <div className="mt-6 flex items-center justify-end gap-3">
-                    <button
-                        type="button"
-                        className="rounded-lg border border-primary/30 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-primary/10"
-                        onClick={onClose}
-                    >
-                        {t("Cancel")}
-                    </button>
-                    <button
-                        type="button"
-                        className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-background transition hover:bg-primary/90 disabled:opacity-60"
-                        onClick={handleSubmit(handleSchedule)}
+                {blockedDays.length > 0 && (
+                    <div className="mt-3 rounded-control border border-danger/30 bg-danger/5 p-2.5">
+                        <p className="text-[12.5px] font-semibold text-danger">{t("Already scheduled for")}</p>
+                        {blockedDays.map((day) => (
+                            <div key={day} className="mt-1.5 flex items-center gap-2 text-xs text-text-2">
+                                <span className="min-w-0 flex-1 truncate">
+                                    {t(day)} · {(blockedByDay[day] || []).join(", ")}
+                                </span>
+                                <button
+                                    type="button"
+                                    className="shrink-0 rounded-lg bg-accent-soft px-2 py-1 text-[11.5px] font-semibold text-accent"
+                                    onClick={() => handleOverrideDay(day)}
+                                >
+                                    {t("Override day")}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                    <GroupButton
+                        label={t("Mon - Fri")}
+                        active={WEEKDAY_GROUP.every((d) => selectedDays.includes(d))}
+                        onClick={() => toggleGroup(WEEKDAY_GROUP)}
+                    />
+                    <GroupButton
+                        label={t("Weekend")}
+                        active={WEEKEND_GROUP.every((d) => selectedDays.includes(d))}
+                        onClick={() => toggleGroup(WEEKEND_GROUP)}
+                    />
+                    <GroupButton
+                        label={t("All week")}
+                        active={ALL_DAYS.every((d) => selectedDays.includes(d))}
+                        onClick={() => toggleGroup(ALL_DAYS)}
+                    />
+                </div>
+
+                {errors.days?.message && <p className="mt-2 text-xs text-danger">{errors.days.message}</p>}
+                <ErrorNotice error={apiError} className="mt-2" />
+
+                <div className="mt-[18px] flex justify-end gap-2">
+                    <Button text={t("Cancel")} mode="ghost" size="medium" onClick={onClose} />
+                    <Button
+                        text={t("Save schedule")}
+                        mode="primary"
+                        size="medium"
                         disabled={loading}
-                    >
-                        {t("Save")}
-                    </button>
+                        onClick={handleSubmit(handleSchedule)}
+                    />
                 </div>
             </div>
         </div>
@@ -290,9 +260,10 @@ function GroupButton({ label, active, onClick }: { label: string; active: boolea
     return (
         <button
             type="button"
-            className={`w-full rounded-lg border px-3 py-2 text-xs font-semibold transition
-                ${active ? "border-primary bg-primary/10 text-primary" : "border-primary/20 text-secondary hover:border-primary/50"}
-            `}
+            aria-pressed={active}
+            className={`rounded-full border px-3 py-1 text-[11.5px] font-semibold transition-colors duration-200 ${
+                active ? "border-accent bg-accent-soft text-accent" : "border-border text-text-3 hover:text-text-2"
+            }`}
             onClick={onClick}
         >
             {label}

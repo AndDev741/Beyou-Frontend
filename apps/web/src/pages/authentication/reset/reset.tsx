@@ -1,9 +1,9 @@
 // Components
-import Header from "../../../components/authentication/header";
+import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
-import TranslationButton from "../../../components/translationButton";
-import Logo from "../../../components/authentication/logo";
+import { Loader } from "lucide-react";
+import FormNotice from "../../../components/authentication/FormNotice";
 import OpenInAppButton from "../../../components/authentication/OpenInAppButton";
 // Functions
 import { useTranslation } from "react-i18next";
@@ -40,7 +40,7 @@ function ResetPassword() {
         handleSubmit,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<ResetPasswordFormValues>({
         resolver: zodResolver(resetPasswordSchema(t)),
         mode: "onBlur",
@@ -106,43 +106,36 @@ function ResetPassword() {
     const showForm = isTokenValid === true && !successMessage;
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-primary rounded-l-md">
-                <Logo />
-            </div>
-
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
-                <Header />
-
-                <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">
-                    <h1 className="text-center text-[36px] font-bold">
-                        {t("ResetPasswordTitle")}
-                    </h1>
-                    <p className="text-center text-xl mt-2 max-w-[80%]">
-                        {t("ResetPasswordSubtitle")}
-                    </p>
-
-                    <div className="hidden lg:block my-2">
-                        <TranslationButton />
-                    </div>
+        <AuthShell
+            title={t("ResetPasswordTitle")}
+            subtitle={t("ResetPasswordSubtitle")}
+            footer={
+                <Link to="/" className="font-semibold text-accent hover:underline">
+                    {t("BackToLogin")}
+                </Link>
+            }
+        >
 
                     <OpenInAppButton path="reset" token={token} />
 
                     {isTokenValid === null && (
-                        <p className="text-center text-xl mt-6">{t("ValidatingToken")}</p>
+                        <FormNotice tone="loading" message={t("ValidatingToken")} className="mt-4" />
                     )}
 
                     {isTokenValid === false && tokenError && (
-                        <div className="flex flex-col items-center mt-6">
-                            <p className="text-error text-center text-xl mb-4">{tokenError}</p>
-                            <Link to="/forgot-password" className="text-primary underline text-lg">
+                        <div className="mt-4 flex flex-col gap-3">
+                            <FormNotice tone="error" message={tokenError} />
+                            <Link
+                                to="/forgot-password"
+                                className="text-center text-[12.5px] font-semibold text-accent hover:underline"
+                            >
                                 {t("ForgotPassword")}
                             </Link>
                         </div>
                     )}
 
                     {showForm && (
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
+                        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                             <Controller
                                 key={"password"}
                                 control={control}
@@ -150,6 +143,7 @@ function ResetPassword() {
                                 render={({ field }) => (
                                     <Input
                                         icon1={PasswordIcon}
+                                        label={t("NewPassword")}
                                         placeholder={t("PasswordPlaceholder")}
                                         inputType={"password"}
                                         icon2={EyeClosedIcon}
@@ -162,8 +156,6 @@ function ResetPassword() {
                                 )}
                             />
 
-                            <div className="my-6 lg:my-3"></div>
-
                             <Controller
                                 key={"confirmPassword"}
                                 control={control}
@@ -171,6 +163,7 @@ function ResetPassword() {
                                 render={({ field }) => (
                                     <Input
                                         icon1={PasswordIcon}
+                                        label={t("ConfirmPassword")}
                                         placeholder={t("ConfirmPasswordPlaceholder")}
                                         inputType={"password"}
                                         icon2={EyeClosedIcon}
@@ -183,31 +176,34 @@ function ResetPassword() {
                                 )}
                             />
 
-                            <div className="mt-8 lg:mt-4">
-                                <Button text={t("ResetPasswordTitle")} mode="create" size="big" type="submit" />
-                            </div>
+                            <Button
+                                text={isSubmitting ? t("Sending") : t("ResetPasswordTitle")}
+                                mode="primary"
+                                size="big"
+                                className="mt-2 w-full"
+                                type="submit"
+                                disabled={isSubmitting}
+                                icon={isSubmitting ? <Loader size={15} className="animate-spin" /> : undefined}
+                            />
+
+                            {errors.root?.message && (
+                                <FormNotice tone="error" message={errors.root.message} />
+                            )}
                         </form>
                     )}
 
-                    {errors.root?.message && (
-                        <p className="text-error text-center underline text-xl mb-2">{errors.root?.message}</p>
-                    )}
-
                     {successMessage && (
-                        <div className="flex flex-col items-center mt-4">
-                            <p className="text-primary text-center text-xl mb-4">{successMessage}</p>
-                            <Link to="/" className="text-primary underline text-lg">
+                        <div className="mt-4 flex flex-col gap-3">
+                            <FormNotice tone="success" message={successMessage} />
+                            <Link
+                                to="/"
+                                className="text-center text-[12.5px] font-semibold text-accent hover:underline"
+                            >
                                 {t("Login")}
                             </Link>
                         </div>
                     )}
-
-                    <div className="block lg:hidden my-8">
-                        <TranslationButton />
-                    </div>
-                </main>
-            </div>
-        </div>
+        </AuthShell>
     );
 }
 

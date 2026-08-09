@@ -1,6 +1,5 @@
-import { useContext, useEffect } from 'react';
-import { Modal, View, Text, ScrollView, Pressable } from 'react-native';
-import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
+import { useEffect } from 'react';
+
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +10,9 @@ import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { habit } from '@beyou/types/habit/habitType';
 import type category from '@beyou/types/category/categoryType';
 import Input from '../Input';
-import Button from '../Button';
+import FormField from '../form/FormField';
+import SegmentedControl from '../SegmentedControl';
+import FormModal from '../form/FormModal';
 import IconPickerField from '../icons/IconPickerField';
 import CategorySelector from './CategorySelector';
 import { IMPORTANCE_KEYS, DIFFICULTY_KEYS } from './levelLabels';
@@ -47,48 +48,12 @@ const EXPERIENCE = [
   { value: 2, key: 'Advanced' },
 ] as const;
 
-function Segmented({
-  value,
-  onChange,
-  options,
-  testID,
-}: {
-  value: number;
-  onChange: (v: number) => void;
-  options: { value: number; label: string }[];
-  testID?: string;
-}) {
-  return (
-    <View className="flex-row flex-wrap gap-2" testID={testID}>
-      {options.map((opt) => {
-        const selected = opt.value === value;
-        return (
-          <Pressable
-            key={opt.value}
-            onPress={() => onChange(opt.value)}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            className={`min-w-[44px] items-center rounded-lg border px-3 py-2 ${
-              selected ? 'border-primary bg-primary/10' : 'border-primary/30'
-            }`}
-          >
-            <Text className={`text-sm ${selected ? 'text-primary font-semibold' : 'text-secondary'}`}>
-              {opt.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
 /** [{value:1,label:t(keys[0])}, …] — keys are 1-based scale labels. */
 const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
   keys.map((k, i) => ({ value: i + 1, label: t(k) }));
 
 export default function HabitForm({ visible, mode, habit, categories, onClose, onSaved, onCreated }: HabitFormProps) {
   const { t } = useTranslation();
-  const insets = useContext(SafeAreaInsetsContext);
   const isEdit = mode === 'edit';
 
   const {
@@ -165,166 +130,143 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-background" style={{ paddingTop: insets?.top ?? 0 }}>
-        <View className="flex-row items-center justify-between border-b border-primary/15 px-4 py-3">
-          <Pressable onPress={onClose} accessibilityRole="button" testID="habit-form-cancel">
-            <Text className="text-description text-base">{t('Cancel')}</Text>
-          </Pressable>
-          <Text className="text-secondary text-lg font-bold">{t(isEdit ? 'EditHabit' : 'CreateHabit')}</Text>
-          <View className="w-12" />
-        </View>
-
-        <ScrollView className="flex-1 px-4" contentContainerClassName="gap-4 pt-4" contentContainerStyle={{ paddingBottom: (insets?.bottom ?? 0) + 16 }} keyboardShouldPersistTaps="handled">
-          <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Name')}</Text>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <Input
-                  value={field.value}
-                  onChangeText={field.onChange}
-                  placeholder={t('CategoryNamePlaceholder')}
-                  error={errors.name?.message}
-                  accessibilityLabel={t('Name')}
-                  testID="habit-name"
-                />
-              )}
+    <FormModal
+      visible={visible}
+      title={t(isEdit ? 'EditHabit' : 'CreateHabit')}
+      submitLabel={t('Save habit')}
+      submitting={isSubmitting}
+      onClose={onClose}
+      onSubmit={handleSubmit(onSubmit)}
+      testID="habit-form"
+    >
+      <FormField label={t('Name')}>
+        <Controller
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <Input
+              compact
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('HabitNamePlaceholder')}
+              error={errors.name?.message}
+              accessibilityLabel={t('Name')}
+              testID="habit-name"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
-          <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Description')}</Text>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Input
-                  value={field.value}
-                  onChangeText={field.onChange}
-                  placeholder={t('HabitDescriptionPlaceholder')}
-                  error={errors.description?.message}
-                  accessibilityLabel={t('Description')}
-                  multiline
-                  testID="habit-description"
-                />
-              )}
+      <FormField label={t('Description')}>
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <Input
+              compact
+              multiline
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('HabitDescriptionPlaceholder')}
+              error={errors.description?.message}
+              accessibilityLabel={t('Description')}
+              testID="habit-description"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
-          <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('MotivationPhrase')}</Text>
-            <Controller
-              control={control}
-              name="motivationalPhrase"
-              render={({ field }) => (
-                <Input
-                  value={field.value}
-                  onChangeText={field.onChange}
-                  placeholder={t('MotivationalPhrasePlaceholder')}
-                  error={errors.motivationalPhrase?.message}
-                  accessibilityLabel={t('MotivationPhrase')}
-                  testID="habit-phrase"
-                />
-              )}
+      <FormField label={t('MotivationPhrase')}>
+        <Controller
+          control={control}
+          name="motivationalPhrase"
+          render={({ field }) => (
+            <Input
+              compact
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('MotivationalPhrasePlaceholder')}
+              error={errors.motivationalPhrase?.message}
+              accessibilityLabel={t('MotivationPhrase')}
+              testID="habit-phrase"
             />
-          </View>
+          )}
+        />
+      </FormField>
 
+      <Controller
+        control={control}
+        name="iconId"
+        render={({ field }) => (
+          <IconPickerField
+            label={t('Icon')}
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.iconId?.message}
+            testID="habit-icon"
+          />
+        )}
+      />
+
+      <FormField label={t('Importance')} error={errors.importance?.message}>
+        <Controller
+          control={control}
+          name="importance"
+          render={({ field }) => (
+            <SegmentedControl
+              label={t('Importance')}
+              value={field.value}
+              onChange={field.onChange}
+              options={labelOptions(IMPORTANCE_KEYS, t)}
+              testID="habit-importance"
+            />
+          )}
+        />
+      </FormField>
+
+      <FormField label={t('Difficulty')} error={errors.difficulty?.message}>
+        <Controller
+          control={control}
+          name="difficulty"
+          render={({ field }) => (
+            <SegmentedControl
+              label={t('Difficulty')}
+              value={field.value}
+              onChange={field.onChange}
+              options={labelOptions(DIFFICULTY_KEYS, t)}
+              testID="habit-difficulty"
+            />
+          )}
+        />
+      </FormField>
+
+      {!isEdit ? (
+        <FormField label={t('YourExperience')} hint={t('HabitExperienceCaption')}>
           <Controller
             control={control}
-            name="iconId"
+            name="experience"
             render={({ field }) => (
-              <IconPickerField
-                label={t('Icon')}
+              <SegmentedControl
+                label={t('YourExperience')}
                 value={field.value}
                 onChange={field.onChange}
-                error={errors.iconId?.message}
-                testID="habit-icon"
+                options={EXPERIENCE.map((e) => ({ value: e.value, label: t(e.key) }))}
+                testID="habit-experience"
               />
             )}
           />
+        </FormField>
+      ) : null}
 
-          <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Importance')}</Text>
-            <Controller
-              control={control}
-              name="importance"
-              render={({ field }) => (
-                <Segmented
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={labelOptions(IMPORTANCE_KEYS, t)}
-                  testID="habit-importance"
-                />
-              )}
-            />
-            {errors.importance?.message ? (
-              <Text className="text-error mt-1 text-sm">{errors.importance.message}</Text>
-            ) : null}
-          </View>
-
-          <View>
-            <Text className="text-secondary mb-1 text-base font-semibold">{t('Difficulty')}</Text>
-            <Controller
-              control={control}
-              name="difficulty"
-              render={({ field }) => (
-                <Segmented
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={labelOptions(DIFFICULTY_KEYS, t)}
-                  testID="habit-difficulty"
-                />
-              )}
-            />
-            {errors.difficulty?.message ? (
-              <Text className="text-error mt-1 text-sm">{errors.difficulty.message}</Text>
-            ) : null}
-          </View>
-
-          {!isEdit ? (
-            <View>
-              <Text className="text-secondary mb-1 text-base font-semibold">{t('YourExperience')}</Text>
-              <Controller
-                control={control}
-                name="experience"
-                render={({ field }) => (
-                  <Segmented
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={EXPERIENCE.map((e) => ({ value: e.value, label: t(e.key) }))}
-                    testID="habit-experience"
-                  />
-                )}
-              />
-            </View>
-          ) : null}
-
-          <Controller
-            control={control}
-            name="categoriesId"
-            render={({ field }) => (
-              <CategorySelector
-                categories={categories}
-                value={field.value}
-                onChange={field.onChange}
-                error={errors.categoriesId?.message}
-              />
-            )}
-          />
-
-          <View className="mt-2 items-center">
-            <Button
-              text={t(isEdit ? 'Edit' : 'Create')}
-              mode="create"
-              submitting={isSubmitting}
-              onPress={handleSubmit(onSubmit)}
-              testID="habit-submit"
-            />
-          </View>
-        </ScrollView>
-      </View>
-    </Modal>
+      <FormField label={t('Categories')} error={errors.categoriesId?.message}>
+        <Controller
+          control={control}
+          name="categoriesId"
+          render={({ field }) => (
+            <CategorySelector categories={categories} value={field.value} onChange={field.onChange} />
+          )}
+        />
+      </FormField>
+    </FormModal>
   );
 }

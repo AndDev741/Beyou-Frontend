@@ -55,17 +55,26 @@ export default function AppHome() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background" testID="dashboard-loading">
+      <View className="flex-1 items-center justify-center bg-bg" testID="dashboard-loading">
         <ActivityIndicator color={theme.primary} />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-bg">
       <ScrollView
-        className="flex-1 bg-background"
-        contentContainerStyle={{ padding: 16, paddingTop: 56, gap: 20 }}
+        className="flex-1 bg-bg"
+        // The assistant's disc rises 18px out of the bar and would cover the
+        // content's last row; the extra breathing room gives that space back.
+        // 12 at the sides and not 16: the routine is the densest content on screen and
+        // gains 8dp of usable width. Same measure as the web on phones (px-3).
+        contentContainerStyle={{
+          paddingHorizontal: 12,
+          paddingTop: 56,
+          paddingBottom: 40,
+          gap: 20,
+        }}
         testID="dashboard-screen"
       >
         <ProfileHeader />

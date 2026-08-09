@@ -29,7 +29,7 @@ export default function PasswordHints({ password }: PasswordHintsProps) {
             {hints.map(hint => (
                 <li
                     key={hint.key}
-                    className={hint.ok ? "text-success" : "text-description"}
+                    className={hint.ok ? "text-success" : "text-text-2"}
                     data-testid={`${hint.key}-${hint.ok ? "ok" : "pending"}`}
                 >
                     {hint.ok ? "✓ " : "• "}{t(hint.key)}

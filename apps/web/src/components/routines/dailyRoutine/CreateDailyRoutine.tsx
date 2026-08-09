@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateRoutineSection from "./CreateRoutineSection";
+import SectionsEditor from "./SectionsEditor";
+import RoutineTypeField from "./RoutineTypeField";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
-import SectionItem from "./SectionItem";
 import Button from "../../Button";
 import { Routine } from "@beyou/types/routine/routine";
 import createRoutine from "@beyou/api/routine/createRoutine";
 import { useDispatch, useSelector } from "react-redux";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import getRoutines from "@beyou/api/routine/getRoutines";
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
-import Droppable from "../../../components/utils/StrictModeDroppable";
-import { CgAddR } from "react-icons/cg";
 import { RootState } from "@beyou/state/rootReducer";
 import { toast } from "react-toastify";
 import ErrorNotice from "../../ErrorNotice";
@@ -22,10 +20,14 @@ import { routineFormSchema } from "@beyou/validation/forms/routineSchemas";
 
 const CreateDailyRoutine = ({
     onSectionChange,
-    onSectionModalChange
+    onSectionModalChange,
+    onCancel,
+    onCreated
 }: {
     onSectionChange?: (hasSection: boolean) => void;
     onSectionModalChange?: (isOpen: boolean) => void;
+    onCancel?: () => void;
+    onCreated?: () => void;
 }) => {
     const { t } = useTranslation();
     const dispatch = useDispatch();
@@ -43,7 +45,7 @@ const CreateDailyRoutine = ({
         setValue,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting, isSubmitted }
     } = useForm<{ routineName: string; routineSections: RoutineSection[] }>({
         resolver: zodResolver(routineFormSchema(t)),
         mode: "onBlur",
@@ -54,8 +56,10 @@ const CreateDailyRoutine = ({
     });
 
     useEffect(() => {
-        setValue("routineSections", routineSection, { shouldValidate: true });
-    }, [routineSection, setValue]);
+        // Only revalidates after the first save attempt: opening an empty form
+        // should not be met with "at least 1 section" right away.
+        setValue("routineSections", routineSection, { shouldValidate: isSubmitted });
+    }, [routineSection, setValue, isSubmitted]);
 
     useEffect(() => {
         onSectionChange?.(routineSection.length > 0);
@@ -130,114 +134,79 @@ const CreateDailyRoutine = ({
         setRoutineSection([]);
         reset({ routineName: "", routineSections: [] });
         toast.success(t("created successfully"));
-    };
-
-    const handleOnDragEnd = (result: any) => {
-        if (!result.destination) return;
-        const items = Array.from(routineSection);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-        setRoutineSection(items);
+        onCreated?.();
     };
 
     return (
-        <div
-            className="w-full flex flex-col items-center justify-center text-secondary overflow-x-hidden"
-            data-tutorial-id="routine-daily-form"
-        >
-            <h2 className="text-2xl text-secondary">{t("Creating daily routine")}</h2>
+        <div data-tutorial-id="routine-daily-form">
+            <RoutineTypeField />
 
-            <div className="relative w-full md:w-[95%] max-w-full flex flex-col items-center justify-start border-2 border-primary rounded-lg p-3 mt-4 bg-background shadow-sm min-h-[400px] transition-colors duration-200">
+            <div className="mt-4">
+                <label htmlFor="create-routine-name" className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
+                    {t("Name")}
+                </label>
                 <Controller
                     control={control}
                     name="routineName"
                     render={({ field }) => (
                         <input
+                            id="create-routine-name"
                             type="text"
                             value={field.value}
                             onChange={field.onChange}
-                            className="mb-6 w-[65%] px-4 py-2 border-0 border-b-2 border-b-primary rounded-none text-2xl font-semibold text-center focus:outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
+                            onBlur={field.onBlur}
                             placeholder={t("Routine name")}
+                            className={`w-full rounded-control border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40 ${
+                                errors.routineName ? "border-danger" : "border-border"
+                            }`}
                         />
                     )}
                 />
                 {errors.routineName?.message && (
-                    <p className="text-error text-center mt-2">{errors.routineName?.message}</p>
+                    <p className="mt-1.5 text-xs text-danger">{errors.routineName.message}</p>
                 )}
+            </div>
 
-                <button
-                    className="absolute top-3 right-3 flex flex-col items-center"
-                    data-tutorial-id="routine-add-section"
-                    onClick={() => {
+            <div className="mt-4">
+                <SectionsEditor
+                    sections={routineSection}
+                    setRoutineSection={setRoutineSection}
+                    onEditSection={handleEditSection}
+                    onDeleteSection={handleDeleteSection}
+                    onAddSection={() => {
                         setShowModal(true);
                         setEditIndex(null);
                     }}
-                    type="button"
-                >
-                    <CgAddR className="w-[30px] h-[30px] mr-1" />
-                    <span className="text-sm text-center font-medium mt-1 whitespace-pre-line">
-                        {t("add section")}
-                    </span>
-                </button>
+                    addTutorialId="routine-add-section"
+                    firstItemTutorialId="routine-section-item"
+                />
+                {errors.routineSections?.message && (
+                    <p className="mt-1.5 text-xs text-danger">{errors.routineSections.message}</p>
+                )}
+            </div>
 
-                <DragDropContext onDragEnd={handleOnDragEnd}>
-                    <Droppable droppableId="sections">
-                        {(provided) => (
-                            <div
-                                className="w-full flex flex-col items-stretch justify-start mt-5 text-secondary"
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}
-                            >
-                                {routineSection.length > 0 ? (
-                                    routineSection.map((section, index) => (
-                                        <Draggable
-                                            key={section.id.toString()}
-                                            draggableId={section.id.toString()}
-                                            index={index}
-                                        >
-                                            {(provided) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    className="flex items-start w-full min-w-0"
-                                                    data-tutorial-id={index === 0 ? "routine-section-item" : undefined}
-                                                >
-                                                    <div
-                                                        {...provided.dragHandleProps}
-                                                        className="cursor-grab mt-3 text-icon"
-                                                    >
-                                                        ⠿
-                                                    </div>
+            {errors.root?.message && <p className="mt-2 text-xs text-danger">{errors.root.message}</p>}
+            <ErrorNotice error={apiError} className="mt-2" />
 
-                                                    <SectionItem
-                                                        key={index}
-                                                        section={section}
-                                                        onEdit={() => handleEditSection(index)}
-                                                        onDelete={() => handleDeleteSection(index)}
-                                                        setRoutineSection={setRoutineSection}
-                                                        index={index}
-                                                    />
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))
-                                ) : (
-                                    <p className="text-description text-center">{t("No sections added")}</p>
-                                )}
-                                {provided.placeholder}
-                            </div>
-                        )}
-                    </Droppable>
-                </DragDropContext>
+            <div className="mt-[18px] flex justify-end gap-2">
+                {onCancel && <Button text={t("Cancel")} mode="ghost" size="medium" onClick={onCancel} />}
+                <Button
+                    text={t("Save routine")}
+                    mode="primary"
+                    size="medium"
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(onSubmit)}
+                />
             </div>
 
             {showModal && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+                    className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 p-4"
                     onClick={handleOverlayClick}
                 >
                     <div
-                        className="bg-background text-secondary border border-primary/20 rounded-lg shadow-lg p-5 md:p-8 min-w-[350px] max-w-lg w-[99%] relative transition-colors duration-200"
+                        className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-card border border-border bg-surface p-5 text-text shadow-surface md:p-7"
                         data-tutorial-id="routine-section-modal"
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -265,17 +234,6 @@ const CreateDailyRoutine = ({
                     </div>
                 </div>
             )}
-
-            <div className="my-2 mb-6 flex flex-col items-center">
-                <Button text={t("Create")} mode="create" size="big" onClick={handleSubmit(onSubmit)} type="submit" />
-                {errors.routineSections?.message && (
-                    <p className="text-center text-error mt-2">{errors.routineSections?.message}</p>
-                )}
-                {errors.root?.message && (
-                    <p className="text-center text-error mt-2">{errors.root?.message}</p>
-                )}
-                <ErrorNotice error={apiError} className="text-center mt-2" />
-            </div>
         </div>
     );
 };

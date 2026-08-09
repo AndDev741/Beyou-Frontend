@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import { Image as ImageIcon, X } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { MAX_ATTACHMENTS, selectImages, type FeedbackImage } from './feedbackAttachments';
 
@@ -54,27 +54,32 @@ export default function AttachmentsField({ images, onChange }: Props) {
   };
 
   return (
-    <View className="gap-2">
-      <Text className="text-secondary text-base font-semibold">{t('FeedbackImagesLabel')}</Text>
-      <Text className="text-description text-xs">{t('FeedbackImagesHint')}</Text>
+    <View>
+      <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
+        {t('FeedbackImagesLabelOptional')}
+      </Text>
 
+      {/* A drop zone instead of a button: on a phone the tap opens the same picker,
+          and the big target is easier to hit than a pill. */}
       <Pressable
         onPress={pick}
         accessibilityRole="button"
         accessibilityLabel={t('FeedbackAddImages')}
         testID="feedback-add-images"
-        className={`flex-row items-center gap-2 self-start rounded-full border border-primary px-4 py-2 ${
+        className={`items-center justify-center gap-1.5 rounded-control border border-dashed border-border px-4 py-6 ${
           full ? 'opacity-60' : ''
         }`}
       >
-        <Ionicons name="attach" size={16} color={theme.primary} />
-        <Text className="text-primary text-sm font-semibold">{t('FeedbackAddImages')}</Text>
+        <ImageIcon size={18} color={theme.text3} />
+        {/* The web hides the limits line on a phone (`lg:block`): the short label is
+            enough, and the limits come back in the error if something is rejected. */}
+        <Text className="text-[12.5px] text-text-2">{t('FeedbackDropzoneMobile')}</Text>
       </Pressable>
 
       {errors.length > 0 ? (
         <View className="gap-0.5" testID="feedback-image-errors">
           {errors.map((message) => (
-            <Text key={message} className="text-error text-sm">
+            <Text key={message} className="mt-1.5 text-xs text-danger">
               {message}
             </Text>
           ))}
@@ -82,12 +87,12 @@ export default function AttachmentsField({ images, onChange }: Props) {
       ) : null}
 
       {images.length > 0 ? (
-        <View className="mt-1 flex-row flex-wrap gap-3">
+        <View className="mt-2 flex-row flex-wrap gap-2">
           {images.map((image, index) => (
             <View key={`${image.uri}-${index}`} testID={`feedback-attachment-${index}`}>
               <Image
                 source={{ uri: image.uri }}
-                className="h-24 w-24 rounded-lg border border-primary"
+                className="h-24 w-24 rounded-control border border-border"
                 accessibilityLabel={image.name}
               />
               <Pressable
@@ -95,9 +100,9 @@ export default function AttachmentsField({ images, onChange }: Props) {
                 accessibilityRole="button"
                 accessibilityLabel={t('FeedbackRemoveImage', { name: image.name })}
                 testID={`feedback-remove-image-${index}`}
-                className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-primary bg-background"
+                className="absolute -right-2 -top-2 h-7 w-7 items-center justify-center rounded-full border border-border bg-surface"
               >
-                <Ionicons name="close" size={16} color={theme.primary} />
+                <X size={14} color={theme.text2} />
               </Pressable>
             </View>
           ))}

@@ -33,7 +33,7 @@ beforeEach(() => {
 test("shows required errors for create task", async () => {
     renderWithProviders(<TaskForm mode="create" setTasks={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save task" }));
 
     expect(await screen.findByText("YupNameRequired")).toBeInTheDocument();
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
@@ -52,23 +52,20 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
     renderWithProviders(<TaskForm mode="create" setTasks={vi.fn()} />);
 
     // Fill name (min 2 chars)
-    fireEvent.change(screen.getByPlaceholderText("Clean the house"), {
+    fireEvent.change(screen.getByPlaceholderText("TaskNamePlaceholder"), {
         target: { value: "My Task" }
     });
 
     // Set importance and difficulty (min 1 required, matching backend @Min(1) @Max(5))
-    fireEvent.click(screen.getByLabelText("Low"));
-    fireEvent.click(screen.getByLabelText("Easy"));
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
 
-    // Click an icon from the icon grid (rendered as <button> tiles with cursor-pointer class)
-    await waitFor(() => {
-        const icons = document.querySelectorAll("button.cursor-pointer");
-        expect(icons.length).toBeGreaterThan(0);
-    });
-    fireEvent.click(document.querySelectorAll("button.cursor-pointer")[0]);
+    // Click the first icon from the compact picker (tiles with aria-label "Icon: …").
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
 
     // Submit the form
-    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save task" }));
 
     // createTask should be called since name + icon are filled
     await waitFor(

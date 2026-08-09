@@ -1,6 +1,5 @@
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
 
-import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
@@ -52,25 +51,23 @@ test('quick-group selects all weekdays', async () => {
   expect(body.days).toEqual(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
 });
 
-test('a day owned by another routine is blocked until override is confirmed', async () => {
+test('a day owned by another routine is blocked until the override is tapped', async () => {
   // Another routine in the slice owns Monday.
   await renderSheet([
     routine,
     { id: 'r2', name: 'Evening', iconId: '', routineSections: [], schedule: { id: 'sc2', days: ['Monday'], routine: {} } },
   ]);
 
-  const alertSpy = jest.spyOn(Alert, 'alert');
+  // Tapping a blocked square does nothing — freeing it is explicit, on the row that
+  // says whose day it is.
   await act(async () => { fireEvent.press(screen.getByTestId('day-Monday')); });
-  expect(alertSpy).toHaveBeenCalled();
   expect(screen.getByTestId('day-Monday').props.accessibilityState.selected).toBe(false);
+  expect(screen.getByText(/Evening/)).toBeTruthy();
 
-  // Confirm the override → Monday becomes selected and POSTs.
-  alertSpy.mockImplementation((_t, _m, buttons) => { (buttons ?? []).find((b) => b.style !== 'cancel')?.onPress?.(); });
-  await act(async () => { fireEvent.press(screen.getByTestId('day-Monday')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('override-Monday')); });
   expect(screen.getByTestId('day-Monday').props.accessibilityState.selected).toBe(true);
 
   await act(async () => { fireEvent.press(screen.getByTestId('schedule-save')); });
   await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
   expect(post.mock.calls[0][1].days).toEqual(['Monday']);
-  alertSpy.mockRestore();
 });

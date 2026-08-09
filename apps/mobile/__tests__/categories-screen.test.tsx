@@ -12,7 +12,6 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
 }));
 
-import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
@@ -66,18 +65,14 @@ describe('CategoriesScreen', () => {
     expect(screen.queryByTestId('categories-sort')).toBeNull();
   });
 
-  it('deletes a category after Alert confirmation', async () => {
+  it('deletes a category from the shared delete modal', async () => {
     setHttp([category]);
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      (buttons ?? []).find((b) => b.style === 'destructive')?.onPress?.();
-    });
     await renderScreen();
     await waitFor(() => expect(screen.getByTestId('category-card-cat1')).toBeTruthy());
 
-    await act(async () => { fireEvent.press(screen.getByTestId('category-card-cat1')); }); // expand
     await act(async () => { fireEvent.press(screen.getByTestId('category-delete-cat1')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('delete-modal-confirm')); });
 
     await waitFor(() => expect(del).toHaveBeenCalledWith('/category/cat1'));
-    alertSpy.mockRestore();
   });
 });

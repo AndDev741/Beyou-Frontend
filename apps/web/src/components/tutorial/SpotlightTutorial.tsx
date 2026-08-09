@@ -52,6 +52,22 @@ const pickAutoPosition = (rect: DOMRect) => {
     return entries.sort((a, b) => b[1] - a[1])[0][0] as SpotlightPosition;
 };
 
+/**
+ * First VISIBLE match for a step's selector.
+ *
+ * A step can list more than one anchor (the desktop sidebar link and the phone
+ * "More" button, say) — whichever is mounted at this width is the real target,
+ * and a `display:none` sibling measures 0x0.
+ */
+const findVisibleTarget = (selector: string): HTMLElement | null => {
+    const targets = Array.from(document.querySelectorAll(selector)) as HTMLElement[];
+    const visible = targets.find((item) => {
+        const rect = item.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    });
+    return visible ?? targets[0] ?? null;
+};
+
 export default function SpotlightTutorial({
     steps,
     onComplete,
@@ -99,12 +115,7 @@ export default function SpotlightTutorial({
         // one-shot measure would miss it and the spotlight would only appear once
         // the user scrolled. We poll until it's found (then stop).
         const findTarget = (): boolean => {
-            const targets = Array.from(document.querySelectorAll(step.targetSelector)) as HTMLElement[];
-            const visible = targets.find((item) => {
-                const rect = item.getBoundingClientRect();
-                return rect.width > 0 && rect.height > 0;
-            });
-            const target = visible ?? targets[0];
+            const target = findVisibleTarget(step.targetSelector);
             if (!target) {
                 setIsVisible(false);
                 return false;
@@ -122,7 +133,9 @@ export default function SpotlightTutorial({
             if (isOutside && !(isMobile && (isCreateFormStep || isRoutineStep))) {
                 target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
             }
-            return Boolean(visible);
+            // Only a MEASURED target ends the poll; a 0x0 fallback means the
+            // real anchor has not mounted yet.
+            return rect.width > 0 && rect.height > 0;
         };
 
         frame = window.requestAnimationFrame(findTarget);
@@ -149,11 +162,7 @@ export default function SpotlightTutorial({
 
     useEffect(() => {
         if (!isActive || !step || step.action !== "click") return;
-        const targets = Array.from(document.querySelectorAll(step.targetSelector)) as HTMLElement[];
-        const target = targets.find((item) => {
-            const rect = item.getBoundingClientRect();
-            return rect.width > 0 && rect.height > 0;
-        }) ?? targets[0];
+        const target = findVisibleTarget(step.targetSelector);
         if (!target) return;
 
         const handleClick = () => {
@@ -170,10 +179,19 @@ export default function SpotlightTutorial({
         if (!isActive || !step) return;
         if (typeof window === "undefined" || window.innerWidth >= 768) return;
         if (!step.id.includes("shortcut")) return;
-        const target = document.querySelector(step.targetSelector) as HTMLElement | null;
+        const target = findVisibleTarget(step.targetSelector);
         if (!target) return;
         target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }, [isActive, step?.id, step?.targetSelector]);
+
+    // Tracked so unmounting mid-transition cannot advance a step on a gone tree.
+    const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(
+        () => () => {
+            if (advanceTimer.current) clearTimeout(advanceTimer.current);
+        },
+        [],
+    );
 
     const goNext = () => {
         if (step?.disableNext) return;
@@ -181,7 +199,9 @@ export default function SpotlightTutorial({
             onComplete();
         } else {
             setIsVisible(false);
-            setTimeout(() => {
+            if (advanceTimer.current) clearTimeout(advanceTimer.current);
+            advanceTimer.current = setTimeout(() => {
+                advanceTimer.current = null;
                 setStep(stepIndex + 1);
             }, 200);
         }
@@ -201,7 +221,9 @@ export default function SpotlightTutorial({
                 : preferred;
         let top = 0;
         let left = 0;
-        let arrow: TooltipPosition["arrow"] = "top";
+        // No initial value: the `switch` below has a `default`, so every path
+        // assigns — and the initializer only hid that.
+        let arrow: TooltipPosition["arrow"];
 
         switch (position) {
             case "top":
@@ -298,7 +320,7 @@ export default function SpotlightTutorial({
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="absolute rounded-xl"
+                                    className="absolute rounded-card"
                                     style={{
                                         top: targetRect.top - 8,
                                         left: targetRect.left - 8,
@@ -322,28 +344,28 @@ export default function SpotlightTutorial({
                                 left: tooltipPosition.left
                             }}
                         >
-                            <div className="bg-background border border-primary/20 rounded-2xl shadow-2xl overflow-hidden text-secondary">
-                                <div className="bg-primary/10 px-5 py-1 md:py-3 border-b border-primary/20 flex items-center justify-between">
+                            <div className="bg-surface border border-border rounded-card shadow-2xl overflow-hidden text-text">
+                                <div className="bg-accent/10 px-5 py-1 md:py-3 border-b border-border flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-primary" />
-                                        <span className="text-sm font-semibold text-primary">
+                                        <Sparkles className="w-4 h-4 text-accent" />
+                                        <span className="text-sm font-semibold text-accent">
                                             {t("TutorialStepOf", { current: stepIndex + 1, total: steps.length })}
                                         </span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={onSkip}
-                                        className="text-description hover:text-secondary transition-colors"
+                                        className="text-text-2 hover:text-text transition-colors"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
                                 </div>
 
                                 <div className="p-3 md:p-5">
-                                    <h3 className="text-lg font-semibold text-secondary mb-1 md:mb-2">
+                                    <h3 className="text-lg font-semibold text-text mb-1 md:mb-2">
                                         {t(step.titleKey)}
                                     </h3>
-                                    <p className="text-sm text-description leading-relaxed mb-2 md:mb-4">
+                                    <p className="text-sm text-text-2 leading-relaxed mb-2 md:mb-4">
                                         {t(step.descriptionKey)}
                                     </p>
 
@@ -351,7 +373,7 @@ export default function SpotlightTutorial({
                                         <button
                                             type="button"
                                             onClick={onSkip}
-                                            className="text-sm text-description hover:text-secondary transition-colors"
+                                            className="text-sm text-text-2 hover:text-text transition-colors"
                                         >
                                             {t("TutorialSkip")}
                                         </button>
@@ -360,10 +382,10 @@ export default function SpotlightTutorial({
                                             onClick={goNext}
                                             disabled={step.disableNext}
                                             className={cn(
-                                                "flex items-center gap-1 px-3 md:py-2 rounded-md text-sm font-semibold transition-all",
+                                                "flex items-center gap-1 px-3 md:py-2 rounded-control text-sm font-semibold transition-all",
                                                 step.disableNext
-                                                    ? "bg-description/30 text-description cursor-not-allowed"
-                                                    : "bg-primary text-background hover:bg-primary/90"
+                                                    ? "bg-surface-2 text-text-2 cursor-not-allowed"
+                                                    : "bg-accent text-on-accent hover:bg-accent/90"
                                             )}
                                         >
                                             {showFinishLabel ? t("TutorialFinish") : t("TutorialNext")}
@@ -377,12 +399,12 @@ export default function SpotlightTutorial({
                                         <div
                                             key={index}
                                             className={cn(
-                                                "w-1.5 h-1.5 rounded-full transition-all border border-primary/20",
+                                                "w-1.5 h-1.5 rounded-full transition-all border border-border",
                                                 index === stepIndex
-                                                    ? "bg-primary w-4"
+                                                    ? "bg-accent w-4"
                                                     : index < stepIndex
-                                                    ? "bg-primary/50"
-                                                    : "bg-description/40"
+                                                    ? "bg-accent/50"
+                                                    : "bg-text-3/40"
                                             )}
                                         />
                                     ))}
@@ -390,16 +412,16 @@ export default function SpotlightTutorial({
                             </div>
 
                             {tooltipPosition.arrow === "top" && (
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-l border-t border-primary/20 rotate-45" />
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-surface border-l border-t border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "bottom" && (
-                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-background border-r border-b border-primary/20 rotate-45" />
+                                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-surface border-r border-b border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "left" && (
-                                <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-background border-l border-b border-primary/20 rotate-45" />
+                                <div className="absolute top-1/2 -left-2 -translate-y-1/2 w-4 h-4 bg-surface border-l border-b border-border rotate-45" />
                             )}
                             {tooltipPosition.arrow === "right" && (
-                                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-background border-r border-t border-primary/20 rotate-45" />
+                                <div className="absolute top-1/2 -right-2 -translate-y-1/2 w-4 h-4 bg-surface border-r border-t border-border rotate-45" />
                             )}
                         </motion.div>
                     )}

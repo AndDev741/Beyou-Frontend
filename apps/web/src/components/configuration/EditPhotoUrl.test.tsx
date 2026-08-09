@@ -25,11 +25,9 @@ function renderProfile() {
     renderWithProviders(<ProfileConfiguration />, { storeOverride });
 }
 
-/** Open the photo edit modal by clicking the profile image. */
+/** Opens the photo modal through the "Change photo" button next to the avatar. */
 function openPhotoModal() {
-    const photoImg = screen.getByAltText("Profile");
-    const photoDiv = photoImg.closest("div")!;
-    fireEvent.click(photoDiv);
+    fireEvent.click(screen.getByRole("button", { name: /ChangePhotoShort/i }));
 }
 
 test("opens photo modal when clicking the photo area", () => {
@@ -42,9 +40,8 @@ test("shows Save and Cancel buttons in photo modal", () => {
     renderProfile();
     openPhotoModal();
 
-    // Two Save buttons exist: form + modal. getAllByText shows there are 2.
-    const saveButtons = screen.getAllByText("Save");
-    expect(saveButtons).toHaveLength(2);
+    // The form's button is now "SaveProfile"; the bare "Save" is the modal's.
+    expect(screen.getByText("Save")).toBeInTheDocument();
     expect(screen.getByText("Cancel")).toBeInTheDocument();
 });
 
@@ -52,10 +49,9 @@ test("Save button in modal is disabled when no file is selected", () => {
     renderProfile();
     openPhotoModal();
 
-    // The modal Save button is the second one in the document
-    const saveButtons = screen.getAllByText("Save");
-    const modalSaveButton = saveButtons[1]; // second Save button (modal)
-    expect(modalSaveButton).toBeDisabled();
+    // Only one bare "Save" exists now: the modal's (the form's became
+    // "SaveProfile").
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
 });
 
 test("shows error for invalid file type", () => {

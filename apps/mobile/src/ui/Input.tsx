@@ -16,6 +16,13 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   disabled?: boolean;
   /** Multi-line textarea (taller, top-aligned) — e.g. a description field. */
   multiline?: boolean;
+  /**
+   * The forms' height (the web's): a 1px border and 13.5px text. The default is
+   * still the tall field of the auth screens, where it is the only content.
+   */
+  compact?: boolean;
+  /** Visible label above the field (system default, same as the web). */
+  label?: string;
 }
 
 export default function Input({
@@ -30,6 +37,8 @@ export default function Input({
   accessibilityLabel,
   disabled,
   multiline,
+  compact,
+  label,
   ...rest
 }: Props) {
   const [hidden, setHidden] = useState(!!password);
@@ -37,14 +46,27 @@ export default function Input({
 
   return (
     <View className="w-full">
+      {label ? (
+        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+      ) : null}
       <View
-        className={`flex-row border-2 rounded-md ${multiline ? 'min-h-[100px] items-start py-1' : 'h-[56px] items-center'} ${
-          disabled ? 'bg-description/10' : 'bg-background'
-        } ${error ? 'border-error' : disabled ? 'border-description/40' : 'border-primary'}`}
+        className={`flex-row rounded-control ${compact ? 'border' : 'border-2'} ${
+          multiline
+            ? compact
+              ? 'min-h-[84px] items-start py-1'
+              : 'min-h-[100px] items-start py-1'
+            : compact
+              ? 'min-h-[42px] items-center'
+              : 'h-[56px] items-center'
+        } ${disabled ? 'bg-surface-2' : 'bg-surface'} ${
+          error ? 'border-danger' : disabled ? 'border-border/40' : 'border-border'
+        }`}
       >
         {iconStart ? <View className="mx-3">{iconStart}</View> : null}
         <TextInput
-          className={`flex-1 text-lg px-2 ${disabled ? 'text-description' : 'text-secondary'}`}
+          className={`flex-1 ${compact ? 'px-3 py-2.5 text-[13.5px]' : 'px-2 text-lg'} ${
+            disabled ? 'text-text-2' : 'text-text'
+          }`}
           value={value}
           onChangeText={onChangeText}
           editable={!disabled}
@@ -69,7 +91,7 @@ export default function Input({
       </View>
       {error ? (
         <Text
-          className="text-error text-sm mt-1"
+          className="text-danger text-sm mt-1"
           testID={testID ? `${testID}-error` : undefined}
         >
           {error}

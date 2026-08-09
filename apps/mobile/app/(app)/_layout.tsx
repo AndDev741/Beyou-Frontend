@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { TutorialOverlayHost } from '../../src/tutorial/TutorialOverlaySlot';
 import AgentWidget from '../../src/ui/agent/AgentWidget';
 import BottomNav from '../../src/ui/dashboard/BottomNav';
-import FeedbackLauncher from '../../src/ui/feedback/FeedbackLauncher';
 
 // Anchor the (app) group on the dashboard so deep-linking / reloading onto a
 // section screen (e.g. /goals) still has the dashboard beneath it — back returns
@@ -33,8 +32,11 @@ export default function AppLayout() {
             screen can move sideways in one tap, instead of routing back through
             the dashboard first. */}
         <BottomNav />
-        <FeedbackLauncher />
-        <AgentWidget />
+        {/* No floating bubble: the bar above already carries the assistant's centre
+            button, and it exists on EVERY screen in this group. Two triggers for the
+            same panel would be permanent furniture on a small screen — the widget
+            stays mounted here because it is what holds the conversation. */}
+        <AgentWidget showFab={false} />
       </TutorialOverlayHost>
     </View>
   );

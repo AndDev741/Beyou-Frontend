@@ -28,7 +28,7 @@ export default function ErrorNotice({ error, className = "", canReport = true }:
             : friendlyMessage;
 
     return (
-        <div className={`text-error text-sm ${className}`}>
+        <div className={`text-danger text-sm ${className}`}>
             <p>{friendlyMessage}</p>
             {canReport && (
                 <ReportControlGuard>

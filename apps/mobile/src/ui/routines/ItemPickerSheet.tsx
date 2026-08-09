@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import { Search } from 'lucide-react-native';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
 import getCategories from '@beyou/api/categories/getCategories';
@@ -12,8 +13,11 @@ import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
 import type category from '@beyou/types/category/categoryType';
+import { suggestSlots } from '@beyou/state';
 import { uuidv4 } from '../../lib/uuid';
 import BeyouIcon from '../BeyouIcon';
+import IconTile from '../IconTile';
+import SegmentedControl from '../SegmentedControl';
 import Button from '../Button';
 import BottomSheet from '../BottomSheet';
 import HabitForm from '../habits/HabitForm';
@@ -44,6 +48,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
   const [habitGroup, setHabitGroup] = useState<HabitGroup[]>([]);
   const [taskGroup, setTaskGroup] = useState<TaskGroup[]>([]);
   const [tab, setTab] = useState<'habit' | 'task'>('habit');
+  const [search, setSearch] = useState('');
   const [quickOpen, setQuickOpen] = useState<'habit' | 'task' | null>(null);
   const [pending, setPending] = useState<{ type: 'habit' | 'task'; name: string } | null>(null);
   // After quick-create we refetch locally (no redux dep) and render the merged lists.
@@ -59,6 +64,7 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     setHabitGroup(section.habitGroup ?? []);
     setTaskGroup(section.taskGroup ?? []);
     setTab('habit');
+    setSearch('');
     setFetchedHabits(null);
     setFetchedTasks(null);
   }, [visible, section]);
@@ -71,12 +77,40 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
 
   // Available = items of the active tab NOT yet selected, sorted A→Z.
   const available = useMemo(() => {
-    if (tab === 'habit') return allHabits.filter((h) => !habitGroup.some((g) => g.habitId === h.id)).slice().sort(byName);
-    return allTasks.filter((tk) => !taskGroup.some((g) => g.taskId === tk.id)).slice().sort(byName);
-  }, [tab, allHabits, allTasks, habitGroup, taskGroup]);
+    const term = search.trim().toLowerCase();
+    const pool =
+      tab === 'habit'
+        ? allHabits.filter((h) => !habitGroup.some((g) => g.habitId === h.id))
+        : allTasks.filter((tk) => !taskGroup.some((g) => g.taskId === tk.id));
+    return pool
+      .filter((item) => !term || item.name?.toLowerCase().includes(term))
+      .slice()
+      .sort(byName);
+  }, [tab, search, allHabits, allTasks, habitGroup, taskGroup]);
 
-  const addHabit = (id: string) => setHabitGroup((g) => [...g, { id: uuidv4(), habitId: id, startTime: '', endTime: '' }]);
-  const addTask = (id: string) => setTaskGroup((g) => [...g, { id: uuidv4(), taskId: id, startTime: '', endTime: '' }]);
+  /**
+   * The next item's time: resumes where the assigned ones stopped and splits what
+   * is left of the section's window. Same maths as the web (`suggestSlots`), which
+   * now lives in the shared package — before this the item arrived with no time at
+   * all and every row had to be filled by hand.
+   */
+  const nextSlot = () =>
+    suggestSlots({ ...section, habitGroup, taskGroup }, 1)[0] ?? { startTime: '', endTime: '' };
+
+  const addHabit = (id: string) => {
+    const slot = nextSlot();
+    setHabitGroup((g) => [
+      ...g,
+      { id: uuidv4(), habitId: id, startTime: slot.startTime, endTime: slot.endTime ?? '' },
+    ]);
+  };
+  const addTask = (id: string) => {
+    const slot = nextSlot();
+    setTaskGroup((g) => [
+      ...g,
+      { id: uuidv4(), taskId: id, startTime: slot.startTime, endTime: slot.endTime ?? '' },
+    ]);
+  };
   const removeHabit = (id: string) => setHabitGroup((g) => g.filter((x) => x.habitId !== id));
   const removeTask = (id: string) => setTaskGroup((g) => g.filter((x) => x.taskId !== id));
 
@@ -120,11 +154,19 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     }
   }, [allHabits, allTasks, pending, habitGroup, taskGroup]);
 
-  const save = () => { onSave({ ...section, habitGroup, taskGroup }); onClose(); };
+  /**
+   * Closing SAVES. What you pick here only touches the routine's working copy —
+   * the routine's own button is what really writes — so leaving through the
+   * backdrop or the system back button and losing everything was just a trap.
+   */
+  const finish = () => {
+    onSave({ ...section, habitGroup, taskGroup });
+    onClose();
+  };
 
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
-      <Text className="text-secondary mb-3 text-lg font-bold">{t('AssignItems')}</Text>
+    <BottomSheet visible={visible} onClose={finish}>
+      <Text className="text-text mb-3 text-lg font-bold">{t('AssignItems')}</Text>
       {/* flexShrink, NOT flex-1. The BottomSheet panel is capped with `max-h`, not
           given a height, so it sizes to its content — and `flex-1` means
           `flexBasis: 0`, which contributes zero height to that measurement. The
@@ -140,19 +182,19 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         keyboardShouldPersistTaps="handled"
       >
         {/* Selected tray */}
-        <Text className="text-description text-xs font-semibold uppercase">{t('Assigned')} ({assigned.length})</Text>
+        <Text className="text-text-2 text-xs font-semibold uppercase">{t('Assigned')} ({assigned.length})</Text>
         {assigned.length === 0 ? (
-          <Text className="text-placeholder text-sm">{t('NothingAssignedYet')}</Text>
+          <Text className="text-text-3 text-sm">{t('NothingAssignedYet')}</Text>
         ) : (
           <View className="gap-2">
             {assigned.map((item) => {
               const remove = item.type === 'habit' ? removeHabit : removeTask;
               const setField = item.type === 'habit' ? setHabitField : setTaskField;
               return (
-                <View key={item.key} className="rounded-lg border border-primary/30 bg-primary/5 p-2">
+                <View key={item.key} className="rounded-control border border-border bg-accent/5 p-2">
                   <View className="flex-row items-center gap-2">
                     <BeyouIcon id={item.iconId} size={18} />
-                    <Text className="text-secondary flex-1 text-sm font-semibold" numberOfLines={1}>{item.name}</Text>
+                    <Text className="text-text flex-1 text-sm font-semibold" numberOfLines={1}>{item.name}</Text>
                     <Pressable onPress={() => remove(item.refId)} accessibilityRole="button" accessibilityLabel={t('Remove')} testID={`remove-${item.type}-${item.refId}`} hitSlop={8}>
                       <Ionicons name="close-circle" size={22} color={theme.error} />
                     </Pressable>
@@ -167,40 +209,56 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           </View>
         )}
 
-        {/* Tabs */}
-        <View className="mt-1 flex-row rounded-full border border-primary/30 p-1">
-          {(['habit', 'task'] as const).map((tk) => (
-            <Pressable
-              key={tk}
-              onPress={() => setTab(tk)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: tab === tk }}
-              testID={`tab-${tk}`}
-              className={`flex-1 items-center rounded-full py-1.5 ${tab === tk ? 'bg-primary' : ''}`}
-            >
-              <Text className={`text-sm font-semibold ${tab === tk ? 'text-background' : 'text-secondary'}`}>
-                {tk === 'habit' ? t('Habits') : t('Tasks')}
-              </Text>
-            </Pressable>
-          ))}
+        <View className="mt-1 flex-row items-center gap-2 rounded-control border border-border bg-surface px-3">
+          <Search size={16} color={theme.text3} />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder={t('SearchHabitOrTask')}
+            placeholderTextColor={theme.text3}
+            accessibilityLabel={t('SearchHabitOrTask')}
+            testID="item-picker-search"
+            className="min-w-0 flex-1 py-2.5 text-[13.5px] text-text"
+          />
         </View>
+
+        <SegmentedControl
+          label={t('RoutineTypeLabel')}
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'habit' as const, label: t('Habits') },
+            { value: 'task' as const, label: t('Tasks') },
+          ]}
+          testID="item-picker-kind"
+        />
 
         {/* Available list for the active tab */}
         {available.length === 0 ? (
-          <Text className="text-placeholder text-sm">{t('NoItemsToAssign')}</Text>
+          <Text className="py-6 text-center text-[13px] text-text-3">
+            {search ? t('IconNoResults') : t('NoItemsToAssign')}
+          </Text>
         ) : (
-          <View className="gap-2">
+          <View className="gap-1.5">
+            {/* One tap assigns: the item rises into the tray with the suggested time
+                and leaves this list. Ticking first and confirming later was one extra
+                step with nothing in return. */}
             {available.map((it) => (
               <Pressable
                 key={it.id}
                 onPress={() => (tab === 'habit' ? addHabit(it.id) : addTask(it.id))}
                 accessibilityRole="button"
+                accessibilityLabel={`${t('Add')} ${it.name}`}
                 testID={`item-${tab}-${it.id}`}
-                className="flex-row items-center gap-2 rounded-lg border border-primary/30 p-2"
+                className="flex-row items-center gap-2.5 rounded-[9px] border border-border bg-surface px-2.5 py-[7px] active:bg-surface-2"
               >
-                <BeyouIcon id={it.iconId} size={18} />
-                <Text className="text-secondary flex-1 text-sm" numberOfLines={1}>{it.name}</Text>
-                <Ionicons name="add-circle-outline" size={20} color={theme.primary} />
+                <IconTile size={24}>
+                  <BeyouIcon id={it.iconId} size={13} />
+                </IconTile>
+                <Text className="min-w-0 flex-1 text-[12.5px] font-medium text-text" numberOfLines={1}>
+                  {it.name}
+                </Text>
+                <Ionicons name="add" size={18} color={theme.text3} />
               </Pressable>
             ))}
           </View>
@@ -211,10 +269,10 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
           onPress={() => openQuickCreate(tab)}
           accessibilityRole="button"
           testID={`quick-create-${tab}`}
-          className="mt-1 flex-row items-center justify-center gap-1.5 rounded-lg border border-dashed border-primary/50 py-2.5"
+          className="mt-1 flex-row items-center justify-center gap-1.5 rounded-control border border-dashed border-border py-2.5"
         >
           <Ionicons name="add" size={16} color={theme.primary} />
-          <Text className="text-primary text-sm font-semibold">{tab === 'habit' ? t('CreateHabit') : t('CreateTask')}</Text>
+          <Text className="text-accent text-sm font-semibold">{tab === 'habit' ? t('CreateHabit') : t('CreateTask')}</Text>
         </Pressable>
       </ScrollView>
 
@@ -239,10 +297,17 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
         />
       ) : null}
 
-      {/* Fixed footer — actions stay visible regardless of scroll. */}
-      <View className="mt-2 flex-row justify-end gap-3 border-t border-primary/10 pt-3">
-        <Pressable onPress={onClose} accessibilityRole="button" className="px-4 py-2"><Text className="text-description font-semibold">{t('Cancel')}</Text></Pressable>
-        <Button text={t('Save')} mode="create" size="small" onPress={save} testID="items-save" />
+      {/* Fixed footer: one action, always in sight. There is no "cancel" because
+          there is nothing to cancel — nothing left here for the server. */}
+      <View className="mt-2 border-t border-border pt-3">
+        <Button
+          text={t('Done')}
+          mode="primary"
+          size="auto"
+          className="w-full"
+          onPress={finish}
+          testID="items-save"
+        />
       </View>
     </BottomSheet>
   );

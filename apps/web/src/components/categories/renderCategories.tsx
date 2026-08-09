@@ -1,26 +1,35 @@
 //Components
 import CategoryBox from "./categoryBox";
 import EmptyState from "../EmptyState";
+import { Folder, Search } from "lucide-react";
 //Functions
 import { useTranslation } from "react-i18next";
 //Types
 import categoryType from "@beyou/types/category/categoryType";
 
-type props = {categories: Array<categoryType>}
+type props = {
+    categories: Array<categoryType>,
+    /** Sobrescreve a mensagem de lista vazia (ex.: busca sem resultado). */
+    emptyTitle?: string,
+    /** Limpa a busca a partir do estado vazio. */
+    onClearFilters?: () => void
+}
 
-function RenderCategories({categories}: props){
+function RenderCategories({categories, emptyTitle, onClearFilters}: props){
     const {t} = useTranslation();
 
     return(
+        // 3 columns on desktop, 1 on mobile — a scannable grid, no side-by-side form.
+        // items-start: without it the row stretches the neighbouring cards to the
+        // expanded one's height — the whole row "grew along" with whatever was open.
         <div
-            className="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(160px,1fr))] md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 text-secondary"
+            className="grid grid-cols-1 items-start gap-4 text-text md:grid-cols-2 lg:grid-cols-3"
             data-tutorial-id="categories-grid"
         >
             {categories.length > 0 ? (
                 categories.map((category, index) => (
                 <div
                 key={category.id}
-                className="lg:mx-1"
                 data-tutorial-id={index === 0 ? "category-card" : undefined}
                 >
                     <CategoryBox 
@@ -39,7 +48,22 @@ function RenderCategories({categories}: props){
                 </div>
                 ))    
             ) : (
-                <EmptyState emoji="🗂️" title={t('0CategoriesMessage')} />
+                emptyTitle ? (
+                <EmptyState
+                    icon={<Search size={20} aria-hidden="true" />}
+                    title={emptyTitle}
+                    description={t('NoResultsDescription')}
+                    actionLabel={onClearFilters ? t('ClearFilters') : undefined}
+                    onAction={onClearFilters}
+                    variant="ghost"
+                />
+            ) : (
+                <EmptyState
+                    icon={<Folder size={20} aria-hidden="true" />}
+                    title={t('0CategoriesTitle')}
+                    description={t('0CategoriesMessage')}
+                />
+            )
             )}
         </div>
     )

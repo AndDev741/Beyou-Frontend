@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import { task } from "@beyou/types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
@@ -8,7 +7,7 @@ import CreateTask from "../../components/tasks/createTask";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import EditTask from "../../components/tasks/editTask";
-import SortFilterBar, { SortOption } from "../../components/filters/SortFilterBar";
+import { TASK_FORM_TITLE_ID } from "../../components/tasks/TaskForm";
 import {
   compareNumbers,
   compareStrings,
@@ -17,7 +16,22 @@ import {
 } from "../../components/utils/sortHelpers";
 import { useTranslation } from "react-i18next";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
+import { editModeEnter } from "@beyou/state/task/editTaskSlice";
+import PageHeader from "../../ui/PageHeader";
+import Button from "../../components/Button";
+import Modal from "../../components/modals/Modal";
+import { Plus, Search } from "lucide-react";
 
+type SortOption = {
+    value: string;
+    label: string;
+};
+
+const ALL_CATEGORIES = "all";
+
+/** Height and surface shared by the bar's controls (input + selects). */
+const CONTROL_CLASS =
+    "h-10 rounded-control border border-border bg-surface text-sm text-text transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 
 function Tasks() {
     useAuthGuard();
@@ -26,6 +40,9 @@ function Tasks() {
     const dispatch = useDispatch();
     const isEditMode = useSelector((state: RootState) => state.editTask.editMode);
     const [tasks, setTasks] = useState<task[]>([]);
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
     const sortBy = useSelector((state: RootState) => state.viewFilters.tasks);
 
     const sortOptions: SortOption[] = [
@@ -67,8 +84,49 @@ function Tasks() {
         }
     }, [tasks, sortBy]);
 
+    // The category filter comes from the tasks themselves: only what is in use.
+    const categoriesInUse = useMemo(() => {
+        const byId = new Map<string, string>();
+        tasks.forEach((item) => {
+            Object.entries(item.categories ?? {}).forEach(([id, category]) => {
+                byId.set(id, category?.name ?? "");
+            });
+        });
+        return [...byId.entries()]
+            .map(([id, name]) => ({ id, name }))
+            .sort((a, b) => compareStrings(a.name, b.name));
+    }, [tasks]);
+
+    const visibleTasks = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        return sortedTasks.filter((item) => {
+            const matchesTerm =
+                term === "" ||
+                item.name.toLowerCase().includes(term) ||
+                (item.description ?? "").toLowerCase().includes(term);
+            const matchesCategory =
+                categoryFilter === ALL_CATEGORIES ||
+                Object.keys(item.categories ?? {}).includes(categoryFilter);
+            return matchesTerm && matchesCategory;
+        });
+    }, [sortedTasks, search, categoryFilter]);
+
+    const isFiltered = search.trim() !== "" || categoryFilter !== ALL_CATEGORIES;
+    // No dedicated search key in i18n: the label is composed from existing ones
+    // (same convention as categories/goals) and capitalised in CSS.
+    const searchLabel = t("TaskSearchPlaceholder");
+
     const handleSortChange = (value: string) => {
         dispatch(setViewSort({ view: "tasks", sortBy: value }));
+    };
+
+    // Create and edit happen in a modal: the whole page is left to the cards.
+    const isFormOpen = isCreateOpen || isEditMode;
+    const closeForm = () => {
+        setIsCreateOpen(false);
+        if (isEditMode) {
+            dispatch(editModeEnter(false));
+        }
     };
 
     useEffect(() => {
@@ -79,39 +137,93 @@ function Tasks() {
             }
         }
         returnTasks();
-    }, [t])
+    }, [t]);
 
     return (
-        <div className="lg:flex flex-col items-center w-full bg-background text-secondary min-h-screen">
-            <Header pageName="YourTasks" />
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] p-2">
-                <div className="w-full">
-                    <SortFilterBar
-                        title={t("Tasks workspace")}
-                        description={t("Sort results")}
-                        options={sortOptions}
-                        value={sortBy}
-                        onChange={handleSortChange}
-                        quickValues={["name-asc", "importance-desc", "created-desc"]}
-                        className="mb-4"
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 text-text lg:px-7">
+            <PageHeader
+                title={t("YourTasks")}
+                subtitle={`${tasks.length} ${t("Tasks")} · ${categoriesInUse.length} ${t("Categories")}`}
+                action={
+                    <Button
+                        text={t("CreateTask")}
+                        mode="primary"
+                        size="medium"
+                        icon={<Plus size={18} aria-hidden="true" />}
+                        onClick={() => setIsCreateOpen(true)}
+                        testId="create-task"
+                        collapseLabel
                     />
-                    <RenderTasks
-                        tasks={sortedTasks}
-                        setTasks={setTasks}
+                }
+            />
+
+            {/* On phones the search takes the whole row and the filters drop to
+                the line below, side by side — all three together squeezed the search
+                down to just the magnifier (`sm` here is 350px). */}
+            <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center">
+                <div className="relative min-w-0 lg:flex-1">
+                    <Search
+                        size={16}
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-3"
+                    />
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder={searchLabel}
+                        aria-label={searchLabel}
+                        className={`${CONTROL_CLASS} w-full pl-9 pr-3 placeholder:text-text-3`}
                     />
                 </div>
-                <div className="w-full">
-                    <div className={`${isEditMode ? "hidden" : "block"}`}>
-                        <CreateTask setTasks={setTasks} />
-                    </div>
-                    <div className={`${isEditMode ? "block" : "hidden"}`}>
-                        <EditTask setTasks={setTasks} />
-                    </div>
 
+                <div className="flex gap-2">
+                <select
+                    value={sortBy}
+                    onChange={(event) => handleSortChange(event.target.value)}
+                    aria-label={t("Sort by")}
+                    className={`${CONTROL_CLASS} min-w-0 flex-1 px-3 lg:w-[220px] lg:flex-none`}
+                >
+                    {sortOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={categoryFilter}
+                    onChange={(event) => setCategoryFilter(event.target.value)}
+                    aria-label={t("Categories")}
+                    className={`${CONTROL_CLASS} min-w-0 flex-1 px-3 lg:w-[220px] lg:flex-none`}
+                >
+                    <option value={ALL_CATEGORIES}>{t("All")}</option>
+                    {categoriesInUse.map((category) => (
+                        <option key={category.id} value={category.id}>
+                            {category.name}
+                        </option>
+                    ))}
+                </select>
                 </div>
             </div>
+
+            <RenderTasks
+                tasks={visibleTasks}
+                setTasks={setTasks}
+                emptyTitle={isFiltered && tasks.length > 0 ? t("NoResultsTitle") : undefined}
+                onClearFilters={() => { setSearch(""); setCategoryFilter(ALL_CATEGORIES); }}
+            />
+
+            {isFormOpen && (
+                <Modal isOpen onClose={closeForm} labelledBy={TASK_FORM_TITLE_ID} className="max-w-xl">
+                    {isEditMode ? (
+                        <EditTask setTasks={setTasks} onClose={closeForm} />
+                    ) : (
+                        <CreateTask setTasks={setTasks} onClose={closeForm} />
+                    )}
+                </Modal>
+            )}
         </div>
-    )
+    );
 }
 
 export default Tasks;

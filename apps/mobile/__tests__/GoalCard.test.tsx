@@ -1,7 +1,7 @@
 /**
- * GoalCard — shows progress, fires increase/decrease/complete against the API, and
- * (expanded) fires edit/delete. Wrapped in a real store since useGoalActions reads
- * perfil + dispatches updateGoal/applyRefreshUi.
+ * GoalCard — mirror of the web's goalBox. The stepper lives on the closed card;
+ * "Complete" only appears once the target is hit (it is what pays the XP) and,
+ * once complete, becomes "Undo" without the card losing its design.
  */
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
 
@@ -19,6 +19,9 @@ const goal = {
   motivation: 'learn', startDate: '2026-01-01', endDate: '2026-12-31', xpReward: 50, status: 'IN_PROGRESS', term: 'LONG_TERM',
 } as never;
 
+const reachedGoal = { ...(goal as object), currentValue: 12 } as never;
+const completedGoal = { ...(goal as object), currentValue: 12, status: 'COMPLETED', complete: true } as never;
+
 let put: jest.Mock;
 beforeEach(() => {
   // increase/decrease return the updated goal; the card reads from props (not the
@@ -29,40 +32,97 @@ beforeEach(() => {
   setLogger({ error: () => {} });
 });
 
-const wrap = (node: React.ReactElement) =>
-  render(<Provider store={makeStore()}><BeyouThemeProvider>{node}</BeyouThemeProvider></Provider>);
+// Inside `act`: the theme provider settles after the first render, and a loose
+// update would corrupt the next test in the file (see AGENTS.md).
+const wrap = async (node: React.ReactElement) => {
+  await act(async () => {
+    render(
+      <Provider store={makeStore()}>
+        <BeyouThemeProvider>{node}</BeyouThemeProvider>
+      </Provider>,
+    );
+  });
+};
 
 describe('GoalCard', () => {
-  it('shows progress and runs increase + complete', async () => {
-    const onChanged = jest.fn();
-    await wrap(<GoalCard goal={goal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={onChanged} />);
+  it('shows the count and steps the progress up', async () => {
+    await wrap(<GoalCard goal={goal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
 
     expect(screen.getByText('3/12 books')).toBeTruthy();
-    expect(screen.getByText('25%')).toBeTruthy(); // 3/12
 
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-increase-g1')); });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-increase-g1'));
+    });
     await waitFor(() => expect(put).toHaveBeenCalledWith('/goal/increase', 'g1', expect.anything()));
+  });
 
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-complete-g1')); });
+  it('withholds Complete until the target is reached', async () => {
+    await wrap(<GoalCard goal={goal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
+
+    expect(screen.queryByTestId('goal-complete-g1')).toBeNull();
+    expect(screen.getByTestId('goal-increase-g1')).toBeTruthy();
+    // With the target unmet there is no XP to announce.
+    expect(screen.queryByTestId('goal-xp-g1')).toBeNull();
+  });
+
+  it('swaps the plus for Complete once the target is reached', async () => {
+    const onChanged = jest.fn();
+    await wrap(<GoalCard goal={reachedGoal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={onChanged} />);
+
+    expect(screen.queryByTestId('goal-increase-g1')).toBeNull();
+    expect(screen.getByTestId('goal-xp-g1')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-complete-g1'));
+    });
     await waitFor(() => expect(put).toHaveBeenCalledWith('/goal/complete', 'g1', expect.anything()));
     expect(onChanged).toHaveBeenCalled();
   });
 
-  it('expands to fire edit/delete callbacks', async () => {
+  it('keeps the whole card once completed, with Undo in place of Complete', async () => {
+    await wrap(<GoalCard goal={completedGoal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
+
+    expect(screen.getByTestId('goal-completed-g1')).toBeTruthy();
+    expect(screen.getByTestId('goal-xp-g1')).toBeTruthy();
+    expect(screen.getByText('Undo')).toBeTruthy();
+    // The design stays whole: name, categories and the deadline footer.
+    expect(screen.getByText('Read books')).toBeTruthy();
+    expect(screen.getByText('Health')).toBeTruthy();
+    expect(screen.getByText('Long Term')).toBeTruthy();
+  });
+
+  it('fires edit and delete from the top row, without expanding', async () => {
     const onEdit = jest.fn();
     const onDelete = jest.fn();
     await wrap(<GoalCard goal={goal} onEdit={onEdit} onDelete={onDelete} onChanged={jest.fn()} />);
 
-    expect(screen.queryByTestId('goal-edit-g1')).toBeNull();
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-g1')); });
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-edit-g1')); });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-edit-g1'));
+      fireEvent.press(screen.getByTestId('goal-delete-g1'));
+    });
+
     expect(onEdit).toHaveBeenCalledWith(goal);
-    await act(async () => { fireEvent.press(screen.getByTestId('goal-delete-g1')); });
     expect(onDelete).toHaveBeenCalledWith(goal);
   });
 
+  it('hides the detail until the chevron is tapped', async () => {
+    await wrap(<GoalCard goal={goal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
+
+    expect(screen.queryByText('Motivation: learn')).toBeNull();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-card-g1'));
+    });
+
+    expect(screen.getByText('Motivation: learn')).toBeTruthy();
+    expect(screen.getByText('In Progress')).toBeTruthy();
+  });
+
   it('starts expanded when initialExpanded is set (opened from the dashboard)', async () => {
-    await wrap(<GoalCard goal={goal} initialExpanded onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
-    expect(screen.getByTestId('goal-edit-g1')).toBeTruthy(); // expanded without a tap
+    await wrap(
+      <GoalCard goal={goal} initialExpanded onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />,
+    );
+
+    expect(screen.getByText('Motivation: learn')).toBeTruthy();
   });
 });

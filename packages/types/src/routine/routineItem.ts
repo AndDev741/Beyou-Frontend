@@ -3,5 +3,5 @@ export type RoutineItem = {
     id: string;
     startTime: string;
     endTime?: string;
-    // Podemos adicionar outros campos comuns se necessário
+    // More shared fields can join as they are needed
 };

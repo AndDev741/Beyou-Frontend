@@ -152,7 +152,9 @@ describe("Admin feedback console", () => {
 
         expect(await screen.findByText("The routine check-in double-counts XP")).toBeInTheDocument();
         expect(screen.getByText("Dark mode for the widgets")).toBeInTheDocument();
-        expect(screen.getByText("ana@example.com")).toBeInTheDocument();
+        // The list row shows who sent it and when; the e-mail lives in the detail,
+        // where the reply is written.
+        expect(screen.getByText(/Ana/)).toBeInTheDocument();
     });
 
     test("renders in Portuguese", async () => {

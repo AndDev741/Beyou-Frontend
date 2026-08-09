@@ -7,8 +7,6 @@ interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
   children: ReactNode;
-  /** Tailwind max-height class for the panel; pass '' for no cap. */
-  maxHeight?: string;
   /** i18n key for the backdrop's accessibility label. */
   closeLabel?: string;
   /** When false, tapping the backdrop does nothing (e.g. a request is in flight). */
@@ -25,7 +23,6 @@ export default function BottomSheet({
   visible,
   onClose,
   children,
-  maxHeight = 'max-h-[85%]',
   closeLabel = 'Cancel',
   dismissable = true,
 }: BottomSheetProps) {
@@ -40,10 +37,18 @@ export default function BottomSheet({
           onPress={dismissable ? onClose : undefined}
           accessibilityLabel={t(closeLabel)}
         />
-        <KeyboardAvoidingView behavior="padding">
+        {/* The cap lives HERE and there is only ONE. A percentage only resolves
+            against a parent of definite height: on the panel it counted for
+            nothing, and once it did count (85% on the container) a second cap on
+            the panel became 70% OF 85% — the sheet shrank, came away from the
+            bottom and showed the screen underneath. */}
+        <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '85%' }}>
+          {/* `flexShrink` on the panel, or the cap above never reaches it: without
+              shrinking it takes the size of its content and the footer (where the
+              confirm button lives) drops off screen. */}
           <View
-            className={`${maxHeight} rounded-t-2xl bg-background px-4 pt-4`}
-            style={{ paddingBottom: (insets?.bottom ?? 0) + 16 }}
+            className="rounded-t-2xl bg-surface px-4 pt-4"
+            style={{ flexShrink: 1, paddingBottom: (insets?.bottom ?? 0) + 16 }}
           >
             {children}
           </View>

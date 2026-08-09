@@ -7,7 +7,6 @@ import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
-const ON_PRIMARY = '#FFFFFF';
 
 type Step = {
   id: string;
@@ -88,7 +87,7 @@ export default function OnboardingTutorial({
     return (
       <Modal visible animationType="fade" transparent onRequestClose={onSkip}>
         <View className="flex-1 items-center justify-center bg-black/60 p-4">
-          <View className="w-full max-w-xl rounded-3xl border border-primary/20 bg-background p-5">
+          <View className="w-full max-w-xl rounded-frame border border-border bg-surface p-5">
             <View className="mb-3 flex-row items-center justify-end">
               <Pressable
                 onPress={onSkip}
@@ -97,12 +96,12 @@ export default function OnboardingTutorial({
                 hitSlop={8}
                 className="flex-row items-center gap-1"
               >
-                <Text className="text-description text-sm font-semibold">{t('TutorialSkip')}</Text>
+                <Text className="text-text-2 text-sm font-semibold">{t('TutorialSkip')}</Text>
                 <Ionicons name="close" size={16} color={theme.description} />
               </Pressable>
             </View>
 
-            <Text className="text-secondary mb-5 text-center text-2xl font-bold">
+            <Text className="text-text mb-5 text-center text-2xl font-bold">
               {t('TutorialPathTitle')}
             </Text>
 
@@ -112,23 +111,23 @@ export default function OnboardingTutorial({
                 accessibilityRole="button"
                 accessibilityLabel={t('TutorialPathAiTitle')}
                 testID="tutorial-path-ai"
-                className="rounded-2xl border border-primary bg-primary/10 p-5 active:opacity-80"
+                className="rounded-card border border-border bg-accent/10 p-5 active:opacity-80"
               >
                 <View className="mb-3 flex-row items-center justify-between">
-                  <View className="h-12 w-12 items-center justify-center rounded-xl bg-primary">
-                    <Sparkles size={24} color={ON_PRIMARY} />
+                  <View className="h-12 w-12 items-center justify-center rounded-card bg-accent">
+                    <Sparkles size={24} color={theme.onAccent} />
                   </View>
-                  <View className="flex-row items-center gap-1 rounded-full bg-primary px-3 py-1">
-                    <Sparkles size={12} color={ON_PRIMARY} />
-                    <Text className="text-xs font-semibold" style={{ color: ON_PRIMARY }}>
+                  <View className="flex-row items-center gap-1 rounded-full bg-accent px-3 py-1">
+                    <Sparkles size={12} color={theme.onAccent} />
+                    <Text className="text-xs font-semibold" style={{ color: theme.onAccent }}>
                       {t('TutorialPathAiBadge')}
                     </Text>
                   </View>
                 </View>
-                <Text className="text-secondary mb-1 text-xl font-bold">
+                <Text className="text-text mb-1 text-xl font-bold">
                   {t('TutorialPathAiTitle')}
                 </Text>
-                <Text className="text-description text-sm leading-relaxed">
+                <Text className="text-text-2 text-sm leading-relaxed">
                   {t('TutorialPathAiDescription')}
                 </Text>
               </Pressable>
@@ -138,15 +137,15 @@ export default function OnboardingTutorial({
                 accessibilityRole="button"
                 accessibilityLabel={t('TutorialPathManualTitle')}
                 testID="tutorial-path-manual"
-                className="rounded-2xl border border-primary/20 bg-background p-5 active:opacity-80"
+                className="rounded-card border border-border bg-surface p-5 active:opacity-80"
               >
-                <View className="mb-3 h-12 w-12 items-center justify-center rounded-xl bg-primary/15">
+                <View className="mb-3 h-12 w-12 items-center justify-center rounded-card bg-accent/15">
                   <Compass size={24} color={theme.secondary} />
                 </View>
-                <Text className="text-secondary mb-1 text-xl font-bold">
+                <Text className="text-text mb-1 text-xl font-bold">
                   {t('TutorialPathManualTitle')}
                 </Text>
-                <Text className="text-description text-sm leading-relaxed">
+                <Text className="text-text-2 text-sm leading-relaxed">
                   {t('TutorialPathManualDescription')}
                 </Text>
               </Pressable>
@@ -160,9 +159,9 @@ export default function OnboardingTutorial({
   return (
     <Modal visible animationType="fade" transparent onRequestClose={onSkip}>
       <View className="flex-1 items-center justify-center bg-black/60 p-4">
-        <View className="w-full max-w-xl rounded-3xl border border-primary/20 bg-background p-5">
+        <View className="w-full max-w-xl rounded-frame border border-border bg-surface p-5">
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-primary text-sm font-semibold">
+            <Text className="text-accent text-sm font-semibold">
               {t('TutorialStepOf', { current: i + 1, total: STEPS.length })}
             </Text>
             <Pressable
@@ -172,7 +171,7 @@ export default function OnboardingTutorial({
               hitSlop={8}
               className="flex-row items-center gap-1"
             >
-              <Text className="text-description text-sm font-semibold">{t('TutorialSkip')}</Text>
+              <Text className="text-text-2 text-sm font-semibold">{t('TutorialSkip')}</Text>
               <Ionicons name="close" size={16} color={theme.description} />
             </Pressable>
           </View>
@@ -183,7 +182,7 @@ export default function OnboardingTutorial({
               <View
                 key={s.id}
                 className={`h-2 w-2 rounded-full ${
-                  idx === i ? 'bg-primary' : idx < i ? 'bg-primary/50' : 'bg-description/30'
+                  idx === i ? 'bg-accent' : idx < i ? 'bg-accent/50' : 'bg-text-3/30'
                 }`}
               />
             ))}
@@ -191,34 +190,34 @@ export default function OnboardingTutorial({
 
           <ScrollView key={step.id} className="max-h-[60vh]" contentContainerClassName="gap-4">
             <View className="flex-row items-center gap-3">
-              <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/15">
+              <View className="h-12 w-12 items-center justify-center rounded-full bg-accent/15">
                 <BeyouIcon id={step.icon} size={26} />
               </View>
-              <Text className="text-secondary flex-1 text-2xl font-bold">{t(step.titleKey)}</Text>
+              <Text className="text-text flex-1 text-2xl font-bold">{t(step.titleKey)}</Text>
             </View>
-            <Text className="text-description text-base leading-relaxed">{t(step.descKey)}</Text>
+            <Text className="text-text-2 text-base leading-relaxed">{t(step.descKey)}</Text>
 
-            <View className="rounded-2xl bg-primary/10 p-4">
-              <Text className="text-secondary mb-3 font-semibold">{t(step.exampleTitleKey)}</Text>
+            <View className="rounded-card bg-accent/10 p-4">
+              <Text className="text-text mb-3 font-semibold">{t(step.exampleTitleKey)}</Text>
               <View className="gap-2">
                 {step.itemKeys.map((k) => (
-                  <View key={k} className="flex-row items-center gap-2 rounded-lg bg-background/60 p-2">
+                  <View key={k} className="flex-row items-center gap-2 rounded-control bg-surface/60 p-2">
                     <Ionicons name="checkmark-circle" size={18} color={theme.primary} />
-                    <Text className="text-secondary text-sm">{t(k)}</Text>
+                    <Text className="text-text text-sm">{t(k)}</Text>
                   </View>
                 ))}
               </View>
-              <View className="mt-3 flex-row items-center justify-between border-t border-primary/15 pt-3">
-                <Text className="text-description text-xs">{t('TutorialCompleteForXp')}</Text>
-                <Text className="text-primary text-sm font-bold">+{(i + 1) * 50} XP</Text>
+              <View className="mt-3 flex-row items-center justify-between border-t border-border pt-3">
+                <Text className="text-text-2 text-xs">{t('TutorialCompleteForXp')}</Text>
+                <Text className="text-accent text-sm font-bold">+{(i + 1) * 50} XP</Text>
               </View>
             </View>
 
-            <View className="flex-row items-start gap-2 rounded-xl border border-primary/20 p-3">
+            <View className="flex-row items-start gap-2 rounded-card border border-border p-3">
               <Ionicons name="sparkles" size={16} color={theme.primary} />
               <View className="flex-1">
-                <Text className="text-secondary text-sm font-semibold">{t('TutorialProTip')}</Text>
-                <Text className="text-description text-sm">{t(step.tipKey)}</Text>
+                <Text className="text-text text-sm font-semibold">{t('TutorialProTip')}</Text>
+                <Text className="text-text-2 text-sm">{t(step.tipKey)}</Text>
               </View>
             </View>
           </ScrollView>
@@ -232,7 +231,7 @@ export default function OnboardingTutorial({
               className="px-3 py-2"
             >
               {/* Same weight on every card — only the color signals disabled. */}
-              <Text className={`font-semibold ${isFirst ? 'text-description/40' : 'text-secondary'}`}>
+              <Text className={`font-semibold ${isFirst ? 'text-text-2/40' : 'text-text'}`}>
                 {t('TutorialPrevious')}
               </Text>
             </Pressable>

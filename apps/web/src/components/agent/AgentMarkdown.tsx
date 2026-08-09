@@ -1,23 +1,39 @@
+import { createContext, useContext } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNavigate } from "react-router-dom";
 
+type OnInternalLink = (href: string) => void;
+
+/**
+ * How to navigate from an agent link. The panel injects a handler that NAVIGATES
+ * AND CLOSES — going to see what the agent did with the chat still on top covers
+ * exactly what you went to check. With no handler (used outside the panel), the
+ * link just navigates.
+ *
+ * Through context because `react-markdown` builds the link components itself:
+ * there is no prop path down to them.
+ */
+const InternalLinkContext = createContext<OnInternalLink | null>(null);
+
 /**
  * Links: internal app paths (/habits, /routines…) navigate via react-router —
  * the agent is prompted to guide users with these; a plain <a href> would
- * full-reload the SPA and close the chat. Everything else opens a new tab.
+ * full-reload the SPA. Everything else opens a new tab.
  */
 function MarkdownLink({ href, children, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
     const navigate = useNavigate();
+    const onInternalLink = useContext(InternalLinkContext);
     if (href?.startsWith("/")) {
         return (
             <a
                 {...rest}
                 href={href}
-                className="font-medium text-primary underline"
+                className="font-medium text-accent underline"
                 onClick={(e) => {
                     e.preventDefault();
-                    navigate(href);
+                    if (onInternalLink) onInternalLink(href);
+                    else navigate(href);
                 }}
             >
                 {children}
@@ -25,7 +41,7 @@ function MarkdownLink({ href, children, ...rest }: React.AnchorHTMLAttributes<HT
         );
     }
     return (
-        <a {...rest} href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
+        <a {...rest} href={href} className="text-accent underline" target="_blank" rel="noopener noreferrer">
             {children}
         </a>
     );
@@ -39,16 +55,16 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>["components
     ol: (props) => <ol className="mb-2 list-decimal space-y-1 pl-5 last:mb-0" {...props} />,
     a: (props) => <MarkdownLink {...props} />,
     code: (props) => (
-        <code className="rounded bg-primary/10 px-1 py-0.5 font-mono text-[13px]" {...props} />
+        <code className="rounded bg-accent/10 px-1 py-0.5 font-mono text-[13px]" {...props} />
     ),
     pre: (props) => (
-        <pre className="mb-2 overflow-x-auto rounded-lg bg-primary/10 p-3 text-[13px] last:mb-0" {...props} />
+        <pre className="mb-2 overflow-x-auto rounded-control bg-accent/10 p-3 text-[13px] last:mb-0" {...props} />
     ),
     h1: (props) => <p className="mb-1 font-semibold" {...props} />,
     h2: (props) => <p className="mb-1 font-semibold" {...props} />,
     h3: (props) => <p className="mb-1 font-semibold" {...props} />,
     blockquote: (props) => (
-        <blockquote className="mb-2 border-l-2 border-primary/40 pl-3 text-description last:mb-0" {...props} />
+        <blockquote className="mb-2 border-l-2 border-border pl-3 text-text-2 last:mb-0" {...props} />
     ),
     // GFM tables (remark-gfm). The wrapper scrolls so wide tables never
     // stretch the chat bubble.
@@ -58,15 +74,23 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>["components
         </div>
     ),
     th: (props) => (
-        <th className="border border-primary/20 bg-primary/10 px-2 py-1 text-left font-semibold" {...props} />
+        <th className="border border-border bg-accent/10 px-2 py-1 text-left font-semibold" {...props} />
     ),
-    td: (props) => <td className="border border-primary/15 px-2 py-1 align-top" {...props} />,
+    td: (props) => <td className="border border-border px-2 py-1 align-top" {...props} />,
 };
 
-export default function AgentMarkdown({ text }: { text: string }) {
+export default function AgentMarkdown({
+    text,
+    onInternalLink,
+}: {
+    text: string;
+    onInternalLink?: OnInternalLink;
+}) {
     return (
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-            {text}
-        </ReactMarkdown>
+        <InternalLinkContext.Provider value={onInternalLink ?? null}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                {text}
+            </ReactMarkdown>
+        </InternalLinkContext.Provider>
     );
 }

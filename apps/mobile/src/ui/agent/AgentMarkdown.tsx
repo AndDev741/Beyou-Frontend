@@ -133,7 +133,7 @@ function InlineText({
     else Linking.openURL(href);
   };
   return (
-    <Text className={small ? 'text-[13px] leading-[19px] text-secondary' : 'text-[15px] leading-[22px] text-secondary'}>
+    <Text className={small ? 'text-[13px] leading-[19px] text-text' : 'text-[15px] leading-[22px] text-text'}>
       {parseInline(text).map((segment, i) => {
         if (segment.kind === 'bold')
           return (
@@ -149,7 +149,7 @@ function InlineText({
           );
         if (segment.kind === 'code')
           return (
-            <Text key={i} className="rounded bg-primary/10 font-mono text-[13px]">
+            <Text key={i} className="rounded bg-accent/10 font-mono text-[13px]">
               {` ${segment.text} `}
             </Text>
           );
@@ -157,7 +157,7 @@ function InlineText({
           return (
             <Text
               key={i}
-              className="font-medium text-primary underline"
+              className="font-medium text-accent underline"
               onPress={() => openLink(segment.href)}
             >
               {segment.text}
@@ -176,13 +176,13 @@ function InlineText({
  * inline parser so **bold** etc. render instead of showing markers.
  */
 function TableBlock({ header, rows }: { header: string[]; rows: string[][] }) {
-  const cellClass = (col: number) => `flex-1 px-2 py-1.5 ${col > 0 ? 'border-l border-primary/15' : ''}`;
+  const cellClass = (col: number) => `flex-1 px-2 py-1.5 ${col > 0 ? 'border-l border-border' : ''}`;
   return (
-    <View className="overflow-hidden rounded-lg border border-primary/15">
-      <View className="flex-row bg-primary/10">
+    <View className="overflow-hidden rounded-control border border-border">
+      <View className="flex-row bg-accent/10">
         {header.map((cell, i) => (
           <View key={i} className={cellClass(i)}>
-            <Text className="text-[13px] font-semibold text-secondary">
+            <Text className="text-[13px] font-semibold text-text">
               {parseInline(cell).map((s, j) => (
                 <Text key={j}>{s.text}</Text>
               ))}
@@ -191,7 +191,7 @@ function TableBlock({ header, rows }: { header: string[]; rows: string[][] }) {
         ))}
       </View>
       {rows.map((row, r) => (
-        <View key={r} className="flex-row border-t border-primary/15">
+        <View key={r} className="flex-row border-t border-border">
           {header.map((_, c) => (
             <View key={c} className={cellClass(c)}>
               <InlineText text={row[c] ?? ''} small />
@@ -220,7 +220,7 @@ export default function AgentMarkdown({
           <View key={i} className="gap-1">
             {block.items.map((item, j) => (
               <View key={j} className="flex-row">
-                <Text className="min-w-[22px] pr-1 text-[15px] leading-[22px] text-description">
+                <Text className="min-w-[22px] pr-1 text-[15px] leading-[22px] text-text-2">
                   {block.ordered ? `${item.number ?? j + 1}.` : '•'}
                 </Text>
                 <View className="flex-1">

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Text, View, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
@@ -12,9 +11,8 @@ import { useRouter } from 'expo-router';
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
 import GoogleSignInButton from '../../src/ui/GoogleSignInButton';
-import MobileBrand from '../../src/ui/MobileBrand';
-import LanguageToggle from '../../src/ui/LanguageToggle';
-import AuthTabs from '../../src/ui/AuthTabs';
+import AuthShell from '../../src/ui/auth/AuthShell';
+import FormNotice from '../../src/ui/auth/FormNotice';
 import PasswordHints from '../../src/ui/PasswordHints';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
@@ -27,7 +25,7 @@ interface RegisterFormValues {
   password: string;
 }
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 15;
 
 export default function RegisterRoute() {
   const { t } = useTranslation();
@@ -64,48 +62,50 @@ export default function RegisterRoute() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView
-        testID="register-screen"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 24 }}
-      >
-        <AuthTabs active="register" />
-
-        {registered ? (
-          <>
-            <View
-              className="border-2 border-primary rounded-xl bg-primary/10 p-5 mb-6 mt-4"
-              testID="register-success"
-            >
-              <Text className="text-primary font-semibold mb-1">{t('EmailVerificationSentTitle')}</Text>
-              <Text className="text-description">{t('EmailVerificationSentMessage')}</Text>
-            </View>
-
-            <View className="items-center">
-              <Button
-                text={t('BackToLogin')}
-                mode="create"
-                size="big"
-                onPress={() => router.replace('/(auth)/login')}
-                testID="register-success-to-login"
-              />
-            </View>
-          </>
-        ) : (
-          <>
-            <Text className="text-3xl font-bold text-secondary text-center mt-4 mb-8">
-              {t('Welcome')} {t('To')}
-              <Text className="text-primary"> {t('BeYou')} </Text>
-            </Text>
-
+    <AuthShell
+      testID="register-screen"
+      footer={
+        <Text className="text-[12.5px] text-text-3">
+          {t('AlreadyHaveAccountShort')}{' '}
+          <Text
+            className="font-semibold text-accent"
+            accessibilityRole="link"
+            onPress={() => router.replace('/(auth)/login')}
+            testID="register-to-login"
+          >
+            {t('Login')}
+          </Text>
+        </Text>
+      }
+    >
+      {registered ? (
+        <View className="mt-4 gap-4">
+          <FormNotice
+            tone="success"
+            title={t('EmailVerificationSentTitle')}
+            message={t('EmailVerificationSentMessage')}
+            testID="register-success"
+          />
+          <Button
+            text={t('BackToLogin')}
+            mode="primary"
+            size="auto"
+            className="w-full"
+            onPress={() => router.replace('/(auth)/login')}
+            testID="register-success-to-login"
+          />
+        </View>
+      ) : (
+        <>
+          <View className="mt-4 gap-4">
             <Controller
               control={control}
               name="name"
               render={({ field }) => (
                 <Input
                   testID="register-name-input"
-                  accessibilityLabel={t('NamePlaceholder')}
+                  label={t('Name')}
+                  accessibilityLabel={t('Name')}
                   placeholder={t('NamePlaceholder')}
                   value={field.value}
                   onChangeText={field.onChange}
@@ -113,12 +113,11 @@ export default function RegisterRoute() {
                   error={errors.name?.message}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  iconStart={<Ionicons name="person-outline" size={ICON_SIZE} color={theme.icon} />}
+                  compact
+                  iconStart={<Ionicons name="person-outline" size={ICON_SIZE} color={theme.text3} />}
                 />
               )}
             />
-
-            <View className="h-5" />
 
             <Controller
               control={control}
@@ -126,7 +125,8 @@ export default function RegisterRoute() {
               render={({ field }) => (
                 <Input
                   testID="register-email-input"
-                  accessibilityLabel={t('EmailPlaceholder')}
+                  label={t('Email')}
+                  accessibilityLabel={t('Email')}
                   placeholder={t('EmailPlaceholder')}
                   value={field.value}
                   onChangeText={field.onChange}
@@ -135,12 +135,11 @@ export default function RegisterRoute() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   keyboardType="email-address"
-                  iconStart={<Ionicons name="mail-outline" size={ICON_SIZE} color={theme.icon} />}
+                  compact
+                  iconStart={<Ionicons name="mail-outline" size={ICON_SIZE} color={theme.text3} />}
                 />
               )}
             />
-
-            <View className="h-5" />
 
             <Controller
               control={control}
@@ -148,7 +147,8 @@ export default function RegisterRoute() {
               render={({ field }) => (
                 <Input
                   testID="register-password-input"
-                  accessibilityLabel={t('PasswordPlaceholder')}
+                  label={t('Password')}
+                  accessibilityLabel={t('Password')}
                   placeholder={t('PasswordPlaceholder')}
                   value={field.value}
                   onChangeText={field.onChange}
@@ -157,34 +157,32 @@ export default function RegisterRoute() {
                   password
                   autoCapitalize="none"
                   autoCorrect={false}
-                  iconStart={<Ionicons name="lock-closed-outline" size={ICON_SIZE} color={theme.icon} />}
-                  eyeOpen={<Ionicons name="eye-outline" size={ICON_SIZE} color={theme.icon} />}
-                  eyeClosed={<Ionicons name="eye-off-outline" size={ICON_SIZE} color={theme.icon} />}
+                  compact
+                  iconStart={
+                    <Ionicons name="lock-closed-outline" size={ICON_SIZE} color={theme.text3} />
+                  }
+                  eyeOpen={<Ionicons name="eye-outline" size={ICON_SIZE} color={theme.text3} />}
+                  eyeClosed={<Ionicons name="eye-off-outline" size={ICON_SIZE} color={theme.text3} />}
                 />
               )}
             />
 
             <PasswordHints password={passwordValue} />
 
-            <View className="items-center mt-6">
-              <Button
-                text={t('ToRegister')}
-                mode="create"
-                size="big"
-                submitting={isSubmitting}
-                onPress={handleSubmit(onSubmit)}
-                testID="register-submit"
-              />
+            <Button
+              text={t('ToRegister')}
+              mode="primary"
+              size="auto"
+              className="w-full"
+              submitting={isSubmitting}
+              onPress={handleSubmit(onSubmit)}
+              testID="register-submit"
+            />
+          </View>
 
-              <View className="mt-4">
-                <GoogleSignInButton />
-              </View>
-            </View>
-          </>
-        )}
-        <LanguageToggle />
-        <MobileBrand />
-      </ScrollView>
-    </SafeAreaView>
+          <GoogleSignInButton />
+        </>
+      )}
+    </AuthShell>
   );
 }

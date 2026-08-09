@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { Ban } from 'lucide-react-native';
 import type { check as Check } from '@beyou/types/routine/routineSection';
 import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useRoutineCheckin } from '../../dashboard/useRoutineCheckin';
+import BeyouIcon from '../BeyouIcon';
+import Chip from '../Chip';
+import IconTile from '../IconTile';
+import Ring from '../Ring';
 import XpFloat from './XpFloat';
 
 const XP_FLOAT_DURATION_MS = 1200;
@@ -24,6 +28,8 @@ interface RoutineItemProps {
   routineId: string;
   item: MergedItem;
   name: string;
+  /** The habit/task's saved icon — rides along with the done notification. */
+  iconId?: string;
   motivationalPhrase?: string;
   /** YYYY-MM-DD for "today" — matched against check.checkDate. */
   today: string;
@@ -39,7 +45,7 @@ function groupDTO(item: MergedItem) {
     : { habitGroupDTO: { habitGroupId: item.groupId, startTime: item.startTime ?? '' } };
 }
 
-export default function RoutineItem({ routineId, item, name, motivationalPhrase, today, onChanged }: RoutineItemProps) {
+export default function RoutineItem({ routineId, item, name, iconId, motivationalPhrase, today, onChanged }: RoutineItemProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const { check, skip } = useRoutineCheckin();
@@ -69,7 +75,12 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
     setOptChecked(next);
     if (next) setOptSkipped(false); // checking clears any skipped state
     const dto: itemGroupToCheck = { routineId, ...groupDTO(item) };
-    const result = await check(dto, { wasChecked: checked, motivationalPhrase });
+    const result = await check(dto, {
+      wasChecked: checked,
+      motivationalPhrase,
+      name,
+      icon: iconId ? <BeyouIcon id={iconId} size={16} /> : undefined,
+    });
     if (!result) { setOptChecked(null); setOptSkipped(null); } // failed → revert
     const itemChecked = result?.refreshItemChecked;
     const gen = itemChecked?.check?.xpGenerated;
@@ -95,11 +106,13 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
   };
 
   const timeRange = [fmt(item.startTime), fmt(item.endTime)].filter(Boolean).join(' - ');
+  const xpEarned = checked ? (todayCheck?.xpGenerated ?? 0) : 0;
 
   return (
-    <View className={`mt-1 flex-row items-center justify-between gap-2 py-1 ${skipped ? 'opacity-60' : ''}`} testID={`routine-item-${item.groupId}`}>
-      {/* Left: checkbox + name. Name shrinks/wraps so it never pushes the time
-          or skip button off-screen. */}
+    <View
+      className={`mt-1 flex-row items-center gap-2.5 py-1 ${skipped ? 'opacity-60' : ''}`}
+      testID={`routine-item-${item.groupId}`}
+    >
       <Pressable
         onPress={onCheck}
         disabled={pending}
@@ -107,30 +120,63 @@ export default function RoutineItem({ routineId, item, name, motivationalPhrase,
         accessibilityState={{ checked }}
         accessibilityLabel={name}
         testID={`routine-check-${item.groupId}`}
-        className="flex-1 flex-row items-center"
+        className="shrink-0 flex-row items-center"
       >
         {xpFloat !== null && <XpFloat xp={xpFloat} />}
-        <Ionicons name={checked ? 'checkbox' : 'square-outline'} size={24} color={theme.primary} />
-        <Text className={`ml-2 shrink text-base ${skipped ? 'text-description line-through' : 'text-secondary'}`}>
-          {name}
-        </Text>
+        {/* The system ring, not a little box: check-in, level and the brand are the
+            SAME piece (see Ring). A platform checkbox broke that. */}
+        <Ring size={26} state={checked ? 'done' : skipped ? 'skipped' : 'todo'} />
       </Pressable>
 
-      {/* Right: time + skip stay together, fixed — no overlap with the name. */}
-      <View className="shrink-0 flex-row items-center gap-2">
-        {timeRange ? <Text className="text-primary text-xs">{timeRange}</Text> : null}
-        {!checked && (
-          <Pressable
-            onPress={onSkip}
-            disabled={pending}
-            accessibilityRole="button"
-            testID={`routine-skip-${item.groupId}`}
-            className="flex-row items-center gap-1 rounded-md border border-description/40 px-2 py-1.5"
-          >
-            <Ionicons name="ban-outline" size={14} color={theme.description} />
-            <Text className="text-description text-xs font-semibold">{skipped ? t('Undo skip') : t('Skip')}</Text>
-          </Pressable>
-        )}
+      {iconId ? (
+        <IconTile size={30}>
+          <BeyouIcon id={iconId} size={16} showFallback />
+        </IconTile>
+      ) : null}
+
+      {/* The row breaks in two: metadata on top, name below at full width. On one
+          line, name + XP + time + skip do not fit in 390px and the right-hand column
+          ran off screen. `column-reverse` flips only the VISUAL — the name still comes
+          first in the tree, which is what the screen reader reads. */}
+      <View className="min-w-0 flex-1 gap-1" style={{ flexDirection: 'column-reverse' }}>
+        <Text
+          className={`text-[13.5px] font-medium ${
+            checked || skipped ? 'text-text-3' : 'text-text'
+          } ${skipped ? 'line-through' : ''}`}
+          numberOfLines={2}
+        >
+          {name}
+        </Text>
+
+        <View className="flex-row items-center gap-1.5">
+          {/* The XP stays ON THE ROW once done (XpFloat only marks the instant of the
+              check and goes). It comes from the check itself, so it survives a reload
+              and shows the real value, decay already applied. */}
+          {xpEarned > 0 ? (
+            <Chip size="sm" variant="xp" testID={`routine-xp-${item.groupId}`}>
+              {`+${xpEarned} XP`}
+            </Chip>
+          ) : null}
+          {timeRange ? (
+            <Chip size="sm" variant="time">
+              {timeRange}
+            </Chip>
+          ) : null}
+          {!checked ? (
+            <Pressable
+              onPress={onSkip}
+              disabled={pending}
+              accessibilityRole="button"
+              testID={`routine-skip-${item.groupId}`}
+              className="flex-row items-center gap-1 rounded-control px-2 py-1 active:bg-surface-2"
+            >
+              <Ban size={13} color={theme.text3} />
+              <Text className="text-xs font-semibold text-text-3">
+                {skipped ? t('Undo skip') : t('Skip')}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
     </View>
   );

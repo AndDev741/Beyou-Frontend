@@ -6,7 +6,7 @@ import editUser from "@beyou/api/user/editUser";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { RootState } from "@beyou/state/rootReducer";
 import { tutorialCompletedEnter } from "@beyou/state/user/perfilSlice";
-import SmallButton from "../SmallButton";
+import Button from "../Button";
 import { clearTutorialPhase } from "../tutorial/tutorialStorage";
 
 export default function TutorialConfiguration() {
@@ -37,27 +37,30 @@ export default function TutorialConfiguration() {
     };
 
     return (
-        <div className="w-full h-full flex flex-col justify-start items-start p-4 bg-background text-secondary">
-            <h2 className="text-base font-semibold mb-2">{t("Tutorial")}</h2>
-            <p className="text-sm text-description mb-4">{t("TutorialDescription")}</p>
+        <div className="w-full">
+            <h3 className="mb-1.5 block text-[12.5px] font-semibold text-text-2">{t("Tutorial")}</h3>
+            <p className="mb-3 text-xs text-text-3">{t("TutorialDescription")}</p>
 
             <div className="flex items-center justify-between w-full mb-4">
-                <span className="text-sm text-description">
+                <span className="text-xs text-text-3">
                     {t("TutorialStatus")}:{" "}
-                    <span className={isTutorialCompleted ? "text-success" : "text-description"}>
+                    <span className={isTutorialCompleted ? "text-success" : "text-text-2"}>
                         {isTutorialCompleted ? t("TutorialStatusCompleted") : t("TutorialStatusPending")}
                     </span>
                 </span>
             </div>
 
-            <div className="flex flex-col items-center justify-center w-full">
-                <SmallButton
+            {success && <span className="text-xs text-success">{success}</span>}
+            {error && <span className="text-xs text-danger">{error}</span>}
+            <div className="mt-2.5 flex justify-end">
+                <Button
                     text={saving ? t("Saving...") : t("TutorialRestart")}
+                    mode="tonal"
+                    size="small"
+                    type="button"
                     disabled={saving}
                     onClick={handleRestart}
                 />
-                <span className="text-xs text-success mt-1">{success}</span>
-                <span className="text-xs text-error">{error}</span>
             </div>
         </div>
     );

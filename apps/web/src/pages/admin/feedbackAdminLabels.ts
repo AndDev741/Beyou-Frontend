@@ -14,10 +14,11 @@ export const FEEDBACK_CATEGORY_ORDER: FeedbackCategory[] = ["BUG", "FEATURE_REQU
  * Theme variables only — a status badge that hardcodes green/amber/grey breaks
  * on 7 of the 9 themes.
  */
+/** Open in the accent, in-progress in green, closed dimmed. */
 export const FEEDBACK_STATUS_BADGE_CLASSES: Record<FeedbackStatus, string> = {
-    OPEN: "border-primary text-primary",
+    OPEN: "border-accent text-accent",
     TAKING_CARE: "border-success text-success",
-    CLOSED: "border-description text-description"
+    CLOSED: "border-border text-text-3"
 };
 
 export const FEEDBACK_CONTEXT_LABEL_KEYS = {

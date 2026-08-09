@@ -38,3 +38,10 @@ test("Escape key dismisses the celebration overlay", () => {
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
+
+test("Continue button dismisses the celebration overlay", () => {
+    const store = buildStore([{ kind: "levelUp", level: 3 }]);
+    renderWithProviders(<CelebrationOverlay />, { storeOverride: store });
+    fireEvent.click(screen.getByTestId("celebration-continue"));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});

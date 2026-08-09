@@ -6,10 +6,7 @@ import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import DeleteModal from "../DeleteModal";
 import getGoals from "@beyou/api/goals/getGoals";
 import deleteGoal from "@beyou/api/goals/deleteGoal";
-import inProgressIcon from '../../assets/inProgress.svg';
-import notStartedIcon from '../../assets/Not Started Icon.svg';
-import completedIcon from '../../assets/Completed Icon.svg';
-import { MdCalendarMonth } from "react-icons/md";
+import { CalendarDays, ChevronDown, ChevronUp, Minus, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   editModeEnter,
   editGoalIdEnter,
@@ -29,15 +26,18 @@ import {
   editIconIdEnter,
 } from "@beyou/state/goal/editGoalSlice";
 import BeyouIcon from "../../ui/BeyouIcon";
-import CategoryNameAndIcon from "../habits/categoryNameAndIcon";
-import { ProgressRing } from "../progressRing";
-import { MdOutlineAlbum } from "react-icons/md";
-import { Button } from "../ActionButton";
+import Card from "../../ui/Card";
+import Chip, { type ChipVariant } from "../../ui/Chip";
+import IconButton from "../../ui/IconButton";
+import IconTile from "../../ui/IconTile";
+import XpBar from "../../ui/XpBar";
+import Button from "../Button";
 import markGoalAsComplete from "@beyou/api/goals/markGoalAsComplete";
 import { enterGoals, updateGoal } from "@beyou/state/goal/goalsSlice";
 import increaseCurrentValue from "@beyou/api/goals/increaseCurrentValue";
 import decreaseCurrentValue from "@beyou/api/goals/decreaseCurrentValue";
 import useUiRefresh from "../../hooks/useUiRefresh";
+import { formatGoalDeadline } from "@beyou/state";
 
 
 type GoalBoxProps = {
@@ -78,12 +78,20 @@ function GoalBox({
   readonly = false,
 }: GoalBoxProps) {
   const dispatch = useDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
-  const [statusIcon, setStatusIcon] = useState(notStartedIcon);
+  const [expanded, setExpanded] = useState(false);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
   const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
+
+  // "Complete" is what pays the XP, so it only shows once the target is hit;
+  // before that the card shows the stepper's +. A targetValue of 0 never
+  // "reaches the target".
+  const targetReached = targetValue > 0 && currentValue >= targetValue;
+  const statusVariant: ChipVariant =
+    status === "COMPLETED" ? "ok" : status === "IN_PROGRESS" ? "accent" : "neutral";
+  const categoryEntries = Object.entries(categories ?? {});
 
   function handleEditMode() {
     dispatch(editModeEnter(true));
@@ -124,15 +132,12 @@ function GoalBox({
     switch (status) {
       case "NOT_STARTED":
         setStatusPhrase(t('Not Started'));
-        setStatusIcon(notStartedIcon);
         break;
       case "IN_PROGRESS":
         setStatusPhrase(t('In Progress'));
-        setStatusIcon(inProgressIcon);
         break;
       case "COMPLETED":
         setStatusPhrase(t('Completed'));
-        setStatusIcon(completedIcon);
         break;
       default:
         break;
@@ -140,13 +145,9 @@ function GoalBox({
 
   }, [iconId, term, status]);
 
-  function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short", // "Jan", "Feb", "Mar"...
-      day: "numeric"  // 1, 2, 3...
-    });
-  }
+  // Deadline shared with mobile: day and month, plus the year when it is not the
+  // current one — "by Jul 24 - 2027" cannot be read as this July.
+  const formatDate = (dateString: string) => formatGoalDeadline(dateString, i18n.language);
 
   const completeTask = async (id: string) => {
     const refreshUi = await markGoalAsComplete(id, t);
@@ -172,125 +173,160 @@ function GoalBox({
     dispatch(updateGoal(goal));
   }
 
+  const isCompleted = status === "COMPLETED";
+
   return (
-    <div className={`flex relative flex-col justify-between border border-primary rounded-md p-2 m-1 bg-background text-secondary transition-colors duration-200 ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px] min-h-[200px]" : "md:min-h-[262px]"}`}>
-      <div className="flex justify-between items-start">
-        <div className="flex flex-col">
-          <div className="flex items-start">
-            <p className="text-icon text-[34px]">
-              <BeyouIcon id={iconId} />
-            </p>
-            <h2 className="text-xl ml-1 font-semibold line-clamp-1">{title}</h2>
-          </div>
-          <div className="line-clamp-2 leading-tight my-1 text-description">
-            <p>{description}</p>
-          </div>
-          <p className="text-description text-sm italic line-clamp-2">{t('Motivation')}: {motivation}</p>
+    <Card
+      interactive
+      tone={isCompleted ? "success" : "default"}
+      className={`group flex h-full flex-col gap-3 break-words ${readonly ? "w-[80vw] max-w-[350px] md:w-[350px]" : ""}`}
+    >
+      <div className="flex items-start gap-2.5">
+        <IconTile size={34}>
+          <BeyouIcon id={iconId} size={18} />
+        </IconTile>
+        {/* Title and badges share what is left: the chips wrap to the line below
+            instead of squeezing the goal's name down to three letters. */}
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+          <h2
+            className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug line-clamp-1 ${
+              isCompleted ? "text-text-3" : "text-text"
+            }`}
+          >
+            {title}
+          </h2>
+
+          {/* XP comes into play when the target lands; a completed goal shows
+              — o que rendeu e o selo. */}
+          {(targetReached || isCompleted) && (
+            <Chip size="sm" variant="xp" className="shrink-0" title={t("XP Reward")}>
+              +{xpReward} XP
+            </Chip>
+          )}
+          {isCompleted && (
+            <Chip size="sm" variant="ok" className="shrink-0">{t("Completed")}</Chip>
+          )}
         </div>
-        <div className="flex items-center space-x-2">
-          <ProgressRing progress={targetValue > 0 ? (currentValue / targetValue * 100) : 0} size="md" className="flex-shrink-0" />
-        </div>
+
+        {!readonly && (
+          <>
+            {/* Edit and delete on desktop hover, always visible on phones. */}
+            <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+              <IconButton label={t('Edit')} onClick={handleEditMode}>
+                <Pencil size={15} aria-hidden="true" />
+              </IconButton>
+              <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                <Trash2 size={15} aria-hidden="true" />
+              </IconButton>
+            </div>
+
+            <IconButton
+              label={expanded ? t('Collapse') : t('Expand')}
+              aria-expanded={expanded}
+              onClick={() => setExpanded((prev) => !prev)}
+            >
+              {expanded ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+            </IconButton>
+          </>
+        )}
       </div>
 
-      <div className="w-full flex items-start justify-between my-1">
-        <div className="flex flex-wrap">
-          {/* {categories.map((category, index) => (
-            <span className="flex items-center" key={`${category.id}-${index}`}>
-              <CategoryNameAndIcon
-                name={category.name} iconId={category.iconId} />
-              <p className={`${index === categories.length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
-            </span>
-          ))} */}
-          {Object.entries(categories).map(([categoryId, {name, iconId}], index) => (
-            <span className="flex items-center" key={`${categoryId}-${index}`}>
-              <CategoryNameAndIcon
-                name={name} iconId={iconId} />
-              <p className={`${index === Object.entries(categories).length - 1 ? "invisible" : "mr-1 text-secondary"}`}>,</p>
-            </span>
+      {description && (
+        <p className="text-[12.5px] leading-snug text-text-3 line-clamp-2">{description}</p>
+      )}
+
+      {categoryEntries.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {categoryEntries.map(([categoryId, {name, iconId: categoryIconId}], index) => (
+            <Chip key={`${categoryId}-${index}`} size="sm" icon={<BeyouIcon id={categoryIconId} size={12} />}>
+              {name}
+            </Chip>
           ))}
         </div>
-      </div>
+      )}
 
-      <div className="flex justify-between">
-        <div className="flex flex-col items-start gap-1">
-          <div className="flex items-center gap-1 text-description">
-            <MdOutlineAlbum className="text-icon"/>
-            <p>{currentValue}</p>
-            <p> / </p>
-            <p>{targetValue} {unit}</p>
+      {/* Detail only on open: motivation, status and the full period. */}
+      {expanded && (
+        <div className="flex flex-col gap-2">
+          {motivation && (
+            <p className="text-[12.5px] italic leading-snug text-text-3">
+              {t('Motivation')}: {motivation}
+            </p>
+          )}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {statusPhrase && <Chip size="sm" variant={statusVariant}>{statusPhrase}</Chip>}
+            <Chip size="sm" variant="xp" title={t('XP Reward')}>+{xpReward} XP</Chip>
           </div>
-          <div className="flex items-center gap-1 ">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => decreaseTask(id)}
-              disabled={currentValue === 0}
-              className="h-8 w-10 p-0 border-primary"
-            >
-              <p className="text-xl text-secondary" >-</p>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
+          <span className="flex items-center gap-1 font-mono text-[11px] text-text-3">
+            <CalendarDays size={12} aria-hidden="true" />
+            {formatDate(startDate.toString())} - {formatDate(endDate.toString())}
+          </span>
+        </div>
+      )}
+
+      {/* Stepper: -/+ around the bar, with the value in mono on the right. Once the
+          target is met the + gives way to Complete (that is what pays the XP); once
+          completed, the same button becomes Undo. */}
+      <div className="mt-auto flex items-center gap-2 pt-1">
+        <IconButton
+          label={t("Decrease")}
+          onClick={() => decreaseTask(id)}
+          disabled={currentValue === 0}
+          className="border border-border"
+        >
+          <Minus size={16} aria-hidden="true" />
+        </IconButton>
+        <XpBar className="min-w-0 flex-1" current={currentValue} target={targetValue} compact />
+
+        {targetReached || isCompleted ? (
+          <>
+            <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
+              {currentValue}/{targetValue} {unit}
+            </span>
+            {!readonly && (
+              <Button
+                text={isCompleted ? t("Undo") : t("Complete")}
+                size="small"
+                mode={isCompleted ? "ghost" : "primary"}
+                onClick={() => completeTask(id)}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <IconButton
+              label={t("Increase")}
               onClick={() => increaseTask(id)}
-              className="h-8 w-10 p-0 border-primary"
+              className="border border-border"
             >
-              <p className="text-lg text-secondary" >+</p>
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1 text-description">
-            <MdCalendarMonth className="text-icon"/>
-            <p>{formatDate(startDate.toString())}</p>
-            <p>-</p>
-            <p>{formatDate(endDate.toString())}</p>
-          </div>
-          <div className={`${ "flex items-center gap-1"}`}>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => completeTask(id)}
-              disabled={currentValue === 0}
-              className="border-primary"
-            >
-              <p className="text-md text-secondary">{status === "COMPLETED" ? t("Remove Complete") : t("Mark Complete")}</p>
-            </Button>
-          </div>
-        </div>
-
+              <Plus size={16} aria-hidden="true" />
+            </IconButton>
+            <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
+              {currentValue}/{targetValue} {unit}
+            </span>
+          </>
+        )}
       </div>
 
-      <div className="flex justify-between items-center mt-2">
-        <p className="text-lg font-medium text-secondary">{termPhrase}</p>
-        <div className="flex items-center font-medium">
-          <img className="w-[30px] mr-1" alt={t('InProgressImgAlt')} src={statusIcon} />
-          <p className="text-lg font-medium text-secondary">{statusPhrase}</p>
-        </div>
+      {/* The at-a-glance footer: term on the left, deadline on the right. */}
+      <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-text-3">
+        <span>{termPhrase}</span>
+        <span>{t("Until")} {formatDate(endDate.toString())}</span>
       </div>
-      <div className={`${readonly ? "hidden" : ""} flex justify-between items-center my-2`}>
 
-        <button onClick={handleEditMode} className="px-4 py-1 rounded cursor-pointer bg-primary text-background dark:text-secondary transition-colors duration-200 hover:bg-primary/90">
-          {t("Edit")}
-        </button>
-        <div className="my-1"></div>
-        <button onClick={() => setOnDelete(true)} className="px-4 py-1 rounded cursor-pointer bg-error text-background dark:text-secondary transition-colors duration-200 hover:bg-error/90">
-          {t("Delete")}
-        </button>
-        <DeleteModal
-          objectId={id}
-          onDelete={onDelete}
-          setOnDelete={setOnDelete}
-          t={t}
-          name={title}
-          dispatchFunction={enterGoals}
-          deleteObject={deleteGoal}
-          getObjects={getGoals}
-          deletePhrase={t("ConfirmDeleteOfGoalPhrase")}
-          mode="goal"
-        />
-      </div>
-    </div>
+      <DeleteModal
+        objectId={id}
+        onDelete={onDelete}
+        setOnDelete={setOnDelete}
+        t={t}
+        name={title}
+        dispatchFunction={enterGoals}
+        deleteObject={deleteGoal}
+        getObjects={getGoals}
+        deletePhrase={t("ConfirmDeleteOfGoalPhrase")}
+        mode="goal"
+      />
+    </Card>
   );
 }
 

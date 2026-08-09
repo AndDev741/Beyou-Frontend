@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { Pressable, Text, ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
@@ -68,21 +68,31 @@ export default function GoogleSignInButton() {
   };
 
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={busy}
-      accessibilityRole="button"
-      testID="google-signin-button"
-      className={`w-[250px] h-[52px] flex-row items-center justify-center gap-2 rounded-[20px] border border-description bg-background ${busy ? 'opacity-60' : ''}`}
-    >
-      {busy ? (
-        <ActivityIndicator color={theme.primary} />
-      ) : (
-        <>
-          <Ionicons name="logo-google" size={20} color={theme.primary} />
-          <Text className="text-secondary text-lg font-semibold">{t('ContinueWithGoogle')}</Text>
-        </>
-      )}
-    </Pressable>
+    <View className="mt-5 w-full">
+      {/* A divider before the alternative: Google is the second option, not a visual
+          pair for "Sign in". It ships with the button because it does on the web too. */}
+      <View className="mb-4 flex-row items-center gap-3">
+        <View className="h-px flex-1 bg-border" />
+        <Text className="text-xs text-text-3">{t('Or')}</Text>
+        <View className="h-px flex-1 bg-border" />
+      </View>
+
+      <Pressable
+        onPress={onPress}
+        disabled={busy}
+        accessibilityRole="button"
+        testID="google-signin-button"
+        className={`h-11 w-full flex-row items-center justify-center gap-2.5 rounded-control border border-border bg-surface ${busy ? 'opacity-60' : 'active:bg-surface-2'}`}
+      >
+        {busy ? (
+          <ActivityIndicator color={theme.accent} />
+        ) : (
+          <>
+            <Ionicons name="logo-google" size={20} color={theme.accent} />
+            <Text className="text-sm font-semibold text-text">{t('ContinueWithGoogle')}</Text>
+          </>
+        )}
+      </Pressable>
+    </View>
   );
 }

@@ -1,29 +1,35 @@
+import { ChevronLeft, Plus, Repeat, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getHabits from '@beyou/api/habits/getHabits';
 import getCategories from '@beyou/api/categories/getCategories';
 import deleteHabit from '@beyou/api/habits/deleteHabit';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
-import { sortHabits } from '@beyou/state';
+import { setViewSort, sortHabits } from '@beyou/state';
 import type { habit } from '@beyou/types/habit/habitType';
 import HabitCard from '../../src/ui/habits/HabitCard';
 import HabitForm from '../../src/ui/habits/HabitForm';
-import HabitsSortSheet from '../../src/ui/habits/HabitsSortSheet';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { RootState, AppDispatch } from '../../src/store';
 import { useHabitsTutorial } from '../../src/tutorial/hooks/useHabitsTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import DeleteModal from '../../src/ui/DeleteModal';
+import EmptyState from '../../src/ui/EmptyState';
+import ListToolbar from '../../src/ui/ListToolbar';
+import SelectField from '../../src/ui/SelectField';
+import { HABIT_SORT_OPTIONS } from '../../src/ui/sortOptions';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; habit: habit | null };
 const CLOSED: FormState = { visible: false, mode: 'create', habit: null };
+const ALL_CATEGORIES = 'all';
 
 /**
  * Habits section screen (Phase 6): self-fetches habits + categories, lists them as
@@ -41,6 +47,8 @@ export default function HabitsScreen() {
   const sortBy = useSelector((s: RootState) => s.viewFilters.habits);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<FormState>(CLOSED);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
 
   const hab = useHabitsTutorial();
   // Rendered by the (app) layout so the overlay spans the window — target
@@ -50,6 +58,39 @@ export default function HabitsScreen() {
   const firstCardRef = useTutorialTarget('habit-first');
 
   const sortedHabits = useMemo(() => sortHabits(habits, sortBy), [habits, sortBy]);
+
+  // Only the categories SOME habit uses: a filter full of options that return
+  // nothing is noise.
+  const categoriesInUse = useMemo(
+    () => categories.filter((category) => habits.some((h) => h.categories?.some((c) => c.id === category.id))),
+    [categories, habits],
+  );
+
+  const visibleHabits = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return sortedHabits.filter((h) => {
+      const matchesTerm =
+        !term ||
+        h.name?.toLowerCase().includes(term) ||
+        (h.description ?? '').toLowerCase().includes(term);
+      const matchesCategory =
+        categoryFilter === ALL_CATEGORIES || h.categories?.some((c) => c.id === categoryFilter);
+      return matchesTerm && matchesCategory;
+    });
+  }, [sortedHabits, search, categoryFilter]);
+
+  const isFiltered = search.trim() !== '' || categoryFilter !== ALL_CATEGORIES;
+  const sortOptions = useMemo(
+    () => HABIT_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.key) })),
+    [t],
+  );
+  const categoryOptions = useMemo(
+    () => [
+      { value: ALL_CATEGORIES, label: t('All') },
+      ...categoriesInUse.map((category) => ({ value: category.id, label: category.name })),
+    ],
+    [categoriesInUse, t],
+  );
 
   const load = useCallback(async () => {
     const [h, c] = await Promise.all([getHabits(t), getCategories(t)]);
@@ -68,39 +109,44 @@ export default function HabitsScreen() {
     };
   }, [load]);
 
-  const handleDelete = useCallback(
-    (target: habit) => {
-      Alert.alert(t('DeleteHabit'), t('ConfirmDeleteHabit'), [
-        { text: t('Cancel'), style: 'cancel' },
-        {
-          text: t('Delete'),
-          style: 'destructive',
-          onPress: async () => {
-            const res = await deleteHabit(target.id, t);
-            if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
-            else {
-              notify.success(t('deleted successfully'));
-              await load();
-            }
-          },
-        },
-      ]);
-    },
-    [t, load],
-  );
+  // Delete uses the system's own modal: the native Alert carries no theme, no
+  // typography and no item name, and brings the OS button order.
+  const [deleteTarget, setDeleteTarget] = useState<habit | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteHabit(deleteTarget.id, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
-        <View className="flex-row items-center gap-2">
+        <View className="min-w-0 flex-row items-center gap-2">
           <Pressable
             onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
             accessibilityRole="button"
             testID="back-button"
           >
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
+            <ChevronLeft size={24} color={theme.text2} />
           </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Habits')}</Text>
+          <View className="min-w-0">
+            <Text accessibilityRole="header" className="text-[22px] font-semibold text-text">
+              {t('YourHabits')}
+            </Text>
+            <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
+              {`${habits.length} ${t('Habits')} · ${categoriesInUse.length} ${t('Categories')}`}
+            </Text>
+          </View>
         </View>
         <Pressable
           ref={createRef}
@@ -108,9 +154,9 @@ export default function HabitsScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('CreateHabit')}
           testID="create-habit"
-          className="h-10 w-10 items-center justify-center rounded-full bg-primary"
+          className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
         >
-          <Ionicons name="add" size={26} color={theme.background} />
+          <Plus size={22} color={theme.onAccent} />
         </Pressable>
       </View>
 
@@ -120,36 +166,80 @@ export default function HabitsScreen() {
         </View>
       ) : (
         <FlatList
-          data={sortedHabits}
+          data={visibleHabits}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}
-          ListHeaderComponent={habits.length > 0 ? <View className="mb-1"><HabitsSortSheet /></View> : null}
+          contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 12 }}
+          ListHeaderComponent={
+            habits.length > 0 ? (
+              <ListToolbar
+                search={search}
+                onSearchChange={setSearch}
+                searchLabel={t('HabitSearchPlaceholder')}
+                testID="habits-toolbar"
+              >
+                <SelectField
+                  label={t('Sort by')}
+                  value={sortBy}
+                  options={sortOptions}
+                  onChange={(value) => dispatch(setViewSort({ view: 'habits', sortBy: value }))}
+                  testID="habits-sort"
+                  className="flex-1"
+                />
+                <SelectField
+                  label={t('Categories')}
+                  value={categoryFilter}
+                  options={categoryOptions}
+                  onChange={setCategoryFilter}
+                  testID="habits-category-filter"
+                  className="flex-1"
+                />
+              </ListToolbar>
+            ) : null
+          }
           renderItem={({ item, index }) => (
             <HabitCard
               habit={item}
               onEdit={(h) => setForm({ visible: true, mode: 'edit', habit: h })}
-              onDelete={handleDelete}
+              onDelete={setDeleteTarget}
               viewRef={index === 0 ? firstCardRef : undefined}
             />
           )}
           ListEmptyComponent={
-            <View className="mt-20 items-center gap-3 px-8">
-              <Text className="text-5xl">🌱</Text>
-              <Text className="text-description text-center text-base">{t('NoHabitsYet')}</Text>
-              <Pressable
-                onPress={() => setForm({ visible: true, mode: 'create', habit: null })}
-                accessibilityRole="button"
+            isFiltered ? (
+              <EmptyState
+                icon={<Search size={20} color={theme.accent} />}
+                title={t('NoResultsTitle')}
+                description={t('NoResultsDescription')}
+                actionLabel={t('ClearFilters')}
+                onAction={() => {
+                  setSearch('');
+                  setCategoryFilter(ALL_CATEGORIES);
+                }}
+                variant="ghost"
+                testID="habits-no-results"
+              />
+            ) : (
+              <EmptyState
+                icon={<Repeat size={20} color={theme.accent} />}
+                title={t('0HabitsTitle')}
+                description={t('0HabitsDescription')}
+                actionLabel={t('CreateHabit')}
+                onAction={() => setForm({ visible: true, mode: 'create', habit: null })}
                 testID="empty-create-habit"
-                className="rounded-full bg-primary px-5 py-2.5"
-              >
-                <Text style={{ color: theme.background }} className="font-semibold">
-                  {t('CreateHabit')}
-                </Text>
-              </Pressable>
-            </View>
+              />
+            )
           }
         />
       )}
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfHabitPhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <HabitForm
         visible={form.visible}

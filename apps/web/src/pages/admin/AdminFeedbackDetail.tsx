@@ -31,7 +31,7 @@ type Props = {
     onClose: () => void;
 };
 
-const SECTION_TITLE = "text-sm font-semibold uppercase tracking-wide text-description";
+const SECTION_TITLE = "text-sm font-semibold uppercase tracking-wide text-text-2";
 
 function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
     const { t, i18n } = useTranslation();
@@ -185,12 +185,12 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
         <section
             data-testid="admin-feedback-detail"
             aria-labelledby="admin-feedback-detail-heading"
-            className="flex flex-col gap-5 rounded-2xl border-2 border-primary bg-background p-4"
+            className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 lg:sticky lg:top-6"
         >
             <div className="flex items-start justify-between gap-3">
                 <h2
                     id="admin-feedback-detail-heading"
-                    className="text-lg font-semibold text-secondary"
+                    className="text-[15px] font-semibold tracking-[-0.01em] text-text"
                 >
                     {t("AdminFeedbackDetailTitle")}
                 </h2>
@@ -198,42 +198,45 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                     type="button"
                     onClick={onClose}
                     aria-label={t("AdminFeedbackCloseDetail")}
-                    className="rounded-full border border-description p-1 text-secondary transition-colors duration-200 hover:border-primary hover:text-primary"
+                    className="rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
                 >
                     <X size={16} aria-hidden="true" />
                 </button>
             </div>
 
-            {isLoading && <p className="text-sm text-description">{t("AdminFeedbackLoading")}</p>}
+            {isLoading && <p className="text-sm text-text-2">{t("AdminFeedbackLoading")}</p>}
 
             {loadError && <ErrorNotice error={loadError} canReport={false} />}
 
             {detail && (
                 <>
                     <div className="flex flex-col gap-1">
-                        <p className="text-base font-semibold text-secondary">
+                        <p className="text-base font-semibold text-text">
                             {detail.submitter?.name || t("AdminFeedbackUnknownSubmitter")}
                         </p>
-                        <p className="text-sm text-description">{detail.submitter?.email}</p>
-                        <p className="text-xs text-description">
+                        <p className="text-sm text-text-2">{detail.submitter?.email}</p>
+                        <p className="text-xs text-text-2">
                             {formatFeedbackTimestamp(detail.createdAt, i18n.language)}
                         </p>
                     </div>
 
-                    <p className="whitespace-pre-wrap text-secondary">{detail.body}</p>
+                    <p className="whitespace-pre-wrap text-text">{detail.body}</p>
 
                     <div className="flex flex-col gap-2">
                         <h3 className={SECTION_TITLE}>{t("AdminFeedbackContextTitle")}</h3>
                         {contextEntries.length === 0 ? (
-                            <p className="text-sm text-description">{t("AdminFeedbackNoContext")}</p>
+                            <p className="text-sm text-text-2">{t("AdminFeedbackNoContext")}</p>
                         ) : (
                             <ul className="flex flex-col gap-1">
                                 {contextEntries.map(({ key, value }) => (
-                                    <li key={key} className="text-sm text-secondary">
-                                        <span className="text-description">
-                                            {t(FEEDBACK_CONTEXT_LABEL_KEYS[key])}:{" "}
+                                    <li
+                                        key={key}
+                                        className="flex items-baseline justify-between gap-3 font-mono text-[11.5px]"
+                                    >
+                                        <span className="text-text-3">
+                                            {t(FEEDBACK_CONTEXT_LABEL_KEYS[key])}
                                         </span>
-                                        {value}
+                                        <span className="truncate text-text-2">{value}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -243,7 +246,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                     <div className="flex flex-col gap-2">
                         <h3 className={SECTION_TITLE}>{t("AdminFeedbackAttachmentsTitle")}</h3>
                         {(detail.attachments ?? []).length === 0 ? (
-                            <p className="text-sm text-description">{t("AdminFeedbackNoAttachments")}</p>
+                            <p className="text-sm text-text-2">{t("AdminFeedbackNoAttachments")}</p>
                         ) : (
                             <ul className="flex flex-wrap gap-3">
                                 {(detail.attachments ?? []).map((attachment, index) => (
@@ -270,7 +273,7 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                             value={detail.status ?? "OPEN"}
                             disabled={isSavingStatus}
                             onChange={(event) => void onStatusSelected(event.target.value as FeedbackStatus)}
-                            className="w-fit rounded-xl border-2 border-primary bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-fit rounded-card border-2 border-border bg-bg p-2 text-text focus:outline-none focus:ring-2 focus:ring-accent"
                         >
                             {FEEDBACK_STATUS_ORDER.map((status) => (
                                 <option key={status} value={status}>
@@ -280,25 +283,25 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                         </select>
                         {/* KD4: the backend sends nothing on a re-status. Say so, so the
                             admin never assumes closing a report answered the user. */}
-                        <p className="text-xs text-description">{t("AdminFeedbackStatusInternalHint")}</p>
+                        <p className="text-xs text-text-2">{t("AdminFeedbackStatusInternalHint")}</p>
                         {statusError && <ErrorNotice error={statusError} canReport={false} />}
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <h3 className={SECTION_TITLE}>{t("AdminFeedbackRepliesTitle")}</h3>
                         {(detail.replies ?? []).length === 0 ? (
-                            <p className="text-sm text-description">{t("AdminFeedbackNoReplies")}</p>
+                            <p className="text-sm text-text-2">{t("AdminFeedbackNoReplies")}</p>
                         ) : (
                             <ul className="flex flex-col gap-3">
                                 {(detail.replies ?? []).map((reply, index) => (
                                     <li
                                         key={reply.id ?? index}
-                                        className="rounded-xl border border-description p-3"
+                                        className="rounded-card border border-border p-3"
                                     >
-                                        <p className="whitespace-pre-wrap text-sm text-secondary">
+                                        <p className="whitespace-pre-wrap text-sm text-text">
                                             {reply.body}
                                         </p>
-                                        <p className="mt-1 text-xs text-description">
+                                        <p className="mt-1 text-xs text-text-2">
                                             {reply.authorName} ·{" "}
                                             {formatFeedbackTimestamp(reply.createdAt, i18n.language)}
                                         </p>
@@ -311,11 +314,11 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                     <div className="flex flex-col gap-2">
                         <label
                             htmlFor="admin-feedback-reply"
-                            className="text-base font-semibold text-secondary"
+                            className="text-base font-semibold text-text"
                         >
                             {t("AdminFeedbackReplyLabel")}
                         </label>
-                        <span className="text-xs text-description">{t("AdminFeedbackReplyHint")}</span>
+                        <span className="text-xs text-text-2">{t("AdminFeedbackReplyHint")}</span>
                         <textarea
                             id="admin-feedback-reply"
                             data-testid="admin-feedback-reply-body"
@@ -324,9 +327,9 @@ function AdminFeedbackDetail({ feedbackId, onStatusChanged, onClose }: Props) {
                             placeholder={t("AdminFeedbackReplyPlaceholder")}
                             value={replyBody}
                             onChange={(event) => setReplyBody(event.target.value)}
-                            className="w-full rounded-xl border-2 border-primary bg-background p-3 text-secondary placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-card border-2 border-border bg-bg p-3 text-text placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent"
                         />
-                        {replyValidation && <p className="text-sm text-error">{replyValidation}</p>}
+                        {replyValidation && <p className="text-sm text-danger">{replyValidation}</p>}
                         {replyError && <ErrorNotice error={replyError} canReport={false} />}
                         {hasSentReply && (
                             <p role="status" className="text-sm font-semibold text-success">

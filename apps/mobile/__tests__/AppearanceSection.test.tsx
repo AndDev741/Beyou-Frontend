@@ -1,4 +1,4 @@
-/** AppearanceSection (P5-A2) — selecting a theme persists it via editUser. */
+/** AppearanceSection (P5-A2) — escolher modo/acento persiste via editUser. */
 jest.mock('../src/notify', () => ({
   notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
 }));
@@ -6,13 +6,10 @@ jest.mock('../src/notify', () => ({
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
 import { setHttpClient, setLogger } from '@beyou/api';
-import { themes } from '@beyou/theme';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import AppearanceSection from '../src/ui/config/AppearanceSection';
-
-const target = themes.find((t) => t.mode !== themes[0].mode)!;
 
 let putSpy: jest.Mock;
 beforeEach(() => {
@@ -22,20 +19,36 @@ beforeEach(() => {
   setLogger({ error: () => {} });
 });
 
+const renderSection = () =>
+  render(
+    <Provider store={makeStore()}>
+      <BeyouThemeProvider>
+        <AppearanceSection />
+      </BeyouThemeProvider>
+    </Provider>,
+  );
+
 describe('AppearanceSection', () => {
-  it('persists the selected theme via editUser', async () => {
-    await render(
-      <Provider store={makeStore()}>
-        <BeyouThemeProvider>
-          <AppearanceSection />
-        </BeyouThemeProvider>
-      </Provider>,
-    );
+  it('persists the chosen mode via editUser', async () => {
+    await renderSection();
 
     await act(async () => {
-      fireEvent.press(screen.getByTestId(`theme-swatch-${target.mode}`));
+      fireEvent.press(screen.getByTestId('theme-mode-dark'));
     });
 
-    await waitFor(() => expect(putSpy).toHaveBeenCalledWith('/user', { theme: target.mode }));
+    await waitFor(() => expect(putSpy).toHaveBeenCalledWith('/user', { theme: 'dark:beyou' }));
+  });
+
+  it('persists the chosen accent pack alongside the mode', async () => {
+    await renderSection();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('theme-mode-light'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('theme-accent-cyber'));
+    });
+
+    await waitFor(() => expect(putSpy).toHaveBeenCalledWith('/user', { theme: 'light:cyber' }));
   });
 });

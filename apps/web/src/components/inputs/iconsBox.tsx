@@ -104,9 +104,9 @@ function IconsBox({
     };
 
     const borderCss =
-        "border border-primary rounded-md w-[45vw] md:w-[320px] lg:w-[15rem] bg-background";
-    const labelCss = "text-lg md:text-2xl md:text-xl text-secondary";
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
+        "border border-border rounded-control w-[45vw] md:w-[320px] lg:w-[15rem] bg-surface";
+    const labelCss = "text-lg md:text-2xl md:text-xl text-text";
+    const errorCss = "text-danger text-sm leading-snug break-words whitespace-normal w-[45vw] md:w-[320px] lg:w-[15rem] mt-1";
 
     return (
         <div className="flex flex-col">
@@ -120,7 +120,7 @@ function IconsBox({
                     onChange={(e) => setSearch(e.target.value)}
                     name="icon"
                     id="icon"
-                    className="w-[30vw] md:w-[190px] ml-1 pl-1 border border-primary rounded-md outline-none bg-background text-secondary placeholder:text-placeholder transition-colors duration-200"
+                    className="w-[30vw] md:w-[190px] ml-1 pl-1 border border-border rounded-control outline-none bg-surface text-text placeholder:text-text-3 transition-colors duration-200"
                     placeholder={t("IconPlaceholder")}
                 />
             </div>
@@ -134,8 +134,8 @@ function IconsBox({
                         onClick={() => setCategory(option.id)}
                         className={`px-2 py-1 text-xs rounded-full border transition-colors duration-150 ${
                             category === option.id
-                                ? "bg-primary text-background border-primary"
-                                : "border-primary/30 text-secondary hover:bg-primary/10"
+                                ? "bg-accent text-on-accent border-accent"
+                                : "border-border text-text hover:bg-accent/10"
                         }`}
                     >
                         {option.label}
@@ -144,11 +144,11 @@ function IconsBox({
             </div>
 
             <div
-                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-error" : ""} p-2`}
+                className={`flex flex-wrap items-start justify-start overflow-auto ${borderCss} ${iconError ? "border-danger" : ""} p-2`}
                 style={dynamicStyle}
             >
                 {iconsToDisplay.length === 0 ? (
-                    <div className="text-sm text-description p-2">
+                    <div className="text-sm text-text-2 p-2">
                         {t("IconNoResults")}
                     </div>
                 ) : (
@@ -164,9 +164,9 @@ function IconsBox({
                             aria-pressed={entry.id === selectedCanonical}
                             className={`${
                                 entry.id === selectedCanonical
-                                    ? "scale-110 text-primary border-2 border-primary rounded-md"
-                                    : "text-description"
-                            } text-3xl m-1 bg-transparent border-0 p-0 hover:text-primary hover:scale-105 cursor-pointer transition-all duration-150`}
+                                    ? "scale-110 text-accent border-2 border-accent rounded-control"
+                                    : "text-text-2"
+                            } text-3xl m-1 bg-transparent border-0 p-0 hover:text-accent hover:scale-105 cursor-pointer transition-all duration-150`}
                         >
                             <BeyouIcon id={entry.id} />
                         </button>

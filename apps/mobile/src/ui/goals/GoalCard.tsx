@@ -1,37 +1,76 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { CalendarDays, ChevronDown, ChevronUp, Minus, Pencil, Plus, Trash2 } from 'lucide-react-native';
 import type { goal } from '@beyou/types/goals/goalType';
 import BeyouIcon from '../BeyouIcon';
+import Card from '../Card';
+import Chip, { type ChipVariant } from '../Chip';
+import IconButton from '../IconButton';
+import IconTile from '../IconTile';
+import XpBar from '../XpBar';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useGoalActions } from './useGoalActions';
+import { formatGoalDeadline } from '@beyou/state';
 
 interface GoalCardProps {
   goal: goal;
   onEdit: (goal: goal) => void;
   onDelete: (goal: goal) => void;
-  /** Refetch goals (e.g. after completing, which changes status server-side). */
+  /** Refetches after completing (the status changes on the server). */
   onChanged: () => void;
-  /** Start expanded — e.g. when opened from a dashboard goal tap. */
+  /** Opens already expanded — e.g. arriving from a dashboard goal tap. */
   initialExpanded?: boolean;
+  /** Highlights the goal that came from the dashboard, so it is not lost. */
+  focused?: boolean;
+  /** Dashboard carousel card: no edit, no delete, no chevron. */
+  readonly?: boolean;
 }
 
-const STATUS_KEY: Record<string, string> = { NOT_STARTED: 'Not Started', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed' };
-const TERM_KEY: Record<string, string> = { SHORT_TERM: 'Short Term', MEDIUM_TERM: 'Medium Term', LONG_TERM: 'Long Term' };
-const fmtDate = (v: Date | string | undefined) => (!v ? '' : typeof v === 'string' ? v.slice(0, 10) : v.toISOString().slice(0, 10));
+const STATUS_KEY: Record<string, string> = {
+  NOT_STARTED: 'Not Started',
+  IN_PROGRESS: 'In Progress',
+  COMPLETED: 'Completed',
+};
+const TERM_KEY: Record<string, string> = {
+  SHORT_TERM: 'Short Term',
+  MEDIUM_TERM: 'Medium Term',
+  LONG_TERM: 'Long Term',
+};
 
-export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExpanded }: GoalCardProps) {
-  const { t } = useTranslation();
+/**
+ * Goal card — mirror of the web `goalBox`.
+ *
+ * Closed: icon, title, badges, description, categories and the stepper. Once the
+ * target is reached the + gives way to "Complete" (that is what pays the XP);
+ * once complete, the same button becomes "Undo" and the card KEEPS its whole
+ * design, only gaining the XP and done chips up top.
+ */
+export default function GoalCard({
+  goal,
+  onEdit,
+  onDelete,
+  onChanged,
+  initialExpanded,
+  focused = false,
+  readonly = false,
+}: GoalCardProps) {
+  const { t, i18n } = useTranslation();
   const { theme } = useBeyouTheme();
   const { increase, decrease, complete } = useGoalActions();
   const [expanded, setExpanded] = useState(initialExpanded ?? false);
   const [pending, setPending] = useState(false);
 
-  const pct = goal.targetValue > 0 ? Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100)) : 0;
-  const done = goal.complete;
-  const dateRange = [fmtDate(goal.startDate), fmtDate(goal.endDate)].filter(Boolean).join(' → ');
+  const isCompleted = goal.status === 'COMPLETED';
+  // "Complete" is what pays the XP, so it only shows once the target is hit;
+  // before that the card shows the stepper's +. A targetValue of 0 never
+  // "reaches the target".
+  const targetReached = goal.targetValue > 0 && goal.currentValue >= goal.targetValue;
+  const statusVariant: ChipVariant =
+    goal.status === 'COMPLETED' ? 'ok' : goal.status === 'IN_PROGRESS' ? 'accent' : 'neutral';
   const categoryEntries = Object.entries(goal.categories ?? {});
+  const termPhrase = t(TERM_KEY[goal.term] ?? goal.term ?? '');
+  const statusPhrase = goal.status ? t(STATUS_KEY[goal.status] ?? goal.status) : '';
 
   const run = async (fn: () => Promise<unknown>, refetch = false) => {
     if (pending) return;
@@ -42,114 +81,178 @@ export default function GoalCard({ goal, onEdit, onDelete, onChanged, initialExp
   };
 
   return (
-    <View className="rounded-2xl border border-primary/20 bg-background p-4">
-      <Pressable
-        onPress={() => setExpanded((e) => !e)}
-        accessibilityRole="button"
-        accessibilityLabel={goal.name}
-        accessibilityState={{ expanded }}
-        testID={`goal-card-${goal.id}`}
-        className="flex-row items-center gap-3"
-      >
-        <View className="h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-          <BeyouIcon id={goal.iconId} size={24} showFallback />
-        </View>
-        <View className="flex-1">
-          <Text className="text-secondary text-base font-bold" numberOfLines={expanded ? undefined : 1}>{goal.name}</Text>
-          <View className="mt-0.5 flex-row flex-wrap items-center gap-1.5">
-            <Text className="text-description text-xs">{t(TERM_KEY[goal.term] ?? goal.term)}</Text>
-            <Text className="text-description text-xs">·</Text>
-            <Text className={`text-xs ${done ? 'text-primary font-semibold' : 'text-description'}`}>{t(STATUS_KEY[goal.status] ?? goal.status)}</Text>
-          </View>
-        </View>
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={theme.description} />
-      </Pressable>
+    <Card
+      tone={isCompleted ? 'success' : 'default'}
+      selected={focused}
+      className={`gap-3 ${focused ? 'border-2' : ''}`}
+    >
+      <View className="flex-row items-start gap-2.5">
+        <IconTile size={34}>
+          <BeyouIcon id={goal.iconId} size={18} showFallback />
+        </IconTile>
 
-      {/* Progress */}
-      <View className="mt-3">
-        <View className="mb-1 flex-row justify-between">
-          <Text className="text-description text-xs">{goal.currentValue}/{goal.targetValue} {goal.unit}</Text>
-          <Text className="text-description text-xs">{pct}%</Text>
-        </View>
-        <View className="h-2 overflow-hidden rounded-full bg-primary/15">
-          <View className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
-        </View>
-      </View>
-
-      {/* Quick progress + complete */}
-      <View className="mt-3 flex-row items-center gap-2">
-        <Pressable
-          onPress={() => run(() => decrease(goal.id))}
-          disabled={pending || done}
-          accessibilityRole="button"
-          accessibilityLabel={t('Decrease') || 'Decrease'}
-          testID={`goal-decrease-${goal.id}`}
-          className={`h-9 w-9 items-center justify-center rounded-full border border-primary/40 ${done ? 'opacity-40' : ''}`}
-        >
-          <Ionicons name="remove" size={20} color={theme.primary} />
-        </Pressable>
-        <Pressable
-          onPress={() => run(() => increase(goal.id))}
-          disabled={pending || done}
-          accessibilityRole="button"
-          accessibilityLabel={t('Increase') || 'Increase'}
-          testID={`goal-increase-${goal.id}`}
-          className={`h-9 w-9 items-center justify-center rounded-full border border-primary/40 ${done ? 'opacity-40' : ''}`}
-        >
-          <Ionicons name="add" size={20} color={theme.primary} />
-        </Pressable>
-
-        {done ? (
-          <View className="ml-auto flex-row items-center gap-1">
-            <Ionicons name="checkmark-circle" size={20} color={theme.primary} />
-            <Text className="text-primary text-sm font-semibold">{t('Completed')}</Text>
-          </View>
-        ) : (
-          <Pressable
-            onPress={() => run(() => complete(goal.id), true)}
-            disabled={pending}
-            accessibilityRole="button"
-            testID={`goal-complete-${goal.id}`}
-            className="ml-auto flex-row items-center gap-1 rounded-full bg-primary px-3 py-1.5"
+        {/* Title and badges share what is left: the chips wrap to the line below
+            instead of squeezing the goal's name down to three letters. */}
+        <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-x-2 gap-y-1">
+          <Text
+            className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug ${
+              isCompleted ? 'text-text-3' : 'text-text'
+            }`}
+            numberOfLines={1}
           >
-            <Ionicons name="checkmark" size={16} color={theme.background} />
-            <Text style={{ color: theme.background }} className="text-sm font-semibold">{t('MarkAsComplete')}</Text>
-          </Pressable>
-        )}
+            {goal.name}
+          </Text>
+
+          {/* XP comes into play when the target lands; a completed goal shows
+              — o que rendeu e o selo. */}
+          {targetReached || isCompleted ? (
+            <Chip size="sm" variant="xp" testID={`goal-xp-${goal.id}`}>
+              {`+${goal.xpReward} XP`}
+            </Chip>
+          ) : null}
+          {isCompleted ? (
+            <Chip size="sm" variant="ok" testID={`goal-completed-${goal.id}`}>
+              {t('Completed')}
+            </Chip>
+          ) : null}
+        </View>
+
+        {!readonly ? (
+          <>
+            <IconButton label={t('Edit')} onPress={() => onEdit(goal)} testID={`goal-edit-${goal.id}`}>
+              <Pencil size={15} color={theme.text3} />
+            </IconButton>
+            <IconButton
+              label={t('Delete')}
+              tone="danger"
+              onPress={() => onDelete(goal)}
+              testID={`goal-delete-${goal.id}`}
+            >
+              <Trash2 size={15} color={theme.text3} />
+            </IconButton>
+            <IconButton
+              label={expanded ? t('Collapse') : t('Expand')}
+              onPress={() => setExpanded((open) => !open)}
+              testID={`goal-card-${goal.id}`}
+            >
+              {expanded ? (
+                <ChevronUp size={18} color={theme.text3} />
+              ) : (
+                <ChevronDown size={18} color={theme.text3} />
+              )}
+            </IconButton>
+          </>
+        ) : null}
       </View>
 
-      {expanded ? (
-        <View className="mt-4 gap-3 border-t border-primary/10 pt-3">
-          {goal.description ? <Text className="text-description text-sm">{goal.description}</Text> : null}
-          {goal.motivation ? (
-            <View className="gap-0.5">
-              <Text className="text-secondary text-sm font-semibold">{t('Motivation')}</Text>
-              <Text className="text-description text-sm italic">"{goal.motivation}"</Text>
-            </View>
-          ) : null}
-          {dateRange ? <Text className="text-description text-xs">{dateRange}</Text> : null}
-          <Text className="text-description text-xs">+{goal.xpReward} XP</Text>
-          {categoryEntries.length ? (
-            <View className="flex-row flex-wrap gap-1.5">
-              {categoryEntries.map(([id, cat]) => (
-                <View key={id} className="flex-row items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5">
-                  <BeyouIcon id={cat.iconId} size={12} />
-                  <Text className="text-primary text-xs">{cat.name}</Text>
-                </View>
-              ))}
-            </View>
-          ) : null}
+      {goal.description ? (
+        <Text className="text-[12.5px] leading-snug text-text-3" numberOfLines={2}>
+          {goal.description}
+        </Text>
+      ) : null}
 
-          <View className="flex-row gap-3">
-            <Pressable onPress={() => onEdit(goal)} accessibilityRole="button" testID={`goal-edit-${goal.id}`} className="flex-1 items-center rounded-lg bg-primary py-2.5">
-              <Text style={{ color: theme.background }} className="font-semibold">{t('Edit')}</Text>
-            </Pressable>
-            <Pressable onPress={() => onDelete(goal)} accessibilityRole="button" testID={`goal-delete-${goal.id}`} className="flex-1 items-center rounded-lg border border-error py-2.5">
-              <Text className="text-error font-semibold">{t('Delete')}</Text>
-            </Pressable>
+      {categoryEntries.length > 0 ? (
+        <View className="flex-row flex-wrap gap-1.5">
+          {categoryEntries.map(([categoryId, category], index) => (
+            <Chip
+              key={`${categoryId}-${index}`}
+              size="sm"
+              icon={<BeyouIcon id={category.iconId} size={12} />}
+            >
+              {category.name}
+            </Chip>
+          ))}
+        </View>
+      ) : null}
+
+      {/* Detail only on open: motivation, status and the full period. */}
+      {expanded ? (
+        <View className="gap-2">
+          {goal.motivation ? (
+            <Text className="text-[12.5px] italic leading-snug text-text-3">
+              {`${t('Motivation')}: ${goal.motivation}`}
+            </Text>
+          ) : null}
+          <View className="flex-row flex-wrap items-center gap-1.5">
+            {statusPhrase ? (
+              <Chip size="sm" variant={statusVariant}>
+                {statusPhrase}
+              </Chip>
+            ) : null}
+            <Chip size="sm" variant="xp">{`+${goal.xpReward} XP`}</Chip>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <CalendarDays size={12} color={theme.text3} />
+            <Text className="font-mono text-[11px] text-text-3">
+              {`${formatGoalDeadline(goal.startDate, i18n.language)} - ${formatGoalDeadline(goal.endDate, i18n.language)}`}
+            </Text>
           </View>
         </View>
       ) : null}
-    </View>
+
+      {/* Stepper: -/+ around the bar, with the value in mono on the right. */}
+      <View className="flex-row items-center gap-2">
+        <IconButton
+          label={t('Decrease')}
+          onPress={() => run(() => decrease(goal.id))}
+          disabled={pending || goal.currentValue === 0}
+          className="border border-border"
+          testID={`goal-decrease-${goal.id}`}
+        >
+          <Minus size={16} color={theme.text2} />
+        </IconButton>
+
+        <XpBar className="min-w-0 flex-1" current={goal.currentValue} target={goal.targetValue} compact />
+
+        {targetReached || isCompleted ? (
+          <>
+            <Text className="shrink-0 font-mono-semibold text-xs text-text-2">
+              {`${goal.currentValue}/${goal.targetValue} ${goal.unit ?? ''}`}
+            </Text>
+            {!readonly ? (
+              <Pressable
+                onPress={() => run(() => complete(goal.id), true)}
+                disabled={pending}
+                accessibilityRole="button"
+                testID={`goal-complete-${goal.id}`}
+                className={`shrink-0 rounded-control px-3 py-1.5 ${
+                  isCompleted ? 'active:bg-surface-2' : 'bg-accent active:opacity-80'
+                }`}
+              >
+                <Text
+                  className="text-xs font-semibold"
+                  style={{ color: isCompleted ? theme.accent : theme.onAccent }}
+                >
+                  {isCompleted ? t('Undo') : t('Complete')}
+                </Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <IconButton
+              label={t('Increase')}
+              onPress={() => run(() => increase(goal.id))}
+              disabled={pending}
+              className="border border-border"
+              testID={`goal-increase-${goal.id}`}
+            >
+              <Plus size={16} color={theme.text2} />
+            </IconButton>
+            <Text className="shrink-0 font-mono-semibold text-xs text-text-2">
+              {`${goal.currentValue}/${goal.targetValue} ${goal.unit ?? ''}`}
+            </Text>
+          </>
+        )}
+      </View>
+
+      {/* The at-a-glance footer: term on the left, deadline on the right. */}
+      <View className="flex-row items-center justify-between gap-2">
+        <Text className="font-mono text-[11px] text-text-3">{termPhrase}</Text>
+        <Text className="font-mono text-[11px] text-text-3">
+          {`${t('Until')} ${formatGoalDeadline(goal.endDate, i18n.language)}`}
+        </Text>
+      </View>
+    </Card>
   );
 }

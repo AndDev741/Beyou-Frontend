@@ -6,7 +6,7 @@ import category from "@beyou/types/category/categoryType";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import Modal from "../../modals/Modal";
 import CategoryForm from "../../categories/CategoryForm";
-import { CgAddR } from "react-icons/cg";
+import { Plus } from "lucide-react";
 
 type chooseCategoriesProps = {
     categoriesIdList: string[],
@@ -22,8 +22,6 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [pendingSelection, setPendingSelection] = useState<{ name: string; iconId: string } | null>(null);
-    const errorCss = "text-error text-sm leading-snug break-words whitespace-normal max-w-[90vw] md:max-w-[660px] lg:max-w-[32rem] mt-1 text-center";
-
     useEffect(() => {
         async function returnCategories(){
             const response = await getCategories(t);
@@ -61,30 +59,11 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
     };
 
     return(
-        <>
-            {/* Title and add-button flow together — absolute positioning made the
-                button overlap the title in narrow forms (habit/task) and drift
-                far away in wide ones (goal). */}
-            <div className="flex items-center justify-center gap-3 w-full mt-2">
-                <h3 className="text-2xl text-center text-secondary">{t("Categories")}</h3>
-                <button
-                    type="button"
-                    onClick={() => setShowCreateModal(true)}
-                    className="flex shrink-0 items-center gap-1 text-primary font-semibold px-2 py-1 rounded-md hover:bg-primary/10 active:scale-95 transition-all duration-200"
-                    aria-label={t("AddCategory")}
-                >
-                    <CgAddR className="text-lg" />
-                    <span className="hidden sm:inline">{t("AddCategory")}</span>
-                </button>
-            </div>
-            {errorMessage ? <p className={errorCss} title={errorMessage}>{errorMessage}</p> : null}
-            <div className="flex flex-wrap flex-col items-center w-[95vw] max-h-[200px] md:w-[100%] overflow-x-auto mt-2 text-secondary">
-                <div className="flex flex-wrap items-center justify-evenly px-1 mb-2">
-                    {categories.length > 0 ? categories.map((category) => (
-                        
-                        <div key={category.id} 
-                        className="flex flex-col items-center line-clamp-1 px-2">
-                            <CategoryItem
+        <div className="w-full">
+            <div className="flex flex-wrap gap-1.5">
+                {categories.length > 0 ? (
+                    categories.map((category) => (
+                        <CategoryItem
                             key={category.id}
                             categoriesIdList={categoriesIdList}
                             setCategoriesIdList={setCategoriesIdList}
@@ -93,15 +72,29 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                             iconId={category.iconId}
                             chosenCategories={chosenCategories}
                             chosenCategoriesId={chosenCategoriesId}
-                            />
-                        </div>
-                    
-                    )): (
+                        />
+                    ))
+                ) : (
+                    <span className="text-[12.5px] text-text-3">{t("YouDontHaveCategories")}</span>
+                )}
 
-                    <h1 className="text-primary">{t("YouDontHaveCategories")}</h1>
-                    )}
-                </div>
+                {/* The new-category invitation lives in the row itself, as in the
+                    mockup — a dashed chip that opens the quick create. */}
+                <button
+                    type="button"
+                    onClick={() => setShowCreateModal(true)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5 text-[11.5px] font-semibold text-text-3 transition-colors duration-200 hover:border-accent hover:text-accent"
+                    aria-label={t("AddCategory")}
+                >
+                    <Plus size={13} aria-hidden="true" />
+                    {t("New category")}
+                </button>
             </div>
+
+            {errorMessage ? (
+                <p className="mt-1.5 text-xs text-danger" title={errorMessage}>{errorMessage}</p>
+            ) : null}
+
             <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)}>
                 <CategoryForm
                     mode="create"
@@ -110,8 +103,7 @@ function ChooseCategories({categoriesIdList, setCategoriesIdList, errorMessage, 
                     onClose={() => setShowCreateModal(false)}
                 />
             </Modal>
-        </>
-        
+        </div>
     )
 }
 

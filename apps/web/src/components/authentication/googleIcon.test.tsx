@@ -19,8 +19,9 @@ describe('GoogleIcon — client ID guard', () => {
         const button = container.querySelector('button');
         expect(button).not.toBeNull();
 
-        const img = screen.getByAltText('Google login');
-        expect(img).toBeDefined();
+        // The label lives in the button's text now; the logo is decorative (empty
+        // alt + aria-hidden), as the icon-plus-text pattern requires.
+        expect(screen.getByRole('button', { name: 'ContinueWithGoogle' })).toBeDefined();
     });
 
     it('returns null when VITE_GOOGLE_CLIENT_ID is empty string', async () => {

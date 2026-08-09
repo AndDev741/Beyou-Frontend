@@ -50,8 +50,8 @@ export default function SuggestionCard({
                       }
             }
             className={cn(
-                "relative flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition-all duration-200",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                "relative flex w-full items-start gap-3 rounded-card border p-3 text-left transition-all duration-200",
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 selected
                     ? "border-[var(--primary)] shadow-md"
                     : "hover:-translate-y-0.5 hover:shadow-md"
@@ -61,7 +61,7 @@ export default function SuggestionCard({
             <span
                 aria-hidden="true"
                 className={cn(
-                    "absolute -top-1.5 -right-1.5 flex w-5 h-5 items-center justify-center rounded-full bg-primary text-white shadow-md transition-all duration-200",
+                    "absolute -top-1.5 -right-1.5 flex w-5 h-5 items-center justify-center rounded-full bg-accent text-on-accent shadow-md transition-all duration-200",
                     selected ? "scale-100 opacity-100" : "scale-50 opacity-0"
                 )}
             >
@@ -69,19 +69,19 @@ export default function SuggestionCard({
             </span>
 
             <span
-                className="flex w-10 h-10 shrink-0 items-center justify-center rounded-xl"
+                className="flex w-10 h-10 shrink-0 items-center justify-center rounded-card"
                 style={{
                     backgroundColor: selected
                         ? "color-mix(in srgb, var(--primary) 18%, var(--background))"
                         : "color-mix(in srgb, var(--primary) 10%, var(--background))"
                 }}
             >
-                <BeyouIcon id={iconId} size={20} className="text-primary" />
+                <BeyouIcon id={iconId} size={20} className="text-accent" />
             </span>
 
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="font-semibold text-secondary leading-snug">{name}</span>
-                <span className="text-sm text-description leading-snug line-clamp-2">
+                <span className="font-semibold text-text leading-snug">{name}</span>
+                <span className="text-sm text-text-2 leading-snug line-clamp-2">
                     {description}
                 </span>
             </span>

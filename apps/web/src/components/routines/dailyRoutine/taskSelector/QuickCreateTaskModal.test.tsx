@@ -27,12 +27,6 @@ vi.mock("../../../inputs/chooseCategory/chooseCategories", () => ({
     )
 }));
 
-vi.mock("../../../inputs/chooseInput", () => ({
-    default: ({ setLevel, title }: { setLevel: (value: number) => void; title: string }) => (
-        <button type="button" onClick={() => setLevel(1)}>{`pick ${title}`}</button>
-    )
-}));
-
 vi.mock("react-toastify", () => ({
     toast: {
         success: vi.fn(),
@@ -68,15 +62,15 @@ test("creates task and returns new id", async () => {
 
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Clean the house" } });
     fireEvent.click(screen.getByText("pick icon"));
-    fireEvent.click(screen.getByText("pick Importance"));
-    fireEvent.click(screen.getByText("pick Difficulty"));
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
     fireEvent.click(screen.getByText("pick categories"));
 
     const form = document.querySelector("form");
     if (form) {
         fireEvent.submit(form);
     } else {
-        fireEvent.click(screen.getByRole("button", { name: "Create" }));
+        fireEvent.click(screen.getByRole("button", { name: "Save task" }));
     }
 
     await waitFor(() => {

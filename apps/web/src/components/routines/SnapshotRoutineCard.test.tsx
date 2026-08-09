@@ -1,25 +1,20 @@
-import { fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { renderWithProviders } from "../../test/test-utils";
 import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
 import { Snapshot, SnapshotCheck, SnapshotStructureSection } from "@beyou/types/routine/snapshot";
 
 /**
- * Bug 3 — habits duplicated in the routine SNAPSHOT view only.
+ * Bug 3 — a habit duplicated in the history view only.
  *
- * SnapshotRoutineCard buckets checks into sections by matching on the section
- * NAME (`c.sectionName === section.name`). Section names are not unique, so
- * when a routine has two sections sharing a name, every check for that name
- * lands in BOTH rendered sections — duplicating habits. The regular routine
- * view (RoutineCard) does not have this bug because it walks the real nested
- * section objects instead of filtering a flat list by name.
+ * The card grouped checks by section NAME, and a section name is not unique: with
+ * two sections called the same, every check landed in both. It now walks the
+ * STRUCTURE and finds each item's check by `originalGroupId` (the HabitGroup PK,
+ * unique per placement), so duplication is impossible by construction. The second
+ * test locks in the legitimate case: the same habit genuinely placed in two
+ * sections shows once in each.
  *
- * The backend snapshot data is correct: each check carries a unique
- * `originalGroupId` (the HabitGroup PK) scoping it to one placement. The fix is
- * to bucket by originalGroupId membership, not by section name.
- *
- * The first test reproduces the bug (FAILS on the current build). The second
- * locks in the legitimate "same habit genuinely in two sections" case so the
- * fix doesn't regress it.
+ * The names come from the structure (`item.name`), not from the check — that is
+ * what native shows, and it keeps an item without a check in the list.
  */
 
 function check(overrides: Partial<SnapshotCheck> & Pick<SnapshotCheck, "id" | "itemName" | "originalGroupId" | "sectionName">): SnapshotCheck {
@@ -57,11 +52,6 @@ function section(name: string, groupId: string, orderIndex: number): SnapshotStr
     };
 }
 
-async function expand() {
-    // The section list only renders once the card is expanded.
-    fireEvent.click(screen.getByRole("button", { name: "Expand" }));
-}
-
 test("does not duplicate habits across two sections that share a name", async () => {
     // Two sections named "Morning"; each holds a DIFFERENT habit.
     const snapshot: Snapshot = {
@@ -75,19 +65,18 @@ test("does not duplicate habits across two sections that share a name", async ()
             sections: [section("Morning", "g1", 0), section("Morning", "g2", 1)],
         },
         checks: [
-            check({ id: "c1", itemName: "Meditate", originalGroupId: "g1", sectionName: "Morning" }),
-            check({ id: "c2", itemName: "Workout", originalGroupId: "g2", sectionName: "Morning" }),
+            check({ id: "c1", itemName: "name-g1", originalGroupId: "g1", sectionName: "Morning" }),
+            check({ id: "c2", itemName: "name-g2", originalGroupId: "g2", sectionName: "Morning" }),
         ],
     };
 
     renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r1" />);
-    await expand();
 
     // Each habit belongs to exactly one section, so it must render exactly once.
     // BUG: the sectionName filter puts both checks in both "Morning" sections,
     // so each habit renders twice.
-    expect(screen.getAllByText("Meditate")).toHaveLength(1);
-    expect(screen.getAllByText("Workout")).toHaveLength(1);
+    expect(screen.getAllByText("name-g1")).toHaveLength(1);
+    expect(screen.getAllByText("name-g2")).toHaveLength(1);
 });
 
 test("renders a habit once per section when it is genuinely in two sections", async () => {
@@ -110,8 +99,9 @@ test("renders a habit once per section when it is genuinely in two sections", as
     };
 
     renderWithProviders(<SnapshotRoutineCard snapshot={snapshot} routineId="r1" />);
-    await expand();
 
-    // One occurrence under Morning, one under Evening.
-    expect(screen.getAllByText("Stretch")).toHaveLength(2);
+    // One under Morning, one under Evening — the structure items carry the same
+    // name in both sections.
+    expect(screen.getAllByText("name-g1")).toHaveLength(1);
+    expect(screen.getAllByText("name-g2")).toHaveLength(1);
 });

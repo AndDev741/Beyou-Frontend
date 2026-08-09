@@ -7,6 +7,7 @@ import editUser from '@beyou/api/user/editUser';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { timezoneEnter, xpDecayStrategyEnter } from '@beyou/state/user/perfilSlice';
 import OptionCard from './OptionCard';
+import { ChevronDown } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import type { RootState, AppDispatch } from '../../store';
@@ -72,7 +73,6 @@ export default function RoutineSettingsSection() {
   const [selectedXpDecay, setSelectedXpDecay] = useState<XpDecayStrategy>(currentXpDecay);
   const [tzModalOpen, setTzModalOpen] = useState(false);
   const [tzSearch, setTzSearch] = useState('');
-  const [saving, setSaving] = useState(false);
 
   const detectedTimezone = useMemo(detectTimezone, []);
   const showDetected = !!detectedTimezone && detectedTimezone !== selectedTimezone;
@@ -83,44 +83,52 @@ export default function RoutineSettingsSection() {
     return COMMON_TIMEZONES.filter((tz) => tz.toLowerCase().includes(q));
   }, [tzSearch]);
 
+  // Saves on pick: only the profile has a save button. The parameter says what
+  // CHANGED in this choice — reading state here would catch the previous value.
+  const persist = async (tz?: string, decay?: XpDecayStrategy) => {
+    const timezone = tz ?? selectedTimezone;
+    const xpDecayStrategy = decay ?? selectedXpDecay;
+    const res = await editUser({ timezone, xpDecayStrategy });
+    if (res?.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+    } else {
+      dispatch(timezoneEnter(timezone));
+      dispatch(xpDecayStrategyEnter(xpDecayStrategy));
+      notify.success(t('RoutineSettingsSaved'));
+    }
+  };
+
   const selectTimezone = (tz: string) => {
     setSelectedTimezone(tz);
     setTzSearch('');
     setTzModalOpen(false);
+    void persist(tz, undefined);
   };
 
-  const onSave = async () => {
-    setSaving(true);
-    const res = await editUser({ timezone: selectedTimezone, xpDecayStrategy: selectedXpDecay });
-    if (res.error) {
-      notify.error(getFriendlyErrorMessage(t, res.error));
-    } else {
-      dispatch(timezoneEnter(selectedTimezone));
-      dispatch(xpDecayStrategyEnter(selectedXpDecay));
-      notify.success(t('RoutineSettingsSaved'));
-    }
-    setSaving(false);
+  const selectXpDecay = (strategy: XpDecayStrategy) => {
+    setSelectedXpDecay(strategy);
+    void persist(undefined, strategy);
   };
 
   return (
     <View className="gap-3" testID="config-routine-settings">
       <View>
-        <Text className="text-secondary text-base font-semibold">{t('RoutineSettingsTitle')}</Text>
-        <Text className="text-description mt-0.5 text-sm">{t('RoutineSettingsDescription')}</Text>
+        <Text className="text-[12.5px] font-semibold text-text-2">{t('RoutineSettingsTitle')}</Text>
+        <Text className="mt-0.5 text-xs text-text-3">{t('RoutineSettingsDescription')}</Text>
       </View>
 
       {/* Timezone */}
       <View>
-        <Text className="text-secondary mb-1 font-medium">{t('TimezoneLabel')}</Text>
+        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('TimezoneLabel')}</Text>
         <Pressable
           onPress={() => setTzModalOpen(true)}
           accessibilityRole="button"
           accessibilityLabel={t('TimezoneLabel')}
           testID="timezone-trigger"
-          className="flex-row items-center justify-between rounded-md border border-primary px-3 py-3"
+          className="flex-row items-center justify-between rounded-control border border-border bg-surface px-3 py-2.5"
         >
-          <Text className="text-secondary">{selectedTimezone}</Text>
-          <Text className="text-description">{'▼'}</Text>
+          <Text className="text-[13.5px] text-text">{selectedTimezone}</Text>
+          <ChevronDown size={15} color={theme.text3} />
         </Pressable>
 
         {showDetected ? (
@@ -130,7 +138,7 @@ export default function RoutineSettingsSection() {
             testID="use-detected-timezone"
             className="mt-2"
           >
-            <Text className="text-primary text-sm font-medium underline">
+            <Text className="text-[11px] text-accent underline">
               {t('UseDetectedTimezone', { timezone: detectedTimezone })}
             </Text>
           </Pressable>
@@ -140,8 +148,8 @@ export default function RoutineSettingsSection() {
       {/* XP decay strategy */}
       <View className="gap-2">
         <View>
-          <Text className="text-secondary font-medium">{t('XpDecayLabel')}</Text>
-          <Text className="text-description mt-0.5 text-sm">{t('XpDecayDescription')}</Text>
+          <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('XpDecayLabel')}</Text>
+          <Text className="text-xs text-text-3">{t('XpDecayDescription')}</Text>
         </View>
         {XP_DECAY_OPTIONS.map((opt) => (
           <OptionCard
@@ -149,23 +157,12 @@ export default function RoutineSettingsSection() {
             title={t(opt.titleKey)}
             description={t(opt.descriptionKey)}
             selected={selectedXpDecay === opt.id}
-            onPress={() => setSelectedXpDecay(opt.id)}
+            onPress={() => selectXpDecay(opt.id)}
             testID={`xp-decay-${opt.id}`}
           />
         ))}
       </View>
 
-      <Pressable
-        onPress={onSave}
-        disabled={saving}
-        accessibilityRole="button"
-        testID="save-routine-settings"
-        className={`mt-2 items-center rounded-md bg-primary px-6 py-3 ${saving ? 'opacity-60' : ''}`}
-      >
-        <Text style={{ color: theme.background }} className="text-base font-semibold">
-          {saving ? t('Saving...') : t('Save')}
-        </Text>
-      </Pressable>
 
       <Modal
         visible={tzModalOpen}
@@ -175,10 +172,10 @@ export default function RoutineSettingsSection() {
       >
         <View className="flex-1 items-center justify-center bg-black/50 px-6">
           <View
-            className="max-h-[70%] w-full rounded-2xl border-2 border-primary bg-background p-4"
+            className="max-h-[70%] w-full rounded-card border-2 border-border bg-surface p-4"
             testID="timezone-modal"
           >
-            <Text className="text-secondary mb-3 text-lg font-bold">{t('TimezoneLabel')}</Text>
+            <Text className="text-text mb-3 text-lg font-bold">{t('TimezoneLabel')}</Text>
             <TextInput
               value={tzSearch}
               onChangeText={setTzSearch}
@@ -187,11 +184,11 @@ export default function RoutineSettingsSection() {
               autoCapitalize="none"
               autoCorrect={false}
               testID="timezone-search"
-              className="mb-3 rounded-md border-2 border-primary px-3 py-2 text-secondary"
+              className="mb-3 rounded-control border-2 border-border px-3 py-2 text-text"
             />
             <ScrollView keyboardShouldPersistTaps="handled">
               {filteredTimezones.length === 0 ? (
-                <Text className="text-description px-1 py-2 text-sm italic">
+                <Text className="text-text-2 px-1 py-2 text-sm italic">
                   {t('No timezones found')}
                 </Text>
               ) : (
@@ -204,9 +201,9 @@ export default function RoutineSettingsSection() {
                       accessibilityRole="button"
                       accessibilityState={{ selected: active }}
                       testID={`timezone-option-${tz}`}
-                      className={`rounded-md px-3 py-2.5 ${active ? 'bg-primary/10' : ''}`}
+                      className={`rounded-control px-3 py-2.5 ${active ? 'bg-accent/10' : ''}`}
                     >
-                      <Text className={active ? 'text-primary font-medium' : 'text-secondary'}>
+                      <Text className={active ? 'text-accent font-medium' : 'text-text'}>
                         {tz}
                       </Text>
                     </Pressable>
@@ -219,7 +216,7 @@ export default function RoutineSettingsSection() {
               accessibilityRole="button"
               className="mt-3 items-end px-2 py-1"
             >
-              <Text className="text-description font-semibold">{t('Cancel')}</Text>
+              <Text className="text-text-2 font-semibold">{t('Cancel')}</Text>
             </Pressable>
           </View>
         </View>

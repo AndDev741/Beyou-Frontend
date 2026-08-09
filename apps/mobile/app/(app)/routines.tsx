@@ -1,9 +1,9 @@
+import { CalendarDays, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, Pressable, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+
 import getRoutines from '@beyou/api/routine/getRoutines';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
@@ -16,7 +16,6 @@ import { sortRoutines } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import RoutineCard from '../../src/ui/routines/RoutineCard';
 import RoutinesOverview from '../../src/ui/routines/RoutinesOverview';
-import RoutinesSortSheet from '../../src/ui/routines/RoutinesSortSheet';
 import RoutineBuilder from '../../src/ui/routines/RoutineBuilder';
 import ScheduleSheet from '../../src/ui/routines/ScheduleSheet';
 import { notify } from '../../src/notify';
@@ -25,12 +24,14 @@ import type { RootState, AppDispatch } from '../../src/store';
 import { useRoutinesTutorial } from '../../src/tutorial/hooks/useRoutinesTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
+import DeleteModal from '../../src/ui/DeleteModal';
+import EmptyState from '../../src/ui/EmptyState';
+import { openAgentPanel } from '../../src/ui/agent/agentPanelBus';
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 
 export default function RoutinesScreen() {
   const { t } = useTranslation();
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
   const routines = useSelector((s: RootState) => s.routines.routines);
@@ -68,32 +69,27 @@ export default function RoutinesScreen() {
   // ScheduleSheet derives conflicts from the routines slice itself — just open it.
   const onSchedule = useCallback((r: Routine) => setScheduleTarget(r), []);
 
-  const onDelete = useCallback((r: Routine) => {
-    if (!r.id) return;
-    Alert.alert(t('DeleteRoutine'), t('ConfirmDeleteRoutine'), [
-      { text: t('Cancel'), style: 'cancel' },
-      { text: t('Delete'), style: 'destructive', onPress: async () => {
-        const res = await deleteRoutine(r.id as string, t);
-        if (res.error) { notify.error(getFriendlyErrorMessage(t, res.error)); return; }
-        notify.success(t('deleted successfully'));
-        await load();
-      } },
-    ]);
-  }, [t, load]);
+  // Delete uses the system modal: the native Alert carries no theme, no typography
+  // and no routine name, and brings the platform's button order.
+  const [deleteTarget, setDeleteTarget] = useState<Routine | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const res = await deleteRoutine(deleteTarget.id as string, t);
+    setDeleting(false);
+    if (res.error) {
+      notify.error(getFriendlyErrorMessage(t, res.error));
+      return;
+    }
+    setDeleteTarget(null);
+    notify.success(t('deleted successfully'));
+    await load();
+  }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: 48 }}>
-      <View className="flex-row items-center justify-between px-4 pb-3">
-        <View className="flex-row items-center gap-2">
-          <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" testID="back-button">
-            <Ionicons name="chevron-back" size={26} color={theme.primary} />
-          </Pressable>
-          <Text className="text-primary text-2xl font-bold">{t('Routines')}</Text>
-        </View>
-        <Pressable ref={createRoutineRef} onPress={() => setBuilder(true)} accessibilityRole="button" accessibilityLabel={t('Create routine')} testID="create-routine" className="h-10 w-10 items-center justify-center rounded-full bg-primary">
-          <Ionicons name="add" size={26} color={theme.background} />
-        </Pressable>
-      </View>
+    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
 
       {loading ? (
         <View className="flex-1 items-center justify-center"><ActivityIndicator color={theme.primary} /></View>
@@ -101,28 +97,60 @@ export default function RoutinesScreen() {
         <FlatList
           data={isPast ? [] : sorted}
           keyExtractor={(item) => item.id ?? item.name}
-          contentContainerStyle={{ paddingBottom: 24, gap: 12 }}
+          contentContainerStyle={{ paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
             <View className="gap-2">
-              <RoutinesOverview routines={routines} />
-              {!isPast ? <View className="px-4"><RoutinesSortSheet /></View> : null}
+              <RoutinesOverview
+                routines={routines}
+                action={
+                  !isPast ? (
+                    <Pressable
+                      ref={createRoutineRef}
+                      onPress={() => setBuilder(true)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('Create routine')}
+                      testID="create-routine"
+                      className="h-10 w-10 items-center justify-center rounded-full bg-accent active:opacity-80"
+                    >
+                      <Plus size={22} color={theme.onAccent} />
+                    </Pressable>
+                  ) : undefined
+                }
+              />
             </View>
           }
           renderItem={({ item, index }) => (
             <View className="px-4">
-              <RoutineCard routine={item} today={today} onSchedule={onSchedule} onEdit={setEditTarget} onDelete={onDelete} onChanged={load} scheduleRef={index === 0 ? scheduleRoutineRef : undefined} />
+              <RoutineCard routine={item} today={today} onSchedule={onSchedule} onEdit={setEditTarget} onDelete={setDeleteTarget} onChanged={load} scheduleRef={index === 0 ? scheduleRoutineRef : undefined} />
             </View>
           )}
           ListEmptyComponent={
             !isPast ? (
-              <View className="mt-12 items-center gap-3 px-8">
-                <Text className="text-5xl">🗓️</Text>
-                <Text className="text-description text-center text-base">{t('NoRoutinesYet')}</Text>
+              <View className="px-4">
+                <EmptyState
+                  icon={<CalendarDays size={20} color={theme.accent} />}
+                  title={t('0RoutinesTitle')}
+                  description={t('0RoutinesDescription')}
+                  actionLabel={t('Create routine')}
+                  onAction={() => setBuilder(true)}
+                  secondaryLabel={t('OrAskTheAssistant')}
+                  onSecondary={openAgentPanel}
+                  testID="routines-empty"
+                />
               </View>
             ) : null
           }
         />
       )}
+
+      <DeleteModal
+        visible={deleteTarget !== null}
+        deletePhrase={t('ConfirmDeleteOfRoutinePhrase')}
+        name={deleteTarget?.name ?? ''}
+        pending={deleting}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
 
       <RoutineBuilder visible={builder} mode="create" habits={habits} tasks={tasks} onClose={() => setBuilder(false)} onSaved={load} />
       <RoutineBuilder visible={editTarget !== null} mode="edit" routine={editTarget ?? undefined} habits={habits} tasks={tasks} onClose={() => setEditTarget(null)} onSaved={load} />

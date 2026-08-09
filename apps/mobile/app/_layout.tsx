@@ -3,11 +3,13 @@
 import 'react-native-get-random-values';
 import '../global.css';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { neutrals } from '@beyou/theme';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import Toast from 'react-native-toast-message';
 import '../src/i18n';
 import { fetch as expoFetch } from 'expo/fetch';
 import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
@@ -26,6 +28,7 @@ import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
 import { initTelemetry, reportHandledFailure } from '../src/lib/telemetry';
+import { BeyouToastHost } from '../src/ui/BeyouToast';
 
 // Error reporting comes up before any app wiring so a crash *during* the setup
 // below is still captured. No-ops when EXPO_PUBLIC_SENTRY_DSN is unset.
@@ -107,7 +110,46 @@ function Gate() {
   return <Stack screenOptions={{ headerShown: false }} />;
 }
 
+// The native splash stays up until the typeface loads. Without this it leaves as
+// soon as the RN view mounts, and a white screen with a spinner appeared between
+// the mark and the app — three screens for one launch.
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* already hidden, or a platform with no splash: nothing to do */
+});
+
 export default function RootLayout() {
+  // Geist is the brand typeface; until it loads, rendering text in the system font
+  // would cause a visible layout jump at boot.
+  const systemScheme = useColorScheme();
+  const [fontsLoaded] = useFonts({
+    Geist: require('../assets/fonts/Geist-Regular.ttf'),
+    GeistMedium: require('../assets/fonts/Geist-Medium.ttf'),
+    GeistSemiBold: require('../assets/fonts/Geist-SemiBold.ttf'),
+    GeistBold: require('../assets/fonts/Geist-Bold.ttf'),
+    GeistMono: require('../assets/fonts/GeistMono-Medium.ttf'),
+    GeistMonoSemiBold: require('../assets/fonts/GeistMono-SemiBold.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
+  }, [fontsLoaded]);
+
+  // While the font loads the screen is the SAME tone as the splash — the system
+  // one, which is what the native splash used (the account theme only arrives
+  // with the profile). Returning `null` here left a black frame between the mark
+  // and the app. The colours come from the token source, not from a literal:
+  // `app.json` still repeats them because a config file cannot import.
+  if (!fontsLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: neutrals[systemScheme === 'dark' ? 'dark' : 'light'].bg,
+        }}
+      />
+    );
+  }
+
   return (
     <Provider store={store}>
       <TutorialProvider>
@@ -120,7 +162,7 @@ export default function RootLayout() {
             <ErrorBoundary>
               <Gate />
             </ErrorBoundary>
-            <Toast />
+            <BeyouToastHost />
           </BeyouThemeProvider>
         </SafeAreaProvider>
       </TutorialProvider>

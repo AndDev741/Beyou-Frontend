@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-import Logo from "../../../components/authentication/logo";
+import AuthShell from "../../../components/authentication/AuthShell";
 import OpenInAppButton from "../../../components/authentication/OpenInAppButton";
 import { isMobileDevice } from "../../../components/utils/openInApp";
 
@@ -51,13 +51,8 @@ function VerifyEmail() {
     }, [token, mobile, runVerify]);
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
-            <div className="hidden lg:flex flex-col items-center justify-center w-[45vw] min-h-[95vh] bg-primary rounded-l-md">
-                <Logo />
-            </div>
-
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background flex items-center justify-center">
-                <div className="flex flex-col items-center px-8 py-12 max-w-[420px] text-center">
+        <AuthShell title={t("VerifyEmailTitle")}>
+            <div className="flex flex-col items-center text-center">
                     {state === "loading" && mobile && token && (
                         <div className="flex flex-col items-center w-full" data-testid="verify-choose">
                             <h1 className="text-2xl font-bold mb-6">{t("VerifyEmailSuccessTitle")}</h1>
@@ -65,7 +60,7 @@ function VerifyEmail() {
                             <button
                                 type="button"
                                 onClick={runVerify}
-                                className="text-primary underline text-lg mt-2"
+                                className="text-accent underline text-lg mt-2"
                                 data-testid="verify-in-browser"
                             >
                                 {t("VerifyInBrowser")}
@@ -75,8 +70,8 @@ function VerifyEmail() {
 
                     {state === "loading" && !(mobile && token) && (
                         <>
-                            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6" />
-                            <p className="text-xl text-secondary/70">{t("VerifyEmailLoading")}</p>
+                            <div className="w-12 h-12 border-4 border-border border-t-transparent rounded-full animate-spin mb-6" />
+                            <p className="text-xl text-text/70">{t("VerifyEmailLoading")}</p>
                         </>
                     )}
 
@@ -88,10 +83,10 @@ function VerifyEmail() {
                                 </svg>
                             </div>
                             <h1 className="text-2xl font-bold mb-3">{t("VerifyEmailSuccessTitle")}</h1>
-                            <p className="text-base text-secondary/70 mb-8">{t("VerifyEmailSuccessMessage")}</p>
+                            <p className="text-base text-text/70 mb-8">{t("VerifyEmailSuccessMessage")}</p>
                             <Link
                                 to="/"
-                                className="px-8 py-3 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("Enter")}
                             </Link>
@@ -100,16 +95,16 @@ function VerifyEmail() {
 
                     {state === "error" && (
                         <>
-                            <div className="w-16 h-16 rounded-full bg-error/20 flex items-center justify-center mb-6">
-                                <svg className="w-8 h-8 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <div className="w-16 h-16 rounded-full bg-danger/20 flex items-center justify-center mb-6">
+                                <svg className="w-8 h-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </div>
                             <h1 className="text-2xl font-bold mb-3">{t("VerifyEmailErrorTitle")}</h1>
-                            <p className="text-base text-secondary/70 mb-8">{t("VerifyEmailErrorMessage")}</p>
+                            <p className="text-base text-text/70 mb-8">{t("VerifyEmailErrorMessage")}</p>
                             <Link
                                 to="/"
-                                className="px-8 py-3 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("Enter")}
                             </Link>
@@ -118,24 +113,23 @@ function VerifyEmail() {
 
                     {state === "expired" && (
                         <>
-                            <div className="w-16 h-16 rounded-full bg-error/20 flex items-center justify-center mb-6">
-                                <svg className="w-8 h-8 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <div className="w-16 h-16 rounded-full bg-danger/20 flex items-center justify-center mb-6">
+                                <svg className="w-8 h-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                             <h1 className="text-2xl font-bold mb-3">{t("VerifyEmailExpiredTitle")}</h1>
-                            <p className="text-base text-secondary/70 mb-8">{t("VerifyEmailExpiredMessage")}</p>
+                            <p className="text-base text-text/70 mb-8">{t("VerifyEmailExpiredMessage")}</p>
                             <Link
                                 to="/register"
-                                className="px-8 py-3 bg-primary text-white rounded-2xl font-semibold text-lg hover:opacity-90 transition-opacity"
+                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
                             >
                                 {t("ToRegister")}
                             </Link>
                         </>
                     )}
-                </div>
             </div>
-        </div>
+        </AuthShell>
     );
 }
 

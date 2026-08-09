@@ -15,32 +15,16 @@ import {
   phraseAuthorEnter,
   hydratePerfil,
 } from '@beyou/state/user/perfilSlice';
+import { Pencil } from 'lucide-react-native';
 import Input from '../Input';
+import Button from '../Button';
+import FormField from '../form/FormField';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import { resolvePhotoUrl } from '../../lib/photoUrl';
 import { uploadPhoto } from '../../lib/uploadPhoto';
 import type { RootState, AppDispatch } from '../../store';
 
-const ON_PRIMARY = '#FFFFFF';
-
-function Avatar({ photo, name }: { photo: string; name: string }) {
-  const { theme } = useBeyouTheme();
-  if (photo) {
-    return <Image source={{ uri: resolvePhotoUrl(photo) }} className="h-16 w-16 rounded-full border-2 border-primary" />;
-  }
-  const initial = (name.trim()[0] ?? '?').toUpperCase();
-  return (
-    <View
-      className="h-16 w-16 items-center justify-center rounded-full border-2 border-primary"
-      style={{ backgroundColor: theme.primary }}
-    >
-      <Text className="text-2xl font-bold" style={{ color: theme.background }}>
-        {initial}
-      </Text>
-    </View>
-  );
-}
 
 type ProfileForm = { name: string; phrase: string; phrase_author: string };
 
@@ -137,103 +121,117 @@ export default function ProfileSection() {
   };
 
   return (
-    <View className="gap-3" testID="config-profile">
-      <View className="flex-row items-center gap-3">
-        <Avatar photo={photo} name={perfil.username} />
-        <Pressable
-          onPress={() => {
-            setPhotoPreview(photo);
-            setPhotoAsset(null);
-            setPhotoError(undefined);
-            setPhotoModal(true);
-          }}
-          accessibilityRole="button"
-          testID="change-photo"
-          className="rounded-md border border-primary px-3 py-2"
-        >
-          <Text className="text-primary font-semibold">{t('ChangeProfilePhoto')}</Text>
-        </Pressable>
-      </View>
-
-      <Controller
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <Input
-            value={field.value}
-            onChangeText={field.onChange}
-            placeholder={t('NamePlaceholder')}
-            error={errors.name?.message}
-            accessibilityLabel={t('Name')}
-            testID="config-name"
-          />
-        )}
-      />
-
-      <Input
-        value={perfil.email}
-        onChangeText={() => {}}
-        disabled
-        accessibilityLabel={t('Email')}
-        testID="config-email"
-      />
-
-      <Controller
-        control={control}
-        name="phrase"
-        render={({ field }) => (
-          <Input
-            value={field.value ?? ''}
-            onChangeText={field.onChange}
-            placeholder={t('Phrase')}
-            error={errors.phrase?.message}
-            accessibilityLabel={t('Phrase')}
-            testID="config-phrase"
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="phrase_author"
-        render={({ field }) => (
-          <Input
-            value={field.value ?? ''}
-            onChangeText={field.onChange}
-            placeholder={t('Author')}
-            error={errors.phrase_author?.message}
-            accessibilityLabel={t('Author')}
-            testID="config-author"
-          />
-        )}
-      />
-
+    // No card of its own: the section draws the frame. The photo button sits at the
+    // top and the fields take the full width, as on the web.
+    <View testID="config-profile">
       <Pressable
-        onPress={handleSubmit(onSave)}
-        disabled={isSubmitting}
+        onPress={() => {
+          setPhotoPreview(photo);
+          setPhotoAsset(null);
+          setPhotoError(undefined);
+          setPhotoModal(true);
+        }}
         accessibilityRole="button"
-        testID="save-profile"
-        className={`mt-2 items-center rounded-md bg-primary px-6 py-3 ${isSubmitting ? 'opacity-60' : ''}`}
+        testID="change-photo"
+        className="flex-row items-center gap-1.5 self-start rounded-control bg-accent-soft px-3.5 py-2 active:opacity-80"
       >
-        <Text style={{ color: ON_PRIMARY }} className="text-base font-semibold">
-          {t('Save')}
-        </Text>
+        <Text className="text-[12.5px] font-semibold text-accent">{t('ChangePhotoShort')}</Text>
+        <Pencil size={13} color={theme.accent} />
       </Pressable>
+
+      <FormField label={t('Name')} className="mt-4">
+        <Controller
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <Input
+              compact
+              value={field.value}
+              onChangeText={field.onChange}
+              placeholder={t('NamePlaceholder')}
+              error={errors.name?.message}
+              accessibilityLabel={t('Name')}
+              testID="config-name"
+            />
+          )}
+        />
+      </FormField>
+
+      <FormField label={t('Email')} className="mt-4">
+        <Input
+          compact
+          disabled
+          value={perfil.email}
+          onChangeText={() => {}}
+          accessibilityLabel={t('Email')}
+          testID="config-email"
+        />
+      </FormField>
+
+      <FormField label={t('Phrase')} className="mt-4">
+        <Controller
+          control={control}
+          name="phrase"
+          render={({ field }) => (
+            <Input
+              compact
+              multiline
+              value={field.value ?? ''}
+              onChangeText={field.onChange}
+              placeholder={t('PhrasePlaceholder')}
+              error={errors.phrase?.message}
+              accessibilityLabel={t('Phrase')}
+              testID="config-phrase"
+            />
+          )}
+        />
+      </FormField>
+
+      <FormField label={t('Author')} className="mt-4">
+        <Controller
+          control={control}
+          name="phrase_author"
+          render={({ field }) => (
+            <Input
+              compact
+              value={field.value ?? ''}
+              onChangeText={field.onChange}
+              placeholder={t('AuthorPlaceholder')}
+              error={errors.phrase_author?.message}
+              accessibilityLabel={t('Author')}
+              testID="config-author"
+            />
+          )}
+        />
+      </FormField>
+
+      {/* The profile is the ONLY section with a save button; everything else persists
+          on pick. Right-aligned, as on the web. */}
+      <View className="mt-[18px] flex-row justify-end">
+        <Button
+          text={t('SaveProfile')}
+          mode="primary"
+          size="auto"
+          submitting={isSubmitting}
+          onPress={handleSubmit(onSave)}
+          testID="save-profile"
+        />
+      </View>
 
       <Modal visible={photoModal} transparent animationType="fade">
         <View className="flex-1 items-center justify-center bg-black/50 px-4">
-          <View className="w-full max-w-sm rounded-2xl bg-background p-6 shadow-2xl" testID="photo-modal">
-            <Text className="mb-4 text-lg font-semibold text-secondary">{t('ChangePhoto')}</Text>
+          <View className="w-full max-w-sm rounded-card bg-surface p-6 shadow-2xl" testID="photo-modal">
+            <Text className="mb-4 text-lg font-semibold text-text">{t('ChangePhoto')}</Text>
 
             <View className="items-center gap-4">
               <Image
                 source={{ uri: resolvePhotoUrl(photoPreview) }}
-                className="h-32 w-32 rounded-full border-4 border-primary"
+                className="h-32 w-32 rounded-full border-4 border-border"
               />
 
               <Pressable
                 onPress={pickPhoto}
-                className="rounded-lg bg-primary px-4 py-2 active:opacity-80"
+                className="rounded-control bg-accent px-4 py-2 active:opacity-80"
               >
                 <Text className="font-medium text-white">
                   {photoAsset ? t('PhotoSelected') : t('ChooseFile')}
@@ -241,7 +239,7 @@ export default function ProfileSection() {
               </Pressable>
 
               {photoError && (
-                <Text className="text-center text-sm text-error">{photoError}</Text>
+                <Text className="text-center text-sm text-danger">{photoError}</Text>
               )}
             </View>
 
@@ -253,14 +251,14 @@ export default function ProfileSection() {
                   setPhotoError(undefined);
                   setPhotoPreview(photo);
                 }}
-                className="rounded-lg px-4 py-2 active:opacity-80"
+                className="rounded-control px-4 py-2 active:opacity-80"
               >
-                <Text className="text-secondary">{t('Cancel')}</Text>
+                <Text className="text-text">{t('Cancel')}</Text>
               </Pressable>
               <Pressable
                 onPress={confirmUpload}
                 disabled={photoUploading || !photoAsset}
-                className="rounded-lg bg-primary px-4 py-2 active:opacity-80 disabled:opacity-50"
+                className="rounded-control bg-accent px-4 py-2 active:opacity-80 disabled:opacity-50"
               >
                 <Text className="font-medium text-white">
                   {photoUploading ? t('PhotoUploading') : t('Save')}

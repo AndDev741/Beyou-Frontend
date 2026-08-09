@@ -29,7 +29,9 @@ test('Should show all relevant user data in the dashboard', () => {
     expect(screen.getByText(/AndDev741/i)).toBeInTheDocument();
     // i18n is not initialized in tests, so t(greetingKey) renders the raw key
     expect(screen.getByTestId('dashboard-greeting').textContent).toMatch(/Good(Morning|Afternoon|Evening|Night)/);
-    expect(screen.getByRole('img', {name: /PerfilPhotoAlt/i})).toBeInTheDocument();
+    // The photo left the header: who you are already sits in the sidebar's footer,
+    // and the level has a widget of its own. The header is greeting, date and phrase.
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
     expect(screen.getByText(/Let's go/i)).toBeInTheDocument();
     expect(screen.getByText(/me/i)).toBeInTheDocument();
     expect(screen.getAllByText(/15/).length).toBeGreaterThan(0);

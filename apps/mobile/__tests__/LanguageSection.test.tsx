@@ -1,7 +1,7 @@
 /**
- * LanguageSection (P5-A3) — selecting a language persists it via editUser and
- * dispatches to the perfil slice. Boundary mocked: notify and the @beyou/api
- * HttpClient.
+ * LanguageSection — the language lives in the system's segmented control, with the
+ * names spelled out as on the web. Picking persists through editUser and dispatches
+ * to the perfil slice. Boundary mocked: notify and the @beyou/api HttpClient.
  */
 jest.mock('../src/notify', () => ({
   notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
@@ -35,7 +35,7 @@ describe('LanguageSection', () => {
     );
 
     await act(async () => {
-      fireEvent.press(screen.getByTestId('lang-pt'));
+      fireEvent.press(screen.getByTestId('language-toggle-pt'));
     });
 
     await waitFor(() => expect(putSpy).toHaveBeenCalledWith('/user', { language: 'pt' }));

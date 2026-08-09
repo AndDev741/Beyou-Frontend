@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { Palette, Settings, LayoutGrid } from "lucide-react";
 import ConstanceConfiguration from "../../components/configuration/ConstanceConfiguration";
 import LanguageSelector from "../../components/configuration/LanguageSelector";
 import ProfileConfiguration from "../../components/configuration/ProfileConfiguration";
@@ -7,22 +9,52 @@ import ThemeSelector from "../../components/configuration/ThemeSelector";
 import TutorialConfiguration from "../../components/configuration/TutorialConfiguration";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import ConfigSection from "../../components/configuration/ConfigSection";
-import Header from "../../components/header";
+import AccountConfiguration from "../../components/configuration/AccountConfiguration";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
-import { CgProfile } from "react-icons/cg";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { FiSettings, FiGrid } from "react-icons/fi";
+import PageHeader from "../../ui/PageHeader";
+import { RootState } from "@beyou/state/rootReducer";
+import { resolvePhotoUrl } from "../../services/photoUrl";
 
 export default function Configuration() {
     useAuthGuard();
     const { configSteps, configStep, setConfigStep, showConfigSpotlight, onComplete, onSkip } = useConfigTutorial();
     const { t } = useTranslation();
 
+    const name = useSelector((state: RootState) => state.perfil.username);
+    const photo = useSelector((state: RootState) => state.perfil.photo);
+    const level = useSelector((state: RootState) => state.perfil.level);
+    const xp = useSelector((state: RootState) => state.perfil.xp);
+    const nextLevelXp = useSelector((state: RootState) => state.perfil.nextLevelXp);
+    const currentPhoto = resolvePhotoUrl(photo);
+
+    /** On a phone the profile is the identity: avatar, name and the level at a glance. */
+    const profileHeader = (
+        <span className="flex items-center gap-3">
+            {currentPhoto ? (
+                <img
+                    src={currentPhoto}
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-full border border-border object-cover"
+                />
+            ) : (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-base font-semibold text-accent">
+                    {(name || "?").charAt(0).toUpperCase()}
+                </span>
+            )}
+            <span className="min-w-0">
+                <span className="block truncate text-[14px] font-semibold text-text">{name}</span>
+                <span className="block font-mono text-[11px] text-text-3">
+                    {t("Level").toLowerCase()} {level} · {xp}/{nextLevelXp} XP
+                </span>
+            </span>
+        </span>
+    );
+
     return (
-        <div className="lg:flex flex-col items-center lg:items-start w-full bg-background text-secondary min-h-screen">
-            <Header pageName={"Configuration"} showLogout={true} />
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 text-text lg:px-7">
+            <PageHeader title={t("Configuration")} subtitle={t("ConfigSubtitle")} />
             {showConfigSpotlight && (
                 <SpotlightTutorial
                     steps={configSteps}
@@ -34,69 +66,58 @@ export default function Configuration() {
                 />
             )}
 
-            <div className="lg:flex justify-center lg:justify-between lg:items-start items-center lg:w-[100%] px-2 lg:px-6 gap-6">
-                <div className="flex flex-col items-center w-full lg:w-[50%] lg:border-r lg:border-primary">
-                    <div className="w-full lg:pr-4">
-                        <ConfigSection
-                            icon={<CgProfile />}
-                            title={t("ConfigSectionProfile")}
-                            description={t("ConfigSectionProfileDesc")}
-                            tutorialId="config-profile"
-                        >
-                            <ProfileConfiguration />
-                        </ConfigSection>
-                    </div>
+            {/* Two columns on desktop (profile/widgets/account on the left,
+                appearance/preferences on the right). On a phone `contents` undoes the
+                columns and the order becomes the mockup's: profile, appearance,
+                preferences, widgets and, last, log out. */}
+            <div className="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start">
+                <div className="contents lg:flex lg:flex-col lg:gap-4">
+                    <ConfigSection
+                        title={t("ConfigSectionProfile")}
+                        mobileHeader={profileHeader}
+                        tutorialId="config-profile"
+                        className="order-1"
+                    >
+                        <ProfileConfiguration />
+                    </ConfigSection>
 
-                    <div className="border-b w-full border-primary mt-2"></div>
+                    <ConfigSection
+                        title={t("ConfigSectionWidgets")}
+                        icon={<LayoutGrid size={16} aria-hidden="true" />}
+                        tutorialId="config-dashboard"
+                        className="order-4"
+                    >
+                        <WidgetsConfiguration />
+                    </ConfigSection>
 
-                    <div className="w-full lg:pr-4">
-                        <ConfigSection
-                            icon={<IoColorPaletteOutline />}
-                            title={t("ConfigSectionAppearance")}
-                            description={t("ConfigSectionAppearanceDesc")}
-                            tutorialId="config-appearance"
-                        >
-                            <ThemeSelector />
-                        </ConfigSection>
-                    </div>
+                    <AccountConfiguration className="order-5" />
+                </div>
 
-                    <div className="border-b w-full border-primary mt-2"></div>
+                <div className="contents lg:flex lg:flex-col lg:gap-4">
+                    <ConfigSection
+                        title={t("ConfigSectionAppearance")}
+                        icon={<Palette size={16} aria-hidden="true" />}
+                        tutorialId="config-appearance"
+                        className="order-2"
+                    >
+                        <ThemeSelector />
+                    </ConfigSection>
 
-                    <div className="w-full lg:pr-4">
-                        <ConfigSection
-                            icon={<FiSettings />}
-                            title={t("ConfigSectionPreferences")}
-                            description={t("ConfigSectionPreferencesDesc")}
-                            tutorialId="config-preferences"
-                        >
+                    <ConfigSection
+                        title={t("ConfigSectionPreferences")}
+                        icon={<Settings size={16} aria-hidden="true" />}
+                        tutorialId="config-preferences"
+                        className="order-3"
+                    >
+                        <div className="flex flex-col gap-5">
                             <LanguageSelector />
                             <ConstanceConfiguration />
                             <RoutineSettings />
                             <TutorialConfiguration />
-                        </ConfigSection>
-                    </div>
-
-                    {/* Horizontal divider for mobile screens */}
-                    <div className="border-b w-full border-primary mt-2 lg:hidden"></div>
-                </div>
-
-                <div className="flex flex-col lg:flex-row items-center w-full lg:w-[50%] h-full lg:pl-4">
-                    <div className="w-full">
-                        <ConfigSection
-                            icon={<FiGrid />}
-                            title={t("ConfigSectionDashboard")}
-                            description={t("ConfigSectionDashboardDesc")}
-                            tutorialId="config-dashboard"
-                        >
-                            <WidgetsConfiguration />
-                        </ConfigSection>
-                    </div>
-
-                    {/* Divider horizontal só aparece em mobile */}
-                    <div className="border-b w-full border-primary mt-2 lg:hidden"></div>
+                        </div>
+                    </ConfigSection>
                 </div>
             </div>
-
         </div>
     );
 }

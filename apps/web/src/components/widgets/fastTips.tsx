@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next"
 import BaseDiv from "./baseDiv"
+import { Lightbulb } from "lucide-react"
 import fastTipsData from "./utils/fastTips.json";
 
 type Tip = {
@@ -24,20 +25,34 @@ export default function FastTips() {
     const tip = tips[getDayOfYear(new Date()) % tips.length];
     const url = i18n.language === 'pt' ? tip.urlPT : tip.urlEN;
 
+    const index = getDayOfYear(new Date()) % tips.length;
+
     return (
-        <BaseDiv title={t('Fast Tips')} bigSize={true}>
-            <p className="md:hidden text-primary font-medium text-center line-clamp-2" data-testid="fast-tip">{t(tip.smallPhrase)}</p>
-            <p className="hidden md:block text-xl text-primary font-medium text-center line-clamp-2">{t(tip.phrase)}</p>
-            {url && tip.phraseURL && (
-                <a
-                    href={url}
-                    className="text-secondary underline font-bold text-center md:text-lg"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    {t(tip.phraseURL)}
-                </a>
-            )}
+        <BaseDiv title={t('Fast Tips')} icon={<Lightbulb size={14.5} aria-hidden="true" />}>
+            <div className="mt-3 flex items-start gap-2.5">
+                <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-xp-soft text-xp">
+                    <Lightbulb size={15} aria-hidden="true" />
+                </span>
+                <p className="text-[12.5px] leading-snug text-text-2" data-testid="fast-tip">
+                    {t(tip.phrase)}
+                </p>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between font-mono text-[10.5px] text-text-3">
+                <span>{t("TipCounter", { index: index + 1, total: tips.length })}</span>
+                {url && tip.phraseURL ? (
+                    <a
+                        href={url}
+                        className="font-semibold text-accent hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {t(tip.phraseURL)}
+                    </a>
+                ) : (
+                    <span>{t("ChangesDaily")}</span>
+                )}
+            </div>
         </BaseDiv>
     )
 }

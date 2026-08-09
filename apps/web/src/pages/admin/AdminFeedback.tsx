@@ -9,7 +9,6 @@ import type {
     FeedbackStatus
 } from "@beyou/api/feedback/feedbackTypes";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import Header from "../../components/header";
 import useAuthGuard from "../../components/useAuthGuard";
 import ErrorNotice from "../../components/ErrorNotice";
 import AdminFeedbackDetail from "./AdminFeedbackDetail";
@@ -24,6 +23,9 @@ import {
     formatFeedbackTimestamp
 } from "./feedbackAdminLabels";
 
+import { Bug, Lightbulb, MessageSquare } from "lucide-react";
+import PageHeader from "../../ui/PageHeader";
+import StatTile from "../../ui/StatTile";
 const PAGE_SIZE = 20;
 
 /** `""` is "no filter", which the client omits from the query entirely. */
@@ -34,6 +36,13 @@ type CountTile = {
     labelKey: string;
 };
 
+/** Icon per category — the list reads by type before it reads the text. */
+const CATEGORY_ICONS: Record<string, typeof Bug> = {
+    BUG: Bug,
+    FEATURE_REQUEST: Lightbulb,
+    OTHER: MessageSquare,
+};
+
 const COUNT_TILES: CountTile[] = [
     { key: "open", labelKey: "AdminFeedbackStatusOpen" },
     { key: "takingCare", labelKey: "AdminFeedbackStatusTakingCare" },
@@ -42,7 +51,7 @@ const COUNT_TILES: CountTile[] = [
 ];
 
 const FILTER_CONTROL_CLASSES =
-    "rounded-xl border-2 border-primary bg-background p-2 text-secondary focus:outline-none focus:ring-2 focus:ring-primary";
+    "h-10 rounded-control border border-border bg-surface px-3 text-sm text-text transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
 
 /**
  * The single feedback inbox (KD5): read, filter, re-status and reply, all here.
@@ -152,74 +161,64 @@ function AdminFeedback() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-background text-secondary">
-            <Header pageName="AdminFeedbackPageTitle" />
+        <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-3 py-5 text-text lg:px-7 lg:py-6">
+            <PageHeader title={t("AdminFeedbackPageTitle")} subtitle={t("AdminFeedbackSubtitle")} />
 
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-3 py-6">
-                <p className="text-sm text-description">{t("AdminFeedbackIntro")}</p>
+            <div className="mt-4 flex w-full flex-col gap-4">
 
-                <dl
+                <div
                     data-testid="admin-feedback-counts"
                     className="grid grid-cols-2 gap-3 md:grid-cols-4"
                 >
                     {COUNT_TILES.map(({ key, labelKey }) => (
-                        <div
+                        <StatTile
                             key={key}
-                            className="rounded-2xl border border-description p-3 transition-colors duration-200 hover:border-primary"
-                        >
-                            <dt className="text-xs uppercase tracking-wide text-description">
-                                {t(labelKey)}
-                            </dt>
-                            <dd
-                                data-testid={`admin-feedback-count-${key}`}
-                                className="text-3xl font-semibold text-primary"
-                            >
-                                {counts?.[key] ?? "—"}
-                            </dd>
-                        </div>
+                            label={t(labelKey)}
+                            value={
+                                <span data-testid={`admin-feedback-count-${key}`}>
+                                    {counts?.[key] ?? "—"}
+                                </span>
+                            }
+                        />
                     ))}
-                </dl>
+                </div>
 
-                <div className="flex flex-wrap items-end gap-4">
-                    <div className="flex flex-col gap-1">
-                        <label htmlFor="admin-feedback-status-filter" className="text-sm text-description">
-                            {t("AdminFeedbackFilterStatus")}
-                        </label>
-                        <select
-                            id="admin-feedback-status-filter"
-                            data-testid="admin-feedback-filter-status"
-                            value={statusFilter}
-                            onChange={(event) => onStatusFilterChanged(event.target.value)}
-                            className={FILTER_CONTROL_CLASSES}
-                        >
-                            <option value={NO_FILTER}>{t("AdminFeedbackFilterAll")}</option>
-                            {FEEDBACK_STATUS_ORDER.map((status) => (
-                                <option key={status} value={status}>
-                                    {t(FEEDBACK_STATUS_LABEL_KEYS[status])}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                <div className="flex flex-wrap gap-2">
+                    <select
+                        id="admin-feedback-status-filter"
+                        data-testid="admin-feedback-filter-status"
+                        aria-label={t("AdminFeedbackFilterStatus")}
+                        value={statusFilter}
+                        onChange={(event) => onStatusFilterChanged(event.target.value)}
+                        className={FILTER_CONTROL_CLASSES}
+                    >
+                        <option value={NO_FILTER}>
+                            {t("AdminFeedbackFilterStatus")}: {t("AdminFeedbackFilterAll")}
+                        </option>
+                        {FEEDBACK_STATUS_ORDER.map((status) => (
+                            <option key={status} value={status}>
+                                {t(FEEDBACK_STATUS_LABEL_KEYS[status])}
+                            </option>
+                        ))}
+                    </select>
 
-                    <div className="flex flex-col gap-1">
-                        <label htmlFor="admin-feedback-category-filter" className="text-sm text-description">
-                            {t("AdminFeedbackFilterCategory")}
-                        </label>
-                        <select
-                            id="admin-feedback-category-filter"
-                            data-testid="admin-feedback-filter-category"
-                            value={categoryFilter}
-                            onChange={(event) => onCategoryFilterChanged(event.target.value)}
-                            className={FILTER_CONTROL_CLASSES}
-                        >
-                            <option value={NO_FILTER}>{t("AdminFeedbackFilterAll")}</option>
-                            {FEEDBACK_CATEGORY_ORDER.map((category) => (
-                                <option key={category} value={category}>
-                                    {t(FEEDBACK_CATEGORY_LABEL_KEYS[category])}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <select
+                        id="admin-feedback-category-filter"
+                        data-testid="admin-feedback-filter-category"
+                        aria-label={t("AdminFeedbackFilterCategory")}
+                        value={categoryFilter}
+                        onChange={(event) => onCategoryFilterChanged(event.target.value)}
+                        className={FILTER_CONTROL_CLASSES}
+                    >
+                        <option value={NO_FILTER}>
+                            {t("AdminFeedbackFilterCategory")}: {t("AdminFeedbackFilterAll")}
+                        </option>
+                        {FEEDBACK_CATEGORY_ORDER.map((category) => (
+                            <option key={category} value={category}>
+                                {t(FEEDBACK_CATEGORY_LABEL_KEYS[category])}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 {listError && (
@@ -228,97 +227,109 @@ function AdminFeedback() {
                     </div>
                 )}
 
-                {isLoading && <p className="text-sm text-description">{t("AdminFeedbackLoading")}</p>}
+                {isLoading && <p className="text-sm text-text-2">{t("AdminFeedbackLoading")}</p>}
 
                 {!isLoading && !listError && items.length === 0 && (
-                    <p className="text-sm text-description">{t("AdminFeedbackEmpty")}</p>
+                    <p className="text-sm text-text-2">{t("AdminFeedbackEmpty")}</p>
                 )}
 
-                {items.length > 0 && (
-                    <ul className="flex flex-col gap-3">
-                        {items.map((item) => {
-                            const status = item.status ?? "OPEN";
-                            const isSelected = item.id === selectedId;
-                            return (
-                                <li key={item.id}>
-                                    <button
-                                        type="button"
-                                        data-testid={`admin-feedback-row-${item.id}`}
-                                        aria-pressed={isSelected}
-                                        onClick={() => setSelectedId(item.id ?? null)}
-                                        className={`flex w-full flex-col gap-2 rounded-2xl border-2 p-3 text-left transition-colors duration-200 ${
-                                            isSelected
-                                                ? "border-primary bg-primary/5"
-                                                : "border-description hover:border-primary"
-                                        }`}
-                                    >
-                                        <span className="flex flex-wrap items-center gap-2">
-                                            <span
-                                                className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${FEEDBACK_STATUS_BADGE_CLASSES[status]}`}
+                {/* List on the left, detail on the right: opening an item must not
+                    push the list off screen — whoever triages reads one, replies and
+                    moves to the next. On a phone the detail
+                    aparece embaixo do item escolhido. */}
+                <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+                    <div className="flex flex-col gap-3">
+                        {items.length > 0 && (
+                            <ul className="flex flex-col gap-2">
+                                {items.map((item) => {
+                                    const status = item.status ?? "OPEN";
+                                    const isSelected = item.id === selectedId;
+                                    return (
+                                        <li key={item.id}>
+                                            <button
+                                                type="button"
+                                                data-testid={`admin-feedback-row-${item.id}`}
+                                                aria-pressed={isSelected}
+                                                onClick={() => setSelectedId(item.id ?? null)}
+                                                className={`flex w-full items-center gap-2.5 rounded-card border p-3 text-left transition-colors duration-200 ${
+                                                    isSelected
+                                                        ? "border-accent bg-accent-soft"
+                                                        : "border-border bg-surface hover:border-text-3/60"
+                                                }`}
                                             >
-                                                {t(FEEDBACK_STATUS_LABEL_KEYS[status])}
-                                            </span>
-                                            {item.category && (
-                                                <span className="rounded-full border border-secondary/30 px-2 py-0.5 text-xs text-secondary">
-                                                    {t(FEEDBACK_CATEGORY_LABEL_KEYS[item.category])}
+                                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent">
+                                                    {(() => {
+                                                        const Icon = CATEGORY_ICONS[item.category ?? "OTHER"];
+                                                        return <Icon size={15} aria-hidden="true" />;
+                                                    })()}
                                                 </span>
-                                            )}
-                                            <span className="text-xs text-description">
-                                                {formatFeedbackTimestamp(item.createdAt, i18n.language)}
-                                            </span>
-                                        </span>
-                                        <span className="line-clamp-2 text-secondary">{item.body}</span>
-                                        <span className="flex flex-wrap gap-2 text-xs text-description">
-                                            <span>{item.submitter?.name}</span>
-                                            <span>{item.submitter?.email}</span>
-                                        </span>
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                )}
 
-                {totalPages > 1 && (
-                    <div className="flex items-center gap-3">
-                        <button
-                            type="button"
-                            data-testid="admin-feedback-prev-page"
-                            disabled={page === 0}
-                            onClick={() => setPage((current) => Math.max(0, current - 1))}
-                            className="rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
-                        >
-                            {t("AdminFeedbackPrevPage")}
-                        </button>
-                        <span className="text-sm text-description">
-                            {t("AdminFeedbackPagePosition", { page: page + 1, total: totalPages })}
-                        </span>
-                        <button
-                            type="button"
-                            data-testid="admin-feedback-next-page"
-                            disabled={page + 1 >= totalPages}
-                            onClick={() => setPage((current) => current + 1)}
-                            className="rounded-[20px] border border-primary px-4 py-2 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-background disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-primary"
-                        >
-                            {t("AdminFeedbackNextPage")}
-                        </button>
+                                                <span className="min-w-0 flex-1">
+                                                    <span className="line-clamp-1 text-[13.5px] font-semibold text-text">
+                                                        {item.body}
+                                                    </span>
+                                                    <span className="mt-0.5 block truncate font-mono text-[11px] text-text-3">
+                                                        {item.submitter?.name}
+                                                        {" · "}
+                                                        {formatFeedbackTimestamp(item.createdAt, i18n.language)}
+                                                    </span>
+                                                </span>
+
+                                                <span
+                                                    className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11.5px] font-semibold ${FEEDBACK_STATUS_BADGE_CLASSES[status]}`}
+                                                >
+                                                    {t(FEEDBACK_STATUS_LABEL_KEYS[status])}
+                                                </span>
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between gap-3">
+                                <button
+                                    type="button"
+                                    data-testid="admin-feedback-prev-page"
+                                    disabled={page === 0}
+                                    onClick={() => setPage((current) => Math.max(0, current - 1))}
+                                    className="rounded-control px-3 py-1.5 text-[12.5px] font-semibold text-accent transition-colors duration-200 hover:bg-accent-soft disabled:opacity-40 disabled:hover:bg-transparent"
+                                >
+                                    {t("AdminFeedbackPrevPage")}
+                                </button>
+                                <span className="font-mono text-[11px] text-text-3">
+                                    {t("AdminFeedbackPagePosition", { page: page + 1, total: totalPages })}
+                                </span>
+                                <button
+                                    type="button"
+                                    data-testid="admin-feedback-next-page"
+                                    disabled={page + 1 >= totalPages}
+                                    onClick={() => setPage((current) => current + 1)}
+                                    className="rounded-control px-3 py-1.5 text-[12.5px] font-semibold text-accent transition-colors duration-200 hover:bg-accent-soft disabled:opacity-40 disabled:hover:bg-transparent"
+                                >
+                                    {t("AdminFeedbackNextPage")}
+                                </button>
+                            </div>
+                        )}
                     </div>
-                )}
 
-                {selectedId && (
-                    // Deliberately NOT keyed per submission. A `key` would also
-                    // stop one row's response landing on another — by throwing
-                    // the instance away — but it would do so by making the
-                    // panel's own request-identity guard unreachable, leaving
-                    // the correctness of a mutation dependent on a prop in a
-                    // different file. The guard is where the check belongs, and
-                    // it is what the test exercises.
-                    <AdminFeedbackDetail
-                        feedbackId={selectedId}
-                        onStatusChanged={onStatusChanged}
-                        onClose={() => setSelectedId(null)}
-                    />
-                )}
+                    {selectedId && (
+                        // Deliberately NOT keyed per submission. A `key` would also
+                        // stop one row's response landing on another — by throwing
+                        // the instance away — but it would do so by making the
+                        // panel's own request-identity guard unreachable, leaving
+                        // the correctness of a mutation dependent on a prop in a
+                        // different file. The guard is where the check belongs, and
+                        // it is what the test exercises.
+                        <AdminFeedbackDetail
+                            feedbackId={selectedId}
+                            onStatusChanged={onStatusChanged}
+                            onClose={() => setSelectedId(null)}
+                        />
+                    )}
+                </div>
+
             </div>
         </div>
     );

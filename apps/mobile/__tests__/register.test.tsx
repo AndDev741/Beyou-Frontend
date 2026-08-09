@@ -113,9 +113,10 @@ describe('RegisterRoute (branded)', () => {
     expect(screen.getByTestId('register-password-input')).toBeTruthy();
     expect(screen.getByTestId('register-submit')).toBeTruthy();
     expect(screen.getByTestId('password-hints')).toBeTruthy();
-    // i18n 'BeYou' -> "Be you" appears twice: MobileBrand wordmark + the heading
-    // ("Welcome to BeYou"), unlike login whose heading says "Back!".
-    expect(screen.getAllByText('Be you').length).toBeGreaterThanOrEqual(1);
+    // The AuthShell header's wordmark (a literal, it does not go through i18n) — the
+    // "Welcome to BeYou" greeting went out with the tabs.
+    expect(screen.getByText('beyou')).toBeTruthy();
+    expect(screen.getByTestId('register-to-login')).toBeTruthy();
   });
 
   it('surfaces the zod password error and does not call registerRequest for a weak password', async () => {

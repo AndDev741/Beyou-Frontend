@@ -12,22 +12,31 @@ import { RoutineCard } from "./RoutineCard";
 import { task } from "@beyou/types/tasks/taskType";
 import { habit } from "@beyou/types/habit/habitType";
 import checkRoutine from "@beyou/api/routine/checkItem";
+import skipRoutine from "@beyou/api/routine/skipItem";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
+import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import { toast } from "react-toastify";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { SnapshotRoutineCard } from "./SnapshotRoutineCard";
 import { SnapshotEmptyState } from "./SnapshotEmptyState";
+import DeleteModal from "../DeleteModal";
+import EmptyState from "../EmptyState";
+import { CalendarDays } from "lucide-react";
+import { openAgentPanel } from "../agent/agentPanelBus";
 
 type RenderRoutinesProps = {
     selectedDate: string;
     routines?: Routine[];
     onScheduleModalChange?: (isOpen: boolean) => void;
+    /** Opens the create form from the empty state. */
+    onCreateRoutine?: () => void;
 };
 
 export default function RenderRoutines({
     selectedDate,
     routines: routinesOverride,
-    onScheduleModalChange
+    onScheduleModalChange,
+    onCreateRoutine
 }: RenderRoutinesProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
@@ -43,7 +52,7 @@ export default function RenderRoutines({
     const today = new Date().toISOString().split("T")[0];
     const isSnapshotMode = selectedDate < today && snapshotState.selectedDate === selectedDate;
 
-    const [confirmDelete, setConfirmDelete] = useState("");
+    const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
@@ -68,18 +77,6 @@ export default function RenderRoutines({
         onScheduleModalChange?.(false);
     };
 
-    const handleDelete = async (id: string) => {
-        const response = await deleteRoutine(id, t);
-        if (response.error) {
-            toast.error(getFriendlyErrorMessage(t, response.error));
-            return;
-        }
-        const routinesResponse = await getRoutines(t);
-        dispatch(enterRoutines(routinesResponse?.success));
-        setConfirmDelete("");
-        toast.success(t("deleted successfully"));
-    };
-
     const handleEdit = (routine: Routine) => {
         dispatch(routineEnter(routine));
         dispatch(editModeEnter(true));
@@ -95,14 +92,26 @@ export default function RenderRoutines({
         dispatch(enterRoutines(routinesResponse?.success));
     };
 
+    // Skip existed only on the dashboard routine; the routines page showed the same
+    // item with no way out. Same call, same refetch.
+    const handleSkip = async (payload: itemGroupToSkip) => {
+        const response = await skipRoutine(payload, t, selectedDate);
+        if (response.error) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return;
+        }
+        const routinesResponse = await getRoutines(t);
+        dispatch(enterRoutines(routinesResponse?.success));
+    };
+
     useEffect(() => {
         dispatch(editModeEnter(false));
-    }, [])
+    }, []);
 
     if (isSnapshotMode) {
         if (snapshotList.length > 0) {
             return (
-                <div className="w-full text-secondary space-y-4">
+                <div className="w-full text-text space-y-4">
                     <div className="flex flex-col gap-4">
                         {snapshotList.map((snapshot) => (
                             <SnapshotRoutineCard
@@ -117,14 +126,14 @@ export default function RenderRoutines({
         }
 
         return (
-            <div className="w-full text-secondary space-y-4">
+            <div className="w-full text-text space-y-4">
                 <SnapshotEmptyState />
             </div>
         );
     }
 
     return (
-        <div className="w-full text-secondary space-y-4">
+        <div className="w-full text-text space-y-4">
             {routines.length > 0 ? (
                 <div className="flex flex-col gap-4">
                     {routines.map((routine: Routine) => (
@@ -137,18 +146,42 @@ export default function RenderRoutines({
                             onEdit={handleEdit}
                             onSchedule={handleSchedule}
                             onCheckItem={handleCheck}
-                            onRequestDelete={(id) => setConfirmDelete(id)}
-                            onConfirmDelete={handleDelete}
-                            onCancelDelete={() => setConfirmDelete("")}
-                            isConfirmingDelete={confirmDelete === routine.id}
+                            onSkipItem={handleSkip}
+                            onRequestDelete={setRoutineToDelete}
                         />
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center rounded-xl border border-primary/20 bg-background p-8 text-center shadow-sm">
-                    <p className="text-lg font-semibold">{t("No routines available, start create some to track you tasks!")}</p>
-                    <p className="mt-2 text-sm text-description">{t("Create your first routine to see it here")}</p>
-                </div>
+                <EmptyState
+                    icon={<CalendarDays size={20} aria-hidden="true" />}
+                    title={t("0RoutinesTitle")}
+                    description={t("0RoutinesDescription")}
+                    actionLabel={onCreateRoutine ? t("Create routine") : undefined}
+                    onAction={onCreateRoutine}
+                    secondaryLabel={t("OrAskTheAssistant")}
+                    onSecondary={openAgentPanel}
+                    testId="no-routines-empty-state"
+                />
+            )}
+
+            {/* Delete uses the same modal as the other entities — the routine used to
+                have an inline confirmation of its own inside the card. */}
+            {routineToDelete && (
+                <DeleteModal
+                    objectId={routineToDelete.id ?? ""}
+                    onDelete={Boolean(routineToDelete)}
+                    setOnDelete={(open) => {
+                        const next = typeof open === "function" ? open(true) : open;
+                        if (!next) setRoutineToDelete(null);
+                    }}
+                    t={t}
+                    name={routineToDelete.name}
+                    dispatchFunction={enterRoutines}
+                    deleteObject={deleteRoutine}
+                    getObjects={getRoutines}
+                    deletePhrase={t("ConfirmDeleteOfRoutinePhrase")}
+                    mode="routine"
+                />
             )}
 
             {showModal && selectedRoutine && (

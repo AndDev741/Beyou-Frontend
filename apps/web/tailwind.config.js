@@ -1,6 +1,9 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // The theme resolves through CSS vars at runtime (ThemeProvider), NOT through a
+  // class variant: nothing in the app adds `.dark`. Kept only because third-party
+  // plugins look at the key.
   darkMode: 'class',
   content: [
     "./index.html",
@@ -19,28 +22,62 @@ module.exports = {
     },
     extend: {
       colors: {
-        background: "var(--background)",
-        primary: "var(--primary)",
-        secondary: "var(--secondary)",
-        description: "var(--description)",
-        icon: "var(--icon)",
-        placeholder: "var(--placeholder)",
-        success: "var(--success)",
-        error: "var(--error)",
-        
-        blueMain: "#0082E1",
-        ligthBlue: "#3FA5F2",
-        darkBlue: "#0059AB",
-        ligthGray: "#D9D9D9",
-        darkGray: "#7F8B99",
-        descriptionColor: "#7f8b99ff"
+        // The redesign's tokens — the only source of colour for new code.
+        bg: "rgb(var(--bg-rgb) / <alpha-value>)",
+        surface: "rgb(var(--surface-rgb) / <alpha-value>)",
+        "surface-2": "rgb(var(--surface-2-rgb) / <alpha-value>)",
+        border: "rgb(var(--border-rgb) / <alpha-value>)",
+        text: "rgb(var(--text-rgb) / <alpha-value>)",
+        "text-2": "rgb(var(--text-2-rgb) / <alpha-value>)",
+        "text-3": "rgb(var(--text-3-rgb) / <alpha-value>)",
+        accent: "rgb(var(--accent-rgb) / <alpha-value>)",
+        "accent-strong": "rgb(var(--accent-strong-rgb) / <alpha-value>)",
+        "on-accent": "rgb(var(--on-accent-rgb) / <alpha-value>)",
+        "accent-soft": "var(--accent-soft)",
+        xp: "rgb(var(--xp-rgb) / <alpha-value>)",
+        "xp-soft": "var(--xp-soft)",
+        flame: "rgb(var(--flame-rgb) / <alpha-value>)",
+        "flame-soft": "var(--flame-soft)",
+        success: "rgb(var(--success-rgb) / <alpha-value>)",
+        danger: "rgb(var(--danger-rgb) / <alpha-value>)",
+
+        // The old model's aliases. They leave in the cleanup phase, once the last
+        // bg-background / text-secondary has become a new token.
+        background: "rgb(var(--background-rgb) / <alpha-value>)",
+        primary: "rgb(var(--primary-rgb) / <alpha-value>)",
+        secondary: "rgb(var(--secondary-rgb) / <alpha-value>)",
+        description: "rgb(var(--description-rgb) / <alpha-value>)",
+        icon: "rgb(var(--icon-rgb) / <alpha-value>)",
+        placeholder: "rgb(var(--placeholder-rgb) / <alpha-value>)",
+        error: "rgb(var(--error-rgb) / <alpha-value>)",
       },
-      border: {
-        mainBorder: "border-solid, border-2px"
+      gridTemplateColumns: {
+        // the streak strip: 14 columns x 2 rows = 28 days
+        14: "repeat(14, minmax(0, 1fr))",
+      },
+      borderRadius: {
+        // One radius family per layer.
+        frame: "24px",
+        card: "16px",
+        control: "10px",
+      },
+      boxShadow: {
+        surface: "var(--shadow)",
       },
       fontFamily: {
-        mainFont: "Inter, sans-serif"
-      }
+        sans: ["Geist", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        mono: ["Geist Mono", "ui-monospace", "SF Mono", "monospace"],
+        // A historical alias used by the App.tsx wrapper.
+        mainFont: ["Geist", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+      },
+      keyframes: {
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.6s infinite",
+      },
     },
   },
   plugins: [],

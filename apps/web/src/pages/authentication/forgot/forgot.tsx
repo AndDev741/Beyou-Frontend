@@ -1,10 +1,10 @@
 // Components
-import Header from "../../../components/authentication/header";
+import AuthShell from "../../../components/authentication/AuthShell";
 import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
-import TranslationButton from "../../../components/translationButton";
-import Logo from "../../../components/authentication/logo";
+import FormNotice from "../../../components/authentication/FormNotice";
 // Functions
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -15,6 +15,7 @@ import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { forgotPasswordSchema } from "@beyou/validation/forms/authSchemas";
 // Assets
 import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";
+import { Loader } from "lucide-react";
 
 type ForgotPasswordFormValues = {
     email: string;
@@ -29,7 +30,7 @@ function ForgotPassword() {
         handleSubmit,
         setError,
         clearErrors,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<ForgotPasswordFormValues>({
         resolver: zodResolver(forgotPasswordSchema(t)),
         mode: "onBlur",
@@ -51,27 +52,17 @@ function ForgotPassword() {
     };
 
     return (
-        <div className="min-h-[100vh] lg:flex items-center justify-center bg-background text-secondary">
-            <div className="hidden lg:flex flex-col items-center justify-center -4 lg:w-[45vw] lg:min-h-[95vh] bg-primary rounded-l-md">
-                <Logo />
-            </div>
+        <AuthShell
+            title={t("ForgotPasswordTitle")}
+            subtitle={t("ForgotPasswordSubtitle")}
+            footer={
+                <Link to="/" className="font-semibold text-accent hover:underline">
+                    {t("BackToLogin")}
+                </Link>
+            }
+        >
 
-            <div className="lg:w-[45vw] lg:min-h-[95vh] lg:border-solid lg:border-2 border-primary lg:rounded-r-md bg-background">
-                <Header />
-
-                <main className="flex flex-col items-center mt-6 lg:mt-4 text-secondary">
-                    <h1 className="text-center text-[36px] font-bold">
-                        {t("ForgotPasswordTitle")}
-                    </h1>
-                    <p className="text-center text-xl mt-2 max-w-[80%]">
-                        {t("ForgotPasswordSubtitle")}
-                    </p>
-
-                    <div className="hidden lg:block my-2">
-                        <TranslationButton />
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center mt-8 lg:mt-5 mb-6 lg:mb-3">
+                    <form onSubmit={handleSubmit(onSubmit)} className="mt-4 flex flex-col gap-4">
                         <Controller
                             control={control}
                             name="email"
@@ -80,6 +71,7 @@ function ForgotPassword() {
                                     icon1={EmailIcon}
                                     icon2={null}
                                     icon3={null}
+                                    label={t("Email")}
                                     placeholder={t("EmailPlaceholder")}
                                     inputType={"email"}
                                     seePasswordIconAlt={""}
@@ -91,25 +83,31 @@ function ForgotPassword() {
                             )}
                         />
 
-                        <div className="mt-8 lg:mt-4">
-                            <Button text={t("SendResetLink")} mode="create" size="big" />
-                        </div>
+                        {/* The button leaves the "clickable" state while the request
+                            is in flight: without that you could fire the e-mail
+                            several times with no sign that anything
+                            estava acontecendo. */}
+                        <Button
+                            text={isSubmitting ? t("Sending") : t("SendResetLink")}
+                            mode="primary"
+                            size="big"
+                            type="submit"
+                            className="mt-2 w-full"
+                            disabled={isSubmitting}
+                            icon={isSubmitting ? <Loader size={15} className="animate-spin" /> : undefined}
+                        />
+
+                        {errors.root?.message && <FormNotice tone="error" message={errors.root.message} />}
+
+                        {successMessage && (
+                            <FormNotice
+                                tone="success"
+                                title={t("PasswordResetRequestSentTitle")}
+                                message={successMessage}
+                            />
+                        )}
                     </form>
-
-                    {errors.root?.message && (
-                        <p className="text-error text-center underline text-xl mb-2">{errors.root?.message}</p>
-                    )}
-
-                    {successMessage && (
-                        <p className="text-primary text-center text-xl mb-2">{successMessage}</p>
-                    )}
-
-                    <div className="block lg:hidden my-8">
-                        <TranslationButton />
-                    </div>
-                </main>
-            </div>
-        </div>
+        </AuthShell>
     );
 }
 

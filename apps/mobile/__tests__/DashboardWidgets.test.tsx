@@ -15,7 +15,7 @@ jest.mock('expo-router', () => ({
 }));
 
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import type category from '@beyou/types/category/categoryType';
 import { widgetsIdInUseEnter, constanceEnter } from '@beyou/state/user/perfilSlice';
 import {
@@ -44,14 +44,24 @@ function makeCategory(name: string, xp: number): category {
   };
 }
 
-function renderWith(store: ReturnType<typeof makeStore>) {
-  return render(
+async function renderWith(store: ReturnType<typeof makeStore>) {
+  const view = await render(
     <Provider store={store}>
       <BeyouThemeProvider>
         <DashboardWidgets />
       </BeyouThemeProvider>
     </Provider>,
   );
+
+  // The carousel sizes its slides from the measured width, and jest computes no
+  // layout — without this event it renders only the first widget.
+  const track = screen.queryByTestId('dashboard-widgets');
+  if (track) {
+    await act(async () => {
+      fireEvent(track, 'layout', { nativeEvent: { layout: { width: 358, height: 200 } } });
+    });
+  }
+  return view;
 }
 
 describe('DashboardWidgets', () => {
@@ -76,11 +86,24 @@ describe('DashboardWidgets', () => {
     await renderWith(store);
 
     expect(screen.getByTestId('no-widgets-empty-state')).toBeTruthy();
-    expect(screen.getByTestId('add-widgets-cta')).toBeTruthy();
+    expect(screen.getByTestId('no-widgets-empty-state-action')).toBeTruthy();
     expect(screen.queryByTestId('dashboard-widgets')).toBeNull();
   });
 
-  it('DailyProgress widget shows the ring + the tasks count', async () => {
+  /** The invitation is dismissible: closed, it goes and stays gone. */
+  it('hides the invite for good once dismissed', async () => {
+    const store = makeStore();
+    store.dispatch(widgetsIdInUseEnter([]));
+    await renderWith(store);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('no-widgets-empty-state-dismiss'));
+    });
+
+    expect(screen.queryByTestId('no-widgets-empty-state')).toBeNull();
+  });
+
+  it('DailyProgress widget shows the ring percentage + what it means', async () => {
     const store = makeStore();
     store.dispatch(checkedItemsInScheduledRoutineEnter(2));
     store.dispatch(totalItemsInScheduledRoutineEnter(5));
@@ -88,8 +111,18 @@ describe('DashboardWidgets', () => {
     await renderWith(store);
 
     expect(screen.getByTestId('daily-progress-ring')).toBeTruthy();
-    // ProgressRing centerLabel "2/5" + the inline "Tasks: 2/5" both contain 2/5.
-    expect(screen.getAllByText(/2\/5/).length).toBeGreaterThan(0);
+    expect(screen.getByText('40%')).toBeTruthy();
+    expect(screen.getByText('2 of 5')).toBeTruthy();
+  });
+
+  /** More than one widget: the carousel shows its page dots. */
+  it('shows page dots with more than one widget', async () => {
+    const store = makeStore();
+    store.dispatch(widgetsIdInUseEnter(['constance', 'levelProgress']));
+    await renderWith(store);
+
+    expect(screen.getByTestId('widget-constance')).toBeTruthy();
+    expect(screen.getByTestId('widget-level-progress')).toBeTruthy();
   });
 
   it('CategoryBalance shows the fallback under 3 categories', async () => {

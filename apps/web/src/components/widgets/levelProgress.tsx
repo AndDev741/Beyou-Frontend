@@ -1,5 +1,6 @@
 import BaseDiv from "./baseDiv";
 import { useTranslation } from "react-i18next";
+import { Award } from "lucide-react";
 
 export type levelProgressProps = {
     level: number;
@@ -11,25 +12,22 @@ export type levelProgressProps = {
 export default function LevelProgress({ level, xp, nextLevelXp, actualLevelXp }: levelProgressProps) {
     const { t } = useTranslation();
 
+    // The level's window, not total XP: without the floor a high level would start the
+    // bar nearly full.
     const xpWindow = Math.max(nextLevelXp - actualLevelXp, 1);
     const progress = Math.min(100, Math.max(0, Math.round(((xp - actualLevelXp) / xpWindow) * 100)));
 
     return (
-        <BaseDiv title={t("Your life progress")} bigSize={false}>
-            <div className="flex w-full items-start justify-center">
-                <span className="text-2xl font-bold text-primary">LV {level}</span>
-            </div>
-
-            <div className="w-full mt-1 bg-primary/10 border border-primary/30 rounded-full h-4 overflow-hidden shadow-inner">
+        <BaseDiv title={`${t("Level")} ${level}`} icon={<Award size={14.5} aria-hidden="true" />}>
+            <div className="mt-3 h-2 overflow-hidden rounded-[5px] bg-surface-2">
                 <div
-                    className="border border-primary bg-primary h-[15px] rounded-l-xl transition-all duration-700 ease-out"
+                    className="h-full rounded-[5px] bg-gradient-to-r from-accent to-accent-strong transition-[width] duration-700 ease-out"
                     style={{ width: `${progress}%` }}
                 />
             </div>
-
-            <div className="flex w-full items-center justify-between text-xs text-description mt-1">
+            <div className="mt-[7px] flex justify-between font-mono text-[11px] font-medium text-text-3">
                 <span>{xp} XP</span>
-                <span>{nextLevelXp} XP</span>
+                <span>{nextLevelXp}</span>
             </div>
         </BaseDiv>
     );

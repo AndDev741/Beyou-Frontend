@@ -95,3 +95,14 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
 // (auto-discovered by Jest's manual mock resolution) so NativeWind's babel plugin
 // does not inject _ReactNativeCSSInterop into the factory — placing jest.mock()
 // inside jest.setup.js causes that injection and a "variable out of scope" error.
+
+// `expo-splash-screen` touches the native module on import; the root layout uses it
+// to hold the brand until the font loads.
+jest.mock('expo-splash-screen', () => ({
+  preventAutoHideAsync: jest.fn(() => Promise.resolve()),
+  hideAsync: jest.fn(() => Promise.resolve()),
+}));
+
+// `expo-status-bar` reaches for the native module on import; the theme provider
+// renders it so every mounted test would hit it.
+jest.mock('expo-status-bar', () => ({ StatusBar: () => null }));

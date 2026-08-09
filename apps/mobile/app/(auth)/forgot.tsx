@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Text, View, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,8 +9,8 @@ import { useRouter } from 'expo-router';
 
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
-import MobileBrand from '../../src/ui/MobileBrand';
-import LanguageToggle from '../../src/ui/LanguageToggle';
+import AuthShell from '../../src/ui/auth/AuthShell';
+import FormNotice from '../../src/ui/auth/FormNotice';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { forgotPasswordRequest } from '../../src/auth/authApi';
@@ -20,7 +19,7 @@ interface ForgotFormValues {
   email: string;
 }
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 15;
 
 export default function ForgotRoute() {
   const { t } = useTranslation();
@@ -50,72 +49,65 @@ export default function ForgotRoute() {
   const goToLogin = () => router.replace('/(auth)/login');
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <ScrollView
-        testID="forgot-screen"
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 24 }}
-      >
-        <Pressable
-          onPress={goToLogin}
+    <AuthShell
+      testID="forgot-screen"
+      title={t('ForgotPasswordTitle')}
+      subtitle={t('ForgotPasswordSubtitle')}
+      footer={
+        <Text
+          className="text-[12.5px] font-semibold text-accent"
           accessibilityRole="link"
-          accessibilityLabel={t('BackToLogin')}
-          className="flex-row items-center gap-1 self-start"
+          onPress={goToLogin}
           testID="forgot-back-link"
         >
-          <Ionicons name="chevron-back" size={ICON_SIZE} color={theme.primary} />
-          <Text className="text-primary font-medium">{t('BackToLogin')}</Text>
-        </Pressable>
-
-        <Text className="text-3xl font-bold text-secondary text-center mt-6 mb-2">
-          {t('ForgotPasswordTitle')}
+          {t('BackToLogin')}
         </Text>
-        <Text className="text-description text-center mb-8">{t('ForgotPasswordSubtitle')}</Text>
-
-        {sent ? (
-          <View className="items-center gap-4" testID="forgot-success">
-            <Ionicons name="mail-unread-outline" size={48} color={theme.primary} />
-            <Text className="text-primary text-center text-lg">{t('PasswordResetRequestSuccess')}</Text>
-            <Button text={t('BackToLogin')} mode="create" size="big" onPress={goToLogin} testID="forgot-back-button" />
-          </View>
-        ) : (
-          <>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field }) => (
-                <Input
-                  testID="forgot-email-input"
-                  accessibilityLabel={t('EmailPlaceholder')}
-                  placeholder={t('EmailPlaceholder')}
-                  value={field.value}
-                  onChangeText={field.onChange}
-                  onBlur={field.onBlur}
-                  error={errors.email?.message}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  iconStart={<Ionicons name="mail-outline" size={ICON_SIZE} color={theme.icon} />}
-                />
-              )}
-            />
-
-            <View className="items-center mt-6">
-              <Button
-                text={t('SendResetLink')}
-                mode="create"
-                size="big"
-                submitting={isSubmitting}
-                onPress={handleSubmit(onSubmit)}
-                testID="forgot-submit-button"
+      }
+    >
+      {sent ? (
+        <View className="mt-4">
+          <FormNotice
+            tone="success"
+            title={t('PasswordResetRequestSentTitle')}
+            message={t('PasswordResetRequestSuccess')}
+            testID="forgot-success"
+          />
+        </View>
+      ) : (
+        <View className="mt-4 gap-4">
+          <Controller
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <Input
+                testID="forgot-email-input"
+                label={t('Email')}
+                accessibilityLabel={t('Email')}
+                placeholder={t('EmailPlaceholder')}
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.email?.message}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                compact
+                iconStart={<Ionicons name="mail-outline" size={ICON_SIZE} color={theme.text3} />}
               />
-            </View>
-          </>
-        )}
+            )}
+          />
 
-        <LanguageToggle />
-        <MobileBrand />
-      </ScrollView>
-    </SafeAreaView>
+          <Button
+            text={t('SendResetLink')}
+            mode="primary"
+            size="auto"
+            className="w-full"
+            submitting={isSubmitting}
+            onPress={handleSubmit(onSubmit)}
+            testID="forgot-submit-button"
+          />
+        </View>
+      )}
+    </AuthShell>
   );
 }
