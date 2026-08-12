@@ -1,0 +1,1664 @@
+
+@font-face {
+  font-family: 'Geist';
+  src: url('__FONT_SANS__') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('__FONT_MONO__') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* ---------------------------------------------------------------------------
+   1. TOKENS
+   The 13 tokens from packages/theme/src/tokens.ts, verbatim. Components read
+   tokens, never a concrete colour. Three hues carry meaning: blue is the
+   brand, amber is progress (XP and streak), green is done.
+--------------------------------------------------------------------------- */
+:root {
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-2: #EDF0F4;
+  --border: #E2E6EC;
+  --text: #171B22;
+  --text-2: #566070;
+  --text-3: #8792A2;
+  --accent: #1D6BF3;
+  --accent-strong: #1558D6;
+  --on-accent: #FFFFFF;
+  --accent-soft: rgba(29,107,243,.09);
+  --xp: #B45309;
+  --xp-soft: rgba(217,119,6,.13);
+  /* Streak shares the progress hue. Amber and orange sat ~30 degrees apart:
+     too close to read as harmony, too far to read as intent. */
+  --flame: var(--xp);
+  --flame-soft: var(--xp-soft);
+  --success: #0E9F6E;
+  --shadow: 0 1px 2px rgba(23,27,34,.05), 0 8px 24px rgba(23,27,34,.06);
+  --shadow-lift: 0 2px 4px rgba(23,27,34,.06), 0 24px 56px rgba(23,27,34,.10);
+
+  --r-frame: 24px;
+  --r-card: 16px;
+  --r-ctl: 10px;
+  --r-pill: 999px;
+
+  /* A laptop and a phone are physical objects, so their shells get their own
+     pair rather than borrowing a surface token: aluminium on the light theme,
+     graphite on the dark one. */
+  --dev: #C9CFD9;
+  --dev-edge: #AFB7C3;
+  --dev-screen: #0E1218;
+
+  --nav-h: 68px;
+  --gutter: clamp(20px, 5vw, 64px);
+  --measure: 62ch;
+  --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E1218;
+    --surface: #151A22;
+    --surface-2: #1D242E;
+    --border: #29313D;
+    --text: #F0F4F9;
+    --text-2: #A3AEBD;
+    --text-3: #6C7889;
+    --accent: #5C9DFF;
+    --accent-strong: #7AB0FF;
+    --on-accent: #0B1526;
+    --accent-soft: rgba(92,157,255,.13);
+    --xp: #FBBF24;
+    --xp-soft: rgba(251,191,36,.14);
+    --flame: var(--xp);
+    --flame-soft: var(--xp-soft);
+    --success: #34D399;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+    --shadow-lift: 0 2px 6px rgba(0,0,0,.45), 0 28px 64px rgba(0,0,0,.45);
+    --dev: #2E3540;
+    --dev-edge: #454E5C;
+    --dev-screen: #0B0E13;
+    color-scheme: dark;
+  }
+}
+
+/* The viewer's toggle wins over the OS in both directions. */
+:root[data-theme="dark"] {
+  --bg: #0E1218;
+  --surface: #151A22;
+  --surface-2: #1D242E;
+  --border: #29313D;
+  --text: #F0F4F9;
+  --text-2: #A3AEBD;
+  --text-3: #6C7889;
+  --accent: #5C9DFF;
+  --accent-strong: #7AB0FF;
+  --on-accent: #0B1526;
+  --accent-soft: rgba(92,157,255,.13);
+  --xp: #FBBF24;
+  --xp-soft: rgba(251,191,36,.14);
+  --flame: var(--xp);
+  --flame-soft: var(--xp-soft);
+  --success: #34D399;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+  --shadow-lift: 0 2px 6px rgba(0,0,0,.45), 0 28px 64px rgba(0,0,0,.45);
+    --dev: #2E3540;
+  --dev-edge: #454E5C;
+  --dev-screen: #0B0E13;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-2: #EDF0F4;
+  --border: #E2E6EC;
+  --text: #171B22;
+  --text-2: #566070;
+  --text-3: #8792A2;
+  --accent: #1D6BF3;
+  --accent-strong: #1558D6;
+  --on-accent: #FFFFFF;
+  --accent-soft: rgba(29,107,243,.09);
+  --xp: #B45309;
+  --xp-soft: rgba(217,119,6,.13);
+  /* Streak shares the progress hue. Amber and orange sat ~30 degrees apart:
+     too close to read as harmony, too far to read as intent. */
+  --flame: var(--xp);
+  --flame-soft: var(--xp-soft);
+  --success: #0E9F6E;
+  --shadow: 0 1px 2px rgba(23,27,34,.05), 0 8px 24px rgba(23,27,34,.06);
+  --shadow-lift: 0 2px 4px rgba(23,27,34,.06), 0 24px 56px rgba(23,27,34,.10);
+    --dev: #C9CFD9;
+  --dev-edge: #AFB7C3;
+  --dev-screen: #0E1218;
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------------------
+   2. BASE
+--------------------------------------------------------------------------- */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 16px); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.25rem, 4.6vw, 3.5rem); letter-spacing: -0.03em; }
+h2 { font-size: clamp(1.75rem, 3.2vw, 2.6rem); }
+h3 { font-size: 1.0625rem; letter-spacing: -0.01em; line-height: 1.35; }
+
+p { margin: 0; }
+a { color: inherit; }
+
+.lede {
+  color: var(--text-2);
+  font-size: clamp(1rem, 1.35vw, 1.125rem);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+section { padding-block: clamp(72px, 9vw, 132px); }
+
+.icon { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* Each page ships one language, so nothing here has to hide the other. The
+   switch is a pair of links between the two URLs. */
+
+/* ---------------------------------------------------------------------------
+   3. NAV
+--------------------------------------------------------------------------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid transparent;
+  transition: border-color .3s var(--ease);
+}
+.nav.is-stuck { border-bottom-color: var(--border); }
+@media (prefers-reduced-transparency: reduce) {
+  .nav { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+.nav .wrap { display: flex; align-items: center; gap: 12px; }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  /* The app sets the wordmark at 0.86 of the symbol's side; 26px gives this. */
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-right: auto;
+}
+/* The product's own mark, geometry and all, from
+   apps/web/src/components/brand/BrandMark.tsx: one ring left open at the
+   north-east with the check pointing into the gap. The dash and gap add up to
+   the circumference at r=24 (150.8), so the opening is the last 17%. */
+.mark { width: 26px; height: 26px; }
+.mark-ring {
+  stroke: var(--accent); stroke-width: 8; fill: none; stroke-linecap: round;
+  stroke-dasharray: 125 25.8;
+}
+.mark-check {
+  stroke: var(--accent); stroke-width: 8; fill: none;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.nav-links { display: flex; gap: 4px; }
+.nav-links a {
+  /* No shrinking: squeezed, a link wraps its own label over two lines and
+     quietly outgrows the bar instead of telling anyone. */
+  flex: none;
+  white-space: nowrap;
+  padding: 7px 12px;
+  border-radius: var(--r-ctl);
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: .9375rem;
+  transition: color .2s, background-color .2s;
+}
+.nav-links a:hover { color: var(--text); background: var(--surface-2); }
+
+/* Where you are, in the accent rather than the grey the hover uses, so the two
+   states never read as the same thing. `location` is the aria-current token for
+   a section of the current page; `page` would claim this is a different page. */
+.nav-links a[aria-current="location"] {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+/* The nav stays on one line at every width: anchors go first, then the brand
+   and controls tighten. */
+/* Same floor as the deck: six anchors need this much room, and below it the
+   brand, the controls and the CTA are what the bar is for. */
+@media (max-width: 999px) { .nav-links { display: none; } }
+@media (max-width: 560px) {
+  .nav .wrap { gap: 8px; }
+  .brand { font-size: 1.0625rem; gap: 7px; }
+  .nav .mark { width: 22px; height: 22px; }
+  .nav .btn-sm { padding: 8px 13px; font-size: .875rem; }
+  .seg a { padding: 4px 8px; }
+  .icon-btn { width: 34px; height: 34px; font-size: 16px; }
+}
+
+.seg {
+  display: flex;
+  background: var(--surface-2);
+  border-radius: var(--r-pill);
+  padding: 3px;
+}
+.seg a {
+  font: inherit;
+  text-decoration: none;
+  font-size: .75rem;
+  font-weight: 500;
+  letter-spacing: .02em;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color .2s, background-color .2s;
+}
+.seg a[aria-current="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 36px; height: 36px;
+  font-size: 17px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctl);
+  background: var(--surface);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: color .2s, border-color .2s, transform .12s var(--ease);
+}
+.icon-btn:hover { color: var(--text); border-color: var(--text-3); }
+.icon-btn:active { transform: scale(.94); }
+:root:not([data-theme="dark"]) .icon-moon { display: none; }
+:root[data-theme="dark"] .icon-sun { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .icon-moon { display: none; }
+  :root:not([data-theme="light"]) .icon-sun { display: block; }
+}
+:root[data-theme="light"] .icon-sun { display: none; }
+:root[data-theme="light"] .icon-moon { display: block; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  font: inherit;
+  font-weight: 500;
+  padding: 11px 20px;
+  border-radius: var(--r-ctl);
+  border: 1px solid transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .2s, border-color .2s, transform .12s var(--ease), color .2s;
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-strong); }
+.btn-ghost { background: var(--surface); color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--text-3); }
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn-sm { padding: 8px 15px; font-size: .9375rem; }
+.btn-lg { padding: 14px 26px; font-size: 1.0625rem; }
+
+/* ---------------------------------------------------------------------------
+   4. HERO
+--------------------------------------------------------------------------- */
+.hero {
+  min-height: min(calc(100dvh - var(--nav-h)), 780px);
+  display: flex;
+  align-items: center;
+  padding-block: clamp(36px, 5vw, 72px);
+}
+.hero .wrap {
+  display: grid;
+  gap: clamp(40px, 5vw, 72px);
+  align-items: center;
+}
+@media (min-width: 1000px) {
+  .hero .wrap { grid-template-columns: 1.02fr .98fr; }
+}
+
+.hero-copy { display: flex; flex-direction: column; gap: 22px; align-items: start; }
+/* No ch cap: it would be tuned to one language and break the other into three
+   lines. The column width plus the font-size clamp do the constraining. */
+.hero-copy h1 { max-width: 20ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.demo { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 15px; }
+
+.demo-head { display: flex; align-items: center; gap: 16px; }
+.day-ring { width: 62px; height: 62px; flex: none; }
+.day-ring circle { fill: none; stroke-width: 5; }
+.day-ring .rt { stroke: var(--surface-2); }
+.day-ring .rp {
+  stroke: var(--accent); stroke-linecap: round;
+  stroke-dasharray: 163.36; stroke-dashoffset: 163.36;
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  transition: stroke-dashoffset .7s var(--ease);
+}
+.demo-head-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.demo-title { font-weight: 600; letter-spacing: -0.015em; }
+.demo-sub { font-size: .8125rem; color: var(--text-2); }
+.streak {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--flame-soft);
+  color: var(--flame);
+  font-size: .8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sec-label {
+  display: flex; align-items: center; gap: 9px;
+  color: var(--text-2);
+  font-size: .875rem;
+  font-weight: 500;
+}
+.sec-label .win { margin-left: auto; font-size: .8125rem; color: var(--text-3); letter-spacing: .01em; }
+
+.rows { display: flex; flex-direction: column; gap: 6px; }
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r-card);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .2s, border-color .2s;
+}
+.row:hover { background: var(--surface-2); }
+.row[aria-pressed="true"] { border-color: color-mix(in srgb, var(--success) 30%, transparent); background: color-mix(in srgb, var(--success) 7%, transparent); }
+
+.row-ring { width: 26px; height: 26px; flex: none; }
+.row-ring circle { fill: none; stroke-width: 2.2; }
+.row-ring .rt { stroke: var(--border); }
+.row-ring .rp {
+  stroke: var(--success); stroke-linecap: round;
+  stroke-dasharray: 69.12; stroke-dashoffset: 69.12;
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  transition: stroke-dashoffset .45s var(--ease);
+}
+.row-ring .rc {
+  stroke: var(--success); stroke-width: 2.4; fill: none;
+  stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 14; stroke-dashoffset: 14;
+  transition: stroke-dashoffset .3s var(--ease) .18s;
+}
+.row[aria-pressed="true"] .rp,
+.row[aria-pressed="true"] .rc { stroke-dashoffset: 0; }
+
+.row-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.row-name { font-size: .9375rem; font-weight: 500; letter-spacing: -0.01em; transition: color .25s; }
+.row[aria-pressed="true"] .row-name { color: var(--text-2); }
+.row-time { font-size: .75rem; color: var(--text-3); }
+.row-xp {
+  margin-left: auto;
+  flex: none;
+  white-space: nowrap;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--text-3);
+  transition: color .25s;
+}
+
+/* Narrow phones: buy the habit name enough room to stay on one line. */
+@media (max-width: 560px) {
+  .demo { padding: 18px; }
+  .row { gap: 10px; padding: 10px; }
+  .rowicon { width: 26px; height: 26px; font-size: 15px; }
+}
+.row[aria-pressed="true"] .row-xp { color: var(--xp); }
+
+.demo-foot-inline { margin-left: auto; display: flex; align-items: baseline; gap: 7px; text-align: right; }
+.demo-foot-inline .k { font-size: .75rem; color: var(--text-2); }
+.demo-foot-inline .v { font-size: 1.25rem; font-weight: 600; color: var(--xp); letter-spacing: -0.02em; }
+/* Out of flow entirely until offered, otherwise it reserves dead space at the
+   bottom of the frame for the whole demo. */
+.replay {
+  display: none;
+  align-self: flex-end;
+  border: 0; background: none; font: inherit; font-size: .8125rem;
+  color: var(--accent); cursor: pointer; padding: 4px 2px;
+}
+.replay.on { display: block; }
+
+/* Rises just above the XP label, never on top of it. */
+.xpfloat {
+  position: absolute;
+  right: 13px;
+  top: 4px;
+  font-family: var(--mono);
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--xp);
+  pointer-events: none;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .xpfloat { animation: float 1s var(--ease) forwards; }
+}
+@keyframes float {
+  0% { opacity: 0; transform: translateY(4px); }
+  25% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+
+/* Small entity icon between the ring and the name, as in the app's rows. */
+.rowicon {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; flex: none;
+  border-radius: var(--r-ctl);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 16px;
+}
+
+/* The third slot: a dashed placeholder and the habit the assistant creates,
+   stacked in one grid cell so filling it never moves the layout. */
+.slot { display: grid; }
+.slot > * { grid-area: 1 / 1; }
+
+.ghost {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 62px;
+  border: 1px dashed var(--border);
+  border-radius: var(--r-card);
+  color: var(--text-3);
+  font-size: .8125rem;
+  transition: opacity .35s var(--ease), visibility .35s;
+}
+.row-new { opacity: 0; visibility: hidden; }
+.slot.filled .ghost { opacity: 0; visibility: hidden; }
+.slot.filled .row-new { opacity: 1; visibility: visible; }
+
+/* Arrives from the left and the highlight decays, so it reads as inserted
+   rather than as having been there all along. */
+.row-new { translate: -14px 0; }
+.slot.filled .row-new { translate: none; }
+.row-new {
+  transition:
+    background-color .2s, border-color .2s,
+    opacity .4s var(--ease), visibility .4s, translate .45s var(--ease);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .row-new.land { animation: land 1.4s var(--ease); }
+}
+@keyframes land {
+  0% { box-shadow: 0 0 0 3px var(--accent-soft); background-color: var(--accent-soft); }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); background-color: rgba(0,0,0,0); }
+}
+/* ---- the app frame ---------------------------------------------------------
+   One border around the request and the routine it changes, so the pair reads
+   as a product rather than as two screenshots side by side. The assistant sits
+   on top: the cause has to be above the consequence. */
+.frame {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-frame);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+}
+
+.frame-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.frame-date { font-size: .8125rem; color: var(--text-2); }
+.frame-head .streak { margin-left: auto; }
+
+/* The request reads as a field being typed into, which fills the row instead
+   of leaving a bubble floating against empty space. */
+.ask { padding: 16px 20px; display: flex; flex-direction: column; gap: 11px; border-bottom: 1px solid var(--border); }
+.ask-row { display: flex; align-items: center; gap: 11px; }
+.ask-tile {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; flex: none;
+  border-radius: var(--r-ctl);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 16px;
+}
+.ask-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 7px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctl);
+  background: var(--bg);
+  font-size: .875rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.caret {
+  width: 1.5px; height: 15px; flex: none;
+  margin-left: 2px;
+  background: var(--accent);
+  opacity: 0;
+}
+.ask.typing .caret { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .ask.typing .caret { animation: caret 1s steps(1) infinite; }
+}
+@keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+.ask-status { display: flex; align-items: center; gap: 10px; min-height: 22px; padding-left: 41px; }
+.ag-status {
+  min-width: 0;
+  flex: 1;
+  font-size: .8125rem;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ask.settled .ag-status { color: var(--success); }
+
+.ag-chip {
+  flex: none;
+  font-size: .6875rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s var(--ease), visibility .35s;
+}
+.ask.picked .ag-chip { opacity: 1; visibility: visible; }
+
+.dots { display: inline-flex; gap: 3px; margin-left: 5px; vertical-align: middle; }
+.dots i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .3; }
+.ask.settled .dots, .ask:not(.working) .dots { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .ask.working .dots i { animation: blink 1.2s var(--ease) infinite; }
+  .ask.working .dots i:nth-child(2) { animation-delay: .18s; }
+  .ask.working .dots i:nth-child(3) { animation-delay: .36s; }
+}
+@keyframes blink { 0%, 60%, 100% { opacity: .28; } 30% { opacity: 1; } }
+
+/* ---------------------------------------------------------------------------
+   4b. THE NOTE
+   An editorial spread, not a diagram: the section right after a live product
+   demo should read, and it keeps the pillars figure as the page's first
+   diagram. Left column is who is speaking, right column is the argument.
+--------------------------------------------------------------------------- */
+.note {
+  display: grid;
+  gap: clamp(26px, 4vw, 60px);
+}
+@media (min-width: 900px) {
+  .note { grid-template-columns: .82fr 1fr; align-items: start; }
+}
+
+.note-head h2 { max-width: 18ch; }
+
+.note-arg { display: flex; flex-direction: column; gap: clamp(22px, 3vh, 34px); }
+
+.beat { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; }
+.beat-icon {
+  grid-row: span 2;
+  display: grid; place-items: center;
+  width: 30px; height: 30px;
+  margin-top: 3px;
+  border-radius: var(--r-ctl);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 16px;
+}
+.beat-q {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.beat-a { font-size: 1rem; color: var(--text-2); max-width: 52ch; }
+
+.note-answer { font-size: 1.0625rem; max-width: 54ch; }
+.note-links { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.note-links a {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .9375rem; color: var(--accent); text-decoration: none;
+}
+.note-links a:hover { text-decoration: underline; }
+.note-links .icon { font-size: 15px; }
+
+/* ---------------------------------------------------------------------------
+   5. STRUCTURE (load diagram)
+   The horizontal members span the full figure; the columns sit inside them,
+   the way a footing is wider than what it carries.
+--------------------------------------------------------------------------- */
+.head { display: flex; flex-direction: column; gap: 16px; max-width: var(--measure); }
+
+.figure { margin: 0; }
+
+.struct {
+  display: flex;
+  flex-direction: column;
+  gap: var(--load, 24px);
+  max-width: 940px;
+  margin: clamp(40px, 5vw, 68px) auto 0;
+}
+
+.beam, .footing {
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+}
+
+.beam {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.beam-ring { width: 42px; height: 42px; flex: none; }
+.beam-ring circle { fill: none; stroke-width: 3.5; }
+.beam-ring .rt { stroke: var(--surface-2); }
+.beam-ring .rp {
+  stroke: var(--accent); stroke-linecap: round;
+  stroke-dasharray: 100.53; stroke-dashoffset: 7.5;
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  transition: stroke-dashoffset 1s var(--ease) .8s;
+}
+.beam-txt { display: flex; flex-direction: column; gap: 1px; }
+.beam-you { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+.beam-lv { font-size: .8125rem; color: var(--text-2); }
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-inline: 4%;
+}
+
+.pillar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 196px;
+  padding: 20px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+}
+.pillar:hover { border-color: var(--text-3); }
+
+/* The load path: one hairline up to the beam, one down to the footing. */
+.pillar::before, .pillar::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: var(--load, 24px);
+  background: var(--border);
+  transition: transform .5s var(--ease) calc(var(--i, 0) * 70ms);
+}
+.pillar::before { top: calc(var(--load, 24px) * -1); transform-origin: 50% 100%; }
+.pillar::after { bottom: calc(var(--load, 24px) * -1); transform-origin: 50% 0; }
+
+.pillar-name { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.pillar-stat { font-size: .8125rem; color: var(--accent); }
+.pillar-role { margin-top: auto; font-size: .8125rem; color: var(--text-2); }
+
+.footing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  background: var(--surface-2);
+}
+.footing-lb { font-size: .8125rem; font-weight: 500; color: var(--text-2); margin-right: 4px; }
+.cchip {
+  font-size: .75rem;
+  padding: 4px 11px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+/* Members wait as dashed outlines and then materialise in place. Same idea as
+   the empty slot in the hero: dashed means a place reserved, solid means a
+   place filled. It also means the figure is never a void with one card in it. */
+.js-reveal .struct.rv { opacity: 1; transform: none; }
+
+.beam, .footing, .pillar {
+  transition: background-color .5s var(--ease), box-shadow .5s var(--ease), border-color .5s var(--ease);
+}
+.pillar {
+  transition:
+    background-color .5s var(--ease) calc(var(--i, 0) * 90ms),
+    box-shadow .5s var(--ease) calc(var(--i, 0) * 90ms),
+    border-color .5s var(--ease) calc(var(--i, 0) * 90ms);
+}
+.beam > *, .footing > *, .pillar > * { transition: opacity .5s var(--ease); }
+.pillar > * { transition-delay: calc(var(--i, 0) * 90ms); }
+
+.js-stage .struct .beam,
+.js-stage .struct .footing,
+.js-stage .struct .pillar {
+  background-color: transparent;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--border) 78%, transparent);
+  box-shadow: none;
+}
+.js-stage .struct .beam > *,
+.js-stage .struct .footing > *,
+.js-stage .struct .pillar > * { opacity: 0; }
+.js-stage .struct .pillar::before,
+.js-stage .struct .pillar::after { transform: scaleY(0); }
+.js-stage .struct .beam-ring .rp { stroke-dashoffset: 100.53; }
+
+.js-stage .struct.st1 .footing {
+  background-color: var(--surface-2); border-style: solid; border-color: var(--border);
+}
+.js-stage .struct.st1 .footing > * { opacity: 1; }
+
+.js-stage .struct.st2 .pillar {
+  background-color: var(--surface); border-style: solid; border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+.js-stage .struct.st2 .pillar > * { opacity: 1; }
+
+.js-stage .struct.st3 .pillar::before,
+.js-stage .struct.st3 .pillar::after { transform: scaleY(1); }
+
+.js-stage .struct.st4 .beam {
+  background-color: var(--surface); border-style: solid; border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+.js-stage .struct.st4 .beam > * { opacity: 1; }
+.js-stage .struct.st4 .beam-ring .rp { stroke-dashoffset: 7.5; }
+
+/* 2 by 2 keeps four-holding-one readable once the row runs out of width. The
+   load lines only make sense in a single row, so they go. */
+@media (max-width: 899px) {
+  .pillars { grid-template-columns: repeat(2, 1fr); margin-inline: 0; }
+  .pillar::before, .pillar::after { display: none; }
+  .pillar { min-height: 0; }
+  .pillar-role { margin-top: 0; }
+}
+/* Below this the pillar shape stops fitting; the vertical order carries the
+   meaning instead. */
+@media (max-width: 559px) {
+  .pillars { grid-template-columns: 1fr; }
+  .pillar {
+    min-height: 0;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 14px 16px;
+  }
+  .pillar-role { margin-top: 0; width: 100%; }
+  .pillar-stat { margin-left: auto; }
+}
+
+/* ---------------------------------------------------------------------------
+   5b. DAY SPINE
+--------------------------------------------------------------------------- */
+
+.spine { margin-top: clamp(44px, 5vw, 72px); display: flex; flex-direction: column; gap: 8px; }
+
+.blk { display: grid; grid-template-columns: 116px 1fr; gap: clamp(16px, 3vw, 40px); }
+@media (max-width: 767px) { .blk { grid-template-columns: 1fr; gap: 12px; } }
+
+
+.blk-when { display: flex; flex-direction: column; gap: 4px; padding-top: 14px; }
+.blk-when .nm { display: flex; align-items: center; gap: 8px; font-weight: 600; letter-spacing: -0.01em; }
+.blk-when .hrs { font-size: .875rem; color: var(--text-3); letter-spacing: .01em; }
+@media (max-width: 767px) {
+  .blk-when { flex-direction: row; align-items: baseline; gap: 12px; padding-top: 8px; }
+}
+
+.blk-items {
+  display: flex; flex-direction: column;
+  max-width: 760px;
+  border-left: 1px solid var(--border);
+  padding-left: clamp(16px, 2.5vw, 28px);
+  padding-block: 14px;
+}
+@media (max-width: 767px) { .blk-items { padding-block: 6px 18px; } }
+
+.item { display: flex; align-items: baseline; gap: 14px; padding-block: 7px; }
+/* Wide enough for a full range in the mono face, and told never to wrap: at
+   6.5em "05:30 - 05:45" broke over two lines and doubled the panel's height. */
+.item .t { font-size: .8125rem; color: var(--text-3); flex: none; width: 8.6em; white-space: nowrap; letter-spacing: .01em; }
+.item .n { font-size: .9375rem; }
+
+/* Four sections holding sixteen items is far too tall for one panel stacked,
+   so past the point where two of them fit side by side the spine becomes a
+   2 by 2 grid and each block stacks its own label above its items. Reading
+   order still runs through the day: morning, work, evening, night. */
+@media (min-width: 900px) {
+  .spine { display: grid; grid-template-columns: 1fr 1fr; gap: 4px clamp(32px, 4vw, 64px); align-items: start; }
+  .blk { grid-template-columns: 1fr; gap: 8px; }
+  .blk-when { flex-direction: row; align-items: baseline; gap: 12px; padding-top: 8px; }
+  /* Sixteen rows and four headers make this the densest panel on the page, so
+     the two-up layout carries its own tighter rhythm rather than being patched
+     back into place by the short-window rules further down. */
+  .blk-items { max-width: none; padding-block: 6px; }
+  .blk-items .item { padding-block: 4px; }
+}
+
+/* ---------------------------------------------------------------------------
+   6. AREAS
+--------------------------------------------------------------------------- */
+.areas .wrap { display: grid; gap: clamp(36px, 5vw, 64px); align-items: center; }
+@media (min-width: 940px) { .areas .wrap { grid-template-columns: 1fr 1.05fr; } }
+
+.radar-box {
+  display: grid; place-items: center;
+  padding: clamp(18px, 3vw, 34px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-frame);
+  box-shadow: var(--shadow);
+}
+#radar { width: 100%; max-width: 440px; height: auto; aspect-ratio: 1; }
+
+.areas-side { display: flex; flex-direction: column; gap: 26px; }
+
+.cats { display: flex; flex-direction: column; gap: 14px; }
+.cat { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: baseline; }
+.cat .nm { font-size: .9375rem; font-weight: 500; }
+.cat .num { font-size: .8125rem; color: var(--text-2); }
+.cat .bar { grid-column: 1 / -1; height: 5px; border-radius: var(--r-pill); background: var(--surface-2); overflow: hidden; }
+.cat .bar i { display: block; height: 100%; border-radius: inherit; background: var(--accent); width: var(--w); }
+/* Filling from zero is the enhancement; the true width is the default. */
+.js-reveal .cat .bar i { width: 0; transition: width .9s var(--ease); }
+.js-reveal .is-in .cat .bar i { width: var(--w); }
+
+/* ---------------------------------------------------------------------------
+   8. ASSISTANT
+--------------------------------------------------------------------------- */
+/* Two columns: the argument on the left, a console you can actually drive on the
+   right. The console keeps a fixed body height so switching requests never
+   makes the panel jump. */
+.agent .wrap { display: grid; gap: clamp(28px, 4vw, 56px); align-items: center; }
+@media (min-width: 900px) { .agent .wrap { grid-template-columns: .94fr 1.06fr; } }
+
+.can { list-style: none; margin: clamp(22px, 3vh, 34px) 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.can li { display: flex; gap: 12px; align-items: flex-start; font-size: .9375rem; color: var(--text-2); line-height: 1.5; }
+.can b { color: var(--text); font-weight: 600; }
+.can-ico {
+  flex: none; width: 30px; height: 30px; margin-top: -3px;
+  display: grid; place-items: center;
+  border-radius: var(--r-ctl);
+  background: var(--accent-soft); color: var(--accent);
+}
+.can-ico .icon { width: 16px; height: 16px; }
+
+.can-note {
+  margin-top: clamp(20px, 2.6vh, 30px);
+  padding-top: clamp(16px, 2vh, 22px);
+  border-top: 1px solid var(--border);
+  font-size: .875rem;
+  color: var(--text-3);
+  line-height: 1.6;
+  max-width: 54ch;
+}
+
+/* ---- the console --------------------------------------------------------- */
+.console {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-frame);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+}
+
+.con-top {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.con-name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: .9375rem; }
+.con-name .icon { width: 15px; height: 15px; color: var(--accent); }
+.con-live { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: .75rem; color: var(--text-3); }
+.con-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--success); flex: none; }
+
+/* Bottom-anchored like a real transcript, so the reply lands where the eye is
+   already waiting. */
+.con-body {
+  display: flex; flex-direction: column; justify-content: flex-end;
+  min-height: var(--con-h, 300px);
+  max-height: var(--con-h, none);
+  overflow: hidden;
+  padding: 18px;
+  gap: 12px;
+}
+.turn { display: none; flex-direction: column; align-items: flex-start; gap: 11px; }
+.turn[data-turn="0"] { display: flex; }
+.js-agent .turn[data-turn="0"] { display: none; }
+.js-agent .turn.is-on { display: flex; }
+
+/* Every step carries its own delay, so the whole sequence is one class swap and
+   there is no JS timer to drift or to cancel when you pick another request. */
+.js-agent .turn > *,
+.js-agent .turn .pill { opacity: 0; transform: translateY(7px); }
+.js-agent .turn.is-on > *,
+.js-agent .turn.is-on .pill {
+  opacity: 1; transform: none;
+  transition: opacity .4s var(--ease) var(--d, 0s), transform .4s var(--ease) var(--d, 0s);
+}
+
+.bub-ai {
+  align-self: flex-start;
+  max-width: 92%;
+  font-size: .9375rem; line-height: 1.55;
+  color: var(--text);
+}
+
+.bub-me {
+  align-self: flex-end;
+  padding: 11px 15px;
+  border-radius: var(--r-card); border-bottom-right-radius: 6px;
+  background: var(--accent); color: var(--on-accent);
+  font-size: .9375rem; line-height: 1.5;
+  max-width: 88%;
+}
+
+/* The real chat reports what it looked at as a checked pill, in plain words, so
+   these are pills and not code identifiers. */
+.pills { display: flex; flex-wrap: wrap; gap: 7px; }
+.pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px 5px 9px;
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  background: var(--surface-2);
+  font-size: .8125rem; color: var(--text-2);
+}
+.pill-ico { position: relative; width: 13px; height: 13px; flex: none; }
+.pill-ico .spin {
+  position: absolute; inset: 0;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+}
+/* Only the request on screen spins. Left unscoped, every hidden turn kept its
+   spinners running and held the compositor awake for nothing. */
+.turn.is-on .pill-ico .spin { animation: conspin .7s linear infinite; }
+.pill-ico .tick { position: absolute; inset: 0; width: 13px; height: 13px; color: var(--success); opacity: 0; }
+@keyframes conspin { to { transform: rotate(360deg); } }
+/* Working turns into done one step after the pill itself lands. */
+.js-agent .turn.is-on .pill .spin { opacity: 0; transition: opacity .2s linear var(--d2, 0s); }
+.js-agent .turn.is-on .pill .tick { opacity: 1; transition: opacity .2s linear var(--d2, 0s); }
+
+/* ---- what the agent produced ------------------------------------------- */
+.res {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  background: var(--surface-2);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.res-head { display: flex; align-items: center; gap: 10px; }
+.res-ico {
+  flex: none; width: 28px; height: 28px;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.res-ico .icon { width: 15px; height: 15px; }
+.res-t { font-weight: 600; font-size: .9375rem; letter-spacing: -0.01em; }
+.res-xp { margin-left: auto; flex: none; font-size: .8125rem; color: var(--xp); }
+.res-hrs, .res-n { margin-left: auto; flex: none; font-size: .8125rem; color: var(--text-3); }
+.res-m { font-size: .8125rem; color: var(--text-2); line-height: 1.5; }
+
+.res-rows { display: flex; flex-direction: column; gap: 6px; }
+.res-row { display: flex; gap: 12px; font-size: .8125rem; color: var(--text-2); }
+.res-row .mono { color: var(--text-3); flex: none; }
+
+.res-bar { display: block; height: 5px; border-radius: var(--r-pill); background: var(--border); overflow: hidden; }
+.res-bar i { display: block; width: 4%; height: 100%; border-radius: inherit; background: var(--accent); }
+
+/* What the agent made, tagged as done inside the card rather than announced on
+   a line of its own. */
+.res-tag { display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--success); }
+.res-tag .tick { width: 13px; height: 13px; flex: none; }
+
+.res-weak .res-row { align-items: baseline; }
+.res-weak b { font-weight: 600; color: var(--text); min-width: 8.5em; }
+.res-weak .mono { margin-left: auto; color: var(--text-2); }
+
+/* ---- the requests you can send ----------------------------------------- */
+.con-ask {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.pbtn {
+  padding: 7px 13px;
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  background: var(--surface); color: var(--text-2);
+  font: inherit; font-size: .8125rem;
+  cursor: pointer;
+  transition: color .2s, background-color .2s, border-color .2s, transform .1s;
+}
+.pbtn:hover { color: var(--text); border-color: var(--text-3); }
+.pbtn:active { transform: scale(.97); }
+.pbtn[aria-pressed="true"] {
+  background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+}
+/* Fingers need more than the 34px the desktop padding gives. */
+@media (pointer: coarse) { .pbtn { padding: 11px 14px; } }
+
+/* ---------------------------------------------------------------------------
+   9. APPS
+--------------------------------------------------------------------------- */
+/* A laptop and a phone standing side by side, both sized off one height budget.
+   The laptop's screen carries the desktop app's own aspect (0.564 at a 1280 by 720
+   capture) so nothing is letterboxed, and the phone is set a
+   little shorter so it reads as standing in front rather than towering.
+   Nothing overlaps: the widget column is the rightmost thing in the desktop
+   shot, and anything laid over it hides exactly the part worth seeing. */
+.rig {
+  margin-top: clamp(20px, 2.4vw, 34px);
+  display: grid;
+  justify-content: center;
+  align-items: end;
+  gap: clamp(16px, 2.2vw, 30px);
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  --lid: clamp(6px, calc(var(--rig-h, 400px) * 0.024), 15px);
+  --base: clamp(7px, calc(var(--rig-h, 400px) * 0.03), 20px);
+  --fpad: clamp(4px, calc(var(--rig-h, 400px) * 0.014), 9px);
+}
+@media (min-width: 900px) { .rig { grid-template-columns: auto auto; } }
+
+/* ---- laptop ---- */
+.lap { display: flex; flex-direction: column; align-items: center; }
+.lap-lid {
+  padding: var(--lid) var(--lid) calc(var(--lid) * 1.4);
+  background: var(--dev);
+  border: 1px solid var(--dev-edge);
+  border-radius: 14px 14px 5px 5px;
+  box-shadow: var(--shadow-lift);
+}
+.lap-screen {
+  display: block;
+  overflow: hidden;
+  border-radius: 5px;
+  background: var(--dev-screen);
+  line-height: 0;
+}
+/* The base is wider than the lid, as it is on the object, and the notch is the
+   thumb cut-out. */
+.lap-base {
+  position: relative;
+  width: 112%;
+  height: var(--base);
+  background: linear-gradient(var(--dev), var(--dev-edge));
+  border: 1px solid var(--dev-edge);
+  border-top: 0;
+  border-radius: 0 0 9px 9px;
+}
+.lap-base::after {
+  content: "";
+  position: absolute; top: 0; left: 50%;
+  width: 14%; height: 42%;
+  transform: translateX(-50%);
+  background: var(--dev-edge);
+  border-radius: 0 0 5px 5px;
+}
+
+/* ---- phone ---- */
+.fone {
+  /* Stacked, the phone would otherwise stretch to the column and end up wider
+     than the laptop above it. */
+  justify-self: center;
+  width: min(250px, 64vw);
+  padding: var(--fpad);
+  background: var(--dev);
+  border: 1px solid var(--dev-edge);
+  border-radius: 26px;
+  box-shadow: var(--shadow-lift);
+  position: relative;
+}
+.fone-screen {
+  display: block;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--dev-screen);
+  line-height: 0;
+}
+/* The speaker slit, which is what reads as "phone" at this size. */
+.fone::before {
+  content: "";
+  position: absolute; top: calc(var(--fpad) + 4px); left: 50%;
+  width: 22%; height: 3px;
+  transform: translateX(-50%);
+  background: var(--dev-edge);
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.lap-screen img, .fone-screen img { display: block; width: 100%; height: auto; }
+
+/* One budget drives both: the laptop's screen takes the height left over, the
+   phone is 88% of the laptop's total. Read the other way, the second term is the
+   height at which the pair still fits the column's width. */
+@media (min-width: 900px) {
+  .rig {
+    /* The pair is allowed past the text column. On a wide screen the 1112px of
+       the wrap was the only thing keeping the desktop shot small, and a device
+       shot is one of the few things on a page that earns the extra width. The
+       negative margin is how a fit-content box grows beyond its container. */
+    --rig-max: min(1560px, 100vw - 96px);
+    --rig-h: min(calc(100dvh - 356px), calc((var(--rig-max) + 4px) / 2.09));
+    /* `width: fit-content` plus an explicit margin would park the pair at the
+       left of the widened box, because only `auto` margins centre a fit-content
+       box. So the rig fills the widened box and centres its own two columns. */
+    width: auto;
+    max-width: none;
+    margin-inline: calc((100% - var(--rig-max)) / 2);
+  }
+  .fone { width: auto; }
+  .lap-screen img { height: calc(var(--rig-h) - var(--lid) * 2.4 - var(--base)); width: auto; }
+  .fone-screen img { height: calc(var(--rig-h) * 0.8 - var(--fpad) * 2); width: auto; }
+}
+
+/* ---------------------------------------------------------------------------
+   10. CLOSE + FOOTER
+--------------------------------------------------------------------------- */
+.close > .wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  text-align: center;
+  padding-block: clamp(48px, 6vw, 84px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-frame);
+  box-shadow: var(--shadow);
+  max-width: 1112px;
+}
+.close h2 { font-size: clamp(2.4rem, 6vw, 3.9rem); letter-spacing: -0.04em; }
+/* Scoped to the card, not the section: the footer sits inside this section too,
+   and an unscoped `.close p` was capping its closing line at 42ch, which is
+   what broke that line in two. */
+.close > .wrap p { color: var(--text-2); max-width: 42ch; }
+
+/* ---- where to get it -----------------------------------------------------
+   One platform ships and two do not, so the grid is asymmetric on purpose:
+   the working one is the primary card, the other two are dashed and waiting.
+   The official store badges are brand assets that have to come from Google
+   and Apple, so these are device icons plus plain names until then. */
+.plats {
+  width: 100%;
+  max-width: 780px;
+  margin-top: clamp(10px, 2vh, 22px);
+  display: grid;
+  gap: 14px;
+  text-align: left;
+}
+@media (min-width: 720px) { .plats { grid-template-columns: 1.25fr 1fr; } }
+
+.plat {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  background: var(--surface-2);
+}
+.plat-icon {
+  display: grid; place-items: center;
+  width: 32px; height: 32px;
+  margin-bottom: 4px;
+  border-radius: var(--r-ctl);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 17px;
+}
+.plat-name { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.plat-note { font-size: .8125rem; color: var(--text-2); }
+.plat-live { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow); }
+.plat-live .btn { margin-top: 12px; justify-self: start; }
+
+.plat-soon { display: grid; gap: 14px; align-content: start; }
+.plat-wait {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-style: dashed;
+  background: transparent;
+}
+.plat-wait .plat-icon { width: 28px; height: 28px; margin: 0; font-size: 15px; background: var(--surface-2); color: var(--text-3); }
+.plat-state {
+  font-size: .6875rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  white-space: nowrap;
+}
+/* Further out than Play, and the copy says so rather than the contrast. */
+.plat-later .plat-name { color: var(--text-2); }
+.plat-later .plat-state { background: var(--surface-2); color: var(--text-3); }
+
+.foot { border-top: 1px solid var(--border); padding-block: 34px 44px; }
+/* Two columns and two rows rather than a wrapping flex line: as a flex item the
+   closing sentence kept being pulled back onto the first line and broken over
+   two, however its basis was declared. A grid row cannot be talked out of it. */
+.foot .wrap { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 14px 28px; }
+@media (max-width: 699px) { .foot .wrap { grid-template-columns: 1fr; } }
+.foot-links { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-self: end; }
+@media (max-width: 699px) { .foot-links { justify-self: start; } }
+.foot a { color: var(--text-2); text-decoration: none; font-size: .875rem; transition: color .2s; }
+.foot a:hover { color: var(--text); }
+.foot .rights { grid-column: 1 / -1; font-size: .8125rem; color: var(--text-3); }
+
+/* ---------------------------------------------------------------------------
+   11. REVEAL
+--------------------------------------------------------------------------- */
+/* Hidden only once JS has confirmed it can reveal them again. Without the
+   script every section renders as normal content. */
+@media (prefers-reduced-motion: no-preference) {
+  .js-reveal .rv { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+  .js-reveal .rv.is-in { opacity: 1; transform: none; }
+  .js-reveal .blk { transition-delay: calc(var(--i, 0) * 110ms); }
+}
+
+/* ---- one screen per scroll ------------------------------------------------
+   `mandatory` plus `scroll-snap-stop: always` is what makes a single gesture
+   advance exactly one panel, however hard the flick. The catch is that
+   mandatory makes anything taller than the panel unreachable, so every panel
+   below is built to fit the space under the nav, and the deck is gated on a
+   window tall and wide enough to hold it. Anything narrower, shorter, or with
+   reduced motion asked for gets ordinary scrolling.
+
+   The width floor matches the hero's two-column breakpoint on purpose: below it
+   the hero stacks and no longer fits one panel, so snapping there would trap
+   the bottom of it. */
+@media (min-width: 1000px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  html { scroll-snap-type: y mandatory; scroll-padding-top: var(--nav-h); }
+
+  main > section {
+    min-height: calc(100dvh - var(--nav-h));
+    display: grid;
+    align-content: center;
+    padding-block: clamp(20px, 3.5vh, 48px);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  /* Higher specificity than the rule above, so the hero's own cap has to be
+     lifted here or it would stop short of a full panel. The switch from flex to
+     grid is what lets it take the spacer rows below; its wrap is capped by
+     max-width and centred by auto margins either way, so the width is the
+     same. */
+  .hero {
+    min-height: calc(100dvh - var(--nav-h));
+    padding-block: clamp(20px, 3.5vh, 48px);
+    display: grid;
+  }
+
+  /* The nav is sticky and translucent, so it reads as part of the page frame
+     rather than as height taken away. Centering inside the strip below it puts
+     every panel half a nav below where the eye expects the middle. A fixed
+     compensation will not fit, because the tightest panels have single digits
+     of room to spare, so the two spacer rows carry it instead: the bottom one
+     pulls harder, which lifts the content where there is air and collapses to
+     nothing where there is none. The closing panel is out because it already
+     holds the footer in its own second row. */
+  main > section:not(.close) { grid-template-rows: 1fr auto 1.7fr; }
+  main > section:not(.close)::before,
+  main > section:not(.close)::after { content: ""; }
+
+  /* The closing panel carries the footer, otherwise the footer would sit past
+     the last snap point with no way to rest on it. */
+  .close { grid-template-rows: 1fr auto; }
+  /* Without this the card stretches to fill the row instead of sitting in it. */
+  .close > .wrap { align-self: center; }
+  .foot { border-top: 0; padding-block: 0 8px; }
+
+  /* Figures have to give back the height the panel needs. */
+  .struct { gap: 18px; margin-top: clamp(24px, 3vh, 44px); }
+  .pillar { min-height: 168px; }
+
+
+  .close > .wrap { padding-block: clamp(32px, 4.5vh, 64px); }
+  .spine { margin-top: clamp(20px, 3vh, 40px); }
+
+  /* The day panel is the tightest of the eight on a short window, because its
+     rows have a fixed height while the heading grows with the viewport width.
+     Below 820px the rows give back the padding they can spare. */
+  @media (max-height: 820px) {
+    main > section { padding-block: clamp(14px, 2vh, 28px); }
+    .spine { margin-top: clamp(14px, 2vh, 24px); row-gap: 4px; }
+    .con-top { padding: 10px 14px; }
+    .con-body { padding: 14px; gap: 10px; }
+    .con-ask { padding: 11px 14px; }
+  }
+}
+
+/* The rail only exists where the nav anchors cannot: it is built by script, so
+   it never appears without the behaviour it stands for. */
+.rail {
+  display: none;
+  position: fixed;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 15;
+  flex-direction: column;
+  gap: 7px;
+}
+.rail button {
+  width: 7px; height: 7px; padding: 0;
+  border: 0; border-radius: var(--r-pill);
+  background: var(--text-3);
+  opacity: .3;
+  cursor: pointer;
+  transition: opacity .25s var(--ease), height .25s var(--ease), background-color .25s;
+}
+.rail button[aria-current] { opacity: 1; height: 17px; background: var(--accent); }
+
+/* ---- one screen per scroll, on a phone -------------------------------------
+   Same deal as the desktop deck, with its own floor: a panel here has a third
+   of the width to work with, so every one of them is rebuilt below rather than
+   merely scaled down. 700px of window is the shortest this can hold with the
+   toolbar showing; under that the page goes back to ordinary scrolling. */
+@media (max-width: 999px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  html { scroll-snap-type: y mandatory; scroll-padding-top: var(--nav-h); }
+
+  main > section {
+    min-height: calc(100svh - var(--nav-h));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    padding-block: 18px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .wrap { min-width: 0; }
+  .hero { min-height: calc(100svh - var(--nav-h)); padding-block: 18px; display: grid; }
+
+  /* Same optical lift as on the desktop: the sticky nav reads as frame, not as
+     height taken away. */
+  main > section:not(.close) { grid-template-rows: 1fr auto 1.7fr; }
+  main > section:not(.close)::before,
+  main > section:not(.close)::after { content: ""; }
+
+  .close { grid-template-rows: 1fr auto; }
+  .close > .wrap { align-self: center; padding-block: 22px; gap: 14px; }
+  .close h2 { font-size: 2rem; }
+  .plats { gap: 10px; margin-top: 6px; }
+  .plat { padding: 12px 14px; }
+  /* The panel is centred, so a left-aligned block inside it read as misaligned.
+     Only the live card centres: the two waiting rows keep their label-then-badge
+     line, which is a row and not a block. */
+  .plat-live { justify-items: center; text-align: center; }
+  .plat-live .btn { justify-self: center; }
+  .foot { border-top: 0; padding-block: 0 2px; }
+  .foot .wrap { gap: 8px 18px; }
+  /* One swipeable line of links, and the closing sentence on one line. */
+  .foot-links { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .foot-links::-webkit-scrollbar { display: none; }
+  .foot-links a { flex: none; }
+  .foot .rights { font-size: .75rem; }
+
+  /* The nav has no room for seven anchors, so the marker moves to a rail of
+     dots down the edge, which also reads as progress through the deck. */
+  .rail { display: flex; }
+
+  /* ---- hero ---- */
+  .hero .wrap { gap: 12px; }
+  .hero-copy { gap: 11px; }
+  .hero-copy h1 { font-size: 1.75rem; }
+  .hero-cta { gap: 9px; }
+  .frame-head { padding-block: 9px; }
+  .ask { padding: 12px 15px; gap: 8px; }
+  .demo { padding: 11px 15px 13px; gap: 8px; }
+  .demo-head { gap: 12px; }
+  /* The section label repeats the window the rows already carry. */
+  .sec-label { display: none; }
+  .rows { gap: 4px; }
+  .row { padding-block: 6px; }
+
+  /* The hero is the one panel carrying both an argument and a working card, so
+     under 740px of window it gives back a notch everywhere rather than dropping
+     a part of the demo. */
+  @media (max-height: 739px) {
+    .hero .wrap { gap: 9px; }
+    .hero-copy { gap: 9px; }
+    .hero-copy h1 { font-size: 1.55rem; }
+    .hero-cta .btn { padding: 9px 16px; }
+    .frame-head { padding-block: 6px; }
+    .ask { padding: 10px 14px; gap: 7px; }
+    .demo { padding: 10px 14px 12px; gap: 7px; }
+    .row { padding-block: 5px; }
+  }
+
+  /* ---- the pillars ---- */
+  /* Two by two. Four stacked cards is most of a phone screen on its own. */
+  .struct { gap: 12px; margin-top: 20px; }
+  .pillars { grid-template-columns: 1fr 1fr; gap: 10px; margin-inline: 0; }
+  .pillar { min-height: 0; padding: 13px 14px; gap: 6px; }
+  .pillar-role { font-size: .75rem; }
+  .beam, .footing { padding: 13px 15px; }
+  .beam-ring { width: 34px; height: 34px; }
+  .beam-you { font-size: 1.125rem; }
+  /* The seven categories in one swipeable line rather than three stacked rows. */
+  .footing { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .footing::-webkit-scrollbar { display: none; }
+  .cchip { flex: none; }
+
+  /* ---- the day ---- */
+  /* Sixteen items will not fit a phone panel, and cutting them would drop the
+     proof. So the four sections become a horizontal swipe: one section fills the
+     screen, the next one peeks, and the whole day is still there. The axes do
+     not fight, since the page snaps on y and this strip on x. */
+  .spine {
+    margin-top: 18px;
+    display: flex; flex-direction: row; flex-wrap: nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .spine::-webkit-scrollbar { display: none; }
+  .blk {
+    flex: 0 0 86%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+  }
+  /* Cards in the strip are all as tall as the fullest one; without this the grid
+     shares that spare height out between the label and the list, which opens a
+     hole in the middle of the shorter cards. */
+  .blk { align-content: start; }
+  .blk-when { flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 0; }
+  .blk-items { border-left: 0; padding: 0; }
+  .item { padding-block: 5px; gap: 10px; }
+  .item .t { width: 8.4em; }
+
+  /* ---- the areas ---- */
+  .areas .wrap { gap: 14px; }
+  .radar-box { padding: 8px; }
+  /* Sized off the window rather than pinned: at 146px it was legible but tiny,
+     and on a taller phone the panel had a hundred spare pixels sitting under the
+     bars. This spends them on the chart. */
+  #radar { max-width: min(240px, calc(100svh - 554px)); }
+  .areas-side { gap: 14px; }
+  .cats { gap: 6px; }
+  .cat { gap: 2px 12px; }
+  .cat .nm { font-size: .875rem; }
+  .cat .num { font-size: .75rem; }
+
+  /* ---- the agent ---- */
+  .agent .wrap { gap: 16px; }
+  .agent h2 { font-size: 1.6rem; }
+  .agent .lede { font-size: .875rem; }
+  .can { margin-top: 13px; gap: 7px; }
+  .can li { font-size: .8125rem; gap: 9px; line-height: 1.45; }
+  .can-ico { width: 24px; height: 24px; margin-top: -1px; }
+  .can-ico .icon { width: 13px; height: 13px; }
+  .can-note { margin-top: 14px; padding-top: 12px; font-size: .8125rem; }
+  .con-top { padding: 9px 14px; }
+  .con-body { padding: 13px; gap: 9px; }
+  .bub-me, .bub-ai { font-size: .875rem; }
+  .res { padding: 11px 13px; gap: 8px; }
+  /* One swipeable line of requests instead of four stacked rows. */
+  .con-ask {
+    padding: 10px 14px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .con-ask::-webkit-scrollbar { display: none; }
+  .pbtn { flex: none; }
+
+  /* The turn loses its opening line, the only step with no fact in it, and the
+     panel loses the closing note. That is what buys the transcript enough room
+     to show a whole request on a phone. */
+  .turn > .bub-ai:first-of-type { display: none; }
+  /* The claims and the closing note step aside here. Beside a working console on
+     a phone they leave the transcript too short to hold one whole request, and a
+     request cut off two thirds of the way up reads as broken rather than as the
+     top of a conversation scrolling away. The console makes the same three
+     points by doing them. */
+  .can, .can-note { display: none; }
+  .pills { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .pills::-webkit-scrollbar { display: none; }
+  .pill { flex: none; }
+
+  /* ---- the apps ---- */
+  /* Side by side rather than stacked: stacked, the pair is taller than the whole
+     panel on a short phone. Neither shot is readable at this size, and that is
+     accepted here: the panel's job on a phone is the claim that both exist. */
+  .rig {
+    margin-top: 16px;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 10px;
+    justify-content: center;
+  }
+  .lap { width: 100%; }
+  .lap-lid { width: 100%; }
+  .fone { width: 104px; justify-self: end; }
+  #apps h2 { font-size: 1.6rem; }
+  #apps .lede { font-size: .875rem; }
+
+  /* Side by side the pair is width-bound, so on a tall phone it cannot use the
+     room it has. Stacked it can, and both shots come out bigger. */
+  @media (min-height: 780px) {
+    .rig { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    /* Capped, because on a wide but short window a full-width laptop is taller
+       than the panel: its height comes from its width. */
+    .lap { width: min(100%, 420px); justify-self: center; }
+    .fone { width: 138px; justify-self: center; }
+  }
+  @media (min-height: 840px) {
+    .rig { gap: 16px; }
+    .fone { width: 158px; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  html { scroll-behavior: auto; }
+}

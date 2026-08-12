@@ -1,0 +1,47 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>__TITLE__</title>
+<meta name="description" content="__DESCRIPTION__">
+
+<link rel="canonical" href="__CANONICAL__">
+<link rel="alternate" hreflang="en" href="__URL_EN__">
+<link rel="alternate" hreflang="pt-BR" href="__URL_PT__">
+<!-- Nothing here targets a language, so the English page is what a crawler with
+     no language preference should land on. -->
+<link rel="alternate" hreflang="x-default" href="__URL_EN__">
+
+<!-- The fonts are the only render-blocking bytes left, so they are asked for
+     before the stylesheet that references them is even parsed. -->
+<link rel="preload" href="__FONT_SANS__" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="__FONT_MONO__" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="__CSS__">
+
+<!-- Two values, because the bar should match whichever theme the page resolves
+     to rather than flashing the wrong one. -->
+<meta name="theme-color" content="#F5F7FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1218" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+
+<link rel="icon" href="__ICON_SVG__" type="image/svg+xml">
+<link rel="icon" href="__ICON_PNG__" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="__ICON_APPLE__">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Beyou">
+<meta property="og:locale" content="__OG_LOCALE__">
+<meta property="og:locale:alternate" content="__OG_LOCALE_ALT__">
+<meta property="og:url" content="__CANONICAL__">
+<meta property="og:title" content="__TITLE__">
+<meta property="og:description" content="__DESCRIPTION__">
+<meta property="og:image" content="__OG_IMAGE__">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="__OG_ALT__">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="__TITLE__">
+<meta name="twitter:description" content="__DESCRIPTION__">
+<meta name="twitter:image" content="__OG_IMAGE__">
+
+<script type="application/ld+json">__JSONLD__</script>
