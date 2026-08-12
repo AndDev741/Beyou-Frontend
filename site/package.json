@@ -1,0 +1,11 @@
+{
+  "name": "beyou-site",
+  "private": true,
+  "type": "module",
+  "description": "Marketing site for Beyou. Static, built by build.py, deployed on Cloudflare Pages.",
+  "scripts": {
+    "build": "python3 build.py --check",
+    "test": "node functions/_middleware.test.mjs",
+    "serve": "python3 -m http.server 4321 --directory dist"
+  }
+}

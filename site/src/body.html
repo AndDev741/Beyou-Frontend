@@ -1,0 +1,702 @@
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Beyou">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+        <circle class="mark-ring" cx="32" cy="32" r="24"></circle>
+        <path class="mark-check" d="M22 33l7 7 14-14"></path>
+      </svg>
+      beyou
+    </a>
+
+    <div class="nav-links" id="navlinks">
+      <a href="#top">Home</a>
+      <a href="#estrutura"><span lang="pt">Estrutura</span><span lang="en">Structure</span></a>
+      <a href="#dia"><span lang="pt">O dia</span><span lang="en">The day</span></a>
+      <a href="#areas"><span lang="pt">Áreas</span><span lang="en">Areas</span></a>
+      <a href="#assistente"><span lang="pt">Assistente</span><span lang="en">AI Agent</span></a>
+      <a href="#apps"><span lang="pt">Apps</span><span lang="en">Apps</span></a>
+      <a href="#download">Download</a>
+    </div>
+
+    <div class="seg" role="group" aria-label="__LANG_LABEL__">
+      <a href="__HREF_PT__" hreflang="pt-BR" __PT_CURRENT__>PT</a>
+      <a href="__HREF_EN__" hreflang="en" __EN_CURRENT__>EN</a>
+    </div>
+
+    <button class="icon-btn" id="theme" type="button" aria-label="Tema claro ou escuro">
+      <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+    </button>
+
+    <a class="btn btn-primary btn-sm" data-cta="start" href="https://app.beyouweb.com/">
+      <span lang="pt">Começar</span><span lang="en">Get started</span>
+    </a>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- HERO ------------------------------------------------------------- -->
+  <section class="hero" id="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <h1>
+          <span lang="pt">Sua vida pode subir de nível.</span>
+          <span lang="en">Your life can level up.</span>
+        </h1>
+        <p class="lede">
+          <span lang="pt">Hábitos, tarefas, rotinas e metas apoiam nas áreas da sua vida e sobem de nível junto com elas.</span>
+          <span lang="en">Habits, tasks, routines and goals rest on the areas of your life, and level up along with them.</span>
+        </p>
+        <div class="hero-cta">
+          <!-- Desktop follows the href straight to the app. Anything touch or
+               narrow gets the platform list instead, since that is where the
+               native builds live. -->
+          <a class="btn btn-primary btn-lg" data-cta="start" href="https://app.beyouweb.com/">
+            <span lang="pt">Começar</span><span lang="en">Get started</span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="https://docs.beyouweb.com/">
+            <span lang="pt">Engenharia por trás</span><span lang="en">How it is built</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- One frame, one product. The request sits above the routine it
+           changes, so the cause is read before the consequence. -->
+      <div class="frame" id="frame">
+        <div class="frame-head">
+          <span class="frame-date" id="today"></span>
+          <span class="streak">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5Z"></path></svg>
+            <span class="mono">3</span>
+            <span lang="pt">dias</span><span lang="en">days</span>
+          </span>
+        </div>
+
+        <div class="ask" role="img" id="strip">
+          <div class="ask-row">
+            <span class="ask-tile" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg>
+            </span>
+            <span class="ask-field" aria-hidden="true"><span id="asktext"></span><i class="caret"></i></span>
+          </div>
+          <div class="ask-status" aria-hidden="true">
+            <span class="ag-status"><span id="agtext"></span><span class="dots"><i></i><i></i><i></i></span></span>
+            <span class="ag-chip"><span lang="pt">Saúde Física</span><span lang="en">Physical Health</span></span>
+          </div>
+        </div>
+
+        <div class="demo" id="demo">
+          <div class="demo-head">
+            <svg class="day-ring" viewBox="0 0 60 60" aria-hidden="true">
+              <circle class="rt" cx="30" cy="30" r="26"></circle>
+              <circle class="rp" id="dayring" cx="30" cy="30" r="26"></circle>
+            </svg>
+            <div class="demo-head-txt">
+              <span class="demo-title"><span lang="pt">Rotina da manhã</span><span lang="en">Morning routine</span></span>
+              <span class="demo-sub mono" id="daycount">1 / 2</span>
+            </div>
+            <span class="demo-foot-inline">
+              <span class="k"><span lang="pt">XP hoje</span><span lang="en">XP today</span></span>
+              <span class="v mono" id="xptotal">5</span>
+            </span>
+          </div>
+
+          <div class="sec-label">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v8M4.93 10.93l1.41-1.41M2 18h2M20 18h2M19.07 10.93l-1.41-1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"></path></svg>
+            <span lang="pt">Manhã</span><span lang="en">Morning</span>
+            <span class="win mono">06:30 - 09:00</span>
+          </div>
+
+          <div class="rows">
+            <button class="row" type="button" aria-pressed="true" data-xp="5">
+              <svg class="row-ring" viewBox="0 0 26 26" aria-hidden="true">
+                <circle class="rt" cx="13" cy="13" r="11"></circle>
+                <circle class="rp" cx="13" cy="13" r="11"></circle>
+                <path class="rc" d="m8.6 13.3 2.8 2.8 5.2-6"></path>
+              </svg>
+              <span class="rowicon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7Z"></path></svg>
+              </span>
+              <span class="row-txt">
+                <span class="row-name"><span lang="pt">Água ao acordar</span><span lang="en">Water on waking</span></span>
+                <span class="row-time mono">06:40 - 07:00</span>
+              </span>
+              <span class="row-xp mono">+5 XP</span>
+            </button>
+
+            <button class="row" type="button" aria-pressed="false" data-xp="12">
+              <svg class="row-ring" viewBox="0 0 26 26" aria-hidden="true">
+                <circle class="rt" cx="13" cy="13" r="11"></circle>
+                <circle class="rp" cx="13" cy="13" r="11"></circle>
+                <path class="rc" d="m8.6 13.3 2.8 2.8 5.2-6"></path>
+              </svg>
+              <span class="rowicon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3Z"></path></svg>
+              </span>
+              <span class="row-txt">
+                <span class="row-name"><span lang="pt">Ler 10 páginas</span><span lang="en">Read 10 pages</span></span>
+                <span class="row-time mono">07:00 - 07:30</span>
+              </span>
+              <span class="row-xp mono">+12 XP</span>
+            </button>
+
+            <div class="slot" id="slot">
+              <div class="ghost" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" style="font-size:14px"><path d="M12 5v14M5 12h14"></path></svg>
+                <span lang="pt">terceira vaga da manhã</span>
+                <span lang="en">third morning slot</span>
+              </div>
+
+              <button class="row row-new" id="rownew" type="button" aria-pressed="false" data-xp="10" aria-hidden="true" tabindex="-1">
+                <svg class="row-ring" viewBox="0 0 26 26" aria-hidden="true">
+                  <circle class="rt" cx="13" cy="13" r="11"></circle>
+                  <circle class="rp" cx="13" cy="13" r="11"></circle>
+                  <path class="rc" d="m8.6 13.3 2.8 2.8 5.2-6"></path>
+                </svg>
+                <span class="rowicon" aria-hidden="true">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"></path><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"></path><path d="M16 17h4M4 13h4"></path></svg>
+                </span>
+                <span class="row-txt">
+                  <span class="row-name"><span lang="pt">Corrida leve</span><span lang="en">Easy run</span></span>
+                  <span class="row-time mono">07:30 - 08:00</span>
+                </span>
+                <span class="row-xp mono">+10 XP</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="replay" id="replay" type="button">
+            <span lang="pt">Recomeçar</span><span lang="en">Reset</span>
+          </button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE NOTE --------------------------------------------------------- -->
+  <section id="porque">
+    <div class="wrap">
+      <div class="note rv">
+        <div class="note-head">
+          <h2>
+            <span lang="pt">Nenhum app que eu testei respondia duas perguntas.</span>
+            <span lang="en">No app I tried answered two questions.</span>
+          </h2>
+        </div>
+
+        <div class="note-arg">
+          <div class="beat">
+            <span class="beat-icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+            </span>
+            <p class="beat-q">
+              <span lang="pt">A que horas eu faço isso?</span>
+              <span lang="en">What time do I do this?</span>
+            </p>
+            <p class="beat-a">
+              <span lang="pt">Uma lista plana não responde. Marcar uma caixinha não diz quando, e um dia sem horário nunca toma forma.</span>
+              <span lang="en">A flat list has no answer. Ticking a box does not say when, and a day without hours never takes shape.</span>
+            </p>
+          </div>
+
+          <div class="beat">
+            <span class="beat-icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M22 7 13.5 15.5 8.5 10.5 2 17"></path><path d="M16 7h6v6"></path></svg>
+            </span>
+            <p class="beat-q">
+              <span lang="pt">Isso está me levando a algum lugar?</span>
+              <span lang="en">Is this taking me anywhere?</span>
+            </p>
+            <p class="beat-a">
+              <span lang="pt">Depois de meses marcando hábitos, eu não conseguia dizer se a minha saúde ou a minha carreira tinham andado.</span>
+              <span lang="en">After months of ticking habits, I could not tell whether my health or my career had moved at all.</span>
+            </p>
+          </div>
+
+          <p class="note-answer">
+            <span lang="pt">O Beyou é a minha resposta. O dia ganhou seções com horário, e cada check passou a alimentar uma área da sua vida que sobe de nível.</span>
+            <span lang="en">Beyou is my answer. The day gained sections with hours, and every check-in feeds an area of your life that levels up.</span>
+          </p>
+
+          <!-- Each answer links to the section that proves it, which makes this
+               the page's spine instead of a dead-end note. -->
+          <p class="note-links">
+            <a href="#dia">
+              <span lang="pt">como o dia funciona</span><span lang="en">how the day works</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+            <a href="#areas">
+              <span lang="pt">como as áreas sobem</span><span lang="en">how the areas rise</span>
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- STRUCTURE -------------------------------------------------------- -->
+  <section id="estrutura">
+    <div class="wrap">
+      <div class="head rv">
+        <h2>
+          <span lang="pt">Cada domínio do app carrega uma parte de você.</span>
+          <span lang="en">Each part of the app carries a part of you.</span>
+        </h2>
+        <p class="lede">
+          <span lang="pt">Hábitos, tarefas, rotinas e metas são os pilares. Todos os quatro apoiam no mesmo chão: as categorias, que são as áreas da sua vida.</span>
+          <span lang="en">Habits, tasks, routines and goals are the pillars. All four rest on one floor: your categories, the areas of your life.</span>
+        </p>
+      </div>
+
+      <figure class="figure">
+        <div class="struct rv">
+          <div class="beam">
+            <svg class="beam-ring" viewBox="0 0 40 40" aria-hidden="true">
+              <circle class="rt" cx="20" cy="20" r="16"></circle>
+              <circle class="rp" cx="20" cy="20" r="16"></circle>
+            </svg>
+            <span class="beam-txt">
+              <span class="beam-you"><span lang="pt">Você</span><span lang="en">You</span></span>
+              <span class="beam-lv"><span lang="pt">nível 21</span><span lang="en">level 21</span> <span class="mono">· 22395 / 24200 XP</span></span>
+            </span>
+          </div>
+
+          <div class="pillars">
+            <div class="pillar" style="--i:0">
+              <span class="rowicon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"></path></svg>
+              </span>
+              <span class="pillar-name"><span lang="pt">Hábitos</span><span lang="en">Habits</span></span>
+              <span class="pillar-stat mono">26</span>
+              <span class="pillar-role"><span lang="pt">o que repete</span><span lang="en">what repeats</span></span>
+            </div>
+
+            <div class="pillar" style="--i:1">
+              <span class="rowicon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg>
+              </span>
+              <span class="pillar-name"><span lang="pt">Tarefas</span><span lang="en">Tasks</span></span>
+              <span class="pillar-stat mono">10</span>
+              <span class="pillar-role"><span lang="pt">o que aparece uma vez</span><span lang="en">what shows up once</span></span>
+            </div>
+
+            <div class="pillar" style="--i:2">
+              <span class="rowicon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
+              </span>
+              <span class="pillar-name"><span lang="pt">Rotinas</span><span lang="en">Routines</span></span>
+              <span class="pillar-stat mono">4</span>
+              <span class="pillar-role"><span lang="pt">quando cada coisa acontece</span><span lang="en">when each thing happens</span></span>
+            </div>
+
+            <div class="pillar" style="--i:3">
+              <span class="rowicon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+              </span>
+              <span class="pillar-name"><span lang="pt">Metas</span><span lang="en">Goals</span></span>
+              <span class="pillar-stat mono">9</span>
+              <span class="pillar-role"><span lang="pt">por que vale a pena</span><span lang="en">why it is worth it</span></span>
+            </div>
+          </div>
+
+          <div class="footing">
+            <span class="footing-lb"><span lang="pt">Categorias</span><span lang="en">Categories</span></span>
+            <span class="cchip"><span lang="pt">Carreira</span><span lang="en">Career</span></span>
+            <span class="cchip"><span lang="pt">Família</span><span lang="en">Family</span></span>
+            <span class="cchip">Mental</span>
+            <span class="cchip"><span lang="pt">Saúde Física</span><span lang="en">Physical Health</span></span>
+            <span class="cchip"><span lang="pt">Estudos</span><span lang="en">Studies</span></span>
+            <span class="cchip"><span lang="pt">Finanças</span><span lang="en">Finances</span></span>
+            <span class="cchip"><span lang="pt">Integridade</span><span lang="en">Integrity</span></span>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- THE DAY ---------------------------------------------------------- -->
+  <section id="dia">
+    <div class="wrap">
+      <div class="head rv">
+        <h2>
+          <span lang="pt">Seu dia não é uma lista. Tem seções e horários.</span>
+          <span lang="en">Your day isn't a list. It has sections and hours.</span>
+        </h2>
+        <p class="lede">
+          <span lang="pt">Cada seção tem nome e janela de horário. Estas são as quatro da minha rotina de verdade.</span>
+          <span lang="en">Each section has a name and a time window. These four are my own routine.</span>
+        </p>
+      </div>
+
+      <div class="spine">
+        <div class="blk rv" style="--i:0">
+          <div class="blk-when">
+            <span class="nm">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v8M4.93 10.93l1.41-1.41M2 18h2M20 18h2M19.07 10.93l-1.41-1.41M22 22H2M8 6l4-4 4 4M16 18a4 4 0 0 0-8 0"></path></svg>
+              <span lang="pt">Manhã Pessoal</span><span lang="en">Personal morning</span>
+            </span>
+            <span class="hrs mono">05:30 - 07:30</span>
+          </div>
+          <div class="blk-items">
+            <div class="item"><span class="t mono">05:30 - 05:45</span><span class="n"><span lang="pt">Acordar e hidratar</span><span lang="en">Wake up and hydrate</span></span></div>
+            <div class="item"><span class="t mono">05:45 - 06:00</span><span class="n"><span lang="pt">Higiene matinal</span><span lang="en">Morning hygiene</span></span></div>
+            <div class="item"><span class="t mono">06:00 - 06:15</span><span class="n"><span lang="pt">Tomar café</span><span lang="en">Breakfast</span></span></div>
+            <div class="item"><span class="t mono">06:15 - 07:15</span><span class="n"><span lang="pt">Estudo focado</span><span lang="en">Focused study</span></span></div>
+          </div>
+        </div>
+
+        <div class="blk rv" style="--i:1">
+          <div class="blk-when">
+            <span class="nm">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="7" rx="2"></rect><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              <span lang="pt">Manhã de trabalho focado</span><span lang="en">Focused work morning</span>
+            </span>
+            <span class="hrs mono">08:30 - 12:15</span>
+          </div>
+          <div class="blk-items">
+            <div class="item"><span class="t mono">08:30 - 08:40</span><span class="n"><span lang="pt">Café para começar</span><span lang="en">Coffee to start</span></span></div>
+            <div class="item"><span class="t mono">08:40 - 09:00</span><span class="n"><span lang="pt">Organizar dia e tarefas</span><span lang="en">Plan the day and tasks</span></span></div>
+            <div class="item"><span class="t mono">09:00 - 10:30</span><span class="n"><span lang="pt">Trabalho focado (bloco 1)</span><span lang="en">Focused work (block 1)</span></span></div>
+            <div class="item"><span class="t mono">10:40 - 10:50</span><span class="n"><span lang="pt">Pausa para respirar</span><span lang="en">Breathing break</span></span></div>
+            <div class="item"><span class="t mono">10:50 - 12:15</span><span class="n"><span lang="pt">Trabalho focado (bloco 2)</span><span lang="en">Focused work (block 2)</span></span></div>
+          </div>
+        </div>
+
+        <div class="blk rv" style="--i:2">
+          <div class="blk-when">
+            <span class="nm">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="4"></circle><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span lang="pt">Fim de tarde em família</span><span lang="en">Family evening</span>
+            </span>
+            <span class="hrs mono">18:00 - 20:30</span>
+          </div>
+          <div class="blk-items">
+            <div class="item"><span class="t mono">18:00 - 18:30</span><span class="n"><span lang="pt">Deslocar-se para casa</span><span lang="en">Commute home</span></span></div>
+            <div class="item"><span class="t mono">18:30 - 19:30</span><span class="n"><span lang="pt">Momento em família</span><span lang="en">Family time</span></span></div>
+            <div class="item"><span class="t mono">19:30 - 20:00</span><span class="n"><span lang="pt">Jantar em família</span><span lang="en">Family dinner</span></span></div>
+            <div class="item"><span class="t mono">20:00 - 20:30</span><span class="n"><span lang="pt">Resumo financeiro diário</span><span lang="en">Daily finance review</span></span></div>
+          </div>
+        </div>
+
+        <div class="blk rv" style="--i:3">
+          <div class="blk-when">
+            <span class="nm">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+              <span lang="pt">Preparar para dormir</span><span lang="en">Winding down</span>
+            </span>
+            <span class="hrs mono">20:30 - 05:30</span>
+          </div>
+          <div class="blk-items">
+            <div class="item"><span class="t mono">20:30 - 21:00</span><span class="n"><span lang="pt">Rotina noturna</span><span lang="en">Night routine</span></span></div>
+            <div class="item"><span class="t mono">21:00 - 22:00</span><span class="n"><span lang="pt">Momento de leitura</span><span lang="en">Reading and unwinding</span></span></div>
+            <div class="item"><span class="t mono">22:00 - 05:30</span><span class="n"><span lang="pt">Dormir</span><span lang="en">Sleep</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AREAS ------------------------------------------------------------ -->
+  <section class="areas" id="areas">
+    <div class="wrap">
+      <div class="radar-box rv">
+        <canvas id="radar" width="380" height="380" role="img"
+          aria-label="Gráfico de equilíbrio entre sete áreas da vida: Carreira nível 12, Família nível 11, Integridade nível 10, Mental nível 10, Saúde Física nível 9, Estudos nível 4, Finanças nível 2."></canvas>
+      </div>
+
+      <div class="areas-side rv">
+        <div class="head">
+          <h2>
+            <span lang="pt">Cada check alimenta uma área da sua vida.</span>
+            <span lang="en">Every check-in feeds an area of your life.</span>
+          </h2>
+          <p class="lede">
+            <span lang="pt">Hábitos e tarefas pertencem a categorias. Elas ganham XP, sobem de nível, e o desequilíbrio entre elas fica difícil de ignorar.</span>
+            <span lang="en">Habits and tasks belong to categories. They gain XP, they level up, and the imbalance between them gets hard to ignore.</span>
+          </p>
+        </div>
+
+        <!-- Real values from a demo account. -->
+        <div class="cats">
+          <div class="cat" style="--w:99%">
+            <span class="nm"><span lang="pt">Carreira</span><span lang="en">Career</span></span>
+            <span class="num mono">LV 12 · 8359/8450 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+          <div class="cat" style="--w:89%">
+            <span class="nm"><span lang="pt">Família</span><span lang="en">Family</span></span>
+            <span class="num mono">LV 11 · 6432/7200 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+          <div class="cat" style="--w:85%">
+            <span class="nm"><span lang="pt">Integridade</span><span lang="en">Integrity</span></span>
+            <span class="num mono">LV 10 · 5119/6050 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+          <div class="cat" style="--w:84%">
+            <span class="nm"><span lang="pt">Mental</span><span lang="en">Mental</span></span>
+            <span class="num mono">LV 10 · 5103/6050 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+          <div class="cat" style="--w:95%">
+            <span class="nm"><span lang="pt">Saúde Física</span><span lang="en">Physical Health</span></span>
+            <span class="num mono">LV 9 · 4763/5000 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+          <div class="cat" style="--w:100%">
+            <span class="nm"><span lang="pt">Estudos</span><span lang="en">Studies</span></span>
+            <span class="num mono">LV 4 · 1248/1250 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+          <div class="cat" style="--w:50%">
+            <span class="nm"><span lang="pt">Finanças</span><span lang="en">Finances</span></span>
+            <span class="num mono">LV 2 · 224/450 XP</span>
+            <span class="bar"><i></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ASSISTANT -------------------------------------------------------- -->
+  <section class="agent" id="assistente">
+    <div class="wrap">
+      <div class="head rv">
+        <h2>
+          <span lang="pt">Um agente que opera o app inteiro.</span>
+          <span lang="en">One agent that runs the whole app.</span>
+        </h2>
+        <p class="lede">
+          <span lang="pt">Categorias, hábitos, tarefas, rotinas, metas. Ele cria, edita e lê o que já está lá para te dizer como você está indo.</span>
+          <span lang="en">Categories, habits, tasks, routines, goals. It creates them, edits them, and reads what is already there to tell you how you are doing.</span>
+        </p>
+
+        <ul class="can">
+          <li>
+            <span class="can-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg></span>
+            <span><b><span lang="pt">Constrói. </span><span lang="en">Builds. </span></b><span lang="pt">Uma frase vira hábito, rotina ou meta, com categoria, horário e dificuldade.</span><span lang="en">One sentence becomes a habit, a routine or a goal, with its category, hours and difficulty.</span></span>
+          </li>
+          <li>
+            <span class="can-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+            <span><b><span lang="pt">Lê antes. </span><span lang="en">Reads first. </span></b><span lang="pt">Consulta suas categorias e hábitos, então o que ele cria encaixa no que você já tem.</span><span lang="en">It looks up your categories and habits, so what it makes fits what you already have.</span></span>
+          </li>
+          <li>
+            <span class="can-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16M7 15l3-3 3 3 5-5"></path></svg></span>
+            <span><b><span lang="pt">Explica. </span><span lang="en">Explains. </span></b><span lang="pt">Pergunte onde você está fraco e a resposta vem com os seus números.</span><span lang="en">Ask where you are weakest and the answer comes back with your own numbers.</span></span>
+          </li>
+        </ul>
+
+        <p class="can-note">
+          <span lang="pt">Ele passa pelas mesmas operações da interface. O que ele cria é um hábito de verdade, que você edita e apaga como qualquer outro.</span>
+          <span lang="en">It goes through the same operations the interface does. What it makes is a real habit, one you edit and delete like any other.</span>
+        </p>
+      </div>
+
+      <div class="console rv">
+        <div class="con-top">
+          <span class="con-name"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path></svg><span lang="pt">Assistente</span><span lang="en">Assistant</span></span>
+          <span class="con-live"><i></i><span lang="pt">no seu app</span><span lang="en">in your app</span></span>
+        </div>
+
+        <div class="con-body" id="conbody">
+          <div class="turn" data-turn="0">
+            <div class="bub bub-me" style="--d:0s"><span lang="pt">Quero ler 20 páginas por dia</span><span lang="en">I want to read 20 pages a day</span></div>
+            <p class="bub-ai" style="--d:.28s"><span lang="pt">Deixa eu ver suas categorias antes de montar.</span><span lang="en">Let me look at your categories before I build it.</span></p>
+            <div class="pills">
+              <span class="pill" style="--d:0.55s;--d2:1.0s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Categorias consultadas</span><span lang="en">Categories checked</span></span>
+            </div>
+            <p class="bub-ai" style="--d:1.45s"><span lang="pt">Encaixa em Estudos, importância 4, dificuldade 2, todos os dias. Crio assim?</span><span lang="en">It fits under Studies, importance 4, difficulty 2, every day. Shall I create it?</span></p>
+            <div class="bub bub-me" style="--d:2.0s"><span lang="pt">Sim, cria</span><span lang="en">Yes, create it</span></div>
+            <div class="res" style="--d:2.45s">
+              <div class="res-head">
+                <span class="res-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></span>
+                <span class="res-t"><span lang="pt">Ler 20 páginas</span><span lang="en">Read 20 pages</span></span>
+                <span class="res-xp mono">+12 XP</span>
+              </div>
+              <p class="res-m"><span lang="pt">Estudos · importância 4 · dificuldade 2 · todos os dias</span><span lang="en">Studies · importance 4 · difficulty 2 · every day</span></p>
+              <span class="res-tag"><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg><span lang="pt">criado</span><span lang="en">created</span></span>
+            </div>
+          </div>
+          <div class="turn" data-turn="1">
+            <div class="bub bub-me" style="--d:0s"><span lang="pt">Monta minha manhã de trabalho, 08:30 às 12:15</span><span lang="en">Build my work morning, 08:30 to 12:15</span></div>
+            <p class="bub-ai" style="--d:.28s"><span lang="pt">Vou ver quais hábitos você já tem nesse horário.</span><span lang="en">Let me see which habits you already have in that window.</span></p>
+            <div class="pills">
+              <span class="pill" style="--d:0.55s;--d2:1.0s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Hábitos consultados</span><span lang="en">Habits checked</span></span>
+              <span class="pill" style="--d:0.95s;--d2:1.4s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Rotinas consultadas</span><span lang="en">Routines checked</span></span>
+            </div>
+            <p class="bub-ai" style="--d:1.85s"><span lang="pt">Uma seção com 5 itens, das 08:30 às 12:15, com dois blocos de trabalho e uma pausa. Crio?</span><span lang="en">One section with 5 items, 08:30 to 12:15, two work blocks and a break. Create it?</span></p>
+            <div class="bub bub-me" style="--d:2.4s"><span lang="pt">Cria</span><span lang="en">Go ahead</span></div>
+            <div class="res" style="--d:2.85s">
+              <div class="res-head">
+                <span class="res-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg></span>
+                <span class="res-t"><span lang="pt">Manhã de trabalho focado</span><span lang="en">Focused work morning</span></span>
+                <span class="res-hrs mono">08:30 - 12:15</span>
+              </div>
+              <div class="res-rows">
+                <span class="res-row"><span class="mono">09:00 - 10:30</span><span lang="pt">Trabalho focado (bloco 1)</span><span lang="en">Focused work (block 1)</span></span>
+                <span class="res-row"><span class="mono">10:40 - 10:50</span><span lang="pt">Pausa para respirar</span><span lang="en">Breathing break</span></span>
+                <span class="res-row"><span class="mono">10:50 - 12:15</span><span lang="pt">Trabalho focado (bloco 2)</span><span lang="en">Focused work (block 2)</span></span>
+              </div>
+              <span class="res-tag"><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg><span lang="pt">5 itens criados</span><span lang="en">5 items created</span></span>
+            </div>
+          </div>
+          <div class="turn" data-turn="2">
+            <div class="bub bub-me" style="--d:0s"><span lang="pt">Quero uma meta de 12 livros até dezembro</span><span lang="en">I want a goal of 12 books by December</span></div>
+            <p class="bub-ai" style="--d:.28s"><span lang="pt">Deixa eu ver em qual área isso entra.</span><span lang="en">Let me see which area this belongs to.</span></p>
+            <div class="pills">
+              <span class="pill" style="--d:0.55s;--d2:1.0s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Categorias consultadas</span><span lang="en">Categories checked</span></span>
+              <span class="pill" style="--d:0.95s;--d2:1.4s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Metas consultadas</span><span lang="en">Goals checked</span></span>
+            </div>
+            <p class="bub-ai" style="--d:1.85s"><span lang="pt">Entra em Estudos, alvo 12, prazo 31 de dezembro. Um por mês dá conta. Confirma?</span><span lang="en">It goes under Studies, target 12, due December 31. One a month gets there. Confirm?</span></p>
+            <div class="bub bub-me" style="--d:2.4s"><span lang="pt">Confirma</span><span lang="en">Confirmed</span></div>
+            <div class="res" style="--d:2.85s">
+              <div class="res-head">
+                <span class="res-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
+                <span class="res-t"><span lang="pt">12 livros lidos</span><span lang="en">12 books read</span></span>
+                <span class="res-n mono">0 / 12</span>
+              </div>
+              <span class="res-bar"><i></i></span>
+              <p class="res-m"><span lang="pt">Estudos · prazo 31 de dezembro</span><span lang="en">Studies · due December 31</span></p>
+              <span class="res-tag"><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg><span lang="pt">criado</span><span lang="en">created</span></span>
+            </div>
+          </div>
+          <div class="turn" data-turn="3">
+            <div class="bub bub-me" style="--d:0s"><span lang="pt">Onde eu estou fraco?</span><span lang="en">Where am I weakest?</span></div>
+            <p class="bub-ai" style="--d:.28s"><span lang="pt">Vou olhar seus hábitos, tarefas e metas.</span><span lang="en">Let me go through your habits, tasks and goals.</span></p>
+            <div class="pills">
+              <span class="pill" style="--d:0.55s;--d2:1.0s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Hábitos consultados</span><span lang="en">Habits checked</span></span>
+              <span class="pill" style="--d:0.95s;--d2:1.4s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Tarefas consultadas</span><span lang="en">Tasks checked</span></span>
+              <span class="pill" style="--d:1.35s;--d2:1.8s"><span class="pill-ico"><i class="spin"></i><svg class="icon tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg></span><span lang="pt">Metas consultadas</span><span lang="en">Goals checked</span></span>
+            </div>
+            <div class="res" style="--d:2.25s">
+              <div class="res-rows res-weak">
+                <span class="res-row"><b><span lang="pt">Saúde Física</span><span lang="en">Physical Health</span></b><span lang="pt">Dormir</span><span lang="en">Sleep</span><span class="mono">8</span></span>
+                <span class="res-row"><b><span lang="pt">Família</span><span lang="en">Family</span></b><span lang="pt">Café da manhã em família</span><span lang="en">Family breakfast</span><span class="mono">9</span></span>
+                <span class="res-row"><b><span lang="pt">Finanças</span><span lang="en">Finances</span></b><span lang="pt">Reserva financeira</span><span lang="en">Emergency fund</span><span class="mono"><span lang="pt">45,5%</span><span lang="en">45.5%</span></span></span>
+              </div>
+              <p class="res-m"><span lang="pt">Três hábitos centrais estão sendo pulados, e a reserva parou na metade. Quer que eu ajuste um deles?</span><span lang="en">Three core habits are being skipped, and the fund stalled halfway. Want me to adjust one of them?</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="con-ask" role="group" aria-label="Pedidos de exemplo / Example requests">
+        <button type="button" class="pbtn" data-turn="0" aria-pressed="true"><span lang="pt">Ler 20 páginas por dia</span><span lang="en">Read 20 pages a day</span></button>
+        <button type="button" class="pbtn" data-turn="1" aria-pressed="false"><span lang="pt">Monta minha manhã de trabalho</span><span lang="en">Build my work morning</span></button>
+        <button type="button" class="pbtn" data-turn="2" aria-pressed="false"><span lang="pt">Meta de 12 livros no ano</span><span lang="en">A goal of 12 books this year</span></button>
+        <button type="button" class="pbtn" data-turn="3" aria-pressed="false"><span lang="pt">Onde eu estou fraco?</span><span lang="en">Where am I weakest?</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APPS ------------------------------------------------------------- -->
+  <section id="apps">
+    <div class="wrap">
+      <div class="head rv">
+        <h2>
+          <span lang="pt">Na web e no celular. Claro e escuro.</span>
+          <span lang="en">On the web and on your phone. Light and dark.</span>
+        </h2>
+        <p class="lede">
+          <span lang="pt">A mesma conta, os mesmos dados, o mesmo desenho. O tema segue o seu sistema, e você troca o acento quando quiser.</span>
+          <span lang="en">Same account, same data, same design. The theme follows your system, and you can change the accent whenever you like.</span>
+        </p>
+      </div>
+
+      <div class="rig rv">
+        <div class="lap">
+          <div class="lap-lid">
+            <span class="lap-screen">
+              <img src="__IMG_WEB__" width="1281" height="723" loading="lazy" decoding="async"
+                alt="Beyou na web, no tema escuro: a rotina do dia em seções com horário, e ao lado os widgets de pior área, melhor área, equilíbrio de vida e nível.">
+            </span>
+          </div>
+          <span class="lap-base"></span>
+        </div>
+
+        <div class="fone">
+          <span class="fone-screen">
+            <img src="__IMG_MOBILE__" width="429" height="758" loading="lazy" decoding="async"
+              alt="Beyou no celular, no tema claro: a mesma rotina do dia, com as seções abertas e a barra de navegação inferior.">
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSE + DOWNLOAD ------------------------------------------------ -->
+  <section class="close" id="download">
+    <div class="wrap rv">
+      <h2><span lang="pt">Grátis.</span><span lang="en">Free.</span></h2>
+      <p>
+        <span lang="pt">Sem plano pago, sem limite de hábitos, sem cartão.</span>
+        <span lang="en">No paid tier, no habit limit, no card.</span>
+      </p>
+
+      <!-- One platform works today and two do not, so the grid says that
+           instead of showing three equal buttons. Dashed carries "reserved",
+           the same way it does in the hero slot and the pillars skeleton. -->
+      <div class="plats">
+        <div class="plat plat-live">
+          <span class="plat-icon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
+          </span>
+          <span class="plat-name">Web</span>
+          <span class="plat-note">
+            <span lang="pt">Funciona em qualquer navegador, sem instalar.</span>
+            <span lang="en">Works in any browser, nothing to install.</span>
+          </span>
+          <a class="btn btn-primary" href="https://app.beyouweb.com/">
+            <span lang="pt">Começar</span><span lang="en">Get started</span>
+          </a>
+        </div>
+
+        <div class="plat-soon">
+          <div class="plat plat-wait">
+            <span class="plat-icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"></rect><path d="M12 18h.01"></path></svg>
+            </span>
+            <span class="plat-name">Google Play</span>
+            <span class="plat-state"><span lang="pt">em breve</span><span lang="en">coming soon</span></span>
+          </div>
+
+          <div class="plat plat-wait plat-later">
+            <span class="plat-icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"></rect><path d="M12 18h.01"></path></svg>
+            </span>
+            <span class="plat-name">App Store</span>
+            <span class="plat-state"><span lang="pt">em desenvolvimento</span><span lang="en">in progress</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <div class="wrap">
+        <a class="brand" href="#top" aria-label="Beyou" style="font-size:1rem">
+          <svg class="mark" viewBox="0 0 64 64" style="width:22px;height:22px" aria-hidden="true">
+            <circle class="mark-ring" cx="32" cy="32" r="24"></circle>
+            <path class="mark-check" d="M22 33l7 7 14-14"></path>
+          </svg>
+          beyou
+        </a>
+        <div class="foot-links">
+          <a href="#estrutura"><span lang="pt">Estrutura</span><span lang="en">Structure</span></a>
+          <a href="#dia"><span lang="pt">O dia</span><span lang="en">The day</span></a>
+          <a href="#areas"><span lang="pt">Áreas</span><span lang="en">Areas</span></a>
+          <a href="#assistente"><span lang="pt">Assistente</span><span lang="en">AI Agent</span></a>
+          <a href="#apps"><span lang="pt">Apps</span><span lang="en">Apps</span></a>
+          <a href="https://github.com/AndDev741/Beyou-Frontend">GitHub</a>
+        </div>
+        <p class="rights">
+          <span lang="pt">Beyou. Feito para quem já desistiu de outro app de hábitos.</span>
+          <span lang="en">Beyou. Made for anyone who has already quit another habit app.</span>
+        </p>
+      </div>
+    </footer>
+  </section>
+</main>
