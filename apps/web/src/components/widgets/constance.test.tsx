@@ -1,6 +1,7 @@
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "@beyou/state/rootReducer";
+import { checkRecorded } from "@beyou/state/user/perfilSlice";
 import getCheckHistory from "@beyou/api/checkHistory/getCheckHistory";
 import { renderWithProviders } from "../../test/test-utils";
 import Constance from "./constance";
@@ -87,6 +88,68 @@ test("says the history is unavailable rather than drawing an empty month as fail
 
     await waitFor(() => expect(screen.getByText("CheckHistoryUnavailable")).toBeInTheDocument());
     expect(screen.queryByText("StreakStripCaption")).not.toBeInTheDocument();
+});
+
+test("lights today from the profile, since the account's day is closed by a scheduler", async () => {
+    // A check writes the HABIT's day. The account's row lands hours after midnight,
+    // so without this the square sits open right after the user did the thing.
+    vi.mocked(getCheckHistory).mockResolvedValue({
+        success: {
+            ownerType: "USER",
+            ownerId: "u1",
+            from: "2026-08-12",
+            to: "2026-08-13",
+            days: [
+                { day: "2026-08-12", outcome: "DONE" },
+                { day: "2026-08-13", outcome: "UNKNOWN" },
+            ],
+        },
+    } as never);
+    vi.setSystemTime(new Date("2026-08-13T15:00:00Z"));
+
+    renderWithProviders(<Constance constance={2} />, {
+        storeOverride: storeWith({ timezone: "UTC", alreadyIncreaseConstanceToday: true }),
+    });
+
+    const strip = await screen.findByTestId("streak-strip");
+    expect(strip.querySelector('[data-day="2026-08-13"]')?.getAttribute("data-outcome")).toBe("DONE");
+    vi.useRealTimers();
+});
+
+test("leaves today open while the profile says nothing counted yet", async () => {
+    vi.mocked(getCheckHistory).mockResolvedValue({
+        success: {
+            ownerType: "USER",
+            ownerId: "u1",
+            from: "2026-08-13",
+            to: "2026-08-13",
+            days: [{ day: "2026-08-13", outcome: "UNKNOWN" }],
+        },
+    } as never);
+    vi.setSystemTime(new Date("2026-08-13T15:00:00Z"));
+
+    renderWithProviders(<Constance constance={0} />, {
+        storeOverride: storeWith({ timezone: "UTC", alreadyIncreaseConstanceToday: false }),
+    });
+
+    const strip = await screen.findByTestId("streak-strip");
+    expect(strip.querySelector('[data-day="2026-08-13"]')?.getAttribute("data-outcome")).toBe("UNKNOWN");
+    vi.useRealTimers();
+});
+
+test("re-reads the history when a check lands, so today's square stops being open", async () => {
+    const store = storeWith({ timezone: "UTC" });
+    renderWithProviders(<Constance constance={1} />, { storeOverride: store });
+    await screen.findByTestId("streak-strip");
+    expect(getCheckHistory).toHaveBeenCalledTimes(1);
+
+    // A check moves the number in redux; the strip fetched once on mount and would
+    // otherwise keep drawing today as still open until the next page load.
+    await act(async () => {
+        store.dispatch(checkRecorded());
+    });
+
+    await waitFor(() => expect(getCheckHistory).toHaveBeenCalledTimes(2));
 });
 
 test("marks today's undecided square as open, not as a day with no record", async () => {

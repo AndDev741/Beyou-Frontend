@@ -43,6 +43,9 @@ export default function useCheckHistory({
 }: UseCheckHistoryArgs): UseCheckHistoryResult {
     const { t } = useTranslation();
     const timezone = useSelector((state: RootState) => state.perfil.timezone);
+    // Re-reads after every check: the response moves the number, and a strip that
+    // fetched once on mount would keep drawing today as still open.
+    const checkRevision = useSelector((state: RootState) => state.perfil.checkRevision);
     const [days, setDays] = useState<CheckDay[]>([]);
     const [loading, setLoading] = useState(enabled);
     const [error, setError] = useState<string | null>(null);
@@ -67,7 +70,7 @@ export default function useCheckHistory({
         return () => {
             cancelled = true;
         };
-    }, [ownerType, ownerId, from, to, enabled, t]);
+    }, [ownerType, ownerId, from, to, enabled, checkRevision, t]);
 
     const today = useMemo(() => todayInZone(timezone), [timezone]);
 

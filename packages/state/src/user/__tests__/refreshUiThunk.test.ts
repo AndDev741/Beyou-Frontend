@@ -6,7 +6,7 @@ import { celebrationPushed } from "../../celebration/celebrationSlice";
 import { refreshCategorie } from "../../category/categoriesSlice";
 import { refreshItemGroup } from "../../routine/todayRoutineSlice";
 import { refreshHabit } from "../../habit/habitsSlice";
-import { levelEnter, xpEnter, constanceEnter, constanceDormantEnter } from "../perfilSlice";
+import { levelEnter, xpEnter, constanceEnter, constanceDormantEnter, checkRecorded } from "../perfilSlice";
 
 function makeRefresh(overrides: Partial<RefreshUI["refreshUser"]> = {}): RefreshUI {
   return {
@@ -108,6 +108,20 @@ describe("applyRefreshUi", () => {
     const { actions, dispatch } = collect();
     applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
     expect(actions.some((a) => refreshHabit.match(a))).toBe(false);
+  });
+
+  it("ticks the check revision so the day strips re-read their history", () => {
+    // The strips fetch once on mount. Without the tick, a check moves the number
+    // and leaves today's square drawn as still open until the next page load.
+    const { actions, dispatch } = collect();
+    applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
+    expect(actions.filter((a) => checkRecorded.match(a))).toHaveLength(1);
+  });
+
+  it("ticks nothing for a payload that refreshed nothing", () => {
+    const { actions, dispatch } = collect();
+    applyRefreshUi({}, dispatch, { level: 1, constance: 0 });
+    expect(actions).toHaveLength(0);
   });
 
   it("clears dormancy: a run cannot be paused in the request that just fed it", () => {

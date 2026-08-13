@@ -3,6 +3,7 @@ import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import {
   actualLevelXpEnter,
   alreadyIncreaseConstanceTodayEnter,
+  checkRecorded,
   constanceDormantEnter,
   constanceEnter,
   levelEnter,
@@ -83,5 +84,21 @@ export function applyRefreshUi(
 
   if (refreshUi.refreshItemChecked) {
     dispatch(refreshItemGroup(refreshUi.refreshItemChecked));
+  }
+
+  // A response that carried something is a check as far as a day strip is
+  // concerned: the strips fetch once on mount, so without this tick today's square
+  // stays drawn as still-open while the number beside it has already moved. Any
+  // field counts rather than only an item check — a spurious refetch of 28 days is
+  // cheaper than a strip that lies, and identical in-flight queries are shared. A
+  // payload that refreshed nothing ticks nothing.
+  const refreshedSomething = Boolean(
+    refreshUi.refreshUser ||
+      refreshUi.refreshHabit ||
+      refreshUi.refreshItemChecked ||
+      refreshUi.refreshCategories?.length,
+  );
+  if (refreshedSomething) {
+    dispatch(checkRecorded());
   }
 }

@@ -19,6 +19,7 @@ export {
   constanceDormantEnter,
   photoEnter,
   isGoogleAccountEnter,
+  checkRecorded,
   checkedItemsInScheduledRoutineEnter,
   totalItemsInScheduledRoutineEnter,
   widgetsIdInUseEnter,

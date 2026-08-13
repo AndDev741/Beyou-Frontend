@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -29,7 +30,26 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
   const { theme } = useBeyouTheme();
   const best = useSelector((s: RootState) => s.perfil.maxConstance);
   const dormant = useSelector((s: RootState) => s.perfil.constanceDormant);
+  const countedToday = useSelector((s: RootState) => s.perfil.alreadyIncreaseConstanceToday);
   const { days, loading, error, today } = useCheckHistory({ ownerType: 'USER' });
+
+  /**
+   * Today's square, lit from the profile rather than from a row.
+   *
+   * A check writes the day of the HABIT it belongs to; the account's own day is
+   * closed by a scheduler hours after midnight, so the account's history has no row
+   * for today and the square would stay open until tomorrow — right after the user
+   * did the thing, next to a number that already moved.
+   *
+   * `alreadyIncreaseConstanceToday` is not a guess at that row: it is the same fact
+   * from the field the check response updates.
+   */
+  const shownDays = useMemo(() => {
+    if (!countedToday) return days;
+    return days.map((day) =>
+      day.day === today && day.outcome === 'UNKNOWN' ? { ...day, outcome: 'DONE' as const } : day,
+    );
+  }, [days, today, countedToday]);
 
   return (
     <WidgetCard
@@ -61,7 +81,7 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
         {loading ? (
           <CheckStripSkeleton length={DAYS_SHOWN} />
         ) : (
-          <CheckStrip days={days} today={today} testID="streak-strip" />
+          <CheckStrip days={shownDays} today={today} testID="streak-strip" />
         )}
       </View>
 

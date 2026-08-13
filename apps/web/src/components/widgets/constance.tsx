@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useSelector } from "react-redux"
 import { Flame } from "lucide-react"
@@ -27,7 +28,27 @@ export default function Constance({ constance }: constanceProps) {
     const { t } = useTranslation();
     const best = useSelector((s: RootState) => s.perfil.maxConstance);
     const dormant = useSelector((s: RootState) => s.perfil.constanceDormant);
+    const countedToday = useSelector((s: RootState) => s.perfil.alreadyIncreaseConstanceToday);
     const { days, loading, error, today } = useCheckHistory({ ownerType: "USER" });
+
+    /**
+     * Today's square, lit from the profile rather than from a row.
+     *
+     * A check writes the day of the HABIT it belongs to; the account's own day is
+     * closed by a scheduler hours after midnight, so the account's history has no
+     * row for today and the square would stay open until tomorrow — right after the
+     * user did the thing, next to a number that already moved.
+     *
+     * `alreadyIncreaseConstanceToday` is not a guess at that row: it is the same
+     * fact from the field the check response updates. So the square is only forced
+     * when the profile says today already counted, and stays open otherwise.
+     */
+    const shownDays = useMemo(() => {
+        if (!countedToday) return days;
+        return days.map((day) =>
+            day.day === today && day.outcome === "UNKNOWN" ? { ...day, outcome: "DONE" as const } : day,
+        );
+    }, [days, today, countedToday]);
 
     return (
         <BaseDiv title={t("Constance")} icon={<Flame size={14.5} aria-hidden="true" />}>
@@ -56,7 +77,7 @@ export default function Constance({ constance }: constanceProps) {
                 {loading ? (
                     <CheckStripSkeleton length={DAYS_SHOWN} />
                 ) : (
-                    <CheckStrip days={days} today={today} testId="streak-strip" />
+                    <CheckStrip days={shownDays} today={today} testId="streak-strip" />
                 )}
             </div>
 
