@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="apps/web/src/assets/authentication/Logo.png" alt="BeYou logo" width="160" />
+  <img src="apps/web/public/favicon.svg" alt="Beyou logo" width="160" />
 </p>
 
-<h1 align="center">BeYou — Frontend</h1>
+<h1 align="center">Beyou — Frontend</h1>
 
 <p align="center">
   A gamified personal-productivity app for habits, goals, routines, tasks, and categories.<br>
@@ -19,7 +19,7 @@
 
 ---
 
-BeYou helps people build better days. You define **categories** of life, attach **habits**, **goals**,
+Beyou helps people build better days. You define **categories** of life, attach **habits**, **goals**,
 **tasks**, and daily **routines**, then check them off — earning XP, leveling up, and keeping streaks
 alive. The app is bilingual (English / Portuguese), ships nine themes, and can draft a whole routine
 for you with AI.
@@ -90,7 +90,7 @@ beyou-app/
 - **Node.js ≥ 20** and **npm 11.9.0** (the repo pins `packageManager`).
 - For mobile: the **Expo** toolchain (installed via the workspace) plus the
   [Expo Go](https://expo.dev/go) app or an Android/iOS simulator.
-- The **BeYou backend** running locally (or reachable on your network) at
+- The **Beyou backend** running locally (or reachable on your network) at
   `http://localhost:8099/api/v1`. See the `Beyou-backend-spring` repo.
 
 ## Getting started
