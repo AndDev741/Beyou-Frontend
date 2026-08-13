@@ -62,7 +62,18 @@ describe('repository routes through the injected client', () => {
     const result = await getHabits(t as any);
 
     expect(mockClient.get).toHaveBeenCalledWith('/habit');
-    expect(result).toEqual({ success: habitData });
+    // The repository fills the check scalars a pre-streak response omits, so the
+    // rows come back enriched rather than verbatim (see getHabits.test.ts).
+    expect(result).toEqual({
+      success: [{
+        ...habitData[0],
+        currentStreak: 0,
+        bestStreak: 0,
+        totalCheckIns: 0,
+        firstCheckInDate: null,
+        streakDormant: false,
+      }],
+    });
   });
 
   it('ApiError path: thrown ApiError maps to { error: t("UnexpectedError") }', async () => {
