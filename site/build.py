@@ -245,6 +245,14 @@ def write_meta():
             + "\n</urlset>\n"
         )
 
+    # Every matching block applies and same-name headers are appended, so a
+    # Cache-Control under /* would be concatenated onto the one under /a/* and
+    # the year would lose to the max-age=0 sitting next to it. So the catch-all
+    # carries no Cache-Control at all, and each document names its own.
+    documents = "".join(
+        "/%s\n  Cache-Control: public, max-age=0, must-revalidate\n\n" % loc["path"]
+        for loc in LOCALES.values()
+    )
     with open(os.path.join(DIST, "_headers"), "w") as fh:
         fh.write(
             "# Hashed names, so a year is safe and a deploy can never serve a stale one.\n"
@@ -252,8 +260,9 @@ def write_meta():
             "  Cache-Control: public, max-age=31536000, immutable\n"
             "\n"
             "# The documents are the only thing that changes under a fixed URL.\n"
+            + documents +
+            "# Everything below is about safety, not caching, so it applies to all.\n"
             "/*\n"
-            "  Cache-Control: public, max-age=0, must-revalidate\n"
             "  X-Content-Type-Options: nosniff\n"
             "  Referrer-Policy: strict-origin-when-cross-origin\n"
             "  X-Frame-Options: SAMEORIGIN\n"
