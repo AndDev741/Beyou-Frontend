@@ -58,7 +58,11 @@ function RenderHabits({habits, setHabits, emptyTitle, onClearFilters}: renderHab
                         xp={habit.xp}
                         nextLevelXp={habit.nextLevelXp}
                         actualLevelXp={habit.actualLevelXp}
-                        constance={habit.constance}
+                        currentStreak={habit.currentStreak}
+                        bestStreak={habit.bestStreak}
+                        totalCheckIns={habit.totalCheckIns}
+                        firstCheckInDate={habit.firstCheckInDate}
+                        streakDormant={habit.streakDormant}
                         categories={habit.categories}
                         motivationalPhrase={habit.motivationalPhrase}
                         importance={habit.importance}

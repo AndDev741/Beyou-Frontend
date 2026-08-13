@@ -15,21 +15,31 @@ import deleteHabit from "@beyou/api/habits/deleteHabit";
 import getHabits from "@beyou/api/habits/getHabits";
 import { attributePhrase, attributeVariant } from "./utils/attributeMeta";
 import DeleteModal from "../DeleteModal";
+import LastTwoWeeksStrip from "./lastTwoWeeksStrip";
+import { formatFirstCheckIn, todayInZone } from "@beyou/state";
+import { useSelector } from "react-redux";
+import type { RootState } from "@beyou/state/rootReducer";
 
 interface HabitBoxProps extends habit {
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>
 }
 
-function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, constance, categories, routines, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
+function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, currentStreak, bestStreak, totalCheckIns, firstCheckInDate, streakDormant, categories, routines, motivationalPhrase, importance, dificulty, setHabits}: HabitBoxProps){
     const dispatch = useDispatch();
 
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
+    const timezone = useSelector((state: RootState) => state.perfil.timezone);
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
     const dificultyPhrase = attributePhrase("difficulty", dificulty, t);
     const importancePhrase = attributePhrase("importance", importance, t);
     const routineNames = Object.values(routines ?? {});
+    // Never checked: the "since" line has nothing to say, so it says that instead of
+    // rendering an empty date.
+    const sinceLabel = firstCheckInDate
+        ? `${t('Since')} ${formatFirstCheckIn(firstCheckInDate, i18n.language, todayInZone(timezone))}`
+        : t('NoCheckInsYet');
 
     const handleExpanded = () => {
         setExpanded(!expanded);
@@ -128,27 +138,50 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, consta
                 </div>
             )}
 
+            {/* Two columns, with check-ins across the bottom.
+                The mockup drew three abreast in a 432px panel; here the card is one
+                of three in a 1100px grid, so the row has ~289px and three tiles come
+                out 91px wide — narrow enough that "CONSTÂNCIA" breaks mid-word into
+                "CONSTÂNC / IA". A hyphenless break inside a label reads worse than a
+                2+1 block, and a 2+1 block that is deliberate reads better than one
+                `auto-fit` fell into. */}
             {expanded && (
                 <div className="grid grid-cols-2 gap-2">
                     <StatTile label={t('Level')} value={level} hint={`${xp}/${nextLevelXp} XP`} />
-                    <StatTile label={t('Constance')} value={constance} hint={t('Days')} />
+                    <StatTile
+                        label={t('Constance')}
+                        value={`${currentStreak} ${t('DaysUnit', { count: currentStreak })}`}
+                        hint={streakDormant && currentStreak > 0
+                            ? t('StreakPaused')
+                            : bestStreak > 0 ? `${t('Best')}: ${bestStreak}` : undefined}
+                    />
+                    <StatTile
+                        className="col-span-2"
+                        label={t('CheckIns')}
+                        value={totalCheckIns}
+                        hint={sinceLabel}
+                    />
                 </div>
             )}
+
+            {expanded && <LastTwoWeeksStrip ownerType="HABIT" ownerId={id} />}
 
             {/* The row you read at a glance: level, XP and streak. */}
             <div className="mt-auto flex items-end gap-3 pt-1">
                 <XpBar className="min-w-0 flex-1" current={xp} target={nextLevelXp} level={level} />
                 {/* With no streak there is nothing to celebrate: a dim flame with a
-                    zero beside it reads as failure, not as a neutral state. */}
-                {constance > 0 && (
+                    zero beside it reads as failure, not as a neutral state.
+                    A dormant run keeps its number but loses the flame — the run has
+                    not broken, it just is not burning. */}
+                {currentStreak > 0 && (
                     <Chip
-                        variant="flame"
+                        variant={streakDormant ? "neutral" : "flame"}
                         size="sm"
                         className="font-mono"
                         icon={<Flame size={12} aria-hidden="true" />}
-                        title={t('Constance')}
+                        title={streakDormant ? t('StreakPausedExplanation') : t('Constance')}
                     >
-                        {constance}
+                        {currentStreak}
                     </Chip>
                 )}
             </div>
