@@ -1,6 +1,6 @@
 # @beyou/contracts
 
-TypeScript types generated from the BeYou backend's SpringDoc OpenAPI 3.1.0 spec.
+TypeScript types generated from the Beyou backend's SpringDoc OpenAPI 3.1.0 spec.
 
 ## What this package exposes
 

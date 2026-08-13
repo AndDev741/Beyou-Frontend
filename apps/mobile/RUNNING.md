@@ -1,4 +1,4 @@
-# Running the BeYou Mobile App
+# Running the Beyou Mobile App
 
 Expo SDK 56 · React Native 0.85.3 · Android package `com.beyou.mobile`
 

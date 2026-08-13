@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
-/** BeYou-mechanics tips rotated while the AI thinks, so waiting teaches the app. */
+/** Beyou-mechanics tips rotated while the AI thinks, so waiting teaches the app. */
 export const BUSY_TIP_KEYS = [
   'AiOnboardingTipXp',
   'AiOnboardingTipStreak',
@@ -28,7 +28,7 @@ interface BusyOverlayProps {
 }
 
 /**
- * Full-screen "AI is thinking" overlay with rotating BeYou tips. Shown only
+ * Full-screen "AI is thinking" overlay with rotating Beyou tips. Shown only
  * for between-step transitions (in-step actions like the routine regenerate
  * pass `{ overlay: false }` to runGuarded and show their own busy state).
  * The `!visible` gate unmounts the content so the tip interval stops and the

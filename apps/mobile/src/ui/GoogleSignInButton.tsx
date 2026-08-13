@@ -27,7 +27,7 @@ GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
 
 /**
  * "Continue with Google" button: runs the native Google sign-in, then exchanges the
- * resulting ID token for a BeYou session via the googleLogin thunk. On success the
+ * resulting ID token for a Beyou session via the googleLogin thunk. On success the
  * root Gate redirects into the app; cancellation is a silent no-op.
  */
 export default function GoogleSignInButton() {
