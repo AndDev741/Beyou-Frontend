@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowUpRight,
   Award,
+  CalendarDays,
   ChartPie,
   ChevronDown,
   ChevronUp,
@@ -28,6 +29,7 @@ import type { RootState, AppDispatch } from '../../store';
 const WIDGET_META: Record<WidgetId, { labelKey: string; Icon: typeof Target }> = {
   dailyProgress: { labelKey: 'Today', Icon: Target },
   constance: { labelKey: 'Constance', Icon: Flame },
+  constanceHeatmap: { labelKey: 'ConstanceHeatmap', Icon: CalendarDays },
   levelProgress: { labelKey: 'Level', Icon: Award },
   categoryBalance: { labelKey: 'LifeBalance', Icon: ChartPie },
   betterArea: { labelKey: 'Better Area', Icon: ArrowUpRight },

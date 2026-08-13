@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { View, Text, PixelRatio } from 'react-native';
+import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Flame } from 'lucide-react-native';
 import WidgetCard from './WidgetCard';
+import CheckStrip, { CheckStripSkeleton } from '../CheckStrip';
+import useCheckHistory from '../useCheckHistory';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
 
@@ -11,33 +12,24 @@ export interface ConstanceWidgetProps {
   constance: number;
 }
 
+/** 14 columns × 2 rows. Also the endpoint's own default range, so the call names no dates. */
 const DAYS_SHOWN = 28;
-const COLUMNS = 14;
-const GAP = 3;
-
-const floorToPixel = (value: number) => {
-  const ratio = PixelRatio.get();
-  return Math.floor(value * ratio) / ratio;
-};
 
 /**
- * Streak: the big number, the record beside it and the strip of the last 28 days.
+ * Streak: the big number, the record beside it, and the last 28 days as they really
+ * went — `GET /check-history` for the account.
  *
- * The API returns no daily history — what we know for certain is the length of the
- * CURRENT streak. So the strip highlights only those days and leaves the rest
- * neutral; the label says so out loud, so nobody reads a dim square as "I failed".
- * When a history endpoint exists, this is where it plugs in.
+ * The strip used to be derived from the number itself, highlighting the last N
+ * squares because that was all the API knew. Asking for no range is deliberate: the
+ * endpoint's default is exactly these 28 days, ending on the user's today in the
+ * USER's timezone, which on a travelling phone is not the device's.
  */
 export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const best = useSelector((s: RootState) => s.perfil.maxConstance);
-  const streakDays = Math.min(constance, DAYS_SHOWN);
-  const [stripWidth, setStripWidth] = useState(0);
-  // Rounds the side DOWN to the physical pixel: with a fractional value RN rounds
-  // each square up, the row overflows the width and the 14th drops to the line
-  // below.
-  const cell = stripWidth > 0 ? floorToPixel((stripWidth - GAP * (COLUMNS - 1)) / COLUMNS) : 0;
+  const dormant = useSelector((s: RootState) => s.perfil.constanceDormant);
+  const { days, loading, error, today } = useCheckHistory({ ownerType: 'USER' });
 
   return (
     <WidgetCard
@@ -46,38 +38,36 @@ export default function ConstanceWidget({ constance }: ConstanceWidgetProps) {
       testID="widget-constance"
     >
       <View className="mt-2.5 flex-row items-baseline gap-2">
-        <Text className="font-mono-semibold text-2xl tracking-[-0.03em] text-text">{constance}</Text>
+        {/* A dormant run keeps its number — it did not break, it stopped moving — so
+            the number is dimmed and labelled instead of reset. */}
+        <Text
+          className={`font-mono-semibold text-2xl tracking-[-0.03em] ${dormant ? 'text-text-3' : 'text-text'}`}
+          testID="constance-value"
+        >
+          {constance}
+        </Text>
         <Text className="text-xs text-text-3">
-          {`${t('DaysInARow')}${best > 0 ? ` · ${t('Best')}: ${best}` : ''}`}
+          {`${t('DaysInARow', { count: constance })}${best > 0 ? ` · ${t('Best')}: ${best}` : ''}`}
         </Text>
       </View>
 
-      {/* A 14-column grid built by hand: `grid-cols-14` does not exist in RN.
-          The square's side comes from the MEASURED width — with a percentage width
-          plus `aspect-square` the squares came out with no height and the strip was
-          an empty gap in the card. */}
-      <View
-        className="mt-3 flex-row flex-wrap"
-        style={{ gap: GAP }}
-        onLayout={(event) => setStripWidth(event.nativeEvent.layout.width)}
-        accessibilityRole="image"
-        accessibilityLabel={t('StreakStripLabel', { days: streakDays, total: DAYS_SHOWN })}
-        testID="streak-strip"
-      >
-        {cell > 0 &&
-          Array.from({ length: DAYS_SHOWN }, (_, index) => {
-            // The current streak ends today, so it occupies the END of the strip.
-            const inStreak = index >= DAYS_SHOWN - streakDays;
-            return (
-              <View
-                key={index}
-                className={`rounded-[3px] ${inStreak ? 'bg-accent' : 'bg-surface-2'}`}
-                style={{ width: cell, height: cell }}
-              />
-            );
-          })}
+      {dormant && constance > 0 ? (
+        <Text className="mt-1 text-[11px] text-text-3" testID="constance-dormant">
+          {t('StreakPausedExplanation')}
+        </Text>
+      ) : null}
+
+      <View className="mt-3">
+        {loading ? (
+          <CheckStripSkeleton length={DAYS_SHOWN} />
+        ) : (
+          <CheckStrip days={days} today={today} testID="streak-strip" />
+        )}
       </View>
-      <Text className="mt-2 text-[10.5px] text-text-3">{t('StreakStripCaption')}</Text>
+
+      <Text className="mt-2 text-[10.5px] text-text-3">
+        {error ? t('CheckHistoryUnavailable') : t('StreakStripCaption')}
+      </Text>
     </WidgetCard>
   );
 }
