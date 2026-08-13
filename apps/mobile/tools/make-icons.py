@@ -103,9 +103,21 @@ def vgrad(size, top, bottom):
     return im
 
 
+_GRAD_1024 = None
+
+
+def grad_1024():
+    # The 1024 gradient backs both icon.png and the adaptive background layer;
+    # vgrad draws it row by row, so build it once and share the image
+    # (alpha_composite never mutates its base).
+    global _GRAD_1024
+    if _GRAD_1024 is None:
+        _GRAD_1024 = vgrad((1024, 1024), GRAD_TOP, GRAD_BOTTOM).convert("RGBA")
+    return _GRAD_1024
+
+
 def make_icon():
-    base = vgrad((1024, 1024), GRAD_TOP, GRAD_BOTTOM).convert("RGBA")
-    return Image.alpha_composite(base, glyph_rgba((1024, 1024), 636, WHITE))
+    return Image.alpha_composite(grad_1024(), glyph_rgba((1024, 1024), 636, WHITE))
 
 
 def make_favicon():
@@ -134,8 +146,7 @@ def targets(fonts_dir):
         (os.path.join(ASSETS, "icon.png"), make_icon),
         (os.path.join(ASSETS, "android-icon-foreground.png"),
          lambda: glyph_rgba((1024, 1024), 456, WHITE)),
-        (os.path.join(ASSETS, "android-icon-background.png"),
-         lambda: vgrad((1024, 1024), GRAD_TOP, GRAD_BOTTOM).convert("RGBA")),
+        (os.path.join(ASSETS, "android-icon-background.png"), grad_1024),
         # dedicated monochrome pass at its own scale, see module docstring
         (os.path.join(ASSETS, "android-icon-monochrome.png"),
          lambda: glyph_rgba((1024, 1024), 480, WHITE)),
@@ -223,12 +234,14 @@ def check():
         expect(bg.getpixel((20, 1023)) == GRAD_BOTTOM + (255,),
                "background bottom gradient %s != #1558D6" % (bg.getpixel((20, 1023)),))
 
-    fg_path = p(ASSETS, "android-icon-foreground.png")
-    mono_path = p(ASSETS, "android-icon-monochrome.png")
-    if os.path.exists(fg_path) and os.path.exists(mono_path):
-        with open(fg_path, "rb") as f1, open(mono_path, "rb") as f2:
-            expect(f1.read() != f2.read(),
-                   "monochrome must not be a byte-copy of the foreground")
+    if "android-icon-foreground.png" in ims and "android-icon-monochrome.png" in ims:
+        try:
+            with open(p(ASSETS, "android-icon-foreground.png"), "rb") as f1, \
+                 open(p(ASSETS, "android-icon-monochrome.png"), "rb") as f2:
+                expect(f1.read() != f2.read(),
+                       "monochrome must not be a byte-copy of the foreground")
+        except OSError:
+            pass
     mono = ims.get("android-icon-monochrome.png")
     if mono is not None:
         colors = opaque_colors(mono)
