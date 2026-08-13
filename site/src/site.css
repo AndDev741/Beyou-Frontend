@@ -1573,20 +1573,22 @@ section { padding-block: clamp(72px, 9vw, 132px); }
   .item .t { width: 8.4em; }
 
   /* ---- the areas ---- */
-  .areas .wrap { gap: 14px; }
-  .radar-box { padding: 8px; }
-  /* Sized off the window rather than pinned: at 146px it was legible but tiny,
-     and on a taller phone the panel had a hundred spare pixels sitting under the
-     bars. This spends them on the chart. */
-  #radar { max-width: min(240px, calc(100svh - 554px)); }
-  .areas-side { gap: 14px; }
-  .cats { gap: 6px; }
-  .cat { gap: 2px 12px; }
+  .areas .wrap { gap: 12px; }
+  .radar-box { padding: 7px; }
+  /* The panel already runs at full height, so the chart can only grow if the type
+     around it gives something back. This takes it from the heading, the lede and
+     the space between bars, and hands it to the chart. */
+  #areas h2 { font-size: 1.5rem; }
+  #areas .lede { font-size: .8125rem; }
+  #radar { max-width: min(250px, calc(100svh - 500px)); }
+  .areas-side { gap: 11px; }
+  .cats { gap: 4px; }
+  .cat { gap: 1px 12px; }
   .cat .nm { font-size: .875rem; }
   .cat .num { font-size: .75rem; }
 
   /* ---- the agent ---- */
-  .agent .wrap { gap: 16px; }
+  .agent .wrap { gap: 12px; }
   .agent h2 { font-size: 1.6rem; }
   .agent .lede { font-size: .875rem; }
   .can { margin-top: 13px; gap: 7px; }
@@ -1594,13 +1596,35 @@ section { padding-block: clamp(72px, 9vw, 132px); }
   .can-ico { width: 24px; height: 24px; margin-top: -1px; }
   .can-ico .icon { width: 13px; height: 13px; }
   .can-note { margin-top: 14px; padding-top: 12px; font-size: .8125rem; }
-  .con-top { padding: 9px 14px; }
-  .con-body { padding: 13px; gap: 9px; }
+  /* The four requests run 320 to 395px tall against a box of 325, which is why
+     only some of them looked cut rather than all of them. Every value below is
+     either a step's own height or the box's, and together they close most of it. */
+  .con-top { padding: 7px 14px; }
+  .con-body { padding: 11px; gap: 6px; }
+  /* This is the gap that matters: the one between the steps inside a request.
+     The one on .con-body sits between requests, of which one shows at a time. */
+  .turn { gap: 6px; }
+  .bub-ai { line-height: 1.42; }
+
+  /* Under 780px the longest request still did not fit, and a request cut off two
+     thirds of the way up reads as broken rather than as a conversation scrolling.
+     So on the shortest phones the lede steps aside as well: it enumerates what
+     the agent does, and the console below it does those things in front of you.
+     Taller phones keep it, because there the room is real. */
+  @media (max-height: 779px) {
+    .agent .lede { display: none; }
+  }
   .bub-me, .bub-ai { font-size: .875rem; }
-  .res { padding: 11px 13px; gap: 8px; }
+  .bub-me { padding: 9px 13px; }
+  .res { padding: 9px 12px; gap: 6px; }
+  .res-rows { gap: 3px; }
+  .res-rows .item, .res-row { padding-block: 3px; }
+  /* The card's title and its tag already say what was made; this line says it
+     again in longhand, and it is the one step worth losing on a phone. */
+  .res-m { display: none; }
   /* One swipeable line of requests instead of four stacked rows. */
   .con-ask {
-    padding: 10px 14px;
+    padding: 8px 14px;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
@@ -1623,35 +1647,32 @@ section { padding-block: clamp(72px, 9vw, 132px); }
   .pill { flex: none; }
 
   /* ---- the apps ---- */
-  /* Side by side rather than stacked: stacked, the pair is taller than the whole
-     panel on a short phone. Neither shot is readable at this size, and that is
-     accepted here: the panel's job on a phone is the claim that both exist. */
+  /* One above the other, always, and both sized off the window, so there is no
+     arrangement that flips at a threshold.
+
+     `width: fit-content` is deliberately gone from here. Under it the laptop's
+     track collapsed to its own padding and rendered 21px wide: the screenshot
+     inside is `width: 100%`, and a percentage contributes nothing to intrinsic
+     sizing, so an `fr` track had no content width to grow from. Explicit widths
+     cannot fail that way.
+
+     The divisor is the pair's height per unit of laptop width: 0.564 for the
+     laptop's screen plus 0.4 x 1.767 for the phone under it. */
   .rig {
     margin-top: 16px;
-    grid-template-columns: 1fr auto;
+    width: 100%;
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
     align-items: end;
-    gap: 10px;
-    justify-content: center;
+    gap: 14px;
+    --lap-w: min(100%, calc((100svh - 300px) / 1.271));
   }
-  .lap { width: 100%; }
+  .lap { width: var(--lap-w); }
   .lap-lid { width: 100%; }
-  .fone { width: 104px; justify-self: end; }
+  .fone { width: calc(var(--lap-w) * 0.4); }
   #apps h2 { font-size: 1.6rem; }
   #apps .lede { font-size: .875rem; }
-
-  /* Side by side the pair is width-bound, so on a tall phone it cannot use the
-     room it has. Stacked it can, and both shots come out bigger. */
-  @media (min-height: 780px) {
-    .rig { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-    /* Capped, because on a wide but short window a full-width laptop is taller
-       than the panel: its height comes from its width. */
-    .lap { width: min(100%, 420px); justify-self: center; }
-    .fone { width: 138px; justify-self: center; }
-  }
-  @media (min-height: 840px) {
-    .rig { gap: 16px; }
-    .fone { width: 158px; }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
