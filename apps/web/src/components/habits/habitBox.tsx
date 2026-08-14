@@ -16,9 +16,8 @@ import getHabits from "@beyou/api/habits/getHabits";
 import { attributePhrase, attributeVariant } from "./utils/attributeMeta";
 import DeleteModal from "../DeleteModal";
 import LastTwoWeeksStrip from "./lastTwoWeeksStrip";
-import { formatFirstCheckIn, todayInZone } from "@beyou/state";
-import { useSelector } from "react-redux";
-import type { RootState } from "@beyou/state/rootReducer";
+import { formatFirstCheckIn } from "@beyou/state";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 interface HabitBoxProps extends habit {
     setHabits: React.Dispatch<React.SetStateAction<habit[]>>
@@ -28,7 +27,9 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, curren
     const dispatch = useDispatch();
 
     const {t, i18n} = useTranslation();
-    const timezone = useSelector((state: RootState) => state.perfil.timezone);
+    // A day that turns at midnight: "since 12 Jun" drops the year only while the
+    // first check-in is inside the CURRENT year, so the anchor cannot be stale.
+    const anchor = useTodayInZone();
     const [expanded, setExpanded] = useState(false);
     const [onDelete, setOnDelete] = useState(false);
 
@@ -38,7 +39,7 @@ function HabitBox({id, iconId, name, description, level, xp, nextLevelXp, curren
     // Never checked: the "since" line has nothing to say, so it says that instead of
     // rendering an empty date.
     const sinceLabel = firstCheckInDate
-        ? `${t('Since')} ${formatFirstCheckIn(firstCheckInDate, i18n.language, todayInZone(timezone))}`
+        ? `${t('Since')} ${formatFirstCheckIn(firstCheckInDate, i18n.language, anchor)}`
         : t('NoCheckInsYet');
 
     const handleExpanded = () => {

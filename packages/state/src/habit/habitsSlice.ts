@@ -42,8 +42,17 @@ const habitsSlice = createSlice({
                         // `firstCheckInDate` is deliberately left alone: the response does
                         // not carry it, and guessing today would be wrong for every habit
                         // that already had one. It arrives on the next GET.
-                        // A run that was paused is moving again.
-                        streakDormant: refresh.currentStreak !== undefined ? false : h.streakDormant,
+                        //
+                        // Dormancy clears only on a real new check-in. Every branch —
+                        // check, uncheck, skip, unskip — sends recomputed scalars, so
+                        // reading "the streak came back" as "the run woke up" made an
+                        // UNCHECK strip the paused label off a habit that is still paused.
+                        // A rising lifetime tally is the one signal that says a day was
+                        // just closed as done.
+                        streakDormant:
+                            refresh.totalCheckIns !== undefined && refresh.totalCheckIns > h.totalCheckIns
+                                ? false
+                                : h.streakDormant,
                     };
                 }),
             };

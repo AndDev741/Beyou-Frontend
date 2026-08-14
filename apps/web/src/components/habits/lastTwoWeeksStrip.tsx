@@ -1,11 +1,10 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { stripRange, todayInZone } from "@beyou/state";
-import type { RootState } from "@beyou/state/rootReducer";
+import { stripRange } from "@beyou/state";
 import type { CheckDayOwnerType } from "@beyou/types/checkday/checkHistory";
 import CheckStrip, { CheckStripSkeleton } from "../../ui/CheckStrip";
 import useCheckHistory from "../../hooks/useCheckHistory";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 const DAYS_SHOWN = 14;
 
@@ -23,8 +22,10 @@ type LastTwoWeeksStripProps = {
  */
 export default function LastTwoWeeksStrip({ ownerType, ownerId }: LastTwoWeeksStripProps) {
     const { t } = useTranslation();
-    const timezone = useSelector((state: RootState) => state.perfil.timezone);
-    const { from, to } = useMemo(() => stripRange(DAYS_SHOWN, todayInZone(timezone)), [timezone]);
+    // Anchored on a day that turns at midnight, so an open card does not keep asking
+    // for yesterday's fortnight.
+    const anchor = useTodayInZone();
+    const { from, to } = useMemo(() => stripRange(DAYS_SHOWN, anchor), [anchor]);
     const { days, loading, error, today } = useCheckHistory({ ownerType, ownerId, from, to });
 
     return (

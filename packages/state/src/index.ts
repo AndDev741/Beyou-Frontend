@@ -68,7 +68,15 @@ export {
 } from './checkday/checkStrip';
 export type { CheckTone } from './checkday/checkStrip';
 export { formatFirstCheckIn } from './checkday/formatCheckDate';
-export { todayInZone, addDaysIso, weekdayIndexIso, daysBetweenIso, isIsoDay } from './date/isoDay';
+export {
+  todayInZone,
+  addDaysIso,
+  weekdayIndexIso,
+  daysBetweenIso,
+  isIsoDay,
+  msUntilNextMidnight,
+  MS_PER_DAY,
+} from './date/isoDay';
 
 // dashboard widgets (ids shared by web + mobile)
 export { WIDGET_IDS, BIG_WIDGETS } from './dashboard/widgets';

@@ -72,6 +72,16 @@ describe("habitsSlice.refreshHabit", () => {
         expect(state.habits[0].streakDormant).toBe(false);
     });
 
+    it("keeps a dormant run paused when the response came from an UNCHECK", () => {
+        // Every branch sends recomputed scalars, so "the streak came back" is not the
+        // same as "a day was just done". A falling lifetime tally is an uncheck.
+        const state = reducer(
+            withHabits({ ...base, streakDormant: true }),
+            refreshHabit({ id: "h1", xp: 20, level: 1, actualLevelXp: 0, nextLevelXp: 100, currentStreak: 4, bestStreak: 9, totalCheckIns: 31 }),
+        );
+        expect(state.habits[0].streakDormant).toBe(true);
+    });
+
     it("leaves the first check-in date to the next GET rather than guessing today", () => {
         const state = reducer(
             withHabits({ ...base, firstCheckInDate: null }),

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { addDaysIso, daysBetweenIso, isIsoDay, todayInZone, weekdayIndexIso } from "./isoDay";
+import {
+    addDaysIso,
+    daysBetweenIso,
+    isIsoDay,
+    msUntilNextMidnight,
+    todayInZone,
+    weekdayIndexIso,
+} from "./isoDay";
 
 describe("todayInZone", () => {
     it("resolves the day in the named zone, not the machine's", () => {
@@ -51,6 +58,31 @@ describe("weekdayIndexIso", () => {
         expect(weekdayIndexIso("2026-08-09")).toBe(0); // Sunday
         expect(weekdayIndexIso("2026-08-13")).toBe(4); // Thursday
         expect(weekdayIndexIso("2026-08-15")).toBe(6); // Saturday
+    });
+});
+
+describe("msUntilNextMidnight", () => {
+    it("counts from the wall clock in the named zone, not the machine's", () => {
+        // 22:00 UTC is 19:00 in São Paulo and 07:00 the next day in Tokyo.
+        const instant = new Date("2026-08-13T22:00:00.000Z");
+        expect(msUntilNextMidnight("UTC", instant)).toBe(2 * 3_600_000 + 1_000);
+        expect(msUntilNextMidnight("America/Sao_Paulo", instant)).toBe(5 * 3_600_000 + 1_000);
+        expect(msUntilNextMidnight("Asia/Tokyo", instant)).toBe(17 * 3_600_000 + 1_000);
+    });
+
+    it("never returns zero, so a re-arming timer cannot spin", () => {
+        // One millisecond before the turn.
+        const instant = new Date("2026-08-13T23:59:59.999Z");
+        expect(msUntilNextMidnight("UTC", instant)).toBeGreaterThanOrEqual(1_000);
+    });
+
+    it("never returns more than a day", () => {
+        const instant = new Date("2026-08-13T00:00:00.000Z");
+        expect(msUntilNextMidnight("UTC", instant)).toBeLessThanOrEqual(86_400_000);
+    });
+
+    it("falls back to the device zone rather than throwing on a bad zone", () => {
+        expect(msUntilNextMidnight("Not/AZone", new Date("2026-08-13T12:00:00Z"))).toBeGreaterThan(0);
     });
 });
 

@@ -1,12 +1,11 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 import { CalendarDays } from "lucide-react";
-import { checkDayLabelKey, countDone, heatmapRange, todayInZone, weekAlignedCells } from "@beyou/state";
-import type { RootState } from "@beyou/state/rootReducer";
+import { checkDayLabelKey, countDone, heatmapRange, weekAlignedCells } from "@beyou/state";
 import BaseDiv from "./baseDiv";
 import { CheckCell, CheckLegend } from "../../ui/CheckStrip";
 import useCheckHistory from "../../hooks/useCheckHistory";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 /** Four months. Long enough to see a habit form, short enough to stay legible in the rail. */
 const WEEKS_SHOWN = 16;
@@ -25,8 +24,10 @@ const WEEKS_SHOWN = 16;
  */
 export default function ConstanceHeatmap() {
     const { t, i18n } = useTranslation();
-    const timezone = useSelector((state: RootState) => state.perfil.timezone);
-    const { from, to } = useMemo(() => heatmapRange(WEEKS_SHOWN, todayInZone(timezone)), [timezone]);
+    // Anchored on a day that turns at midnight: memoized on the timezone alone, the
+    // window froze and a refetch kept asking for the stale range.
+    const anchor = useTodayInZone();
+    const { from, to } = useMemo(() => heatmapRange(WEEKS_SHOWN, anchor), [anchor]);
     const { days, loading, error, today } = useCheckHistory({ ownerType: "USER", from, to });
 
     const cells = useMemo(() => weekAlignedCells(days), [days]);

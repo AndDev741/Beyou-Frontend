@@ -15,8 +15,12 @@ const floorToPixel = (value: number) => {
   return Math.floor(value * ratio) / ratio;
 };
 
-/** Same four tones as the web, same reasoning — three greys nobody can decode become one. */
-const TONE_CLASS: Record<CheckTone, string> = {
+/**
+ * Same four tones as the web, same reasoning — three greys nobody can decode become
+ * one. Exported so the heatmap paints from this map rather than a second copy of it;
+ * `open` is the one line that differs from the web (a border, not a ring).
+ */
+export const TONE_CLASS: Record<CheckTone, string> = {
   done: 'bg-accent',
   skipped: 'bg-accent/45',
   missed: 'bg-danger/35',

@@ -65,9 +65,11 @@ describe('ConstanceWidget', () => {
   it('asks for the account history with no range, so the server picks its own 28 days', async () => {
     await renderWidget(12);
 
+    // The third argument is the freshness token that rides the request's dedup key.
     expect(getCheckHistory).toHaveBeenCalledWith(
       { ownerType: 'USER', ownerId: undefined, from: undefined, to: undefined },
       expect.anything(),
+      expect.any(Number),
     );
   });
 

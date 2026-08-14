@@ -148,6 +148,7 @@ describe('HabitCard', () => {
     expect(getCheckHistory).toHaveBeenCalledWith(
       expect.objectContaining({ ownerType: 'HABIT', ownerId: 'h1' }),
       expect.anything(),
+      expect.any(Number),
     );
     // The squares need a measured width before they have a size at all.
     const strip = screen.getByTestId('check-strip-h1');

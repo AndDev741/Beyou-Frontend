@@ -65,6 +65,38 @@ describe("getCheckHistory", () => {
         expect(get).toHaveBeenCalledTimes(1);
     });
 
+    test("a bumped freshness token never joins the request that is already in flight", async () => {
+        // The defect this guards: the hook re-fires on a check, the query is byte
+        // identical, and the refetch adopts a promise that started BEFORE the check —
+        // so the strip repaints with pre-check data. Same bug the hook layer fixed,
+        // one layer down.
+        let resolveFirst: (value: unknown) => void = () => {};
+        get.mockReturnValueOnce(new Promise((r) => { resolveFirst = r; }));
+        get.mockResolvedValueOnce({ data: { ...payload, days: [{ day: "2026-08-13", outcome: "DONE" }] } });
+
+        const beforeCheck = getCheckHistory({ ownerType: "USER" }, t, 0);
+        const afterCheck = getCheckHistory({ ownerType: "USER" }, t, 1);
+        resolveFirst({ data: payload });
+
+        expect(get).toHaveBeenCalledTimes(2);
+        expect((await afterCheck).success?.days?.[0]?.outcome).toBe("DONE");
+        expect(await beforeCheck).not.toBe(await afterCheck);
+    });
+
+    test("still collapses the two copies of a widget rendering in the same tick", async () => {
+        // Phone carousel and desktop column are both mounted; they read the same
+        // revision, so they must share one request.
+        let resolve: (value: unknown) => void = () => {};
+        get.mockReturnValue(new Promise((r) => { resolve = r; }));
+
+        const phone = getCheckHistory({ ownerType: "USER" }, t, 7);
+        const desktop = getCheckHistory({ ownerType: "USER" }, t, 7);
+        resolve({ data: payload });
+
+        expect(await phone).toBe(await desktop);
+        expect(get).toHaveBeenCalledTimes(1);
+    });
+
     test("does not share across different queries, and asks again once settled", async () => {
         get.mockResolvedValue({ data: payload });
 

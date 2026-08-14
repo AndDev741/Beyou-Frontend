@@ -1,36 +1,25 @@
 import { useMemo, useState } from 'react';
 import { View, Text, PixelRatio } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import { CalendarDays } from 'lucide-react-native';
 import {
   checkDayLabelKey,
   checkDayTone,
   countDone,
   heatmapRange,
-  todayInZone,
   weekAlignedCells,
-  type CheckTone,
 } from '@beyou/state';
 import type { CheckDay } from '@beyou/types/checkday/checkHistory';
 import WidgetCard from './WidgetCard';
-import { CheckLegend } from '../CheckStrip';
+import { CheckLegend, TONE_CLASS } from '../CheckStrip';
 import useCheckHistory from '../useCheckHistory';
+import useTodayInZone from '../useTodayInZone';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import type { RootState } from '../../store';
 
 /** Four months. Long enough to see a habit form, short enough to stay legible on a phone. */
 const WEEKS_SHOWN = 16;
 const ROWS = 7;
 const GAP = 3;
-
-const TONE_CLASS: Record<CheckTone, string> = {
-  done: 'bg-accent',
-  skipped: 'bg-accent/45',
-  missed: 'bg-danger/35',
-  idle: 'bg-surface-2',
-  open: 'bg-surface-2 border border-accent/70',
-};
 
 const floorToPixel = (value: number) => {
   const ratio = PixelRatio.get();
@@ -51,13 +40,21 @@ const floorToPixel = (value: number) => {
 export default function ConstanceHeatmapWidget() {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
-  const timezone = useSelector((s: RootState) => s.perfil.timezone);
-  const { from, to } = useMemo(() => heatmapRange(WEEKS_SHOWN, todayInZone(timezone)), [timezone]);
+  // Anchored on a day that turns at midnight: memoized on the timezone alone, the
+  // window froze and a refetch kept asking for the stale range.
+  const anchor = useTodayInZone();
+  const { from, to } = useMemo(() => heatmapRange(WEEKS_SHOWN, anchor), [anchor]);
   const { days, loading, error, today } = useCheckHistory({ ownerType: 'USER', from, to });
   const [gridWidth, setGridWidth] = useState(0);
 
   // Column-major cells (week × weekday) turned into rows the way RN can render them.
   const rows = useMemo(() => {
+    // No days and nothing in flight means no grid. Falling through would collapse the
+    // column count to one, and a square's side comes from the measured width divided
+    // by that — so an empty history painted seven blocks each as tall as the widget
+    // is wide. The web sibling renders nothing here, which is the right answer.
+    if (!loading && days.length === 0) return [];
+
     const cells = loading ? Array.from({ length: WEEKS_SHOWN * ROWS }, () => null) : weekAlignedCells(days);
     const columns = Math.max(1, Math.ceil(cells.length / ROWS));
     return Array.from({ length: ROWS }, (_, row) =>

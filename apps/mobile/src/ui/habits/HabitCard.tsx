@@ -4,10 +4,11 @@ import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ChevronDown, ChevronUp, Flame, Pencil, Trash2 } from 'lucide-react-native';
-import { formatFirstCheckIn, stripRange, todayInZone } from '@beyou/state';
+import { formatFirstCheckIn, stripRange } from '@beyou/state';
 import type { habit } from '@beyou/types/habit/habitType';
 import CheckStrip, { CheckStripSkeleton } from '../CheckStrip';
 import useCheckHistory from '../useCheckHistory';
+import useTodayInZone from '../useTodayInZone';
 import type { RootState } from '../../store';
 import BeyouIcon from '../BeyouIcon';
 import Card from '../Card';
@@ -42,13 +43,14 @@ interface HabitCardProps {
 export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCardProps) {
   const { t, i18n } = useTranslation();
   const { theme } = useBeyouTheme();
-  const timezone = useSelector((s: RootState) => s.perfil.timezone);
+  // A day that turns at midnight, so an open card stops asking for yesterday.
+  const anchor = useTodayInZone();
   const [expanded, setExpanded] = useState(false);
   const routineNames = Object.values(habit.routines ?? {});
 
   // The fortnight is fetched only while the card is open: the list endpoint does not
   // carry the days on purpose, and a screen of habits would otherwise cost a call each.
-  const { from, to } = useMemo(() => stripRange(DAYS_SHOWN, todayInZone(timezone)), [timezone]);
+  const { from, to } = useMemo(() => stripRange(DAYS_SHOWN, anchor), [anchor]);
   const {
     days: historyDays,
     loading: historyLoading,
@@ -59,7 +61,7 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
   // Never checked: the "since" line has nothing to say, so it says that instead of
   // rendering an empty date.
   const sinceLabel = habit.firstCheckInDate
-    ? `${t('Since')} ${formatFirstCheckIn(habit.firstCheckInDate, i18n.language, todayInZone(timezone))}`
+    ? `${t('Since')} ${formatFirstCheckIn(habit.firstCheckInDate, i18n.language, anchor)}`
     : t('NoCheckInsYet');
 
   return (
