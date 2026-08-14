@@ -5,7 +5,8 @@ import { applyRefreshUi } from "../refreshUiThunk";
 import { celebrationPushed } from "../../celebration/celebrationSlice";
 import { refreshCategorie } from "../../category/categoriesSlice";
 import { refreshItemGroup } from "../../routine/todayRoutineSlice";
-import { levelEnter, xpEnter, constanceEnter } from "../perfilSlice";
+import { refreshHabit } from "../../habit/habitsSlice";
+import { levelEnter, xpEnter, constanceEnter, constanceDormantEnter, checkRecorded } from "../perfilSlice";
 
 function makeRefresh(overrides: Partial<RefreshUI["refreshUser"]> = {}): RefreshUI {
   return {
@@ -83,5 +84,49 @@ describe("applyRefreshUi", () => {
     applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
     expect(actions.some((a) => refreshCategorie.match(a) && a.payload.id === "c1")).toBe(true);
     expect(actions.some((a) => refreshItemGroup.match(a) && a.payload.groupItemId === "g1")).toBe(true);
+  });
+
+  it("carries the habit's post-check numbers into the habits slice", () => {
+    const { actions, dispatch } = collect();
+    const payload = makeRefresh();
+    payload.refreshHabit = {
+      id: "h1",
+      xp: 40,
+      level: 2,
+      actualLevelXp: 20,
+      nextLevelXp: 60,
+      currentStreak: 6,
+      bestStreak: 9,
+      totalCheckIns: 33,
+    };
+    applyRefreshUi(payload, dispatch, { level: 3, constance: 7 });
+    const action = actions.find((a) => refreshHabit.match(a));
+    expect(action?.payload).toMatchObject({ id: "h1", currentStreak: 6, bestStreak: 9, totalCheckIns: 33 });
+  });
+
+  it("does not touch the habits slice when the payload carries no habit", () => {
+    const { actions, dispatch } = collect();
+    applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
+    expect(actions.some((a) => refreshHabit.match(a))).toBe(false);
+  });
+
+  it("ticks the check revision so the day strips re-read their history", () => {
+    // The strips fetch once on mount. Without the tick, a check moves the number
+    // and leaves today's square drawn as still open until the next page load.
+    const { actions, dispatch } = collect();
+    applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
+    expect(actions.filter((a) => checkRecorded.match(a))).toHaveLength(1);
+  });
+
+  it("ticks nothing for a payload that refreshed nothing", () => {
+    const { actions, dispatch } = collect();
+    applyRefreshUi({}, dispatch, { level: 1, constance: 0 });
+    expect(actions).toHaveLength(0);
+  });
+
+  it("clears dormancy: a run cannot be paused in the request that just fed it", () => {
+    const { actions, dispatch } = collect();
+    applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
+    expect(actions.some((a) => constanceDormantEnter.match(a) && a.payload === false)).toBe(true);
   });
 });

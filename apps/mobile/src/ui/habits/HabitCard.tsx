@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { ChevronDown, ChevronUp, Flame, Pencil, Trash2 } from 'lucide-react-native';
+import { formatFirstCheckIn, stripRange } from '@beyou/state';
 import type { habit } from '@beyou/types/habit/habitType';
+import CheckStrip, { CheckStripSkeleton } from '../CheckStrip';
+import useCheckHistory from '../useCheckHistory';
+import useTodayInZone from '../useTodayInZone';
+import type { RootState } from '../../store';
 import BeyouIcon from '../BeyouIcon';
 import Card from '../Card';
 import Chip from '../Chip';
@@ -14,6 +20,8 @@ import StatTile from '../StatTile';
 import XpBar from '../XpBar';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { importanceKey, difficultyKey } from './levelLabels';
+
+const DAYS_SHOWN = 14;
 
 interface HabitCardProps {
   habit: habit;
@@ -33,10 +41,28 @@ interface HabitCardProps {
  * que a web aplica abaixo de `md`.
  */
 export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useBeyouTheme();
+  // A day that turns at midnight, so an open card stops asking for yesterday.
+  const anchor = useTodayInZone();
   const [expanded, setExpanded] = useState(false);
   const routineNames = Object.values(habit.routines ?? {});
+
+  // The fortnight is fetched only while the card is open: the list endpoint does not
+  // carry the days on purpose, and a screen of habits would otherwise cost a call each.
+  const { from, to } = useMemo(() => stripRange(DAYS_SHOWN, anchor), [anchor]);
+  const {
+    days: historyDays,
+    loading: historyLoading,
+    error: historyError,
+    today,
+  } = useCheckHistory({ ownerType: 'HABIT', ownerId: habit.id, from, to, enabled: expanded });
+
+  // Never checked: the "since" line has nothing to say, so it says that instead of
+  // rendering an empty date.
+  const sinceLabel = habit.firstCheckInDate
+    ? `${t('Since')} ${formatFirstCheckIn(habit.firstCheckInDate, i18n.language, anchor)}`
+    : t('NoCheckInsYet');
 
   return (
     <Card ref={viewRef}>
@@ -144,15 +170,49 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
         </View>
       ) : null}
 
+      {/* Three tiles, as in the mockup. They wrap on a narrow phone rather than
+          squeezing "melhor: 9" under the number. */}
       {expanded ? (
-        <View className="mt-3 flex-row gap-2">
+        <View className="mt-3 flex-row flex-wrap gap-2">
           <StatTile
-            className="flex-1"
+            className="min-w-[96px] flex-1"
             label={t('Level')}
             value={habit.level}
             hint={`${habit.xp}/${habit.nextLevelXp} XP`}
           />
-          <StatTile className="flex-1" label={t('Constance')} value={habit.constance} hint={t('Days')} />
+          <StatTile
+            className="min-w-[96px] flex-1"
+            label={t('Constance')}
+            value={`${habit.currentStreak} ${t('DaysUnit', { count: habit.currentStreak })}`}
+            hint={
+              habit.streakDormant && habit.currentStreak > 0
+                ? t('StreakPaused')
+                : habit.bestStreak > 0
+                  ? `${t('Best')}: ${habit.bestStreak}`
+                  : undefined
+            }
+          />
+          <StatTile
+            className="min-w-[96px] flex-1"
+            label={t('CheckIns')}
+            value={habit.totalCheckIns}
+            hint={sinceLabel}
+          />
+        </View>
+      ) : null}
+
+      {expanded ? (
+        <View className="mt-3">
+          <Text className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-3">
+            {t('LastTwoWeeks')}
+          </Text>
+          {historyLoading ? (
+            <CheckStripSkeleton length={DAYS_SHOWN} />
+          ) : historyError ? (
+            <Text className="text-[11px] text-text-3">{t('CheckHistoryUnavailable')}</Text>
+          ) : (
+            <CheckStrip days={historyDays} today={today} testID={`check-strip-${habit.id}`} />
+          )}
         </View>
       ) : null}
 
@@ -160,10 +220,16 @@ export default function HabitCard({ habit, onEdit, onDelete, viewRef }: HabitCar
       <View className="mt-3 flex-row items-end gap-3">
         <XpBar className="min-w-0 flex-1" current={habit.xp} target={habit.nextLevelXp} level={habit.level} />
         {/* With no streak there is nothing to celebrate: a dim flame with a zero
-            beside it reads as failure, not as a neutral state. */}
-        {habit.constance > 0 ? (
-          <Chip variant="flame" size="sm" icon={<Flame size={12} color={theme.flame} />}>
-            {habit.constance}
+            beside it reads as failure, not as a neutral state.
+            A dormant run keeps its number but loses the flame — the run has not
+            broken, it just is not burning. */}
+        {habit.currentStreak > 0 ? (
+          <Chip
+            variant={habit.streakDormant ? 'neutral' : 'flame'}
+            size="sm"
+            icon={<Flame size={12} color={habit.streakDormant ? theme.text3 : theme.flame} />}
+          >
+            {habit.currentStreak}
           </Chip>
         ) : null}
       </View>

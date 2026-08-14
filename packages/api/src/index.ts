@@ -17,6 +17,9 @@ export * from './utils/experienceToEnum';
 export * from './agent/agentChats';
 export * from './agent/agentStream';
 
+// Check-day history
+export { default as getCheckHistory } from './checkHistory/getCheckHistory';
+
 // Categories
 export { default as createCategory } from './categories/createCategory';
 export { default as deleteCategory } from './categories/deleteCategory';

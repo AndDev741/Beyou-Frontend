@@ -7,6 +7,7 @@ import {
     phraseEnter,
     phraseAuthorEnter,
     constanceEnter,
+    constanceDormantEnter,
     photoEnter,
     isGoogleAccountEnter,
     widgetsIdInUseEnter,
@@ -37,6 +38,7 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     dispatch(phraseEnter(data.phrase));
     dispatch(phraseAuthorEnter(data.phrase_author));
     dispatch(constanceEnter(data.constance));
+    dispatch(constanceDormantEnter(Boolean(data?.constanceDormant)));
     dispatch(photoEnter(data.photo));
     dispatch(isGoogleAccountEnter(data.isGoogleAccount));
     dispatch(widgetsIdInUseEnter(data.widgetsId));

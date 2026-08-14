@@ -1,55 +1,89 @@
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useSelector } from "react-redux"
 import { Flame } from "lucide-react"
 import type { RootState } from "@beyou/state/rootReducer"
 import BaseDiv from "./baseDiv"
+import CheckStrip, { CheckStripSkeleton } from "../../ui/CheckStrip"
+import useCheckHistory from "../../hooks/useCheckHistory"
 
 export type constanceProps = {
     constance: number;
 }
 
+/** 14 columns × 2 rows. Also the endpoint's own default range, so the call names no dates. */
 const DAYS_SHOWN = 28;
 
 /**
- * Streak: the big number, the record beside it and the strip of the last 28 days.
+ * Streak: the big number, the record beside it, and the last 28 days as they really
+ * went — `GET /check-history` for the account.
  *
- * The API returns no daily history — what we know for certain is the length of the
- * CURRENT streak. So the strip highlights only those days and leaves the rest
- * neutral; the label says so out loud, so nobody reads a dim square as "I failed".
- * When a history endpoint exists, this is where it plugs in.
+ * The strip used to be derived from the number itself, highlighting the last N
+ * squares because that was all the API knew. It now shows the days: which were
+ * done, which were skipped, and the one day that broke the run. Asking for no range
+ * is deliberate — the endpoint's default is exactly these 28 days, ending on the
+ * user's today in the USER's timezone, which is not always the browser's.
  */
 export default function Constance({ constance }: constanceProps) {
     const { t } = useTranslation();
     const best = useSelector((s: RootState) => s.perfil.maxConstance);
-    const streakDays = Math.min(constance, DAYS_SHOWN);
+    const dormant = useSelector((s: RootState) => s.perfil.constanceDormant);
+    const countedToday = useSelector((s: RootState) => s.perfil.alreadyIncreaseConstanceToday);
+    const { days, loading, error, today } = useCheckHistory({ ownerType: "USER" });
+
+    /**
+     * Today's square, lit from the profile rather than from a row.
+     *
+     * A check writes the day of the HABIT it belongs to; the account's own day is
+     * closed by a scheduler hours after midnight, so the account's history has no
+     * row for today and the square would stay open until tomorrow — right after the
+     * user did the thing, next to a number that already moved.
+     *
+     * `alreadyIncreaseConstanceToday` is not a guess at that row: it is the same
+     * fact from the field the check response updates. So the square is only forced
+     * when the profile says today already counted, and stays open otherwise.
+     */
+    const shownDays = useMemo(() => {
+        if (!countedToday) return days;
+        return days.map((day) =>
+            day.day === today && day.outcome === "UNKNOWN" ? { ...day, outcome: "DONE" as const } : day,
+        );
+    }, [days, today, countedToday]);
 
     return (
         <BaseDiv title={t("Constance")} icon={<Flame size={14.5} aria-hidden="true" />}>
             <div className="mt-2.5 flex items-baseline gap-2">
-                <b className="font-mono text-2xl font-semibold tracking-[-0.03em] text-text">{constance}</b>
+                {/* A dormant run keeps its number — it did not break, it stopped moving —
+                    so the number is dimmed and labelled instead of reset. */}
+                <b
+                    className={`font-mono text-2xl font-semibold tracking-[-0.03em] ${dormant ? "text-text-3" : "text-text"}`}
+                    data-testid="constance-value"
+                >
+                    {constance}
+                </b>
                 <span className="text-xs text-text-3">
-                    {t("DaysInARow")}
+                    {t("DaysInARow", { count: constance })}
                     {best > 0 && ` · ${t("Best")}: ${best}`}
                 </span>
             </div>
 
-            <div
-                className="mt-3 grid grid-cols-14 gap-[3px]"
-                role="img"
-                aria-label={t("StreakStripLabel", { days: streakDays, total: DAYS_SHOWN })}
-            >
-                {Array.from({ length: DAYS_SHOWN }, (_, index) => {
-                    // The current streak ends today, so it takes the END of the strip.
-                    const inStreak = index >= DAYS_SHOWN - streakDays;
-                    return (
-                        <i
-                            key={index}
-                            className={`aspect-square rounded-[3px] ${inStreak ? "bg-accent" : "bg-surface-2"}`}
-                        />
-                    );
-                })}
+            {dormant && constance > 0 && (
+                <p className="mt-1 text-[11px] text-text-3" data-testid="constance-dormant">
+                    {t("StreakPausedExplanation")}
+                </p>
+            )}
+
+            <div className="mt-3">
+                {loading ? (
+                    <CheckStripSkeleton length={DAYS_SHOWN} />
+                ) : (
+                    <CheckStrip days={shownDays} today={today} testId="streak-strip" />
+                )}
             </div>
-            <p className="mt-2 text-[10.5px] text-text-3">{t("StreakStripCaption")}</p>
+
+            <p className="mt-2 text-[10.5px] text-text-3">
+                {error ? t("CheckHistoryUnavailable") : t("StreakStripCaption")}
+            </p>
         </BaseDiv>
     )
 }

@@ -8,9 +8,20 @@ type userInitialState = {
     phrase: string;
     phrase_author: string;
     constance: number;
+    /** The account run still stands but nothing has been scheduled for two weeks. */
+    constanceDormant: boolean;
     photo: string;
     isGoogleAccount: boolean;
     checkedItemsInScheduledRoutine: number;
+    /**
+     * Bumped every time a check response is applied.
+     *
+     * The day strips read `GET /check-history` once when they mount, so without
+     * this a check leaves today's square drawn as still-open until the next page
+     * load — the number moved and the picture of it did not. Anything showing a
+     * history keeps this in its fetch dependencies.
+     */
+    checkRevision: number;
     totalItemsInScheduledRoutine: number;
     widgetsIdsInUse: string[];
     // null = no saved preference yet (login / brand-new account). ThemeContext
@@ -34,9 +45,11 @@ const initialState: userInitialState = {
     phrase: "",
     phrase_author: "",
     constance: 0,
+    constanceDormant: false,
     photo: "",
     isGoogleAccount: false,
     checkedItemsInScheduledRoutine: 0,
+    checkRevision: 0,
     totalItemsInScheduledRoutine: 0,
     widgetsIdsInUse: [],
     themeInUse: null,
@@ -69,6 +82,7 @@ const perfilSlice = createSlice({
                 phrase: u.phrase ?? state.phrase,
                 phrase_author: u.phrase_author ?? state.phrase_author,
                 constance: u.constance ?? state.constance,
+                constanceDormant: u.constanceDormant ?? state.constanceDormant,
                 photo: u.photo ?? state.photo,
                 isGoogleAccount: u.isGoogleAccount ?? state.isGoogleAccount,
                 widgetsIdsInUse: u.widgetsId ?? state.widgetsIdsInUse,
@@ -105,6 +119,10 @@ const perfilSlice = createSlice({
             const constance = action.payload;
             return {...state, constance};
         },
+        constanceDormantEnter(state, action){
+            const constanceDormant = Boolean(action.payload);
+            return {...state, constanceDormant};
+        },
         photoEnter(state, action){
             const photo = typeof action.payload === "string" ? action.payload : "";
             return {...state, photo};
@@ -112,6 +130,10 @@ const perfilSlice = createSlice({
         isGoogleAccountEnter(state, action){
             const isGoogleAccount = action.payload;
             return {...state, isGoogleAccount}
+        },
+        /** One check applied. Takes no payload — it is a tick, not a value. */
+        checkRecorded(state){
+            return {...state, checkRevision: state.checkRevision + 1};
         },
         checkedItemsInScheduledRoutineEnter(state, action){
             const checkedItemsInScheduledRoutine = action.payload;
@@ -180,8 +202,10 @@ export const {
     phraseEnter,
     phraseAuthorEnter,
     constanceEnter,
+    constanceDormantEnter,
     photoEnter,
     isGoogleAccountEnter,
+    checkRecorded,
     checkedItemsInScheduledRoutineEnter,
     totalItemsInScheduledRoutineEnter,
     widgetsIdInUseEnter,

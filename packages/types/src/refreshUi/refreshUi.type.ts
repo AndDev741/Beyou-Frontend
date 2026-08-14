@@ -20,7 +20,18 @@ type refreshObject = {
     xp: number,
     level:number,
     actualLevelXp: number,
-    nextLevelXp: number
+    nextLevelXp: number,
+    /**
+     * The habit's check scalars, post-check, so the card repaints without a second
+     * `GET /habit` — which matters most at the exact moment the number changes.
+     *
+     * Optional because owners that are earned into but never checked (categories)
+     * report zeros here, and because a response cached before this shipped has no
+     * such fields. A reader must fall back to what it already had, not to zero.
+     */
+    currentStreak?: number,
+    bestStreak?: number,
+    totalCheckIns?: number
 }
 
 type refreshItemChecked = {

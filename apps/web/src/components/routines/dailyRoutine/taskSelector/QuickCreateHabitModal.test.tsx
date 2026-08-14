@@ -54,7 +54,11 @@ test("creates habit and returns new id", async () => {
                 level: 0,
                 nextLevelXp: 0,
                 actualLevelXp: 0,
-                constance: 0,
+                currentStreak: 0,
+                bestStreak: 0,
+                totalCheckIns: 0,
+                firstCheckInDate: null,
+                streakDormant: false,
                 createdAt: new Date(0),
                 updatedAt: new Date(0)
             }

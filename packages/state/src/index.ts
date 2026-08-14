@@ -16,8 +16,10 @@ export {
   phraseEnter,
   phraseAuthorEnter,
   constanceEnter,
+  constanceDormantEnter,
   photoEnter,
   isGoogleAccountEnter,
+  checkRecorded,
   checkedItemsInScheduledRoutineEnter,
   totalItemsInScheduledRoutineEnter,
   widgetsIdInUseEnter,
@@ -52,6 +54,30 @@ export type { ApplyRefreshUiOptions, PreviousProgress } from './user/refreshUiTh
 export { getGreetingKey, calculateLevelProgress } from './dashboard/helpers';
 export type { GreetingKey } from './dashboard/helpers';
 
+// check-day history (pure, platform-agnostic)
+export {
+  OUTCOME_LABEL_KEY,
+  TODAY_OPEN_LABEL_KEY,
+  checkDayTone,
+  checkDayLabelKey,
+  stripRange,
+  heatmapRange,
+  weekAlignedCells,
+  takeLastDays,
+  countDone,
+} from './checkday/checkStrip';
+export type { CheckTone } from './checkday/checkStrip';
+export { formatFirstCheckIn } from './checkday/formatCheckDate';
+export {
+  todayInZone,
+  addDaysIso,
+  weekdayIndexIso,
+  daysBetweenIso,
+  isIsoDay,
+  msUntilNextMidnight,
+  MS_PER_DAY,
+} from './date/isoDay';
+
 // dashboard widgets (ids shared by web + mobile)
 export { WIDGET_IDS, BIG_WIDGETS } from './dashboard/widgets';
 export type { WidgetId } from './dashboard/widgets';
@@ -84,7 +110,7 @@ export {
 } from './goal/editGoalSlice';
 
 // habits
-export { enterHabits } from './habit/habitsSlice';
+export { enterHabits, refreshHabit } from './habit/habitsSlice';
 // editHabitSlice: editModeEnter, editIdEnter, editNameEnter, editDescriptionEnter, editIconIdEnter,
 //   editImportanceEnter, editDificultyEnter, editCaegoriesIdEnter collide — import via deep path @beyou/state/habit/editHabitSlice
 export { editMotivationalPhraseEnter } from './habit/editHabitSlice';

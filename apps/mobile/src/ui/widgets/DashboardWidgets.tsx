@@ -7,6 +7,7 @@ import { LayoutGrid } from 'lucide-react-native';
 import type { WidgetId } from '@beyou/state';
 import type category from '@beyou/types/category/categoryType';
 import ConstanceWidget from './ConstanceWidget';
+import ConstanceHeatmapWidget from './ConstanceHeatmapWidget';
 import LevelProgressWidget from './LevelProgressWidget';
 import { BetterAreaWidget, WorstAreaWidget } from './AreaWidget';
 import FastTipsWidget from './FastTipsWidget';
@@ -74,6 +75,7 @@ export default function DashboardWidgets() {
   const widgetMap: Record<WidgetId, () => React.ReactElement> = {
     worstArea: () => <WorstAreaWidget category={categoryWithLessXp} />,
     constance: () => <ConstanceWidget constance={constance} />,
+    constanceHeatmap: () => <ConstanceHeatmapWidget />,
     betterArea: () => <BetterAreaWidget category={categoryWithMoreXp} />,
     dailyProgress: () => <DailyProgressWidget checked={checked} total={total} />,
     fastTips: () => <FastTipsWidget />,

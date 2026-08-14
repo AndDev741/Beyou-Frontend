@@ -3,6 +3,8 @@ import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import {
   actualLevelXpEnter,
   alreadyIncreaseConstanceTodayEnter,
+  checkRecorded,
+  constanceDormantEnter,
   constanceEnter,
   levelEnter,
   maxConstanceEnter,
@@ -10,6 +12,7 @@ import {
   xpEnter,
 } from "./perfilSlice";
 import { refreshCategorie } from "../category/categoriesSlice";
+import { refreshHabit } from "../habit/habitsSlice";
 import { refreshItemGroup } from "../routine/todayRoutineSlice";
 import { celebrationPushed } from "../celebration/celebrationSlice";
 import { STREAK_MILESTONES } from "../gamification/streakMilestones";
@@ -60,6 +63,10 @@ export function applyRefreshUi(
     dispatch(alreadyIncreaseConstanceTodayEnter(refreshUser.alreadyIncreaseConstanceToday));
     dispatch(nextLevelXpEnter(refreshUser.nextLevelXp));
     dispatch(actualLevelXpEnter(refreshUser.actualLevelXp));
+    // The refresh payload has no dormancy flag, and does not need one: a run cannot
+    // be dormant in the same request that just checked something off. Clearing it
+    // here keeps a "paused" label from surviving the check that resumed the run.
+    dispatch(constanceDormantEnter(false));
   }
 
   if (refreshUi.refreshCategories && refreshUi.refreshCategories.length > 0) {
@@ -68,7 +75,30 @@ export function applyRefreshUi(
     });
   }
 
+  // The habit's own numbers, streak included, so its card repaints from this
+  // response rather than the next GET /habit — which is the moment the streak
+  // matters most.
+  if (refreshUi.refreshHabit) {
+    dispatch(refreshHabit(refreshUi.refreshHabit));
+  }
+
   if (refreshUi.refreshItemChecked) {
     dispatch(refreshItemGroup(refreshUi.refreshItemChecked));
+  }
+
+  // A response that carried something is a check as far as a day strip is
+  // concerned: the strips fetch once on mount, so without this tick today's square
+  // stays drawn as still-open while the number beside it has already moved. Any
+  // field counts rather than only an item check — a spurious refetch of 28 days is
+  // cheaper than a strip that lies, and identical in-flight queries are shared. A
+  // payload that refreshed nothing ticks nothing.
+  const refreshedSomething = Boolean(
+    refreshUi.refreshUser ||
+      refreshUi.refreshHabit ||
+      refreshUi.refreshItemChecked ||
+      refreshUi.refreshCategories?.length,
+  );
+  if (refreshedSomething) {
+    dispatch(checkRecorded());
   }
 }

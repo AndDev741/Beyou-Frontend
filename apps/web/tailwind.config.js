@@ -55,6 +55,10 @@ module.exports = {
         // the streak strip: 14 columns x 2 rows = 28 days
         14: "repeat(14, minmax(0, 1fr))",
       },
+      gridTemplateRows: {
+        // the constance heatmap: one row per weekday, columns flow week by week
+        7: "repeat(7, minmax(0, 1fr))",
+      },
       borderRadius: {
         // One radius family per layer.
         frame: "24px",
