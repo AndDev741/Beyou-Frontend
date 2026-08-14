@@ -10,6 +10,7 @@ import IconButton from '../IconButton';
 import IconTile from '../IconTile';
 import XpBar from '../XpBar';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import GoalProgressModal from './GoalProgressModal';
 import { useGoalActions } from './useGoalActions';
 import { formatGoalDeadline } from '@beyou/state';
 
@@ -60,6 +61,7 @@ export default function GoalCard({
   const { increase, decrease, complete } = useGoalActions();
   const [expanded, setExpanded] = useState(initialExpanded ?? false);
   const [pending, setPending] = useState(false);
+  const [progressOpen, setProgressOpen] = useState(false);
 
   const isCompleted = goal.status === 'COMPLETED';
   // "Complete" is what pays the XP, so it only shows once the target is hit;
@@ -80,6 +82,23 @@ export default function GoalCard({
     setPending(false);
   };
 
+  const counterText = `${goal.currentValue}/${goal.targetValue} ${goal.unit ?? ''}`;
+  // Read-only cards (the dashboard carousel) keep the plain number: there is
+  // nothing to press there.
+  const counter = readonly ? (
+    <Text className="shrink-0 font-mono-semibold text-xs text-text-2">{counterText}</Text>
+  ) : (
+    <Pressable
+      onPress={() => setProgressOpen(true)}
+      accessibilityRole="button"
+      accessibilityLabel={`${t('UpdateProgress')}: ${counterText}`}
+      testID={`goal-counter-${goal.id}`}
+      className="shrink-0 rounded-control px-1 py-1 active:bg-surface-2"
+    >
+      <Text className="font-mono-semibold text-xs text-text-2">{counterText}</Text>
+    </Pressable>
+  );
+
   return (
     <Card
       tone={isCompleted ? 'success' : 'default'}
@@ -94,11 +113,13 @@ export default function GoalCard({
         {/* Title and badges share what is left: the chips wrap to the line below
             instead of squeezing the goal's name down to three letters. */}
         <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-x-2 gap-y-1">
+          {/* Closed, the name gives way to the chips on one line; open, it is
+              shown whole — same as the web card. */}
           <Text
             className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug ${
               isCompleted ? 'text-text-3' : 'text-text'
             }`}
-            numberOfLines={1}
+            numberOfLines={expanded ? undefined : 1}
           >
             {goal.name}
           </Text>
@@ -206,9 +227,7 @@ export default function GoalCard({
 
         {targetReached || isCompleted ? (
           <>
-            <Text className="shrink-0 font-mono-semibold text-xs text-text-2">
-              {`${goal.currentValue}/${goal.targetValue} ${goal.unit ?? ''}`}
-            </Text>
+            {counter}
             {!readonly ? (
               <Pressable
                 onPress={() => run(() => complete(goal.id), true)}
@@ -239,12 +258,27 @@ export default function GoalCard({
             >
               <Plus size={16} color={theme.text2} />
             </IconButton>
-            <Text className="shrink-0 font-mono-semibold text-xs text-text-2">
-              {`${goal.currentValue}/${goal.targetValue} ${goal.unit ?? ''}`}
-            </Text>
+            {counter}
           </>
         )}
       </View>
+
+      {!readonly ? (
+        <GoalProgressModal
+          visible={progressOpen}
+          name={goal.name}
+          currentValue={goal.currentValue}
+          targetValue={goal.targetValue}
+          unit={goal.unit}
+          onClose={() => setProgressOpen(false)}
+          onApply={(amount, direction) =>
+            direction === 'increase'
+              ? increase(goal.id, amount).then(() => undefined)
+              : decrease(goal.id, amount).then(() => undefined)
+          }
+          testID={`goal-progress-${goal.id}`}
+        />
+      ) : null}
 
       {/* The at-a-glance footer: term on the left, deadline on the right. */}
       <View className="flex-row items-center justify-between gap-2">

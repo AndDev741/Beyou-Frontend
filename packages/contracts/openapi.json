@@ -495,8 +495,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
-                "format": "uuid"
+                "$ref": "#/components/schemas/UpdateGoalValueDTO"
               }
             }
           },
@@ -526,8 +525,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string",
-                "format": "uuid"
+                "$ref": "#/components/schemas/UpdateGoalValueDTO"
               }
             }
           },
@@ -4702,6 +4700,23 @@
             "type": "string"
           }
         }
+      },
+      "UpdateGoalValueDTO": {
+        "type": "object",
+        "properties": {
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "value": {
+            "type": "number",
+            "format": "double",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "goalId"
+        ]
       }
     }
   }

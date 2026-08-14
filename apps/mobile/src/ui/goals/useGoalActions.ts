@@ -10,7 +10,8 @@ import { notify } from '../../notify';
 import type { AppDispatch, RootState } from '../../store';
 
 /**
- * Goal progress actions. increase/decrease bump currentValue by 1 and return the
+ * Goal progress actions. increase/decrease move currentValue by `amount` (1 from
+ * the card's +/-, whatever the user typed from the progress modal) and return the
  * updated goal (no XP) → patched straight into the slice. complete awards XP and
  * returns a RefreshUI → piped through the shared applyRefreshUi (perfil + categories).
  */
@@ -19,9 +20,9 @@ export function useGoalActions() {
   const store = useStore<RootState>();
   const { t } = useTranslation();
 
-  const increase = useCallback(async (id: string) => {
+  const increase = useCallback(async (id: string, amount = 1) => {
     try {
-      dispatch(updateGoal(await increaseCurrentValue(id, t)));
+      dispatch(updateGoal(await increaseCurrentValue(id, t, amount)));
       return true;
     } catch {
       notify.error(t('UnexpectedError'));
@@ -29,9 +30,9 @@ export function useGoalActions() {
     }
   }, [dispatch, t]);
 
-  const decrease = useCallback(async (id: string) => {
+  const decrease = useCallback(async (id: string, amount = 1) => {
     try {
-      dispatch(updateGoal(await decreaseCurrentValue(id, t)));
+      dispatch(updateGoal(await decreaseCurrentValue(id, t, amount)));
       return true;
     } catch {
       notify.error(t('UnexpectedError'));

@@ -42,10 +42,15 @@ interface GoalFormProps {
   onSaved: () => void;
 }
 
+/**
+ * The two open statuses, the same pair the web offers. COMPLETED is not here:
+ * completing belongs to the card's Complete/Undo button, the one path that pays
+ * and takes back the XP. Picking it in a form used to leave `complete` false and
+ * the goal's own Undo button then completed it instead of undoing.
+ */
 const STATUS = [
   { value: 'NOT_STARTED', key: 'Not Started' },
   { value: 'IN_PROGRESS', key: 'In Progress' },
-  { value: 'COMPLETED', key: 'Completed' },
 ] as const;
 const TERM = [
   { value: 'SHORT_TERM', key: 'Short Term' },
@@ -92,6 +97,14 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
       term: goal?.term || 'SHORT_TERM',
     });
   }, [visible, goal, reset]);
+
+  // A completed goal shows its status and nothing more: the segment is there so
+  // the state is readable, disabled so the only way out stays the card's Undo,
+  // which is what gives the XP back.
+  const isCompletedGoal = goal?.status === 'COMPLETED';
+  const statusOptions = isCompletedGoal
+    ? [{ value: 'COMPLETED', label: t('Completed'), disabled: true }]
+    : STATUS.map((option) => ({ value: option.value as string, label: t(option.key) }));
 
   const onSubmit = async (v: GoalFormValues) => {
     const target = Number(v.targetValue) || 0;
@@ -253,22 +266,31 @@ export default function GoalForm({ visible, mode, goal, categories, onClose, onS
         />
       </View>
 
-      <FormField label={t('Status')} error={errors.status?.message}>
-        <Controller
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <SegmentedControl
-              label={t('Status')}
-              value={field.value}
-              onChange={field.onChange}
-              size="sm"
-              options={STATUS.map((option) => ({ value: option.value, label: t(option.key) }))}
-              testID="goal-status"
-            />
-          )}
-        />
-      </FormField>
+      {/* Create always starts NOT_STARTED — the first increment is what starts a
+          goal. On edit the field is back, because taking a wrong increment back is
+          only possible here. */}
+      {isEdit ? (
+        <FormField
+          label={t('Status')}
+          error={errors.status?.message}
+          hint={isCompletedGoal ? t('GoalStatusLockedByCompletion') : undefined}
+        >
+          <Controller
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <SegmentedControl
+                label={t('Status')}
+                value={field.value}
+                onChange={field.onChange}
+                size="sm"
+                options={statusOptions}
+                testID="goal-status"
+              />
+            )}
+          />
+        </FormField>
+      ) : null}
 
       <FormField label={t('Term')} error={errors.term?.message}>
         <Controller

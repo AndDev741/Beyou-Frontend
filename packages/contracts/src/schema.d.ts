@@ -1775,6 +1775,12 @@ export interface components {
         CreateFeedbackReplyRequest: {
             body: string;
         };
+        UpdateGoalValueDTO: {
+            /** Format: uuid */
+            goalId: string;
+            /** Format: double */
+            value?: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -2189,7 +2195,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": string;
+                "application/json": components["schemas"]["UpdateGoalValueDTO"];
             };
         };
         responses: {
@@ -2213,7 +2219,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": string;
+                "application/json": components["schemas"]["UpdateGoalValueDTO"];
             };
         };
         responses: {

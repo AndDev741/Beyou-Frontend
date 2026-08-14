@@ -60,9 +60,13 @@ const defaultValues: GoalFormValues = {
  * The mockup's form: name, description, motivation, icon, target + unit, period
  * (start/end), term as a segmented control, and categories.
  *
- * "Current progress" and "status" stay out on purpose: progress starts at 0 and
- * climbs through the card's stepper, and the status derives from it — editing
- * either by hand would break the integrity of the XP.
+ * "Current progress" stays out on purpose: it starts at 0 and climbs through the
+ * card's stepper. Status is derived the same way (the first increment starts the
+ * goal), so it has no field on create either — but an edit can set it back, which
+ * is the only way to say a goal you moved by accident never started.
+ *
+ * COMPLETED is not on offer here. Completion is the card's Complete/Undo button,
+ * the one path that pays and takes back the XP.
  */
 function GoalForm({ mode, onClose }: GoalFormProps) {
     const dispatch = useDispatch();
@@ -207,6 +211,17 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
             toast.error(response.validation);
         }
     };
+
+    // A completed goal shows its status and nothing more: the segments are there
+    // so the state is readable, disabled so the only way out stays the card's Undo,
+    // which is what gives the XP back.
+    const isCompletedGoal = statusEdit === "COMPLETED";
+    const statusOptions = isCompletedGoal
+        ? [{ value: "COMPLETED", label: t("Completed"), disabled: true }]
+        : [
+              { value: "NOT_STARTED", label: t("Not Started") },
+              { value: "IN_PROGRESS", label: t("In Progress") },
+          ];
 
     // No width here: the caller decides (w-full on loose fields, flex on
     // two-field rows). With `w-full` baked in, the unit's `flex-1` and the
@@ -391,6 +406,30 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                     )}
                 />
             </div>
+
+            {mode === "edit" && (
+                <div className="mt-4">
+                    <span className={labelClass}>{t("Status")}</span>
+                    <Controller
+                        control={control}
+                        name="status"
+                        render={({ field }) => (
+                            <SegmentedControl
+                                className="w-full"
+                                label={t("Status")}
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={statusOptions}
+                            />
+                        )}
+                    />
+                    {isCompletedGoal && (
+                        <span className="mt-1.5 block text-[10.5px] text-text-3">
+                            {t("GoalStatusLockedByCompletion")}
+                        </span>
+                    )}
+                </div>
+            )}
 
             <div className="mt-4">
                 <span className={labelClass}>{t("Categories")}</span>

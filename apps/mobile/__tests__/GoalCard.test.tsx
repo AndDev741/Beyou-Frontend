@@ -53,7 +53,47 @@ describe('GoalCard', () => {
     await act(async () => {
       fireEvent.press(screen.getByTestId('goal-increase-g1'));
     });
-    await waitFor(() => expect(put).toHaveBeenCalledWith('/goal/increase', 'g1', expect.anything()));
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/increase', { goalId: 'g1', value: 1 }, expect.anything()),
+    );
+  });
+
+  it('the counter opens the progress modal, which moves by the typed amount', async () => {
+    await wrap(<GoalCard goal={goal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-counter-g1'));
+    });
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('goal-progress-g1-amount'), '40');
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-progress-g1-add'));
+    });
+
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/increase', { goalId: 'g1', value: 40 }, expect.anything()),
+    );
+    // Applying closes the modal, so the card is readable again.
+    await waitFor(() => expect(screen.queryByTestId('goal-progress-g1')).toBeNull());
+  });
+
+  it('the progress modal also removes an amount', async () => {
+    await wrap(<GoalCard goal={goal} onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-counter-g1'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-progress-g1-quick-5'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('goal-progress-g1-remove'));
+    });
+
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/decrease', { goalId: 'g1', value: 5 }, expect.anything()),
+    );
   });
 
   it('withholds Complete until the target is reached', async () => {

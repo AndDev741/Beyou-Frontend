@@ -78,6 +78,11 @@ describe('GoalForm create', () => {
     await act(async () => { fireEvent.press(screen.getByTestId('goal-form-submit')); }); // no title/icon/unit/dates
     expect(post).not.toHaveBeenCalled();
   });
+
+  it('has no status field: a new goal always starts not started', async () => {
+    await wrap(<GoalForm visible mode="create" categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
+    expect(screen.queryByTestId('goal-status')).toBeNull();
+  });
 });
 
 describe('GoalForm edit', () => {
@@ -96,5 +101,22 @@ describe('GoalForm edit', () => {
     expect(url).toBe('/goal');
     expect(body).toMatchObject({ goalId: 'g1', name: 'Read 20 books', targetValue: 12, unit: 'books', status: 'IN_PROGRESS', term: 'LONG_TERM' });
     expect(onSaved).toHaveBeenCalled();
+  });
+
+  it('offers the two open statuses, so a wrong increment can be taken back', async () => {
+    await wrap(<GoalForm visible mode="edit" goal={goalFixture} categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
+
+    expect(screen.getByTestId('goal-status-NOT_STARTED')).toBeTruthy();
+    expect(screen.getByTestId('goal-status-IN_PROGRESS')).toBeTruthy();
+    // Completing is the card's button, not a form field: that is where the XP moves.
+    expect(screen.queryByTestId('goal-status-COMPLETED')).toBeNull();
+  });
+
+  it('locks the status of a completed goal, pointing at the card Undo', async () => {
+    const completed = { ...(goalFixture as object), status: 'COMPLETED', complete: true } as never;
+    await wrap(<GoalForm visible mode="edit" goal={completed} categories={categories} onClose={jest.fn()} onSaved={jest.fn()} />);
+
+    expect(screen.getByTestId('goal-status-COMPLETED').props.accessibilityState.disabled).toBe(true);
+    expect(screen.queryByTestId('goal-status-IN_PROGRESS')).toBeNull();
   });
 });

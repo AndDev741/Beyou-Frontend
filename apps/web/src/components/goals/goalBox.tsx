@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { goal as GoalType } from "@beyou/types/goals/goalType";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import DeleteModal from "../DeleteModal";
+import GoalProgressModal from "./GoalProgressModal";
 import getGoals from "@beyou/api/goals/getGoals";
 import deleteGoal from "@beyou/api/goals/deleteGoal";
 import { CalendarDays, ChevronDown, ChevronUp, Minus, Pencil, Plus, Trash2 } from "lucide-react";
@@ -80,6 +81,7 @@ function GoalBox({
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
+  const [progressOpen, setProgressOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
@@ -159,14 +161,22 @@ function GoalBox({
     dispatch(enterGoals(goals.success));
   }
 
-  const increaseTask = async (id: string) => {
-    const goal = await increaseCurrentValue(id, t);
+  const increaseTask = async (id: string, amount = 1) => {
+    const goal = await increaseCurrentValue(id, t, amount);
     mountGoalWithNewValues(goal);
   }
 
-  const decreaseTask = async (id: string) => {
-    const goal = await decreaseCurrentValue(id, t);
+  const decreaseTask = async (id: string, amount = 1) => {
+    const goal = await decreaseCurrentValue(id, t, amount);
     mountGoalWithNewValues(goal);
+  }
+
+  const applyProgress = async (amount: number, direction: "increase" | "decrease") => {
+    if (direction === "increase") {
+      await increaseTask(id, amount);
+      return;
+    }
+    await decreaseTask(id, amount);
   }
 
   const mountGoalWithNewValues = (goal: GoalType) => {
@@ -174,6 +184,23 @@ function GoalBox({
   }
 
   const isCompleted = status === "COMPLETED";
+
+  const counterText = `${currentValue}/${targetValue} ${unit}`;
+  // Read-only cards (the dashboard carousel) keep the plain number: there is
+  // nothing to press there.
+  const counter = readonly ? (
+    <span className="shrink-0 font-mono text-xs font-semibold text-text-2">{counterText}</span>
+  ) : (
+    <button
+      type="button"
+      onClick={() => setProgressOpen(true)}
+      title={t("UpdateProgress")}
+      aria-label={`${t("UpdateProgress")}: ${counterText}`}
+      className="shrink-0 rounded-control px-1 font-mono text-xs font-semibold text-text-2 underline-offset-4 transition-colors duration-200 hover:text-accent hover:underline focus:outline-none focus:ring-2 focus:ring-accent/40"
+    >
+      {counterText}
+    </button>
+  );
 
   return (
     <Card
@@ -188,10 +215,14 @@ function GoalBox({
         {/* Title and badges share what is left: the chips wrap to the line below
             instead of squeezing the goal's name down to three letters. */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+          {/* Closed, the name gives way to the chips on one line; open, it is
+              shown whole. A goal called "Regularizar-me em Portugal" was being
+              cut to "Regularizar-me em..." with no way to read the rest. */}
           <h2
-            className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug line-clamp-1 ${
-              isCompleted ? "text-text-3" : "text-text"
-            }`}
+            title={title}
+            className={`min-w-[7rem] flex-1 text-[15px] font-semibold leading-snug ${
+              expanded ? "" : "line-clamp-1"
+            } ${isCompleted ? "text-text-3" : "text-text"}`}
           >
             {title}
           </h2>
@@ -266,7 +297,8 @@ function GoalBox({
 
       {/* Stepper: -/+ around the bar, with the value in mono on the right. Once the
           target is met the + gives way to Complete (that is what pays the XP); once
-          completed, the same button becomes Undo. */}
+          completed, the same button becomes Undo. The counter opens the modal for
+          a jump the +/- would take twenty presses to reach. */}
       <div className="mt-auto flex items-center gap-2 pt-1">
         <IconButton
           label={t("Decrease")}
@@ -280,9 +312,7 @@ function GoalBox({
 
         {targetReached || isCompleted ? (
           <>
-            <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
-              {currentValue}/{targetValue} {unit}
-            </span>
+            {counter}
             {!readonly && (
               <Button
                 text={isCompleted ? t("Undo") : t("Complete")}
@@ -301,9 +331,7 @@ function GoalBox({
             >
               <Plus size={16} aria-hidden="true" />
             </IconButton>
-            <span className="shrink-0 font-mono text-xs font-semibold text-text-2">
-              {currentValue}/{targetValue} {unit}
-            </span>
+            {counter}
           </>
         )}
       </div>
@@ -313,6 +341,16 @@ function GoalBox({
         <span>{termPhrase}</span>
         <span>{t("Until")} {formatDate(endDate.toString())}</span>
       </div>
+
+      <GoalProgressModal
+        isOpen={progressOpen}
+        onClose={() => setProgressOpen(false)}
+        name={title}
+        currentValue={currentValue}
+        targetValue={targetValue}
+        unit={unit}
+        onApply={applyProgress}
+      />
 
       <DeleteModal
         objectId={id}
