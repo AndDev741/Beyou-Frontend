@@ -23,7 +23,7 @@ name: Mobile APK
 # Generate the keystore + base64 (run locally, keep the .keystore file safe):
 #   keytool -genkeypair -v -keystore beyou.keystore -alias beyou \
 #     -keyalg RSA -keysize 2048 -validity 10000 \
-#     -storepass <pw> -keypass <pw> -dname "CN=BeYou"
+#     -storepass <pw> -keypass <pw> -dname "CN=Beyou"
 #   base64 -w0 beyou.keystore   # paste output into ANDROID_KEYSTORE_BASE64
 
 on:
@@ -116,7 +116,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: mobile-latest
-          name: BeYou Mobile (latest)
+          name: Beyou Mobile (latest)
           files: beyou-latest.apk
           body: |
             Auto-built from `${{ github.sha }}` on push to main.

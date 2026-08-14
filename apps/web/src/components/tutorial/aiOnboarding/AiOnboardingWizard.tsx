@@ -522,7 +522,7 @@ function ErrorBanner({ onRetry, onTakeTour, t }: ErrorBannerProps) {
     );
 }
 
-/** BeYou-mechanics tips rotated while the AI thinks, so waiting teaches the app. */
+/** Beyou-mechanics tips rotated while the AI thinks, so waiting teaches the app. */
 export const BUSY_TIP_KEYS = [
     "AiOnboardingTipXp",
     "AiOnboardingTipStreak",

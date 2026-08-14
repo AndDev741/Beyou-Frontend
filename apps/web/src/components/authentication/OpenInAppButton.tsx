@@ -7,7 +7,7 @@ type OpenInAppButtonProps = {
 };
 
 /**
- * "Open in the BeYou app" deep-link button. Renders only on a mobile device and
+ * "Open in the Beyou app" deep-link button. Renders only on a mobile device and
  * only when a token is present — on desktop (or without a token) it renders
  * nothing, so the page falls back to the normal web flow.
  */
