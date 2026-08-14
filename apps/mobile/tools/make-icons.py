@@ -161,6 +161,11 @@ def targets(fonts_dir):
 
 
 def generate(fonts_dir):
+    # Resolve the fonts before writing anything: og-image.png is the only
+    # font-dependent target and is built last, so failing here keeps a bad
+    # --fonts-dir from leaving a mixed old/new asset set on disk.
+    ImageFont.truetype(os.path.join(fonts_dir, "Geist-SemiBold.ttf"), 84)
+    ImageFont.truetype(os.path.join(fonts_dir, "Geist-Regular.ttf"), 32)
     for path, build in targets(fonts_dir):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         build().save(path)
@@ -171,14 +176,18 @@ def generate(fonts_dir):
 # ---------------------------------------------------------------- check mode
 
 def solid_pixel(im):
-    """Coordinates of the first fully opaque pixel (alpha == 255)."""
-    idx = list(im.getchannel("A").getdata()).index(255)
+    """Coordinates of the first fully opaque pixel, or None if there is none."""
+    try:
+        idx = im.getchannel("A").tobytes().index(255)
+    except ValueError:
+        return None
     return (idx % im.width, idx // im.width)
 
 
 def opaque_colors(im):
     """The set of RGB values used by non-transparent pixels."""
-    return {(r, g, b) for r, g, b, a in im.convert("RGBA").getdata() if a > 0}
+    counted = im.getcolors(im.width * im.height) or []
+    return {color[:3] for _count, color in counted if color[3] > 0}
 
 
 def check():
@@ -194,25 +203,37 @@ def check():
         except FileNotFoundError:
             fails.append("missing file: " + os.path.relpath(path, ROOT))
             return None
+        except (OSError, ValueError) as exc:
+            fails.append("unreadable file: %s (%s)" % (os.path.relpath(path, ROOT), exc))
+            return None
 
     p = lambda *parts: os.path.join(*parts)
-    dims = {
-        p(ASSETS, "icon.png"): (1024, 1024),
-        p(ASSETS, "android-icon-foreground.png"): (1024, 1024),
-        p(ASSETS, "android-icon-background.png"): (1024, 1024),
-        p(ASSETS, "android-icon-monochrome.png"): (1024, 1024),
-        p(ASSETS, "favicon.png"): (196, 196),
-        p(ASSETS, "splash-icon.png"): (1024, 1024),
-        p(ASSETS, "splash-icon-dark.png"): (1024, 1024),
-        p(WEB, "apple-touch-icon.png"): (180, 180),
-        p(WEB, "og-image.png"): (1200, 630),
+    # The file list derives from targets() so a new asset cannot ship
+    # unchecked; only its expected size needs registering here.
+    expected_sizes = {
+        "icon.png": (1024, 1024),
+        "android-icon-foreground.png": (1024, 1024),
+        "android-icon-background.png": (1024, 1024),
+        "android-icon-monochrome.png": (1024, 1024),
+        "favicon.png": (196, 196),
+        "splash-icon.png": (1024, 1024),
+        "splash-icon-dark.png": (1024, 1024),
+        "apple-touch-icon.png": (180, 180),
+        "og-image.png": (1200, 630),
     }
     ims = {}
-    for path, size in dims.items():
+    dims = {}
+    for path, _build in targets(p(ASSETS, "fonts")):
+        base = os.path.basename(path)
+        size = expected_sizes.get(base)
+        if size is None:
+            fails.append("no expected size registered for " + base)
+            continue
+        dims[path] = size
         im = load(path)
         if im is None:
             continue
-        ims[os.path.basename(path)] = im
+        ims[base] = im
         expect(im.size == size, "%s size %s, expected %s"
                % (os.path.relpath(path, ROOT), im.size, size))
 
@@ -260,7 +281,11 @@ def check():
         im = ims.get(name)
         if im is None:
             continue
-        got = im.getpixel(solid_pixel(im))
+        at = solid_pixel(im)
+        if at is None:
+            expect(False, "%s has no fully opaque pixel to sample" % name)
+            continue
+        got = im.getpixel(at)
         expect(got[:3] == want, "%s glyph pixel %s != %s" % (name, got, tok))
 
     apple = ims.get("apple-touch-icon.png")
@@ -284,7 +309,8 @@ def check():
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",
                     help="verify the committed files, write nothing")
     ap.add_argument("--fonts-dir", default=os.path.join(ASSETS, "fonts"),

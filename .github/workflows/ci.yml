@@ -46,6 +46,12 @@ jobs:
       - name: Contract drift check
         run: npm --workspace @beyou/contracts run check
 
+      - name: Brand asset check
+        # Committed raster brand assets must match the generator's pixel spec.
+        run: |
+          pip install --quiet pillow
+          python3 apps/mobile/tools/make-icons.py --check
+
       - name: Audit dependencies (warn only)
         # Doesn't fail the build — npm audit is noisy. Visible in logs.
         run: npm audit --audit-level=high

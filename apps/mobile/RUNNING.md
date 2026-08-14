@@ -49,7 +49,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 > There is no `./mvnw` wrapper in this repo — use the globally installed `mvn`.
 
-Wait for the log line `Started BeYouApplication` before launching the app.
+Wait for the log line `Started BackendApplication` before launching the app.
 
 ---
 
