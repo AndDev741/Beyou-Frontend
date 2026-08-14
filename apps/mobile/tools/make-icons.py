@@ -7,11 +7,17 @@
 Run from the repo root. Fonts default to apps/mobile/assets/fonts/ and can be
 overridden with --fonts-dir (needs Geist-SemiBold.ttf and Geist-Regular.ttf).
 
-The mark is lifted verbatim from site/tools/make-og.py brand(): a ring drawn as
-an arc from -61 to 298 degrees plus a check polyline through (22,33), (29,40),
-(43,26) on the 48-unit grid (u = 2r / 48), stroke width 5 at r=17 scaled
-linearly (width = 5r/17, i.e. 5/34 of the ring diameter). Keeping every asset
-on this one function is the point: the mark cannot drift between files.
+The mark follows the authoritative SVG reference, apps/web/public/favicon.svg
+(64-unit viewBox, center (32,32)): a ring at stroke-center radius 24 with
+stroke width 8 (annulus 20..28, OUTER diameter 56 units), round caps, whose
+dash covers 298.4 degrees clockwise from 3 o'clock leaving the ~61.6-degree
+signature opening across the north-east; plus a check polyline through
+(22,33) -> (29,40) -> (43,26) at the same stroke with round caps and joins.
+brand() parameterizes on D = the ring's OUTER diameter (u = D/56, w = 8u).
+PIL arc widths grow INWARD from the bbox ellipse, so the arc bbox sits at
+outer radius 28u and the annulus lands on 20u..28u exactly like the SVG's
+stroke-centered circle. Keeping every asset on this one function is the
+point: the mark cannot drift between files.
 
 Glyph scales (ring outer diameter, measured off the previous committed assets
 so nothing moves visually):
@@ -33,6 +39,7 @@ Output is deterministic: Pillow's default PNG encoder embeds no timestamps and
 every draw is pure math over these constants.
 """
 import argparse
+import math
 import os
 import sys
 
@@ -56,14 +63,28 @@ SS = 4  # supersampling factor for the anti-aliased glyph masks
 TAGLINE = "Habits, routines and goals with progress you feel"
 
 
-def brand(d, x, y, r, fill):
-    """Verbatim geometry from site/tools/make-og.py: the ring with its opening
-    to the north-east, and the check inside it. Stroke = 5 at r=17, scaled."""
-    width = max(1, round(r * 5 / 17))
-    d.arc([x, y, x + r * 2, y + r * 2], start=-61, end=298, fill=fill, width=width)
-    u = r * 2 / 48.0
-    p = lambda a, b: (x + (a - 8) * u, y + (b - 8) * u)
-    d.line([p(22, 33), p(29, 40), p(43, 26)], fill=fill, width=width, joint="curve")
+def brand(d, cx, cy, D, fill):
+    """The mark per apps/web/public/favicon.svg, scaled so the ring's OUTER
+    diameter is D (unit u = D/56). Ring: stroke-center radius 24u, stroke 8u,
+    dash 0..298.4 degrees (clockwise from 3 o'clock, y-down) with round caps,
+    leaving the ~61.6-degree opening across the north-east. Check: polyline
+    (22,33) -> (29,40) -> (43,26) in 64-space, stroke 8u, round caps/joins.
+    PIL's arc width grows inward, so the bbox sits at outer radius 28u and
+    the annulus lands on 20u..28u, matching the SVG's stroke-centered r=24."""
+    u = D / 56.0
+    w = max(1, round(8 * u))
+    R = 28 * u  # outer radius; PIL grows the stroke inward from here
+    d.arc([cx - R, cy - R, cx + R, cy + R], start=0, end=298.4, fill=fill, width=w)
+    # round caps: circles of diameter w at the dash endpoints (radius 24u)
+    for ang in (0.0, 298.4):
+        ex = cx + 24 * u * math.cos(math.radians(ang))
+        ey = cy + 24 * u * math.sin(math.radians(ang))
+        d.ellipse([ex - w / 2, ey - w / 2, ex + w / 2, ey + w / 2], fill=fill)
+    p = lambda a, b: (cx + (a - 32) * u, cy + (b - 32) * u)
+    pts = [p(22, 33), p(29, 40), p(43, 26)]
+    d.line(pts, fill=fill, width=w, joint="curve")
+    for ex, ey in (pts[0], pts[-1]):  # round caps on the check's open ends
+        d.ellipse([ex - w / 2, ey - w / 2, ex + w / 2, ey + w / 2], fill=fill)
 
 
 def glyph_mask(size, diameter, center=None):
@@ -73,8 +94,7 @@ def glyph_mask(size, diameter, center=None):
         center = (w / 2, h / 2)
     big = Image.new("L", (w * SS, h * SS), 0)
     d = ImageDraw.Draw(big)
-    r = diameter * SS / 2
-    brand(d, center[0] * SS - r, center[1] * SS - r, r, fill=255)
+    brand(d, center[0] * SS, center[1] * SS, diameter * SS, fill=255)
     return big.resize(size, Image.LANCZOS)
 
 
