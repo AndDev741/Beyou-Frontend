@@ -339,12 +339,12 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
             {/* Same header as the day's routine: loose icon, 12.5px name in text-2 and
                 the time in mono. The 32px tile with a 13.5px name weighed more than the
                 items it groups. */}
-            <div className="flex items-center gap-2.5 py-1.5">
+            <div className="flex w-full items-center gap-2.5 py-1.5">
                 <span className="shrink-0 text-[15px] text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                 </span>
-                <b className="truncate text-[12.5px] font-semibold text-text-2">{section.name}</b>
-                <span className="whitespace-nowrap font-mono text-[11px] text-text-3">
+                <b className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-text-2">{section.name}</b>
+                <span className="shrink-0 whitespace-nowrap font-mono text-[11px] text-text-3">
                     {formatTimeRange(section.startTime, section.endTime)} · {sectionStats.completedItems}/
                     {sectionStats.totalItems}
                 </span>

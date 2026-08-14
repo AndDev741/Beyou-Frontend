@@ -27,6 +27,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { keyboardAvoidingBehavior } from '../keyboard';
 import IconTile from '../IconTile';
 import AgentSegments from './AgentSegments';
 import type { AgentChatState } from './useAgentChat';
@@ -119,7 +120,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
       animationType={reduceMotion ? 'fade' : 'slide'}
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView behavior="padding" className="flex-1 justify-end">
+      <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} className="flex-1 justify-end">
         <Pressable
           accessibilityLabel={t('CloseAssistant')}
           onPress={onClose}
