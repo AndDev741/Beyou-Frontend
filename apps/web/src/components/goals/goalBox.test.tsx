@@ -1,7 +1,9 @@
 import { renderWithProviders } from "../../test/test-utils";
 import GoalBox from "./goalBox";
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
+import increaseCurrentValue from "@beyou/api/goals/increaseCurrentValue";
+import decreaseCurrentValue from "@beyou/api/goals/decreaseCurrentValue";
 
 // Mock services used by GoalBox
 vi.mock("@beyou/api/goals/getGoals", () => ({
@@ -93,6 +95,49 @@ describe("GoalBox", () => {
     expect(screen.getByText("10/10 pages")).toBeInTheDocument();
     expect(screen.getByText("+100 XP")).toBeInTheDocument();
     expect(screen.getByText("Completed")).toBeInTheDocument();
+  });
+
+  it("the counter opens the progress modal, which adds the typed amount", async () => {
+    renderWithProviders(<GoalBox {...baseProps} targetValue={100} currentValue={50} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /UpdateProgress/ }));
+    fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "20" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+
+    await waitFor(() =>
+      expect(increaseCurrentValue).toHaveBeenCalledWith("goal-1", expect.anything(), 20)
+    );
+  });
+
+  it("the progress modal also removes the typed amount", async () => {
+    renderWithProviders(<GoalBox {...baseProps} targetValue={100} currentValue={50} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /UpdateProgress/ }));
+    fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "8" } });
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+
+    await waitFor(() =>
+      expect(decreaseCurrentValue).toHaveBeenCalledWith("goal-1", expect.anything(), 8)
+    );
+  });
+
+  it("the stepper still moves one at a time", async () => {
+    renderWithProviders(<GoalBox {...baseProps} targetValue={100} currentValue={50} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Increase" }));
+
+    await waitFor(() =>
+      expect(increaseCurrentValue).toHaveBeenCalledWith("goal-1", expect.anything(), 1)
+    );
+  });
+
+  it("keeps the full name reachable when the card clips it", () => {
+    const title = "Regularizar-me em Portugal antes do fim do ano";
+    renderWithProviders(
+      <GoalBox {...baseProps} title={title} targetValue={10} currentValue={1} />
+    );
+
+    expect(screen.getByRole("heading", { name: title })).toHaveAttribute("title", title);
   });
 
   it("expanding reveals motivation and the period", () => {
