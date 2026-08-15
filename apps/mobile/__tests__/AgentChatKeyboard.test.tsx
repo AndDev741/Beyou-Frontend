@@ -9,27 +9,20 @@
  * edge-to-edge layout Expo enforces. Nothing moved, and you typed into an input you
  * could not see.
  *
- * What this pins is the choice between the two helpers, because that is the whole bug
- * and the one thing a future edit could quietly put back. It cannot pin the pixels: the
- * measurement happens in native layout, `behavior` is destructured out of
- * KeyboardAvoidingView's props before they reach any host view, and RN 0.85 removed the
- * emitter that let a test fake a keyboard. The value each helper returns is covered in
- * keyboard.test.ts.
+ * What this pins is that the sheet is wired to the lift at all — that the container
+ * takes the hook's padding and hands it back its own layout. The arithmetic itself,
+ * including the return to zero that the second attempt got wrong, is covered case by
+ * case in keyboard.test.tsx.
  */
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
 
-jest.mock('../src/ui/keyboard', () => ({
-  keyboardAvoidingBehavior: jest.fn(() => undefined),
-  modalKeyboardAvoidingBehavior: jest.fn(() => 'padding'),
-}));
-
+import { Keyboard } from 'react-native';
 import { Provider } from 'react-redux';
-import { render, act } from '@testing-library/react-native';
+import { render, screen, act } from '@testing-library/react-native';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import AgentChatModal from '../src/ui/agent/AgentChatModal';
-import { keyboardAvoidingBehavior, modalKeyboardAvoidingBehavior } from '../src/ui/keyboard';
 import type { AgentChatState } from '../src/ui/agent/useAgentChat';
 
 const chat = (): AgentChatState =>
@@ -50,10 +43,11 @@ const chat = (): AgentChatState =>
     send: jest.fn(),
   }) as unknown as AgentChatState;
 
+const listeners: Record<string, (event: unknown) => void> = {};
+
 const renderChat = async () => {
-  let result!: ReturnType<typeof render>;
   await act(async () => {
-    result = render(
+    render(
       <Provider store={makeStore()}>
         <BeyouThemeProvider>
           <AgentChatModal visible onClose={jest.fn()} chat={chat()} />
@@ -61,26 +55,49 @@ const renderChat = async () => {
       </Provider>,
     );
   });
-  return result;
+};
+
+const padding = () => {
+  const style = screen.getByTestId('agent-keyboard-avoider').props.style;
+  return Object.assign({}, ...[style].flat(Infinity).filter(Boolean)).paddingBottom ?? 0;
 };
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  for (const key of Object.keys(listeners)) delete listeners[key];
+  jest.spyOn(Keyboard, 'addListener').mockImplementation(((
+    event: string,
+    handler: (payload: unknown) => void,
+  ) => {
+    listeners[event] = handler;
+    return { remove: () => delete listeners[event] };
+  }) as never);
 });
 
-it('asks for the modal answer, not the one written for the app window', async () => {
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
+it('gives up the bottom of the sheet while the keyboard is up, and takes it back after', async () => {
   await renderChat();
 
-  expect(modalKeyboardAvoidingBehavior).toHaveBeenCalled();
-  // The passthrough. Inside a Modal there is nothing behind it doing the work, so
-  // choosing this one puts the input back under the keyboard.
-  expect(keyboardAvoidingBehavior).not.toHaveBeenCalled();
+  await act(async () => {
+    listeners.keyboardDidShow?.({ endCoordinates: { height: 320 } });
+  });
+  // Without this the composer is the lowest thing on screen and the keyboard is on
+  // top of it.
+  expect(padding()).toBe(320);
+
+  await act(async () => {
+    listeners.keyboardDidHide?.({});
+  });
+  // And back to nothing, or the sheet floats above the bottom of the screen with the
+  // dashboard showing through underneath it.
+  expect(padding()).toBe(0);
 });
 
 it('renders the composer it is protecting', async () => {
-  const screen = await renderChat();
+  await renderChat();
 
-  expect(screen.getByTestId('agent-keyboard-avoider')).toBeTruthy();
   expect(screen.getByTestId('agent-input')).toBeTruthy();
   expect(screen.getByTestId('agent-send')).toBeTruthy();
 });
