@@ -105,16 +105,16 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, xpS
                 )
             )}
 
-            {/* The same week of bars the Better/Worst area widgets draw, on the card
-                that owns the category. The level bar below says where it stands; this
-                says what it has been doing, which is the question a category page is
-                actually asked. It appears only once there is history — a card for a
-                category created this morning shows the level bar alone rather than a
-                row of empty slots. */}
-            {xpSeries && xpSeries.length > 0 && (
+            {/* Behind the chevron with everything else the card keeps back. Closed, a
+                category is a name, a description and where it stands; the week is
+                detail, and twelve of these open at once turned the page into a wall of
+                charts. Small here for the same reason — it sits under body text, not
+                on a dashboard rail. */}
+            {expanded && xpSeries && xpSeries.length > 0 && (
                 <XpSparkline
                     values={xpSeries}
                     tone="accent"
+                    size="sm"
                     labels={[t("WeekdayShortFirst"), t("WeekdayShortLast")]}
                     summary={t("XpLastDaysFor", { name, count: xpSeries.length })}
                 />

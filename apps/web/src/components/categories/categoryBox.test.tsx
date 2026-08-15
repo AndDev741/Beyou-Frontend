@@ -59,22 +59,31 @@ test('sets delete modal on', () => {
  * The chart the redesign wanted on the widgets, extended to the card that owns the
  * category. The level bar says where it stands; this says what it has been doing.
  */
-test("draws the week beside the level once there is history", () => {
+test("keeps the week behind the chevron, with the level always visible", () => {
     const { container } = render(<CategoryBox {...defaultProps} xpSeries={[0, 4, 0, 10, 2, 0, 8]} />);
 
-    expect(container.querySelectorAll("rect")).toHaveLength(7);
-    // And the week's total next to the level, which is the metadata half of the ask.
+    // Closed, a category is a name, a description and where it stands. Twelve open
+    // charts turned the page into a wall of them.
+    expect(container.querySelectorAll('[data-testid="xp-bar"]')).toHaveLength(0);
+    // The week's total stays: it is one number, and it is the metadata half of the ask.
     expect(screen.getByText("+24")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Expand"));
+
+    expect(container.querySelectorAll('[data-testid="xp-bar"]')).toHaveLength(7);
 });
 
 /**
  * A category created this morning has no week. Seven empty slots would read as "you did
  * nothing", when the truth is there was nothing to do yet.
  */
-test("shows the level bar alone when the category has no history", () => {
+test("shows no chart at all when the category has no history", () => {
     const { container } = render(<CategoryBox {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Expand"));
 
-    expect(container.querySelectorAll("rect")).toHaveLength(0);
+    // A category created this morning: seven empty slots would read as "you did
+    // nothing", when the truth is there was nothing to record yet.
+    expect(container.querySelectorAll('[data-testid="xp-bar"]')).toHaveLength(0);
 });
 
 /** XP handed back was not earned, so the total nets out rather than counting twice. */
