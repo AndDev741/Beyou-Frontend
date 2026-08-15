@@ -59,6 +59,13 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      # Restores ~/.gradle between runs. A cold runner re-downloads every Maven
+      # dependency and recompiles every module: the last uncached build reported
+      # "870 actionable tasks: 870 executed", nothing from cache. Saves the cache
+      # only on main (the action is read-only on other branches), which is where
+      # this workflow normally runs anyway.
+      - uses: gradle/actions/setup-gradle@v4
+
       - name: Install dependencies
         run: npm ci
 
@@ -101,9 +108,32 @@ jobs:
           # create android/sentry.properties (defaults.url/org/project) or set
           # SENTRY_AUTH_TOKEN, and drop this line.
           SENTRY_DISABLE_AUTO_UPLOAD: "true"
+        # Flags, measured against the 28m59s build of 02fbf1d:
+        #
+        # reactNativeArchitectures — the prebuild default is all four ABIs, so
+        #   every .so compiles four times. x86/x86_64 exist for emulators only
+        #   and this APK ships to real phones; armeabi-v7a is 32-bit ARM, gone
+        #   from Android hardware for years. Those three cost ~12 min of the
+        #   ~14 min spent in CMake, and they inflate the download users get.
+        # -x lintVital* — AGP wires lint into assembleRelease and it ran across
+        #   20 modules for ~3.7 min, most of it linting third-party code we do
+        #   not own. ci.yml already typechecks and tests what we do own.
+        # --build-cache + setup-gradle — reuse of Kotlin/Java compilation and
+        #   resolved dependencies. CMake tasks are not cacheable by Gradle, so
+        #   this only touches the JVM half.
+        # jvmargs — the generated gradle.properties asks for 2 GB; the runner
+        #   has 16 GB and the default made Kotlin, dex and lint fight the GC.
+        # kotlin in-process — compiles inside the Gradle daemon instead of
+        #   starting a second JVM that lives for one build.
         run: |
           chmod +x ./gradlew
           ./gradlew assembleRelease \
+            --build-cache \
+            --init-script ../tools/ci-build.init.gradle \
+            -PreactNativeArchitectures=arm64-v8a \
+            -Pkotlin.compiler.execution.strategy=in-process \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g" \
+            -x lintVitalAnalyzeRelease -x lintVitalRelease -x lintVitalReportRelease \
             -Pandroid.injected.signing.store.file="$PWD/app/release.keystore" \
             -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
             -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
@@ -112,7 +142,18 @@ jobs:
       - name: Stage APK with a stable name
         run: cp apps/mobile/android/app/build/outputs/apk/release/app-release.apk beyou-latest.apk
 
+      # A workflow_dispatch run from a feature branch reaches this step too, and
+      # the rolling release is what real users download. Keep branch builds out
+      # of it: they land as a job artifact instead.
+      - name: Upload APK as a job artifact
+        if: github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: beyou-apk-${{ github.sha }}
+          path: beyou-latest.apk
+
       - name: Publish to rolling release
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: mobile-latest
