@@ -34,6 +34,9 @@ jest.mock('../src/notify', () => ({
 // expo-router: stub navigation primitives used by the screen.
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   useRouter: () => ({ push: mockPush, replace: jest.fn() }),
 }));
 

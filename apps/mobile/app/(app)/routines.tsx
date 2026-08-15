@@ -1,5 +1,6 @@
 import { CalendarDays, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAutoRefresh } from '../../src/hooks/useAutoRefresh';
 import { View, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
@@ -65,6 +66,10 @@ export default function RoutinesScreen() {
   }, [dispatch, t]);
 
   useEffect(() => { let active = true; (async () => { await load(); if (active) setLoading(false); })(); return () => { active = false; }; }, [load]);
+
+  // Returning to this screen does not remount it: navigation is a Stack and this one
+  // stays mounted underneath whatever was pushed on top.
+  useAutoRefresh(load);
 
   // ScheduleSheet derives conflicts from the routines slice itself — just open it.
   const onSchedule = useCallback((r: Routine) => setScheduleTarget(r), []);

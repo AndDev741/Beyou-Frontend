@@ -107,6 +107,9 @@ jest.mock('react-native-safe-area-context', () => {
 jest.mock('expo-font', () => ({ useFonts: () => [true, null] }));
 
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   Stack: require('../app/(auth)/login').default,
   useRouter: () => ({ replace: jest.fn(), push: jest.fn() }),
   useSegments: () => ['(auth)'],

@@ -1,5 +1,6 @@
 import getHabits from "@beyou/api/habits/getHabits";
-import { useEffect } from "react";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
+import { useEffect, useCallback } from "react";
 import HabitBox from "./habitBox";
 import { habit } from "@beyou/types/habit/habitType";
 import { t } from "i18next";
@@ -27,15 +28,20 @@ function RenderHabits({habits, setHabits, emptyTitle, onClearFilters}: renderHab
         dispatch(editModeEnter(false));
     }, []);
     
-    useEffect(() => {
-        const returnHabits = async () => {
-            const response = await getHabits(t);
-            if(Array.isArray(response.success)){
-                setHabits(response.success);
-            }
+    const loadHabits = useCallback(async () => {
+        const response = await getHabits(t);
+        if(Array.isArray(response.success)){
+            setHabits(response.success);
         }
-        returnHabits();
-    }, [])
+    }, [setHabits]);
+
+    useEffect(() => {
+        void loadHabits();
+    }, [loadHabits])
+
+    // The fetch lives in this presentational child and the list lives in the parent's
+    // local state, so nothing else can refresh it. Same reason as the tasks page.
+    useAutoRefresh(loadHabits);
 
     const hasHabits = habits.length > 0;
 

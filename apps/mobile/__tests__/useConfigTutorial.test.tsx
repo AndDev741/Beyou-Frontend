@@ -1,5 +1,8 @@
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
-jest.mock('expo-router', () => ({ useRouter: () => ({ replace: jest.fn(), push: jest.fn() }) }));
+jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]), useRouter: () => ({ replace: jest.fn(), push: jest.fn() }) }));
 import { renderHook, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { makeStore } from '../src/store';

@@ -3,7 +3,8 @@ import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import Perfil from "../../components/dashboard/perfil";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
@@ -91,23 +92,33 @@ function Dashboard() {
     // Also re-runs when the AI onboarding wizard closes (showAiOnboarding
     // true -> false): the wizard creates entities — including the scheduled
     // routine that getTodayRoutine depends on — after this initial load.
+    // Also the body of every background refresh, so there is one definition of what
+    // "the dashboard's data" is. GET /routine/today derives today from the account's
+    // timezone, which is what makes this enough to answer a tab left open past
+    // midnight: asking again IS asking about the new day.
+    const loadDashboardData = useCallback(async () => {
+        await Promise.all([
+            getTodayRoutine(t).then((r) => dispatch(enterTodayRoutine(r.success))),
+            getHabits(t).then((r) => dispatch(enterHabits(r.success))),
+            getTasks(t).then((r) => dispatch(enterTasks(r.success))),
+            getGoals(t).then((r) => dispatch(enterGoals(r.success))),
+            getCategories(t).then((r) => dispatch(enterCategories(r.success))),
+        ]);
+    }, [dispatch, t]);
+
     useEffect(() => {
         let cancelled = false;
-        const fetchDashboardData = async () => {
-            await Promise.all([
-                getTodayRoutine(t).then((r) => dispatch(enterTodayRoutine(r.success))),
-                getHabits(t).then((r) => dispatch(enterHabits(r.success))),
-                getTasks(t).then((r) => dispatch(enterTasks(r.success))),
-                getGoals(t).then((r) => dispatch(enterGoals(r.success))),
-                getCategories(t).then((r) => dispatch(enterCategories(r.success))),
-            ]);
+        loadDashboardData().then(() => {
             if (!cancelled) setIsDashboardLoading(false);
-        };
-        fetchDashboardData();
+        });
         return () => {
             cancelled = true;
         };
-    }, [dispatch, t, showAiOnboarding])
+    }, [loadDashboardData, showAiOnboarding])
+
+    // Pick up what the phone did, and what the clock did. Held off while the wizard is
+    // running, which creates entities of its own and reloads on its way out.
+    useAutoRefresh(loadDashboardData, { enabled: !showAiOnboarding });
 
     useEffect(() => {
         if (!routine) return;

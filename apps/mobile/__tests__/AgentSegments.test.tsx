@@ -10,6 +10,9 @@
  * reports which domain it touched, so naming the entity would be invention.
  */
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   useRouter: () => ({ push: jest.fn() }),
   usePathname: () => '/',
 }));

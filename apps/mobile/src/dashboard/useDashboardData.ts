@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import getProfile from '@beyou/api/user/getProfile';
@@ -61,6 +62,12 @@ export function useDashboardData(): DashboardData {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Pick up what the web did, and what the clock did. `load` refetches
+  // GET /routine/today, which derives today from the account's timezone, so asking
+  // again IS asking about the new day — the answer to an app left open past midnight
+  // showing yesterday with every box ticked.
+  useAutoRefresh(load);
 
   return { loading, error, reload: load };
 }

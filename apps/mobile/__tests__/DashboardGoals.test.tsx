@@ -3,7 +3,10 @@
  * grouped by horizon, with the filter behind a summary. Nothing at all when there
  * are no goals.
  */
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]), useRouter: () => ({ push: mockPush }) }));
 const mockPush = jest.fn();
 
 import { Provider } from 'react-redux';

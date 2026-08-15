@@ -2,7 +2,7 @@ import CreateCategory from "../../components/categories/createCategory";
 import RenderCategories from "../../components/categories/renderCategories";
 import EditCategory from "../../components/categories/editCategory";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@beyou/state/category/editCategorySlice";
 import getCategories from "@beyou/api/categories/getCategories";
 import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { useTranslation } from "react-i18next";
 import { enterCategories } from "@beyou/state/category/categoriesSlice";
 import {
@@ -111,17 +112,21 @@ function Categories(){
         dispatch(editModeEnter(false));
     }, []);
 
-    useEffect(() => {
-        async function returnCategories(){
-            const response = await getCategories(t);
-            if(Array.isArray(response.success)){
-                dispatch(enterCategories(response.success));
-            } else if (response.error) {
-                dispatch(defaultErrorEnter(response.error));
-            }
+    const loadCategories = useCallback(async () => {
+        const response = await getCategories(t);
+        if(Array.isArray(response.success)){
+            dispatch(enterCategories(response.success));
+        } else if (response.error) {
+            dispatch(defaultErrorEnter(response.error));
         }
-        returnCategories();
-    }, [t]);
+    }, [dispatch, t]);
+
+    useEffect(() => {
+        void loadCategories();
+    }, [loadCategories]);
+
+    // A category's habits and XP move whenever the phone does anything.
+    useAutoRefresh(loadCategories);
 
     const {
         categorySteps,
