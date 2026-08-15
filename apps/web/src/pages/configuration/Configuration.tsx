@@ -67,10 +67,10 @@ export default function Configuration() {
                 />
             )}
 
-            {/* Two columns on desktop (profile/widgets/account on the left,
-                appearance/preferences on the right). On a phone `contents` undoes the
-                columns and the order becomes the mockup's: profile, appearance,
-                preferences, widgets and, last, log out. */}
+            {/* Two columns on desktop (profile, widgets and log out on the left;
+                appearance, preferences and the danger zone on the right). On a phone
+                `contents` undoes the columns and the order classes take over: profile,
+                appearance, preferences, danger zone, widgets, log out. */}
             <div className="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start">
                 <div className="contents lg:flex lg:flex-col lg:gap-4">
                     <ConfigSection
@@ -86,14 +86,12 @@ export default function Configuration() {
                         title={t("ConfigSectionWidgets")}
                         icon={<LayoutGrid size={16} aria-hidden="true" />}
                         tutorialId="config-dashboard"
-                        className="order-4"
+                        className="order-5"
                     >
                         <WidgetsConfiguration />
                     </ConfigSection>
 
-                    <AccountConfiguration className="order-5" />
-
-                    <DangerZone className="order-6" />
+                    <AccountConfiguration className="order-6" />
                 </div>
 
                 <div className="contents lg:flex lg:flex-col lg:gap-4">
@@ -119,6 +117,8 @@ export default function Configuration() {
                             <TutorialConfiguration />
                         </div>
                     </ConfigSection>
+
+                    <DangerZone className="order-4" />
                 </div>
             </div>
         </div>

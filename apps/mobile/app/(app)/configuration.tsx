@@ -119,6 +119,8 @@ export default function ConfigurationScreen() {
           </View>
         </ConfigSection>
 
+        <DangerZoneSection />
+
         <ConfigSection
           icon={<LayoutGrid size={16} color={theme.accent} />}
           title={t('ConfigSectionWidgets')}
@@ -128,8 +130,6 @@ export default function ConfigurationScreen() {
         >
           <WidgetsSection />
         </ConfigSection>
-
-        <DangerZoneSection />
 
         {/* Log out closes the list, in the destructive tone and on one row — as on the web. */}
         <Pressable
