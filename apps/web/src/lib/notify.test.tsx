@@ -52,3 +52,24 @@ test("plain toast calls still get the shared shell", async () => {
         expect(container.querySelector(".beyou-toast.Toastify__toast--success")).toBeInTheDocument()
     );
 });
+
+/**
+ * The X drifted to wherever the text happened to end, leaving it mid-toast with empty
+ * space in the corner. Two things had to be true and neither was: the body claims the
+ * width between the icon and the button, and the button is pushed to the edge rather
+ * than nudged by a fixed margin.
+ *
+ * Asserted through the classes, which is the honest limit here — jsdom computes no
+ * layout, so nothing in this environment can measure where the button actually lands.
+ * What it does catch is somebody putting the fixed margin back.
+ */
+test("keeps the close button pinned to the toast's edge", async () => {
+    renderWithProviders(<Host />);
+    notify.success("Momento em família", { subtitle: "Presença genuína é o melhor presente." });
+
+    const close = await screen.findByRole("button", { name: /close/i });
+    expect(close.className).toContain("ml-auto");
+    expect(close.className).not.toContain("ml-1");
+    // And it never gives up width to a long title.
+    expect(close.className).toContain("shrink-0");
+});

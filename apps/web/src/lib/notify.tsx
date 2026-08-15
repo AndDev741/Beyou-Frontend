@@ -47,7 +47,13 @@ export function ToastCloseButton({ closeToast, ariaLabel }: CloseButtonProps) {
             type="button"
             aria-label={ariaLabel || "Close"}
             onClick={closeToast}
-            className="ml-1 mt-0.5 self-start rounded-md p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+            // `ml-auto`, not a fixed margin. The button is a flex child of the toast
+            // alongside the body, so a fixed margin parks it wherever the text happens
+            // to end — which on a short message left it floating mid-toast with empty
+            // space to its right instead of sitting in the corner. Belt and braces with
+            // the body's flex-1 below: whichever of the two is doing the work, the X
+            // ends up at the edge.
+            className="ml-auto mt-0.5 shrink-0 self-start rounded-md p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
         >
             <X size={14} aria-hidden="true" />
         </button>
@@ -56,7 +62,9 @@ export function ToastCloseButton({ closeToast, ariaLabel }: CloseButtonProps) {
 
 function ToastBody({ title, subtitle }: { title: ReactNode; subtitle?: ReactNode }) {
     return (
-        <div className="min-w-0">
+        // flex-1 so the text owns the width between the icon and the close button, and
+        // min-w-0 so a long habit name wraps instead of pushing the button out.
+        <div className="min-w-0 flex-1">
             <p className="text-[13px] font-semibold leading-snug text-text">{title}</p>
             {subtitle ? (
                 <p className="mt-0.5 text-[12px] leading-snug text-text-3">{subtitle}</p>
