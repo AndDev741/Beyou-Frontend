@@ -10,6 +10,7 @@ import TutorialConfiguration from "../../components/configuration/TutorialConfig
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import ConfigSection from "../../components/configuration/ConfigSection";
 import AccountConfiguration from "../../components/configuration/AccountConfiguration";
+import DangerZone from "../../components/configuration/DangerZone";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
@@ -91,6 +92,8 @@ export default function Configuration() {
                     </ConfigSection>
 
                     <AccountConfiguration className="order-5" />
+
+                    <DangerZone className="order-6" />
                 </div>
 
                 <div className="contents lg:flex lg:flex-col lg:gap-4">

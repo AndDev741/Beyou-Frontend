@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { ChevronLeft, LayoutGrid, LogOut, Palette, Settings } from 'lucide-react-native';
 import ConfigSection from '../../src/ui/config/ConfigSection';
+import DangerZoneSection from '../../src/ui/config/DangerZoneSection';
 import ProfileHeaderRow from '../../src/ui/config/ProfileHeaderRow';
 import IconTile from '../../src/ui/IconTile';
 import ProfileSection from '../../src/ui/config/ProfileSection';
@@ -127,6 +128,8 @@ export default function ConfigurationScreen() {
         >
           <WidgetsSection />
         </ConfigSection>
+
+        <DangerZoneSection />
 
         {/* Log out closes the list, in the destructive tone and on one row — as on the web. */}
         <Pressable
