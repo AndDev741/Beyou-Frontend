@@ -5,6 +5,7 @@ import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
 import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
 import { saveTutorialPhase } from '../lib/tutorialStore';
+import { clearWizardProgress } from '../lib/aiOnboardingStore';
 import type { AuthStatus, Profile } from './types';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
@@ -105,6 +106,9 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   setAccessToken(null);
   // Don't leak a mid-onboarding phase to the next account after an app restart.
   await saveTutorialPhase(null);
+  // Same reason, and the one this device is likeliest to be handed to someone with:
+  // the AI wizard's progress carries the names of the categories and habits it created.
+  await clearWizardProgress();
 });
 
 const authSlice = createSlice({

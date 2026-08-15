@@ -83,6 +83,9 @@ export { default as getTasks } from './tasks/getTasks';
 // AI
 
 // User
+export { default as deleteAccount } from './user/deleteAccount';
 export { default as editUser } from './user/editUser';
+export { default as exportUserData } from './user/exportUserData';
 export { default as getProfile } from './user/getProfile';
+export { default as requestAccountDeletionCode } from './user/requestAccountDeletionCode';
 export { default as uploadUserPhoto } from './user/uploadUserPhoto';
