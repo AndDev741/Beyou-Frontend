@@ -44,22 +44,30 @@ export function clearLocalAccountState(): void {
 /**
  * Purge, clear, leave — in that order, and leave no matter what.
  *
- * The redirect is in a `finally` because the account is already gone by the time this
- * runs. If the purge throws, staying on a configuration page belonging to a deleted
+ * The redirect is unconditional because the account is already gone by the time this
+ * runs. If the teardown throws, staying on a configuration page belonging to a deleted
  * account is the worse of the two outcomes.
  *
- * The failure is swallowed rather than rethrown: every caller is on its way out of the
- * app, so there is nobody left to handle it, and letting it escape only produces an
- * unhandled rejection that the error reporter files as a bug in a session that is
- * about to end. It is logged, which is all anyone can act on.
+ * Each step gets its own try, so one failing cannot cancel the next. Failures are
+ * swallowed rather than rethrown: every caller is on its way out of the app, so there
+ * is nobody left to handle it, and letting it escape only produces an unhandled
+ * rejection that the error reporter files as a bug in a session that is about to end.
+ * They are logged, which is all anyone can act on.
  */
 export async function tearDownAndLeave(): Promise<void> {
     try {
         await persistor.purge();
+    } catch (failure) {
+        logger.error("Purging the persisted store failed", failure);
+    }
+    try {
+        // Its own try, and not chained behind the purge. Sharing one meant a rejected
+        // purge jumped straight to the catch and skipped this line entirely — which is
+        // the worst possible pairing, since the redux blob is keyed `persist:root` and
+        // so is the one thing the prefix sweep cannot pick up as a fallback.
         clearLocalAccountState();
     } catch (failure) {
-        logger.error("Account teardown could not finish", failure);
-    } finally {
-        window.location.href = "/";
+        logger.error("Clearing local account state failed", failure);
     }
+    window.location.href = "/";
 }

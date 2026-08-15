@@ -26,6 +26,16 @@ const CODE_ERROR_KEYS = new Set([
 ]);
 
 /**
+ * The deletion ran and rolled back. This is the one failure that is definite in the
+ * other direction: the account still exists, the code was not spent, and the session
+ * was deliberately left alone — the backend revokes the refresh token only after a
+ * delete that actually happened. So the only correct response is to stay put and say
+ * it did not work. Purging here would empty the browser of an account that is still
+ * live, and on a shared device that data belongs to someone who is still using it.
+ */
+const FAILED_BUT_INTACT = "ACCOUNT_DELETE_FAILED";
+
+/**
  * Deleting an account, in three deliberate steps: say it out loud, prove the inbox
  * is yours, and then say goodbye.
  *
@@ -81,8 +91,17 @@ export default function DeleteAccountModal({
         setPending(true);
         const response = await deleteAccount(code.trim());
         if (response.error) {
-            const isAboutTheCode = CODE_ERROR_KEYS.has(response.error.errorKey ?? "");
-            if (isAboutTheCode) {
+            const errorKey = response.error.errorKey ?? "";
+
+            if (errorKey === FAILED_BUT_INTACT) {
+                // Stay on the goodbye step: the code is still live, so pressing the
+                // button again is the whole recovery.
+                setPending(false);
+                toast.error(getFriendlyErrorMessage(t, response.error));
+                return;
+            }
+
+            if (CODE_ERROR_KEYS.has(errorKey)) {
                 setPending(false);
                 toast.error(getFriendlyErrorMessage(t, response.error));
                 setStep("code");

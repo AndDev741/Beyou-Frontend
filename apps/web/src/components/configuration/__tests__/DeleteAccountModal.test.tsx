@@ -164,4 +164,62 @@ describe("DeleteAccountModal", () => {
         expect(screen.getByTestId("delete-account-code")).toHaveValue("");
         expect(screen.getByTestId("delete-account-code-continue")).toBeDisabled();
     });
+
+    /**
+     * The opposite of an unclear failure, and it used to be treated as one.
+     *
+     * ACCOUNT_DELETE_FAILED means the deletion ran and rolled back: the account is
+     * intact, the code was never spent, and the backend deliberately left the session
+     * alone. Purging and leaving here empties the browser of an account that is still
+     * live, and the refresh cookie then walks the user straight back into it with
+     * their onboarding state destroyed and a message saying they may not exist.
+     */
+    it("stays put when the deletion failed and the account is still there", async () => {
+        vi.mocked(deleteAccount).mockResolvedValueOnce({
+            error: { errorKey: "ACCOUNT_DELETE_FAILED" },
+        });
+        renderWithProviders(<DeleteAccountModal isOpen onClose={vi.fn()} />);
+
+        fireEvent.click(screen.getByTestId("delete-account-continue"));
+        fireEvent.change(await screen.findByTestId("delete-account-code"), { target: { value: "123456" } });
+        fireEvent.click(screen.getByTestId("delete-account-code-continue"));
+        fireEvent.click(await screen.findByTestId("delete-account-final"));
+
+        // Still on the goodbye step, with the button live again: the code was not
+        // spent, so pressing it again is the entire recovery.
+        await waitFor(() => expect(screen.getByTestId("delete-account-final")).toBeEnabled());
+        expect(tearDownAndLeave).not.toHaveBeenCalled();
+        expect(screen.queryByTestId("delete-account-code")).not.toBeInTheDocument();
+    });
+
+    /**
+     * Escape, the backdrop and Cancel are all wired to onClose, and none of them can
+     * call back an irreversible request that is already out. Whoever reconnects
+     * onClose directly to the Modal reopens that hole, so this is the guard.
+     */
+    it("cannot be dismissed while the delete is in flight", async () => {
+        let finish: (value: { success: boolean }) => void = () => {};
+        vi.mocked(deleteAccount).mockReturnValueOnce(
+            new Promise((resolve) => {
+                finish = resolve;
+            }) as ReturnType<typeof deleteAccount>,
+        );
+        const onClose = vi.fn();
+        renderWithProviders(<DeleteAccountModal isOpen onClose={onClose} />);
+
+        fireEvent.click(screen.getByTestId("delete-account-continue"));
+        fireEvent.change(await screen.findByTestId("delete-account-code"), { target: { value: "123456" } });
+        fireEvent.click(screen.getByTestId("delete-account-code-continue"));
+        fireEvent.click(await screen.findByTestId("delete-account-final"));
+
+        await waitFor(() => expect(deleteAccount).toHaveBeenCalled());
+
+        fireEvent.keyDown(document, { key: "Escape" });
+        fireEvent.click(screen.getByText("Cancel"));
+
+        expect(onClose).not.toHaveBeenCalled();
+        expect(screen.getByText("Cancel").closest("button")).toBeDisabled();
+
+        finish({ success: true });
+    });
 });

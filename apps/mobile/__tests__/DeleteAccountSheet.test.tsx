@@ -205,4 +205,57 @@ describe('DeleteAccountSheet', () => {
     });
     expect(screen.queryByTestId('delete-account-final')).toBeNull();
   });
+
+  /**
+   * The opposite of an unclear failure, and it was treated as one.
+   *
+   * ACCOUNT_DELETE_FAILED means the deletion rolled back: the account is intact, the
+   * code was never spent, the session is still good. Leaving here is worse on a phone
+   * than on the web, because leave() dispatches logout, which revokes the refresh
+   * token server-side. The app would sign someone out of a live account.
+   */
+  it('stays put when the deletion failed and the account is still there', async () => {
+    confirmDeletion.mockResolvedValueOnce({ error: { errorKey: 'ACCOUNT_DELETE_FAILED' } });
+    const onClose = jest.fn();
+    await wrap(onClose);
+
+    await walkToGoodbye();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-final'));
+    });
+
+    expect(onClose).not.toHaveBeenCalled();
+    // Still on the goodbye step, and the code was not spent, so pressing again is the
+    // whole recovery.
+    expect(screen.getByTestId('delete-account-final')).toBeTruthy();
+    expect(screen.queryByTestId('delete-account-code')).toBeNull();
+  });
+
+  /**
+   * Cancel and Android's hardware back both run through onClose, and neither can call
+   * back a request that is already out. Whoever wires onClose straight to the Modal
+   * again reopens the hole, so this is the guard.
+   */
+  it('cannot be dismissed while the delete is in flight', async () => {
+    let finish: (value: unknown) => void = () => {};
+    confirmDeletion.mockReturnValueOnce(new Promise((resolve) => {
+      finish = resolve;
+    }));
+    const onClose = jest.fn();
+    await wrap(onClose);
+
+    await walkToGoodbye();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-final'));
+    });
+
+    await act(async () => {
+      fireEvent.press(screen.getByText('Cancel'));
+    });
+    expect(onClose).not.toHaveBeenCalled();
+
+    await act(async () => {
+      finish({ success: true });
+    });
+  });
 });

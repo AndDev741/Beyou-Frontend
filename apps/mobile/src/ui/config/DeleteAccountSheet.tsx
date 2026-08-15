@@ -15,9 +15,11 @@ type Step = 'confirm' | 'code' | 'goodbye';
 
 /**
  * The four refusals that mean the account is still there and the code was the problem.
- * Anything else — a dropped connection, a request the OS killed when the app went to
- * the background — says nothing about whether the deletion happened, so the app has to
- * assume it did.
+ *
+ * Three outcome classes, not two. These four say the code was wrong. FAILED_BUT_INTACT
+ * says the deletion itself rolled back. Anything else — a dropped connection, a request
+ * the OS killed when the app went to the background — says nothing about whether the
+ * deletion happened, so the app has to assume it did.
  */
 const CODE_ERROR_KEYS = new Set([
   'DELETION_CODE_INVALID',
@@ -25,6 +27,15 @@ const CODE_ERROR_KEYS = new Set([
   'DELETION_CODE_TOO_MANY_ATTEMPTS',
   'DELETION_CODE_TOO_MANY_REQUESTS',
 ]);
+
+/**
+ * The deletion ran and rolled back: the account exists, the code was not spent, and
+ * the session is still good, because the backend revokes the refresh token only after
+ * a delete that actually happened. Leaving here would be worse on a phone than on the
+ * web — `leave()` dispatches logout, which revokes that refresh token server-side, so
+ * the app would sign someone out of an account that is perfectly alive.
+ */
+const FAILED_BUT_INTACT = 'ACCOUNT_DELETE_FAILED';
 
 interface DeleteAccountSheetProps {
   visible: boolean;
@@ -93,7 +104,17 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
     setPending(true);
     const response = await deleteAccount(code.trim());
     if (response.error) {
-      if (CODE_ERROR_KEYS.has(response.error.errorKey ?? '')) {
+      const errorKey = response.error.errorKey ?? '';
+
+      if (errorKey === FAILED_BUT_INTACT) {
+        // Stay on the goodbye step: the code is still live, so pressing the button
+        // again is the whole recovery.
+        setPending(false);
+        notify.error(getFriendlyErrorMessage(t, response.error));
+        return;
+      }
+
+      if (CODE_ERROR_KEYS.has(errorKey)) {
         setPending(false);
         notify.error(getFriendlyErrorMessage(t, response.error));
         setStep('code');

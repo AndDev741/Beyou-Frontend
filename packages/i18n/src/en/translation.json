@@ -1108,6 +1108,7 @@
     "DeleteAccountStep3Body": "Whatever you built here was yours, and you can start again any time. Last step: this really is goodbye.",
     "DeleteAccountFinalConfirm": "Delete my account forever",
     "DeleteAccountDone": "Your account is gone. Take care.",
+    "ACCOUNT_DELETE_FAILED": "We could not delete your account. Nothing was removed and your code still works, so you can try again.",
     "DeleteAccountUnclear": "We lost the connection before we could confirm. Your account may already be deleted \u2014 try signing in to check.",
     "DELETION_CODE_INVALID": "That code is not right. Check the email and try again.",
     "DELETION_CODE_EXPIRED": "That code expired. Ask for a new one.",

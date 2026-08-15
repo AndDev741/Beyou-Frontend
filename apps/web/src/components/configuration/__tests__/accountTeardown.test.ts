@@ -77,14 +77,41 @@ describe("tearDownAndLeave", () => {
         purge.mockReset().mockResolvedValue(undefined);
     });
 
-    it("leaves even when the purge fails", async () => {
+    /**
+     * A rejected purge used to jump straight to the shared catch and skip the local
+     * sweep with it, so a browser that could not empty redux also kept the tutorial and
+     * the wizard. The two are independent now, and this is the test that says so.
+     *
+     * The assertion that hid it was `expect(href).toContain("/")`, which is true of
+     * every URL there is. Both assertions here name a specific key.
+     */
+    it("still clears local storage when the purge fails", async () => {
         purge.mockRejectedValue(new Error("indexeddb is having a day"));
+        window.localStorage.setItem("beyou.tutorial.phase", "categories");
+        window.localStorage.setItem("beyou.aiOnboarding.progress", "{}");
 
         await tearDownAndLeave();
 
-        // The account is already gone by this point. Staying on a configuration page
-        // that belongs to it is the worse of the two outcomes, so the redirect is in a
-        // finally and this assertion is what keeps it there.
-        expect(window.location.href).toContain("/");
+        expect(window.localStorage.getItem("beyou.tutorial.phase")).toBeNull();
+        expect(window.localStorage.getItem("beyou.aiOnboarding.progress")).toBeNull();
+    });
+
+    it("clears local storage even when the purge succeeds", async () => {
+        window.localStorage.setItem("beyou.tutorial.phase", "habits");
+
+        await tearDownAndLeave();
+
+        expect(purge).toHaveBeenCalledTimes(1);
+        expect(window.localStorage.getItem("beyou.tutorial.phase")).toBeNull();
+    });
+
+    it("does not reject when everything fails, since nobody is left to catch it", async () => {
+        purge.mockRejectedValue(new Error("nope"));
+        const broken = vi.spyOn(Storage.prototype, "key").mockImplementation(() => {
+            throw new Error("also nope");
+        });
+
+        await expect(tearDownAndLeave()).resolves.toBeUndefined();
+        broken.mockRestore();
     });
 });
