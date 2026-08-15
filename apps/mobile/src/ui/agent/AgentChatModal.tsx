@@ -27,7 +27,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { keyboardAvoidingBehavior } from '../keyboard';
+import { modalKeyboardAvoidingBehavior } from '../keyboard';
 import IconTile from '../IconTile';
 import AgentSegments from './AgentSegments';
 import type { AgentChatState } from './useAgentChat';
@@ -120,7 +120,11 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
       animationType={reduceMotion ? 'fade' : 'slide'}
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} className="flex-1 justify-end">
+      <KeyboardAvoidingView
+        behavior={modalKeyboardAvoidingBehavior()}
+        className="flex-1 justify-end"
+        testID="agent-keyboard-avoider"
+      >
         <Pressable
           accessibilityLabel={t('CloseAssistant')}
           onPress={onClose}
@@ -315,6 +319,11 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                   className="flex-1 px-3"
                   contentContainerStyle={{ paddingVertical: 16, gap: 10 }}
                   onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: !reduceMotion })}
+                  // And on resize, not only on new content. The keyboard shortens this
+                  // list without changing a word in it, so onContentSizeChange stays
+                  // quiet and the message you were reading slides out of view exactly
+                  // as you start replying to it.
+                  onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
                 >
                   {messages.map((message, index) =>
                     message.role === 'USER' ? (
