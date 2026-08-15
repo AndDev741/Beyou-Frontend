@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,19 @@ import { logout } from '../../auth/authSlice';
 import type { AppDispatch, RootState } from '../../store';
 
 type Step = 'confirm' | 'code' | 'goodbye';
+
+/**
+ * The four refusals that mean the account is still there and the code was the problem.
+ * Anything else — a dropped connection, a request the OS killed when the app went to
+ * the background — says nothing about whether the deletion happened, so the app has to
+ * assume it did.
+ */
+const CODE_ERROR_KEYS = new Set([
+  'DELETION_CODE_INVALID',
+  'DELETION_CODE_EXPIRED',
+  'DELETION_CODE_TOO_MANY_ATTEMPTS',
+  'DELETION_CODE_TOO_MANY_REQUESTS',
+]);
 
 interface DeleteAccountSheetProps {
   visible: boolean;
@@ -34,25 +47,30 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
   const [code, setCode] = useState('');
   const [pending, setPending] = useState(false);
 
-  // Every opening starts at the beginning: a half-finished deletion is not a state
-  // to come back to.
-  useEffect(() => {
-    if (visible) {
-      setStep('confirm');
-      setCode('');
-      setPending(false);
-    }
-  }, [visible]);
-
   // The `!visible` null-gate is what keeps RN's Modal out of the tree in tests.
+  // Reopening starts from the beginning because DangerZoneSection mounts this only
+  // while it is open, so there is no previous state left to come back to.
   if (!visible) return null;
 
   const askForCode = async (resending = false) => {
     setPending(true);
+    // A new code supersedes the old one server-side, so the digits still in the field
+    // no longer work — and leaving them there lets someone walk all the way to the
+    // irreversible button before finding that out.
+    if (resending) {
+      setCode('');
+    }
     const response = await requestAccountDeletionCode();
     setPending(false);
     if (response.error) {
       notify.error(getFriendlyErrorMessage(t, response.error));
+      // The cooldown means a code went out moments ago and is in the inbox right now.
+      // Stopping here would leave the user holding a working code with nowhere to
+      // type it — the likeliest way to hit this is closing the sheet to go read the
+      // email and coming straight back.
+      if (response.error.errorKey === 'DELETION_CODE_TOO_MANY_REQUESTS') {
+        setStep('code');
+      }
       return;
     }
     if (resending) {
@@ -61,26 +79,52 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
     setStep('code');
   };
 
+  const leave = async () => {
+    // Awaited, not fired and forgotten: logout clears the refresh token from secure
+    // store, the tutorial phase and the AI wizard's progress before it resets the
+    // slices. Closing the sheet first races the navigation against that teardown, and
+    // a rejected thunk would leave the app authenticated against an account that no
+    // longer exists.
+    await dispatch(logout());
+    onClose();
+  };
+
   const confirmDeletion = async () => {
     setPending(true);
     const response = await deleteAccount(code.trim());
     if (response.error) {
-      setPending(false);
-      notify.error(getFriendlyErrorMessage(t, response.error));
-      setStep('code');
+      if (CODE_ERROR_KEYS.has(response.error.errorKey ?? '')) {
+        setPending(false);
+        notify.error(getFriendlyErrorMessage(t, response.error));
+        setStep('code');
+        return;
+      }
+      // Not about the code, so the account may already be gone — the response can be
+      // lost on the way back from a server that already committed. Asking the user to
+      // type the code again would be asking them to delete an account that no longer
+      // exists, on a device still holding its data.
+      notify.error(t('DeleteAccountUnclear'));
+      await leave();
       return;
     }
     notify.success(t('DeleteAccountDone'));
     // The account is gone; logout resets every slice and sends the app back to the
     // login screen, which is exactly the state this should end in.
-    dispatch(logout());
-    onClose();
+    await leave();
   };
 
   const isCodeComplete = /^\d{6}$/.test(code.trim());
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose} testID="delete-account-sheet">
+    <Modal
+      visible
+      transparent
+      animationType="fade"
+      // Android's hardware back, while the irreversible request is out. It does not
+      // cancel anything, so honouring it would only hide a deletion that carries on.
+      onRequestClose={pending ? () => {} : onClose}
+      testID="delete-account-sheet"
+    >
       <View
         className="flex-1 items-center justify-center px-6"
         style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
@@ -114,7 +158,13 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
                 {t('DeleteAccountStep2Title')}
               </Text>
               <Text className="mt-1.5 text-[12.5px] leading-snug text-text-2">
-                {t('DeleteAccountStep2Body', { email: email ?? '' })}
+                {/* perfil.email is filled by the dashboard's loader, not by auth
+                    bootstrap, so a route straight to configuration can reach here with
+                    nothing — and this sentence is the only place the user is told which
+                    inbox to open. */}
+                {email
+                  ? t('DeleteAccountStep2Body', { email })
+                  : t('DeleteAccountStep2BodyNoEmail')}
               </Text>
 
               <View className="mt-4">
@@ -165,7 +215,13 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
                 </Text>
               </View>
               <View className="mt-4 flex-row justify-end gap-2">
-                <Button text={t('Cancel')} mode="ghost" size="auto" onPress={onClose} />
+                <Button
+                  text={t('Cancel')}
+                  mode="ghost"
+                  size="auto"
+                  disabled={pending}
+                  onPress={onClose}
+                />
                 <Button
                   text={t('DeleteAccountFinalConfirm')}
                   mode="danger"

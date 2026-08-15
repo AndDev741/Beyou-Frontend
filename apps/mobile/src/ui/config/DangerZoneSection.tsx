@@ -44,7 +44,10 @@ export default function DangerZoneSection() {
         </Pressable>
       </View>
 
-      <DeleteAccountSheet visible={deleting} onClose={() => setDeleting(false)} />
+      {/* Mounted only while open, so closing throws the half-finished deletion away
+          instead of leaving it to reappear on the first frame of the next opening —
+          and a request abandoned on the way out has nothing left to write into. */}
+      {deleting ? <DeleteAccountSheet visible onClose={() => setDeleting(false)} /> : null}
     </View>
   );
 }

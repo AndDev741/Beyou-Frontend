@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -8,9 +8,22 @@ import requestAccountDeletionCode from "@beyou/api/user/requestAccountDeletionCo
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import Button from "../Button";
 import Modal from "../modals/Modal";
-import { persistor } from "../../redux/store";
+import { tearDownAndLeave } from "./accountTeardown";
 
 type Step = "confirm" | "code" | "goodbye";
+
+/**
+ * The four refusals that mean "your account is still there, try the code again".
+ * Anything else — a dropped connection, a proxy that timed out after the server
+ * committed, a tab the phone suspended mid-request — tells us nothing about whether
+ * the deletion happened, and the client has to assume it did.
+ */
+const CODE_ERROR_KEYS = new Set([
+    "DELETION_CODE_INVALID",
+    "DELETION_CODE_EXPIRED",
+    "DELETION_CODE_TOO_MANY_ATTEMPTS",
+    "DELETION_CODE_TOO_MANY_REQUESTS",
+]);
 
 /**
  * Deleting an account, in three deliberate steps: say it out loud, prove the inbox
@@ -36,24 +49,26 @@ export default function DeleteAccountModal({
     const [code, setCode] = useState("");
     const [pending, setPending] = useState(false);
 
-    // Every opening starts at the beginning: a half-finished deletion left on screen
-    // is not a state anyone should be able to come back to.
-    useEffect(() => {
-        if (isOpen) {
-            setStep("confirm");
-            setCode("");
-            setPending(false);
-        }
-    }, [isOpen]);
-
     if (!isOpen) return null;
 
     const askForCode = async (resending = false) => {
         setPending(true);
+        // Superseded server-side the moment a new one is issued, so the digits still
+        // sitting in the field are worthless — and leaving them there lets someone
+        // walk all the way to the irreversible button before finding that out.
+        if (resending) {
+            setCode("");
+        }
         const response = await requestAccountDeletionCode();
         setPending(false);
         if (response.error) {
             toast.error(getFriendlyErrorMessage(t, response.error));
+            // Refused for the cooldown means a code was sent recently and is sitting in
+            // the inbox right now, perfectly valid. Stopping here would leave the user
+            // holding a working code with nowhere to type it.
+            if (response.error.errorKey === "DELETION_CODE_TOO_MANY_REQUESTS") {
+                setStep("code");
+            }
             return;
         }
         if (resending) {
@@ -66,23 +81,37 @@ export default function DeleteAccountModal({
         setPending(true);
         const response = await deleteAccount(code.trim());
         if (response.error) {
-            setPending(false);
-            toast.error(getFriendlyErrorMessage(t, response.error));
-            // Back to the code step: every failure here is about the code.
-            setStep("code");
+            const isAboutTheCode = CODE_ERROR_KEYS.has(response.error.errorKey ?? "");
+            if (isAboutTheCode) {
+                setPending(false);
+                toast.error(getFriendlyErrorMessage(t, response.error));
+                setStep("code");
+                return;
+            }
+            // Not about the code, so the account may well be gone — the request can
+            // fail on the way back from a server that already committed. Sending the
+            // user back to type the code again would ask them to delete an account
+            // that no longer exists, and would leave everything the account owned
+            // sitting in this browser's storage. Assume the worse case and clean up.
+            toast.error(t("DeleteAccountUnclear"));
+            await tearDownAndLeave();
             return;
         }
         toast.success(t("DeleteAccountDone"));
         // The account is gone and the cookie with it; anything still in redux-persist
         // would greet the next person to open this browser.
-        await persistor.purge();
-        window.location.href = "/";
+        await tearDownAndLeave();
     };
 
     const isCodeComplete = /^\d{6}$/.test(code.trim());
 
+    // Backdrop and Escape are wired to onClose inside Modal. Neither cancels the
+    // request that is already out, so while one is in flight they would only close the
+    // dialog over the top of a deletion that carries on and completes.
+    const closeWhenIdle = pending ? () => {} : onClose;
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose} labelledBy={titleId} className="max-w-md">
+        <Modal isOpen={isOpen} onClose={closeWhenIdle} labelledBy={titleId} className="max-w-md">
             <div className="text-text">
                 {step === "confirm" && (
                     <>
@@ -113,7 +142,12 @@ export default function DeleteAccountModal({
                             {t("DeleteAccountStep2Title")}
                         </h1>
                         <p className="mt-1.5 text-[12.5px] leading-snug text-text-2">
-                            {t("DeleteAccountStep2Body", { email: email ?? "" })}
+                            {/* The address is how someone knows which inbox to open, so a
+                                missing one has to change the sentence rather than leave a
+                                gap in it. */}
+                            {email
+                                ? t("DeleteAccountStep2Body", { email })
+                                : t("DeleteAccountStep2BodyNoEmail")}
                         </p>
 
                         <label htmlFor={codeId} className="mb-1.5 mt-4 block text-[12.5px] font-semibold text-text-2">
@@ -166,7 +200,14 @@ export default function DeleteAccountModal({
                             </p>
                         </div>
                         <div className="mt-4 flex justify-end gap-2">
-                            <Button text={t("Cancel")} mode="ghost" size="medium" type="button" onClick={onClose} />
+                            <Button
+                                text={t("Cancel")}
+                                mode="ghost"
+                                size="medium"
+                                type="button"
+                                disabled={pending}
+                                onClick={onClose}
+                            />
                             <Button
                                 text={t("DeleteAccountFinalConfirm")}
                                 mode="danger"

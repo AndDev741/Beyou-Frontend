@@ -32,15 +32,28 @@ beforeEach(() => {
   confirmDeletion.mockReset().mockResolvedValue({ success: true });
 });
 
-const wrap = async () => {
+const wrap = async (onClose: () => void = jest.fn()) => {
   await act(async () => {
     render(
       <Provider store={makeStore()}>
         <BeyouThemeProvider>
-          <DeleteAccountSheet visible onClose={jest.fn()} />
+          <DeleteAccountSheet visible onClose={onClose} />
         </BeyouThemeProvider>
       </Provider>,
     );
+  });
+};
+
+/** Walks to the goodbye screen with a valid-looking code already typed. */
+const walkToGoodbye = async () => {
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('delete-account-continue'));
+  });
+  await act(async () => {
+    fireEvent.changeText(screen.getByTestId('delete-account-code'), '123456');
+  });
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('delete-account-code-continue'));
   });
 };
 
@@ -117,5 +130,79 @@ describe('DeleteAccountSheet', () => {
 
     expect(screen.queryByTestId('delete-account-final')).toBeNull();
     expect(confirmDeletion).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The failure that is not about the code.
+   *
+   * A phone that lost signal, or an OS that killed the request when the app went to
+   * the background, produces a generic error that says nothing about whether the
+   * account survived. Treating it like a wrong code asks the user to delete an
+   * account that may already be gone, on a device still holding all of its data.
+   */
+  it('leaves when the failure is not about the code, instead of asking for it again', async () => {
+    confirmDeletion.mockResolvedValueOnce({ error: { errorKey: 'UnexpectedError' } });
+    const onClose = jest.fn();
+    await wrap(onClose);
+
+    await walkToGoodbye();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-final'));
+    });
+
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(screen.queryByTestId('delete-account-code')).toBeNull();
+  });
+
+  /**
+   * Ask for a code, close the sheet to go read the email, come straight back: the
+   * second request is refused for the cooldown while a perfectly valid code sits in
+   * the inbox. Stopping at step one leaves nowhere to type it.
+   */
+  it('still opens the code step when a code was already sent moments ago', async () => {
+    askForCode.mockResolvedValueOnce({ error: { errorKey: 'DELETION_CODE_TOO_MANY_REQUESTS' } });
+    await wrap();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-continue'));
+    });
+
+    await waitFor(() => expect(screen.getByTestId('delete-account-code')).toBeTruthy());
+  });
+
+  it('stops at step one when the code could not be sent for any other reason', async () => {
+    askForCode.mockResolvedValueOnce({ error: { errorKey: 'UnexpectedError' } });
+    await wrap();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-continue'));
+    });
+
+    await waitFor(() => expect(askForCode).toHaveBeenCalled());
+    expect(screen.queryByTestId('delete-account-code')).toBeNull();
+    expect(screen.getByTestId('delete-account-continue')).toBeTruthy();
+  });
+
+  /** A new code kills the old one, so the digits still on screen are dead. */
+  it('empties the field when a new code is sent', async () => {
+    await wrap();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-continue'));
+    });
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('delete-account-code'), '123456');
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-resend'));
+    });
+
+    await waitFor(() => expect(askForCode).toHaveBeenCalledTimes(2));
+    expect(screen.getByTestId('delete-account-code').props.value).toBe('');
+    // And the way forward is closed again until six fresh digits arrive.
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('delete-account-code-continue'));
+    });
+    expect(screen.queryByTestId('delete-account-final')).toBeNull();
   });
 });

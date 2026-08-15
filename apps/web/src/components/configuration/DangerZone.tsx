@@ -36,8 +36,15 @@ export default function DangerZone({ className = "" }: { className?: string }) {
         const link = document.createElement("a");
         link.href = url;
         link.download = `beyou-data-${new Date().toISOString().slice(0, 10)}.json`;
+        // In the document before the click, revoked a beat after it. A detached anchor
+        // and a URL revoked in the same task both happen to work in current Chrome and
+        // neither has been dependable across browsers — and the failure is silent: no
+        // throw, no toast, just no file. This is the copy someone takes immediately
+        // before deleting everything, so silent is the one thing it must not be.
+        document.body.appendChild(link);
         link.click();
-        URL.revokeObjectURL(url);
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
     };
 
     return (
@@ -82,7 +89,11 @@ export default function DangerZone({ className = "" }: { className?: string }) {
                 </button>
             </div>
 
-            <DeleteAccountModal isOpen={deleting} onClose={() => setDeleting(false)} />
+            {/* Mounted only while it is open, so closing it throws the half-finished
+                deletion away rather than leaving it to be replayed on the first frame
+                of the next opening — and so a request abandoned on the way out has
+                nothing left to write into. */}
+            {deleting && <DeleteAccountModal isOpen onClose={() => setDeleting(false)} />}
         </section>
     );
 }
