@@ -114,6 +114,7 @@ function Categories(){
     }, []);
 
     const [xpSeriesById, setXpSeriesById] = useState<Record<string, number[]>>({});
+    const [xpDays, setXpDays] = useState<string[] | undefined>(undefined);
 
     const loadCategories = useCallback(async () => {
         // Both in one pass: the cards draw the week beside the level, and refreshing
@@ -125,6 +126,7 @@ function Categories(){
                 .filter((entry) => entry.ownerType === "CATEGORY")
                 .forEach((entry) => { series[entry.ownerId] = entry.values; });
             setXpSeriesById(series);
+            setXpDays(history.success?.days);
         });
 
         const response = await getCategories(t);
@@ -227,6 +229,7 @@ function Categories(){
                 <RenderCategories
                     categories={sortedCategories}
                     xpSeriesById={xpSeriesById}
+                    xpDays={xpDays}
                     emptyTitle={search.trim() && hasCategories ? t("NoResultsTitle") : undefined}
                     onClearFilters={() => setSearch("")}
                 />

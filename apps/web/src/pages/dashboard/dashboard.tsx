@@ -251,6 +251,7 @@ function Dashboard() {
                                         widgetId={id as keyof WidgetProps}
                                         categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
                                         xpSeries={seriesFor((id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp)?.id)}
+                                        xpDays={xpHistory?.days}
                                         categories={categories}
                                         constance={constance}
                                         checked={checkedItemsInScheduledRoutine}
@@ -287,6 +288,7 @@ function Dashboard() {
                                     widgetId={id as keyof WidgetProps}
                                     categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
                                     xpSeries={seriesFor((id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp)?.id)}
+                                    xpDays={xpHistory?.days}
                                     categories={categories}
                                     constance={constance}
                                     checked={checkedItemsInScheduledRoutine}

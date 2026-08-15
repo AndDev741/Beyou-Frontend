@@ -17,13 +17,14 @@ import { enterCategories } from "@beyou/state/category/categoriesSlice";
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number,
     nextLevelXp: number, actualLevelXp: number,
     xpSeries?: number[],
+    xpDays?: string[],
     habits?: Map<string, string>,
     tasks?: Map<string, string>,
     goals?: Map<string, string>
 
 }
 
-function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, xpSeries, habits, tasks, goals}: props){
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, xpSeries, xpDays, habits, tasks, goals}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState(false);
@@ -113,6 +114,7 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, xpS
             {expanded && xpSeries && xpSeries.length > 0 && (
                 <XpSparkline
                     values={xpSeries}
+                    days={xpDays}
                     tone="accent"
                     size="sm"
                     labels={[t("WeekdayShortFirst"), t("WeekdayShortLast")]}

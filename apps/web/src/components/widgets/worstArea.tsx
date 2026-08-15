@@ -9,6 +9,8 @@ export type worstAreaProps = {
     categoriePassed: category | null;
     /** XP per day for that category, oldest first. Absent until the window loads. */
     xpSeries?: number[];
+    /** ISO days matching xpSeries, for the per-bar label. */
+    xpDays?: string[];
 }
 
 const categoryExample: category = {
@@ -23,7 +25,7 @@ const categoryExample: category = {
     createdAt: new Date()
 }
 
-export default function WorstArea({categoriePassed, xpSeries}: worstAreaProps){
+export default function WorstArea({categoriePassed, xpSeries, xpDays}: worstAreaProps){
     const {t} = useTranslation();
     const categoryToUse = categoriePassed ?? categoryExample;
     const window = Math.max(categoryToUse.nextLevelXp - categoryToUse.actualLevelXp, 1);
@@ -53,6 +55,7 @@ export default function WorstArea({categoriePassed, xpSeries}: worstAreaProps){
             {xpSeries && xpSeries.length > 0 ? (
                 <XpSparkline
                     values={xpSeries}
+                    days={xpDays}
                     tone="warm"
                     labels={[t("WeekdayShortFirst"), t("WeekdayShortLast")]}
                     summary={t("XpLastDaysFor", { name: categoryToUse.name, count: xpSeries.length })}

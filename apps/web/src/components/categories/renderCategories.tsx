@@ -11,13 +11,15 @@ type props = {
     categories: Array<categoryType>,
     /** That week of XP per category id. Absent until the window loads. */
     xpSeriesById?: Record<string, number[]>,
+    /** ISO days the series line up with, for the per-bar label. */
+    xpDays?: string[],
     /** Sobrescreve a mensagem de lista vazia (ex.: busca sem resultado). */
     emptyTitle?: string,
     /** Limpa a busca a partir do estado vazio. */
     onClearFilters?: () => void
 }
 
-function RenderCategories({categories, xpSeriesById, emptyTitle, onClearFilters}: props){
+function RenderCategories({categories, xpSeriesById, xpDays, emptyTitle, onClearFilters}: props){
     const {t} = useTranslation();
 
     return(
@@ -44,6 +46,7 @@ function RenderCategories({categories, xpSeriesById, emptyTitle, onClearFilters}
                     nextLevelXp={category.nextLevelXp}
                     actualLevelXp={category.actualLevelXp}
                     xpSeries={xpSeriesById?.[category.id]}
+                    xpDays={xpDays}
                     habits={category.habits ? new Map(Object.entries(category.habits)) : undefined}
                     tasks={category.tasks ? new Map(Object.entries(category.tasks)) : undefined}
                     goals={category.goals ? new Map(Object.entries(category.goals)) : undefined}
