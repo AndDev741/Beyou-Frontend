@@ -13,6 +13,7 @@ import {
     iconEnter
 } from "@beyou/state/category/editCategorySlice";
 import getCategories from "@beyou/api/categories/getCategories";
+import getXpHistory from "@beyou/api/xp/getXpHistory";
 import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { useTranslation } from "react-i18next";
@@ -112,7 +113,20 @@ function Categories(){
         dispatch(editModeEnter(false));
     }, []);
 
+    const [xpSeriesById, setXpSeriesById] = useState<Record<string, number[]>>({});
+
     const loadCategories = useCallback(async () => {
+        // Both in one pass: the cards draw the week beside the level, and refreshing
+        // one without the other would leave a chart describing a different moment
+        // from the number under it.
+        void getXpHistory(t).then((history) => {
+            const series: Record<string, number[]> = {};
+            history.success?.series
+                .filter((entry) => entry.ownerType === "CATEGORY")
+                .forEach((entry) => { series[entry.ownerId] = entry.values; });
+            setXpSeriesById(series);
+        });
+
         const response = await getCategories(t);
         if(Array.isArray(response.success)){
             dispatch(enterCategories(response.success));
@@ -212,6 +226,7 @@ function Categories(){
 
                 <RenderCategories
                     categories={sortedCategories}
+                    xpSeriesById={xpSeriesById}
                     emptyTitle={search.trim() && hasCategories ? t("NoResultsTitle") : undefined}
                     onClearFilters={() => setSearch("")}
                 />

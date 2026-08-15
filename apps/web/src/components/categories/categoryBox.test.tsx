@@ -54,3 +54,32 @@ test('sets delete modal on', () => {
     fireEvent.click(screen.getByRole('button', { name: /Delete/i }));
     expect(DeleteModal).toHaveBeenCalledWith(expect.objectContaining({ onDelete: true }), expect.anything());
 });
+
+/**
+ * The chart the redesign wanted on the widgets, extended to the card that owns the
+ * category. The level bar says where it stands; this says what it has been doing.
+ */
+test("draws the week beside the level once there is history", () => {
+    const { container } = render(<CategoryBox {...defaultProps} xpSeries={[0, 4, 0, 10, 2, 0, 8]} />);
+
+    expect(container.querySelectorAll("rect")).toHaveLength(7);
+    // And the week's total next to the level, which is the metadata half of the ask.
+    expect(screen.getByText("+24")).toBeInTheDocument();
+});
+
+/**
+ * A category created this morning has no week. Seven empty slots would read as "you did
+ * nothing", when the truth is there was nothing to do yet.
+ */
+test("shows the level bar alone when the category has no history", () => {
+    const { container } = render(<CategoryBox {...defaultProps} />);
+
+    expect(container.querySelectorAll("rect")).toHaveLength(0);
+});
+
+/** XP handed back was not earned, so the total nets out rather than counting twice. */
+test("nets a returned day out of the week's total", () => {
+    render(<CategoryBox {...defaultProps} xpSeries={[10, -10, 5]} />);
+
+    expect(screen.getByText("+5")).toBeInTheDocument();
+});
