@@ -124,17 +124,22 @@ function ToolActionCard({
   const target = t(destination.labelKey);
 
   return (
-    <View className="max-w-[92%] flex-row items-center gap-2.5 self-start rounded-card border border-border bg-bg px-3 py-2.5">
+    // The link wraps to its own line instead of squeezing the label: React Native
+    // gives every flex child `flexShrink: 0`, so the link kept its full width and
+    // the label absorbed all of it — "Hábito adicionado à rotina" came out as a
+    // narrow column of one-word lines. Same two-line break RoutineItem uses when
+    // the row does not fit 390px.
+    <View className="max-w-[92%] flex-row flex-wrap items-center gap-x-2.5 gap-y-1 self-start rounded-card border border-border bg-bg px-3 py-2.5">
       <IconTile size={32}>
         <Icon size={16} color={theme.accent} />
       </IconTile>
-      <Text className="min-w-0 flex-1 text-[13px] font-semibold text-text">{label}</Text>
+      <Text className="min-w-[9rem] flex-1 text-[13px] font-semibold text-text">{label}</Text>
       {onInternalLink ? (
         <Pressable
           accessibilityRole="link"
           accessibilityLabel={target}
           onPress={() => onInternalLink(destination.route)}
-          className="flex-row items-center gap-0.5 rounded-control px-1 py-0.5 active:bg-surface-2"
+          className="ml-auto flex-row items-center gap-0.5 rounded-control px-1 py-0.5 active:bg-surface-2"
         >
           <Text className="text-[11px] font-semibold text-accent">{target}</Text>
           <ChevronRight size={13} color={theme.accent} />

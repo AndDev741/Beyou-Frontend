@@ -1,5 +1,6 @@
 import { useContext, type ReactNode } from 'react';
 import { Modal, View, Pressable, KeyboardAvoidingView } from 'react-native';
+import { keyboardAvoidingBehavior } from './keyboard';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -42,7 +43,7 @@ export default function BottomSheet({
             nothing, and once it did count (85% on the container) a second cap on
             the panel became 70% OF 85% — the sheet shrank, came away from the
             bottom and showed the screen underneath. */}
-        <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '85%' }}>
+        <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} style={{ maxHeight: '85%' }}>
           {/* `flexShrink` on the panel, or the cap above never reaches it: without
               shrinking it takes the size of its content and the footer (where the
               confirm button lives) drops off screen. */}

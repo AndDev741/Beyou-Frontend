@@ -100,7 +100,10 @@ const EditDailyRoutine = () => {
         const routine: Routine = {
             id: routineToEdit.id,
             name: values.routineName,
-            iconId: "",
+            // The web has no field for the routine's own icon, but the agent and the
+            // mobile builder set one. Sending "" here erased it on every save, so an
+            // agent-made routine lost its icon the first time it was edited.
+            iconId: routineToEdit.iconId ?? "",
             routineSections: values.routineSections
         };
 

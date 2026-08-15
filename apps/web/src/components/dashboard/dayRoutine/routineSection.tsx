@@ -307,12 +307,15 @@ export default function RoutineSection({ section, routineId}: { section: section
 
     return (
         <div className="flex w-full flex-col items-start justify-center pb-1 pt-2.5">
-            <div className="flex items-center gap-2.5 py-1.5">
-                <span className="text-[15px] text-text-3">
+            {/* w-full, not the parent's `items-start` intrinsic width: without it the
+                row sizes to its content, and on a phone a long section name pushed the
+                chevron past the card's right edge instead of shortening the name. */}
+            <div className="flex w-full items-center gap-2.5 py-1.5">
+                <span className="shrink-0 text-[15px] text-text-3">
                     <BeyouIcon id={section.iconId} />
                 </span>
-                <b className="truncate text-[12.5px] font-semibold text-text-2">{section.name}</b>
-                <span className="whitespace-nowrap font-mono text-[11px] text-text-3">
+                <b className="min-w-0 flex-1 truncate text-[12.5px] font-semibold text-text-2">{section.name}</b>
+                <span className="shrink-0 whitespace-nowrap font-mono text-[11px] text-text-3">
                     {formatTimeRange(section.startTime, section.endTime)}
                 </span>
 
