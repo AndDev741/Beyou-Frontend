@@ -65,6 +65,7 @@ export { default as deleteRoutine } from './routine/deleteRoutine';
 export { default as editRoutine } from './routine/editRoutine';
 export { default as getRoutines } from './routine/getRoutines';
 export { default as getTodayRoutine } from './routine/getTodayRoutine';
+export { default as getXpHistory } from './xp/getXpHistory';
 export { buildRoutinePayload } from './routine/routinePayload';
 export { default as skipRoutine } from './routine/skipItem';
 export * from './routine/snapshot';

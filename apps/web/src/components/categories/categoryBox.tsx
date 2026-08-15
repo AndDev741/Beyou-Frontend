@@ -6,6 +6,7 @@ import {editModeEnter ,idEnter, nameEnter, descriptionEnter, iconEnter} from '@b
 import deleteCategory from "@beyou/api/categories/deleteCategory";
 import getCategories from "@beyou/api/categories/getCategories";
 import BeyouIcon from "../../ui/BeyouIcon";
+import XpSparkline from "../../ui/XpSparkline";
 import Card from "../../ui/Card";
 import Chip from "../../ui/Chip";
 import IconButton from "../../ui/IconButton";
@@ -15,13 +16,15 @@ import { enterCategories } from "@beyou/state/category/categoriesSlice";
 
 type props = {id: string, name: string, description: string, iconId: string, level: number, xp: number,
     nextLevelXp: number, actualLevelXp: number,
+    xpSeries?: number[],
+    xpDays?: string[],
     habits?: Map<string, string>,
     tasks?: Map<string, string>,
     goals?: Map<string, string>
 
 }
 
-function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, habits, tasks, goals}: props){
+function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, xpSeries, xpDays, habits, tasks, goals}: props){
     const {t} = useTranslation();
     const dispatch = useDispatch();
     const [expanded, setExpanded] = useState(false);
@@ -42,6 +45,9 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
     }
 
     const xpPct = nextLevelXp > 0 ? Math.min(100, Math.round((xp / nextLevelXp) * 100)) : 0;
+    // What the window actually added up to. Negative days cancel out, which is right:
+    // XP handed back was not earned.
+    const weekTotal = (xpSeries ?? []).reduce((sum, value) => sum + value, 0);
 
     return(
         // The mockup's compact card with the expand chevron: closed it shows icon,
@@ -100,6 +106,22 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                 )
             )}
 
+            {/* Behind the chevron with everything else the card keeps back. Closed, a
+                category is a name, a description and where it stands; the week is
+                detail, and twelve of these open at once turned the page into a wall of
+                charts. Small here for the same reason — it sits under body text, not
+                on a dashboard rail. */}
+            {expanded && xpSeries && xpSeries.length > 0 && (
+                <XpSparkline
+                    values={xpSeries}
+                    days={xpDays}
+                    tone="accent"
+                    size="sm"
+                    labels={[t("WeekdayShortFirst"), t("WeekdayShortLast")]}
+                    summary={t("XpLastDaysFor", { name, count: xpSeries.length })}
+                />
+            )}
+
             {/* A category accumulates its habits' XP: level and progress, no streak. */}
             <div className="mt-auto pt-1">
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
@@ -110,7 +132,14 @@ function CategoryBox({id, name, description, iconId, level, xp, nextLevelXp, hab
                 </div>
                 <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-text-3">
                     <span className="font-semibold text-text-2">LV {level}</span>
-                    <span>{xp}/{nextLevelXp}</span>
+                    <span className="flex items-center gap-2">
+                        {weekTotal > 0 && (
+                            <span className="text-accent" title={t("XpThisWeek")}>
+                                +{Math.round(weekTotal)}
+                            </span>
+                        )}
+                        <span>{xp}/{nextLevelXp}</span>
+                    </span>
                 </div>
             </div>
 

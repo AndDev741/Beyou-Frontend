@@ -5,6 +5,8 @@ import useAuthGuard from "../../components/useAuthGuard";
 import { RootState } from "@beyou/state/rootReducer";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
+import getXpHistory from "@beyou/api/xp/getXpHistory";
+import type { XpHistory } from "@beyou/types/xp/xpHistory";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
@@ -41,6 +43,15 @@ function Dashboard() {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const [isDashboardLoading, setIsDashboardLoading] = useState(true);
+    const [xpHistory, setXpHistory] = useState<XpHistory | null>(null);
+
+    /** That category's week, or nothing if it has no history in the window yet. */
+    const seriesFor = (categoryId?: string) =>
+        categoryId
+            ? xpHistory?.series.find(
+                  (entry) => entry.ownerType === "CATEGORY" && entry.ownerId === categoryId
+              )?.values
+            : undefined;
 
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);
@@ -103,6 +114,10 @@ function Dashboard() {
             getTasks(t).then((r) => dispatch(enterTasks(r.success))),
             getGoals(t).then((r) => dispatch(enterGoals(r.success))),
             getCategories(t).then((r) => dispatch(enterCategories(r.success))),
+            // The week of bars behind Better/Worst area. Folded into the same
+            // Promise.all so it costs no extra round trip, and held locally: it is
+            // read by two widgets and nothing else in the app.
+            getXpHistory(t).then((r) => setXpHistory(r.success ?? null)),
         ]);
     }, [dispatch, t]);
 
@@ -235,6 +250,8 @@ function Dashboard() {
                                         key={id}
                                         widgetId={id as keyof WidgetProps}
                                         categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                        xpSeries={seriesFor((id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp)?.id)}
+                                        xpDays={xpHistory?.days}
                                         categories={categories}
                                         constance={constance}
                                         checked={checkedItemsInScheduledRoutine}
@@ -270,6 +287,8 @@ function Dashboard() {
                                     key={id}
                                     widgetId={id as keyof WidgetProps}
                                     categoriePassed={id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp}
+                                    xpSeries={seriesFor((id === "betterArea" ? categoryWithMoreXp : categoryWithLessXp)?.id)}
+                                    xpDays={xpHistory?.days}
                                     categories={categories}
                                     constance={constance}
                                     checked={checkedItemsInScheduledRoutine}
