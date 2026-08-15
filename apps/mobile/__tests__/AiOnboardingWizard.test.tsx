@@ -340,7 +340,12 @@ describe('AiOnboardingWizard', () => {
       })
     );
     fetchMock.mockResolvedValue({ success: { routine: routineSuggestion } });
-    createRoutineMock.mockResolvedValue({ routineId: 'r1', name: 'Morning flow' });
+    // The routine step can create items of its own now, and hands back what it made so
+    // the wizard records them: its progress is persisted, and anything missing from
+    // that record gets built a second time when someone resumes.
+    createRoutineMock.mockResolvedValue({
+      routineId: 'r1', name: 'Morning flow', newHabits: [], newTasks: [],
+    });
 
     await renderWizard();
 
@@ -365,12 +370,15 @@ describe('AiOnboardingWizard', () => {
     });
 
     // The edited draft is created with the selected days folded into scheduleDays.
+    // The categories go along too: the step can create items of its own now, and a new
+    // habit with no category is a habit that shows up nowhere.
     expect(createRoutineMock).toHaveBeenCalledWith(
       { ...routineSuggestion, scheduleDays: ['Monday'] },
       [{ id: 'h1', name: 'Run' }],
       [],
       expect.any(Function),
-      expect.any(Function)
+      expect.any(Function),
+      [{ id: 'c1', name: 'Health' }]
     );
     // Advanced to the goals step (placeholder until Task 6) with routineName persisted.
     expect(screen.getByText('Goals')).toBeTruthy();

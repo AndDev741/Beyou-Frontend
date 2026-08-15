@@ -15,6 +15,9 @@
 var mockPathname = '/habits';
 
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   // The layout renders <Stack/> for the screen area; a plain View stands in for
   // the navigator. The extra `screenOptions` prop is inert on a View.
   Stack: require('react-native').View,

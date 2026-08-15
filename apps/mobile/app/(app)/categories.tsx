@@ -1,5 +1,6 @@
 import { ChevronLeft, Folder, Plus, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAutoRefresh } from '../../src/hooks/useAutoRefresh';
 import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -84,6 +85,10 @@ export default function CategoriesScreen() {
       active = false;
     };
   }, [load]);
+
+  // Returning to this screen does not remount it: navigation is a Stack and
+  // this one stays mounted underneath whatever was pushed on top.
+  useAutoRefresh(load);
 
   // Delete uses the system modal: the native Alert carries no theme, no typography
   // and no item name, and brings the platform's button order.

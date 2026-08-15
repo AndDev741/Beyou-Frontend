@@ -148,7 +148,9 @@ describe("createRoutineFromSuggestion", () => {
       [{ habitId: "h-1", startTime: "07:00", endTime: "07:30" }]);
     expect(routineArg.routineSections[0].taskGroup).toEqual([]); // unknown names dropped
     expect(createSchedule).toHaveBeenCalledWith(["Monday"], "r-1", t);
-    expect(result).toEqual({ routineId: "r-1", name: "Morning flow" });
+    expect(result).toEqual({
+      routineId: "r-1", name: "Morning flow", newHabits: [], newTasks: []
+    });
   });
 
   test("dispatches the re-fetched routines into redux", async () => {
@@ -232,5 +234,101 @@ describe("createGoalsFromSuggestions", () => {
          targetValue: 12, unit: "books", motivation: "grow", term: "LONG_TERM", durationDays: 365 }],
       [{ id: "cat-r", name: "Reading" }], t, vi.fn()
     )).rejects.toThrow();
+  });
+});
+
+describe("createRoutineFromSuggestion with items the user does not have yet", () => {
+  beforeEach(() => {
+    createRoutine.mockReset(); getRoutines.mockReset(); createSchedule.mockReset();
+    createHabit.mockReset(); getHabits.mockReset();
+    createTask.mockReset(); getTasks.mockReset();
+  });
+
+  const draft = (extra: Record<string, unknown>) => ({
+    name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["Monday"],
+    sections: [{
+      name: "Wake", iconId: "lucide:sun", startTime: "07:00", endTime: "08:00",
+      habits: [{ name: "Stretch", startTime: "07:00", endTime: "07:15" }],
+      tasks: [{ name: "Buy a mat", startTime: "07:15", endTime: "07:20" }]
+    }],
+    ...extra
+  });
+
+  const armRoutine = () => {
+    createRoutine.mockResolvedValue({ success: {} });
+    getRoutines.mockResolvedValue({ success: [{ id: "r-1", name: "Morning flow" }] });
+    createSchedule.mockResolvedValue({ success: {} });
+  };
+
+  /**
+   * The whole point of the change. A placement carries only a name, so before this the
+   * routine step could not reach anything the user had not already accepted — and the
+   * resolver drops what it cannot find, in silence, so the section simply came out
+   * empty. Creating the described item first is what turns the name into an id.
+   */
+  test("creates the new habit and task first, then places them in the routine", async () => {
+    armRoutine();
+    createHabit.mockResolvedValue({ success: {} });
+    getHabits.mockResolvedValue({ success: [{ id: "h-new", name: "Stretch" }] });
+    createTask.mockResolvedValue({ success: {} });
+    getTasks.mockResolvedValue({ success: [{ id: "t-new", name: "Buy a mat" }] });
+
+    const result = await createRoutineFromSuggestion(
+      draft({
+        newHabits: [{ name: "Stretch", description: "Five minutes", motivationalPhrase: "Go",
+          iconId: "lucide:activity", categoryName: "Health", importance: 3, difficulty: 2 }],
+        newTasks: [{ name: "Buy a mat", description: "Before starting",
+          iconId: "lucide:shopping-bag", categoryName: "Health", importance: 2, difficulty: 1 }]
+      }) as never,
+      [], [], t, vi.fn(), [{ id: "cat-1", name: "Health" }]);
+
+    expect(createHabit).toHaveBeenCalledTimes(1);
+    expect(createTask).toHaveBeenCalledTimes(1);
+
+    const routineArg = createRoutine.mock.calls[0][0];
+    expect(routineArg.routineSections[0].habitGroup).toEqual(
+      [{ habitId: "h-new", startTime: "07:00", endTime: "07:15" }]);
+    expect(routineArg.routineSections[0].taskGroup).toEqual(
+      [{ taskId: "t-new", startTime: "07:15", endTime: "07:20" }]);
+
+    // Handed back so the wizard can record them: its progress is persisted, and an
+    // item missing from that record is built again when someone resumes.
+    expect(result.newHabits).toEqual([{ id: "h-new", name: "Stretch" }]);
+    expect(result.newTasks).toEqual([{ id: "t-new", name: "Buy a mat" }]);
+  });
+
+  /**
+   * A model told not to restate an existing item restates it anyway sometimes, and a
+   * duplicate habit is the one mistake here the user has to clean up by hand.
+   */
+  test("does not re-create something the user already accepted", async () => {
+    armRoutine();
+
+    const result = await createRoutineFromSuggestion(
+      draft({
+        newHabits: [{ name: "stretch", description: "d", motivationalPhrase: "m",
+          iconId: "lucide:activity", categoryName: "Health", importance: 3, difficulty: 2 }],
+        newTasks: []
+      }) as never,
+      [{ id: "h-1", name: "Stretch" }], [], t, vi.fn(), [{ id: "cat-1", name: "Health" }]);
+
+    // Matched case-insensitively, so nothing is created and the placement resolves to
+    // the habit that was already there.
+    expect(createHabit).not.toHaveBeenCalled();
+    expect(result.newHabits).toEqual([]);
+    expect(createRoutine.mock.calls[0][0].routineSections[0].habitGroup).toEqual(
+      [{ habitId: "h-1", startTime: "07:00", endTime: "07:15" }]);
+  });
+
+  test("still works for a draft that needs nothing new", async () => {
+    armRoutine();
+
+    const result = await createRoutineFromSuggestion(
+      draft({}) as never, [{ id: "h-1", name: "Stretch" }], [], t, vi.fn());
+
+    expect(createHabit).not.toHaveBeenCalled();
+    expect(createTask).not.toHaveBeenCalled();
+    expect(result.newHabits).toEqual([]);
+    expect(result.newTasks).toEqual([]);
   });
 });

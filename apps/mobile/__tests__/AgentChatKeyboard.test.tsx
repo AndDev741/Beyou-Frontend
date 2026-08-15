@@ -14,7 +14,10 @@
  * including the return to zero that the second attempt got wrong, is covered case by
  * case in keyboard.test.tsx.
  */
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]), useRouter: () => ({ push: jest.fn() }) }));
 
 import { Keyboard } from 'react-native';
 import { Provider } from 'react-redux';

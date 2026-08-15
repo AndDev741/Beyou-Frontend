@@ -3,6 +3,9 @@
  * recoverable fallback (translated message + retry) instead of a white screen.
  */
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
   useLocalSearchParams: () => ({}),
 }));

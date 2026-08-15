@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import useAuthGuard from "../../components/useAuthGuard";
 import RenderGoals from "../../components/goals/renderGoals";
 import getGoals from "@beyou/api/goals/getGoals";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { useTranslation } from "react-i18next";
 import CreateGoal from "../../components/goals/createGoal";
 import { useDispatch, useSelector } from "react-redux";
@@ -148,15 +149,19 @@ function Goals() {
   // No new i18n key: "filter" + "Goals" already exist in both languages.
   const searchLabel = t("GoalSearchPlaceholder");
 
-  useEffect(() => {
-    const fetchGoals = async () => {
-      const response = await getGoals(t);
-      if (Array.isArray(response.success)) {
-        dispatch(enterGoals(response.success));
-      }
-    };
-    fetchGoals();
+  const loadGoals = useCallback(async () => {
+    const response = await getGoals(t);
+    if (Array.isArray(response.success)) {
+      dispatch(enterGoals(response.success));
+    }
   }, [dispatch, t]);
+
+  useEffect(() => {
+    void loadGoals();
+  }, [loadGoals]);
+
+  // A tab left open here goes stale the moment the phone completes a goal.
+  useAutoRefresh(loadGoals);
 
   return (
     <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 text-text lg:px-7">

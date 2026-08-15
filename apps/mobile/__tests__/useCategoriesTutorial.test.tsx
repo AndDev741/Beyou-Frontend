@@ -1,4 +1,7 @@
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]), useRouter: () => ({ push: jest.fn() }) }));
 jest.mock('react-native-toast-message', () => {
   const S = () => null;
   (S as unknown as { show: unknown }).show = jest.fn();

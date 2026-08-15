@@ -38,6 +38,13 @@ export type SectionSuggestion = {
 
 export type RoutineSuggestion = {
   name: string; iconId: string; scheduleDays: string[]; sections: SectionSuggestion[];
+  /**
+   * Items the plan needs that the user does not have yet, fully described so the client
+   * can create them. Placements still refer to everything by name, so these are matched
+   * to their sections by the same string. Older responses omit both fields.
+   */
+  newHabits?: HabitSuggestion[] | null;
+  newTasks?: TaskSuggestion[] | null;
 };
 
 export type GoalSuggestion = {

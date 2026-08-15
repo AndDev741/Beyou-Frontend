@@ -5,6 +5,14 @@
  * Boundary mocked: the @beyou/api HttpClient (via setHttpClient) returns
  * fixtures per URL, so the REAL api functions + REAL slices run end-to-end.
  */
+// The real module is ESM that jest cannot parse, and useDashboardData reaches it
+// through useAutoRefresh — the hook that brings the dashboard up to date on the way
+// back to it, and when the day turns under an app left open.
+jest.mock('expo-router', () => ({
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
+}));
+
 import { Text } from 'react-native';
 import { render, screen, waitFor } from '@testing-library/react-native';
 import { Provider } from 'react-redux';

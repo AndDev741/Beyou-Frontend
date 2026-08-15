@@ -122,6 +122,12 @@ export default function RoutineStep({
     );
     const [feedback, setFeedback] = useState("");
 
+    // What accepting this draft will create on top of what the user already picked.
+    const addedNames = [
+        ...(draft.newHabits ?? []).map((h) => h.name),
+        ...(draft.newTasks ?? []).map((item) => item.name)
+    ].filter(Boolean);
+
     // A regenerated suggestion replaces any local edits — the user asked for a new draft.
     useEffect(() => {
         setDraft({ ...suggestion, sections: sortSections(suggestion.sections) });
@@ -266,6 +272,19 @@ export default function RoutineStep({
                     <Lightbulb className="w-4 h-4 shrink-0 mt-0.5 sm:mt-0 text-accent" aria-hidden="true" />
                     <span>{t("AiOnboardingRoutineHint")}</span>
                 </p>
+
+                {/* Accepting this draft creates these too. Saying so beforehand is the
+                    difference between the assistant filling a gap in your day and the
+                    assistant putting things in your account you never saw. */}
+                {addedNames.length > 0 && (
+                    <p
+                        className="mt-2 flex flex-col items-center gap-1 text-[12.5px] text-text-2 sm:flex-row sm:justify-center"
+                        data-testid="routine-new-items"
+                    >
+                        <Sparkles className="w-4 h-4 shrink-0 text-accent" aria-hidden="true" />
+                        <span>{t("AiOnboardingRoutineNewItems", { items: addedNames.join(", ") })}</span>
+                    </p>
+                )}
             </div>
 
             {/* Timeline of sections */}

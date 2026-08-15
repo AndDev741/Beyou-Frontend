@@ -264,14 +264,24 @@ export default function AiOnboardingWizard({
 
   const handleRoutineAccept = (edited: RoutineSuggestion, days: string[]) => {
     void runGuarded(async () => {
-      const { name } = await createRoutineFromSuggestion(
+      const { name, newHabits, newTasks } = await createRoutineFromSuggestion(
         { ...edited, scheduleDays: days },
         data.habits,
         data.tasks,
         t,
-        dispatch
+        dispatch,
+        data.categories
       );
-      setData((prev) => ({ ...prev, routineName: name }));
+      // Whatever the routine step created is recorded beside everything else the
+      // wizard made. Progress is persisted so a restart resumes instead of starting
+      // over, and an item missing from that record would be built a second time on
+      // the way back through.
+      setData((prev) => ({
+        ...prev,
+        habits: [...prev.habits, ...newHabits],
+        tasks: [...prev.tasks, ...newTasks],
+        routineName: name,
+      }));
       setStep('goals');
     });
   };

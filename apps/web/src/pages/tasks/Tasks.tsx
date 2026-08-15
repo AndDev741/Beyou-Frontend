@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import useAuthGuard from "../../components/useAuthGuard";
 import { task } from "@beyou/types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
@@ -129,15 +130,20 @@ function Tasks() {
         }
     };
 
-    useEffect(() => {
-        const returnTasks = async () => {
-            const response = await getTasks(t);
-            if (Array.isArray(response.success)) {
-                setTasks(response.success);
-            }
+    const loadTasks = useCallback(async () => {
+        const response = await getTasks(t);
+        if (Array.isArray(response.success)) {
+            setTasks(response.success);
         }
-        returnTasks();
     }, [t]);
+
+    useEffect(() => {
+        void loadTasks();
+    }, [loadTasks]);
+
+    // This page keeps its list in local state rather than redux, so nothing else in
+    // the app can bring it up to date. Leaving the tab open is leaving it wrong.
+    useAutoRefresh(loadTasks);
 
     return (
         <div className="min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] w-full bg-bg px-4 py-6 text-text lg:px-7">

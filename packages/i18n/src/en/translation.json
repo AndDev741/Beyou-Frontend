@@ -576,6 +576,7 @@
     "AiOnboardingFreeInputPlaceholder": "Want something else? Describe it...",
     "AiOnboardingAdd": "Add",
     "AiOnboardingRoutineTitle": "Your daily routine draft",
+    "AiOnboardingRoutineNewItems": "To make this work the assistant will also create: {{items}}.",
     "AiOnboardingRoutineHint": "Move or remove items, or ask the AI to adjust it.",
     "AiOnboardingRoutineFeedbackPlaceholder": "Ask for changes... e.g. 'I wake up at 6'",
     "AiOnboardingRoutineRegenerate": "Adapt with AI",

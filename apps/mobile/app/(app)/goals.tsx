@@ -1,5 +1,6 @@
 import { ChevronLeft, Trophy, Plus, Search } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAutoRefresh } from '../../src/hooks/useAutoRefresh';
 import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -116,6 +117,10 @@ export default function GoalsScreen() {
       active = false;
     };
   }, [load]);
+
+  // Returning to this screen does not remount it: navigation is a Stack and
+  // this one stays mounted underneath whatever was pushed on top.
+  useAutoRefresh(load);
 
   /**
    * The dashboard sends you here with `expand=<id>`: the list scrolls to the goal

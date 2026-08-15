@@ -6,6 +6,9 @@
 const mockPush = jest.fn();
 let mockPathname = '/';
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }),
   usePathname: () => mockPathname,
 }));

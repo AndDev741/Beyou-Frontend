@@ -17,6 +17,9 @@ jest.mock('../src/auth/authApi', () => ({
 const mockReplace = jest.fn();
 let mockParams: Record<string, string> = { token: 'tok-123' };
 jest.mock('expo-router', () => ({
+  // The real module's focus hook: screens use it to refresh on the way back.
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    require('react').useEffect(() => callback(), [callback]),
   useRouter: () => ({ push: jest.fn(), replace: mockReplace }),
   useLocalSearchParams: () => mockParams,
 }));
