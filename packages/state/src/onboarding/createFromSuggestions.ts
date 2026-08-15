@@ -115,20 +115,48 @@ export async function createTasksFromSuggestions(
         .map((task) => ({ id: task.id, name: task.name }));
 }
 
-/** Create the accepted routine draft for real: resolve item names to the ids created
- *  in the previous step (unknown names are dropped — the AI may hallucinate items),
- *  re-fetch to learn the new routine's id, refresh redux, and schedule the days. */
+/**
+ * Create the accepted routine draft for real.
+ *
+ * Anything in `newHabits` / `newTasks` is created first, because a placement can only
+ * be resolved against something that exists — the plan refers to every item by name,
+ * and a name with no id behind it is dropped. That dropping is still here as the last
+ * line of defence against a hallucinated name, but it is no longer how a routine loses
+ * a step: the assistant can now fill a gap in the day by describing the item, and this
+ * is what turns that description into a row before the routine reaches for it.
+ *
+ * The ids of what it created come back with the routine, so the wizard can record them
+ * alongside everything else it made and a resumed session does not build them twice.
+ */
 export async function createRoutineFromSuggestion(
     suggestion: RoutineSuggestion,
     habits: CreatedRef[],
     tasks: CreatedRef[],
     t: TFunction,
-    dispatch: Dispatch
-): Promise<{ routineId: string; name: string }> {
+    dispatch: Dispatch,
+    categories: CreatedRef[] = []
+): Promise<{ routineId: string; name: string; newHabits: CreatedRef[]; newTasks: CreatedRef[] }> {
+    // Only the ones that are genuinely new. A model asked not to restate an existing
+    // item will sometimes restate it anyway, and creating a second habit by the same
+    // name is the one mistake here the user has to clean up by hand.
+    const known = (refs: CreatedRef[]) => new Set(refs.map((r) => r.name.toLowerCase()));
+    const knownHabits = known(habits);
+    const knownTasks = known(tasks);
+
+    const habitsToCreate = (suggestion.newHabits ?? []).filter(
+        (h) => h.name && !knownHabits.has(h.name.toLowerCase())
+    );
+    const tasksToCreate = (suggestion.newTasks ?? []).filter(
+        (item) => item.name && !knownTasks.has(item.name.toLowerCase())
+    );
+
+    const createdHabits = await createHabitsFromSuggestions(habitsToCreate, categories, t, dispatch);
+    const createdTasks = await createTasksFromSuggestions(tasksToCreate, categories, t, dispatch);
+
     const byName = (refs: CreatedRef[]) =>
         new Map(refs.map((r) => [r.name.toLowerCase(), r.id]));
-    const habitIds = byName(habits);
-    const taskIds = byName(tasks);
+    const habitIds = byName([...habits, ...createdHabits]);
+    const taskIds = byName([...tasks, ...createdTasks]);
 
     const routine: Routine = {
         name: suggestion.name,
@@ -173,7 +201,12 @@ export async function createRoutineFromSuggestion(
         const sched = await createSchedule(suggestion.scheduleDays, created.id, t);
         if (sched.error) throw new Error(sched.error.message ?? "create schedule failed");
     }
-    return { routineId: created.id, name: suggestion.name };
+    return {
+        routineId: created.id,
+        name: suggestion.name,
+        newHabits: createdHabits,
+        newTasks: createdTasks
+    };
 }
 
 /** How far out a goal's end date lands when the AI didn't provide a usable duration. */

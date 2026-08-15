@@ -8,6 +8,7 @@ import {
   Lightbulb,
   ListChecks,
   Repeat,
+  Sparkles,
   Wand2,
   X,
 } from 'lucide-react-native';
@@ -117,6 +118,12 @@ export default function RoutineStep({
     () => new Set(suggestion.scheduleDays)
   );
   const [feedback, setFeedback] = useState('');
+
+  // What accepting this draft will create on top of what the user already picked.
+  const addedNames = [
+    ...(draft.newHabits ?? []).map((h) => h.name),
+    ...(draft.newTasks ?? []).map((item) => item.name),
+  ].filter(Boolean);
   const [moveTarget, setMoveTarget] = useState<MoveTarget | null>(null);
 
   // A regenerated suggestion replaces any local edits — the user asked for a new draft.
@@ -247,6 +254,20 @@ export default function RoutineStep({
             {t('AiOnboardingRoutineHint')}
           </Text>
         </View>
+
+        {/* Accepting this draft creates these too. Saying so beforehand is the
+            difference between the assistant filling a gap in the day and the
+            assistant putting things in the account nobody saw. */}
+        {addedNames.length > 0 ? (
+          <View className="mt-2 flex-row items-start gap-2" testID="routine-new-items">
+            <View className="pt-0.5">
+              <Sparkles size={16} color={theme.primary} />
+            </View>
+            <Text className="text-text-2 min-w-0 flex-1 text-sm">
+              {t('AiOnboardingRoutineNewItems', { items: addedNames.join(', ') })}
+            </Text>
+          </View>
+        ) : null}
       </View>
 
       {/* Chronological section cards */}

@@ -576,6 +576,7 @@
     "AiOnboardingFreeInputPlaceholder": "Quer algo mais? Descreva...",
     "AiOnboardingAdd": "Adicionar",
     "AiOnboardingRoutineTitle": "Rascunho da sua rotina diária",
+    "AiOnboardingRoutineNewItems": "Para isso funcionar o assistente vai criar também: {{items}}.",
     "AiOnboardingRoutineHint": "Mova ou remova itens, ou peça para a IA ajustar.",
     "AiOnboardingRoutineFeedbackPlaceholder": "Peça mudanças... ex: 'Acordo às 6'",
     "AiOnboardingRoutineRegenerate": "Adaptar com IA",
