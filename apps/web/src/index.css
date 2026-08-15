@@ -64,7 +64,11 @@
   border-left: 3px solid var(--accent);
 }
 
+/* flex: 1 is the one that matters: the body has to claim the width between the icon
+   and the close button, or the button follows the text and stops halfway across the
+   toast with dead space in the corner. */
 .beyou-toast .Toastify__toast-body {
+  flex: 1 1 auto;
   align-items: flex-start;
   gap: 10px;
   margin: 0;

@@ -112,4 +112,18 @@ describe('VerifyRoute', () => {
     });
     expect(mockReplace).toHaveBeenCalledWith('/(auth)/login');
   });
+
+  /**
+   * The screen used to say two things at once: AuthShell's title said "check your
+   * e-mail" while the Result underneath said "email verified". Same defect the web
+   * page had, and the same fix — the state owns the heading, and there is only one.
+   */
+  it('shows one heading, and it is the state, not an instruction', async () => {
+    mockVerify.mockResolvedValueOnce('success');
+    const screen = await renderScreen();
+
+    // Resolved strings here: this suite loads the real i18n, unlike the web one.
+    await waitFor(() => expect(screen.getByText('Email verified!')).toBeTruthy());
+    expect(screen.queryByText('Check your email')).toBeNull();
+  });
 });

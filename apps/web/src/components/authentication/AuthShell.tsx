@@ -8,6 +8,14 @@ type AuthShellProps = {
     children: ReactNode;
     /** Last line of the card ("New here? Create account"). */
     footer?: ReactNode;
+    /**
+     * "form" is a page with something to fill in, where the heading is a greeting
+     * above it. "status" is a page whose heading IS the content — verified, expired,
+     * link broken — with nothing else on screen to say what happened.
+     */
+    variant?: "form" | "status";
+    /** Status pages only: the mark above the heading. Ignored by the form variant. */
+    icon?: ReactNode;
 };
 
 /**
@@ -23,7 +31,14 @@ type AuthShellProps = {
  * follows the system default (theme from the OS, language from the browser).
  * Switching is something a signed-in user does, in Configuration.
  */
-export default function AuthShell({ title, subtitle, children, footer }: AuthShellProps) {
+export default function AuthShell({
+    title,
+    subtitle,
+    children,
+    footer,
+    variant = "form",
+    icon
+}: AuthShellProps) {
     const { t } = useTranslation();
 
     return (
@@ -57,15 +72,33 @@ export default function AuthShell({ title, subtitle, children, footer }: AuthShe
                         <span className="text-xl font-semibold tracking-[-0.02em] text-text">beyou</span>
                     </div>
 
-                    {/* The greeting belongs to desktop: on phones the brand is
-                        already the header, and repeating "Welcome back" there pushed
-                        the form below the fold. It stays in the DOM (the page needs an
-                        h1), only invisible. */}
-                    <h1 className="sr-only text-xl font-semibold tracking-[-0.015em] text-text lg:not-sr-only">
-                        {title}
-                    </h1>
-                    {subtitle && (
-                        <p className="hidden text-[13px] text-text-3 lg:mt-1.5 lg:block">{subtitle}</p>
+                    {variant === "status" ? (
+                        /* The heading is the whole message here, so it is centred with
+                           the rest of the column and visible at every width. Hiding it
+                           on phones the way the greeting does would leave a mark, a
+                           sentence and a button with nothing naming what happened. */
+                        <div className="flex flex-col items-center text-center">
+                            {icon}
+                            <h1 className="text-2xl font-semibold tracking-[-0.015em] text-text">
+                                {title}
+                            </h1>
+                            {subtitle && (
+                                <p className="mt-2 text-[13.5px] leading-snug text-text-2">{subtitle}</p>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            {/* The greeting belongs to desktop: on phones the brand is
+                                already the header, and repeating "Welcome back" there
+                                pushed the form below the fold. It stays in the DOM (the
+                                page needs an h1), only invisible. */}
+                            <h1 className="sr-only text-xl font-semibold tracking-[-0.015em] text-text lg:not-sr-only">
+                                {title}
+                            </h1>
+                            {subtitle && (
+                                <p className="hidden text-[13px] text-text-3 lg:mt-1.5 lg:block">{subtitle}</p>
+                            )}
+                        </>
                     )}
 
                     {children}

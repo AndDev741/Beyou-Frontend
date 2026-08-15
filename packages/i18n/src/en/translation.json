@@ -45,6 +45,8 @@
     "RegisterFailed": "Registration failed. Please try again.",
     "BackToLogin": "Back to login",
     "VerifyEmailLoading": "Verifying your email...",
+    "VerifyEmailChooseTitle": "Open in the app?",
+    "VerifyEmailChooseMessage": "Your link is ready. Choose where to finish verifying.",
     "VerifyEmailSuccessTitle": "Email verified!",
     "VerifyEmailSuccessMessage": "Your account is now active. You can log in.",
     "VerifyEmailErrorTitle": "Verification failed",
