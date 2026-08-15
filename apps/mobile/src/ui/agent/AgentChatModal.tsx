@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Modal,
   Pressable,
   ScrollView,
@@ -27,7 +26,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { keyboardAvoidingBehavior } from '../keyboard';
+import { useKeyboardLift } from '../keyboard';
 import IconTile from '../IconTile';
 import AgentSegments from './AgentSegments';
 import type { AgentChatState } from './useAgentChat';
@@ -63,6 +62,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
   const [editingChatId, setEditingChatId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+  const { lift, onLayout } = useKeyboardLift();
 
   // Agent-suggested in-app link: the sheet covers the screen, so close first.
   const goToPage = (path: string) => {
@@ -120,7 +120,12 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
       animationType={reduceMotion ? 'fade' : 'slide'}
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} className="flex-1 justify-end">
+      <View
+        className="flex-1 justify-end"
+        onLayout={onLayout}
+        style={{ paddingBottom: lift }}
+        testID="agent-keyboard-avoider"
+      >
         <Pressable
           accessibilityLabel={t('CloseAssistant')}
           onPress={onClose}
@@ -131,7 +136,11 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
         <View
           testID="agent-sheet"
           className="overflow-hidden rounded-t-frame border-t border-border bg-surface"
-          style={{ height: SHEET_HEIGHT, paddingBottom: insets?.bottom ?? 0 }}
+          // The navigation bar's inset only matters while the navigation bar is
+          // visible. With the keyboard up it is behind the keyboard, and keeping its
+          // padding leaves a strip of empty sheet under the composer — the same gap
+          // this whole fix is about, seen from the inside.
+          style={{ height: SHEET_HEIGHT, paddingBottom: lift > 0 ? 0 : (insets?.bottom ?? 0) }}
         >
           {/* Grabber: says "this is a sheet" before any gesture. */}
           <View className="items-center pt-2" aria-hidden>
@@ -315,6 +324,11 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                   className="flex-1 px-3"
                   contentContainerStyle={{ paddingVertical: 16, gap: 10 }}
                   onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: !reduceMotion })}
+                  // And on resize, not only on new content. The keyboard shortens this
+                  // list without changing a word in it, so onContentSizeChange stays
+                  // quiet and the message you were reading slides out of view exactly
+                  // as you start replying to it.
+                  onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
                 >
                   {messages.map((message, index) =>
                     message.role === 'USER' ? (
@@ -387,7 +401,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
             </>
           )}
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }

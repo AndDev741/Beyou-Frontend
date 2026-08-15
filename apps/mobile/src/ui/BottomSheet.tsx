@@ -1,6 +1,6 @@
 import { useContext, type ReactNode } from 'react';
-import { Modal, View, Pressable, KeyboardAvoidingView } from 'react-native';
-import { keyboardAvoidingBehavior } from './keyboard';
+import { Modal, View, Pressable } from 'react-native';
+import { useKeyboardLift } from './keyboard';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 
@@ -29,10 +29,11 @@ export default function BottomSheet({
 }: BottomSheetProps) {
   const { t } = useTranslation();
   const insets = useContext(SafeAreaInsetsContext);
+  const { lift, onLayout } = useKeyboardLift();
   if (!visible) return null;
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, paddingBottom: lift }} onLayout={onLayout}>
         <Pressable
           className="flex-1 bg-black/40"
           onPress={dismissable ? onClose : undefined}
@@ -43,17 +44,17 @@ export default function BottomSheet({
             nothing, and once it did count (85% on the container) a second cap on
             the panel became 70% OF 85% — the sheet shrank, came away from the
             bottom and showed the screen underneath. */}
-        <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} style={{ maxHeight: '85%' }}>
+        <View style={{ maxHeight: '85%' }}>
           {/* `flexShrink` on the panel, or the cap above never reaches it: without
               shrinking it takes the size of its content and the footer (where the
               confirm button lives) drops off screen. */}
           <View
             className="rounded-t-2xl bg-surface px-4 pt-4"
-            style={{ flexShrink: 1, paddingBottom: (insets?.bottom ?? 0) + 16 }}
+            style={{ flexShrink: 1, paddingBottom: (lift > 0 ? 0 : (insets?.bottom ?? 0)) + 16 }}
           >
             {children}
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </View>
     </Modal>
   );
