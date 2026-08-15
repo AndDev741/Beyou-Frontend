@@ -1,0 +1,22 @@
+// CI-only Gradle tweaks, applied with --init-script by .github/workflows/mobile-apk.yml.
+// A local `expo run:android` never loads this file.
+//
+// The app and most React Native modules take their NDK from rootProject.ext.ndkVersion,
+// which Expo pins (27.1.12297006 today). A module that never declares one falls back to
+// AGP's own default instead (27.0.12077973) — @sentry/react-native is the current case.
+// One straggler is enough to make the runner download a second NDK, ~40s per build for a
+// toolchain nothing else uses. Hand every Android module the pinned version as its
+// starting point; a module that sets ndkVersion in its own build.gradle still wins,
+// because that runs after this callback.
+gradle.beforeProject { project ->
+    ["com.android.application", "com.android.library"].each { pluginId ->
+        project.plugins.withId(pluginId) {
+            def pinned = project.rootProject.hasProperty("ndkVersion")
+                ? project.rootProject.ndkVersion
+                : null
+            if (pinned) {
+                project.extensions.getByName("android").ndkVersion = pinned
+            }
+        }
+    }
+}
