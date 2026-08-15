@@ -86,7 +86,10 @@ export default function VerifyRoute() {
   );
 
   return (
-    <AuthShell testID="verify-screen" title={t('VerifyEmailTitle')}>
+    // No `title`: the Result below carries the heading, and passing one as well put
+    // "Confira seu e-mail" above "Email verificado!" — two headings saying different
+    // things about the same screen. Same defect the web page had.
+    <AuthShell testID="verify-screen">
       {state === 'loading' ? (
         <View className="mt-6 items-center gap-3" testID="verify-loading">
           <ActivityIndicator color={theme.accent} size="large" />

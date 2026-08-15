@@ -45,6 +45,8 @@
     "RegisterFailed": "Falha no cadastro. Tente novamente.",
     "BackToLogin": "Voltar para o login",
     "VerifyEmailLoading": "Verificando seu email...",
+    "VerifyEmailChooseTitle": "Abrir no app?",
+    "VerifyEmailChooseMessage": "Seu link está pronto. Escolha onde terminar a verificação.",
     "VerifyEmailSuccessTitle": "Email verificado!",
     "VerifyEmailSuccessMessage": "Sua conta está ativa. Você já pode fazer login.",
     "VerifyEmailErrorTitle": "Verificação falhou",

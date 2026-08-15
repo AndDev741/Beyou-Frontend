@@ -8,6 +8,49 @@ import { isMobileDevice } from "../../../components/utils/openInApp";
 
 type VerifyState = "loading" | "success" | "error" | "expired";
 
+const actionLink =
+    "mt-6 inline-flex items-center justify-center rounded-control bg-accent px-6 py-2.5 " +
+    "text-sm font-semibold text-on-accent transition-opacity duration-200 hover:opacity-90";
+
+/** The circle behind each state's mark. */
+function StatusMark({ tone, children }: { tone: "success" | "danger"; children: React.ReactNode }) {
+    return (
+        <div
+            className={`mb-4 flex h-14 w-14 items-center justify-center rounded-full ${
+                tone === "success" ? "bg-success/20 text-success" : "bg-danger/20 text-danger"
+            }`}
+        >
+            <svg
+                className="h-7 w-7"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                aria-hidden="true"
+            >
+                {children}
+            </svg>
+        </div>
+    );
+}
+
+/**
+ * What the verification link lands on.
+ *
+ * This page is nothing but its state, and that is what the layout used to get wrong.
+ * `AuthShell` renders the page's single h1 from `title`, and the page was passing the
+ * fixed "Check your e-mail" while each state rendered a second h1 of its own. Desktop
+ * showed both at once: "Check your e-mail" sitting above "Email verified!", two
+ * headings contradicting each other over one green tick, with the first left-aligned
+ * against a centred column.
+ *
+ * The phone was worse than untidy. Its choose-where-to-open screen — shown BEFORE
+ * anything is verified, because the token is single-use and the deep link needs it
+ * alive — announced "Email verified!" over a button offering to verify.
+ *
+ * So the title is derived from the state, in one place, and the states no longer carry
+ * headings of their own. Whatever the h1 says is what actually happened.
+ */
 function VerifyEmail() {
     const { t } = useTranslation();
     const [searchParams] = useSearchParams();
@@ -50,84 +93,91 @@ function VerifyEmail() {
         runVerify();
     }, [token, mobile, runVerify]);
 
+    // The phone's choice screen: the link was opened, nothing has been spent yet.
+    const choosing = state === "loading" && mobile && token;
+
+    const heading = () => {
+        if (choosing) return { title: t("VerifyEmailChooseTitle"), subtitle: t("VerifyEmailChooseMessage") };
+        switch (state) {
+            case "loading":
+                return { title: t("VerifyEmailLoading"), subtitle: undefined };
+            case "success":
+                return { title: t("VerifyEmailSuccessTitle"), subtitle: t("VerifyEmailSuccessMessage") };
+            case "expired":
+                return { title: t("VerifyEmailExpiredTitle"), subtitle: t("VerifyEmailExpiredMessage") };
+            default:
+                return { title: t("VerifyEmailErrorTitle"), subtitle: t("VerifyEmailErrorMessage") };
+        }
+    };
+
+    const mark = () => {
+        if (choosing) return null;
+        switch (state) {
+            case "loading":
+                return (
+                    <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-border border-t-transparent" />
+                );
+            case "success":
+                return (
+                    <StatusMark tone="success">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </StatusMark>
+                );
+            case "expired":
+                return (
+                    <StatusMark tone="danger">
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </StatusMark>
+                );
+            default:
+                return (
+                    <StatusMark tone="danger">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </StatusMark>
+                );
+        }
+    };
+
+    const { title, subtitle } = heading();
+
     return (
-        <AuthShell title={t("VerifyEmailTitle")}>
+        <AuthShell variant="status" icon={mark()} title={title} subtitle={subtitle}>
             <div className="flex flex-col items-center text-center">
-                    {state === "loading" && mobile && token && (
-                        <div className="flex flex-col items-center w-full" data-testid="verify-choose">
-                            <h1 className="text-2xl font-bold mb-6">{t("VerifyEmailSuccessTitle")}</h1>
-                            <OpenInAppButton path="verify" token={token} />
-                            <button
-                                type="button"
-                                onClick={runVerify}
-                                className="text-accent underline text-lg mt-2"
-                                data-testid="verify-in-browser"
-                            >
-                                {t("VerifyInBrowser")}
-                            </button>
-                        </div>
-                    )}
+                {choosing && (
+                    <div className="mt-6 flex w-full flex-col items-center" data-testid="verify-choose">
+                        <OpenInAppButton path="verify" token={token} />
+                        <button
+                            type="button"
+                            onClick={runVerify}
+                            className="mt-3 text-[13px] font-semibold text-accent underline-offset-4 hover:underline"
+                            data-testid="verify-in-browser"
+                        >
+                            {t("VerifyInBrowser")}
+                        </button>
+                    </div>
+                )}
 
-                    {state === "loading" && !(mobile && token) && (
-                        <>
-                            <div className="w-12 h-12 border-4 border-border border-t-transparent rounded-full animate-spin mb-6" />
-                            <p className="text-xl text-text/70">{t("VerifyEmailLoading")}</p>
-                        </>
-                    )}
+                {state === "success" && (
+                    <Link to="/" className={actionLink}>
+                        {t("Enter")}
+                    </Link>
+                )}
 
-                    {state === "success" && (
-                        <>
-                            <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mb-6">
-                                <svg className="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <h1 className="text-2xl font-bold mb-3">{t("VerifyEmailSuccessTitle")}</h1>
-                            <p className="text-base text-text/70 mb-8">{t("VerifyEmailSuccessMessage")}</p>
-                            <Link
-                                to="/"
-                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
-                            >
-                                {t("Enter")}
-                            </Link>
-                        </>
-                    )}
+                {state === "error" && (
+                    <Link to="/" className={actionLink}>
+                        {t("Enter")}
+                    </Link>
+                )}
 
-                    {state === "error" && (
-                        <>
-                            <div className="w-16 h-16 rounded-full bg-danger/20 flex items-center justify-center mb-6">
-                                <svg className="w-8 h-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </div>
-                            <h1 className="text-2xl font-bold mb-3">{t("VerifyEmailErrorTitle")}</h1>
-                            <p className="text-base text-text/70 mb-8">{t("VerifyEmailErrorMessage")}</p>
-                            <Link
-                                to="/"
-                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
-                            >
-                                {t("Enter")}
-                            </Link>
-                        </>
-                    )}
-
-                    {state === "expired" && (
-                        <>
-                            <div className="w-16 h-16 rounded-full bg-danger/20 flex items-center justify-center mb-6">
-                                <svg className="w-8 h-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <h1 className="text-2xl font-bold mb-3">{t("VerifyEmailExpiredTitle")}</h1>
-                            <p className="text-base text-text/70 mb-8">{t("VerifyEmailExpiredMessage")}</p>
-                            <Link
-                                to="/register"
-                                className="px-8 py-3 bg-accent text-on-accent rounded-card font-semibold text-lg hover:opacity-90 transition-opacity"
-                            >
-                                {t("ToRegister")}
-                            </Link>
-                        </>
-                    )}
+                {state === "expired" && (
+                    <Link to="/register" className={actionLink}>
+                        {t("ToRegister")}
+                    </Link>
+                )}
             </div>
         </AuthShell>
     );
