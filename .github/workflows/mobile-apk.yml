@@ -35,8 +35,11 @@ on:
       - ".github/workflows/mobile-apk.yml"
   workflow_dispatch:
 
+# Scoped per ref so consecutive pushes to main still supersede each other (only
+# the newest APK matters), while a workflow_dispatch from a branch runs to the
+# end instead of being cancelled by whatever lands on main meanwhile.
 concurrency:
-  group: mobile-apk
+  group: mobile-apk-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
