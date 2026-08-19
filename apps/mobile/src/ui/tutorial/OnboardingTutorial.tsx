@@ -130,6 +130,12 @@ export default function OnboardingTutorial({
                 <Text className="text-text-2 text-sm leading-relaxed">
                   {t('TutorialPathAiDescription')}
                 </Text>
+                {/* On the card, not after the choice: this is where a person decides
+                    whether to hand their answers to an outside model, so the fact that
+                    it IS an outside model has to be readable before the tap. */}
+                <Text className="text-text-3 mt-3 text-[12px] leading-snug">
+                  {t('AiOnboardingPrivacyNotice')}
+                </Text>
               </Pressable>
 
               <Pressable

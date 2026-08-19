@@ -19,6 +19,7 @@ import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useAgentRefresh } from "../../hooks/useAgentRefresh";
 import Modal from "../modals/Modal";
 import AgentSegments from "./AgentSegments";
+import AgentPrivacyNotice from "./AgentPrivacyNotice";
 
 const VISIBLE_ROLES = ["USER", "ASSISTANT"];
 const AUTO_TITLE_MAX = 40;
@@ -652,6 +653,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                                                     </button>
                                                 ))}
                                             </div>
+                                            <AgentPrivacyNotice />
                                         </div>
                                     ) : (
                                         <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-3 py-4">

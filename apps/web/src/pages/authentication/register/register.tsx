@@ -9,6 +9,7 @@ import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { privacyPolicyUrl } from "@beyou/i18n";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
@@ -30,7 +31,7 @@ type RegisterFormValues = {
 };
 
 function Register() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -168,6 +169,26 @@ function Register() {
                         {errors.root?.message && (
                             <FormNotice tone="error" message={errors.root.message} />
                         )}
+
+                        {/* Under the button rather than a box to tick: the legal basis for
+                            everything Beyou stores is the contract you are entering by
+                            registering, not consent, so what this owes the reader is the
+                            information — and a gate on it would only be theatre. It has to
+                            be somewhere the eye passes on the way to submitting, which is
+                            here. */}
+                        <p className="text-center text-[12px] leading-snug text-text-3">
+                            {t("RegisterPrivacyNotice")}{" "}
+                            <a
+                                href={privacyPolicyUrl(i18n.language)}
+                                target="_blank"
+                                rel="noreferrer"
+                                data-testid="register-privacy-link"
+                                className="font-semibold text-accent hover:underline"
+                            >
+                                {t("PrivacyPolicy")}
+                            </a>
+                            .
+                        </p>
                     </form>
 
                     <GoogleIcon />

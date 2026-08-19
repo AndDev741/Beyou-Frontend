@@ -122,6 +122,35 @@ The brand rasters themselves come from `tools/make-icons.py` (see its docstring)
 
 ---
 
+## Android permissions
+
+Beyou asks for nothing beyond network access and the photo the user picks. The
+merged manifest used to say otherwise: Expo's prebuild and the libraries under it
+contribute `RECORD_AUDIO`, `CAMERA` and `SYSTEM_ALERT_WINDOW` whether or not any
+code calls them, and nothing here does — `expo-image-picker` is only ever used as
+`launchImageLibraryAsync`, never the camera. A habits app declaring a microphone
+is the kind of thing a Play reviewer stops on, and it is also simply untrue.
+
+`android.blockedPermissions` in `app.json` strips them back out. It is applied by
+prebuild, not at build time, so the `android/` directory has to be regenerated
+before a release build or the old manifest ships:
+
+```bash
+cd apps/mobile
+npx expo prebuild --platform android --clean
+```
+
+Check the result before uploading — this should print INTERNET, ACCESS_NETWORK_STATE,
+VIBRATE, the two `maxSdkVersion=32` storage entries, and the biometric pair that
+`expo-secure-store` needs, and nothing else:
+
+```bash
+grep -o 'android:name="android.permission[^"]*"' \
+  android/app/build/intermediates/merged_manifests/release/*/AndroidManifest.xml | sort -u
+```
+
+---
+
 ## Manual verification checklist
 
 Run this once with the backend up and a device/emulator connected via `npx expo start`.

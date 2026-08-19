@@ -233,6 +233,14 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
                     {t("TutorialPathAiDescription")}
                   </p>
 
+                  {/* On the card, not after the choice: this is the fork where a person
+                      decides whether to hand their answers to an outside model, so the
+                      fact that it IS an outside model has to be readable before the
+                      click rather than explained once they are inside the wizard. */}
+                  <p className="mt-3 text-[12px] leading-snug text-text-3">
+                    {t("AiOnboardingPrivacyNotice")}
+                  </p>
+
                   <div className="mt-5 flex items-center gap-2 text-accent font-semibold">
                     <span>{t("TutorialGetStarted")}</span>
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

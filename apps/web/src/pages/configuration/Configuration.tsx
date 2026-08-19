@@ -11,6 +11,7 @@ import WidgetsConfiguration from "../../components/configuration/WidgetsConfigur
 import ConfigSection from "../../components/configuration/ConfigSection";
 import AccountConfiguration from "../../components/configuration/AccountConfiguration";
 import DangerZone from "../../components/configuration/DangerZone";
+import PrivacyPolicyLink from "../../components/configuration/PrivacyPolicyLink";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
@@ -115,6 +116,7 @@ export default function Configuration() {
                             <ConstanceConfiguration />
                             <RoutineSettings />
                             <TutorialConfiguration />
+                            <PrivacyPolicyLink />
                         </div>
                     </ConfigSection>
 
