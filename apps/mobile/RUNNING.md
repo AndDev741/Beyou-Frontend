@@ -140,13 +140,24 @@ cd apps/mobile
 npx expo prebuild --platform android --clean
 ```
 
-Check the result before uploading — this should print INTERNET, ACCESS_NETWORK_STATE,
-VIBRATE, the two `maxSdkVersion=32` storage entries, and the biometric pair that
-`expo-secure-store` needs, and nothing else:
+Check the result before uploading. Read the **release** manifest, not the debug one:
+`src/debug/AndroidManifest.xml` declares `SYSTEM_ALERT_WINDOW` for React Native's dev
+overlay, so a debug merge still shows it and a release merge does not.
 
 ```bash
+cd android
+SENTRY_DISABLE_AUTO_UPLOAD=true ./gradlew :app:processReleaseMainManifest
 grep -o 'android:name="android.permission[^"]*"' \
-  android/app/build/intermediates/merged_manifests/release/*/AndroidManifest.xml | sort -u
+  app/build/intermediates/merged_manifest/release/*/AndroidManifest.xml | sort -u
+```
+
+(The env var only skips uploading source maps to Sentry, which needs an auth token
+this task does not otherwise require.) The list should be exactly seven entries:
+
+```
+ACCESS_NETWORK_STATE   INTERNET   VIBRATE
+READ_EXTERNAL_STORAGE  WRITE_EXTERNAL_STORAGE   (both maxSdkVersion=32, image picker)
+USE_BIOMETRIC          USE_FINGERPRINT          (expo-secure-store)
 ```
 
 ---
