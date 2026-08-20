@@ -953,6 +953,8 @@ export interface components {
             isTutorialCompleted?: boolean;
             timezone?: string;
             /** @enum {string} */
+            timezoneSource?: "DEFAULT" | "DETECTED" | "EXPLICIT";
+            /** @enum {string} */
             xpDecayStrategy?: "GRADUAL" | "FLAT" | "TIME_WINDOW";
         };
         UserResponseDTO: {
@@ -982,6 +984,8 @@ export interface components {
             isTutorialCompleted?: boolean;
             languageInUse?: string;
             timezone?: string;
+            /** @enum {string} */
+            timezoneSource?: "DEFAULT" | "DETECTED" | "EXPLICIT";
             /** @enum {string} */
             xpDecayStrategy?: "GRADUAL" | "FLAT" | "TIME_WINDOW";
         };
@@ -1366,6 +1370,7 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
+            timezone?: string;
         };
         UserLoginDTO: {
             email: string;

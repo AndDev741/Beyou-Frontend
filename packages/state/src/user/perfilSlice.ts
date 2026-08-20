@@ -36,6 +36,12 @@ type userInitialState = {
     languageInUse: string,
     isTutorialCompleted: boolean,
     timezone: string,
+    /**
+     * Whether `timezone` was ever actually chosen. The boot reconcile only adopts the
+     * device's zone while this is "DEFAULT", and the settings screen only offers its
+     * suggestion while it is not "EXPLICIT".
+     */
+    timezoneSource: "DEFAULT" | "DETECTED" | "EXPLICIT",
     xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW",
 }
 
@@ -62,6 +68,7 @@ const initialState: userInitialState = {
     languageInUse: "",
     isTutorialCompleted: false,
     timezone: "UTC",
+    timezoneSource: "DEFAULT",
     xpDecayStrategy: "GRADUAL",
 }
 
@@ -96,6 +103,7 @@ const perfilSlice = createSlice({
                 languageInUse: u.languageInUse ?? state.languageInUse,
                 isTutorialCompleted: u.isTutorialCompleted ?? state.isTutorialCompleted,
                 timezone: u.timezone ?? state.timezone,
+                timezoneSource: u.timezoneSource ?? state.timezoneSource,
                 xpDecayStrategy: u.xpDecayStrategy ?? state.xpDecayStrategy,
             };
         },
@@ -187,6 +195,11 @@ const perfilSlice = createSlice({
             const timezone = typeof action.payload === "string" ? action.payload : "UTC";
             return {...state, timezone};
         },
+        timezoneSourceEnter(state, action){
+            const valid = ["DEFAULT", "DETECTED", "EXPLICIT"] as const;
+            const timezoneSource = valid.includes(action.payload) ? action.payload : "DEFAULT";
+            return {...state, timezoneSource};
+        },
         xpDecayStrategyEnter(state, action){
             const valid = ["GRADUAL", "FLAT", "TIME_WINDOW"] as const;
             const xpDecayStrategy = valid.includes(action.payload) ? action.payload : "GRADUAL";
@@ -219,6 +232,7 @@ export const {
     languageInUserEnter,
     tutorialCompletedEnter,
     timezoneEnter,
+    timezoneSourceEnter,
     xpDecayStrategyEnter
 } = perfilSlice.actions;
 

@@ -27,5 +27,10 @@ export type UserType = {
     languageInUse: string,
     isTutorialCompleted: boolean,
     timezone: string,
+    /**
+     * Whether `timezone` was ever actually chosen, or is just the value every account
+     * starts with. Only `DEFAULT` may be adopted over: see `reconcileTimezone`.
+     */
+    timezoneSource: "DEFAULT" | "DETECTED" | "EXPLICIT",
     xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW"
 }
