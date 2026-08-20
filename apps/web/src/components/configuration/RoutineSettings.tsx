@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { RootState } from "@beyou/state/rootReducer";
-import { timezoneEnter, xpDecayStrategyEnter } from "@beyou/state/user/perfilSlice";
+import { timezoneEnter, timezoneSourceEnter, xpDecayStrategyEnter } from "@beyou/state/user/perfilSlice";
+import { detectTimezone } from "../../services/user/reconcileTimezone";
 import editUser from "@beyou/api/user/editUser";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 
@@ -62,6 +63,8 @@ export default function RoutineSettings() {
     const dispatch = useDispatch();
 
     const currentTimezone = useSelector((state: RootState) => state.perfil.timezone) ?? "UTC";
+    const currentTimezoneSource =
+        useSelector((state: RootState) => state.perfil.timezoneSource) ?? "DEFAULT";
     const currentXpDecay = useSelector((state: RootState) => state.perfil.xpDecayStrategy) ?? "GRADUAL";
 
     const [selectedTimezone, setSelectedTimezone] = useState(currentTimezone);
@@ -72,19 +75,18 @@ export default function RoutineSettings() {
     const [success, setSuccess] = useState("");
     const [error, setError] = useState("");
 
-    const detectedTimezone = useMemo(() => {
-        try {
-            return Intl.DateTimeFormat().resolvedOptions().timeZone;
-        } catch {
-            return null;
-        }
-    }, []);
+    const detectedTimezone = useMemo(() => detectTimezone(), []);
 
+    // Gated on the SOURCE, not on the string. `currentTimezone === "UTC"` only ever
+    // offered this to someone already broken, and said nothing to a user who moved: the
+    // boot reconcile now fixes the UTC case on its own, so what is left for this
+    // affordance is exactly the mismatch nothing may decide automatically. An EXPLICIT
+    // pick is never questioned.
     const showTimezoneSuggestion =
-        detectedTimezone &&
-        currentTimezone === "UTC" &&
-        selectedTimezone === "UTC" &&
-        detectedTimezone !== "UTC";
+        Boolean(detectedTimezone) &&
+        currentTimezoneSource !== "EXPLICIT" &&
+        detectedTimezone !== currentTimezone &&
+        detectedTimezone !== selectedTimezone;
 
     const filteredTimezones = useMemo(() => {
         if (!timezoneSearch.trim()) return commonTimezones;
@@ -139,6 +141,9 @@ export default function RoutineSettings() {
             toast.error(friendlyMessage);
         } else {
             dispatch(timezoneEnter(timezone));
+            // No timezoneSource on the request: this came from the picker, so the backend
+            // reads it as a person's choice and makes it permanent.
+            dispatch(timezoneSourceEnter("EXPLICIT"));
             dispatch(xpDecayStrategyEnter(xpDecayStrategy));
             setSuccess(t("RoutineSettingsSaved"));
             toast.success(t("RoutineSettingsSaved"));

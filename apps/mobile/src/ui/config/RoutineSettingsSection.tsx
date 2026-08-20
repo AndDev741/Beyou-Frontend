@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 import { View, Text, Pressable, Modal, TextInput, ScrollView } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { getCalendars } from 'expo-localization';
 import editUser from '@beyou/api/user/editUser';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { timezoneEnter, xpDecayStrategyEnter } from '@beyou/state/user/perfilSlice';
+import { timezoneEnter, timezoneSourceEnter, xpDecayStrategyEnter } from '@beyou/state/user/perfilSlice';
+import { detectTimezone } from '../../lib/detectTimezone';
 import OptionCard from './OptionCard';
 import { ChevronDown } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -47,14 +47,6 @@ const XP_DECAY_OPTIONS: Array<{ id: XpDecayStrategy; titleKey: string; descripti
   { id: 'TIME_WINDOW', titleKey: 'Time Window', descriptionKey: 'Time Window description' },
 ];
 
-function detectTimezone(): string | null {
-  try {
-    return getCalendars()[0]?.timeZone ?? null;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Routine settings: a timezone picker (modal list of the common zones + search +
  * an auto-detect affordance via expo-localization) and the XP decay strategy
@@ -67,6 +59,8 @@ export default function RoutineSettingsSection() {
   const { theme } = useBeyouTheme();
 
   const currentTimezone = useSelector((s: RootState) => s.perfil.timezone) ?? 'UTC';
+  const currentTimezoneSource =
+    useSelector((s: RootState) => s.perfil.timezoneSource) ?? 'DEFAULT';
   const currentXpDecay = useSelector((s: RootState) => s.perfil.xpDecayStrategy) ?? 'GRADUAL';
 
   const [selectedTimezone, setSelectedTimezone] = useState(currentTimezone);
@@ -75,7 +69,13 @@ export default function RoutineSettingsSection() {
   const [tzSearch, setTzSearch] = useState('');
 
   const detectedTimezone = useMemo(detectTimezone, []);
-  const showDetected = !!detectedTimezone && detectedTimezone !== selectedTimezone;
+  // Never offered to someone who picked their zone deliberately. The boot reconcile
+  // already handles an account that never answered, so what is left here is the
+  // mismatch nothing may decide on its own: a user who moved.
+  const showDetected =
+    !!detectedTimezone
+    && currentTimezoneSource !== 'EXPLICIT'
+    && detectedTimezone !== selectedTimezone;
 
   const filteredTimezones = useMemo(() => {
     const q = tzSearch.trim().toLowerCase();
@@ -93,6 +93,9 @@ export default function RoutineSettingsSection() {
       notify.error(getFriendlyErrorMessage(t, res.error));
     } else {
       dispatch(timezoneEnter(timezone));
+      // No timezoneSource on the request: this came from the picker, so the backend
+      // reads it as a person's choice and makes it permanent.
+      dispatch(timezoneSourceEnter('EXPLICIT'));
       dispatch(xpDecayStrategyEnter(xpDecayStrategy));
       notify.success(t('RoutineSettingsSaved'));
     }

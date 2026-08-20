@@ -2390,6 +2390,14 @@
           "timezone": {
             "type": "string"
           },
+          "timezoneSource": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "DETECTED",
+              "EXPLICIT"
+            ]
+          },
           "xpDecayStrategy": {
             "type": "string",
             "enum": [
@@ -2472,6 +2480,14 @@
           },
           "timezone": {
             "type": "string"
+          },
+          "timezoneSource": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "DETECTED",
+              "EXPLICIT"
+            ]
           },
           "xpDecayStrategy": {
             "type": "string",
@@ -3677,6 +3693,9 @@
           "password": {
             "type": "string",
             "minLength": 1
+          },
+          "timezone": {
+            "type": "string"
           }
         },
         "required": [

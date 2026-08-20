@@ -9,6 +9,7 @@ import getTasks from '@beyou/api/tasks/getTasks';
 import getGoals from '@beyou/api/goals/getGoals';
 import getCategories from '@beyou/api/categories/getCategories';
 import { hydratePerfil } from '@beyou/state/user/perfilSlice';
+import { reconcileTimezone } from '../lib/reconcileTimezone';
 import { enterTodayRoutine } from '@beyou/state/routine/todayRoutineSlice';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
@@ -46,7 +47,13 @@ export function useDashboardData(): DashboardData {
         getCategories(t),
       ]);
 
-      if (profileRes.data) dispatch(hydratePerfil(profileRes.data));
+      if (profileRes.data) {
+        dispatch(hydratePerfil(profileRes.data));
+        // Fire-and-forget: it must not gate `loading` or populate `error`. The dashboard
+        // is the app's home, so this reaches every returning session, and it no-ops
+        // unless the account has never had a timezone.
+        void reconcileTimezone(dispatch, profileRes.data);
+      }
       if (routineRes.success) dispatch(enterTodayRoutine(routineRes.success));
       if (habitsRes.success) dispatch(enterHabits(habitsRes.success));
       if (tasksRes.success) dispatch(enterTasks(tasksRes.success));
