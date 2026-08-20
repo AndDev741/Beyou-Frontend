@@ -1,0 +1,360 @@
+__NAV__
+
+<main id="top" class="doc">
+  <article class="wrap prose">
+
+    <p class="doc-kicker">Beyou</p>
+    <h1>Privacy policy</h1>
+    <p class="doc-date">In effect since __POLICY_DATE__</p>
+
+    <div class="doc-tldr">
+      <p class="doc-tldr-title">The short version</p>
+      <ul>
+        <li>Beyou is free. It carries no ads and no trackers, and nothing about you is sold.</li>
+        <li>Your account needs a name, an email address and a password. Nothing else is required.</li>
+        <li>Everything else stored about you is what you typed into the app: habits, tasks, routines, goals, categories and the history of what you checked off.</li>
+        <li>If you use the AI assistant, what you write and the habits and goals it reads are sent to an external AI provider so it can answer. The assistant is optional and you can wipe its history.</li>
+        <li>You can delete your account from inside the app, and it is erased immediately. There is no waiting period and no way to undo it.</li>
+      </ul>
+    </div>
+
+    <h2 id="who">1. Who is responsible</h2>
+    <p>
+      Beyou is built and run by __OWNER__, an individual developer resident in
+      __OWNER_COUNTRY__, acting as the data controller. There is no company behind
+      it and no team with access to your account. On Google Play the same person
+      publishes it under the developer name __PLAY_DEVELOPER__.
+    </p>
+    <p>
+      For anything in this policy, including requests about your data, write to
+      <a href="mailto:__CONTACT__">__CONTACT__</a>. Expect a reply within 30 days,
+      which is the deadline the GDPR sets.
+    </p>
+
+    <h2 id="collect">2. What is stored about you</h2>
+
+    <h3>Your account</h3>
+    <ul>
+      <li>The name you chose, your email address, and your password stored only as a bcrypt hash. The plain password is never written down and cannot be recovered, only reset.</li>
+      <li>A flag recording whether you signed up with email or with Google, and whether your email address has been confirmed.</li>
+      <li>Your time zone, your language, your chosen theme, and which dashboard widgets you use. The time zone matters because it decides when your day rolls over.</li>
+      <li>A profile picture, if you upload one, and an optional profile quote and its author.</li>
+      <li>Your XP, your level, your streaks and the list of days you completed.</li>
+    </ul>
+    <p>
+      If you sign in with Google, Google hands Beyou your email address, your name
+      and the address of your Google profile picture. Beyou stores those and
+      nothing more, and never receives your Google password, your contacts, your
+      calendar or your Drive.
+    </p>
+
+    <h3>What you create in the app</h3>
+    <p>
+      The habits, tasks, routines, goals and categories you write, with their
+      names, descriptions and any motivational text you add. Alongside them, the
+      record of your activity: which items you checked or skipped on which day,
+      the XP each one earned, and a daily snapshot of your routine so past days
+      still read correctly after you change the routine itself.
+    </p>
+    <p>
+      These are free text fields. Whatever you type into them is stored as you
+      typed it, so treat them the way you would treat a private notebook and
+      avoid putting anything in there you would not want stored on a server.
+    </p>
+
+    <h3>Feedback and bug reports</h3>
+    <p>
+      When you send feedback from inside the app, Beyou stores your message, any
+      images you attach, and a small technical context: the screen you were on,
+      the app version, the platform, your language and your theme. On the web app
+      it also attaches a picture of the screen you were on, so the problem can be
+      seen. Replies to your feedback go to your email address, and those emails
+      quote the original message.
+    </p>
+
+    <h3>Technical data</h3>
+    <p>
+      Beyou keeps error reports to find and fix crashes. They go to a self-hosted
+      collector rather than a commercial analytics vendor, and they leave out your
+      identity, your IP address, your cookies and the contents of your requests.
+      What remains is the error itself and the technical state around it.
+    </p>
+    <p>
+      Server logs record which operations ran and how long they took. Some of
+      those lines include the name of a habit, a goal or your display name, since
+      that is what the operation was about. Rate limiting counts recent requests
+      per account, and for the public profile picture address per IP, in memory
+      only and never written to the database.
+    </p>
+
+    <h3>What is never collected</h3>
+    <p>
+      No date of birth, no gender, no phone number, no postal address, no national
+      identity or tax number. No location of any kind. No advertising identifier,
+      no device identifier, no contacts, no calendar, no microphone and no camera.
+      No payment or card data, because there is nothing to pay for. Beyou contains
+      no analytics SDK, no advertising SDK and no third-party tracker, on the web
+      or on Android.
+    </p>
+
+    <h2 id="ai">3. The AI assistant</h2>
+    <p>
+      The assistant is the one part of Beyou where what you write leaves Beyou's
+      own servers. Beyou does not run its own AI model. When you send a message,
+      the request goes to Beyou's server, which passes it to an external AI
+      provider and streams the answer back. Beyou forwards:
+    </p>
+    <ul>
+      <li>The message you wrote, exactly as you wrote it.</li>
+      <li>The earlier messages in that conversation, so the assistant follows the thread.</li>
+      <li>Notes the assistant has written about you, described below.</li>
+      <li>Your display name, your language, your time zone and your app settings.</li>
+      <li>The screen of the app you were on, and today's date.</li>
+      <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, so the names and descriptions of those items reach the provider as part of answering.</li>
+    </ul>
+    <p>
+      Your email address, your password hash and your session tokens are never
+      sent to an AI provider.
+    </p>
+    <p>
+      The provider is either Mistral AI or Google Gemini. Beyou tries Mistral
+      first and falls back to Gemini when it is unavailable, so a given message is
+      handled by one of them rather than both. They process your message to produce
+      a reply, and their own terms govern what they do with it. Those terms are not
+      written by Beyou.
+    </p>
+    <p>
+      The assistant also keeps notes about you between conversations, so it does
+      not ask the same thing twice. It decides what is worth remembering and
+      writes it in its own words. One note covers the whole account, and each
+      conversation gets one of its own. Both go out with every message.
+    </p>
+    <p>
+      The assistant is optional. If you never open it, none of the above happens.
+      You can delete a single conversation, and you can reset the assistant
+      entirely, which deletes every conversation and erases the notes it kept
+      about you. Both are in the app.
+    </p>
+    <p>
+      The same applies to the guided setup that offers to build your first
+      habits and categories for you. It sends what you type there, and the
+      category names you picked, to the same providers.
+    </p>
+
+    <h2 id="why">4. Why it is stored, and on what legal basis</h2>
+    <div class="doc-scroll">
+      <table class="doc-table">
+        <thead>
+          <tr><th>Purpose</th><th>Legal basis under the GDPR</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Running your account and showing you your own habits, routines, goals and history</td><td>Performance of a contract, article 6(1)(b)</td></tr>
+          <tr><td>Sending account emails: confirmation, password reset, deletion code</td><td>Performance of a contract, article 6(1)(b)</td></tr>
+          <tr><td>Answering you through the AI assistant, an optional feature you choose to open</td><td>Performance of a contract, article 6(1)(b)</td></tr>
+          <tr><td>Keeping the account safe: password hashing, session handling, rate limits, abuse prevention</td><td>Legitimate interests, article 6(1)(f)</td></tr>
+          <tr><td>Finding and fixing crashes through error reports</td><td>Legitimate interests, article 6(1)(f)</td></tr>
+          <tr><td>Handling the feedback you chose to send</td><td>Legitimate interests, article 6(1)(f)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Nothing here is used to profile you for advertising, and there is no
+      automated decision-making that produces a legal effect for you. The XP and
+      levels are a game mechanic, not a decision about you.
+    </p>
+
+    <h2 id="sharing">5. Who else sees it</h2>
+    <p>
+      Nothing about you is sold, rented or handed over for anyone else's
+      marketing. The list below is complete.
+    </p>
+    <div class="doc-scroll">
+      <table class="doc-table">
+        <thead>
+          <tr><th>Who</th><th>What reaches them</th><th>Why</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and the habits, goals, tasks, routines and settings the assistant reads to answer, plus your display name</td><td>Only if you use the AI assistant or the guided setup. See section 3</td></tr>
+          <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
+          <tr><td>The email provider configured for Beyou</td><td>Your email address and the contents of the account emails, including feedback confirmations that quote your message</td><td>Delivering account email</td></tr>
+          <tr><td>A self-hosted error collector</td><td>Error reports, configured to exclude your identity, IP, cookies and request bodies</td><td>Fixing crashes</td></tr>
+          <tr><td>Cloudflare</td><td>Requests to this website. Its analytics are cookieless and do not build a profile of you</td><td>Hosting this website</td></tr>
+          <tr><td>Google Play</td><td>Whatever Google collects when you install or update the Android app, under Google's own policy</td><td>Distributing the Android app</td></tr>
+          <tr><td>placehold.co</td><td>Your IP address, only on the web profile screen, and only if your profile picture fails to load</td><td>Drawing a placeholder avatar</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Data may also be disclosed where the law requires it, which has not
+      happened to date.
+    </p>
+
+    <h2 id="transfers">6. Where it goes</h2>
+    <p>
+      Your data lives on Beyou's own server and database. Of the two AI providers,
+      Mistral AI is in France, inside the European Economic Area. Google Gemini is
+      in the United States, which the European Commission has covered by its
+      adequacy decision for the EU-US Data Privacy Framework.
+    </p>
+    <p>
+      So if you use the assistant, what you write may be processed in the United
+      States under that framework. It is not sent to a provider in a country the
+      European Commission has not ruled on. Should a third provider ever be added,
+      it will be one with a lawful route for the transfer, and this page will say
+      so before the change takes effect.
+    </p>
+
+    <h2 id="cookies">7. Cookies and what sits on your device</h2>
+    <p>
+      This website sets one cookie, and only after you click the language switch.
+      It records whether you chose English or Portuguese, so the site stops
+      guessing from your browser settings. It lasts a year and it is not used to
+      track you. There is nothing else on this site to consent to, which is why
+      there is no cookie banner.
+    </p>
+    <p>
+      The web app sets a session cookie holding your refresh token. It is
+      httpOnly, so no script can read it, marked Secure and restricted to
+      Beyou's own site, and it lasts 15 days. It exists so you stay signed in.
+      The short-lived access token that goes with it is kept in memory only and
+      disappears when you close the tab.
+    </p>
+    <p>
+      The web app also keeps a copy of your habits, tasks, routines, goals and
+      categories in your browser's local storage, so the interface can draw
+      immediately on your next visit. Your profile is kept out of that copy. Local
+      storage is not encrypted, so on a shared computer, sign out when you are
+      done. Signing out clears it.
+    </p>
+    <p>
+      The Android app keeps your refresh token in the operating system's
+      encrypted store, backed by the Android Keystore. Alongside it are small
+      interface preferences: which filters you picked, which sections you
+      collapsed, how far you got in the tutorial. The Android app keeps no
+      offline copy of your habits or history. It fetches them when it opens.
+    </p>
+
+    <h2 id="retention">8. How long it is kept</h2>
+    <ul>
+      <li>Your account and everything in it: until you delete your account.</li>
+      <li>Your check-in history: for as long as the account exists, on purpose. A streak and a chart of last year are the point of the app, and both need the history behind them.</li>
+      <li>Assistant conversations and the notes it wrote about you: until you delete them or delete your account. They do not expire on their own.</li>
+      <li>Feedback you sent: until you delete your account.</li>
+      <li>Error reports: kept on the collector for as long as they are useful for debugging, and they do not identify you.</li>
+      <li>Server logs: retained by the hosting infrastructure, which is not the subject of this policy. They are not used for anything other than diagnosing problems.</li>
+    </ul>
+
+    <h2 id="data-deletion">9. Deleting your account and your data</h2>
+    <p>
+      You can delete your account yourself, from inside the app, without asking
+      anyone and without reinstalling anything.
+    </p>
+    <ul>
+      <li>In the Android app: Configuration, then the danger zone at the bottom, then Delete my account.</li>
+      <li>In the web app at <a href="__APP_URL__">__APP_URL__</a> open Configuration, then the same option.</li>
+    </ul>
+    <p>
+      Beyou emails you a six-digit code, which is valid for 15 minutes, and asks
+      you to type it back. This is there so that nobody who borrows your unlocked
+      phone can wipe your account. Once you confirm, deletion happens
+      immediately.
+    </p>
+    <p>
+      What is erased: your account record, your name, your email address, your
+      password hash, your profile quote, your XP, levels and streaks, every
+      category, habit, task, routine and goal, your entire check-in and XP
+      history, your routine snapshots, every assistant conversation, the notes the
+      assistant kept about you, your feedback and its attachments, and every
+      active session and pending token. There is no grace period, and nothing is
+      archived or recoverable.
+    </p>
+    <p>
+      The image file of a profile picture you uploaded is deleted along with the
+      account. That one step happens on disk rather than in the database, so if
+      the storage refuses it the failure is recorded and an operator finishes it
+      by hand. Write to <a href="mailto:__CONTACT__">__CONTACT__</a> if you want
+      confirmation that nothing was left behind.
+    </p>
+    <p>
+      If you cannot reach your account for any reason, email
+      <a href="mailto:__CONTACT__">__CONTACT__</a> from the address the account
+      uses and ask for deletion.
+    </p>
+
+    <h2 id="rights">10. Your rights</h2>
+    <p>
+      Because Beyou is run from __OWNER_COUNTRY__, the GDPR applies. If you are in
+      Brazil, the LGPD gives you an equivalent set of rights. Either way you can
+      ask for:
+    </p>
+    <ul>
+      <li>Access to what is stored about you.</li>
+      <li>Correction of anything wrong. Most of it you can edit yourself in the app.</li>
+      <li>Deletion, as described in section 9.</li>
+      <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, categories, habits, tasks, goals, routines, check-in history, feedback, and your assistant conversations along with the notes the assistant wrote about you. What it leaves out: the daily snapshots of your routines, anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
+      <li>Restriction of processing, and objection to processing based on legitimate interests.</li>
+      <li>Withdrawal of any consent you gave, without affecting what happened before.</li>
+    </ul>
+    <p>
+      Requests go to <a href="mailto:__CONTACT__">__CONTACT__</a>. None of these
+      rights cost anything to exercise.
+    </p>
+    <p>
+      If you think your data has been mishandled, you can complain to a
+      supervisory authority. In Portugal that is the Comissão Nacional de
+      Proteção de Dados. In Brazil it is the Autoridade Nacional de Proteção de
+      Dados. You may also complain to the authority where you live.
+    </p>
+
+    <h2 id="security">11. Security</h2>
+    <p>
+      Passwords are hashed with bcrypt at cost factor 12 and never stored in a
+      readable form. Sessions use a short-lived token valid for 15 minutes,
+      renewed by a refresh token that is itself stored hashed and rotated on every
+      use, so a stolen one stops working once the real session refreshes. Traffic
+      runs over HTTPS. Requests are rate limited per account. Deleting an account
+      and resetting a password both require a code sent to the email address on
+      the account.
+    </p>
+    <p>
+      A profile picture you uploaded is not open to the internet. Its address
+      carries a signature that only your own signed-in session can produce, and
+      that signature expires 12 hours after it is issued. So anyone you forward that address
+      to can open the image without signing in until it expires, and signing out
+      does not cut off an address that is already out. A picture that came from
+      your Google account is a different case, because Google hosts it at a public
+      address that Beyou does not control.
+    </p>
+    <p>
+      Beyou is maintained by one person. If you find a security problem, email
+      <a href="mailto:__CONTACT__">__CONTACT__</a> before publishing it, and it
+      will be taken seriously.
+    </p>
+
+    <h2 id="children">12. Children</h2>
+    <p>
+      Beyou is not directed at children under 13 and does not knowingly hold data
+      about them. It does not ask for your age, which means it cannot verify it.
+      If you are a parent or guardian and believe your child created an account,
+      write to <a href="mailto:__CONTACT__">__CONTACT__</a> and it will be
+      deleted.
+    </p>
+
+    <h2 id="changes">13. Changes to this policy</h2>
+    <p>
+      When this text changes, the date at the top changes with it. Changes that
+      affect what happens to your data, rather than the wording, will be announced
+      in the app before they take effect. Past versions are visible in the public
+      repository this site is built from, so you can see exactly what changed.
+    </p>
+
+    <h2 id="contact">14. Contact</h2>
+    <p>
+      <a href="mailto:__CONTACT__">__CONTACT__</a>, for questions about this
+      policy, requests about your data, or anything else.
+    </p>
+
+  </article>
+
+  __FOOT__
+</main>
