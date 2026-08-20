@@ -29,6 +29,7 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useKeyboardLift } from '../keyboard';
 import IconTile from '../IconTile';
 import AgentSegments from './AgentSegments';
+import AgentPrivacyNotice from './AgentPrivacyNotice';
 import type { AgentChatState } from './useAgentChat';
 
 // The agent links web-canonical routes; the mobile dashboard lives at '/'.
@@ -317,6 +318,7 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                       </Pressable>
                     ))}
                   </View>
+                  <AgentPrivacyNotice />
                 </View>
               ) : (
                 <ScrollView

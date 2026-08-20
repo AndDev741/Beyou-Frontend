@@ -122,6 +122,46 @@ The brand rasters themselves come from `tools/make-icons.py` (see its docstring)
 
 ---
 
+## Android permissions
+
+Beyou asks for nothing beyond network access and the photo the user picks. The
+merged manifest used to say otherwise: Expo's prebuild and the libraries under it
+contribute `RECORD_AUDIO`, `CAMERA` and `SYSTEM_ALERT_WINDOW` whether or not any
+code calls them, and nothing here does — `expo-image-picker` is only ever used as
+`launchImageLibraryAsync`, never the camera. A habits app declaring a microphone
+is the kind of thing a Play reviewer stops on, and it is also simply untrue.
+
+`android.blockedPermissions` in `app.json` strips them back out. It is applied by
+prebuild, not at build time, so the `android/` directory has to be regenerated
+before a release build or the old manifest ships:
+
+```bash
+cd apps/mobile
+npx expo prebuild --platform android --clean
+```
+
+Check the result before uploading. Read the **release** manifest, not the debug one:
+`src/debug/AndroidManifest.xml` declares `SYSTEM_ALERT_WINDOW` for React Native's dev
+overlay, so a debug merge still shows it and a release merge does not.
+
+```bash
+cd android
+SENTRY_DISABLE_AUTO_UPLOAD=true ./gradlew :app:processReleaseMainManifest
+grep -o 'android:name="android.permission[^"]*"' \
+  app/build/intermediates/merged_manifest/release/*/AndroidManifest.xml | sort -u
+```
+
+(The env var only skips uploading source maps to Sentry, which needs an auth token
+this task does not otherwise require.) The list should be exactly seven entries:
+
+```
+ACCESS_NETWORK_STATE   INTERNET   VIBRATE
+READ_EXTERNAL_STORAGE  WRITE_EXTERNAL_STORAGE   (both maxSdkVersion=32, image picker)
+USE_BIOMETRIC          USE_FINGERPRINT          (expo-secure-store)
+```
+
+---
+
 ## Manual verification checklist
 
 Run this once with the backend up and a device/emulator connected via `npx expo start`.

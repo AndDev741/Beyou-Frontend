@@ -1121,5 +1121,11 @@
     "DELETION_CODE_INVALID": "Esse código não confere. Veja o email e tente de novo.",
     "DELETION_CODE_EXPIRED": "Esse código expirou. Peça um novo.",
     "DELETION_CODE_TOO_MANY_ATTEMPTS": "Códigos errados demais. Peça um novo.",
-    "DELETION_CODE_TOO_MANY_REQUESTS": "Um código acabou de ser enviado. Espere um minuto para pedir outro."
+    "DELETION_CODE_TOO_MANY_REQUESTS": "Um código acabou de ser enviado. Espere um minuto para pedir outro.",
+    "PrivacyPolicy": "Política de Privacidade",
+    "PrivacyPolicyHint": "O que o Beyou guarda, para onde isso vai, e como levar tudo embora ou apagar.",
+    "RegisterPrivacyNotice": "Ao criar uma conta, você concorda com a",
+    "AgentPrivacyNotice": "Suas mensagens, e os hábitos e metas que o assistente lê para responder, são enviados a um provedor de IA externo.",
+    "AgentPrivacyLink": "Como isso funciona",
+    "AiOnboardingPrivacyNotice": "Suas respostas são enviadas a um provedor de IA externo para ele sugerir uma configuração."
 }

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '@beyou/validation';
+import { privacyPolicyUrl } from '@beyou/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -28,7 +29,7 @@ interface RegisterFormValues {
 const ICON_SIZE = 15;
 
 export default function RegisterRoute() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
@@ -178,6 +179,24 @@ export default function RegisterRoute() {
               onPress={handleSubmit(onSubmit)}
               testID="register-submit"
             />
+
+            {/* Under the button rather than a box to tick: the legal basis for what
+                Beyou stores is the contract you enter by registering, not consent, so
+                what this owes the reader is the information — and a gate on it would
+                only be theatre. It has to sit where the eye passes on the way to
+                submitting, which is here. */}
+            <Text className="text-center text-[12px] leading-snug text-text-3">
+              {t('RegisterPrivacyNotice')}{' '}
+              <Text
+                className="font-semibold text-accent"
+                accessibilityRole="link"
+                onPress={() => Linking.openURL(privacyPolicyUrl(i18n.language))}
+                testID="register-privacy-link"
+              >
+                {t('PrivacyPolicy')}
+              </Text>
+              .
+            </Text>
           </View>
 
           <GoogleSignInButton />
