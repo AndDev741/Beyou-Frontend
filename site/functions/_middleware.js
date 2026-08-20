@@ -20,6 +20,18 @@
 const COOKIE = "beyou_lang";
 const YEAR = 31536000;
 
+/**
+ * Every page, as the pair of paths it lives at. Switching language has to keep
+ * the visitor on the page they were reading, so a click on PT from the English
+ * policy lands on the Portuguese policy and not on the Portuguese home page.
+ *
+ * Adding a page to build.py means adding it here too.
+ */
+const PAGES = [
+  { en: "/", pt: "/pt/" },
+  { en: "/privacy/", pt: "/pt/privacidade/" },
+];
+
 export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
@@ -28,11 +40,10 @@ export async function onRequest(context) {
   // parameter never lingers in a shared link.
   const chosen = url.searchParams.get("lang");
   if (chosen === "en" || chosen === "pt") {
-    const to = chosen === "pt" ? "/pt/" : "/";
     return new Response(null, {
       status: 302,
       headers: {
-        Location: to,
+        Location: counterpart(url.pathname, chosen),
         "Set-Cookie": `${COOKIE}=${chosen}; Path=/; Max-Age=${YEAR}; SameSite=Lax; Secure`,
         "Cache-Control": "no-store",
       },
@@ -49,6 +60,22 @@ export async function onRequest(context) {
 
   if (prefersPortuguese(request.headers.get("Accept-Language"))) return redirect("/pt/");
   return vary(await next());
+}
+
+/**
+ * The path of the same page in the requested language.
+ *
+ * The language links the build emits already point at the right path, so this
+ * usually returns what it was given. It earns its keep on a hand-typed or
+ * shared `/privacy/?lang=pt`, and it falls back to the home page rather than
+ * 404ing on a path it does not recognise.
+ */
+export function counterpart(pathname, lang) {
+  const path = pathname.endsWith("/") ? pathname : pathname + "/";
+  for (const page of PAGES) {
+    if (page.en === path || page.pt === path) return page[lang];
+  }
+  return lang === "pt" ? "/pt/" : "/";
 }
 
 function redirect(to) {

@@ -9,7 +9,12 @@ the repo root never touch it. It ships on its own.
 site/
   src/
     head.html          <head> template, one set of placeholders per page
-    body.html          the page, with both languages in paired <span lang>
+    nav.html           the nav for the landing page, section anchors and all
+    nav-doc.html       the nav for a document page, same bar without the anchors
+    foot.html          the footer, shared by every page
+    body.html          the landing page, both languages in paired <span lang>
+    privacy.en.html    the privacy policy, one file per language
+    privacy.pt.html
     site.css           the whole stylesheet
     site.js            the whole script
     fonts/             Geist and Geist Mono, subset and committed
@@ -22,6 +27,33 @@ site/
   build.py             writes dist/
   dist/                generated, not committed
 ```
+
+## Pages
+
+| Page | English | Portuguese |
+|---|---|---|
+| Landing | `/` | `/pt/` |
+| Privacy policy | `/privacy/` | `/pt/privacidade/` |
+
+`/privacy/` is the URL the Google Play listing points at, and its
+`#data-deletion` anchor is what the Play Console data deletion field points at.
+Neither should move. `build.py --check` fails if that anchor disappears.
+
+Adding a page means an entry in `PAGES` in `build.py` and a matching entry in
+`PAGES` in `functions/_middleware.js`, which is what keeps the language switch on
+the same page instead of dropping the visitor on the home page.
+
+Each page also names its `nav`. The landing page uses `nav.html`, whose anchors
+jump between its own sections and are tracked by the scroll spy in `site.js`. A
+document page uses `nav-doc.html`, which is the same bar with that block removed:
+a policy has no sections of its own, and listing the landing page's would only
+lead the reader out of what they opened. Nothing else differs, and no CSS
+changes, because `.brand` carries `margin-right: auto` and pushes the controls
+right on its own.
+
+`site.js` was written for the landing page and behaves on a document page without
+special-casing: the scroll spy finds no `a[href^='#']` to track and the section
+rail is never built, since neither has anything to attach to.
 
 ## Build
 
@@ -39,11 +71,22 @@ JSON-LD that does not parse, an unexpected external host, an em dash.
 
 ## What the build does
 
-One language per URL. The source keeps both in paired `<span lang="pt">` /
-`<span lang="en">` elements; the build removes one side and unwraps the other, so
-a visitor and a crawler each receive a single language. Two languages hidden
-inside one document was the biggest SEO problem with the prototype: both texts
-were indexed on one URL and there was no `hreflang` to explain them.
+One language per URL. There are two ways a page provides that, picked per page by
+`source` in `PAGES`:
+
+- `spans`, used by the landing page. One source file keeps both languages in
+  paired `<span lang="pt">` / `<span lang="en">` elements; the build removes one
+  side and unwraps the other. Right for marketing copy, where the two versions
+  are short and get edited as a pair. A span holds text and nothing else, and the
+  build fails if one contains markup, because the splitter is a regex.
+- `split`, used by the privacy policy. One file per language. Legal text is long,
+  carries links and tables inside its sentences, and gets reviewed as a whole
+  document in one language rather than clause by clause, all of which the span
+  mechanism fights.
+
+Either way a visitor and a crawler each receive a single language. Two languages
+hidden inside one document was the biggest SEO problem with the prototype: both
+texts were indexed on one URL and there was no `hreflang` to explain them.
 
 Assets are content-addressed (`/a/site.<hash>.css`). That is what makes the
 year-long `immutable` cache in `_headers` safe. The documents themselves are

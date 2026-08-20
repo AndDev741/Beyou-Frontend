@@ -1,5 +1,5 @@
 /* Run: node functions/_middleware.test.mjs */
-import { prefersPortuguese } from "./_middleware.js";
+import { prefersPortuguese, counterpart } from "./_middleware.js";
 
 const cases = [
   ["pt-BR,pt;q=0.9,en;q=0.8", true],
@@ -13,6 +13,20 @@ const cases = [
   ["*", false],
 ];
 
+// Switching language keeps you on the page you were reading. The store listing
+// links straight at /privacy/, so sending that visitor to the home page would
+// lose the one document they came for.
+const paths = [
+  ["/", "pt", "/pt/"],
+  ["/", "en", "/"],
+  ["/pt/", "en", "/"],
+  ["/privacy/", "pt", "/pt/privacidade/"],
+  ["/pt/privacidade/", "en", "/privacy/"],
+  ["/privacy/", "en", "/privacy/"],
+  ["/privacy", "pt", "/pt/privacidade/"],   // no trailing slash
+  ["/nothing-here/", "pt", "/pt/"],         // unknown path falls back home
+];
+
 let bad = 0;
 for (const [header, want] of cases) {
   const got = prefersPortuguese(header);
@@ -21,5 +35,13 @@ for (const [header, want] of cases) {
     bad++;
   }
 }
-console.log(bad ? `${bad} failing` : `${cases.length} cases pass`);
+for (const [path, lang, want] of paths) {
+  const got = counterpart(path, lang);
+  if (got !== want) {
+    console.error(`FAIL counterpart(${path}, ${lang}) -> ${got}, wanted ${want}`);
+    bad++;
+  }
+}
+const total = cases.length + paths.length;
+console.log(bad ? `${bad} failing` : `${total} cases pass`);
 process.exit(bad ? 1 : 0);
