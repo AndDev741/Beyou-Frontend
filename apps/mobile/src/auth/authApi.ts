@@ -2,6 +2,7 @@ import { nativeHttpClient } from '../lib/nativeHttpClient';
 import { ApiError } from '@beyou/api';
 import { parseApiError, type ApiErrorPayload } from '@beyou/api/apiError';
 import type { Profile } from './types';
+import { detectTimezone } from '../lib/detectTimezone';
 
 export interface LoginResult { accessToken: string; refreshToken: string; profile: Profile; }
 export interface RefreshResult { accessToken: string; refreshToken: string; }
@@ -22,14 +23,22 @@ export async function loginRequest(email: string, password: string): Promise<Log
   return { accessToken: r.headers['x-access-token'], refreshToken: r.data.refreshToken, profile: r.data.success };
 }
 
+// The account is created with the device's zone, so a new user is never born on the UTC
+// calendar. Optional on the wire: the backend drops anything it cannot parse rather than
+// refusing the registration.
 export async function registerRequest(name: string, email: string, password: string): Promise<void> {
-  await nativeHttpClient.post('/auth/register', { name, email, password });
+  await nativeHttpClient.post('/auth/register', {
+    name, email, password, timezone: detectTimezone() ?? undefined,
+  });
 }
 
 // Mobile Google sign-in: send the on-device Google ID token; the backend verifies
 // it and issues JWT + refresh on the same mobile contract as loginRequest.
 export async function googleMobileLoginRequest(idToken: string): Promise<LoginResult> {
-  const r = await nativeHttpClient.post<{ success: Profile; refreshToken: string }>('/auth/google/mobile', { idToken });
+  // The zone rides alongside the token because a verified Google ID token carries no
+  // such claim. Applied only when the backend CREATES the account.
+  const r = await nativeHttpClient.post<{ success: Profile; refreshToken: string }>(
+    '/auth/google/mobile', { idToken, timezone: detectTimezone() ?? undefined });
   requireTokens(r.headers['x-access-token'], r.data?.refreshToken);
   return { accessToken: r.headers['x-access-token'], refreshToken: r.data.refreshToken, profile: r.data.success };
 }
