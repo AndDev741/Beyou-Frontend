@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import type { UserType } from "@beyou/types/user/UserType";
 
 vi.mock("@beyou/api/user/editUser", () => ({ default: vi.fn() }));
@@ -7,6 +8,13 @@ import editUser from "@beyou/api/user/editUser";
 import { reconcileTimezone, detectTimezone } from "./reconcileTimezone";
 
 const editUserMock = vi.mocked(editUser);
+
+/**
+ * A dispatch the function accepts and the test can assert on. `vi.fn()` alone infers
+ * `Mock<any[], unknown>`, which is not assignable to `Dispatch<UnknownAction>` — vitest
+ * does not typecheck, so that only surfaces in `tsc`.
+ */
+type MockDispatch = Dispatch<UnknownAction> & ReturnType<typeof vi.fn>;
 
 /** A profile carrying only what the reconcile reads. */
 function profile(overrides: Partial<UserType>): UserType {
@@ -30,10 +38,10 @@ function mockBrowserZone(zone: string | null) {
 }
 
 describe("reconcileTimezone", () => {
-    let dispatch: ReturnType<typeof vi.fn>;
+    let dispatch: MockDispatch;
 
     beforeEach(() => {
-        dispatch = vi.fn();
+        dispatch = vi.fn() as unknown as MockDispatch;
         editUserMock.mockReset();
         editUserMock.mockResolvedValue({ data: {} as UserType });
     });
@@ -129,7 +137,9 @@ describe("reconcileTimezone", () => {
 });
 
 describe("detectTimezone", () => {
-    afterEach(() => vi.restoreAllMocks());
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
 
     it("returns the browser zone", () => {
         mockBrowserZone("America/Sao_Paulo");
