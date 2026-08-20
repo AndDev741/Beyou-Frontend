@@ -21,8 +21,10 @@ import {
     languageInUserEnter,
     tutorialCompletedEnter,
     timezoneEnter,
+    timezoneSourceEnter,
     xpDecayStrategyEnter
 } from "@beyou/state/user/perfilSlice";
+import { reconcileTimezone } from "./reconcileTimezone";
 
 /**
  * Populate the `perfil` redux slice from a user profile payload.
@@ -55,5 +57,14 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     dispatch(languageInUserEnter(data.languageInUse));
     dispatch(tutorialCompletedEnter(Boolean(data?.isTutorialCompleted)));
     dispatch(timezoneEnter(data.timezone));
+    dispatch(timezoneSourceEnter(data.timezoneSource));
     dispatch(xpDecayStrategyEnter(data.xpDecayStrategy));
+
+    // Fire-and-forget, and deliberately HERE rather than at the five call sites above
+    // this function. UI login, Google login, silent refresh, agent refresh and the
+    // profile screen all funnel through it; adding the call to each one means a sixth
+    // path added later silently reopens the bug this exists to close. It no-ops unless
+    // the account has never had a timezone, so the cost on every other boot is one
+    // comparison.
+    void reconcileTimezone(dispatch, data);
 }
