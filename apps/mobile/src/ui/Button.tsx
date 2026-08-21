@@ -3,7 +3,7 @@ import { Pressable, Text, ActivityIndicator, View, type PressableProps } from 'r
 import { useBeyouTheme } from '../theme/ThemeProvider';
 
 type Mode = 'primary' | 'tonal' | 'ghost' | 'danger' | 'cancel' | 'create' | 'default';
-type Size = 'big' | 'medium' | 'small' | 'auto';
+type Size = 'big' | 'medium' | 'small' | 'auto' | 'block';
 
 interface Props extends Omit<PressableProps, 'children'> {
   text: string;
@@ -52,11 +52,16 @@ const MODE_TEXT: Record<Mode, string> = {
 // Unlike the web, the fixed width STAYS: native screens stack the CTA in a
 // centred column, and a button that shrinks with its text would break that
 // rhythm. `auto` is the way out for anyone wanting the web behaviour.
+//
+// `block` is for a label that is a whole sentence: it takes the row it is on and
+// grows DOWNWARDS as the label wraps (min height, not height), which is the only
+// one of the five that cannot be pushed off the screen by its own text.
 const SIZE: Record<Size, string> = {
   big: 'w-[250px] h-[52px]',
   medium: 'w-[180px] h-[48px]',
   small: 'w-[120px] h-[44px]',
   auto: 'h-11 px-6',
+  block: 'w-full min-h-[44px] px-4 py-2.5',
 };
 
 export default function Button({
@@ -92,7 +97,12 @@ export default function Button({
       ) : (
         <>
           {icon ? <View>{icon}</View> : null}
-          <Text className={`${MODE_TEXT[mode]} text-lg font-semibold`}>{text}</Text>
+          {/* `shrink` because Yoga defaults flexShrink to 0: without it a label
+              wider than the button does not wrap, it spills out sideways and
+              shoves whatever shares its row off the edge of the screen. */}
+          <Text className={`${MODE_TEXT[mode]} shrink text-center text-lg font-semibold`}>
+            {text}
+          </Text>
         </>
       )}
     </Pressable>
