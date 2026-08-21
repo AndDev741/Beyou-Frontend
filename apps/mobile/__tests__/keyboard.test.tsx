@@ -1,7 +1,7 @@
 /**
  * Lifting a modal off the keyboard, and putting it back down.
  *
- * Both halves have shipped broken, in opposite directions, so both are pinned here.
+ * Three ways this has shipped broken, all pinned here.
  *
  * First the lift was missing: a KeyboardAvoidingView left as a passthrough on Android,
  * on the reasoning that the OS pans the window — true of the app's window, never true
@@ -14,9 +14,13 @@
  * close left the sheet floating a navigation bar above the bottom of the screen, for
  * good — with the screen behind showing through the gap.
  *
- * The hook uses no screen coordinates at all, which is what these tests are really
- * checking: a closed keyboard is a hard zero, and a window that already shrank is
- * measured rather than assumed.
+ * Then the lift was short: `endCoordinates.height` stops at the navigation bar the
+ * keyboard is drawn on top of, so a full-bleed container lifted by it kept a navigation
+ * bar's worth of itself under the keyboard. The forms' pinned footer came out sliced in
+ * half.
+ *
+ * So the arithmetic reads the keyboard's TOP against the container's own height, and
+ * hide is a hard zero rather than a subtraction.
  */
 import { Keyboard, Text, View } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
@@ -56,9 +60,15 @@ const measure = async (height: number) => {
   });
 };
 
-const show = async (height: number) => {
+/**
+ * `screenY` is the keyboard's top edge, which is what the hook reads. `height` rides
+ * along because the real event carries both, and because it is deliberately NOT the
+ * number in play: on the device it is one navigation bar smaller than the gap the
+ * keyboard actually covers.
+ */
+const show = async (screenY: number, height = 0) => {
   await act(async () => {
-    listeners.keyboardDidShow?.({ endCoordinates: { height } });
+    listeners.keyboardDidShow?.({ endCoordinates: { screenY, height } });
   });
 };
 
@@ -83,22 +93,40 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-it('lifts by the keyboard height when the window does not move', async () => {
+it('lifts to the top edge of the keyboard when the window does not move', async () => {
   await mount();
   await measure(900);
   expect(lift()).toBe(0);
 
-  await show(300);
+  await show(600);
 
   // Android 15 under edge-to-edge: the window keeps its height and the keyboard draws
-  // over it, so the whole 300 is ours to give up.
+  // over it, so everything below the keyboard's top is ours to give up.
   expect(lift()).toBe(300);
+});
+
+/**
+ * The whole reason the arithmetic changed, in a Pixel 7's real numbers: the window is
+ * 914.29 tall, the keyboard's top sits at 577.90, and the keyboard REPORTS a height of
+ * 312.38, because that stops at the navigation bar it is drawn on top of. The gap to
+ * cover is 336.38. Lifting by the reported height leaves the bottom 24 of the container
+ * under the keyboard, which is how the forms' footer came out sliced in half.
+ */
+it('lifts past the navigation bar the keyboard is drawn on top of', async () => {
+  await mount();
+  await measure(914.2857142857143);
+
+  await show(577.90478515625, 312.3809509277344);
+
+  expect(lift()).toBeCloseTo(336.38, 2);
+  // Not the reported height.
+  expect(lift()).not.toBeCloseTo(312.38, 2);
 });
 
 it('returns to exactly zero when the keyboard hides', async () => {
   await mount();
   await measure(900);
-  await show(300);
+  await show(600);
 
   await hide();
 
@@ -111,9 +139,10 @@ it('lifts by nothing when the window already gave up the space', async () => {
   await mount();
   await measure(900);
 
-  await show(300);
+  await show(600);
   // Older Android still honours SOFT_INPUT_ADJUST_RESIZE, so the modal's own window
-  // shrinks by the keyboard's height and the next layout arrives smaller.
+  // shrinks to meet the keyboard and the next layout arrives smaller. Nothing of it is
+  // covered any more, and no baseline was needed to work that out.
   await measure(600);
 
   expect(lift()).toBe(0);
@@ -123,29 +152,29 @@ it('lifts by the remainder when the window gave up only part of it', async () =>
   await mount();
   await measure(900);
 
-  await show(300);
+  await show(600);
   await measure(800);
 
   expect(lift()).toBe(200);
 });
 
-it('does not take a shrunken height as the baseline', async () => {
+it('lifts the full amount again after a window that shrank and came back', async () => {
   await mount();
   await measure(900);
-  await show(300);
+  await show(600);
   await measure(600);
   await hide();
 
   // Back to full height with nothing covering it, so the next keyboard has to lift the
-  // full amount again. Keeping 600 as the baseline would call the window already
-  // shrunk by 300 and leave the input under the keyboard.
+  // full amount. The shrunken 600 is not remembered anywhere to be mistaken for the
+  // window's normal size.
   await measure(900);
-  await show(300);
+  await show(600);
 
   expect(lift()).toBe(300);
 });
 
-it('re-baselines on rotation rather than comparing across orientations', async () => {
+it('survives a rotation without carrying the old orientation into the sum', async () => {
   await mount();
   await measure(900);
   await hide();
@@ -154,7 +183,7 @@ it('re-baselines on rotation rather than comparing across orientations', async (
   await measure(400);
   await show(200);
 
-  // Measured against 400, not against the portrait 900 — which would have read the
-  // rotation as a 500px shrink and lifted by nothing.
+  // Read off the landscape height, not against the portrait 900 — which an earlier
+  // version compared against and read as a 500 shrink, lifting by nothing.
   expect(lift()).toBe(200);
 });

@@ -12,6 +12,7 @@ import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
 import Input from '../Input';
+import { useKeyboardLift } from '../keyboard';
 import Button from '../Button';
 import GhostAdd from '../GhostAdd';
 import IconButton from '../IconButton';
@@ -39,7 +40,13 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const insets = useContext(SafeAreaInsetsContext);
-  const bottomPad = (insets?.bottom ?? 0) + 16;
+  // A Modal is its own window and Android stopped resizing it under the
+  // edge-to-edge layout, so the name field and the Save row at the foot of the
+  // scroll sat behind the keyboard. See `useKeyboardLift`.
+  const { lift, onLayout } = useKeyboardLift();
+  // The navigation bar's inset goes while the keyboard is up: that bar is behind
+  // the keyboard, so its padding would only add dead space under the buttons.
+  const bottomPad = (lift > 0 ? 0 : (insets?.bottom ?? 0)) + 16;
   const isEdit = mode === 'edit';
   const [working, setWorking] = useState<Routine>(emptyRoutine());
   const [sectionSheet, setSectionSheet] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
@@ -127,7 +134,12 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   if (!visible) return null;
   return (
     <Modal visible animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-surface" style={{ paddingTop: insets?.top ?? 0 }}>
+      <View
+        className="flex-1 bg-surface"
+        onLayout={onLayout}
+        style={{ paddingTop: insets?.top ?? 0, paddingBottom: lift }}
+        testID="routine-builder-keyboard-avoider"
+      >
         {/* The web modal's header: title on the left, × on the right. The actions sit
             at the foot, where the thumb already is after filling the form. */}
         <View className="flex-row items-center gap-3 border-b border-border px-4 py-3">

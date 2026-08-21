@@ -7,6 +7,7 @@ import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { timezoneEnter, timezoneSourceEnter, xpDecayStrategyEnter } from '@beyou/state/user/perfilSlice';
 import { detectTimezone } from '../../lib/detectTimezone';
 import OptionCard from './OptionCard';
+import { useKeyboardLift } from '../keyboard';
 import { ChevronDown } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
@@ -55,6 +56,10 @@ const XP_DECAY_OPTIONS: Array<{ id: XpDecayStrategy; titleKey: string; descripti
  */
 export default function RoutineSettingsSection() {
   const { t } = useTranslation();
+  // For the timezone dialog below, not for this section: the search field lives
+  // in a Modal, which is its own window and which Android stopped resizing under
+  // the edge-to-edge layout. See `useKeyboardLift`.
+  const { lift, onLayout } = useKeyboardLift();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
 
@@ -173,7 +178,15 @@ export default function RoutineSettingsSection() {
         animationType="fade"
         onRequestClose={() => setTzModalOpen(false)}
       >
-        <View className="flex-1 items-center justify-center bg-black/50 px-6">
+        {/* Centred, and the dialog's own max-height resolves against this box, so
+            giving up the bottom shrinks the list rather than hiding the search
+            field the keyboard is for. */}
+        <View
+          className="flex-1 items-center justify-center bg-black/50 px-6"
+          onLayout={onLayout}
+          style={{ paddingBottom: lift }}
+          testID="timezone-modal-keyboard-avoider"
+        >
           <View
             className="max-h-[70%] w-full rounded-card border-2 border-border bg-surface p-4"
             testID="timezone-modal"

@@ -19,6 +19,7 @@ import { Pencil } from 'lucide-react-native';
 import Input from '../Input';
 import Button from '../Button';
 import FormField from '../form/FormField';
+import { useKeyboardLift } from '../keyboard';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import { resolvePhotoUrl } from '../../lib/photoUrl';
@@ -33,6 +34,10 @@ export default function ProfileSection() {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
   const perfil = useSelector((s: RootState) => s.perfil);
+  // For the photo dialog below, not for this section: the section's own fields
+  // live in the app window, which the OS pans. A Modal is its own window and
+  // Android stopped resizing it. See `useKeyboardLift`.
+  const { lift, onLayout } = useKeyboardLift();
 
   const [photoModal, setPhotoModal] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(perfil.photo);
@@ -219,7 +224,14 @@ export default function ProfileSection() {
       </View>
 
       <Modal visible={photoModal} transparent animationType="fade">
-        <View className="flex-1 items-center justify-center bg-black/50 px-4">
+        {/* Centred, so giving up the bottom re-centres the dialog in what is left
+            above the keyboard, with the URL field and Save inside it. */}
+        <View
+          className="flex-1 items-center justify-center bg-black/50 px-4"
+          onLayout={onLayout}
+          style={{ paddingBottom: lift }}
+          testID="photo-modal-keyboard-avoider"
+        >
           <View className="w-full max-w-sm rounded-card bg-surface p-6 shadow-2xl" testID="photo-modal">
             <Text className="mb-4 text-lg font-semibold text-text">{t('ChangePhoto')}</Text>
 

@@ -7,6 +7,7 @@ import deleteAccount from '@beyou/api/user/deleteAccount';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import Button from '../Button';
 import Input from '../Input';
+import { useKeyboardLift } from '../keyboard';
 import { notify } from '../../notify';
 import { logout } from '../../auth/authSlice';
 import type { AppDispatch, RootState } from '../../store';
@@ -54,6 +55,10 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const email = useSelector((s: RootState) => s.perfil.email);
+  // The code step's field is the one the keyboard is for. A Modal is its own
+  // window and Android stopped resizing it under the edge-to-edge layout. See
+  // `useKeyboardLift`.
+  const { lift, onLayout } = useKeyboardLift();
   const [step, setStep] = useState<Step>('confirm');
   const [code, setCode] = useState('');
   const [pending, setPending] = useState(false);
@@ -146,9 +151,13 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
       onRequestClose={pending ? () => {} : onClose}
       testID="delete-account-sheet"
     >
+      {/* Centred, so giving up the bottom re-centres the dialog in what is left
+          above the keyboard, with the six-digit field and Continue inside it. */}
       <View
         className="flex-1 items-center justify-center px-6"
-        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        onLayout={onLayout}
+        style={{ backgroundColor: 'rgba(0,0,0,0.5)', paddingBottom: lift }}
+        testID="delete-account-keyboard-avoider"
       >
         <View className="w-full max-w-[420px] rounded-card border border-border bg-surface p-5">
           {step === 'confirm' ? (

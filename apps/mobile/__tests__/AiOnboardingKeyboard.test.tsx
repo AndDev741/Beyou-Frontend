@@ -30,7 +30,7 @@ jest.mock('@beyou/api/onboarding/fetchOnboardingSuggestions', () => ({
 
 import { Keyboard } from 'react-native';
 import { Provider } from 'react-redux';
-import { render, screen, act } from '@testing-library/react-native';
+import { render, screen, act, fireEvent } from '@testing-library/react-native';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
@@ -60,6 +60,19 @@ const padding = () => {
   return Object.assign({}, ...[style].flat(Infinity).filter(Boolean)).paddingBottom ?? 0;
 };
 
+/**
+ * The container's own height is half of the sum, so the layout has to happen before the
+ * keyboard does. A 900-tall window with the keyboard's top at 580 is 320 to give up.
+ */
+const measure = async (height: number) => {
+  await act(async () => {
+    fireEvent(screen.getByTestId('ai-onboarding-keyboard-avoider'), 'layout', {
+      persist: () => {},
+      nativeEvent: { layout: { x: 0, y: 0, width: 400, height } },
+    });
+  });
+};
+
 beforeEach(() => {
   for (const key of Object.keys(listeners)) delete listeners[key];
   jest.spyOn(Keyboard, 'addListener').mockImplementation(((
@@ -77,9 +90,10 @@ afterEach(() => {
 
 it('gives up the bottom of the wizard while the keyboard is up, and takes it back after', async () => {
   await renderWizard();
+  await measure(900);
 
   await act(async () => {
-    listeners.keyboardDidShow?.({ endCoordinates: { height: 320 } });
+    listeners.keyboardDidShow?.({ endCoordinates: { screenY: 580, height: 296 } });
   });
   // Without this the step's input is behind the keyboard being typed on.
   expect(padding()).toBe(320);

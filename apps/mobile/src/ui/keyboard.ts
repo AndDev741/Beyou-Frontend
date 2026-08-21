@@ -4,8 +4,8 @@ import { Keyboard, type LayoutChangeEvent } from 'react-native';
 /**
  * How far a modal has to lift so the keyboard stops covering it.
  *
- * Three attempts got here, and the two before it were both wrong in ways worth
- * writing down, because each looked right on some devices.
+ * Four attempts got here, and the three before it were each wrong in a way worth
+ * writing down, because every one of them looked right on some device.
  *
  * `KeyboardAvoidingView` with `behavior={undefined}` on Android was the first. The
  * reasoning was that the OS pans the window (`softwareKeyboardLayoutMode: "pan"` in
@@ -24,47 +24,57 @@ import { Keyboard, type LayoutChangeEvent } from 'react-native';
  * and the sheet stayed lifted off the bottom for the rest of its life, with the screen
  * behind showing through the gap.
  *
- * So: no screen coordinates at all. Two numbers that are unambiguous on every version.
+ * The third was `endCoordinates.height`, minus whatever the view's own layout said the
+ * window had already given up. It avoided screen coordinates entirely, and it was
+ * short. On a Pixel 7 the numbers are: window 914.29, keyboard `height` 312.38, keyboard
+ * `screenY` 577.90. The keyboard's top is 336.38 above the bottom of the window, but its
+ * reported HEIGHT stops at the navigation bar it is drawn on top of, so a full-bleed
+ * container lifted by 312.38 still had a navigation bar's worth of itself underneath the
+ * keyboard. Invisible where the covered strip was padding or scrollable, and not
+ * invisible at all in the forms, whose footer is pinned to the bottom: Cancel and Save
+ * came out sliced in half by the keyboard's top edge.
  *
- * - The keyboard's own height, from the event, and a hard zero when it hides. A closed
- *   keyboard is not arithmetic, it is a fact, and this is what makes the residue
- *   impossible.
- * - How much the window already gave up, from the view's own layout: the height it has
- *   with no keyboard, minus the height it has now. On a window that still honours the
- *   resize that difference is the keyboard's height and the lift comes out at zero, so
- *   there is no double compensation on older Android either.
+ * So: the keyboard's TOP, in screen coordinates, against the container's own measured
+ * height.
  *
- * The baseline is re-taken whenever the keyboard is down, so a rotation replaces it
- * instead of leaving a portrait measurement to be compared against a landscape one.
+ * - `endCoordinates.screenY` on show, and nothing at all on hide. The resting frame
+ *   that produced the second attempt's residue is never read, because a closed keyboard
+ *   is not arithmetic, it is a hard zero.
+ * - The container's height from its own `onLayout`. On a window that still honours the
+ *   resize, that height shrinks to meet the keyboard's top and the lift comes out at
+ *   zero on its own, so there is nothing to keep a baseline for and nothing to
+ *   re-baseline after a rotation.
  *
- * Attach `onLayout` to the view you apply `lift` to as bottom padding. Padding does not
- * change that view's own measured height, so this does not feed back on itself.
+ * Attach `onLayout` to the view you apply `lift` to as bottom padding: it is the
+ * measurement, not a nicety, and without it there is no lift. Padding does not change
+ * that view's own measured height, so this does not feed back on itself. Give it the
+ * view that spans the window — the root inside the Modal — since the arithmetic reads
+ * that view's bottom edge as the bottom of the screen.
  */
 export function useKeyboardLift(): {
   lift: number;
   onLayout: (event: LayoutChangeEvent) => void;
 } {
   const [lift, setLift] = useState(0);
-  const keyboardHeight = useRef(0);
-  const baselineHeight = useRef(0);
+  /** The keyboard's top edge in screen coordinates, or null while it is down. */
+  const keyboardTop = useRef<number | null>(null);
   const currentHeight = useRef(0);
 
   const recompute = useCallback(() => {
-    if (keyboardHeight.current === 0) {
+    if (keyboardTop.current === null) {
       setLift(0);
       return;
     }
-    const alreadyGiven = Math.max(0, baselineHeight.current - currentHeight.current);
-    setLift(Math.max(0, keyboardHeight.current - alreadyGiven));
+    setLift(Math.max(0, currentHeight.current - keyboardTop.current));
   }, []);
 
   useEffect(() => {
     const shown = Keyboard.addListener('keyboardDidShow', (event) => {
-      keyboardHeight.current = event.endCoordinates.height;
+      keyboardTop.current = event.endCoordinates.screenY;
       recompute();
     });
     const hidden = Keyboard.addListener('keyboardDidHide', () => {
-      keyboardHeight.current = 0;
+      keyboardTop.current = null;
       recompute();
     });
     return () => {
@@ -75,14 +85,7 @@ export function useKeyboardLift(): {
 
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
-      const { height } = event.nativeEvent.layout;
-      currentHeight.current = height;
-      // Only while nothing is covering it: a height measured with the keyboard up is
-      // the shrunken one, and taking it as the baseline would zero the lift and put
-      // the input back under the keyboard.
-      if (keyboardHeight.current === 0) {
-        baselineHeight.current = height;
-      }
+      currentHeight.current = event.nativeEvent.layout.height;
       recompute();
     },
     [recompute],
