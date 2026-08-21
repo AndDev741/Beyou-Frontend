@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeEach, type Mock } from "vitest";
 
 const createCategory = vi.fn();
 const getCategories = vi.fn();
@@ -37,14 +37,26 @@ import {
 
 const t = ((k: string) => k) as never;
 
+/**
+ * Answer a list getter with each page in turn, repeating the last one after that.
+ *
+ * Every create helper now reads the server before it writes, so a step that creates
+ * two rows fetches twice: once to see what is missing, once to pick up the ids. The
+ * first page is what the account held before the step ran.
+ */
+const armList = (mock: Mock, ...pages: unknown[][]) => {
+  pages.slice(0, -1).forEach((page) => mock.mockResolvedValueOnce({ success: page }));
+  mock.mockResolvedValue({ success: pages[pages.length - 1] });
+};
+
 describe("createCategoriesFromSuggestions", () => {
   beforeEach(() => { createCategory.mockReset(); getCategories.mockReset(); });
 
   test("creates each suggestion, re-fetches, dispatches, returns id refs", async () => {
     createCategory.mockResolvedValue({ success: {} });
-    getCategories.mockResolvedValue({ success: [
+    armList(getCategories, [], [
       { id: "id-1", name: "Health" }, { id: "id-2", name: "Career" }
-    ]});
+    ]);
     const dispatch = vi.fn();
 
     const refs = await createCategoriesFromSuggestions(
@@ -58,6 +70,7 @@ describe("createCategoriesFromSuggestions", () => {
   });
 
   test("throws when a create fails so the wizard can show retry", async () => {
+    armList(getCategories, []);
     createCategory.mockResolvedValue({ error: { message: "nope" } });
     await expect(createCategoriesFromSuggestions(
       [{ name: "Health", description: "d", iconId: "lucide:star" }], t, vi.fn()
@@ -70,7 +83,7 @@ describe("createHabitsFromSuggestions", () => {
 
   test("creates habits resolving categoryName to id, maps difficulty->dificulty arg", async () => {
     createHabit.mockResolvedValue({ success: {} });
-    getHabits.mockResolvedValue({ success: [{ id: "h-1", name: "Run" }] });
+    armList(getHabits, [], [{ id: "h-1", name: "Run" }]);
     const refs = await createHabitsFromSuggestions(
       [{ name: "Run", description: "d", motivationalPhrase: "go", iconId: "lucide:zap",
          categoryName: "Health", importance: 4, difficulty: 2 }],
@@ -82,7 +95,7 @@ describe("createHabitsFromSuggestions", () => {
 
   test("unknown categoryName falls back to first category", async () => {
     createHabit.mockResolvedValue({ success: {} });
-    getHabits.mockResolvedValue({ success: [{ id: "h-1", name: "Run" }] });
+    armList(getHabits, [], [{ id: "h-1", name: "Run" }]);
     await createHabitsFromSuggestions(
       [{ name: "Run", description: "d", motivationalPhrase: "", iconId: "lucide:zap",
          categoryName: "Nope", importance: 3, difficulty: 3 }],
@@ -91,6 +104,7 @@ describe("createHabitsFromSuggestions", () => {
   });
 
   test("throws when a create fails so the wizard can show retry", async () => {
+    armList(getHabits, []);
     createHabit.mockResolvedValue({ error: { message: "nope" } });
     await expect(createHabitsFromSuggestions(
       [{ name: "Run", description: "d", motivationalPhrase: "", iconId: "lucide:zap",
@@ -105,7 +119,7 @@ describe("createTasksFromSuggestions", () => {
 
   test("creates tasks resolving categoryName to id, re-fetches, dispatches, returns refs", async () => {
     createTask.mockResolvedValue({ success: {} });
-    getTasks.mockResolvedValue({ success: [{ id: "t-1", name: "Buy shoes" }] });
+    armList(getTasks, [], [{ id: "t-1", name: "Buy shoes" }]);
     const dispatch = vi.fn();
     const refs = await createTasksFromSuggestions(
       [{ name: "Buy shoes", description: "d", iconId: "lucide:zap",
@@ -118,6 +132,7 @@ describe("createTasksFromSuggestions", () => {
   });
 
   test("throws when a create fails so the wizard can show retry", async () => {
+    armList(getTasks, []);
     createTask.mockResolvedValue({ error: { message: "nope" } });
     await expect(createTasksFromSuggestions(
       [{ name: "Buy shoes", description: "d", iconId: "lucide:zap",
@@ -132,7 +147,7 @@ describe("createRoutineFromSuggestion", () => {
 
   test("builds Routine from suggestion resolving item names to ids, schedules it", async () => {
     createRoutine.mockResolvedValue({ success: {} });
-    getRoutines.mockResolvedValue({ success: [{ id: "r-1", name: "Morning flow" }] });
+    armList(getRoutines, [], [{ id: "r-1", name: "Morning flow" }]);
     createSchedule.mockResolvedValue({ success: {} });
 
     const result = await createRoutineFromSuggestion(
@@ -155,7 +170,7 @@ describe("createRoutineFromSuggestion", () => {
 
   test("dispatches the re-fetched routines into redux", async () => {
     createRoutine.mockResolvedValue({ success: {} });
-    getRoutines.mockResolvedValue({ success: [{ id: "r-1", name: "Morning flow" }] });
+    armList(getRoutines, [], [{ id: "r-1", name: "Morning flow" }]);
     createSchedule.mockResolvedValue({ success: {} });
     const dispatch = vi.fn();
 
@@ -169,6 +184,7 @@ describe("createRoutineFromSuggestion", () => {
   });
 
   test("throws when the create fails so the wizard can show retry", async () => {
+    armList(getRoutines, []);
     createRoutine.mockResolvedValue({ error: { message: "nope" } });
     await expect(createRoutineFromSuggestion(
       { name: "Morning flow", iconId: "lucide:sun", scheduleDays: [], sections: [] },
@@ -182,7 +198,7 @@ describe("createGoalsFromSuggestions", () => {
 
   test("creates goals with dates derived from durationDays, status NOT_STARTED, currentValue 0", async () => {
     createGoal.mockResolvedValue({ success: {} });
-    getGoals.mockResolvedValue({ success: [{ id: "g-1", name: "Read 12 books" }] });
+    armList(getGoals, [], [{ id: "g-1", name: "Read 12 books" }]);
     vi.useFakeTimers(); vi.setSystemTime(new Date("2026-07-23"));
 
     try {
@@ -201,7 +217,7 @@ describe("createGoalsFromSuggestions", () => {
 
   test("falls back to term-based duration when durationDays is not positive", async () => {
     createGoal.mockResolvedValue({ success: {} });
-    getGoals.mockResolvedValue({ success: [{ id: "g-1", name: "Save money" }] });
+    armList(getGoals, [], [{ id: "g-1", name: "Save money" }]);
     vi.useFakeTimers(); vi.setSystemTime(new Date("2026-07-23"));
 
     try {
@@ -228,6 +244,7 @@ describe("createGoalsFromSuggestions", () => {
   });
 
   test("throws when a create fails so the wizard can show retry", async () => {
+    armList(getGoals, []);
     createGoal.mockResolvedValue({ error: { message: "nope" } });
     await expect(createGoalsFromSuggestions(
       [{ name: "Read 12 books", description: "d", iconId: "lucide:book-open", categoryName: "Reading",
@@ -256,7 +273,7 @@ describe("createRoutineFromSuggestion with items the user does not have yet", ()
 
   const armRoutine = () => {
     createRoutine.mockResolvedValue({ success: {} });
-    getRoutines.mockResolvedValue({ success: [{ id: "r-1", name: "Morning flow" }] });
+    armList(getRoutines, [], [{ id: "r-1", name: "Morning flow" }]);
     createSchedule.mockResolvedValue({ success: {} });
   };
 
@@ -269,9 +286,9 @@ describe("createRoutineFromSuggestion with items the user does not have yet", ()
   test("creates the new habit and task first, then places them in the routine", async () => {
     armRoutine();
     createHabit.mockResolvedValue({ success: {} });
-    getHabits.mockResolvedValue({ success: [{ id: "h-new", name: "Stretch" }] });
+    armList(getHabits, [], [{ id: "h-new", name: "Stretch" }]);
     createTask.mockResolvedValue({ success: {} });
-    getTasks.mockResolvedValue({ success: [{ id: "t-new", name: "Buy a mat" }] });
+    armList(getTasks, [], [{ id: "t-new", name: "Buy a mat" }]);
 
     const result = await createRoutineFromSuggestion(
       draft({
@@ -330,5 +347,135 @@ describe("createRoutineFromSuggestion with items the user does not have yet", ()
     expect(createTask).not.toHaveBeenCalled();
     expect(result.newHabits).toEqual([]);
     expect(result.newTasks).toEqual([]);
+  });
+});
+
+/**
+ * The failure this module was changed for, reported from production as an account
+ * holding 58 habits after accepting 3.
+ *
+ * The wizard's habits/tasks step creates every habit, then every task, and only
+ * records what it made once both loops are done. A task create that fails therefore
+ * leaves habits behind that nothing has a reference to, and the error banner's Try
+ * again re-runs the same closure from the top.
+ */
+describe("a step re-run after a failure partway through", () => {
+  // Stands in for the account: what the server holds, and what a create adds to it.
+  let habitRows: Array<{ id: string; name: string }>;
+  let taskRows: Array<{ id: string; name: string }>;
+
+  beforeEach(() => {
+    createHabit.mockReset(); getHabits.mockReset();
+    createTask.mockReset(); getTasks.mockReset();
+    habitRows = [];
+    taskRows = [];
+    createHabit.mockImplementation((name: string) => {
+      habitRows.push({ id: `h-${habitRows.length + 1}`, name });
+      return Promise.resolve({ success: {} });
+    });
+    getHabits.mockImplementation(() => Promise.resolve({ success: [...habitRows] }));
+    getTasks.mockImplementation(() => Promise.resolve({ success: [...taskRows] }));
+  });
+
+  const cats = [{ id: "cat-1", name: "Health" }];
+  const habit = (name: string) => ({
+    name, description: "d", motivationalPhrase: "", iconId: "lucide:zap",
+    categoryName: "Health", importance: 3, difficulty: 3
+  });
+  const chore = (name: string) => ({
+    name, description: "d", iconId: "lucide:star",
+    categoryName: "Health", importance: 2, difficulty: 1
+  });
+
+  /** What the wizard's step does, in the order it does it. */
+  const runStep = async (
+    habits: ReturnType<typeof habit>[],
+    tasks: ReturnType<typeof chore>[]
+  ) => {
+    await createHabitsFromSuggestions(habits, cats, t, vi.fn());
+    await createTasksFromSuggestions(tasks, cats, t, vi.fn());
+  };
+
+  test("does not create the habits again on every retry", async () => {
+    const habits = [habit("Run"), habit("Read"), habit("Meditate")];
+    const tasks = [chore("Buy shoes")];
+    // The production trigger: the task INSERT was the one blowing up, on a
+    // description longer than the column.
+    createTask.mockResolvedValue({ error: { message: "value too long" } });
+
+    await expect(runStep(habits, tasks)).rejects.toThrow();
+    expect(habitRows).toHaveLength(3);
+
+    // Try again, twice, with the task still failing. This is where the account used
+    // to pick up a second and third copy of all three habits.
+    await expect(runStep(habits, tasks)).rejects.toThrow();
+    await expect(runStep(habits, tasks)).rejects.toThrow();
+
+    expect(habitRows.map((h) => h.name)).toEqual(["Run", "Read", "Meditate"]);
+    expect(createHabit).toHaveBeenCalledTimes(3);
+  });
+
+  test("the pass that finally succeeds hands back a ref for all of them", async () => {
+    // Skipping a create must not mean skipping its ref: the routine and summary
+    // steps read these, and an item missing from them is built again later.
+    const habits = [habit("Run"), habit("Read")];
+    createTask.mockResolvedValueOnce({ error: { message: "value too long" } });
+    createTask.mockImplementation((name: string) => {
+      taskRows.push({ id: `t-${taskRows.length + 1}`, name });
+      return Promise.resolve({ success: {} });
+    });
+
+    await expect(runStep(habits, [chore("Buy shoes")])).rejects.toThrow();
+
+    const habitRefs = await createHabitsFromSuggestions(habits, cats, t, vi.fn());
+    const taskRefs = await createTasksFromSuggestions([chore("Buy shoes")], cats, t, vi.fn());
+
+    expect(createHabit).toHaveBeenCalledTimes(2);
+    expect(habitRefs).toEqual([{ id: "h-1", name: "Run" }, { id: "h-2", name: "Read" }]);
+    expect(taskRefs).toEqual([{ id: "t-1", name: "Buy shoes" }]);
+  });
+
+  test("recognises the existing row past a difference in case or padding", async () => {
+    habitRows.push({ id: "h-9", name: "Morning run" });
+
+    const refs = await createHabitsFromSuggestions([habit("  morning RUN ")], cats, t, vi.fn());
+
+    expect(createHabit).not.toHaveBeenCalled();
+    expect(refs).toEqual([{ id: "h-9", name: "Morning run" }]);
+  });
+});
+
+describe("a routine step re-run after the schedule failed", () => {
+  let routineRows: Array<{ id: string; name: string }>;
+
+  beforeEach(() => {
+    createRoutine.mockReset(); getRoutines.mockReset(); createSchedule.mockReset();
+    createHabit.mockReset(); createTask.mockReset();
+    routineRows = [];
+    createRoutine.mockImplementation((r: { name: string }) => {
+      routineRows.push({ id: `r-${routineRows.length + 1}`, name: r.name });
+      return Promise.resolve({ success: {} });
+    });
+    getRoutines.mockImplementation(() => Promise.resolve({ success: [...routineRows] }));
+  });
+
+  test("reuses the routine the failed pass already saved", async () => {
+    // The create runs before the schedule, so anything failing after it leaves a
+    // routine behind. Two routines under one name is worse than a duplicate habit:
+    // the dashboard picks one and the other sits there scheduled for nothing.
+    createSchedule.mockResolvedValueOnce({ error: { message: "nope" } });
+    createSchedule.mockResolvedValue({ success: {} });
+    const draft = {
+      name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["Monday"], sections: []
+    } as never;
+
+    await expect(createRoutineFromSuggestion(draft, [], [], t, vi.fn())).rejects.toThrow();
+    expect(routineRows).toHaveLength(1);
+
+    const result = await createRoutineFromSuggestion(draft, [], [], t, vi.fn());
+
+    expect(createRoutine).toHaveBeenCalledTimes(1);
+    expect(routineRows).toHaveLength(1);
+    expect(result.routineId).toBe("r-1");
   });
 });
