@@ -6,6 +6,7 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import Button from '../Button';
 import IconButton from '../IconButton';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { useKeyboardLift } from '../keyboard';
 
 interface FormModalProps {
   visible: boolean;
@@ -41,10 +42,20 @@ export default function FormModal({
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const insets = useContext(SafeAreaInsetsContext);
+  // A Modal is its own window and Android stopped resizing it under the
+  // edge-to-edge layout, so the footer with Cancel and Save sat behind the
+  // keyboard: you could type into a field and then not reach Save. See
+  // `useKeyboardLift`.
+  const { lift, onLayout } = useKeyboardLift();
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
-      <View className="flex-1 bg-bg" style={{ paddingTop: insets?.top ?? 0 }} testID={testID}>
+      <View
+        className="flex-1 bg-bg"
+        onLayout={onLayout}
+        style={{ paddingTop: insets?.top ?? 0, paddingBottom: lift }}
+        testID={testID}
+      >
         <View className="flex-row items-center gap-3 border-b border-border px-4 py-3">
           <Text
             accessibilityRole="header"
@@ -68,7 +79,11 @@ export default function FormModal({
 
         <View
           className="flex-row justify-end gap-2 border-t border-border px-4 pt-3"
-          style={{ paddingBottom: (insets?.bottom ?? 0) + 12 }}
+          testID={testID ? `${testID}-footer` : 'form-footer'}
+          // The navigation bar's inset goes while the keyboard is up: that bar is
+          // behind the keyboard, and keeping its padding would leave a strip of
+          // empty footer under the buttons.
+          style={{ paddingBottom: (lift > 0 ? 0 : (insets?.bottom ?? 0)) + 12 }}
         >
           <Button
             text={t('Cancel')}

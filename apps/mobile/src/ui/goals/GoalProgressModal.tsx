@@ -3,6 +3,7 @@ import { Modal, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Button from '../Button';
 import Input from '../Input';
+import { useKeyboardLift } from '../keyboard';
 
 interface GoalProgressModalProps {
   visible: boolean;
@@ -37,6 +38,7 @@ export default function GoalProgressModal({
   testID = 'goal-progress-modal',
 }: GoalProgressModalProps) {
   const { t } = useTranslation();
+  const { lift, onLayout } = useKeyboardLift();
   const [amount, setAmount] = useState('1');
   const [pending, setPending] = useState(false);
 
@@ -68,9 +70,14 @@ export default function GoalProgressModal({
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      {/* The dialog is centred, so giving up the bottom re-centres it in what is
+          left above the keyboard. A Modal is its own window and Android stopped
+          resizing it under the edge-to-edge layout. See `useKeyboardLift`. */}
       <View
         className="flex-1 items-center justify-center px-6"
-        style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        onLayout={onLayout}
+        style={{ backgroundColor: 'rgba(0,0,0,0.5)', paddingBottom: lift }}
+        testID={`${testID}-keyboard-avoider`}
       >
         <Pressable
           accessibilityRole="button"
