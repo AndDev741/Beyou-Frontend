@@ -159,7 +159,10 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
               <Text className="mt-1.5 text-[12.5px] leading-snug text-text-2">
                 {t('DeleteAccountStep1Body')}
               </Text>
-              <View className="mt-4 flex-row justify-end gap-2">
+              {/* Both labels fit beside each other on a normal phone, and wrap
+                  keeps the narrow ones honest: the second button drops to its own
+                  line instead of shoving Cancel past the left edge. */}
+              <View className="mt-4 flex-row flex-wrap justify-end gap-2">
                 <Button text={t('Cancel')} mode="ghost" size="auto" onPress={onClose} />
                 <Button
                   text={t('DeleteAccountStep1Confirm')}
@@ -210,7 +213,9 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
                 <Text className="text-[12px] font-semibold text-accent">{t('DeleteAccountResend')}</Text>
               </Pressable>
 
-              <View className="mt-4 flex-row justify-end gap-2">
+              {/* Wrap for the same reason as step 1: overflow here would take
+                  Cancel off the screen, not the button that caused it. */}
+              <View className="mt-4 flex-row flex-wrap justify-end gap-2">
                 <Button text={t('Cancel')} mode="ghost" size="auto" onPress={onClose} />
                 <Button
                   text={t('Continue')}
@@ -235,22 +240,28 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
                   {t('DeleteAccountStep3Body')}
                 </Text>
               </View>
-              <View className="mt-4 flex-row justify-end gap-2">
-                <Button
-                  text={t('Cancel')}
-                  mode="ghost"
-                  size="auto"
-                  disabled={pending}
-                  onPress={onClose}
-                />
+              {/* Stacked, unlike the two steps before it. This label is a whole
+                  sentence, so side by side it grew past the dialog and pushed
+                  Cancel off the left edge of the screen: on a phone the way out
+                  was the part that went missing. Full width also puts the quiet
+                  action under the thumb, below the irreversible one. */}
+              <View className="mt-4 gap-2">
                 <Button
                   text={t('DeleteAccountFinalConfirm')}
                   mode="danger"
-                  size="auto"
+                  size="block"
                   submitting={pending}
                   disabled={pending}
                   onPress={() => void confirmDeletion()}
                   testID="delete-account-final"
+                />
+                <Button
+                  text={t('Cancel')}
+                  mode="ghost"
+                  size="block"
+                  disabled={pending}
+                  onPress={onClose}
+                  testID="delete-account-final-cancel"
                 />
               </View>
             </>

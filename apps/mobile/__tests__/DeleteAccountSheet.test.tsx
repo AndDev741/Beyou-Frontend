@@ -58,6 +58,22 @@ const walkToGoodbye = async () => {
 };
 
 describe('DeleteAccountSheet', () => {
+  /**
+   * The way out has to stay on the screen. "Delete my account forever" is a whole
+   * sentence, and while it shared a row with Cancel it grew wider than the dialog
+   * and pushed Cancel off the left edge, leaving the irreversible button as the
+   * only one a phone could show. Each of these taking its own full-width row is
+   * what makes that impossible, and NativeWind does not compile classes under
+   * jest, so the class is what there is to assert.
+   */
+  it('gives each button on the goodbye step its own full-width row', async () => {
+    await wrap();
+    await walkToGoodbye();
+
+    expect(screen.getByTestId('delete-account-final').props.className).toContain('w-full');
+    expect(screen.getByTestId('delete-account-final-cancel').props.className).toContain('w-full');
+  });
+
   it('asks for a code only after the first confirmation', async () => {
     await wrap();
 
