@@ -1,0 +1,117 @@
+name: Mobile AAB
+
+# Builds the signed release Android App Bundle for the Play Store and stores it
+# as a PRIVATE workflow artifact — never a public release: the .aab is what gets
+# uploaded to the Play Console, not something users install.
+#
+# Reuses the exact secrets/vars the APK workflow (mobile-apk.yml) already has:
+#   EXPO_PUBLIC_API_URL, EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, EXPO_PUBLIC_SENTRY_DSN
+#   ANDROID_KEYSTORE_BASE64 / _PASSWORD, ANDROID_KEY_ALIAS / _PASSWORD
+#
+# Two deliberate differences from the APK build:
+# - No -PreactNativeArchitectures narrowing. Play generates per-device splits
+#   from the bundle, so shipping all ABIs costs users nothing; narrowing here
+#   would cut real devices out of the listing.
+# - Artifact instead of a rolling release. The keystore is the Play UPLOAD key:
+#   Google re-signs what users get, so the bundle itself is not installable and
+#   has no business being public.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: "Android versionCode (vazio = automático: nº da execução + 10)"
+        required: false
+
+concurrency:
+  group: mobile-aab
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Every Play upload needs a strictly higher versionCode, and a static
+      # number in app.json means a commit per release and a rejected upload
+      # the day it is forgotten. The run number of this workflow only ever
+      # grows, so it is the default; the +10 keeps any value clear of the
+      # codes uploaded before this scheme existed (1 and 2). Gaps are fine —
+      # Play only requires monotonicity. app.json keeps a static fallback for
+      # local builds; versionName stays whatever app.json says.
+      - name: Set versionCode
+        id: vc
+        run: |
+          VC="${{ inputs.version_code }}"
+          if [ -z "$VC" ]; then VC=$(( ${{ github.run_number }} + 10 )); fi
+          python3 - "$VC" <<'EOF'
+          import json, re, sys
+          p = "apps/mobile/app.json"
+          s = open(p, encoding="utf-8").read()
+          out = re.sub(r'"versionCode": \d+', '"versionCode": %d' % int(sys.argv[1]), s, count=1)
+          assert out != s or ('"versionCode": %s' % sys.argv[1]) in s, "versionCode not found in app.json"
+          open(p, "w", encoding="utf-8").write(out)
+          EOF
+          echo "code=$VC" >> "$GITHUB_OUTPUT"
+          echo "### AAB versionCode: $VC ($(git rev-parse --short HEAD))" >> "$GITHUB_STEP_SUMMARY"
+
+      # Regenerates android/ from app.json — this is what applies
+      # android.blockedPermissions, so the store bundle carries none of the
+      # phantom RECORD_AUDIO / CAMERA / SYSTEM_ALERT_WINDOW entries.
+      - name: Prebuild Android project
+        working-directory: apps/mobile
+        env:
+          EXPO_NO_TELEMETRY: "1"
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Decode release keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > apps/mobile/android/app/release.keystore
+
+      # Same rationale as mobile-apk.yml for the lintVital skips, the jvm args
+      # and SENTRY_DISABLE_AUTO_UPLOAD — see the comments there.
+      - name: Build release AAB
+        working-directory: apps/mobile/android
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN || secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          SENTRY_DISABLE_AUTO_UPLOAD: "true"
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bundleRelease \
+            --build-cache \
+            --init-script ../tools/ci-build.init.gradle \
+            -Pkotlin.compiler.execution.strategy=in-process \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g" \
+            -x lintVitalAnalyzeRelease -x lintVitalRelease -x lintVitalReportRelease \
+            -Pandroid.injected.signing.store.file="$PWD/app/release.keystore" \
+            -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: beyou-aab-vc${{ steps.vc.outputs.code }}-${{ github.sha }}
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14
+          if-no-files-found: error
