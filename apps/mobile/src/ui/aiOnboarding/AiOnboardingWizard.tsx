@@ -26,6 +26,7 @@ import {
   type WizardStep,
 } from '../../lib/aiOnboardingStore';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { useKeyboardLift } from '../keyboard';
 import type { AppDispatch } from '../../store';
 import CategoriesStep from './CategoriesStep';
 import HabitsTasksStep, { type HabitsTasksSelection } from './HabitsTasksStep';
@@ -82,6 +83,10 @@ export default function AiOnboardingWizard({
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
   const insets = useContext(SafeAreaInsetsContext);
+  // A Modal is its own window, and Android stopped resizing it under the
+  // edge-to-edge layout, so every step's "add your own" field sat behind the
+  // keyboard while it was being typed into. See `useKeyboardLift`.
+  const { lift, onLayout } = useKeyboardLift();
 
   const [hydrated, setHydrated] = useState(false);
   const [step, setStep] = useState<WizardStep>('categories');
@@ -372,7 +377,15 @@ export default function AiOnboardingWizard({
     <Modal visible animationType="slide" onRequestClose={exitToTour}>
       <View
         className="flex-1 bg-surface"
-        style={{ paddingTop: (insets?.top ?? 0) + 8, paddingBottom: insets?.bottom ?? 0 }}
+        onLayout={onLayout}
+        style={{
+          paddingTop: (insets?.top ?? 0) + 8,
+          // The lift REPLACES the navigation bar's inset rather than adding to
+          // it: with the keyboard up that bar is behind the keyboard, so keeping
+          // its padding would only leave dead space under the field.
+          paddingBottom: lift > 0 ? lift : (insets?.bottom ?? 0),
+        }}
+        testID="ai-onboarding-keyboard-avoider"
       >
         {!hydrated ? (
           <View className="flex-1 items-center justify-center" testID="ai-onboarding-hydrating">
