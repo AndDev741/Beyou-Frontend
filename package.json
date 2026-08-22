@@ -13,6 +13,7 @@
     "web": "npm --workspace @beyou/web run dev"
   },
   "devDependencies": {
+    "emoji-datasource": "^16.0.0",
     "turbo": "^2.3.0",
     "typescript": "^5.0.0"
   },

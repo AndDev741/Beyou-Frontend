@@ -1,44 +1,173 @@
 {
-    "keywordsById": {},
-    "categoriesById": {},
     "categoryLabels": {
         "icons": "Icons",
         "emoji": "Emoji",
-        "smileys": "Smileys",
-        "people": "People",
-        "nature": "Nature",
+        "health": "Health",
+        "fitness": "Fitness",
         "food": "Food",
-        "travel": "Travel",
-        "activities": "Activities",
-        "objects": "Objects",
-        "symbols": "Symbols",
-        "flags": "Flags"
+        "faith": "Faith",
+        "study": "Study",
+        "work": "Work",
+        "money": "Money",
+        "home": "Home",
+        "family": "Family",
+        "nature": "Nature",
+        "leisure": "Leisure",
+        "tech": "Tech",
+        "time": "Time",
+        "travel": "Travel"
     },
     "categoryKeywords": {
-        "icons": ["icon", "symbol"],
-        "emoji": ["emoji", "emoticon"],
-        "smileys": ["smile", "happy", "emotion", "face"],
-        "people": ["people", "person", "body"],
-        "nature": ["nature", "animal", "plant"],
-        "food": ["food", "drink", "meal"],
-        "travel": ["travel", "place", "transport"],
-        "activities": ["activity", "sport", "fun"],
-        "objects": ["object", "tool", "item"],
-        "symbols": ["symbol", "sign"],
-        "flags": ["flag", "country"]
+        "health": [
+            "health",
+            "medical",
+            "doctor",
+            "wellbeing",
+            "hygiene"
+        ],
+        "fitness": [
+            "fitness",
+            "exercise",
+            "workout",
+            "sport",
+            "training"
+        ],
+        "food": [
+            "food",
+            "eat",
+            "drink",
+            "meal",
+            "nutrition"
+        ],
+        "faith": [
+            "faith",
+            "religion",
+            "spiritual",
+            "prayer",
+            "church"
+        ],
+        "study": [
+            "study",
+            "learn",
+            "school",
+            "reading",
+            "education"
+        ],
+        "work": [
+            "work",
+            "job",
+            "office",
+            "career",
+            "productivity"
+        ],
+        "money": [
+            "money",
+            "finance",
+            "budget",
+            "spending",
+            "savings"
+        ],
+        "home": [
+            "home",
+            "house",
+            "chores",
+            "cleaning",
+            "household"
+        ],
+        "family": [
+            "family",
+            "friends",
+            "people",
+            "relationship",
+            "pets"
+        ],
+        "nature": [
+            "nature",
+            "weather",
+            "animals",
+            "plants",
+            "outdoors"
+        ],
+        "leisure": [
+            "leisure",
+            "hobby",
+            "fun",
+            "music",
+            "games"
+        ],
+        "tech": [
+            "tech",
+            "technology",
+            "computer",
+            "device",
+            "software"
+        ],
+        "time": [
+            "time",
+            "schedule",
+            "calendar",
+            "routine",
+            "reminder"
+        ],
+        "travel": [
+            "travel",
+            "trip",
+            "transport",
+            "commute",
+            "vacation"
+        ]
     },
     "queryAliases": {
-        "home": ["house", "residence"],
-        "book": ["read"],
-        "car": ["auto", "vehicle"],
-        "plane": ["airplane"],
-        "heart": ["love"],
-        "star": ["favorite"],
-        "sun": ["day"],
-        "moon": ["night"],
-        "music": ["song"],
-        "health": ["medical"],
-        "work": ["job"],
-        "study": ["learn"]
+        "home": [
+            "house",
+            "residence"
+        ],
+        "book": [
+            "read"
+        ],
+        "car": [
+            "auto",
+            "vehicle"
+        ],
+        "plane": [
+            "airplane"
+        ],
+        "heart": [
+            "love"
+        ],
+        "star": [
+            "favorite"
+        ],
+        "sun": [
+            "day"
+        ],
+        "moon": [
+            "night"
+        ],
+        "music": [
+            "song"
+        ],
+        "health": [
+            "medical"
+        ],
+        "work": [
+            "job"
+        ],
+        "study": [
+            "learn"
+        ],
+        "bible": [
+            "book marked",
+            "closed book",
+            "latin cross"
+        ],
+        "gym": [
+            "dumbbell",
+            "muscle"
+        ],
+        "pray": [
+            "prayer",
+            "worship"
+        ]
     }
 }
