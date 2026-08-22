@@ -41,6 +41,9 @@ import {
   createRoutineFromSuggestion,
   createTasksFromSuggestions,
 } from '@beyou/state/onboarding/createFromSuggestions';
+// The real class, on purpose: createFromSuggestions is mocked above, and the
+// wizard's `instanceof` check must see the same class the test throws.
+import { SuggestionCreateError } from '@beyou/state/onboarding/SuggestionCreateError';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
@@ -149,6 +152,38 @@ describe('AiOnboardingWizard', () => {
     expect(props.onTakeTour).toHaveBeenCalled();
     expect(props.onClosed).toHaveBeenCalled();
     expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith(PROGRESS_KEY);
+  });
+
+  it('a creation failure names what failed and what is saved, without blaming the AI', async () => {
+    // The AI did its part here: suggestions arrive fine and the entity write is
+    // what the server refuses. The old single-bucket banner answered this with
+    // "AI setup is unavailable right now" and a retry-later hint for a
+    // deterministic failure.
+    fetchMock.mockResolvedValue({
+      success: {
+        categories: [{ name: 'Health', description: 'd', iconId: 'lucide:heart-pulse' }],
+      },
+    });
+    createCategoriesMock.mockRejectedValue(
+      new SuggestionCreateError('category', 'Health', 'Error creating category.', ['Morning walk'])
+    );
+
+    await renderWizard();
+    await selectHealthAndContinue();
+
+    expect(await screen.findByText("We couldn't save part of your setup")).toBeTruthy();
+    expect(screen.getByText('Creating the category "Health" failed.')).toBeTruthy();
+    expect(screen.getByTestId('create-error-reason')).toHaveTextContent('Error creating category.');
+    expect(screen.getByTestId('create-error-saved')).toHaveTextContent(/Morning walk/);
+    expect(screen.queryByText('AI setup is unavailable right now')).toBeNull();
+
+    // Retry still re-runs the failed action from this shape.
+    createCategoriesMock.mockResolvedValue([{ id: 'c1', name: 'Health' }]);
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-onboarding-retry'));
+    });
+    expect(screen.queryByText("We couldn't save part of your setup")).toBeNull();
+    expect(screen.getByText('Habits & Tasks')).toBeTruthy();
   });
 
   it('Retry re-runs the failed action and recovers', async () => {

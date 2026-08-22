@@ -11,6 +11,7 @@ import getRoutines from "@beyou/api/routine/getRoutines";
 import createSchedule from "@beyou/api/schedule/createSchedule";
 import createGoal from "@beyou/api/goals/createGoal";
 import getGoals from "@beyou/api/goals/getGoals";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { enterCategories } from "../category/categoriesSlice";
 import { enterGoals } from "../goal/goalsSlice";
 import { enterHabits } from "../habit/habitsSlice";
@@ -24,6 +25,10 @@ import {
     RoutineSuggestion,
     TaskSuggestion
 } from "@beyou/types/onboarding/suggestions";
+import { SuggestionCreateError, SuggestionEntityKind } from "./SuggestionCreateError";
+
+export { SuggestionCreateError, SUGGESTION_KIND_LABEL_KEYS } from "./SuggestionCreateError";
+export type { SuggestionEntityKind } from "./SuggestionCreateError";
 
 export type CreatedRef = { id: string; name: string };
 
@@ -92,6 +97,7 @@ async function listOrThrow(
  * come through this module, and a fifth step added later cannot forget it.
  */
 async function createMissing<S extends { name: string }>(
+    kind: SuggestionEntityKind,
     suggestions: S[],
     list: () => Promise<NamedRow[]>,
     create: (suggestion: S) => Promise<void>,
@@ -101,8 +107,24 @@ async function createMissing<S extends { name: string }>(
     const before = await list();
     const held = indexByName(before);
     const missing = suggestions.filter((s) => !held.has(nameKey(s.name)));
+    // What is already safe on the server if a create below fails: the accepted
+    // names the account held before this pass, plus each one this pass lands.
+    const saved = suggestions.filter((s) => held.has(nameKey(s.name))).map((s) => s.name);
     for (const suggestion of missing) {
-        await create(suggestion);
+        try {
+            await create(suggestion);
+        } catch (cause) {
+            // The typed error is built HERE, not in the create callbacks: this loop
+            // is the only place that knows which suggestion was in flight and what
+            // had landed before it. The callbacks throw the translated reason only.
+            throw new SuggestionCreateError(
+                kind,
+                suggestion.name,
+                cause instanceof Error ? cause.message : String(cause),
+                saved
+            );
+        }
+        saved.push(suggestion.name);
     }
     // Nothing created means the list already in hand is current.
     const after = missing.length > 0 ? await list() : before;
@@ -121,13 +143,15 @@ export async function createCategoriesFromSuggestions(
     dispatch: Dispatch
 ): Promise<CreatedRef[]> {
     return createMissing(
+        "category",
         suggestions,
         () => listOrThrow(getCategories(t), "categories"),
         async (s) => {
             const res = await createCategory(s.name, s.description, BEGINNER, s.iconId, t);
             if (res.error) {
-                const message = typeof res.error === "string" ? res.error : res.error.message;
-                throw new Error(message ?? "create category failed");
+                throw new Error(
+                    typeof res.error === "string" ? res.error : getFriendlyErrorMessage(t, res.error)
+                );
             }
         },
         (rows) => dispatch(enterCategories(rows))
@@ -143,6 +167,7 @@ export async function createHabitsFromSuggestions(
     dispatch: Dispatch
 ): Promise<CreatedRef[]> {
     return createMissing(
+        "habit",
         suggestions,
         () => listOrThrow(getHabits(t), "habits"),
         async (s) => {
@@ -158,7 +183,7 @@ export async function createHabitsFromSuggestions(
                 categoryId ? [categoryId] : [],
                 t
             );
-            if (res.error) throw new Error(res.error.message ?? "create habit failed");
+            if (res.error) throw new Error(getFriendlyErrorMessage(t, res.error));
         },
         (rows) => dispatch(enterHabits(rows))
     );
@@ -172,6 +197,7 @@ export async function createTasksFromSuggestions(
     dispatch: Dispatch
 ): Promise<CreatedRef[]> {
     return createMissing(
+        "task",
         suggestions,
         () => listOrThrow(getTasks(t), "tasks"),
         async (s) => {
@@ -186,7 +212,7 @@ export async function createTasksFromSuggestions(
                 s.difficulty,
                 false
             );
-            if (res.error) throw new Error(res.error.message ?? "create task failed");
+            if (res.error) throw new Error(getFriendlyErrorMessage(t, res.error));
         },
         (rows) => dispatch(enterTasks(rows))
     );
@@ -272,7 +298,14 @@ export async function createRoutineFromSuggestion(
     let list = existing;
     if (!existing.some((r) => nameKey(r.name) === key)) {
         const res = await createRoutine(routine, t);
-        if (res.error) throw new Error(res.error.message ?? "create routine failed");
+        if (res.error) {
+            throw new SuggestionCreateError(
+                "routine",
+                suggestion.name,
+                getFriendlyErrorMessage(t, res.error),
+                [...createdHabits, ...createdTasks].map((r) => r.name)
+            );
+        }
         // The create response doesn't reliably carry the id -> re-fetch and match by
         // name (which also refreshes redux with the new routine).
         list = await listOrThrow(getRoutines(t), "routines");
@@ -285,7 +318,15 @@ export async function createRoutineFromSuggestion(
         // Safe to repeat: POST /schedule replaces whatever the routine was scheduled
         // with rather than adding a row, so a retry re-scheduling is a no-op.
         const sched = await createSchedule(suggestion.scheduleDays, created.id, t);
-        if (sched.error) throw new Error(sched.error.message ?? "create schedule failed");
+        if (sched.error) {
+            // The routine itself landed, so it belongs on the safe list.
+            throw new SuggestionCreateError(
+                "schedule",
+                suggestion.name,
+                getFriendlyErrorMessage(t, sched.error),
+                [...createdHabits.map((r) => r.name), ...createdTasks.map((r) => r.name), suggestion.name]
+            );
+        }
     }
     return {
         routineId: created.id,
@@ -310,6 +351,7 @@ export async function createGoalsFromSuggestions(
 ): Promise<CreatedRef[]> {
     const today = new Date();
     return createMissing(
+        "goal",
         suggestions,
         () => listOrThrow(getGoals(t), "goals"),
         async (s) => {
@@ -332,7 +374,7 @@ export async function createGoalsFromSuggestions(
                 s.term,
                 t
             );
-            if (res.error) throw new Error(res.error.message ?? "create goal failed");
+            if (res.error) throw new Error(getFriendlyErrorMessage(t, res.error));
         },
         (rows) => dispatch(enterGoals(rows))
     );

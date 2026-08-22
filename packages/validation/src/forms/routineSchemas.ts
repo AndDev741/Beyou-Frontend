@@ -17,6 +17,7 @@ export const routineSectionSchema = (t: TFunction) =>
         favorite: z.boolean().optional()
     });
 
+// routines.name is varchar(255); habit/category names elsewhere allow 256.
 export const routineFormSchema = (t: TFunction) =>
     z
         .object({
@@ -25,7 +26,7 @@ export const routineFormSchema = (t: TFunction) =>
                 minKey: "YupMinimumName",
                 maxKey: "YupMaxName",
                 min: 2,
-                max: 256
+                max: 255
             }),
             routineSections: z
                 .array(routineSectionSchema(t))

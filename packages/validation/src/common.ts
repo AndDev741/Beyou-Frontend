@@ -37,7 +37,7 @@ export const requiredStringWithMinMax = (
             return;
         }
         if (value.length > max) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: t(maxKey) });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: t(maxKey, { max }) });
         }
     });
 
@@ -45,7 +45,7 @@ export const requiredString = (t: TFunction, requiredKey: string) =>
     z.string().trim().min(1, t(requiredKey));
 
 export const stringMax = (t: TFunction, max: number, maxKey: string) =>
-    z.string().max(max, t(maxKey));
+    z.string().max(max, t(maxKey, { max }));
 
 export const requiredNumber = (t: TFunction, requiredKey: string) =>
     z.preprocess(
