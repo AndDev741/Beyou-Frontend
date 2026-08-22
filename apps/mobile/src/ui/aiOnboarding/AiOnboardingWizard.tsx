@@ -12,6 +12,10 @@ import {
   createRoutineFromSuggestion,
   createTasksFromSuggestions,
 } from '@beyou/state/onboarding/createFromSuggestions';
+import {
+  SuggestionCreateError,
+  SUGGESTION_KIND_LABEL_KEYS,
+} from '@beyou/state/onboarding/SuggestionCreateError';
 import type {
   GoalSuggestion,
   HabitSuggestion,
@@ -47,6 +51,13 @@ const STEP_LABEL_KEYS: Record<WizardStep, string> = {
   goals: 'AiOnboardingStepGoals',
   summary: 'AiOnboardingStepSummary',
 };
+
+/** Which error screen to show: a failed suggestion call keeps the AI-unavailable
+ *  copy; a failed entity write names what fell over instead of blaming the AI
+ *  (mirrors the web wizard). */
+type WizardErrorState =
+  | { kind: 'suggestions' }
+  | { kind: 'creation'; failure: SuggestionCreateError };
 
 interface AiOnboardingWizardProps {
   visible: boolean;
@@ -93,7 +104,7 @@ export default function AiOnboardingWizard({
   const [data, setData] = useState<WizardData>(emptyData);
   const [busy, setBusy] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<WizardErrorState | null>(null);
   const [suggestedHabitsTasks, setSuggestedHabitsTasks] = useState<{
     habits: HabitSuggestion[];
     tasks: TaskSuggestion[];
@@ -145,11 +156,15 @@ export default function AiOnboardingWizard({
     retryRef.current = action;
     setBusy(true);
     setShowOverlay(overlay);
-    setError(false);
+    setError(null);
     try {
       await action();
-    } catch {
-      setError(true);
+    } catch (e) {
+      setError(
+        e instanceof SuggestionCreateError
+          ? { kind: 'creation', failure: e }
+          : { kind: 'suggestions' }
+      );
     } finally {
       setBusy(false);
     }
@@ -211,7 +226,7 @@ export default function AiOnboardingWizard({
       // Route the failure through the shared error banner; Retry re-fetches
       // fresh suggestions since the step's local state unmounts with it.
       retryRef.current = fetchHabitsTasksSuggestions;
-      setError(true);
+      setError({ kind: 'suggestions' });
       throw new Error('suggestions failed');
     }
     return {
@@ -223,10 +238,13 @@ export default function AiOnboardingWizard({
   const handleHabitsTasksContinue = (sel: HabitsTasksSelection) => {
     void runGuarded(async () => {
       const habitRefs = await createHabitsFromSuggestions(sel.habits, data.categories, t, dispatch);
+      // Recorded before the tasks run, not after both: a task failure below must
+      // find these habits in the wizard's record, so the error screen can list
+      // them and a resumed session knows they exist.
+      setData((prev) => ({ ...prev, habits: habitRefs }));
       const taskRefs = await createTasksFromSuggestions(sel.tasks, data.categories, t, dispatch);
       setData((prev) => ({
         ...prev,
-        habits: habitRefs,
         tasks: taskRefs,
         freeTexts: [...prev.freeTexts, ...sel.freeTexts],
       }));
@@ -324,7 +342,7 @@ export default function AiOnboardingWizard({
       // Route the failure through the shared error banner; Retry re-fetches
       // fresh suggestions since the step's local state unmounts with it.
       retryRef.current = fetchGoalsSuggestions;
-      setError(true);
+      setError({ kind: 'suggestions' });
       throw new Error('suggestions failed');
     }
     return res.success.goals ?? [];
@@ -370,6 +388,21 @@ export default function AiOnboardingWizard({
   };
 
   if (!visible) return null;
+
+  // Everything the wizard knows is on the server: refs recorded by finished
+  // steps, plus what the failing pass landed before it stopped (which the step
+  // never got to record). Shown so the user knows the state of their account.
+  const savedNamesFor = (failure: SuggestionCreateError): string[] => {
+    const names = [...data.categories, ...data.habits, ...data.tasks, ...data.goals].map(
+      (ref) => ref.name
+    );
+    if (data.routineName) names.push(data.routineName);
+    const seen = new Set(names.map((n) => n.toLowerCase()));
+    for (const name of failure.savedNames) {
+      if (!seen.has(name.toLowerCase())) names.push(name);
+    }
+    return names;
+  };
 
   const currentIndex = STEP_ORDER.indexOf(step);
 
@@ -435,7 +468,12 @@ export default function AiOnboardingWizard({
               keyboardShouldPersistTaps="handled"
             >
               {error ? (
-                <ErrorBanner onRetry={handleRetry} onFallback={exitToTour} />
+                <ErrorBanner
+                  error={error}
+                  savedNames={error.kind === 'creation' ? savedNamesFor(error.failure) : []}
+                  onRetry={handleRetry}
+                  onFallback={exitToTour}
+                />
               ) : (
                 <>
                   {step === 'categories' ? (
@@ -483,24 +521,70 @@ export default function AiOnboardingWizard({
 }
 
 interface ErrorBannerProps {
+  error: WizardErrorState;
+  /** Everything the wizard knows is safe on the server (creation failures only). */
+  savedNames: string[];
   onRetry: () => void;
   onFallback: () => void;
 }
 
-function ErrorBanner({ onRetry, onFallback }: ErrorBannerProps) {
+/** Two shapes, like web: a suggestion call that failed keeps the AI-unavailable
+ *  copy; a rejected entity write names what failed and what is already saved. */
+function ErrorBanner({ error, savedNames, onRetry, onFallback }: ErrorBannerProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
+  const failure = error.kind === 'creation' ? error.failure : null;
   return (
     <View className="w-full items-center rounded-frame border border-border bg-surface p-6">
       <View className="mb-4 h-14 w-14 items-center justify-center rounded-card bg-accent/10">
         <AlertTriangle size={28} color={theme.primary} />
       </View>
-      <Text className="text-text mb-2 text-center text-xl font-semibold">
-        {t('AiOnboardingErrorTitle')}
-      </Text>
-      <Text className="text-text-2 mb-6 text-center text-base">
-        {t('AiOnboardingErrorDescription')}
-      </Text>
+      {failure ? (
+        <>
+          <Text className="text-text mb-2 text-center text-xl font-semibold">
+            {t('AiOnboardingCreateErrorTitle')}
+          </Text>
+          <Text className="text-text-2 mb-2 text-center text-base">
+            {t('AiOnboardingCreateErrorDescription', {
+              kind: t(SUGGESTION_KIND_LABEL_KEYS[failure.kind]),
+              name: failure.entityName,
+            })}
+          </Text>
+          <Text
+            className="text-accent mb-4 text-center text-sm font-medium"
+            testID="create-error-reason"
+          >
+            {failure.message}
+          </Text>
+          {savedNames.length > 0 ? (
+            <View className="mb-4 w-full">
+              <Text className="text-text mb-1 text-sm font-semibold">
+                {t('AiOnboardingCreateErrorSaved')}
+              </Text>
+              <View className="max-h-32" testID="create-error-saved">
+                {savedNames.map((name) => (
+                  <Text key={name} className="text-text-2 text-sm">
+                    {'\u2022 '}
+                    {name}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          ) : null}
+          <Text className="text-text-2 mb-6 text-center text-sm">
+            {t('AiOnboardingCreateErrorRetryHint')}
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text className="text-text mb-2 text-center text-xl font-semibold">
+            {t('AiOnboardingErrorTitle')}
+          </Text>
+          <Text className="text-text-2 mb-6 text-center text-base">
+            {t('AiOnboardingErrorDescription')}
+          </Text>
+        </>
+      )}
       <View className="w-full gap-3">
         <Pressable
           accessibilityRole="button"
