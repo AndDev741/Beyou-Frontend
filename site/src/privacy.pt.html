@@ -180,7 +180,8 @@ __NAV__
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
           <tr><td>O provedor de e-mail configurado para o Beyou</td><td>Seu e-mail e o conteúdo dos e-mails da conta, incluindo confirmações de feedback que citam sua mensagem</td><td>Entrega dos e-mails da conta</td></tr>
           <tr><td>Um coletor de erros hospedado por conta própria</td><td>Relatórios de erro, configurados para excluir sua identidade, IP, cookies e corpo das requisições</td><td>Corrigir falhas</td></tr>
-          <tr><td>Cloudflare</td><td>As requisições a este site. As métricas dele não usam cookie e não montam um perfil seu</td><td>Hospedagem deste site</td></tr>
+          <tr><td>PostHog (métricas de uso, UE)</td><td>Como o Beyou é usado: páginas e telas visitadas e interações com a interface. Dentro do app, as palavras da sua tela são mascaradas antes de qualquer envio, os endereços têm seus tokens removidos, e você é identificado por um id interno da conta e seu nome de exibição, nunca pelo seu email</td><td>Entender quais recursos são usados e quais não são, para decidir o que melhorar</td></tr>
+          <tr><td>Cloudflare</td><td>As requisições a este site, e os eventos de métricas acima, que chegam ao PostHog por um relay que o Beyou roda na Cloudflare</td><td>Hospedagem deste site e relay das métricas</td></tr>
           <tr><td>Google Play</td><td>O que o Google coletar quando você instala ou atualiza o app Android, sob a política do próprio Google</td><td>Distribuição do app Android</td></tr>
           <tr><td>placehold.co</td><td>Seu endereço IP, apenas na tela de perfil da web, e apenas se sua foto de perfil falhar ao carregar</td><td>Desenhar um avatar de reserva</td></tr>
         </tbody>
@@ -199,6 +200,11 @@ __NAV__
       da Comissão Europeia para o EU-US Data Privacy Framework.
     </p>
     <p>
+      As métricas de uso são processadas pelo PostHog em servidores dentro da
+      União Europeia, e chegam até ele por um relay que o Beyou opera no seu
+      próprio domínio.
+    </p>
+    <p>
       Então, se você usar o assistente, o que você escreve pode ser processado nos
       Estados Unidos sob esse quadro. Não vai para um provedor em país sobre o qual
       a Comissão Europeia não tenha decidido. Se algum dia entrar um terceiro
@@ -208,11 +214,18 @@ __NAV__
 
     <h2 id="cookies">7. Cookies e o que fica no seu dispositivo</h2>
     <p>
-      Este site define um cookie, e só depois de você clicar no seletor de idioma.
-      Ele registra se você escolheu inglês ou português, para o site parar de
-      adivinhar pelas configurações do seu navegador. Dura um ano e não é usado
-      para rastrear você. Não há mais nada neste site a consentir, e é por isso que
-      não existe aviso de cookies.
+      Este site define um cookie próprio, e só depois de você clicar no seletor
+      de idioma. Ele registra se você escolheu inglês ou português, para o site
+      parar de adivinhar pelas configurações do seu navegador. Dura um ano e não
+      é usado para rastrear você.
+    </p>
+    <p>
+      As métricas de uso descritas na seção 5 também guardam um identificador
+      gerado aleatoriamente no seu navegador, neste site e no app web, para que
+      duas visitas contem como um visitante e não como dois. Ele não contém
+      nome, email nem nada digitado por você, nunca é usado para publicidade, e
+      não é compartilhado com ninguém além do processamento de métricas descrito
+      acima.
     </p>
     <p>
       O app web define um cookie de sessão com seu refresh token. Ele é httpOnly,
@@ -222,7 +235,8 @@ __NAV__
       quando você fecha a aba.
     </p>
     <p>
-      O app web também mantém uma cópia dos seus hábitos, tarefas, rotinas, metas e
+      O app web também guarda o identificador de métricas descrito acima, e mantém
+      uma cópia dos seus hábitos, tarefas, rotinas, metas e
       categorias no armazenamento local do navegador, para a interface aparecer na
       hora na próxima visita. Seu perfil fica fora dessa cópia. O armazenamento
       local não é criptografado, então em computador compartilhado saia da conta ao
