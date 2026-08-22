@@ -83,6 +83,11 @@ export function initAnalytics(): boolean {
   posthog.init(key, {
     api_host: import.meta.env.VITE_POSTHOG_HOST?.trim() || "https://us.i.posthog.com",
 
+    // The production host is the first-party reverse proxy (ph.beyouweb.com →
+    // PostHog EU), which privacy blockers don't key on. ui_host is where the
+    // toolbar and app links live — required whenever api_host is a proxy.
+    ui_host: "https://eu.posthog.com",
+
     // Opt into the SDK's dated defaults bundle: among other things it captures
     // SPA pageviews on history changes, which a react-router app needs — the
     // classic default only fires on full document loads, i.e. once per session.
