@@ -93,6 +93,11 @@ jobs:
           # Inlined into the bundle by Metro during this task, same as the two
           # above. Without it the APK ships with error reporting off.
           EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN || secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          # Product analytics — same inlining contract. Without the key the APK
+          # ships with analytics off; the Beyou PostHog project is EU-hosted, so
+          # the host must be set alongside the key.
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY || secrets.PROD_POSTHOG_KEY }}
+          EXPO_PUBLIC_POSTHOG_HOST: ${{ vars.PROD_POSTHOG_HOST || secrets.PROD_POSTHOG_HOST }}
           # Skips the source-map upload task that the @sentry/react-native/expo
           # config plugin adds to release builds (sentry.gradle.kts:50).
           #

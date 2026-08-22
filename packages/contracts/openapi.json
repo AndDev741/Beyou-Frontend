@@ -1885,7 +1885,7 @@
           "feedback-controller"
         ],
         "summary": "Submit user feedback",
-        "description": "Authenticated. Rate limited to 10 submissions per hour per user; over\nbudget the request is rejected with 429 and a Retry-After header.\nThe response deliberately omits `status` — triage state is internal.\n",
+        "description": "Authenticated. Rate limited to 10 submissions per hour per user; over\nbudget the request is rejected with 429 and a Retry-After header.\nThe response deliberately omits `status` \u2014 triage state is internal.\n",
         "operationId": "createFeedback",
         "requestBody": {
           "content": {
@@ -1922,7 +1922,7 @@
             "description": "Not authenticated."
           },
           "429": {
-            "description": "Rate limit exceeded — `errorKey` is `RATE_LIMIT_EXCEEDED`.",
+            "description": "Rate limit exceeded \u2014 `errorKey` is `RATE_LIMIT_EXCEEDED`.",
             "headers": {
               "Retry-After": {
                 "description": "Seconds until the rate-limit window resets.",
@@ -1984,7 +1984,7 @@
             }
           },
           "400": {
-            "description": "Upload rejected — see `errorKey`.",
+            "description": "Upload rejected \u2014 see `errorKey`.",
             "content": {
               "*/*": {
                 "schema": {
@@ -2048,7 +2048,7 @@
             }
           },
           "400": {
-            "description": "Unknown or non-owned attachment — see `errorKey`.",
+            "description": "Unknown or non-owned attachment \u2014 see `errorKey`.",
             "content": {
               "*/*": {
                 "schema": {
@@ -2069,7 +2069,7 @@
           "feedback-admin-controller"
         ],
         "summary": "List feedback for triage",
-        "description": "ROLE_ADMIN only. Filters are AND-ed; results are sorted by `createdAt`\ndescending. Totals describe the filtered set. Rows carry no attachment\nor reply counts — fetch the detail endpoint for those.\n",
+        "description": "ROLE_ADMIN only. Filters are AND-ed; results are sorted by `createdAt`\ndescending. Totals describe the filtered set. Rows carry no attachment\nor reply counts \u2014 fetch the detail endpoint for those.\n",
         "operationId": "getFeedbackItems",
         "parameters": [
           {
@@ -2201,7 +2201,7 @@
             }
           },
           "400": {
-            "description": "Unknown feedback — `errorKey` is `FEEDBACK_NOT_FOUND`.",
+            "description": "Unknown feedback \u2014 `errorKey` is `FEEDBACK_NOT_FOUND`.",
             "content": {
               "*/*": {
                 "schema": {
@@ -2284,7 +2284,7 @@
           "feedback-admin-controller"
         ],
         "summary": "Reply to a feedback item",
-        "description": "ROLE_ADMIN only. The author is always the authenticated admin — it is\nnever read from the request body. A storage failure returns 400 with\n`errorKey` `FEEDBACK_REPLY_FAILED`.\n",
+        "description": "ROLE_ADMIN only. The author is always the authenticated admin \u2014 it is\nnever read from the request body. A storage failure returns 400 with\n`errorKey` `FEEDBACK_REPLY_FAILED`.\n",
         "operationId": "createFeedbackReply",
         "parameters": [
           {
@@ -2411,6 +2411,10 @@
       "UserResponseDTO": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "name": {
             "type": "string"
           },
@@ -4425,7 +4429,7 @@
       },
       "FeedbackResponse": {
         "type": "object",
-        "description": "What the submitter gets back. `status` is deliberately absent — it is\ninternal triage state.\n",
+        "description": "What the submitter gets back. `status` is deliberately absent \u2014 it is\ninternal triage state.\n",
         "properties": {
           "id": {
             "type": "string",
@@ -4482,7 +4486,7 @@
           },
           "contentType": {
             "type": "string",
-            "description": "Always `image/jpeg` — everything is re-encoded."
+            "description": "Always `image/jpeg` \u2014 everything is re-encoded."
           },
           "width": {
             "type": "integer",

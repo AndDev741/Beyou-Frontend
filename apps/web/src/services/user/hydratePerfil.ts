@@ -64,11 +64,12 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     // Analytics identity rides the same funnel as the timezone reconcile below and
     // for the same reason: every path that loads the user (UI login, Google login,
     // silent refresh, agent refresh, profile screen) passes through here, so a new
-    // path added later cannot forget to identify. The UUID is the ONLY identity
-    // analytics gets — never the email or name dispatched above. Absent id (backend
-    // predating UserResponseDTO.id) means the session simply stays anonymous.
+    // path added later cannot forget to identify. Identity is the UUID plus the
+    // display name (a deliberate exception so person profiles are recognizable
+    // in PostHog) — never the email. Absent id (backend predating
+    // UserResponseDTO.id) means the session simply stays anonymous.
     if (data.id) {
-        getAnalytics().identify(data.id);
+        getAnalytics().identify(data.id, data.name ? { name: data.name } : undefined);
     }
 
     // Fire-and-forget, and deliberately HERE rather than at the five call sites above

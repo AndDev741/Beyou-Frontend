@@ -958,6 +958,8 @@ export interface components {
             xpDecayStrategy?: "GRADUAL" | "FLAT" | "TIME_WINDOW";
         };
         UserResponseDTO: {
+            /** Format: uuid */
+            id?: string;
             name?: string;
             email?: string;
             phrase?: string;
