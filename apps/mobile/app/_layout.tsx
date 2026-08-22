@@ -28,6 +28,9 @@ import { TutorialProvider } from '../src/tutorial/TutorialProvider';
 import TutorialSync from '../src/tutorial/TutorialSync';
 import ErrorBoundary from '../src/ui/ErrorBoundary';
 import { initTelemetry, reportHandledFailure } from '../src/lib/telemetry';
+import { PostHogProvider } from 'posthog-react-native';
+import { initAnalytics } from '../src/lib/analytics';
+import AnalyticsSync from '../src/lib/AnalyticsSync';
 import { BeyouToastHost } from '../src/ui/BeyouToast';
 
 // Error reporting comes up before any app wiring so a crash *during* the setup
@@ -39,6 +42,10 @@ import { BeyouToastHost } from '../src/ui/BeyouToast';
 // breaks Fast Refresh (upstream #6514, still open). `wrap` only adds touch
 // breadcrumbs and profiling, both of which are off here anyway.
 initTelemetry();
+
+// Product analytics (PostHog). Same posture: no EXPO_PUBLIC_POSTHOG_KEY, no
+// client, no provider below, and @beyou/api's analytics seam stays a no-op.
+const posthog = initAnalytics();
 
 setHttpClient(nativeHttpClient);
 // The shared API client handles every failure itself, so a 500 or an unreachable
@@ -150,7 +157,7 @@ export default function RootLayout() {
     );
   }
 
-  return (
+  const tree = (
     <Provider store={store}>
       <TutorialProvider>
         <SafeAreaProvider>
@@ -159,6 +166,7 @@ export default function RootLayout() {
             <LanguageSync />
             <ViewFiltersSync />
             <TutorialSync />
+            <AnalyticsSync />
             <ErrorBoundary>
               <Gate />
             </ErrorBoundary>
@@ -167,5 +175,20 @@ export default function RootLayout() {
         </SafeAreaProvider>
       </TutorialProvider>
     </Provider>
+  );
+
+  // Screen views ride expo-router's react-navigation container; touch capture
+  // records the element hierarchy and ph-label/testID identifiers, NOT text
+  // content — user-written content (habit names etc.) stays on the device,
+  // the same no-PII line the web app draws with mask_all_text.
+  return posthog ? (
+    <PostHogProvider
+      client={posthog}
+      autocapture={{ captureScreens: true, captureTouches: true }}
+    >
+      {tree}
+    </PostHogProvider>
+  ) : (
+    tree
   );
 }

@@ -6,13 +6,18 @@
  * Storybook, or an app that never wires analytics reports nothing — the same
  * dormant-by-default posture as error telemetry.
  *
- * PII rule: `identify()` takes the account's opaque UUID (`UserType.id`) and
- * nothing else. Never pass email or name here, and never put user-written
- * content (habit names, feedback text, chat messages) in `track()` properties.
+ * PII rule: `identify()` takes the account's opaque UUID (`UserType.id`) plus
+ * the display name — a deliberate, product-owner-approved exception so person
+ * profiles are recognizable in PostHog. Never pass the email, and never put
+ * user-written content (habit names, feedback text, chat messages) in
+ * `track()` properties.
  */
 export interface Analytics {
-  /** Ties the current device/session to the account's opaque UUID. */
-  identify(userId: string): void;
+  /**
+   * Ties the current device/session to the account's opaque UUID.
+   * `traits` become person properties; keep them to the display name.
+   */
+  identify(userId: string, traits?: Record<string, string>): void;
   /** Clears the identity on logout so the next user on this device is not merged. */
   reset(): void;
   /** Records a named product event. Property values must be PII-free. */
