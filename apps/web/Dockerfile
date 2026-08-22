@@ -32,10 +32,18 @@ ARG VITE_APP_URL
 # token out of the layers. Without an upload the maps stay hidden and undeleted
 # in the image — which is why nginx.conf refuses `.map` requests.
 ARG VITE_SENTRY_DSN
+# PostHog project key — same reasoning as the DSN above: a public ingest
+# identifier (it ships in the JS bundle regardless), so a build ARG is fine.
+# Leave unset to build with product analytics off. Host only needs setting for
+# an EU-cloud project; unset falls back to the US ingest in lib/analytics.ts.
+ARG VITE_POSTHOG_KEY
+ARG VITE_POSTHOG_HOST
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 ENV VITE_APP_URL=${VITE_APP_URL}
 ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+ENV VITE_POSTHOG_KEY=${VITE_POSTHOG_KEY}
+ENV VITE_POSTHOG_HOST=${VITE_POSTHOG_HOST}
 COPY . .
 RUN npm run build
 
