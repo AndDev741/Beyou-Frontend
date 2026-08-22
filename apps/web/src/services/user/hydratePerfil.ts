@@ -25,6 +25,7 @@ import {
     xpDecayStrategyEnter
 } from "@beyou/state/user/perfilSlice";
 import { reconcileTimezone } from "./reconcileTimezone";
+import { getAnalytics } from "@beyou/api";
 
 /**
  * Populate the `perfil` redux slice from a user profile payload.
@@ -59,6 +60,16 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     dispatch(timezoneEnter(data.timezone));
     dispatch(timezoneSourceEnter(data.timezoneSource));
     dispatch(xpDecayStrategyEnter(data.xpDecayStrategy));
+
+    // Analytics identity rides the same funnel as the timezone reconcile below and
+    // for the same reason: every path that loads the user (UI login, Google login,
+    // silent refresh, agent refresh, profile screen) passes through here, so a new
+    // path added later cannot forget to identify. The UUID is the ONLY identity
+    // analytics gets — never the email or name dispatched above. Absent id (backend
+    // predating UserResponseDTO.id) means the session simply stays anonymous.
+    if (data.id) {
+        getAnalytics().identify(data.id);
+    }
 
     // Fire-and-forget, and deliberately HERE rather than at the five call sites above
     // this function. UI login, Google login, silent refresh, agent refresh and the

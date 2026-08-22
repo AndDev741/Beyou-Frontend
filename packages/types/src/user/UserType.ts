@@ -1,4 +1,11 @@
 export type UserType = {
+    /**
+     * The account's opaque UUID — the only identity product analytics may use
+     * (never email or name). Optional because a backend built before it was
+     * added to UserResponseDTO simply omits it; analytics then stays anonymous
+     * rather than the app breaking on a missing field.
+     */
+    id?: string,
     name: string,
     email: string,
     phrase: string,

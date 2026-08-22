@@ -1,3 +1,4 @@
+import { getAnalytics } from "@beyou/api";
 import { persistor } from "../../redux/store";
 import { logger } from "../../utils/logger";
 
@@ -68,6 +69,13 @@ export async function tearDownAndLeave(): Promise<void> {
         clearLocalAccountState();
     } catch (failure) {
         logger.error("Clearing local account state failed", failure);
+    }
+    try {
+        // The analytics identity is device-side state like the rest: left in place,
+        // the next account on this browser gets merged into the departed one.
+        getAnalytics().reset();
+    } catch (failure) {
+        logger.error("Resetting analytics identity failed", failure);
     }
     window.location.href = "/";
 }

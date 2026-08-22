@@ -4,6 +4,9 @@ export * from './httpClient';
 // Logger
 export * from './logger';
 
+// Product analytics — host app injects its platform SDK (PostHog) here
+export * from './analytics';
+
 // Error handling
 export * from './apiError';
 
