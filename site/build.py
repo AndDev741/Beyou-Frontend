@@ -398,10 +398,21 @@ def write_meta():
             "  Permissions-Policy: geolocation=(), microphone=(), camera=()\n"
             # 'unsafe-inline' is for style ATTRIBUTES, which the markup uses for
             # animation delays, stagger indexes and bar widths. There is no inline
-            # <style> element left, and with script-src locked to 'self' on a site
-            # that takes no input, the exposure this leaves is CSS only.
+            # <style> element left, and with script-src locked to two origins on a
+            # site that takes no input, the exposure this leaves is CSS only.
+            #
+            # ph.beyouweb.com is the analytics proxy (a Cloudflare Worker fronting
+            # PostHog EU — see site.js). It needs BOTH directives: script-src for
+            # the SDK the snippet loads (/static/array.js), connect-src for the
+            # capture requests the SDK then makes. This policy is ENFORCING —
+            # before these two entries it silently blocked analytics entirely,
+            # which is exactly what an enforcing default-src 'none' should do to
+            # an origin nobody granted.
             "  Content-Security-Policy: default-src 'none'; img-src 'self';"
-            " style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self';"
+            " style-src 'self' 'unsafe-inline';"
+            " script-src 'self' https://ph.beyouweb.com;"
+            " connect-src https://ph.beyouweb.com;"
+            " font-src 'self';"
             " base-uri 'none'; form-action 'none'; frame-ancestors 'self'\n"
         )
 
