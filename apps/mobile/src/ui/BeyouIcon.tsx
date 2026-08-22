@@ -1,11 +1,14 @@
 import { type ComponentType } from 'react';
 import { Text } from 'react-native';
 import * as LucideIcons from 'lucide-react-native';
-import { resolveIcon } from '@beyou/icons';
+import { resolveIcon, getExtraIconNode, type LucideIconNode } from '@beyou/icons';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 
 type LucideComp = ComponentType<{ size?: number; color?: string }>;
 const icons = LucideIcons as unknown as Record<string, LucideComp>;
+
+type GenericIcon = ComponentType<{ size?: number; color?: string; iconNode: LucideIconNode }>;
+const GenericLucideIcon = (LucideIcons as unknown as { Icon?: GenericIcon }).Icon;
 
 /** lucide kebab name -> PascalCase named export (e.g. "a-arrow-down" -> "AArrowDown"). */
 const toPascal = (kebab: string) =>
@@ -38,6 +41,15 @@ export default function BeyouIcon({ id, size = 24, color, showFallback = false }
   if (descriptor.kind === 'lucide') {
     const Cmp = icons[toPascal(descriptor.name)];
     if (Cmp) return <Cmp size={size} color={tint} />;
+    // Brand marks (github, figma, slack…) exist on web but were dropped from
+    // lucide 1.x for trademark reasons, so the RN package has no component for
+    // them. Draw them from the committed path data through lucide's own generic
+    // Icon, which takes the same `iconNode` shape — same size/colour/stroke
+    // behaviour as every other icon, no extra dependency.
+    const iconNode = getExtraIconNode(descriptor.name);
+    if (iconNode && GenericLucideIcon) {
+      return <GenericLucideIcon iconNode={iconNode} size={size} color={tint} />;
+    }
   }
   if (showFallback && icons.Circle) {
     const Fallback = icons.Circle;

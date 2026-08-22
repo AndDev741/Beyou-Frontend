@@ -4,6 +4,7 @@ import React from "react";
 import i18next from "i18next";
 import {
     searchIcons,
+    getIconCategories,
     getIconCategoryLabel,
     normalizeIconId,
     getEntryById,
@@ -39,6 +40,7 @@ function IconsBox({
         window.matchMedia("(min-width: 768px)").matches
     );
     const [category, setCategory] = useState("all");
+    const [showDomains, setShowDomains] = useState(false);
     const [recentIds, setRecentIds] = useState<string[]>(() => iconRecents.getRecentIconIds());
 
     useEffect(() => {
@@ -65,8 +67,10 @@ function IconsBox({
     const locale = i18next.language || "en";
     const selectedCanonical = useMemo(() => normalizeIconId(selectedIcon), [selectedIcon]);
 
-    // Categories are now just icons + emoji (+ recents when present).
-    const categoryOptions = useMemo(() => {
+    // Type filters (icons vs emoji) plus the domain categories, which stay folded
+    // away behind "More categories" so the default picker keeps its calm two-row
+    // chip strip instead of an eighteen-chip wall.
+    const primaryOptions = useMemo(() => {
         const options = [{ id: "all", label: t("IconCategoryAll") }];
         if (recentIds.length > 0) {
             options.push({ id: "recents", label: t("IconCategoryRecents") });
@@ -77,6 +81,24 @@ function IconsBox({
         );
         return options;
     }, [locale, recentIds.length, t]);
+
+    const domainOptions = useMemo(
+        () =>
+            getIconCategories().map((id) => ({
+                id,
+                label: getIconCategoryLabel(id, locale)
+            })),
+        [locale]
+    );
+
+    const isDomainCategory = useMemo(
+        () => domainOptions.some((option) => option.id === category),
+        [category, domainOptions]
+    );
+
+    // A domain category stays visible while it is the active one, so the selected
+    // chip never disappears out from under the grid it is filtering.
+    const domainsVisible = showDomains || isDomainCategory;
 
     const recentEntries = useMemo(() => {
         return recentIds
@@ -127,7 +149,7 @@ function IconsBox({
             {iconError ? <p className={errorCss} title={iconError}>{iconError}</p> : null}
 
             <div className="flex items-center gap-2 mt-2 w-[30vw] md:w-[230px] flex-wrap">
-                {categoryOptions.map((option) => (
+                {primaryOptions.map((option) => (
                     <button
                         key={option.id}
                         type="button"
@@ -141,6 +163,29 @@ function IconsBox({
                         {option.label}
                     </button>
                 ))}
+                <button
+                    type="button"
+                    onClick={() => setShowDomains(!domainsVisible)}
+                    aria-expanded={domainsVisible}
+                    className="px-2 py-1 text-xs rounded-full border border-dashed border-border text-text-2 hover:bg-accent/10 transition-colors duration-150"
+                >
+                    {domainsVisible ? t("IconCategoryLess") : t("IconCategoryMore")}
+                </button>
+                {domainsVisible &&
+                    domainOptions.map((option) => (
+                        <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => setCategory(option.id)}
+                            className={`px-2 py-1 text-xs rounded-full border transition-colors duration-150 ${
+                                category === option.id
+                                    ? "bg-accent text-on-accent border-accent"
+                                    : "border-border text-text hover:bg-accent/10"
+                            }`}
+                        >
+                            {option.label}
+                        </button>
+                    ))}
             </div>
 
             <div

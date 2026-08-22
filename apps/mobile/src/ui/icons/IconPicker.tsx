@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import {
   searchIcons,
+  getIconCategories,
   getIconCategoryLabel,
   normalizeIconId,
   getEntryById,
@@ -25,14 +26,16 @@ interface IconPickerProps {
 }
 
 /**
- * Bottom-sheet icon picker mirroring the web `iconsBox` UX: search + category tabs
- * (All / Recents / Icons / Emoji) + a grid of `BeyouIcon` tiles. Emits the canonical
- * icon id (`normalizeIconId`) and records a recent on select.
+ * Bottom-sheet icon picker mirroring the web `iconsBox` UX: search + category chips
+ * (All / Recents / Icons / Emoji, with the domain categories behind "More categories")
+ * + a grid of `BeyouIcon` tiles. Emits the canonical icon id (`normalizeIconId`) and
+ * records a recent on select.
  */
 export default function IconPicker({ visible, selectedIcon, onSelect, onClose }: IconPickerProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
+  const [showDomains, setShowDomains] = useState(false);
   const [recentIds, setRecentIds] = useState<string[]>(() => iconRecents.getRecentIconIds());
 
   const locale = i18next.language || 'en';
@@ -41,7 +44,9 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
     [selectedIcon],
   );
 
-  const categoryOptions = useMemo(() => {
+  // Type filters plus the domain categories, folded behind "More categories" so the
+  // sheet does not open onto eighteen chips before the grid.
+  const primaryOptions = useMemo(() => {
     const options = [{ id: 'all', label: t('IconCategoryAll') }];
     if (recentIds.length > 0) options.push({ id: 'recents', label: t('IconCategoryRecents') });
     options.push(
@@ -50,6 +55,19 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
     );
     return options;
   }, [locale, recentIds.length, t]);
+
+  const domainOptions = useMemo(
+    () => getIconCategories().map((id) => ({ id, label: getIconCategoryLabel(id, locale) })),
+    [locale],
+  );
+
+  const isDomainCategory = useMemo(
+    () => domainOptions.some((option) => option.id === category),
+    [category, domainOptions],
+  );
+
+  // Keep a chosen domain chip on screen while it is filtering the grid.
+  const domainsVisible = showDomains || isDomainCategory;
 
   const recentEntries = useMemo(
     () => recentIds.map((id) => getEntryById(id)).filter(Boolean) as IconEntry[],
@@ -96,7 +114,7 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
         />
 
         <View className="my-3 flex-row flex-wrap gap-2">
-          {categoryOptions.map((opt) => (
+          {primaryOptions.map((opt) => (
             <Pressable
               key={opt.id}
               onPress={() => setCategory(opt.id)}
@@ -111,6 +129,33 @@ export default function IconPicker({ visible, selectedIcon, onSelect, onClose }:
               </Text>
             </Pressable>
           ))}
+          <Pressable
+            onPress={() => setShowDomains(!domainsVisible)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: domainsVisible }}
+            testID="icon-picker-more-categories"
+            className="rounded-full border border-border border-dashed px-3 py-1"
+          >
+            <Text className="text-text-2 text-xs">
+              {domainsVisible ? t('IconCategoryLess') : t('IconCategoryMore')}
+            </Text>
+          </Pressable>
+          {domainsVisible &&
+            domainOptions.map((opt) => (
+              <Pressable
+                key={opt.id}
+                onPress={() => setCategory(opt.id)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: category === opt.id }}
+                className={`rounded-full border px-3 py-1 ${
+                  category === opt.id ? 'border-accent bg-accent' : 'border-border'
+                }`}
+              >
+                <Text className={`text-xs ${category === opt.id ? 'text-on-accent' : 'text-text'}`}>
+                  {opt.label}
+                </Text>
+              </Pressable>
+            ))}
         </View>
 
         {icons.length === 0 ? (
