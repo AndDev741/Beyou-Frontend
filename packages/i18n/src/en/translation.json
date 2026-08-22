@@ -110,6 +110,7 @@
     "IconCategoryAll": "All",
     "IconCategoryRecents": "Recents",
     "IconCategoryMore": "More categories",
+    "IconCategoryLess": "Fewer categories",
     "IconNoResults": "No icons found for this search.",
     "Create": "Create",
     "YupDescriptionMaxValue": "Description can't exceed a max of 256 characters",

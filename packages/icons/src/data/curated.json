@@ -1,0 +1,5467 @@
+{
+ "emoji:airplane": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "plane",
+   "flight",
+   "travel"
+  ],
+  "pt": [
+   "avião",
+   "voo",
+   "viagem"
+  ]
+ },
+ "emoji:angel": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "angel",
+   "guardian",
+   "blessing"
+  ],
+  "pt": [
+   "anjo",
+   "anjo da guarda",
+   "bênção"
+  ]
+ },
+ "emoji:apple": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "apple",
+   "fruit",
+   "healthy"
+  ],
+  "pt": [
+   "maçã",
+   "fruta",
+   "saudável"
+  ]
+ },
+ "emoji:art": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "art",
+   "paint",
+   "creative"
+  ],
+  "pt": [
+   "arte",
+   "pintar",
+   "criatividade"
+  ]
+ },
+ "emoji:basketball": {
+  "c": [
+   "fitness",
+   "leisure"
+  ],
+  "en": [
+   "basketball",
+   "sport",
+   "ball"
+  ],
+  "pt": [
+   "basquete",
+   "bola",
+   "esporte"
+  ]
+ },
+ "emoji:beach_with_umbrella": {
+  "c": [
+   "nature",
+   "travel",
+   "leisure"
+  ],
+  "en": [
+   "beach",
+   "vacation",
+   "sea"
+  ],
+  "pt": [
+   "praia",
+   "férias",
+   "mar"
+  ]
+ },
+ "emoji:birthday": {
+  "c": [
+   "food",
+   "leisure"
+  ],
+  "en": [
+   "birthday cake",
+   "celebrate",
+   "party"
+  ],
+  "pt": [
+   "bolo de aniversário",
+   "comemorar",
+   "festa",
+   "parabéns"
+  ]
+ },
+ "emoji:book": {
+  "c": [
+   "faith",
+   "study"
+  ],
+  "en": [
+   "bible",
+   "scripture",
+   "open book",
+   "read",
+   "study"
+  ],
+  "pt": [
+   "bíblia",
+   "escritura",
+   "livro aberto",
+   "ler",
+   "leitura",
+   "estudo"
+  ]
+ },
+ "emoji:books": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "books",
+   "study",
+   "library",
+   "read"
+  ],
+  "pt": [
+   "livros",
+   "estudar",
+   "biblioteca",
+   "ler",
+   "estudo"
+  ]
+ },
+ "emoji:bread": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "bread",
+   "bakery",
+   "breakfast"
+  ],
+  "pt": [
+   "pão",
+   "padaria",
+   "café da manhã"
+  ]
+ },
+ "emoji:briefcase": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "work",
+   "job",
+   "business"
+  ],
+  "pt": [
+   "trabalho",
+   "emprego",
+   "negócio"
+  ]
+ },
+ "emoji:broom": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "broom",
+   "sweep",
+   "clean",
+   "chores"
+  ],
+  "pt": [
+   "vassoura",
+   "varrer",
+   "limpar",
+   "faxina"
+  ]
+ },
+ "emoji:calendar": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "calendar",
+   "date",
+   "schedule"
+  ],
+  "pt": [
+   "calendário",
+   "data",
+   "agenda"
+  ]
+ },
+ "emoji:camera": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "camera",
+   "photo",
+   "picture"
+  ],
+  "pt": [
+   "câmera",
+   "foto",
+   "fotografia"
+  ]
+ },
+ "emoji:candle": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "candle",
+   "vigil",
+   "light"
+  ],
+  "pt": [
+   "vela",
+   "vigília",
+   "luz"
+  ]
+ },
+ "emoji:car": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "car",
+   "drive",
+   "vehicle"
+  ],
+  "pt": [
+   "carro",
+   "dirigir",
+   "veículo"
+  ]
+ },
+ "emoji:cat": {
+  "c": [
+   "family",
+   "nature"
+  ],
+  "en": [
+   "cat",
+   "pet",
+   "kitten"
+  ],
+  "pt": [
+   "gato",
+   "gata",
+   "pet",
+   "gatinho"
+  ]
+ },
+ "emoji:chart_with_upwards_trend": {
+  "c": [
+   "money",
+   "work"
+  ],
+  "en": [
+   "progress",
+   "growth",
+   "tracking"
+  ],
+  "pt": [
+   "progresso",
+   "crescimento",
+   "acompanhamento",
+   "gráfico"
+  ]
+ },
+ "emoji:church": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "church",
+   "chapel",
+   "mass",
+   "worship"
+  ],
+  "pt": [
+   "igreja",
+   "capela",
+   "missa",
+   "culto",
+   "templo"
+  ]
+ },
+ "emoji:clapper": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "movie",
+   "film",
+   "cinema"
+  ],
+  "pt": [
+   "filme",
+   "cinema",
+   "claquete"
+  ]
+ },
+ "emoji:clock3": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "clock",
+   "time",
+   "hour"
+  ],
+  "pt": [
+   "relógio",
+   "hora",
+   "tempo"
+  ]
+ },
+ "emoji:closed_book": {
+  "c": [
+   "faith",
+   "study"
+  ],
+  "en": [
+   "bible",
+   "scripture",
+   "book",
+   "read",
+   "devotional"
+  ],
+  "pt": [
+   "bíblia",
+   "escritura",
+   "livro",
+   "ler",
+   "devocional",
+   "palavra"
+  ]
+ },
+ "emoji:coffee": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "coffee",
+   "tea",
+   "hot drink",
+   "break"
+  ],
+  "pt": [
+   "café",
+   "chá",
+   "bebida quente",
+   "pausa"
+  ]
+ },
+ "emoji:computer": {
+  "c": [
+   "tech",
+   "work"
+  ],
+  "en": [
+   "computer",
+   "laptop",
+   "work"
+  ],
+  "pt": [
+   "computador",
+   "notebook",
+   "trabalho"
+  ]
+ },
+ "emoji:crescent_moon": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "moon",
+   "night",
+   "sleep"
+  ],
+  "pt": [
+   "lua",
+   "noite",
+   "dormir"
+  ]
+ },
+ "emoji:deciduous_tree": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "tree",
+   "nature",
+   "park"
+  ],
+  "pt": [
+   "árvore",
+   "natureza",
+   "parque"
+  ]
+ },
+ "emoji:dog": {
+  "c": [
+   "family",
+   "nature"
+  ],
+  "en": [
+   "dog",
+   "pet",
+   "puppy",
+   "walk"
+  ],
+  "pt": [
+   "cachorro",
+   "cão",
+   "pet",
+   "filhote",
+   "passear"
+  ]
+ },
+ "emoji:dove_of_peace": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "dove",
+   "peace",
+   "holy spirit",
+   "faith"
+  ],
+  "pt": [
+   "pomba",
+   "paz",
+   "espírito santo",
+   "fé"
+  ]
+ },
+ "emoji:face_with_bags_under_eyes": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "tired",
+   "sleepy",
+   "exhausted"
+  ],
+  "pt": [
+   "cansado",
+   "sono",
+   "exausto",
+   "cansaço"
+  ]
+ },
+ "emoji:family": {
+  "c": [
+   "family"
+  ],
+  "en": [
+   "family",
+   "parents",
+   "kids"
+  ],
+  "pt": [
+   "família",
+   "pais",
+   "filhos"
+  ]
+ },
+ "emoji:fire": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "fire",
+   "streak",
+   "hot",
+   "motivation"
+  ],
+  "pt": [
+   "fogo",
+   "sequência",
+   "ofensiva",
+   "motivação",
+   "chama"
+  ]
+ },
+ "emoji:green_salad": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "salad",
+   "healthy eating",
+   "diet"
+  ],
+  "pt": [
+   "salada",
+   "alimentação saudável",
+   "dieta"
+  ]
+ },
+ "emoji:heart": {
+  "c": [
+   "family"
+  ],
+  "en": [
+   "love",
+   "heart",
+   "affection"
+  ],
+  "pt": [
+   "amor",
+   "coração",
+   "afeto",
+   "carinho"
+  ]
+ },
+ "emoji:house": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "home",
+   "house"
+  ],
+  "pt": [
+   "casa",
+   "lar",
+   "moradia"
+  ]
+ },
+ "emoji:iphone": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "phone",
+   "mobile",
+   "smartphone"
+  ],
+  "pt": [
+   "celular",
+   "telefone",
+   "smartphone"
+  ]
+ },
+ "emoji:latin_cross": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "cross",
+   "crucifix",
+   "christian",
+   "faith",
+   "religion"
+  ],
+  "pt": [
+   "cruz",
+   "crucifixo",
+   "cristão",
+   "fé",
+   "religião",
+   "católico",
+   "evangélico"
+  ]
+ },
+ "emoji:memo": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "note",
+   "write",
+   "memo",
+   "journal"
+  ],
+  "pt": [
+   "nota",
+   "escrever",
+   "anotação",
+   "diário"
+  ]
+ },
+ "emoji:menorah_with_nine_branches": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "menorah",
+   "hanukkah",
+   "jewish"
+  ],
+  "pt": [
+   "menorá",
+   "hanucá",
+   "judaísmo"
+  ]
+ },
+ "emoji:moneybag": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "money",
+   "savings",
+   "rich",
+   "budget"
+  ],
+  "pt": [
+   "dinheiro",
+   "saco de dinheiro",
+   "economia",
+   "grana"
+  ]
+ },
+ "emoji:mountain": {
+  "c": [
+   "nature",
+   "travel"
+  ],
+  "en": [
+   "mountain",
+   "hike",
+   "nature"
+  ],
+  "pt": [
+   "montanha",
+   "trilha",
+   "natureza"
+  ]
+ },
+ "emoji:muscle": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "muscle",
+   "strength",
+   "workout",
+   "gym",
+   "strong"
+  ],
+  "pt": [
+   "músculo",
+   "força",
+   "treino",
+   "academia",
+   "forte",
+   "bíceps",
+   "malhar"
+  ]
+ },
+ "emoji:musical_note": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "music",
+   "song",
+   "note"
+  ],
+  "pt": [
+   "música",
+   "canção",
+   "nota musical"
+  ]
+ },
+ "emoji:nerd_face": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "study",
+   "nerd",
+   "learn",
+   "glasses"
+  ],
+  "pt": [
+   "estudar",
+   "nerd",
+   "aprender",
+   "óculos"
+  ]
+ },
+ "emoji:ocean": {
+  "c": [
+   "nature",
+   "travel"
+  ],
+  "en": [
+   "sea",
+   "ocean",
+   "wave",
+   "beach"
+  ],
+  "pt": [
+   "mar",
+   "oceano",
+   "onda",
+   "praia"
+  ]
+ },
+ "emoji:om_symbol": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "om",
+   "hindu",
+   "hinduism",
+   "meditation"
+  ],
+  "pt": [
+   "om",
+   "hindu",
+   "hinduísmo",
+   "meditação"
+  ]
+ },
+ "emoji:orthodox_cross": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "cross",
+   "orthodox",
+   "christian",
+   "faith"
+  ],
+  "pt": [
+   "cruz",
+   "ortodoxa",
+   "cristão",
+   "fé",
+   "religião"
+  ]
+ },
+ "emoji:person_doing_cartwheel": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "gymnastics",
+   "stretch",
+   "exercise"
+  ],
+  "pt": [
+   "ginástica",
+   "alongamento",
+   "exercício"
+  ]
+ },
+ "emoji:person_in_lotus_position": {
+  "c": [
+   "fitness",
+   "faith",
+   "health"
+  ],
+  "en": [
+   "yoga",
+   "meditate",
+   "meditation",
+   "mindfulness",
+   "calm"
+  ],
+  "pt": [
+   "ioga",
+   "yoga",
+   "meditar",
+   "meditação",
+   "mindfulness",
+   "calma",
+   "respirar"
+  ]
+ },
+ "emoji:place_of_worship": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "worship",
+   "temple",
+   "religion",
+   "pray"
+  ],
+  "pt": [
+   "culto",
+   "templo",
+   "religião",
+   "oração",
+   "adoração"
+  ]
+ },
+ "emoji:potable_water": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "water",
+   "drink",
+   "hydration"
+  ],
+  "pt": [
+   "água",
+   "beber",
+   "hidratação"
+  ]
+ },
+ "emoji:pray": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "pray",
+   "prayer",
+   "gratitude",
+   "thanks",
+   "worship",
+   "amen"
+  ],
+  "pt": [
+   "orar",
+   "oração",
+   "rezar",
+   "reza",
+   "gratidão",
+   "obrigado",
+   "agradecer",
+   "culto",
+   "amém"
+  ]
+ },
+ "emoji:prayer_beads": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "rosary",
+   "prayer beads",
+   "pray",
+   "devotion"
+  ],
+  "pt": [
+   "terço",
+   "rosário",
+   "contas de oração",
+   "rezar",
+   "devoção"
+  ]
+ },
+ "emoji:robot_face": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "robot",
+   "ai",
+   "bot"
+  ],
+  "pt": [
+   "robô",
+   "ia",
+   "bot",
+   "inteligência artificial"
+  ]
+ },
+ "emoji:rocket": {
+  "c": [
+   "work",
+   "tech"
+  ],
+  "en": [
+   "launch",
+   "productivity",
+   "fast",
+   "startup"
+  ],
+  "pt": [
+   "foguete",
+   "lançar",
+   "produtividade",
+   "rápido",
+   "startup"
+  ]
+ },
+ "emoji:runner": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "run",
+   "running",
+   "jog",
+   "race",
+   "cardio"
+  ],
+  "pt": [
+   "correr",
+   "corrida",
+   "trote",
+   "cardio",
+   "maratona",
+   "exercício"
+  ]
+ },
+ "emoji:seedling": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "seedling",
+   "growth",
+   "new",
+   "plant"
+  ],
+  "pt": [
+   "muda",
+   "broto",
+   "crescimento",
+   "novo",
+   "planta"
+  ]
+ },
+ "emoji:sleeping": {
+  "c": [
+   "health",
+   "time"
+  ],
+  "en": [
+   "sleep",
+   "rest",
+   "bedtime",
+   "nap"
+  ],
+  "pt": [
+   "dormir",
+   "sono",
+   "descanso",
+   "soneca",
+   "hora de dormir"
+  ]
+ },
+ "emoji:soap": {
+  "c": [
+   "home",
+   "health"
+  ],
+  "en": [
+   "soap",
+   "wash",
+   "hygiene",
+   "clean"
+  ],
+  "pt": [
+   "sabonete",
+   "sabão",
+   "lavar",
+   "higiene",
+   "limpar"
+  ]
+ },
+ "emoji:soccer": {
+  "c": [
+   "fitness",
+   "leisure"
+  ],
+  "en": [
+   "soccer",
+   "football",
+   "sport",
+   "ball"
+  ],
+  "pt": [
+   "futebol",
+   "bola",
+   "esporte",
+   "jogo",
+   "pelada"
+  ]
+ },
+ "emoji:star_and_crescent": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "islam",
+   "muslim",
+   "crescent",
+   "faith"
+  ],
+  "pt": [
+   "islã",
+   "islamismo",
+   "muçulmano",
+   "crescente",
+   "fé"
+  ]
+ },
+ "emoji:star_of_david": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "star of david",
+   "judaism",
+   "jewish",
+   "faith"
+  ],
+  "pt": [
+   "estrela de davi",
+   "judaísmo",
+   "judeu",
+   "fé"
+  ]
+ },
+ "emoji:sunny": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "sun",
+   "sunny",
+   "clear"
+  ],
+  "pt": [
+   "sol",
+   "ensolarado",
+   "limpo"
+  ]
+ },
+ "emoji:swimmer": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "swim",
+   "swimming",
+   "pool"
+  ],
+  "pt": [
+   "nadar",
+   "natação",
+   "piscina"
+  ]
+ },
+ "emoji:tada": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "celebrate",
+   "party",
+   "milestone",
+   "congrats"
+  ],
+  "pt": [
+   "comemorar",
+   "festa",
+   "marco",
+   "parabéns"
+  ]
+ },
+ "emoji:tennis": {
+  "c": [
+   "fitness",
+   "leisure"
+  ],
+  "en": [
+   "tennis",
+   "sport",
+   "racket"
+  ],
+  "pt": [
+   "tênis",
+   "esporte",
+   "raquete"
+  ]
+ },
+ "emoji:tooth": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "tooth",
+   "teeth",
+   "dentist",
+   "brush teeth",
+   "floss"
+  ],
+  "pt": [
+   "dente",
+   "dentes",
+   "dentista",
+   "escovar os dentes",
+   "fio dental"
+  ]
+ },
+ "emoji:toothbrush": {
+  "c": [
+   "health",
+   "home"
+  ],
+  "en": [
+   "toothbrush",
+   "brush teeth",
+   "hygiene"
+  ],
+  "pt": [
+   "escova de dente",
+   "escovar os dentes",
+   "higiene"
+  ]
+ },
+ "emoji:two_men_holding_hands": {
+  "c": [
+   "family"
+  ],
+  "en": [
+   "friends",
+   "couple",
+   "together"
+  ],
+  "pt": [
+   "amigos",
+   "casal",
+   "juntos"
+  ]
+ },
+ "emoji:video_game": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "game",
+   "gaming",
+   "play"
+  ],
+  "pt": [
+   "jogo",
+   "videogame",
+   "jogar"
+  ]
+ },
+ "emoji:wheel_of_dharma": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "dharma",
+   "buddhism",
+   "buddhist"
+  ],
+  "pt": [
+   "dharma",
+   "budismo",
+   "budista"
+  ]
+ },
+ "emoji:writing_hand": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "write",
+   "handwriting",
+   "note"
+  ],
+  "pt": [
+   "escrever",
+   "escrita",
+   "à mão",
+   "anotar"
+  ]
+ },
+ "lucide:accessibility": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "accessibility",
+   "disability",
+   "inclusive"
+  ],
+  "pt": [
+   "acessibilidade",
+   "deficiência",
+   "inclusão",
+   "inclusivo"
+  ]
+ },
+ "lucide:alarm-clock": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "alarm",
+   "wake up",
+   "morning",
+   "reminder"
+  ],
+  "pt": [
+   "despertador",
+   "alarme",
+   "acordar",
+   "manhã",
+   "lembrete"
+  ]
+ },
+ "lucide:ambulance": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "ambulance",
+   "emergency",
+   "urgent care"
+  ],
+  "pt": [
+   "ambulância",
+   "emergência",
+   "urgência",
+   "samu"
+  ]
+ },
+ "lucide:anchor": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "anchor",
+   "port",
+   "harbor",
+   "stable"
+  ],
+  "pt": [
+   "âncora",
+   "porto",
+   "ancorar",
+   "estável"
+  ]
+ },
+ "lucide:apple": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "apple",
+   "fruit",
+   "healthy",
+   "snack",
+   "diet"
+  ],
+  "pt": [
+   "maçã",
+   "fruta",
+   "saudável",
+   "lanche",
+   "dieta"
+  ]
+ },
+ "lucide:armchair": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "chair",
+   "armchair",
+   "relax"
+  ],
+  "pt": [
+   "poltrona",
+   "cadeira",
+   "relaxar"
+  ]
+ },
+ "lucide:atom": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "science",
+   "physics",
+   "atom",
+   "chemistry"
+  ],
+  "pt": [
+   "ciência",
+   "física",
+   "átomo",
+   "química"
+  ]
+ },
+ "lucide:baby": {
+  "c": [
+   "family",
+   "health"
+  ],
+  "en": [
+   "baby",
+   "child",
+   "parenting",
+   "newborn"
+  ],
+  "pt": [
+   "bebê",
+   "criança",
+   "filho",
+   "filha",
+   "maternidade",
+   "paternidade",
+   "recém-nascido"
+  ]
+ },
+ "lucide:backpack": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "backpack",
+   "school",
+   "bag"
+  ],
+  "pt": [
+   "mochila",
+   "escola",
+   "bolsa"
+  ]
+ },
+ "lucide:banana": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "banana",
+   "fruit",
+   "snack"
+  ],
+  "pt": [
+   "banana",
+   "fruta",
+   "lanche"
+  ]
+ },
+ "lucide:bandage": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "bandage",
+   "wound",
+   "injury",
+   "first aid"
+  ],
+  "pt": [
+   "band-aid",
+   "curativo",
+   "ferida",
+   "machucado",
+   "primeiros socorros"
+  ]
+ },
+ "lucide:banknote": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "cash",
+   "bill",
+   "money",
+   "payment"
+  ],
+  "pt": [
+   "dinheiro",
+   "nota",
+   "cédula",
+   "pagamento",
+   "grana"
+  ]
+ },
+ "lucide:bath": {
+  "c": [
+   "home",
+   "health"
+  ],
+  "en": [
+   "bath",
+   "bathtub",
+   "relax",
+   "hygiene"
+  ],
+  "pt": [
+   "banheira",
+   "banho",
+   "relaxar",
+   "higiene"
+  ]
+ },
+ "lucide:battery-full": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "battery",
+   "charge",
+   "energy",
+   "full"
+  ],
+  "pt": [
+   "bateria",
+   "carregar",
+   "energia",
+   "cheia"
+  ]
+ },
+ "lucide:bed": {
+  "c": [
+   "health",
+   "home",
+   "time"
+  ],
+  "en": [
+   "sleep",
+   "bed",
+   "bedtime",
+   "rest",
+   "nap"
+  ],
+  "pt": [
+   "dormir",
+   "cama",
+   "sono",
+   "descansar",
+   "deitar",
+   "hora de dormir",
+   "soneca"
+  ]
+ },
+ "lucide:beef": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "meat",
+   "beef",
+   "protein",
+   "steak"
+  ],
+  "pt": [
+   "carne",
+   "bife",
+   "proteína",
+   "churrasco"
+  ]
+ },
+ "lucide:beer": {
+  "c": [
+   "food",
+   "leisure"
+  ],
+  "en": [
+   "beer",
+   "drink",
+   "bar",
+   "alcohol"
+  ],
+  "pt": [
+   "cerveja",
+   "bebida",
+   "bar",
+   "álcool",
+   "breja"
+  ]
+ },
+ "lucide:bell": {
+  "c": [
+   "faith",
+   "time"
+  ],
+  "en": [
+   "bell",
+   "reminder",
+   "call",
+   "alert"
+  ],
+  "pt": [
+   "sino",
+   "campainha",
+   "lembrete",
+   "chamado",
+   "aviso"
+  ]
+ },
+ "lucide:biceps-flexed": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "muscle",
+   "strength",
+   "flex",
+   "gym"
+  ],
+  "pt": [
+   "músculo",
+   "força",
+   "bíceps",
+   "academia",
+   "treino"
+  ]
+ },
+ "lucide:bike": {
+  "c": [
+   "fitness",
+   "travel"
+  ],
+  "en": [
+   "bike",
+   "cycling",
+   "bicycle",
+   "ride"
+  ],
+  "pt": [
+   "bicicleta",
+   "bike",
+   "ciclismo",
+   "pedalar",
+   "andar de bicicleta"
+  ]
+ },
+ "lucide:bird": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "bird",
+   "birds",
+   "nature"
+  ],
+  "pt": [
+   "pássaro",
+   "ave",
+   "pássaros",
+   "natureza"
+  ]
+ },
+ "lucide:blinds": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "blinds",
+   "curtain",
+   "window"
+  ],
+  "pt": [
+   "persiana",
+   "cortina",
+   "janela"
+  ]
+ },
+ "lucide:bluetooth": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "bluetooth",
+   "connect",
+   "wireless"
+  ],
+  "pt": [
+   "bluetooth",
+   "conectar",
+   "sem fio"
+  ]
+ },
+ "lucide:bone": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "bone",
+   "orthopedic",
+   "skeleton"
+  ],
+  "pt": [
+   "osso",
+   "ortopedia",
+   "esqueleto"
+  ]
+ },
+ "lucide:book": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "book",
+   "read",
+   "novel",
+   "literature"
+  ],
+  "pt": [
+   "livro",
+   "ler",
+   "romance",
+   "literatura",
+   "leitura"
+  ]
+ },
+ "lucide:book-marked": {
+  "c": [
+   "faith",
+   "study"
+  ],
+  "en": [
+   "bible",
+   "scripture",
+   "holy book",
+   "devotional",
+   "read"
+  ],
+  "pt": [
+   "bíblia",
+   "escritura",
+   "sagrada escritura",
+   "devocional",
+   "palavra",
+   "ler a bíblia",
+   "leitura bíblica"
+  ]
+ },
+ "lucide:book-open": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "read",
+   "reading",
+   "book",
+   "study",
+   "learn"
+  ],
+  "pt": [
+   "ler",
+   "leitura",
+   "livro",
+   "estudar",
+   "aprender",
+   "estudo"
+  ]
+ },
+ "lucide:bot": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "bot",
+   "ai",
+   "robot",
+   "assistant"
+  ],
+  "pt": [
+   "bot",
+   "ia",
+   "robô",
+   "assistente",
+   "inteligência artificial"
+  ]
+ },
+ "lucide:brain": {
+  "c": [
+   "health",
+   "study"
+  ],
+  "en": [
+   "brain",
+   "mind",
+   "mental health",
+   "focus",
+   "therapy"
+  ],
+  "pt": [
+   "cérebro",
+   "mente",
+   "saúde mental",
+   "foco",
+   "terapia",
+   "psicólogo"
+  ]
+ },
+ "lucide:briefcase": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "work",
+   "job",
+   "business",
+   "office",
+   "career"
+  ],
+  "pt": [
+   "trabalho",
+   "emprego",
+   "negócio",
+   "escritório",
+   "carreira",
+   "maleta"
+  ]
+ },
+ "lucide:brush": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "clean",
+   "brush",
+   "tidy",
+   "chores"
+  ],
+  "pt": [
+   "limpar",
+   "escova",
+   "arrumar",
+   "faxina",
+   "tarefas de casa"
+  ]
+ },
+ "lucide:bug": {
+  "c": [
+   "nature",
+   "tech"
+  ],
+  "en": [
+   "bug",
+   "insect",
+   "error"
+  ],
+  "pt": [
+   "inseto",
+   "bicho",
+   "bug",
+   "erro"
+  ]
+ },
+ "lucide:building-2": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "office",
+   "company",
+   "building",
+   "workplace"
+  ],
+  "pt": [
+   "escritório",
+   "empresa",
+   "prédio",
+   "trabalho"
+  ]
+ },
+ "lucide:bus": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "bus",
+   "commute",
+   "public transport"
+  ],
+  "pt": [
+   "ônibus",
+   "deslocamento",
+   "transporte público",
+   "busão"
+  ]
+ },
+ "lucide:cake": {
+  "c": [
+   "food",
+   "leisure"
+  ],
+  "en": [
+   "cake",
+   "birthday",
+   "dessert",
+   "celebrate"
+  ],
+  "pt": [
+   "bolo",
+   "aniversário",
+   "sobremesa",
+   "festa",
+   "comemorar"
+  ]
+ },
+ "lucide:calculator": {
+  "c": [
+   "study",
+   "money"
+  ],
+  "en": [
+   "calculator",
+   "math",
+   "numbers",
+   "calculate"
+  ],
+  "pt": [
+   "calculadora",
+   "matemática",
+   "números",
+   "calcular",
+   "contas"
+  ]
+ },
+ "lucide:calendar": {
+  "c": [
+   "time",
+   "work"
+  ],
+  "en": [
+   "calendar",
+   "date",
+   "schedule",
+   "plan",
+   "month"
+  ],
+  "pt": [
+   "calendário",
+   "data",
+   "agenda",
+   "planejar",
+   "mês"
+  ]
+ },
+ "lucide:calendar-check": {
+  "c": [
+   "time",
+   "work"
+  ],
+  "en": [
+   "scheduled",
+   "done",
+   "appointment",
+   "booked"
+  ],
+  "pt": [
+   "agendado",
+   "concluído",
+   "compromisso",
+   "marcado"
+  ]
+ },
+ "lucide:calendar-days": {
+  "c": [
+   "time",
+   "work"
+  ],
+  "en": [
+   "calendar",
+   "month",
+   "days",
+   "schedule"
+  ],
+  "pt": [
+   "calendário",
+   "mês",
+   "dias",
+   "agenda"
+  ]
+ },
+ "lucide:camera": {
+  "c": [
+   "leisure",
+   "tech"
+  ],
+  "en": [
+   "camera",
+   "photo",
+   "picture",
+   "photography"
+  ],
+  "pt": [
+   "câmera",
+   "foto",
+   "fotografia",
+   "tirar foto"
+  ]
+ },
+ "lucide:candy": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "candy",
+   "sweet",
+   "sugar",
+   "treat"
+  ],
+  "pt": [
+   "doce",
+   "bala",
+   "açúcar",
+   "guloseima"
+  ]
+ },
+ "lucide:car": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "car",
+   "drive",
+   "commute",
+   "vehicle"
+  ],
+  "pt": [
+   "carro",
+   "dirigir",
+   "deslocamento",
+   "veículo",
+   "automóvel"
+  ]
+ },
+ "lucide:carrot": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "carrot",
+   "vegetable",
+   "veggie",
+   "healthy"
+  ],
+  "pt": [
+   "cenoura",
+   "legume",
+   "vegetal",
+   "verdura",
+   "saudável"
+  ]
+ },
+ "lucide:chart-bar": {
+  "c": [
+   "money",
+   "work"
+  ],
+  "en": [
+   "bar chart",
+   "stats",
+   "report",
+   "analytics"
+  ],
+  "pt": [
+   "gráfico de barras",
+   "estatística",
+   "relatório",
+   "análise"
+  ]
+ },
+ "lucide:chart-line": {
+  "c": [
+   "money",
+   "work"
+  ],
+  "en": [
+   "chart",
+   "graph",
+   "progress",
+   "analytics"
+  ],
+  "pt": [
+   "gráfico",
+   "progresso",
+   "análise",
+   "linha"
+  ]
+ },
+ "lucide:chart-pie": {
+  "c": [
+   "money",
+   "work"
+  ],
+  "en": [
+   "pie chart",
+   "share",
+   "distribution"
+  ],
+  "pt": [
+   "gráfico de pizza",
+   "proporção",
+   "distribuição"
+  ]
+ },
+ "lucide:chef-hat": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "cook",
+   "chef",
+   "recipe",
+   "kitchen"
+  ],
+  "pt": [
+   "cozinhar",
+   "chef",
+   "receita",
+   "cozinha",
+   "cozinheiro"
+  ]
+ },
+ "lucide:church": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "church",
+   "chapel",
+   "temple",
+   "mass",
+   "worship",
+   "faith"
+  ],
+  "pt": [
+   "igreja",
+   "capela",
+   "templo",
+   "missa",
+   "culto",
+   "fé",
+   "religião"
+  ]
+ },
+ "lucide:citrus": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "orange",
+   "lemon",
+   "citrus",
+   "vitamin c"
+  ],
+  "pt": [
+   "laranja",
+   "limão",
+   "cítrico",
+   "vitamina c"
+  ]
+ },
+ "lucide:clapperboard": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "movie",
+   "film",
+   "video",
+   "shoot"
+  ],
+  "pt": [
+   "filme",
+   "cinema",
+   "vídeo",
+   "gravar",
+   "claquete"
+  ]
+ },
+ "lucide:clipboard-list": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "todo",
+   "checklist",
+   "tasks",
+   "list",
+   "plan"
+  ],
+  "pt": [
+   "tarefas",
+   "lista",
+   "checklist",
+   "planejar",
+   "afazeres",
+   "lista de tarefas"
+  ]
+ },
+ "lucide:clock": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "clock",
+   "time",
+   "hour",
+   "schedule"
+  ],
+  "pt": [
+   "relógio",
+   "hora",
+   "horário",
+   "tempo",
+   "agenda"
+  ]
+ },
+ "lucide:cloud": {
+  "c": [
+   "nature",
+   "tech"
+  ],
+  "en": [
+   "cloud",
+   "weather",
+   "sky"
+  ],
+  "pt": [
+   "nuvem",
+   "tempo",
+   "clima",
+   "céu"
+  ]
+ },
+ "lucide:cloud-rain": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "rain",
+   "rainy",
+   "weather",
+   "umbrella"
+  ],
+  "pt": [
+   "chuva",
+   "chuvoso",
+   "tempo",
+   "clima",
+   "chover"
+  ]
+ },
+ "lucide:cloud-snow": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "snow",
+   "winter",
+   "cold",
+   "weather"
+  ],
+  "pt": [
+   "neve",
+   "inverno",
+   "frio",
+   "clima",
+   "nevar"
+  ]
+ },
+ "lucide:code": {
+  "c": [
+   "tech",
+   "study",
+   "work"
+  ],
+  "en": [
+   "code",
+   "coding",
+   "program",
+   "develop"
+  ],
+  "pt": [
+   "código",
+   "programar",
+   "programação",
+   "desenvolver",
+   "codar"
+  ]
+ },
+ "lucide:coffee": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "coffee",
+   "cafe",
+   "break",
+   "morning",
+   "tea"
+  ],
+  "pt": [
+   "café",
+   "cafezinho",
+   "pausa",
+   "manhã",
+   "chá"
+  ]
+ },
+ "lucide:coins": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "coins",
+   "money",
+   "savings",
+   "change"
+  ],
+  "pt": [
+   "moedas",
+   "dinheiro",
+   "economia",
+   "trocado",
+   "poupar"
+  ]
+ },
+ "lucide:compass": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "compass",
+   "direction",
+   "explore"
+  ],
+  "pt": [
+   "bússola",
+   "direção",
+   "explorar"
+  ]
+ },
+ "lucide:cookie": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "cookie",
+   "biscuit",
+   "snack",
+   "sweet"
+  ],
+  "pt": [
+   "biscoito",
+   "bolacha",
+   "cookie",
+   "lanche",
+   "doce"
+  ]
+ },
+ "lucide:cooking-pot": {
+  "c": [
+   "food",
+   "home"
+  ],
+  "en": [
+   "cook",
+   "cooking",
+   "meal prep",
+   "kitchen"
+  ],
+  "pt": [
+   "cozinhar",
+   "panela",
+   "preparar comida",
+   "cozinha",
+   "marmita"
+  ]
+ },
+ "lucide:cpu": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "cpu",
+   "processor",
+   "chip",
+   "hardware"
+  ],
+  "pt": [
+   "processador",
+   "cpu",
+   "chip",
+   "hardware"
+  ]
+ },
+ "lucide:credit-card": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "card",
+   "credit card",
+   "payment",
+   "bill"
+  ],
+  "pt": [
+   "cartão",
+   "cartão de crédito",
+   "pagamento",
+   "fatura"
+  ]
+ },
+ "lucide:cross": {
+  "c": [
+   "faith"
+  ],
+  "en": [
+   "cross",
+   "crucifix",
+   "christian",
+   "faith",
+   "religion",
+   "church"
+  ],
+  "pt": [
+   "cruz",
+   "crucifixo",
+   "cristão",
+   "cristã",
+   "fé",
+   "religião",
+   "igreja",
+   "católico",
+   "evangélico"
+  ]
+ },
+ "lucide:cup-soda": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "soda",
+   "drink",
+   "juice",
+   "beverage"
+  ],
+  "pt": [
+   "refrigerante",
+   "bebida",
+   "suco",
+   "copo"
+  ]
+ },
+ "lucide:database": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "database",
+   "data",
+   "storage",
+   "sql"
+  ],
+  "pt": [
+   "banco de dados",
+   "dados",
+   "armazenamento",
+   "sql"
+  ]
+ },
+ "lucide:dices": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "dice",
+   "board game",
+   "play",
+   "random"
+  ],
+  "pt": [
+   "dados",
+   "jogo de tabuleiro",
+   "jogar",
+   "aleatório"
+  ]
+ },
+ "lucide:disc-3": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "album",
+   "record",
+   "music",
+   "vinyl"
+  ],
+  "pt": [
+   "álbum",
+   "disco",
+   "música",
+   "vinil"
+  ]
+ },
+ "lucide:dna": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "dna",
+   "genetics",
+   "biology",
+   "exam"
+  ],
+  "pt": [
+   "dna",
+   "genética",
+   "biologia",
+   "exame"
+  ]
+ },
+ "lucide:dollar-sign": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "money",
+   "salary",
+   "price",
+   "dollar",
+   "pay"
+  ],
+  "pt": [
+   "dinheiro",
+   "salário",
+   "preço",
+   "dólar",
+   "pagar",
+   "grana"
+  ]
+ },
+ "lucide:door-closed": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "door",
+   "close",
+   "room",
+   "leave"
+  ],
+  "pt": [
+   "porta",
+   "fechar",
+   "quarto",
+   "sair"
+  ]
+ },
+ "lucide:door-open": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "door",
+   "open",
+   "enter",
+   "arrive"
+  ],
+  "pt": [
+   "porta",
+   "abrir",
+   "entrar",
+   "chegar"
+  ]
+ },
+ "lucide:droplet": {
+  "c": [
+   "nature",
+   "health"
+  ],
+  "en": [
+   "water",
+   "drop",
+   "hydration",
+   "rain"
+  ],
+  "pt": [
+   "água",
+   "gota",
+   "hidratação",
+   "chuva"
+  ]
+ },
+ "lucide:droplets": {
+  "c": [
+   "nature",
+   "health"
+  ],
+  "en": [
+   "water",
+   "drops",
+   "hydration"
+  ],
+  "pt": [
+   "água",
+   "gotas",
+   "hidratação"
+  ]
+ },
+ "lucide:drum": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "drums",
+   "instrument",
+   "percussion"
+  ],
+  "pt": [
+   "bateria",
+   "instrumento",
+   "percussão",
+   "tambor"
+  ]
+ },
+ "lucide:dumbbell": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "gym",
+   "workout",
+   "weights",
+   "strength",
+   "lift"
+  ],
+  "pt": [
+   "academia",
+   "treino",
+   "musculação",
+   "peso",
+   "força",
+   "malhar",
+   "levantar peso",
+   "exercício"
+  ]
+ },
+ "lucide:ear": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "ear",
+   "hearing",
+   "listen"
+  ],
+  "pt": [
+   "orelha",
+   "ouvido",
+   "audição",
+   "escutar"
+  ]
+ },
+ "lucide:earth": {
+  "c": [
+   "nature",
+   "travel"
+  ],
+  "en": [
+   "earth",
+   "world",
+   "planet",
+   "global"
+  ],
+  "pt": [
+   "terra",
+   "mundo",
+   "planeta",
+   "global"
+  ]
+ },
+ "lucide:egg": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "egg",
+   "breakfast",
+   "protein"
+  ],
+  "pt": [
+   "ovo",
+   "café da manhã",
+   "proteína"
+  ]
+ },
+ "lucide:eye": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "eye",
+   "vision",
+   "sight",
+   "eye exam"
+  ],
+  "pt": [
+   "olho",
+   "visão",
+   "vista",
+   "oftalmologista",
+   "exame de vista"
+  ]
+ },
+ "lucide:feather": {
+  "c": [
+   "faith",
+   "leisure"
+  ],
+  "en": [
+   "feather",
+   "light",
+   "peace",
+   "write"
+  ],
+  "pt": [
+   "pena",
+   "leveza",
+   "paz",
+   "escrever"
+  ]
+ },
+ "lucide:file-text": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "document",
+   "file",
+   "report",
+   "text"
+  ],
+  "pt": [
+   "documento",
+   "arquivo",
+   "relatório",
+   "texto"
+  ]
+ },
+ "lucide:film": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "movie",
+   "film",
+   "cinema",
+   "watch"
+  ],
+  "pt": [
+   "filme",
+   "cinema",
+   "assistir",
+   "película"
+  ]
+ },
+ "lucide:fish": {
+  "c": [
+   "food",
+   "nature"
+  ],
+  "en": [
+   "fish",
+   "seafood",
+   "protein"
+  ],
+  "pt": [
+   "peixe",
+   "frutos do mar",
+   "proteína"
+  ]
+ },
+ "lucide:flame": {
+  "c": [
+   "fitness",
+   "nature"
+  ],
+  "en": [
+   "streak",
+   "fire",
+   "calories",
+   "burn",
+   "energy"
+  ],
+  "pt": [
+   "sequência",
+   "fogo",
+   "chama",
+   "calorias",
+   "queimar",
+   "energia",
+   "ofensiva"
+  ]
+ },
+ "lucide:flask-conical": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "chemistry",
+   "lab",
+   "experiment",
+   "science"
+  ],
+  "pt": [
+   "química",
+   "laboratório",
+   "experimento",
+   "ciência"
+  ]
+ },
+ "lucide:flower": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "flower",
+   "bloom",
+   "garden",
+   "plant"
+  ],
+  "pt": [
+   "flor",
+   "florir",
+   "jardim",
+   "planta"
+  ]
+ },
+ "lucide:flower-2": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "flower",
+   "garden",
+   "spring"
+  ],
+  "pt": [
+   "flor",
+   "jardim",
+   "primavera"
+  ]
+ },
+ "lucide:folder": {
+  "c": [
+   "work",
+   "tech"
+  ],
+  "en": [
+   "folder",
+   "files",
+   "organize"
+  ],
+  "pt": [
+   "pasta",
+   "arquivos",
+   "organizar"
+  ]
+ },
+ "lucide:footprints": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "run",
+   "running",
+   "walk",
+   "steps",
+   "cardio",
+   "jog"
+  ],
+  "pt": [
+   "correr",
+   "corrida",
+   "caminhar",
+   "caminhada",
+   "passos",
+   "cardio",
+   "andar",
+   "trote"
+  ]
+ },
+ "lucide:fuel": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "fuel",
+   "gas",
+   "gas station",
+   "petrol"
+  ],
+  "pt": [
+   "combustível",
+   "gasolina",
+   "posto",
+   "abastecer"
+  ]
+ },
+ "lucide:gamepad-2": {
+  "c": [
+   "leisure",
+   "tech"
+  ],
+  "en": [
+   "game",
+   "gaming",
+   "videogame",
+   "play",
+   "console"
+  ],
+  "pt": [
+   "jogo",
+   "jogar",
+   "videogame",
+   "game",
+   "console",
+   "joystick"
+  ]
+ },
+ "lucide:gift": {
+  "c": [
+   "money",
+   "leisure",
+   "family"
+  ],
+  "en": [
+   "gift",
+   "present",
+   "birthday",
+   "surprise"
+  ],
+  "pt": [
+   "presente",
+   "regalo",
+   "aniversário",
+   "surpresa"
+  ]
+ },
+ "lucide:glass-water": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "water",
+   "hydration",
+   "drink water",
+   "glass"
+  ],
+  "pt": [
+   "água",
+   "beber água",
+   "hidratação",
+   "hidratar",
+   "copo",
+   "copo de água"
+  ]
+ },
+ "lucide:globe": {
+  "c": [
+   "nature",
+   "travel",
+   "tech"
+  ],
+  "en": [
+   "globe",
+   "world",
+   "internet",
+   "travel"
+  ],
+  "pt": [
+   "globo",
+   "mundo",
+   "internet",
+   "viagem"
+  ]
+ },
+ "lucide:goal": {
+  "c": [
+   "fitness",
+   "work"
+  ],
+  "en": [
+   "goal",
+   "target",
+   "objective"
+  ],
+  "pt": [
+   "meta",
+   "objetivo",
+   "alvo",
+   "gol"
+  ]
+ },
+ "lucide:graduation-cap": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "study",
+   "school",
+   "college",
+   "graduate",
+   "course",
+   "degree"
+  ],
+  "pt": [
+   "estudar",
+   "escola",
+   "faculdade",
+   "formatura",
+   "curso",
+   "graduação",
+   "universidade"
+  ]
+ },
+ "lucide:grape": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "grape",
+   "fruit"
+  ],
+  "pt": [
+   "uva",
+   "fruta"
+  ]
+ },
+ "lucide:guitar": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "guitar",
+   "instrument",
+   "practice",
+   "play"
+  ],
+  "pt": [
+   "guitarra",
+   "violão",
+   "instrumento",
+   "praticar",
+   "tocar"
+  ]
+ },
+ "lucide:hammer": {
+  "c": [
+   "home",
+   "work"
+  ],
+  "en": [
+   "hammer",
+   "fix",
+   "repair",
+   "build",
+   "diy"
+  ],
+  "pt": [
+   "martelo",
+   "consertar",
+   "reparar",
+   "construir",
+   "faça você mesmo"
+  ]
+ },
+ "lucide:hand-coins": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "donate",
+   "tithe",
+   "give",
+   "offering",
+   "charity"
+  ],
+  "pt": [
+   "doar",
+   "dízimo",
+   "oferta",
+   "doação",
+   "caridade",
+   "contribuir"
+  ]
+ },
+ "lucide:hand-heart": {
+  "c": [
+   "faith",
+   "family"
+  ],
+  "en": [
+   "charity",
+   "kindness",
+   "give",
+   "serve",
+   "love"
+  ],
+  "pt": [
+   "caridade",
+   "bondade",
+   "doar",
+   "servir",
+   "amor",
+   "ajudar"
+  ]
+ },
+ "lucide:hand-helping": {
+  "c": [
+   "faith",
+   "family"
+  ],
+  "en": [
+   "help",
+   "serve",
+   "volunteer",
+   "support"
+  ],
+  "pt": [
+   "ajudar",
+   "servir",
+   "voluntariado",
+   "apoio",
+   "ajuda ao próximo"
+  ]
+ },
+ "lucide:handshake": {
+  "c": [
+   "work",
+   "family"
+  ],
+  "en": [
+   "meeting",
+   "deal",
+   "partner",
+   "agreement"
+  ],
+  "pt": [
+   "reunião",
+   "acordo",
+   "parceria",
+   "aperto de mão",
+   "negócio"
+  ]
+ },
+ "lucide:hard-drive": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "disk",
+   "storage",
+   "backup",
+   "drive"
+  ],
+  "pt": [
+   "disco",
+   "armazenamento",
+   "backup",
+   "hd"
+  ]
+ },
+ "lucide:headphones": {
+  "c": [
+   "leisure",
+   "tech"
+  ],
+  "en": [
+   "headphones",
+   "listen",
+   "podcast",
+   "audio"
+  ],
+  "pt": [
+   "fone de ouvido",
+   "ouvir",
+   "podcast",
+   "áudio"
+  ]
+ },
+ "lucide:headset": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "support",
+   "call center",
+   "headset"
+  ],
+  "pt": [
+   "suporte",
+   "atendimento",
+   "headset",
+   "fone"
+  ]
+ },
+ "lucide:heart": {
+  "c": [
+   "family",
+   "health",
+   "faith"
+  ],
+  "en": [
+   "love",
+   "heart",
+   "affection",
+   "care",
+   "relationship"
+  ],
+  "pt": [
+   "amor",
+   "coração",
+   "afeto",
+   "cuidado",
+   "relacionamento",
+   "carinho"
+  ]
+ },
+ "lucide:heart-handshake": {
+  "c": [
+   "family",
+   "faith"
+  ],
+  "en": [
+   "kindness",
+   "volunteer",
+   "support",
+   "care"
+  ],
+  "pt": [
+   "bondade",
+   "voluntariado",
+   "apoio",
+   "cuidado",
+   "solidariedade"
+  ]
+ },
+ "lucide:heart-pulse": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "health",
+   "medical",
+   "pulse",
+   "vitals",
+   "checkup"
+  ],
+  "pt": [
+   "saúde",
+   "médico",
+   "pulso",
+   "batimento",
+   "sinais vitais",
+   "check-up",
+   "consulta"
+  ]
+ },
+ "lucide:highlighter": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "highlight",
+   "marker",
+   "study",
+   "notes"
+  ],
+  "pt": [
+   "marcador",
+   "marca-texto",
+   "destacar",
+   "estudar"
+  ]
+ },
+ "lucide:history": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "history",
+   "past",
+   "recent",
+   "undo"
+  ],
+  "pt": [
+   "histórico",
+   "passado",
+   "recente",
+   "voltar"
+  ]
+ },
+ "lucide:hospital": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "hospital",
+   "clinic",
+   "emergency"
+  ],
+  "pt": [
+   "hospital",
+   "clínica",
+   "emergência",
+   "pronto socorro"
+  ]
+ },
+ "lucide:hotel": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "hotel",
+   "stay",
+   "accommodation"
+  ],
+  "pt": [
+   "hotel",
+   "hospedagem",
+   "estadia",
+   "pousada"
+  ]
+ },
+ "lucide:hourglass": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "hourglass",
+   "wait",
+   "duration",
+   "time"
+  ],
+  "pt": [
+   "ampulheta",
+   "esperar",
+   "duração",
+   "tempo"
+  ]
+ },
+ "lucide:house": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "home",
+   "house",
+   "household",
+   "chores"
+  ],
+  "pt": [
+   "casa",
+   "lar",
+   "moradia",
+   "tarefas de casa",
+   "residência"
+  ]
+ },
+ "lucide:ice-cream-cone": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "ice cream",
+   "dessert",
+   "sweet"
+  ],
+  "pt": [
+   "sorvete",
+   "sobremesa",
+   "doce",
+   "casquinha"
+  ]
+ },
+ "lucide:id-card": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "id",
+   "badge",
+   "identity"
+  ],
+  "pt": [
+   "identidade",
+   "crachá",
+   "documento",
+   "rg"
+  ]
+ },
+ "lucide:key": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "key",
+   "keys",
+   "lock",
+   "house key"
+  ],
+  "pt": [
+   "chave",
+   "chaves",
+   "fechadura",
+   "trancar"
+  ]
+ },
+ "lucide:keyboard": {
+  "c": [
+   "tech",
+   "work"
+  ],
+  "en": [
+   "keyboard",
+   "type",
+   "typing"
+  ],
+  "pt": [
+   "teclado",
+   "digitar",
+   "digitação"
+  ]
+ },
+ "lucide:lamp": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "lamp",
+   "light",
+   "room"
+  ],
+  "pt": [
+   "lâmpada",
+   "luminária",
+   "luz",
+   "quarto"
+  ]
+ },
+ "lucide:landmark": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "bank",
+   "government",
+   "institution"
+  ],
+  "pt": [
+   "banco",
+   "governo",
+   "instituição"
+  ]
+ },
+ "lucide:languages": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "language",
+   "translate",
+   "english",
+   "learn language"
+  ],
+  "pt": [
+   "idioma",
+   "língua",
+   "traduzir",
+   "inglês",
+   "aprender idioma",
+   "tradução"
+  ]
+ },
+ "lucide:laptop": {
+  "c": [
+   "work",
+   "tech"
+  ],
+  "en": [
+   "laptop",
+   "computer",
+   "work",
+   "deep work"
+  ],
+  "pt": [
+   "notebook",
+   "laptop",
+   "computador",
+   "trabalho",
+   "trabalho focado"
+  ]
+ },
+ "lucide:leaf": {
+  "c": [
+   "nature",
+   "health"
+  ],
+  "en": [
+   "leaf",
+   "plant",
+   "nature",
+   "eco",
+   "wellness"
+  ],
+  "pt": [
+   "folha",
+   "planta",
+   "natureza",
+   "ecológico",
+   "bem-estar"
+  ]
+ },
+ "lucide:library": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "library",
+   "books",
+   "study"
+  ],
+  "pt": [
+   "biblioteca",
+   "livros",
+   "estudar"
+  ]
+ },
+ "lucide:lightbulb": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "idea",
+   "insight",
+   "learn",
+   "think",
+   "creative"
+  ],
+  "pt": [
+   "ideia",
+   "insight",
+   "aprender",
+   "pensar",
+   "criatividade",
+   "lâmpada"
+  ]
+ },
+ "lucide:list-checks": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "checklist",
+   "todo",
+   "tasks",
+   "done"
+  ],
+  "pt": [
+   "checklist",
+   "tarefas",
+   "lista",
+   "concluído",
+   "afazeres"
+  ]
+ },
+ "lucide:luggage": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "luggage",
+   "suitcase",
+   "pack",
+   "trip"
+  ],
+  "pt": [
+   "mala",
+   "bagagem",
+   "arrumar as malas",
+   "viagem"
+  ]
+ },
+ "lucide:mail": {
+  "c": [
+   "work",
+   "tech"
+  ],
+  "en": [
+   "email",
+   "inbox",
+   "mail",
+   "message"
+  ],
+  "pt": [
+   "email",
+   "e-mail",
+   "caixa de entrada",
+   "correio",
+   "mensagem"
+  ]
+ },
+ "lucide:map": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "map",
+   "route",
+   "directions",
+   "navigate"
+  ],
+  "pt": [
+   "mapa",
+   "rota",
+   "direções",
+   "navegar"
+  ]
+ },
+ "lucide:map-pin": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "location",
+   "pin",
+   "place",
+   "address"
+  ],
+  "pt": [
+   "localização",
+   "pino",
+   "lugar",
+   "endereço"
+  ]
+ },
+ "lucide:medal": {
+  "c": [
+   "fitness"
+  ],
+  "en": [
+   "medal",
+   "award",
+   "win",
+   "achievement"
+  ],
+  "pt": [
+   "medalha",
+   "prêmio",
+   "vitória",
+   "conquista"
+  ]
+ },
+ "lucide:megaphone": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "announce",
+   "marketing",
+   "promote"
+  ],
+  "pt": [
+   "anunciar",
+   "marketing",
+   "divulgar",
+   "megafone"
+  ]
+ },
+ "lucide:message-circle-heart": {
+  "c": [
+   "family"
+  ],
+  "en": [
+   "message",
+   "call family",
+   "talk",
+   "check in"
+  ],
+  "pt": [
+   "mensagem",
+   "ligar para família",
+   "conversar",
+   "falar com"
+  ]
+ },
+ "lucide:mic-vocal": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "sing",
+   "singing",
+   "karaoke",
+   "microphone",
+   "voice"
+  ],
+  "pt": [
+   "cantar",
+   "canto",
+   "karaokê",
+   "microfone",
+   "voz"
+  ]
+ },
+ "lucide:microscope": {
+  "c": [
+   "health",
+   "study"
+  ],
+  "en": [
+   "lab",
+   "exam",
+   "science",
+   "research"
+  ],
+  "pt": [
+   "laboratório",
+   "exame",
+   "ciência",
+   "pesquisa",
+   "microscópio"
+  ]
+ },
+ "lucide:microwave": {
+  "c": [
+   "food",
+   "home"
+  ],
+  "en": [
+   "microwave",
+   "heat",
+   "kitchen"
+  ],
+  "pt": [
+   "micro-ondas",
+   "esquentar",
+   "cozinha"
+  ]
+ },
+ "lucide:milk": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "milk",
+   "dairy",
+   "drink"
+  ],
+  "pt": [
+   "leite",
+   "lácteo",
+   "bebida"
+  ]
+ },
+ "lucide:monitor": {
+  "c": [
+   "work",
+   "tech"
+  ],
+  "en": [
+   "monitor",
+   "screen",
+   "desktop",
+   "computer"
+  ],
+  "pt": [
+   "monitor",
+   "tela",
+   "computador",
+   "desktop"
+  ]
+ },
+ "lucide:moon": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "moon",
+   "night",
+   "sleep",
+   "evening"
+  ],
+  "pt": [
+   "lua",
+   "noite",
+   "dormir",
+   "noturno"
+  ]
+ },
+ "lucide:moon-star": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "night",
+   "moon",
+   "stars",
+   "bedtime"
+  ],
+  "pt": [
+   "noite",
+   "lua",
+   "estrelas",
+   "hora de dormir"
+  ]
+ },
+ "lucide:mountain": {
+  "c": [
+   "fitness",
+   "nature",
+   "travel"
+  ],
+  "en": [
+   "hike",
+   "hiking",
+   "mountain",
+   "climb",
+   "trail"
+  ],
+  "pt": [
+   "montanha",
+   "trilha",
+   "caminhada",
+   "escalar",
+   "subir",
+   "montanhismo"
+  ]
+ },
+ "lucide:mouse": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "mouse",
+   "click",
+   "pointer"
+  ],
+  "pt": [
+   "mouse",
+   "clicar",
+   "cursor"
+  ]
+ },
+ "lucide:music": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "music",
+   "song",
+   "listen",
+   "playlist"
+  ],
+  "pt": [
+   "música",
+   "canção",
+   "ouvir",
+   "playlist",
+   "som"
+  ]
+ },
+ "lucide:newspaper": {
+  "c": [
+   "study",
+   "leisure"
+  ],
+  "en": [
+   "news",
+   "newspaper",
+   "read",
+   "article"
+  ],
+  "pt": [
+   "notícias",
+   "jornal",
+   "ler",
+   "artigo",
+   "notícia"
+  ]
+ },
+ "lucide:notebook": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "notebook",
+   "notes",
+   "journal"
+  ],
+  "pt": [
+   "caderno",
+   "anotações",
+   "diário",
+   "bloco"
+  ]
+ },
+ "lucide:notebook-pen": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "journal",
+   "diary",
+   "notebook",
+   "write",
+   "notes"
+  ],
+  "pt": [
+   "diário",
+   "caderno",
+   "anotar",
+   "escrever",
+   "anotações",
+   "journaling"
+  ]
+ },
+ "lucide:paint-roller": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "paint",
+   "decorate",
+   "renovate"
+  ],
+  "pt": [
+   "pintar",
+   "rolo de pintura",
+   "decorar",
+   "reformar"
+  ]
+ },
+ "lucide:paintbrush": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "paint",
+   "brush",
+   "draw",
+   "art"
+  ],
+  "pt": [
+   "pincel",
+   "pintar",
+   "desenhar",
+   "arte"
+  ]
+ },
+ "lucide:palette": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "art",
+   "paint",
+   "color",
+   "draw",
+   "creative"
+  ],
+  "pt": [
+   "arte",
+   "pintar",
+   "cor",
+   "desenhar",
+   "criatividade",
+   "paleta"
+  ]
+ },
+ "lucide:party-popper": {
+  "c": [
+   "family",
+   "leisure"
+  ],
+  "en": [
+   "party",
+   "celebrate",
+   "event",
+   "birthday"
+  ],
+  "pt": [
+   "festa",
+   "comemorar",
+   "evento",
+   "aniversário"
+  ]
+ },
+ "lucide:paw-print": {
+  "c": [
+   "family",
+   "nature"
+  ],
+  "en": [
+   "pet",
+   "dog",
+   "cat",
+   "animal",
+   "walk the dog"
+  ],
+  "pt": [
+   "pet",
+   "animal",
+   "cachorro",
+   "gato",
+   "passear com o cachorro",
+   "patinha"
+  ]
+ },
+ "lucide:pen-line": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "write",
+   "pen",
+   "journal",
+   "note"
+  ],
+  "pt": [
+   "escrever",
+   "caneta",
+   "diário",
+   "anotar",
+   "anotação"
+  ]
+ },
+ "lucide:pencil": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "write",
+   "pencil",
+   "note",
+   "draw",
+   "homework"
+  ],
+  "pt": [
+   "escrever",
+   "lápis",
+   "anotar",
+   "desenhar",
+   "tarefa",
+   "dever de casa"
+  ]
+ },
+ "lucide:percent": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "percent",
+   "discount",
+   "interest",
+   "rate"
+  ],
+  "pt": [
+   "porcentagem",
+   "desconto",
+   "juros",
+   "taxa"
+  ]
+ },
+ "lucide:person-standing": {
+  "c": [
+   "fitness",
+   "health"
+  ],
+  "en": [
+   "posture",
+   "stand",
+   "stretch",
+   "body"
+  ],
+  "pt": [
+   "postura",
+   "ficar de pé",
+   "alongar",
+   "corpo",
+   "alongamento"
+  ]
+ },
+ "lucide:phone": {
+  "c": [
+   "work",
+   "tech"
+  ],
+  "en": [
+   "phone",
+   "call",
+   "contact"
+  ],
+  "pt": [
+   "telefone",
+   "ligar",
+   "ligação",
+   "chamada",
+   "contato"
+  ]
+ },
+ "lucide:phone-call": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "call",
+   "phone call",
+   "talk"
+  ],
+  "pt": [
+   "ligação",
+   "ligar",
+   "telefonar",
+   "chamada"
+  ]
+ },
+ "lucide:piano": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "piano",
+   "keyboard",
+   "instrument",
+   "practice"
+  ],
+  "pt": [
+   "piano",
+   "teclado",
+   "instrumento",
+   "praticar",
+   "tocar"
+  ]
+ },
+ "lucide:piggy-bank": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "savings",
+   "save",
+   "budget",
+   "invest"
+  ],
+  "pt": [
+   "poupança",
+   "poupar",
+   "economizar",
+   "orçamento",
+   "cofrinho",
+   "guardar dinheiro"
+  ]
+ },
+ "lucide:pill": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "medicine",
+   "pill",
+   "vitamin",
+   "supplement",
+   "dose"
+  ],
+  "pt": [
+   "remédio",
+   "comprimido",
+   "medicamento",
+   "vitamina",
+   "suplemento",
+   "dose",
+   "tomar remédio"
+  ]
+ },
+ "lucide:pill-bottle": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "medicine bottle",
+   "vitamins",
+   "supplement",
+   "prescription"
+  ],
+  "pt": [
+   "frasco de remédio",
+   "vitaminas",
+   "suplemento",
+   "receita"
+  ]
+ },
+ "lucide:pizza": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "pizza",
+   "dinner",
+   "fast food"
+  ],
+  "pt": [
+   "pizza",
+   "jantar",
+   "fast food"
+  ]
+ },
+ "lucide:plane": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "plane",
+   "flight",
+   "travel",
+   "airport",
+   "trip"
+  ],
+  "pt": [
+   "avião",
+   "voo",
+   "viagem",
+   "aeroporto",
+   "viajar"
+  ]
+ },
+ "lucide:plug": {
+  "c": [
+   "home",
+   "tech"
+  ],
+  "en": [
+   "plug",
+   "power",
+   "electricity",
+   "unplug"
+  ],
+  "pt": [
+   "tomada",
+   "plugue",
+   "energia",
+   "eletricidade",
+   "desligar"
+  ]
+ },
+ "lucide:popcorn": {
+  "c": [
+   "food",
+   "leisure"
+  ],
+  "en": [
+   "popcorn",
+   "movie",
+   "snack"
+  ],
+  "pt": [
+   "pipoca",
+   "filme",
+   "lanche"
+  ]
+ },
+ "lucide:presentation": {
+  "c": [
+   "study",
+   "work"
+  ],
+  "en": [
+   "presentation",
+   "slides",
+   "lecture",
+   "class"
+  ],
+  "pt": [
+   "apresentação",
+   "slides",
+   "palestra",
+   "aula"
+  ]
+ },
+ "lucide:printer": {
+  "c": [
+   "work"
+  ],
+  "en": [
+   "print",
+   "printer",
+   "document"
+  ],
+  "pt": [
+   "imprimir",
+   "impressora",
+   "documento"
+  ]
+ },
+ "lucide:puzzle": {
+  "c": [
+   "leisure",
+   "study"
+  ],
+  "en": [
+   "puzzle",
+   "solve",
+   "logic",
+   "game"
+  ],
+  "pt": [
+   "quebra-cabeça",
+   "resolver",
+   "lógica",
+   "jogo"
+  ]
+ },
+ "lucide:qr-code": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "qr code",
+   "scan",
+   "code"
+  ],
+  "pt": [
+   "qr code",
+   "escanear",
+   "código"
+  ]
+ },
+ "lucide:radio": {
+  "c": [
+   "leisure"
+  ],
+  "en": [
+   "radio",
+   "listen",
+   "broadcast"
+  ],
+  "pt": [
+   "rádio",
+   "ouvir",
+   "transmissão"
+  ]
+ },
+ "lucide:rainbow": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "rainbow",
+   "colorful",
+   "weather"
+  ],
+  "pt": [
+   "arco-íris",
+   "colorido",
+   "clima"
+  ]
+ },
+ "lucide:receipt": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "receipt",
+   "bill",
+   "expense",
+   "invoice"
+  ],
+  "pt": [
+   "recibo",
+   "conta",
+   "despesa",
+   "nota fiscal",
+   "boleto"
+  ]
+ },
+ "lucide:refrigerator": {
+  "c": [
+   "food",
+   "home"
+  ],
+  "en": [
+   "fridge",
+   "groceries",
+   "kitchen"
+  ],
+  "pt": [
+   "geladeira",
+   "compras",
+   "cozinha"
+  ]
+ },
+ "lucide:repeat": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "repeat",
+   "routine",
+   "daily",
+   "recurring",
+   "habit"
+  ],
+  "pt": [
+   "repetir",
+   "rotina",
+   "diário",
+   "recorrente",
+   "hábito",
+   "todos os dias"
+  ]
+ },
+ "lucide:rotate-ccw": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "reset",
+   "undo",
+   "again",
+   "restart"
+  ],
+  "pt": [
+   "reiniciar",
+   "desfazer",
+   "de novo",
+   "recomeçar"
+  ]
+ },
+ "lucide:ruler": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "ruler",
+   "measure",
+   "geometry"
+  ],
+  "pt": [
+   "régua",
+   "medir",
+   "geometria"
+  ]
+ },
+ "lucide:sailboat": {
+  "c": [
+   "travel",
+   "leisure"
+  ],
+  "en": [
+   "boat",
+   "sail",
+   "sailing"
+  ],
+  "pt": [
+   "barco",
+   "veleiro",
+   "velejar"
+  ]
+ },
+ "lucide:salad": {
+  "c": [
+   "food",
+   "health"
+  ],
+  "en": [
+   "salad",
+   "greens",
+   "healthy",
+   "diet",
+   "vegetables"
+  ],
+  "pt": [
+   "salada",
+   "verduras",
+   "saudável",
+   "dieta",
+   "legumes",
+   "comer melhor"
+  ]
+ },
+ "lucide:sandwich": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "sandwich",
+   "lunch",
+   "snack"
+  ],
+  "pt": [
+   "sanduíche",
+   "almoço",
+   "lanche"
+  ]
+ },
+ "lucide:school": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "school",
+   "class",
+   "education"
+  ],
+  "pt": [
+   "escola",
+   "aula",
+   "educação",
+   "colégio"
+  ]
+ },
+ "lucide:scroll-text": {
+  "c": [
+   "study"
+  ],
+  "en": [
+   "scroll",
+   "document",
+   "history",
+   "text"
+  ],
+  "pt": [
+   "pergaminho",
+   "documento",
+   "história",
+   "texto"
+  ]
+ },
+ "lucide:server": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "server",
+   "backend",
+   "host"
+  ],
+  "pt": [
+   "servidor",
+   "backend",
+   "hospedagem"
+  ]
+ },
+ "lucide:ship": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "ship",
+   "boat",
+   "cruise",
+   "sea"
+  ],
+  "pt": [
+   "navio",
+   "barco",
+   "cruzeiro",
+   "mar"
+  ]
+ },
+ "lucide:shopping-bag": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "shopping",
+   "bag",
+   "buy",
+   "store"
+  ],
+  "pt": [
+   "compras",
+   "sacola",
+   "comprar",
+   "loja"
+  ]
+ },
+ "lucide:shopping-cart": {
+  "c": [
+   "money",
+   "home"
+  ],
+  "en": [
+   "shopping",
+   "groceries",
+   "buy",
+   "cart",
+   "market"
+  ],
+  "pt": [
+   "compras",
+   "mercado",
+   "comprar",
+   "carrinho",
+   "supermercado",
+   "feira"
+  ]
+ },
+ "lucide:shower-head": {
+  "c": [
+   "home",
+   "health"
+  ],
+  "en": [
+   "shower",
+   "bath",
+   "wash",
+   "hygiene"
+  ],
+  "pt": [
+   "chuveiro",
+   "banho",
+   "tomar banho",
+   "lavar",
+   "higiene"
+  ]
+ },
+ "lucide:signpost": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "signpost",
+   "direction",
+   "way"
+  ],
+  "pt": [
+   "placa",
+   "direção",
+   "caminho",
+   "sinalização"
+  ]
+ },
+ "lucide:smartphone": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "phone",
+   "mobile",
+   "smartphone",
+   "screen time"
+  ],
+  "pt": [
+   "celular",
+   "telefone",
+   "smartphone",
+   "tempo de tela"
+  ]
+ },
+ "lucide:smile": {
+  "c": [
+   "health",
+   "leisure"
+  ],
+  "en": [
+   "smile",
+   "happy",
+   "mood",
+   "wellbeing"
+  ],
+  "pt": [
+   "sorriso",
+   "sorrir",
+   "feliz",
+   "humor",
+   "bem-estar"
+  ]
+ },
+ "lucide:snowflake": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "snow",
+   "cold",
+   "winter",
+   "ice"
+  ],
+  "pt": [
+   "neve",
+   "frio",
+   "inverno",
+   "gelo",
+   "floco de neve"
+  ]
+ },
+ "lucide:sofa": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "sofa",
+   "couch",
+   "living room",
+   "rest"
+  ],
+  "pt": [
+   "sofá",
+   "sala",
+   "sala de estar",
+   "descansar"
+  ]
+ },
+ "lucide:soup": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "soup",
+   "dinner",
+   "warm meal"
+  ],
+  "pt": [
+   "sopa",
+   "jantar",
+   "caldo"
+  ]
+ },
+ "lucide:sparkles": {
+  "c": [
+   "faith",
+   "leisure"
+  ],
+  "en": [
+   "blessing",
+   "gratitude",
+   "miracle",
+   "sparkle"
+  ],
+  "pt": [
+   "bênção",
+   "gratidão",
+   "milagre",
+   "brilho",
+   "graça"
+  ]
+ },
+ "lucide:sprout": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "sprout",
+   "grow",
+   "seedling",
+   "new habit",
+   "plant"
+  ],
+  "pt": [
+   "broto",
+   "crescer",
+   "muda",
+   "novo hábito",
+   "plantar",
+   "semear"
+  ]
+ },
+ "lucide:star": {
+  "c": [
+   "nature",
+   "leisure"
+  ],
+  "en": [
+   "star",
+   "favorite",
+   "rating",
+   "special"
+  ],
+  "pt": [
+   "estrela",
+   "favorito",
+   "avaliação",
+   "especial"
+  ]
+ },
+ "lucide:stethoscope": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "doctor",
+   "checkup",
+   "appointment",
+   "clinic"
+  ],
+  "pt": [
+   "médico",
+   "consulta",
+   "check-up",
+   "clínica",
+   "doutor",
+   "médica"
+  ]
+ },
+ "lucide:store": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "store",
+   "shop",
+   "market",
+   "business"
+  ],
+  "pt": [
+   "loja",
+   "mercado",
+   "comércio",
+   "negócio"
+  ]
+ },
+ "lucide:sun": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "sun",
+   "sunny",
+   "day",
+   "morning",
+   "light"
+  ],
+  "pt": [
+   "sol",
+   "ensolarado",
+   "dia",
+   "manhã",
+   "luz"
+  ]
+ },
+ "lucide:sunrise": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "sunrise",
+   "morning",
+   "wake up",
+   "dawn",
+   "early"
+  ],
+  "pt": [
+   "amanhecer",
+   "nascer do sol",
+   "manhã",
+   "acordar",
+   "madrugada",
+   "cedo"
+  ]
+ },
+ "lucide:sunset": {
+  "c": [
+   "nature",
+   "time"
+  ],
+  "en": [
+   "sunset",
+   "evening",
+   "dusk"
+  ],
+  "pt": [
+   "pôr do sol",
+   "anoitecer",
+   "tarde",
+   "crepúsculo"
+  ]
+ },
+ "lucide:syringe": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "vaccine",
+   "injection",
+   "shot",
+   "flu shot"
+  ],
+  "pt": [
+   "vacina",
+   "injeção",
+   "vacinar",
+   "imunização"
+  ]
+ },
+ "lucide:tablet": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "tablet",
+   "ipad",
+   "device"
+  ],
+  "pt": [
+   "tablet",
+   "dispositivo"
+  ]
+ },
+ "lucide:target": {
+  "c": [
+   "fitness",
+   "work"
+  ],
+  "en": [
+   "target",
+   "goal",
+   "aim",
+   "objective",
+   "focus"
+  ],
+  "pt": [
+   "alvo",
+   "meta",
+   "objetivo",
+   "foco",
+   "mira"
+  ]
+ },
+ "lucide:tent-tree": {
+  "c": [
+   "travel",
+   "nature"
+  ],
+  "en": [
+   "camping",
+   "tent",
+   "outdoors",
+   "nature"
+  ],
+  "pt": [
+   "acampamento",
+   "barraca",
+   "ar livre",
+   "natureza",
+   "camping"
+  ]
+ },
+ "lucide:terminal": {
+  "c": [
+   "tech"
+  ],
+  "en": [
+   "terminal",
+   "console",
+   "command line",
+   "shell"
+  ],
+  "pt": [
+   "terminal",
+   "console",
+   "linha de comando",
+   "shell"
+  ]
+ },
+ "lucide:thermometer": {
+  "c": [
+   "health"
+  ],
+  "en": [
+   "fever",
+   "temperature",
+   "thermometer",
+   "sick"
+  ],
+  "pt": [
+   "febre",
+   "temperatura",
+   "termômetro",
+   "doente"
+  ]
+ },
+ "lucide:ticket": {
+  "c": [
+   "leisure",
+   "travel"
+  ],
+  "en": [
+   "ticket",
+   "event",
+   "cinema",
+   "show"
+  ],
+  "pt": [
+   "ingresso",
+   "bilhete",
+   "evento",
+   "cinema",
+   "show"
+  ]
+ },
+ "lucide:timer": {
+  "c": [
+   "fitness",
+   "time"
+  ],
+  "en": [
+   "timer",
+   "stopwatch",
+   "interval",
+   "countdown"
+  ],
+  "pt": [
+   "cronômetro",
+   "temporizador",
+   "intervalo",
+   "contagem",
+   "tempo"
+  ]
+ },
+ "lucide:toilet": {
+  "c": [
+   "home",
+   "health"
+  ],
+  "en": [
+   "toilet",
+   "bathroom",
+   "hygiene"
+  ],
+  "pt": [
+   "vaso sanitário",
+   "banheiro",
+   "higiene"
+  ]
+ },
+ "lucide:train-front": {
+  "c": [
+   "travel"
+  ],
+  "en": [
+   "train",
+   "commute",
+   "subway",
+   "metro",
+   "rail"
+  ],
+  "pt": [
+   "trem",
+   "deslocamento",
+   "metrô",
+   "trilho",
+   "transporte"
+  ]
+ },
+ "lucide:trash-2": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "trash",
+   "garbage",
+   "throw out",
+   "delete"
+  ],
+  "pt": [
+   "lixo",
+   "lixeira",
+   "jogar fora",
+   "descartar",
+   "excluir"
+  ]
+ },
+ "lucide:tree-deciduous": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "tree",
+   "forest",
+   "nature",
+   "park"
+  ],
+  "pt": [
+   "árvore",
+   "floresta",
+   "natureza",
+   "parque"
+  ]
+ },
+ "lucide:tree-palm": {
+  "c": [
+   "travel",
+   "nature"
+  ],
+  "en": [
+   "vacation",
+   "beach",
+   "palm",
+   "tropical"
+  ],
+  "pt": [
+   "férias",
+   "praia",
+   "palmeira",
+   "tropical"
+  ]
+ },
+ "lucide:trees": {
+  "c": [
+   "nature",
+   "travel"
+  ],
+  "en": [
+   "forest",
+   "trees",
+   "outdoors",
+   "park",
+   "nature"
+  ],
+  "pt": [
+   "floresta",
+   "árvores",
+   "ar livre",
+   "parque",
+   "natureza",
+   "mata"
+  ]
+ },
+ "lucide:trending-up": {
+  "c": [
+   "money",
+   "work"
+  ],
+  "en": [
+   "growth",
+   "progress",
+   "increase",
+   "profit"
+  ],
+  "pt": [
+   "crescimento",
+   "progresso",
+   "aumento",
+   "lucro",
+   "subindo"
+  ]
+ },
+ "lucide:trophy": {
+  "c": [
+   "fitness",
+   "leisure"
+  ],
+  "en": [
+   "trophy",
+   "win",
+   "champion",
+   "goal",
+   "achievement"
+  ],
+  "pt": [
+   "troféu",
+   "vitória",
+   "campeão",
+   "meta",
+   "conquista",
+   "prêmio"
+  ]
+ },
+ "lucide:tv": {
+  "c": [
+   "home",
+   "leisure",
+   "tech"
+  ],
+  "en": [
+   "tv",
+   "television",
+   "watch",
+   "show"
+  ],
+  "pt": [
+   "tv",
+   "televisão",
+   "assistir",
+   "série",
+   "programa"
+  ]
+ },
+ "lucide:umbrella": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "umbrella",
+   "rain",
+   "protection"
+  ],
+  "pt": [
+   "guarda-chuva",
+   "chuva",
+   "proteção",
+   "sombrinha"
+  ]
+ },
+ "lucide:user": {
+  "c": [
+   "work",
+   "family"
+  ],
+  "en": [
+   "person",
+   "profile",
+   "me",
+   "user"
+  ],
+  "pt": [
+   "pessoa",
+   "perfil",
+   "eu",
+   "usuário"
+  ]
+ },
+ "lucide:users": {
+  "c": [
+   "work",
+   "family"
+  ],
+  "en": [
+   "team",
+   "people",
+   "group",
+   "meeting",
+   "family"
+  ],
+  "pt": [
+   "equipe",
+   "pessoas",
+   "grupo",
+   "reunião",
+   "time",
+   "família"
+  ]
+ },
+ "lucide:users-round": {
+  "c": [
+   "family"
+  ],
+  "en": [
+   "family",
+   "friends",
+   "people",
+   "group"
+  ],
+  "pt": [
+   "família",
+   "amigos",
+   "pessoas",
+   "grupo"
+  ]
+ },
+ "lucide:utensils": {
+  "c": [
+   "food"
+  ],
+  "en": [
+   "meal",
+   "eat",
+   "food",
+   "lunch",
+   "dinner",
+   "restaurant"
+  ],
+  "pt": [
+   "refeição",
+   "comer",
+   "comida",
+   "almoço",
+   "jantar",
+   "restaurante",
+   "garfo"
+  ]
+ },
+ "lucide:vault": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "vault",
+   "safe",
+   "secure savings"
+  ],
+  "pt": [
+   "cofre",
+   "seguro",
+   "reserva"
+  ]
+ },
+ "lucide:volleyball": {
+  "c": [
+   "fitness",
+   "leisure"
+  ],
+  "en": [
+   "volleyball",
+   "sport",
+   "ball",
+   "game"
+  ],
+  "pt": [
+   "vôlei",
+   "voleibol",
+   "esporte",
+   "bola",
+   "jogo"
+  ]
+ },
+ "lucide:wallet": {
+  "c": [
+   "money"
+  ],
+  "en": [
+   "wallet",
+   "budget",
+   "spending",
+   "money"
+  ],
+  "pt": [
+   "carteira",
+   "orçamento",
+   "gastos",
+   "dinheiro"
+  ]
+ },
+ "lucide:warehouse": {
+  "c": [
+   "home",
+   "work"
+  ],
+  "en": [
+   "warehouse",
+   "storage",
+   "garage"
+  ],
+  "pt": [
+   "galpão",
+   "depósito",
+   "garagem",
+   "estoque"
+  ]
+ },
+ "lucide:washing-machine": {
+  "c": [
+   "home"
+  ],
+  "en": [
+   "laundry",
+   "wash clothes",
+   "washing machine"
+  ],
+  "pt": [
+   "lavar roupa",
+   "máquina de lavar",
+   "lavanderia",
+   "roupa"
+  ]
+ },
+ "lucide:watch": {
+  "c": [
+   "time"
+  ],
+  "en": [
+   "watch",
+   "wristwatch",
+   "time"
+  ],
+  "pt": [
+   "relógio de pulso",
+   "relógio",
+   "hora"
+  ]
+ },
+ "lucide:waves": {
+  "c": [
+   "fitness",
+   "nature"
+  ],
+  "en": [
+   "swim",
+   "swimming",
+   "pool",
+   "water",
+   "sea"
+  ],
+  "pt": [
+   "nadar",
+   "natação",
+   "piscina",
+   "água",
+   "mar",
+   "ondas"
+  ]
+ },
+ "lucide:weight": {
+  "c": [
+   "fitness",
+   "health"
+  ],
+  "en": [
+   "weight",
+   "scale",
+   "kilos",
+   "body weight"
+  ],
+  "pt": [
+   "peso",
+   "balança",
+   "quilos",
+   "pesar",
+   "peso corporal"
+  ]
+ },
+ "lucide:wheat": {
+  "c": [
+   "food",
+   "nature"
+  ],
+  "en": [
+   "wheat",
+   "grain",
+   "bread",
+   "gluten"
+  ],
+  "pt": [
+   "trigo",
+   "grão",
+   "pão",
+   "glúten"
+  ]
+ },
+ "lucide:wifi": {
+  "c": [
+   "home",
+   "tech"
+  ],
+  "en": [
+   "wifi",
+   "internet",
+   "network",
+   "connect"
+  ],
+  "pt": [
+   "wifi",
+   "internet",
+   "rede",
+   "conectar"
+  ]
+ },
+ "lucide:wind": {
+  "c": [
+   "nature"
+  ],
+  "en": [
+   "wind",
+   "windy",
+   "breeze",
+   "air"
+  ],
+  "pt": [
+   "vento",
+   "ventando",
+   "brisa",
+   "ar"
+  ]
+ },
+ "lucide:wine": {
+  "c": [
+   "food",
+   "leisure"
+  ],
+  "en": [
+   "wine",
+   "drink",
+   "alcohol"
+  ],
+  "pt": [
+   "vinho",
+   "bebida",
+   "álcool"
+  ]
+ },
+ "lucide:wrench": {
+  "c": [
+   "home",
+   "work"
+  ],
+  "en": [
+   "wrench",
+   "fix",
+   "repair",
+   "tool",
+   "maintenance"
+  ],
+  "pt": [
+   "chave inglesa",
+   "consertar",
+   "reparar",
+   "ferramenta",
+   "manutenção"
+  ]
+ },
+ "lucide:zap": {
+  "c": [
+   "nature",
+   "tech"
+  ],
+  "en": [
+   "lightning",
+   "energy",
+   "power",
+   "fast"
+  ],
+  "pt": [
+   "raio",
+   "energia",
+   "elétrico",
+   "rápido",
+   "relâmpago"
+  ]
+ }
+}

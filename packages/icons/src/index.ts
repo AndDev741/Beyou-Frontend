@@ -1,6 +1,7 @@
-export type { IconKind, IconEntry, IconDescriptor } from './types';
+export type { IconKind, IconEntry, IconDescriptor, LucideIconNode } from './types';
 export { resolveIcon } from './resolve';
-export { allEntries, getEntryById, getCanonicalId, getAvailableCategories } from './registry';
+export { getExtraIconNode, getExtraIconNames } from './extraNodes';
+export { getAllEntries, getEntryById, getCanonicalId, getAvailableCategories } from './registry';
 export {
   searchIcons,
   normalizeIconId,

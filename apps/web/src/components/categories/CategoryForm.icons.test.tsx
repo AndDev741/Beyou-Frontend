@@ -44,6 +44,9 @@ vi.mock("@beyou/icons", () => {
     const searchIcons = vi.fn(() => iconsFixture.entries);
     return {
         searchIcons,
+        // The picker offers the domain categories behind "More categories"; labels are
+        // identity-mapped so assertions can match on the raw category id.
+        getIconCategories: () => ["health", "faith"],
         getIconCategoryLabel: (category: string) => category,
         normalizeIconId: (id: string) => id,
         getEntryById: (id: string) => iconsFixture.entryMap[id],

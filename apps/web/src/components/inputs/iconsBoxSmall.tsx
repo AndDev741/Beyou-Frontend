@@ -4,6 +4,7 @@ import React from "react";
 import i18next from "i18next";
 import {
     searchIcons,
+    getIconCategories,
     getIconCategoryLabel,
     normalizeIconId,
     getEntryById,
@@ -34,6 +35,7 @@ function IconsBoxSmall({
     minLgH = 100,
 }: IconsBoxSmallProps) {
     const [category, setCategory] = useState("all");
+    const [showDomains, setShowDomains] = useState(false);
     const [recentIds, setRecentIds] = useState<string[]>(() => iconRecents.getRecentIconIds());
 
     useEffect(() => {
@@ -45,8 +47,9 @@ function IconsBoxSmall({
     const locale = i18next.language || "en";
     const selectedCanonical = useMemo(() => normalizeIconId(selectedIcon), [selectedIcon]);
 
-    // Categories are now just icons + emoji (+ recents when present).
-    const categoryOptions = useMemo(() => {
+    // Type filters (icons vs emoji) plus the domain categories, which stay folded
+    // behind "More categories" so this compact picker keeps its single chip row.
+    const primaryOptions = useMemo(() => {
         const options = [{ id: "all", label: t("IconCategoryAll") }];
         if (recentIds.length > 0) {
             options.push({ id: "recents", label: t("IconCategoryRecents") });
@@ -57,6 +60,23 @@ function IconsBoxSmall({
         );
         return options;
     }, [locale, recentIds.length, t]);
+
+    const domainOptions = useMemo(
+        () =>
+            getIconCategories().map((id) => ({
+                id,
+                label: getIconCategoryLabel(id, locale)
+            })),
+        [locale]
+    );
+
+    const isDomainCategory = useMemo(
+        () => domainOptions.some((option) => option.id === category),
+        [category, domainOptions]
+    );
+
+    // A chosen domain chip stays on screen while it is filtering the grid.
+    const domainsVisible = showDomains || isDomainCategory;
 
     const recentEntries = useMemo(() => {
         return recentIds
@@ -110,7 +130,7 @@ function IconsBoxSmall({
             ) : null}
 
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                {categoryOptions.map((option) => (
+                {primaryOptions.map((option) => (
                     <button
                         key={option.id}
                         type="button"
@@ -124,6 +144,29 @@ function IconsBoxSmall({
                         {option.label}
                     </button>
                 ))}
+                <button
+                    type="button"
+                    onClick={() => setShowDomains(!domainsVisible)}
+                    aria-expanded={domainsVisible}
+                    className="rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-semibold text-text-3 transition-colors duration-200 hover:text-text-2"
+                >
+                    {domainsVisible ? t("IconCategoryLess") : t("IconCategoryMore")}
+                </button>
+                {domainsVisible &&
+                    domainOptions.map((option) => (
+                        <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => setCategory(option.id)}
+                            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors duration-200 ${
+                                category === option.id
+                                    ? "border-accent bg-accent-soft text-accent"
+                                    : "border-border text-text-3 hover:text-text-2"
+                            }`}
+                        >
+                            {option.label}
+                        </button>
+                    ))}
             </div>
 
             <div
