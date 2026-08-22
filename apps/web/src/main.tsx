@@ -12,11 +12,16 @@ import { axiosHttpClient } from './lib/axiosHttpClient';
 import instance, { getRefreshedAccessToken } from './services/axiosConfig';
 import { logger } from './utils/logger';
 import { initTelemetry, reportHandledFailure } from './lib/telemetry';
+import { initAnalytics } from './lib/analytics';
 
 // First thing in the entry module: unhandled errors thrown while the rest of
 // the boot sequence runs are only reported if the SDK is already listening.
 // No-ops entirely when VITE_SENTRY_DSN is unset (see lib/telemetry.ts).
 initTelemetry();
+
+// Product analytics (PostHog). Same posture: no VITE_POSTHOG_KEY, no capture,
+// and @beyou/api's analytics seam stays a no-op. See lib/analytics.ts.
+initAnalytics();
 
 setHttpClient(axiosHttpClient);
 // The shared API client handles every failure itself, so a 500 or a dropped

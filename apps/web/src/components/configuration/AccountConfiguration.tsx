@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
 import { toast } from "react-toastify";
+import { getAnalytics } from "@beyou/api";
 import logoutRequest from "../../services/authentication/request/logoutRequest";
 import { persistor } from "../../redux/store";
 
@@ -25,6 +26,9 @@ export default function AccountConfiguration({ className = "" }: { className?: s
             toast.error(t("ErrorLogout"));
             return;
         }
+        // Same reason as the purge: leaving the analytics identity behind would
+        // merge the next account on this browser into this one.
+        getAnalytics().reset();
         await persistor.purge();
         window.location.href = "/";
     };

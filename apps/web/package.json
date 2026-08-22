@@ -27,6 +27,7 @@
         "i18next": "^23.15.1",
         "i18next-browser-languagedetector": "^8.2.1",
         "lucide-react": "^0.474.0",
+        "posthog-js": "^1.418.10",
         "react": "^18.3.1",
         "react-beautiful-dnd": "^13.1.1",
         "react-dom": "^18.3.1",
