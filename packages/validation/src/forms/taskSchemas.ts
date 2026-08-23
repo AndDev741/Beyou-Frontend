@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { TFunction } from "i18next";
 import { requiredStringWithMinMax, stringMax } from "../common";
 
+// Text maxes mirror the tasks table: name and description are varchar(255).
 export const taskFormSchema = (t: TFunction) =>
     z
         .object({
@@ -10,9 +11,9 @@ export const taskFormSchema = (t: TFunction) =>
                 minKey: "YupMinimumName",
                 maxKey: "YupMaxName",
                 min: 2,
-                max: 256
+                max: 255
             }),
-            description: stringMax(t, 256, "YupDescriptionMaxValue"),
+            description: stringMax(t, 255, "YupDescriptionMaxValue"),
             iconId: z.string().min(1, t("YupIconRequired")),
             importance: z.number().min(1).max(5, t("YupMaxImportance")),
             difficulty: z.number().min(1).max(5, t("YupMaxDifficulty")),

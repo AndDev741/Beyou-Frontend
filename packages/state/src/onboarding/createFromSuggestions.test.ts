@@ -27,6 +27,7 @@ const getGoals = vi.fn();
 vi.mock("@beyou/api/goals/createGoal", () => ({ default: (...a: unknown[]) => createGoal(...a) }));
 vi.mock("@beyou/api/goals/getGoals", () => ({ default: (...a: unknown[]) => getGoals(...a) }));
 
+import { SuggestionCreateError } from "./SuggestionCreateError";
 import {
   createCategoriesFromSuggestions,
   createGoalsFromSuggestions,
@@ -477,5 +478,80 @@ describe("a routine step re-run after the schedule failed", () => {
     expect(createRoutine).toHaveBeenCalledTimes(1);
     expect(routineRows).toHaveLength(1);
     expect(result.routineId).toBe("r-1");
+  });
+});
+
+describe("what a failed create tells the error screen", () => {
+  // The wizard used to get a bare Error and could only say "AI setup is
+  // unavailable" — for a rejected POST /habit, which misled both the user and
+  // the diagnosis. The typed error names the entity, carries the server's
+  // translated reason, and lists what was already safe when the failure hit.
+  beforeEach(() => {
+    createHabit.mockReset(); getHabits.mockReset();
+    createRoutine.mockReset(); getRoutines.mockReset(); createSchedule.mockReset();
+    createTask.mockReset(); getTasks.mockReset();
+  });
+
+  const cats = [{ id: "cat-1", name: "Health" }];
+  const habit = (name: string) => ({
+    name, description: "d", motivationalPhrase: "", iconId: "lucide:zap",
+    categoryName: "Health", importance: 3, difficulty: 3
+  });
+
+  test("names the habit that failed, the translated reason, and what already landed", async () => {
+    // "Existing" is on the account already; "Run" lands; "Meditate" is refused.
+    armList(getHabits, [{ id: "h-0", name: "Existing" }]);
+    createHabit.mockResolvedValueOnce({ success: {} });
+    createHabit.mockResolvedValueOnce({ error: { errorKey: "HABIT_CREATE_FAILED" } });
+
+    const err = await createHabitsFromSuggestions(
+      [habit("Existing"), habit("Run"), habit("Meditate")], cats, t, vi.fn()
+    ).catch((e: unknown) => e);
+
+    expect(err).toBeInstanceOf(SuggestionCreateError);
+    const failure = err as SuggestionCreateError;
+    expect(failure.kind).toBe("habit");
+    expect(failure.entityName).toBe("Meditate");
+    // Identity t in these tests: the message is the errorKey run through t().
+    expect(failure.message).toBe("HABIT_CREATE_FAILED");
+    expect(failure.savedNames).toEqual(["Existing", "Run"]);
+  });
+
+  test("a refused routine save reports kind routine with the step's new items safe", async () => {
+    armList(getHabits, []);
+    createHabit.mockResolvedValue({ success: {} });
+    getHabits.mockResolvedValue({ success: [{ id: "h-1", name: "Wind down" }] });
+    armList(getRoutines, []);
+    createRoutine.mockResolvedValue({ error: { message: "nope" } });
+
+    const err = await createRoutineFromSuggestion(
+      {
+        name: "Morning flow", iconId: "lucide:sun", scheduleDays: [],
+        sections: [], newHabits: [habit("Wind down")]
+      } as never,
+      [], [], t, vi.fn(), cats
+    ).catch((e: unknown) => e);
+
+    expect(err).toBeInstanceOf(SuggestionCreateError);
+    const failure = err as SuggestionCreateError;
+    expect(failure.kind).toBe("routine");
+    expect(failure.entityName).toBe("Morning flow");
+    expect(failure.savedNames).toEqual(["Wind down"]);
+  });
+
+  test("a refused schedule reports kind schedule with the routine on the safe list", async () => {
+    armList(getRoutines, [], [{ id: "r-1", name: "Morning flow" }]);
+    createRoutine.mockResolvedValue({ success: {} });
+    createSchedule.mockResolvedValue({ error: { message: "nope" } });
+
+    const err = await createRoutineFromSuggestion(
+      { name: "Morning flow", iconId: "lucide:sun", scheduleDays: ["Monday"], sections: [] } as never,
+      [], [], t, vi.fn()
+    ).catch((e: unknown) => e);
+
+    expect(err).toBeInstanceOf(SuggestionCreateError);
+    const failure = err as SuggestionCreateError;
+    expect(failure.kind).toBe("schedule");
+    expect(failure.savedNames).toContain("Morning flow");
   });
 });
