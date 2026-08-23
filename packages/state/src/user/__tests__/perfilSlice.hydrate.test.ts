@@ -41,4 +41,26 @@ describe("perfilSlice hydratePerfil", () => {
     expect(state.xp).toBe(0);
     expect(state.level).toBe(0);
   });
+
+  it("clears the photo when the server says there is none", () => {
+    const withPhoto = reducer(undefined, hydratePerfil({ photo: "/api/v1/user/photo/abc?v=1" }));
+    expect(withPhoto.photo).toBe("/api/v1/user/photo/abc?v=1");
+
+    // What GET /user answers for an account whose photo was just removed. Coalescing
+    // this to the previous value left the old avatar on screen until a full reload,
+    // which reads to the user as a Remove button that did nothing.
+    const cleared = reducer(withPhoto, hydratePerfil({ photo: null } as never));
+
+    expect(cleared.photo).toBe("");
+  });
+
+  it("keeps the photo when the payload does not mention it", () => {
+    const withPhoto = reducer(undefined, hydratePerfil({ photo: "/api/v1/user/photo/abc?v=1" }));
+
+    // An absent key is not an answer. Partial hydrates happen all over the app and
+    // must not blank a photo they were never talking about.
+    const kept = reducer(withPhoto, hydratePerfil({ name: "Alice" }));
+
+    expect(kept.photo).toBe("/api/v1/user/photo/abc?v=1");
+  });
 });
