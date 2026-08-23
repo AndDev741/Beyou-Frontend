@@ -9,22 +9,9 @@ import { getLogger } from '@beyou/api';
 import { notify } from '../notify';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 import { googleLogin } from '../auth/authSlice';
+import { clearGoogleSession } from '../auth/googleSession';
 import type { AppDispatch } from '../store';
 import { RATE_LIMIT_ERROR_KEY } from '@beyou/api/apiError';
-
-const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-
-// The native lib matches the Android OAuth client by package + signing SHA-1; only
-// the WEB client id is passed here, so the returned ID token's audience is the web
-// client — which the backend's GOOGLE_MOBILE_AUDIENCES accepts. configure() is
-// idempotent and safe to run at module load (EXPO_PUBLIC_* is inlined at build).
-if (!WEB_CLIENT_ID) {
-  // Missing here means EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID wasn't inlined at bundle
-  // time → signIn() will return a null idToken and the flow can't complete. Most
-  // often: .env not present, or Metro not restarted with `expo start -c`.
-  getLogger().error('GoogleSignInButton: EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is not set');
-}
-GoogleSignin.configure({ webClientId: WEB_CLIENT_ID });
 
 /**
  * "Continue with Google" button: runs the native Google sign-in, then exchanges the
@@ -42,6 +29,11 @@ export default function GoogleSignInButton() {
     setBusy(true);
     try {
       await GoogleSignin.hasPlayServices();
+      // Ask every time. Without this the picker is drawn once, on the very first
+      // sign-in, and every later tap silently reuses that account — see
+      // clearGoogleSession. Clearing at logout alone would not be enough: anyone
+      // already on a build without this carries the stale entry into the update.
+      await clearGoogleSession();
       const response = await GoogleSignin.signIn();
       if (isSuccessResponse(response)) {
         const idToken = response.data.idToken;

@@ -37,6 +37,7 @@ jest.mock('../src/lib/aiOnboardingStore', () => ({
   clearWizardProgress: jest.fn().mockResolvedValue(undefined),
 }));
 
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { logout } from '../src/auth/authSlice';
 import { makeStore } from '../src/store';
 import * as secureStore from '../src/auth/secureStore';
@@ -69,6 +70,31 @@ it('takes the tutorial phase and the AI wizard progress with it', async () => {
   // habits it created for the account that just left.
   expect(saveTutorialPhase).toHaveBeenCalledWith(null);
   expect(clearWizardProgress).toHaveBeenCalled();
+});
+
+it('signs the device out of Google as well', async () => {
+  const store = makeStore();
+
+  await store.dispatch(logout());
+
+  // Not redux, not SecureStore — this one lives in Play Services' own store for the
+  // app. Android answers the next sign-in with the account cached here and skips the
+  // picker entirely, so leaving it behind is how someone ends up unable to reach their
+  // own second account without wiping the app.
+  expect(GoogleSignin.signOut).toHaveBeenCalled();
+});
+
+it('finishes the logout even when Google refuses to sign out', async () => {
+  (GoogleSignin.signOut as jest.Mock).mockRejectedValueOnce(new Error('client not configured'));
+  const store = makeStore();
+
+  await store.dispatch(logout());
+
+  // This is the last await in the thunk, so an unhandled rejection here would reject
+  // the thunk, skip `logout.fulfilled` and leave the app believing it is still signed
+  // in — a much bigger failure than the one it was reacting to.
+  expect(secureStore.clearRefreshToken).toHaveBeenCalled();
+  expect(store.getState().auth.status).toBe('unauthenticated');
 });
 
 it('still clears local state when the server call fails', async () => {

@@ -6,6 +6,7 @@ import * as secureStore from './secureStore';
 import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
 import { saveTutorialPhase } from '../lib/tutorialStore';
 import { clearWizardProgress } from '../lib/aiOnboardingStore';
+import { clearGoogleSession } from './googleSession';
 import type { AuthStatus, Profile } from './types';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
@@ -118,6 +119,10 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   // Same reason, and the one this device is likeliest to be handed to someone with:
   // the AI wizard's progress carries the names of the categories and habits it created.
   await clearWizardProgress();
+  // The native Google session is the last thing on this device still naming the account
+  // that just left. Left behind, the next "Continue with Google" answers with it and
+  // never asks — which is what made a second account on one phone unreachable.
+  await clearGoogleSession();
 });
 
 const authSlice = createSlice({

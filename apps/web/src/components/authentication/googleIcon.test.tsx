@@ -24,6 +24,30 @@ describe('GoogleIcon — client ID guard', () => {
         expect(screen.getByRole('button', { name: 'ContinueWithGoogle' })).toBeDefined();
     });
 
+    it('asks Google to show the account chooser', async () => {
+        vi.stubEnv('VITE_GOOGLE_CLIENT_ID', 'test-client-id-123');
+        const href = vi.fn();
+        // jsdom refuses an assignment to window.location.href, so intercept the setter.
+        const original = Object.getOwnPropertyDescriptor(window, 'location');
+        Object.defineProperty(window, 'location', {
+            configurable: true,
+            value: { set href(v: string) { href(v); }, get href() { return ''; } },
+        });
+
+        try {
+            const { default: GoogleIcon } = await import('./googleIcon');
+            render(<GoogleIcon />);
+            screen.getByRole('button', { name: 'ContinueWithGoogle' }).click();
+
+            // Without this parameter a browser holding one Google session never sees a
+            // chooser: Google picks that account and the user cannot reach any other.
+            expect(href).toHaveBeenCalledTimes(1);
+            expect(href.mock.calls[0][0]).toContain('prompt=select_account');
+        } finally {
+            if (original) Object.defineProperty(window, 'location', original);
+        }
+    });
+
     it('returns null when VITE_GOOGLE_CLIENT_ID is empty string', async () => {
         vi.stubEnv('VITE_GOOGLE_CLIENT_ID', '');
 
