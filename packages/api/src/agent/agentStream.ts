@@ -162,7 +162,7 @@ export async function streamAgentMessage(
             if (refreshed) response = await openStream();
         }
         if (!response.ok || !response.body) {
-            handlers.onError(`HTTP_${response.status}`);
+            handlers.onError(await failureKey(response));
             return;
         }
 
@@ -176,8 +176,37 @@ export async function streamAgentMessage(
             parse(decoder.decode(value, { stream: true }));
         }
     } catch (e) {
-        if (e instanceof DOMException && e.name === 'AbortError') return; // user cancelled — not an error
+        // Cancellation is detected by the signal and the error's name, NOT by
+        // `instanceof DOMException`: React Native ships DOMException as an internal
+        // module and never puts it on the global, so that test threw a TypeError
+        // inside this very catch block. Every mid-stream failure on mobile — and
+        // every deliberate abort, which is what switching chats or logging out
+        // does — escaped as an unhandled rejection instead of reaching onError.
+        if (signal?.aborted || (e as { name?: string })?.name === 'AbortError') return;
         getLogger().error(e);
         handlers.onError('NETWORK');
     }
+}
+
+/**
+ * The i18n key for a stream that never opened.
+ *
+ * The backend already names its own failures — a throttled request answers
+ * `{"errorKey":"RATE_LIMIT_EXCEEDED"}` with a Retry-After header — so prefer that
+ * key over anything invented here. This used to report `HTTP_<status>` regardless,
+ * a key no translation file has ever contained, so hitting the agent's hourly cap
+ * told the user "An unexpected error occurred" while the correct sentence sat
+ * translated and unused in both languages. The stream rides raw fetch (axios
+ * buffers streams), so it never passes the interceptor that handles this for
+ * every other request, which is why the fix belongs here.
+ */
+async function failureKey(response: Response): Promise<string> {
+    try {
+        const body = (await response.json()) as { errorKey?: unknown };
+        if (typeof body?.errorKey === 'string' && body.errorKey) return body.errorKey;
+    } catch {
+        // Not JSON: a proxy or gateway answered, not our backend. Fall through to
+        // the status — never surface a raw HTML error page as a message.
+    }
+    return `HTTP_${response.status}`;
 }
