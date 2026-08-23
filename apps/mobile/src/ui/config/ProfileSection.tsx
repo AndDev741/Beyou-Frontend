@@ -24,6 +24,7 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import { resolvePhotoUrl } from '../../lib/photoUrl';
 import { uploadPhoto } from '../../lib/uploadPhoto';
+import deleteUserPhoto from '@beyou/api/user/deleteUserPhoto';
 import type { RootState, AppDispatch } from '../../store';
 
 
@@ -44,6 +45,10 @@ export default function ProfileSection() {
   const [photoAsset, setPhotoAsset] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [photoError, setPhotoError] = useState<string>();
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoRemoving, setPhotoRemoving] = useState(false);
+  // A second tap rather than a second dialog: this is already inside a Modal, and
+  // stacking another on Android is how you get a dialog nobody can dismiss.
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
 
   const {
     control,
@@ -123,6 +128,34 @@ export default function ProfileSection() {
     setPhotoModal(false);
     setPhotoAsset(null);
     notify.success(t('SuccessEditProfile'));
+  };
+
+  const confirmRemove = async () => {
+    setPhotoRemoving(true);
+    setPhotoError(undefined);
+
+    const res = await deleteUserPhoto();
+    if (res.error) {
+      setPhotoError(getFriendlyErrorMessage(t, res.error));
+      setPhotoRemoving(false);
+      setConfirmingRemove(false);
+      return;
+    }
+
+    // Re-read instead of assuming. An account that signed in with Google had two
+    // photos stored and the server decides what survives, so the profile is the only
+    // honest source for what to show now.
+    const profileRes = await getProfile();
+    if (profileRes.data) {
+      dispatch(hydratePerfil(profileRes.data));
+    }
+
+    setPhotoRemoving(false);
+    setConfirmingRemove(false);
+    setPhotoModal(false);
+    setPhotoAsset(null);
+    setPhotoPreview('');
+    notify.success(t('PhotoRemoved'));
   };
 
   return (
@@ -255,12 +288,55 @@ export default function ProfileSection() {
               )}
             </View>
 
+            {/* Only when there is a photo to remove. Kept away from Save so the
+                destructive tap is not next to the one people reach for. */}
+            {photo ? (
+              <View className="mt-5 border-t border-border pt-4">
+                {confirmingRemove ? (
+                  <View className="gap-2.5">
+                    <Text className="text-[13px] text-text-2">{t('RemovePhotoConfirm')}</Text>
+                    <View className="flex-row gap-2.5">
+                      <Pressable
+                        onPress={confirmRemove}
+                        disabled={photoRemoving}
+                        className="rounded-control bg-danger/10 px-3.5 py-2 active:opacity-80 disabled:opacity-50"
+                        accessibilityRole="button"
+                        testID="confirm-remove-photo"
+                      >
+                        <Text className="text-[12.5px] font-semibold text-danger">
+                          {photoRemoving ? t('PhotoRemoving') : t('RemovePhoto')}
+                        </Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setConfirmingRemove(false)}
+                        disabled={photoRemoving}
+                        className="rounded-control px-3.5 py-2 active:opacity-80 disabled:opacity-50"
+                        accessibilityRole="button"
+                      >
+                        <Text className="text-[12.5px] font-semibold text-text-2">{t('Cancel')}</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                ) : (
+                  <Pressable
+                    onPress={() => setConfirmingRemove(true)}
+                    accessibilityRole="button"
+                    testID="remove-photo"
+                    className="self-start active:opacity-80"
+                  >
+                    <Text className="text-[12.5px] font-semibold text-danger">{t('RemovePhoto')}</Text>
+                  </Pressable>
+                )}
+              </View>
+            ) : null}
+
             <View className="mt-6 flex-row justify-end gap-3">
               <Pressable
                 onPress={() => {
                   setPhotoModal(false);
                   setPhotoAsset(null);
                   setPhotoError(undefined);
+                  setConfirmingRemove(false);
                   setPhotoPreview(photo);
                 }}
                 className="rounded-control px-4 py-2 active:opacity-80"

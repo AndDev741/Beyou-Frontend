@@ -93,3 +93,4 @@ export { default as exportUserData } from './user/exportUserData';
 export { default as getProfile } from './user/getProfile';
 export { default as requestAccountDeletionCode } from './user/requestAccountDeletionCode';
 export { default as uploadUserPhoto } from './user/uploadUserPhoto';
+export { default as deleteUserPhoto } from './user/deleteUserPhoto';

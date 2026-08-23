@@ -90,7 +90,12 @@ const perfilSlice = createSlice({
                 phrase_author: u.phrase_author ?? state.phrase_author,
                 constance: u.constance ?? state.constance,
                 constanceDormant: u.constanceDormant ?? state.constanceDormant,
-                photo: u.photo ?? state.photo,
+                // `?? state.photo` for this one field is wrong, and it kept a removed
+                // photo on screen: GET /user answers `photo: null` for an account that
+                // has none, and coalescing that to the old value means the avatar only
+                // disappears on a full reload. A null that ARRIVED is an answer; a key
+                // that is absent from a partial hydrate is not, and still defers.
+                photo: "photo" in u ? (u.photo ?? "") : state.photo,
                 isGoogleAccount: u.isGoogleAccount ?? state.isGoogleAccount,
                 widgetsIdsInUse: u.widgetsId ?? state.widgetsIdsInUse,
                 xp: u.xp ?? state.xp,
