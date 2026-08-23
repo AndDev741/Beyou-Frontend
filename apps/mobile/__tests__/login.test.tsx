@@ -19,11 +19,13 @@ import { ApiError } from '@beyou/api';
 // Network boundary: the screen -> login thunk -> loginRequest. Mock it so the
 // thunk's try/catch resolves or rejects deterministically without real fetch.
 const mockLoginRequest = jest.fn();
+const mockResendVerificationRequest = jest.fn();
 jest.mock('../src/auth/authApi', () => ({
   loginRequest: (...args: unknown[]) => mockLoginRequest(...args),
   registerRequest: jest.fn(),
   refreshRequest: jest.fn(),
   logoutRequest: jest.fn(),
+  resendVerificationRequest: (...args: unknown[]) => mockResendVerificationRequest(...args),
 }));
 
 // Toast boundary: assert error surfacing without loading react-native-toast-message.
@@ -183,5 +185,36 @@ describe('LoginRoute (branded)', () => {
     expect(screen.getByTestId('login-email-not-verified')).toBeTruthy();
     // The unverified-email path uses the inline card, NOT the error toast.
     expect(notify.error).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The card used to be the end of the road: it named the problem and offered nothing,
+   * and the address was already spent on the half-made account so there was no starting
+   * over either. Asserting the card renders would miss that entirely.
+   */
+  it('resends the verification mail for the address that was refused', async () => {
+    mockLoginRequest.mockRejectedValueOnce(new ApiError(403, { message: 'EMAIL_NOT_VERIFIED' }));
+    mockResendVerificationRequest.mockResolvedValue(true);
+    const screen = await renderScreen();
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('login-email-input'), 'stranded@test.com');
+      fireEvent.changeText(screen.getByTestId('login-password-input'), 'somepassword');
+      fireEvent.press(screen.getByTestId('login-submit-button'));
+    });
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('login-resend-verification'));
+    });
+
+    expect(mockResendVerificationRequest).toHaveBeenCalledWith('stranded@test.com');
+
+    // A second tap inside the cooldown must not burn the token in the link the user is
+    // about to open. The backend refuses it silently, so the screen would otherwise be
+    // claiming to have sent a mail that never went out.
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('login-resend-verification'));
+    });
+    expect(mockResendVerificationRequest).toHaveBeenCalledTimes(1);
   });
 });

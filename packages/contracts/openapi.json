@@ -1625,6 +1625,41 @@
         }
       }
     },
+    "/auth/resend-verification": {
+      "post": {
+        "tags": [
+          "auth-verification-controller"
+        ],
+        "summary": "Send another email-verification link",
+        "description": "Answers 200 for every outcome: the address is unknown, it is already verified, it is still inside its cooldown, or a mail is genuinely on its way. Telling those apart would let a caller ask this endpoint which addresses hold an account, so the body never says which happened and a client can only ever promise the inbox, never the account. Issuing a new token invalidates the previous one, so a single inbox never holds two live links. Public and unauthenticated: it shares the per-address auth rate-limit bucket with login and register, and the account carries a 60-second cooldown of its own on top of that.",
+        "operationId": "resendVerification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendVerificationRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/verify-email": {
       "get": {
         "tags": [
@@ -3662,6 +3697,21 @@
           "experience",
           "icon",
           "name"
+        ]
+      },
+      "ResendVerificationRequestDTO": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 256,
+            "minLength": 1,
+            "description": "The address that never received its verification mail."
+          }
+        },
+        "required": [
+          "email"
         ]
       },
       "ResetPasswordRequestDTO": {

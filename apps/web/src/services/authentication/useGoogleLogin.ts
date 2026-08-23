@@ -15,7 +15,9 @@ import { RATE_LIMIT_ERROR_KEY } from "@beyou/api/apiError";
 function useGoogleLogin(
     navigate: NavigateFunction,
     dispatch: Dispatch<UnknownAction>,
-    t: TFunction
+    t: TFunction,
+    /** Called instead of a toast when Google is refused for an unverified account. */
+    onEmailNotVerified?: () => void
 ){
     const [codeUsed, setCodeUsed] = useState(false);
     
@@ -41,6 +43,8 @@ function useGoogleLogin(
                     const data = response.success as UserType;
                     hydratePerfil(dispatch, data);
                     navigate("/dashboard");
+                }else if(response.error === "EMAIL_NOT_VERIFIED"){
+                    onEmailNotVerified?.();
                 }else if(response.error){
                     toast.error(response.error === RATE_LIMIT_ERROR_KEY
                         ? t(RATE_LIMIT_ERROR_KEY)
@@ -55,7 +59,7 @@ function useGoogleLogin(
                 window.history.replaceState(null, '', cleanUrl);
             }
         }
-    }, [t, codeUsed, navigate, dispatch])
+    }, [t, codeUsed, navigate, dispatch, onEmailNotVerified])
 }
 
 export default useGoogleLogin;

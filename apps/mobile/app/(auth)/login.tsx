@@ -13,6 +13,7 @@ import Button from '../../src/ui/Button';
 import GoogleSignInButton from '../../src/ui/GoogleSignInButton';
 import AuthShell from '../../src/ui/auth/AuthShell';
 import FormNotice from '../../src/ui/auth/FormNotice';
+import useResendVerification from '../../src/auth/useResendVerification';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { login } from '../../src/auth/authSlice';
@@ -32,7 +33,13 @@ export default function LoginRoute() {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
 
-  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const {
+    status: resendStatus,
+    secondsLeft,
+    resend,
+    disabled: resendDisabled,
+  } = useResendVerification(unverifiedEmail ?? '');
 
   const {
     control,
@@ -45,11 +52,11 @@ export default function LoginRoute() {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
-    setEmailNotVerified(false);
+    setUnverifiedEmail(null);
     const res = await dispatch(login({ email: values.email, password: values.password }));
     if (login.rejected.match(res)) {
       if (res.payload === 'EMAIL_NOT_VERIFIED') {
-        setEmailNotVerified(true);
+        setUnverifiedEmail(values.email);
       } else if (res.payload === RATE_LIMIT_ERROR_KEY) {
         // notify replaces whatever toast is showing, so without this branch the
         // transport's correct "too many requests" was overwritten a moment later
@@ -80,13 +87,36 @@ export default function LoginRoute() {
         </Text>
       }
     >
-      {emailNotVerified ? (
+      {unverifiedEmail !== null ? (
         <View className="mt-4">
           <FormNotice
-            tone="error"
+            tone={resendStatus === 'sent' ? 'success' : 'error'}
             title={t('EmailNotVerifiedTitle')}
-            message={t('EmailNotVerifiedMessage')}
+            message={
+              resendStatus === 'sent'
+                ? t('ResendVerificationSent')
+                : resendStatus === 'error'
+                  ? t('ResendVerificationError')
+                  : t('EmailNotVerifiedMessage')
+            }
             testID="login-email-not-verified"
+            action={
+              unverifiedEmail ? (
+                <Text
+                  className={`text-[12.5px] font-semibold text-accent ${resendDisabled ? 'opacity-60' : ''}`}
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: resendDisabled }}
+                  onPress={resendDisabled ? undefined : resend}
+                  testID="login-resend-verification"
+                >
+                  {resendStatus === 'sending'
+                    ? t('ResendVerificationSending')
+                    : secondsLeft > 0
+                      ? t('ResendVerificationWait', { seconds: secondsLeft })
+                      : t('ResendVerificationAction')}
+                </Text>
+              ) : null
+            }
           />
         </View>
       ) : null}

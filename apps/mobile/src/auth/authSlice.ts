@@ -61,6 +61,13 @@ export const googleLogin = createAsyncThunk(
       return profile;
     } catch (e) {
       getLogger().error('auth google login failed', e);
+      // Google stopped being a way around the verification gate: the backend refuses
+      // an unverified password account here with the same body /auth/login uses.
+      // Named rather than collapsed into GOOGLE_LOGIN_FAILED, because "something went
+      // wrong" would hide a problem the user can actually fix.
+      if (e instanceof ApiError && parseApiError(e).message === 'EMAIL_NOT_VERIFIED') {
+        return rejectWithValue('EMAIL_NOT_VERIFIED');
+      }
       if (isRateLimited(e)) return rejectWithValue(RATE_LIMIT_ERROR_KEY);
       return rejectWithValue('GOOGLE_LOGIN_FAILED');
     }
@@ -156,6 +163,7 @@ const authSlice = createSlice({
     b.addCase(googleLogin.rejected, (s, a) => {
       s.status = 'unauthenticated';
       s.error = a.payload as string;
+      s.needsVerification = a.payload === 'EMAIL_NOT_VERIFIED';
     });
     b.addCase(register.pending, (s) => {
       s.error = null;
