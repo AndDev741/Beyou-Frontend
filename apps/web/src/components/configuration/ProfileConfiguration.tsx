@@ -13,6 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { profileSchema } from "@beyou/validation/forms/profileSchemas";
 import uploadUserPhoto from "@beyou/api/user/uploadUserPhoto";
+import deleteUserPhoto from "@beyou/api/user/deleteUserPhoto";
 import getProfile from "@beyou/api/user/getProfile";
 import { hydratePerfil } from "@beyou/state/user/perfilSlice";
 import { resolvePhotoUrl } from "../../services/photoUrl";
@@ -243,6 +244,10 @@ export default function ProfileConfiguration() {
                         setSuccessPhrase(t("SuccessEditProfile"));
                         setTimeout(() => setSuccessPhrase(""), 5000);
                     }}
+                    onRemoved={() => {
+                        resetErrorAndSuccessMessage();
+                        toast.success(t("PhotoRemoved"));
+                    }}
                     onClose={() => setEditPhotoModal(false)}
                 />
             )}
@@ -253,10 +258,12 @@ export default function ProfileConfiguration() {
 function EditPhoto({
     currentPhotoUrl,
     onSave,
+    onRemoved,
     onClose,
 }: {
     currentPhotoUrl: string;
     onSave: () => void;
+    onRemoved: () => void;
     onClose: () => void;
 }) {
     const { t } = useTranslation();
@@ -267,6 +274,10 @@ function EditPhoto({
     const [previewUrl, setPreviewUrl] = useState<string>(currentPhotoUrl);
     const [error, setError] = useState<string>('');
     const [uploading, setUploading] = useState(false);
+    const [removing, setRemoving] = useState(false);
+    // Removing is undoable by uploading again, so this is a second tap rather than a
+    // second dialog: a modal on top of a modal is worse than the mistake it prevents.
+    const [confirmingRemove, setConfirmingRemove] = useState(false);
 
     // Release the last created object URL when the modal unmounts.
     useEffect(() => () => {
@@ -327,6 +338,31 @@ function EditPhoto({
         onClose();
     };
 
+    const handleRemove = async () => {
+        setRemoving(true);
+        setError('');
+
+        const response = await deleteUserPhoto();
+        if (response.error) {
+            setError(getFriendlyErrorMessage(t, response.error));
+            setRemoving(false);
+            setConfirmingRemove(false);
+            return;
+        }
+
+        // Re-read rather than assume the photo is now gone. An account that signed in
+        // with Google had two photos stored and the server decides what is left, so
+        // guessing here is how the UI ends up disagreeing with what it serves.
+        const profileRes = await getProfile();
+        if (profileRes.data) {
+            dispatch(hydratePerfil(profileRes.data));
+        }
+
+        setRemoving(false);
+        onRemoved();
+        onClose();
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="bg-surface rounded-card p-6 w-[90%] max-w-md shadow-2xl">
@@ -368,6 +404,45 @@ function EditPhoto({
                         <p className="text-danger text-sm text-center">{error}</p>
                     )}
                 </div>
+
+                {/* Only offered when there is something to remove, and only after a
+                    confirming tap. Sits apart from Save so the destructive action is
+                    not the one next to where the pointer already is. */}
+                {currentPhotoUrl && (
+                    <div className="mt-5 border-t border-border pt-4">
+                        {confirmingRemove ? (
+                            <div className="flex flex-col gap-2.5">
+                                <p className="text-[13px] text-text-2">{t('RemovePhotoConfirm')}</p>
+                                <div className="flex gap-2.5">
+                                    <button
+                                        type="button"
+                                        onClick={handleRemove}
+                                        disabled={removing}
+                                        className="rounded-control bg-danger/10 px-3.5 py-2 text-[12.5px] font-semibold text-danger transition hover:bg-danger/15 disabled:opacity-50"
+                                    >
+                                        {removing ? t('PhotoRemoving') : t('RemovePhoto')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmingRemove(false)}
+                                        disabled={removing}
+                                        className="rounded-control px-3.5 py-2 text-[12.5px] font-semibold text-text-2 transition hover:bg-accent-soft disabled:opacity-50"
+                                    >
+                                        {t('Cancel')}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingRemove(true)}
+                                className="text-[12.5px] font-semibold text-danger transition hover:underline"
+                            >
+                                {t('RemovePhoto')}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <div className="flex justify-end gap-3 mt-6">
                     <button
