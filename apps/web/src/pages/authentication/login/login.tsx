@@ -6,7 +6,7 @@ import FormNotice from "../../../components/authentication/FormNotice";
 import GoogleIcon from "../../../components/authentication/googleIcon";
 // Functions
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 // Services
 import useGoogleLogin from "../../../services/authentication/useGoogleLogin";
 import handleLogin from "../../../services/authentication/useLogin";
+import useResendVerification from "../../../services/authentication/useResendVerification";
 import { loginSchema } from "@beyou/validation/forms/authSchemas";
 import { successRegisterEnter } from "@beyou/state/authentication/registerSlice";
 import { RootState } from "@beyou/state/rootReducer";
@@ -36,8 +37,10 @@ function Login() {
     const successRegister = useSelector((state: RootState) => state.register.successRegister);
 
     const [searchParams] = useSearchParams();
-    const [emailNotVerified, setEmailNotVerified] = useState(false);
+    const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
     const needsVerification = searchParams.get("verify") === "true";
+    const { status: resendStatus, secondsLeft, resend, disabled: resendDisabled } =
+        useResendVerification(unverifiedEmail ?? "");
 
     const {
         control,
@@ -53,8 +56,11 @@ function Login() {
         }
     });
 
-    // Google Login logic handler
-    useGoogleLogin(navigate, dispatch, t);
+    // Google Login logic handler. Google is refused for an unverified account too now,
+    // and it arrives without an email in hand — the address lives in the OAuth callback,
+    // not in the form — so the notice offers resend only once the user has typed one.
+    const onGoogleEmailNotVerified = useCallback(() => setUnverifiedEmail(""), []);
+    useGoogleLogin(navigate, dispatch, t, onGoogleEmailNotVerified);
 
     useEffect(() => {
         if (!successRegister) return;
@@ -64,11 +70,11 @@ function Login() {
 
     const onSubmit = async (values: LoginFormValues) => {
         clearErrors("root");
-        setEmailNotVerified(false);
+        setUnverifiedEmail(null);
         const errorMessage = await handleLogin(values.email, values.password, t, dispatch, navigate);
         if (errorMessage) {
             if (errorMessage === t("EmailNotVerifiedError")) {
-                setEmailNotVerified(true);
+                setUnverifiedEmail(values.email);
             } else {
                 toast.error(errorMessage);
             }
@@ -98,12 +104,35 @@ function Login() {
                         />
                     )}
 
-                    {emailNotVerified && (
+                    {unverifiedEmail !== null && (
                         <FormNotice
-                            tone="error"
+                            tone={resendStatus === "sent" ? "success" : "error"}
                             title={t("EmailNotVerifiedTitle")}
-                            message={t("EmailNotVerifiedMessage")}
+                            message={
+                                resendStatus === "sent"
+                                    ? t("ResendVerificationSent")
+                                    : resendStatus === "error"
+                                      ? t("ResendVerificationError")
+                                      : t("EmailNotVerifiedMessage")
+                            }
                             className="mt-4"
+                            action={
+                                unverifiedEmail ? (
+                                    <button
+                                        type="button"
+                                        onClick={resend}
+                                        disabled={resendDisabled}
+                                        data-testid="resend-verification"
+                                        className="text-[12.5px] font-semibold text-accent underline underline-offset-2 disabled:no-underline disabled:opacity-60"
+                                    >
+                                        {resendStatus === "sending"
+                                            ? t("ResendVerificationSending")
+                                            : secondsLeft > 0
+                                              ? t("ResendVerificationWait", { seconds: secondsLeft })
+                                              : t("ResendVerificationAction")}
+                                    </button>
+                                ) : null
+                            }
                         />
                     )}
 

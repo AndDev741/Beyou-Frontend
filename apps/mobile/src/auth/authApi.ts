@@ -1,5 +1,5 @@
 import { nativeHttpClient } from '../lib/nativeHttpClient';
-import { ApiError } from '@beyou/api';
+import { ApiError, resendVerification } from '@beyou/api';
 import { parseApiError, type ApiErrorPayload } from '@beyou/api/apiError';
 import type { Profile } from './types';
 import { detectTimezone } from '../lib/detectTimezone';
@@ -59,6 +59,19 @@ export async function logoutRequest(refreshToken: string): Promise<void> {
 // exists, so the screen always shows the same "check your inbox" message.
 export async function forgotPasswordRequest(email: string): Promise<void> {
   await nativeHttpClient.post('/auth/forgot-password', { email });
+}
+
+/**
+ * Another verification mail, for an account whose first one never arrived.
+ *
+ * <p>Delegates to the shared implementation so the path and the cooldown constant have
+ * one home across web and mobile. Non-enumerating like forgot-password above: the
+ * backend answers 200 whether or not the address exists, so the screen can only ever
+ * promise the inbox.
+ */
+export async function resendVerificationRequest(email: string): Promise<boolean> {
+  const result = await resendVerification(email);
+  return !result.error;
 }
 
 // Reset / verify flows are reached via deep link (beyou://reset|verify?token=)

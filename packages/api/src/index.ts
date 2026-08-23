@@ -16,6 +16,10 @@ export * from './errorReporting';
 // Utilities
 export * from './utils/experienceToEnum';
 
+// Auth — the unauthenticated calls both clients share
+export { default as resendVerification } from './auth/resendVerification';
+export * from './auth/resendVerification';
+
 // AI agent chats
 export * from './agent/agentChats';
 export * from './agent/agentStream';

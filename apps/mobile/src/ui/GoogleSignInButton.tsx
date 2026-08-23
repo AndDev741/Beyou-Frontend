@@ -45,9 +45,15 @@ export default function GoogleSignInButton() {
         }
         const res = await dispatch(googleLogin(idToken));
         if (googleLogin.rejected.match(res)) {
-          notify.error(res.payload === RATE_LIMIT_ERROR_KEY
-            ? t(RATE_LIMIT_ERROR_KEY)
-            : t('SomethingWentWrong'));
+          // EMAIL_NOT_VERIFIED names a fixable problem, so it must not be collapsed
+          // into "something went wrong". The resend button lives on the login form,
+          // which needs the address typed in — this button never sees one.
+          notify.error(
+            res.payload === 'EMAIL_NOT_VERIFIED'
+              ? t('EmailNotVerifiedError')
+              : res.payload === RATE_LIMIT_ERROR_KEY
+                ? t(RATE_LIMIT_ERROR_KEY)
+                : t('SomethingWentWrong'));
         }
         // success → status becomes 'authenticated'; the Gate handles navigation.
       }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 import { withAlpha } from '@beyou/theme';
@@ -10,6 +11,8 @@ interface FormNoticeProps {
   title?: string;
   message: string;
   testID?: string;
+  /** Anything the notice lets the user DO about it, rendered under the message. */
+  action?: ReactNode;
 }
 
 /**
@@ -20,7 +23,7 @@ interface FormNoticeProps {
  * register, a centred 48px icon on recovery, a loose paragraph on login. Same
  * notice, three shapes.
  */
-export default function FormNotice({ tone, title, message, testID }: FormNoticeProps) {
+export default function FormNotice({ tone, title, message, testID, action }: FormNoticeProps) {
   const { theme } = useBeyouTheme();
 
   const color =
@@ -49,6 +52,7 @@ export default function FormNotice({ tone, title, message, testID }: FormNoticeP
         <Text className={`text-[12.5px] leading-snug text-text-2 ${title ? 'mt-0.5' : ''}`}>
           {message}
         </Text>
+        {action ? <View className="mt-2">{action}</View> : null}
       </View>
     </View>
   );

@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { CircleCheck, CircleAlert, Info, Loader } from "lucide-react";
 
 type Tone = "success" | "error" | "info" | "loading";
@@ -7,6 +8,8 @@ type FormNoticeProps = {
     title?: string;
     message: string;
     className?: string;
+    /** Anything the notice lets the user DO about it, rendered under the message. */
+    action?: ReactNode;
 };
 
 const TONES: Record<Tone, { wrapper: string; icon: string }> = {
@@ -27,7 +30,7 @@ const ICONS: Record<Tone, typeof Info> = {
  * An auth form's answer. Every screen used to print a coloured 20px paragraph in the
  * middle of the flow — no hierarchy, no icon and no status role for a screen reader.
  */
-export default function FormNotice({ tone, title, message, className = "" }: FormNoticeProps) {
+export default function FormNotice({ tone, title, message, className = "", action }: FormNoticeProps) {
     const Icon = ICONS[tone];
     return (
         <div
@@ -40,6 +43,7 @@ export default function FormNotice({ tone, title, message, className = "" }: For
                 <p className={`text-[12.5px] leading-snug text-text-2 ${title ? "mt-0.5" : ""}`}>
                     {message}
                 </p>
+                {action && <div className="mt-2">{action}</div>}
             </div>
         </div>
     );

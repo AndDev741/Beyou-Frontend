@@ -628,6 +628,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/resend-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send another email-verification link
+         * @description Answers 200 for every outcome: the address is unknown, it is already verified, it is still inside its cooldown, or a mail is genuinely on its way. Telling those apart would let a caller ask this endpoint which addresses hold an account, so the body never says which happened and a client can only ever promise the inbox, never the account. Issuing a new token invalidates the previous one, so a single inbox never holds two live links. Public and unauthenticated: it shares the per-address auth rate-limit bucket with login and register, and the account carries a 60-second cooldown of its own on top of that.
+         */
+        post: operations["resendVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/verify-email": {
         parameters: {
             query?: never;
@@ -1362,6 +1382,13 @@ export interface components {
             description?: string;
             /** @enum {string} */
             experience: "BEGINNER" | "INTERMEDIARY" | "ADVANCED";
+        };
+        ResendVerificationRequestDTO: {
+            /**
+             * Format: email
+             * @description The address that never received its verification mail.
+             */
+            email: string;
         };
         ResetPasswordRequestDTO: {
             token: string;
@@ -3043,6 +3070,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    resendVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResendVerificationRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
