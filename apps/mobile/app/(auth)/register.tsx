@@ -19,6 +19,7 @@ import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { register } from '../../src/auth/authSlice';
 import type { AppDispatch } from '../../src/store';
+import { RATE_LIMIT_ERROR_KEY } from '@beyou/api/apiError';
 
 interface RegisterFormValues {
   name: string;
@@ -57,6 +58,8 @@ export default function RegisterRoute() {
       // The user is NOT authenticated yet — email must be verified first. Stay on
       // this route and swap the form for the verify-email success view.
       setRegistered(true);
+    } else if (res.payload === RATE_LIMIT_ERROR_KEY) {
+      notify.error(t(RATE_LIMIT_ERROR_KEY));
     } else {
       notify.error(t('RegisterFailed'));
     }

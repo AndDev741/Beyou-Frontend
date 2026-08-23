@@ -17,6 +17,7 @@ import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import { login } from '../../src/auth/authSlice';
 import type { AppDispatch } from '../../src/store';
+import { RATE_LIMIT_ERROR_KEY } from '@beyou/api/apiError';
 
 interface LoginFormValues {
   email: string;
@@ -49,6 +50,11 @@ export default function LoginRoute() {
     if (login.rejected.match(res)) {
       if (res.payload === 'EMAIL_NOT_VERIFIED') {
         setEmailNotVerified(true);
+      } else if (res.payload === RATE_LIMIT_ERROR_KEY) {
+        // notify replaces whatever toast is showing, so without this branch the
+        // transport's correct "too many requests" was overwritten a moment later
+        // by "wrong email or password".
+        notify.error(t(RATE_LIMIT_ERROR_KEY));
       } else {
         notify.error(t('WrongPassOrEmailError'));
       }

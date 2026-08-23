@@ -175,6 +175,72 @@ describe('streamAgentMessage 401 retry', () => {
         expect(handlers.onError).toHaveBeenCalledWith('HTTP_401');
     });
 
+    /**
+     * The chat is the one path that never sees the axios 429 interceptor, because a
+     * stream cannot ride axios. It used to report HTTP_429 — a key no translation file
+     * has ever held — so hitting the hourly agent cap told the user "an unexpected
+     * error occurred" while the right sentence sat translated in both languages.
+     */
+    test('a throttled stream reports the key the backend sent, not the status', async () => {
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        const body = JSON.stringify({
+            errorKey: 'RATE_LIMIT_EXCEEDED',
+            message: 'Too many requests. Retry after 118 seconds.',
+        });
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+            new Response(body, { status: 429, headers: { 'Retry-After': '118' } })));
+
+        const handlers = makeHandlers();
+        await streamAgentMessage('c1', 'hi', handlers);
+
+        expect(handlers.onError).toHaveBeenCalledWith('RATE_LIMIT_EXCEEDED');
+    });
+
+    test('a non-JSON failure body falls back to the status instead of leaking a page', async () => {
+        // A proxy or gateway answered, not our backend: an HTML error page must never
+        // reach a toast as if it were a message.
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+            new Response('<html>429 Too Many Requests</html>', { status: 429 })));
+
+        const handlers = makeHandlers();
+        await streamAgentMessage('c1', 'hi', handlers);
+
+        expect(handlers.onError).toHaveBeenCalledWith('HTTP_429');
+    });
+
+    test('an aborted stream reports nothing, on a runtime with no DOMException global', async () => {
+        // React Native has no global DOMException, so `e instanceof DOMException`
+        // threw a TypeError inside the catch that was meant to swallow the abort:
+        // every mid-stream failure and every deliberate cancel escaped as an
+        // unhandled rejection instead of reaching onError. Removing the global here
+        // reproduces the RN runtime on purpose.
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        vi.stubGlobal('DOMException', undefined);
+        const controller = new AbortController();
+        const abortError = Object.assign(new Error('Aborted'), { name: 'AbortError' });
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortError));
+
+        const handlers = makeHandlers();
+        controller.abort();
+        await expect(
+            streamAgentMessage('c1', 'hi', handlers, undefined, controller.signal),
+        ).resolves.toBeUndefined();
+
+        expect(handlers.onError).not.toHaveBeenCalled();
+    });
+
+    test('a mid-stream failure still reports, on a runtime with no DOMException global', async () => {
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        vi.stubGlobal('DOMException', undefined);
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('socket closed')));
+
+        const handlers = makeHandlers();
+        await streamAgentMessage('c1', 'hi', handlers);
+
+        expect(handlers.onError).toHaveBeenCalledWith('NETWORK');
+    });
+
     test('malformed JSON is logged and skipped without killing the stream', () => {
         const handlers = makeHandlers();
         const parse = createSseParser(handlers);

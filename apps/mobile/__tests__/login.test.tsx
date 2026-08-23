@@ -144,6 +144,29 @@ describe('LoginRoute (branded)', () => {
     expect(mockLoginRequest).toHaveBeenCalledWith('user@test.com', 'somepassword');
   });
 
+  it('names the rate limit instead of blaming the password', async () => {
+    // The login bucket is 5 per 15 minutes, so this is the easiest 429 in the app to
+    // hit by accident. It used to arrive as 'INVALID_CREDENTIALS' and the screen said
+    // "wrong email or password" — and because notify replaces the visible toast, that
+    // wrong message also overwrote the correct one the transport had just shown. A
+    // user whose password was right went back to retyping it.
+    mockLoginRequest.mockRejectedValueOnce(
+      new ApiError(429, { errorKey: 'RATE_LIMIT_EXCEEDED' }, 'Too many requests'),
+    );
+    const screen = await renderScreen();
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('login-email-input'), 'user@test.com');
+      fireEvent.changeText(screen.getByTestId('login-password-input'), 'somepassword');
+      fireEvent.press(screen.getByTestId('login-submit-button'));
+    });
+
+    expect(notify.error).toHaveBeenCalledWith(
+      'Too many requests. Please wait a moment and try again.',
+    );
+    expect(notify.error).not.toHaveBeenCalledWith('Wrong email or password');
+  });
+
   it('shows the inline verify card (not a toast) when login fails with EMAIL_NOT_VERIFIED', async () => {
     // The login thunk maps the rejection via parseApiError(e).message, which reads
     // ApiError.data (the response body) — so the key must live in `data`, not the

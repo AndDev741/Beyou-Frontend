@@ -6,6 +6,7 @@ import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { UserType } from "@beyou/types/user/UserType";
 import { NavigateFunction } from "react-router-dom";
+import { RATE_LIMIT_ERROR_KEY } from "@beyou/api/apiError";
 
 export default async function handleLogin(
     email: string,
@@ -18,6 +19,9 @@ export default async function handleLogin(
     if (response.error) {
         if (response.error === "EMAIL_NOT_VERIFIED") {
             return t("EmailNotVerifiedError");
+        }
+        if (response.error === RATE_LIMIT_ERROR_KEY) {
+            return t(RATE_LIMIT_ERROR_KEY);
         }
         return t("WrongPassOrEmailError");
     }
