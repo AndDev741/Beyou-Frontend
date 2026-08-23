@@ -7,6 +7,7 @@ import { TFunction } from "i18next";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { NavigateFunction } from "react-router-dom";
 import { defaultErrorEnter } from "@beyou/state/errorHandler/errorHandlerSlice";
+import { RATE_LIMIT_ERROR_KEY } from "@beyou/api/apiError";
 
 export default async function handleRegister(
     name: string,
@@ -30,6 +31,12 @@ export default async function handleRegister(
         }
         if (errorKey === "UNKNOWN") {
             return t("UnknownError");
+        }
+        // Ahead of the EmailInUse fallback: registration shares the 5-per-15-minutes
+        // auth bucket, and an unrecognised key used to land on "Email already in use",
+        // telling a throttled visitor something false about their own account.
+        if (errorKey === RATE_LIMIT_ERROR_KEY) {
+            return t(RATE_LIMIT_ERROR_KEY);
         }
         return t("EmailInUseError");
     }

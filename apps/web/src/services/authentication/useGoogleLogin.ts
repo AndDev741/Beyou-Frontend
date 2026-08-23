@@ -10,6 +10,7 @@ import { TFunction } from "i18next";
 import { NavigateFunction } from "react-router-dom";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
+import { RATE_LIMIT_ERROR_KEY } from "@beyou/api/apiError";
 
 function useGoogleLogin(
     navigate: NavigateFunction,
@@ -41,7 +42,9 @@ function useGoogleLogin(
                     hydratePerfil(dispatch, data);
                     navigate("/dashboard");
                 }else if(response.error){
-                    toast.error(t('GoogleLoginError'));
+                    toast.error(response.error === RATE_LIMIT_ERROR_KEY
+                        ? t(RATE_LIMIT_ERROR_KEY)
+                        : t('GoogleLoginError'));
                 }
             }).catch((error) => {
                 console.error(t('GoogleLoginError'), error)

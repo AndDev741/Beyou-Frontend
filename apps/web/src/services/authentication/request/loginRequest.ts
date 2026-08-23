@@ -1,5 +1,6 @@
 import axios from '../../axiosConfig';
 import { UserType } from '@beyou/types/user/UserType';
+import { isRateLimited, RATE_LIMIT_ERROR_KEY } from '@beyou/api/apiError';
 
 async function loginRequest(email: string, password: string): Promise<Record<string, UserType | string>> {
     const loginData = {
@@ -19,6 +20,14 @@ async function loginRequest(email: string, password: string): Promise<Record<str
             if (axiosError.response?.status === 403 && axiosError.response?.data?.error === "EMAIL_NOT_VERIFIED") {
                 return { error: "EMAIL_NOT_VERIFIED" };
             }
+        }
+        // Told apart from a bad password on purpose. The login bucket is keyed by
+        // address and fires whether or not the account exists, so naming it reveals
+        // nothing about which emails are registered — the per-account lockout is the
+        // one that must keep answering exactly like a wrong password, and it still
+        // does. Everything else stays a single indistinguishable refusal.
+        if (isRateLimited(e)) {
+            return { error: RATE_LIMIT_ERROR_KEY };
         }
         return { error: " " };
     }

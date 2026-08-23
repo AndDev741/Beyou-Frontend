@@ -10,6 +10,7 @@ import { notify } from '../notify';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 import { googleLogin } from '../auth/authSlice';
 import type { AppDispatch } from '../store';
+import { RATE_LIMIT_ERROR_KEY } from '@beyou/api/apiError';
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 
@@ -51,7 +52,11 @@ export default function GoogleSignInButton() {
           return;
         }
         const res = await dispatch(googleLogin(idToken));
-        if (googleLogin.rejected.match(res)) notify.error(t('SomethingWentWrong'));
+        if (googleLogin.rejected.match(res)) {
+          notify.error(res.payload === RATE_LIMIT_ERROR_KEY
+            ? t(RATE_LIMIT_ERROR_KEY)
+            : t('SomethingWentWrong'));
+        }
         // success → status becomes 'authenticated'; the Gate handles navigation.
       }
       // cancelled response → no-op

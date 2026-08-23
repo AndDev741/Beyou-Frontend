@@ -46,6 +46,26 @@ export const parseApiError = (error: unknown): ApiErrorPayload => {
     return {};
 };
 
+/** The key every rate-limit refusal is reported under; translated in both languages. */
+export const RATE_LIMIT_ERROR_KEY = "RATE_LIMIT_EXCEEDED";
+
+/**
+ * True when the backend turned this request away for rate limiting.
+ *
+ * One predicate rather than a `status === 429` at each call site, because the auth
+ * screens are where getting this wrong hurts most: they collapse every failure into
+ * "wrong email or password", so a throttled user was told their correct password was
+ * wrong and went back to retyping it, burning what was left of the bucket. Handles
+ * both error shapes in the codebase — the ApiError the shared client throws, and the
+ * raw axios error the web auth requests still catch.
+ */
+export const isRateLimited = (error: unknown): boolean => {
+    if (error instanceof ApiError) return error.status === 429;
+    if (!isRecord(error)) return false;
+    const response = error.response;
+    return isRecord(response) && response.status === 429;
+};
+
 export const getErrorDetailsText = (error?: ApiErrorPayload): string => {
     if (!error) return "";
     if (error.details) return Object.values(error.details).join(", ");

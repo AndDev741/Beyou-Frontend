@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ApiError, parseApiError, getLogger } from '@beyou/api';
+import { ApiError, parseApiError, getLogger, isRateLimited, RATE_LIMIT_ERROR_KEY } from '@beyou/api';
 import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
@@ -38,6 +38,13 @@ export const login = createAsyncThunk(
       if (e instanceof ApiError && parsed.message === 'EMAIL_NOT_VERIFIED') {
         return rejectWithValue('EMAIL_NOT_VERIFIED');
       }
+      // The login bucket is 5 per 15 minutes, so this is the easiest 429 in the app
+      // to hit by accident. Reported as itself: the screen used to answer it with
+      // "wrong email or password", which sent people back to retyping a password
+      // that was right and spending the rest of the bucket.
+      if (isRateLimited(e)) {
+        return rejectWithValue(RATE_LIMIT_ERROR_KEY);
+      }
       return rejectWithValue('INVALID_CREDENTIALS');
     }
   },
@@ -53,6 +60,7 @@ export const googleLogin = createAsyncThunk(
       return profile;
     } catch (e) {
       getLogger().error('auth google login failed', e);
+      if (isRateLimited(e)) return rejectWithValue(RATE_LIMIT_ERROR_KEY);
       return rejectWithValue('GOOGLE_LOGIN_FAILED');
     }
   },
@@ -66,6 +74,7 @@ export const register = createAsyncThunk(
       return true;
     } catch (e) {
       getLogger().error('auth register failed', e);
+      if (isRateLimited(e)) return rejectWithValue(RATE_LIMIT_ERROR_KEY);
       return rejectWithValue('REGISTER_FAILED');
     }
   },

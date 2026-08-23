@@ -1,6 +1,7 @@
 import { UserType } from '@beyou/types/user/UserType';
 import axios from '../../axiosConfig';
 import { detectTimezone } from '../../user/reconcileTimezone';
+import { isRateLimited, RATE_LIMIT_ERROR_KEY } from '@beyou/api/apiError';
 
 async function googleRequest(code: string): Promise<Record<string, UserType | string>>{
     try{
@@ -19,6 +20,11 @@ async function googleRequest(code: string): Promise<Record<string, UserType | st
         }
     }catch(e){
         console.error(e);
+        // Same bucket as password login (5 per 15 minutes, keyed by address), so the
+        // same distinction: being throttled is not a broken sign-in.
+        if (isRateLimited(e)) {
+            return { error: RATE_LIMIT_ERROR_KEY };
+        }
         return {error: ""};
     }
 
