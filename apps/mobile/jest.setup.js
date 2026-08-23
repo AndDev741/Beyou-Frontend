@@ -84,6 +84,10 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     configure: jest.fn(),
     hasPlayServices: jest.fn().mockResolvedValue(true),
     signIn: jest.fn().mockResolvedValue({ type: 'cancelled', data: null }),
+    // Both the sign-in button and the logout thunk clear the cached Google account
+    // before/after a session, so every test that renders one or dispatches the other
+    // reaches this.
+    signOut: jest.fn().mockResolvedValue(null),
   },
   isSuccessResponse: jest.fn((r) => r?.type === 'success'),
   isErrorWithCode: jest.fn(() => false),

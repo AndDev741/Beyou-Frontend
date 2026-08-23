@@ -45,6 +45,7 @@ import '../src/i18n';
 import GoogleSignInButton from '../src/ui/GoogleSignInButton';
 
 const mockSignIn = GoogleSignin.signIn as jest.Mock;
+const mockSignOut = GoogleSignin.signOut as jest.Mock;
 const mockIsSuccess = isSuccessResponse as unknown as jest.Mock;
 
 let store: ReturnType<typeof makeStore>;
@@ -79,6 +80,37 @@ describe('GoogleSignInButton', () => {
     await press(screen);
 
     expect(mockGoogleRequest).toHaveBeenCalledWith('gid-123');
+    await waitFor(() => expect(store.getState().auth.status).toBe('authenticated'));
+    expect(notify.error).not.toHaveBeenCalled();
+  });
+
+  it('drops the cached account before asking, so the picker comes back every time', async () => {
+    mockSignIn.mockResolvedValueOnce({ type: 'success', data: { idToken: 'gid-123' } });
+    mockIsSuccess.mockReturnValue(true);
+    mockGoogleRequest.mockResolvedValueOnce({ accessToken: 'jwt', refreshToken: 'refresh', profile: { name: 'Al' } });
+
+    const screen = await renderButton();
+    await press(screen);
+
+    // Android's legacy Google Sign-In resolves getSignInIntent() from the account it
+    // cached on the first success and draws no picker at all after that. The order is
+    // the whole assertion: clearing afterwards would arrive too late for this tap, and
+    // the person stuck on the wrong account would still be stuck.
+    expect(mockSignOut).toHaveBeenCalled();
+    expect(mockSignOut.mock.invocationCallOrder[0]).toBeLessThan(mockSignIn.mock.invocationCallOrder[0]);
+  });
+
+  it('signs in anyway when dropping the cached account fails', async () => {
+    mockSignOut.mockRejectedValueOnce(new Error('client not configured yet'));
+    mockSignIn.mockResolvedValueOnce({ type: 'success', data: { idToken: 'gid-123' } });
+    mockIsSuccess.mockReturnValue(true);
+    mockGoogleRequest.mockResolvedValueOnce({ accessToken: 'jwt', refreshToken: 'refresh', profile: { name: 'Al' } });
+
+    const screen = await renderButton();
+    await press(screen);
+
+    // Losing the picker is a worse day than it used to be; losing the sign-in is a
+    // broken app. This one degrades to the old behaviour rather than to nothing.
     await waitFor(() => expect(store.getState().auth.status).toBe('authenticated'));
     expect(notify.error).not.toHaveBeenCalled();
   });

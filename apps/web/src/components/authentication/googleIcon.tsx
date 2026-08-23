@@ -17,7 +17,12 @@ function GoogleIcon(){
             'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid'
         );
 
-        window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}&scope=${scope}&access_type=offline&state=${state}`;
+        // prompt=select_account, or Google answers for the user: a browser carrying
+        // exactly one Google session skips the chooser and signs that account straight
+        // in, with no way back to the others short of signing out of Google itself.
+        // Mobile had the same hole in a harsher form and is fixed alongside this.
+        // Not prompt=consent, which would also re-ask for scopes already granted.
+        window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}&scope=${scope}&access_type=offline&prompt=select_account&state=${state}`;
     };
 
     return(
