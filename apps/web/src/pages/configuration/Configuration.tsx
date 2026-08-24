@@ -115,9 +115,9 @@ export default function Configuration() {
                         <div className="flex flex-col gap-5">
                             <LanguageSelector />
                             <ConstanceConfiguration />
-                            <NotificationConfiguration />
                             <RoutineSettings />
                             <TutorialConfiguration />
+                            <NotificationConfiguration />
                             <PrivacyPolicyLink />
                         </div>
                     </ConfigSection>

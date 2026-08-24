@@ -1156,7 +1156,7 @@
     "AgentPrivacyLink": "How this works",
     "AiOnboardingPrivacyNotice": "Your answers are sent to an external AI provider so it can suggest a setup.",
     "NotificationEmails": "Emails",
-    "NotificationEmailsDescription": "Occasional emails about your own routine — a streak about to break, a goal running out of days.",
+    "NotificationEmailsDescription": "Occasional emails about your own routine: a streak about to break, a goal running out of days.",
     "NotificationEmailsToggle": "Send me these emails",
     "NotificationEmailsTransactionalNote": "Turning this off never affects emails you ask for, like password resets.",
     "UnsubscribeLoading": "One moment",
