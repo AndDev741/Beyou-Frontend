@@ -20,6 +20,10 @@ jest.mock('expo-router', () => ({
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
   SafeAreaProvider: ({ children }: { children: unknown }) => children,
+  // The tutorial's Modal hosts toasts (a Modal is its own native window), and the
+  // host reads the top inset off this context. Without it the mock is missing an
+  // export the tree now uses, and useContext(undefined) throws.
+  SafeAreaInsetsContext: require('react').createContext(null),
 }));
 
 import { Provider } from 'react-redux';

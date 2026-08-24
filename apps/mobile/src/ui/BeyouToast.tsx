@@ -134,6 +134,51 @@ export const toastConfig: ToastConfig = {
   warning: (params) => <BeyouToast tone="warning" params={params as ToastConfigParams<BeyouToastProps>} />,
 };
 
+/** The toast currently on screen, kept so a closing modal can hand it back. */
+type LiveToast = {
+  params: Parameters<typeof Toast.show>[0];
+  /** Wall-clock instant the toast is due to disappear on its own. */
+  expiresAt: number;
+};
+
+let live: LiveToast | null = null;
+
+/** Called by `notify` on every show, so a modal teardown knows what to replay. */
+export function rememberToast(params: Parameters<typeof Toast.show>[0], ttl: number) {
+  live = { params, expiresAt: Date.now() + ttl };
+}
+
+/** Called from the toast's own `onHide`, so a finished toast is never replayed. */
+export function forgetToast() {
+  live = null;
+}
+
+/**
+ * Hands a still-running toast to whichever host is active NOW.
+ *
+ * A toast raised from inside a modal renders in THAT modal's window, so closing
+ * the modal would take a toast that still had seconds left to run with it. This
+ * is not a hypothetical: it is the shape of nearly every success path in the
+ * app, which notifies and then closes in the same handler.
+ *
+ * The replay carries the REMAINING time, so a toast does not restart its four
+ * seconds each time a modal closes underneath it.
+ */
+function replayActiveToast() {
+  if (!live) return;
+  const remaining = live.expiresAt - Date.now();
+  if (remaining <= 0) {
+    live = null;
+    return;
+  }
+  Toast.show({
+    ...live.params,
+    visibilityTime: remaining,
+    props: { ...(live.params.props ?? {}), duration: remaining },
+    onHide: forgetToast,
+  });
+}
+
 /**
  * The host that goes in the root layout. It has to be its own component to read
  * the top inset from INSIDE the SafeAreaProvider — whoever renders the provider
@@ -142,4 +187,41 @@ export const toastConfig: ToastConfig = {
 export function BeyouToastHost() {
   const insets = useContext(SafeAreaInsetsContext);
   return <Toast config={toastConfig} topOffset={(insets?.top ?? 0) + 8} />;
+}
+
+/**
+ * DO NOT REMOVE THIS FROM A MODAL. It is not a duplicate of `BeyouToastHost`.
+ *
+ * React Native's `Modal` is not an overlay inside our view tree: on Android it
+ * opens a native Dialog with its own Window, on iOS it presents a separate view
+ * controller. Either way it sits ABOVE the whole root view at the OS level, so
+ * the root layout's toast host physically cannot paint over it. `zIndex` and
+ * `elevation` do nothing here — they only order siblings within one window.
+ *
+ * Without a host inside the modal, every toast raised while a modal is open is
+ * invisible. The failure is asymmetric and that is why it went unnoticed for so
+ * long: the success paths call `onClose()` right after notifying, so the modal
+ * tears down and the toast surfaces; the error paths `return` early and keep the
+ * modal open, so only errors visibly vanish.
+ *
+ * `react-native-toast-message` supports this directly — it keeps a STACK of refs
+ * and `Toast.show` resolves to the last one mounted (see `getRef` in the
+ * library's `Toast.js`). Mounting this inside a modal makes it win while the
+ * modal is up; unmounting hands control back to the root host with no bookkeeping
+ * on our side. RN unmounts modal children when `visible` is false, so the
+ * register/unregister tracks visibility exactly. Nesting is fine too: the
+ * innermost modal is the last to mount, so it wins.
+ */
+export function ModalToastHost() {
+  // The replay runs on a macrotask, not inline in the cleanup: the ref detach
+  // that removes THIS host from the library's stack happens during the same
+  // commit, and depending on it having already run would be depending on
+  // React's internal teardown order. A tick later the stack is settled and
+  // `Toast.show` resolves to the host below. The gap is one frame, invisible
+  // mid-toast.
+  useEffect(() => () => {
+    setTimeout(replayActiveToast, 0);
+  }, []);
+
+  return <BeyouToastHost />;
 }

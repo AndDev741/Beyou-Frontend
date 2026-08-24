@@ -26,6 +26,7 @@ import { resolvePhotoUrl } from '../../lib/photoUrl';
 import { uploadPhoto } from '../../lib/uploadPhoto';
 import deleteUserPhoto from '@beyou/api/user/deleteUserPhoto';
 import type { RootState, AppDispatch } from '../../store';
+import { ModalToastHost } from '../BeyouToast';
 
 
 type ProfileForm = { name: string; phrase: string; phrase_author: string };
@@ -355,6 +356,8 @@ export default function ProfileSection() {
             </View>
           </View>
         </View>
+        {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+        <ModalToastHost />
       </Modal>
     </View>
   );

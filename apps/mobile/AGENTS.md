@@ -87,6 +87,35 @@ requires nothing real — passthrough `Animated.View`/`Text`, `useSharedValue`/`
 not affect the other tests. `npx expo export` uses the REAL reanimated, so always run it to validate
 the production bundle. The reanimated babel plugin must stay LAST in `babel.config.js`.
 
+## Modals are separate native windows — toasts go INSIDE them
+
+RN's `Modal` is not an overlay in our view tree. Android opens a native Dialog with its own
+Window; iOS presents a separate view controller. Either sits above the whole root view at the
+OS level, so the root layout's `<Toast />` cannot paint over it and no amount of `zIndex` or
+`elevation` changes that — those only order siblings within one window.
+
+So **every component rendering a `<Modal>` also renders `<ModalToastHost />`** (from
+`src/ui/BeyouToast.tsx`) as a direct child of that Modal. `react-native-toast-message` keeps a
+STACK of refs and resolves `Toast.show` to the last one mounted, so the innermost open modal
+wins and unmounting hands control back down on its own. `ModalToastHost.test.tsx` enforces the
+rule by scanning source, so a new modal fails the suite rather than shipping mute.
+
+Two things that are easy to get wrong:
+
+- **The failure is asymmetric, so "it works" is misleading.** Success paths notify and then
+  `onClose()`, so the modal tears down and the toast surfaces anyway; error paths `return`
+  early and keep the modal open. Only errors visibly vanish, which is how this survived a long
+  time. Do not conclude toasts work from watching a save succeed.
+- **A modal closing under a live toast must hand it down, not take it away.** `ModalToastHost`
+  replays a still-running toast on unmount (with the time it had LEFT, not a fresh four
+  seconds). Without that, adding the host would have traded invisible error toasts for
+  invisible success ones. `notify` records what is on screen; the toast's own `onHide` clears it.
+
+`react-native-toast-message` is globally stubbed in `jest.setup.js` — its Animated loop leaves
+timers that never settle under jest + React 19 async `act()`, and a host now mounts in most of
+the UI. Tests that need to observe a notification mock `src/notify`; a test that needs to SEE a
+host overrides the global stub with one that renders a marker.
+
 ## Dashboard (Phase 3)
 
 The dashboard reuses the shared `@beyou/*` data layer end-to-end: slices wired in `src/store.ts`,

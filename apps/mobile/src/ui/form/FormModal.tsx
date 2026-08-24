@@ -7,6 +7,7 @@ import Button from '../Button';
 import IconButton from '../IconButton';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { useKeyboardLift } from '../keyboard';
+import { ModalToastHost } from '../BeyouToast';
 
 interface FormModalProps {
   visible: boolean;
@@ -102,6 +103,8 @@ export default function FormModal({
           />
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }
