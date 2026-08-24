@@ -38,6 +38,7 @@ import RoutineStep from './RoutineStep';
 import GoalsStep, { type GoalsSelection } from './GoalsStep';
 import SummaryStep from './SummaryStep';
 import BusyOverlay from './BusyOverlay';
+import { ModalToastHost } from '../BeyouToast';
 
 
 export type WizardData = StoredWizardProgress['data'];
@@ -516,6 +517,8 @@ export default function AiOnboardingWizard({
 
         <BusyOverlay label={t('AiOnboardingLoading')} visible={busy && showOverlay} />
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

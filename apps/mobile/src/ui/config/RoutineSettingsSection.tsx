@@ -12,6 +12,7 @@ import { ChevronDown } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 import type { RootState, AppDispatch } from '../../store';
+import { ModalToastHost } from '../BeyouToast';
 
 type XpDecayStrategy = 'GRADUAL' | 'FLAT' | 'TIME_WINDOW';
 
@@ -236,6 +237,8 @@ export default function RoutineSettingsSection() {
             </Pressable>
           </View>
         </View>
+        {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+        <ModalToastHost />
       </Modal>
     </View>
   );

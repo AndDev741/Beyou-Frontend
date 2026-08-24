@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../Button';
 import Input from '../Input';
 import { useKeyboardLift } from '../keyboard';
+import { ModalToastHost } from '../BeyouToast';
 
 interface GoalProgressModalProps {
   visible: boolean;
@@ -154,6 +155,8 @@ export default function GoalProgressModal({
           </View>
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

@@ -6,6 +6,7 @@ import { Compass, Sparkles } from 'lucide-react-native';
 import BeyouIcon from '../BeyouIcon';
 import Button from '../Button';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import { ModalToastHost } from '../BeyouToast';
 
 
 type Step = {
@@ -158,6 +159,8 @@ export default function OnboardingTutorial({
             </View>
           </View>
         </View>
+        {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+        <ModalToastHost />
       </Modal>
     );
   }
@@ -251,6 +254,8 @@ export default function OnboardingTutorial({
           </View>
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

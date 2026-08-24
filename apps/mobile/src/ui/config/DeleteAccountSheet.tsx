@@ -11,6 +11,7 @@ import { useKeyboardLift } from '../keyboard';
 import { notify } from '../../notify';
 import { logout } from '../../auth/authSlice';
 import type { AppDispatch, RootState } from '../../store';
+import { ModalToastHost } from '../BeyouToast';
 
 type Step = 'confirm' | 'code' | 'goodbye';
 
@@ -277,6 +278,8 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
           ) : null}
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

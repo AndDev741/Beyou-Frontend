@@ -23,6 +23,7 @@ import SectionCard from './SectionCard';
 import type { MergedSectionItem } from './sectionItems';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
+import { ModalToastHost } from '../BeyouToast';
 
 interface RoutineBuilderProps {
   visible: boolean;
@@ -256,6 +257,8 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           />
         ) : null}
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

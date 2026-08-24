@@ -3,6 +3,7 @@ import { Modal, View, Pressable } from 'react-native';
 import { useKeyboardLift } from './keyboard';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { ModalToastHost } from './BeyouToast';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -56,6 +57,8 @@ export default function BottomSheet({
           </View>
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

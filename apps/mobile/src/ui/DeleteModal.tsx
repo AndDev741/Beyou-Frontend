@@ -1,6 +1,7 @@
 import { Modal, View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Button from './Button';
+import { ModalToastHost } from './BeyouToast';
 
 interface DeleteModalProps {
   visible: boolean;
@@ -78,6 +79,8 @@ export default function DeleteModal({
           </View>
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

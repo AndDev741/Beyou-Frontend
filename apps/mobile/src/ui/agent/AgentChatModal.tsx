@@ -31,6 +31,7 @@ import IconTile from '../IconTile';
 import AgentSegments from './AgentSegments';
 import AgentPrivacyNotice from './AgentPrivacyNotice';
 import type { AgentChatState } from './useAgentChat';
+import { ModalToastHost } from '../BeyouToast';
 
 // The agent links web-canonical routes; the mobile dashboard lives at '/'.
 const WEB_TO_MOBILE_ROUTE: Record<string, string> = { '/dashboard': '/' };
@@ -404,6 +405,8 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
           )}
         </View>
       </View>
+      {/* Toasts must be hosted INSIDE the modal's native window. See ModalToastHost. */}
+      <ModalToastHost />
     </Modal>
   );
 }

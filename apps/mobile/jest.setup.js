@@ -49,6 +49,24 @@ jest.mock('lucide-react-native', () =>
   ),
 );
 
+// react-native-toast-message mounts an Animated loop whose timers never settle
+// under jest + React 19's async act(): any test rendering a toast host hangs to the
+// 5s timeout ("worker failed to exit gracefully"). Since toasts moved INSIDE the
+// modal shells — they have to, a Modal is its own native window and the root host
+// cannot paint over it — a host now mounts in most of the UI, so the stub belongs
+// here rather than repeated in every suite that happens to open a dialog.
+//
+// Tests that need to observe a notification mock `src/notify` instead. The toast
+// shell itself is covered by BeyouToast.test.tsx, which renders `toastConfig`
+// directly and never mounts a host, and ModalToastHost.test.tsx overrides this with
+// a stub that renders a findable marker.
+jest.mock('react-native-toast-message', () => {
+  const ToastStub = () => null;
+  ToastStub.show = jest.fn();
+  ToastStub.hide = jest.fn();
+  return { __esModule: true, default: ToastStub };
+});
+
 // react-native-view-shot wraps a native module (it snapshots the real view
 // hierarchy) that does not exist under jest. Feedback capture is exercised by
 // passing a uri through the screen's route params instead; this mock just keeps
