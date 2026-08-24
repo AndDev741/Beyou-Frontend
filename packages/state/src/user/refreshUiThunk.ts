@@ -16,6 +16,7 @@ import { refreshHabit } from "../habit/habitsSlice";
 import { refreshItemGroup } from "../routine/todayRoutineSlice";
 import { celebrationPushed } from "../celebration/celebrationSlice";
 import { STREAK_MILESTONES } from "../gamification/streakMilestones";
+import { ANALYTICS_EVENTS, getAnalytics } from "@beyou/api";
 
 export type ApplyRefreshUiOptions = { skipCelebrations?: boolean };
 
@@ -42,10 +43,17 @@ export function applyRefreshUi(
 ): void {
   if (!refreshUi) return;
 
+  // A check the user is filling in for an earlier day, rather than for today. It is the
+  // same flag the celebrations ride on — a retroactive check is not a moment to throw
+  // confetti — and it is exactly the distinction the XP-decay nudge needs, so it travels
+  // with the events too instead of being inferred from a timestamp later.
+  const retroactive = Boolean(options.skipCelebrations);
+
   if (refreshUi.refreshUser) {
     const refreshUser = refreshUi.refreshUser;
 
-    if (!options.skipCelebrations && refreshUser.level > previous.level) {
+    const leveledUp = refreshUser.level > previous.level;
+    if (!options.skipCelebrations && leveledUp) {
       dispatch(celebrationPushed({ kind: "levelUp", level: refreshUser.level }));
     }
 
@@ -54,6 +62,27 @@ export function applyRefreshUi(
     );
     if (!options.skipCelebrations && milestone) {
       dispatch(celebrationPushed({ kind: "streakMilestone", days: milestone }));
+    }
+
+    // The analytics events are NOT gated on skipCelebrations, unlike the two
+    // dispatches above. Suppressing confetti for a backfilled day is a UI decision;
+    // the level really did go up and the streak really did cross the milestone, and an
+    // engagement funnel that dropped those would under-count exactly the retroactive
+    // path the XP-decay nudge is meant to drive.
+    if (leveledUp) {
+      getAnalytics().track(ANALYTICS_EVENTS.LEVEL_UP, {
+        level: refreshUser.level,
+        previous_level: previous.level,
+        retroactive,
+      });
+    }
+    if (milestone) {
+      getAnalytics().track(ANALYTICS_EVENTS.STREAK_MILESTONE_REACHED, {
+        days: milestone,
+        streak_current: refreshUser.currentConstance,
+        streak_best: refreshUser.maxConstance,
+        retroactive,
+      });
     }
 
     dispatch(xpEnter(refreshUser.xp));
@@ -100,5 +129,31 @@ export function applyRefreshUi(
   );
   if (refreshedSomething) {
     dispatch(checkRecorded());
+  }
+
+  // `check_recorded` is the atom the whole engagement funnel is built on, and this is the
+  // one function both platforms pipe every accepted check through — so it is tracked here
+  // rather than at the API call, where web and mobile would each need their own call.
+  //
+  // The condition is narrower than `refreshedSomething` above on purpose. Goal actions
+  // (`useGoalActions` → PUT /goal/complete|increase) also come through here and also
+  // refresh the perfil and categories, but no item was checked off a routine; counting
+  // them as check-ins would inflate every completion rate. An item check always carries
+  // `refreshItemChecked`, and a habit checked outside a routine carries `refreshHabit`,
+  // so those two together are the honest test. Goals report themselves through
+  // `goal_completed`.
+  const itemChecked = refreshUi.refreshItemChecked;
+  if (itemChecked || refreshUi.refreshHabit) {
+    getAnalytics().track(ANALYTICS_EVENTS.CHECK_RECORDED, {
+      retroactive,
+      // A skip is a deliberate "not today" rather than a completion. Both keep a streak
+      // alive, and a nudge that cannot tell them apart would read a week of skips as a
+      // week of progress.
+      skipped: Boolean(itemChecked?.check?.skipped),
+      // Zero when the check earned nothing — which is itself the signal that the XP decay
+      // window had already closed on that day.
+      xp_generated: itemChecked?.check?.xpGenerated ?? 0,
+      owner: itemChecked ? "routine_item" : "habit",
+    });
   }
 }

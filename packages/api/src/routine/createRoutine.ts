@@ -2,6 +2,7 @@ import { TFunction } from 'i18next';
 import { getHttpClient } from '../httpClient';
 import { Routine } from '@beyou/types/routine/routine';
 import { ApiErrorPayload, parseApiError } from '../apiError';
+import { trackItemCreated } from '../analyticsEvents';
 import { buildRoutinePayload } from './routinePayload';
 import { getLogger } from '../logger';
 
@@ -10,7 +11,9 @@ type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validat
 async function createRoutine(routine: Routine, t: TFunction): apiResponse {
     try {
         const response = await getHttpClient().post("/routine", buildRoutinePayload(routine, { includeSectionIds: false, includeGroupIds: false }));
-        return response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
+        const data = response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
+        trackItemCreated('routine', data);
+        return data;
     } catch (e) {
         getLogger().error(e);
         const parsed = parseApiError(e);

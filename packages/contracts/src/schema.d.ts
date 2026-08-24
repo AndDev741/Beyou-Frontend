@@ -1010,6 +1010,7 @@ export interface components {
             timezoneSource?: "DEFAULT" | "DETECTED" | "EXPLICIT";
             /** @enum {string} */
             xpDecayStrategy?: "GRADUAL" | "FLAT" | "TIME_WINDOW";
+            createdAt?: string;
         };
         EditTaskRequestDTO: {
             /** Format: uuid */

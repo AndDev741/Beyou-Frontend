@@ -1,5 +1,7 @@
 import { agentSegment } from '@beyou/types/agent/chatType';
 import { getLogger } from '../logger';
+import { ANALYTICS_EVENTS } from '../analyticsEvents';
+import { getAnalytics } from '../analytics';
 
 /** Mirrors the backend AgentEvent "tool" payload (AgentEvent.java). */
 export interface AgentToolEvent {
@@ -144,6 +146,16 @@ export async function streamAgentMessage(
     const cfg = config;
     const doFetch = cfg.fetchImpl ?? fetch;
     const parse = createSseParser(handlers);
+
+    // Tracked on send rather than on a successful reply: the question this answers is
+    // whether the account adopted the agent at all, and a turn that failed upstream was
+    // still an attempt to use it. `userInput` never travels — it is the user's own words,
+    // and its length is reported instead so a one-word probe is distinguishable from real
+    // use without carrying any of it.
+    getAnalytics().track(ANALYTICS_EVENTS.AGENT_MESSAGE_SENT, {
+        input_length: userInput.length,
+        has_page_context: Boolean(currentPage),
+    });
 
     // getHeaders() is re-read on each call, so a retry after refreshAuth()
     // picks up the renewed token automatically.

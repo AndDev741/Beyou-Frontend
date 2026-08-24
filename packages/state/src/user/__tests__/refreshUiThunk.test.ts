@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Dispatch } from "@reduxjs/toolkit";
 import { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
+import { ANALYTICS_EVENTS, getAnalytics, setAnalytics } from "@beyou/api";
 import { applyRefreshUi } from "../refreshUiThunk";
 import { celebrationPushed } from "../../celebration/celebrationSlice";
 import { refreshCategorie } from "../../category/categoriesSlice";
@@ -128,5 +129,129 @@ describe("applyRefreshUi", () => {
     const { actions, dispatch } = collect();
     applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
     expect(actions.some((a) => constanceDormantEnter.match(a) && a.payload === false)).toBe(true);
+  });
+});
+
+/**
+ * Phase 0 of the engagement work. These events are the ones the later nudge job is
+ * measured against, so what matters is not that `track` was called but that it was
+ * called for the right population: a check is a check, a goal action is not, and a day
+ * filled in after the fact is still a real level-up.
+ */
+describe("applyRefreshUi — product analytics", () => {
+  beforeEach(() => {
+    setAnalytics({ identify: vi.fn(), reset: vi.fn(), track: vi.fn() });
+  });
+
+  function tracked(event: string) {
+    return (getAnalytics().track as ReturnType<typeof vi.fn>).mock.calls.filter(
+      ([name]) => name === event,
+    );
+  }
+
+  it("tracks a check with the check's own numbers", () => {
+    const { dispatch } = collect();
+    applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 });
+
+    expect(tracked(ANALYTICS_EVENTS.CHECK_RECORDED)).toEqual([
+      [
+        ANALYTICS_EVENTS.CHECK_RECORDED,
+        { retroactive: false, skipped: false, xp_generated: 5, owner: "routine_item" },
+      ],
+    ]);
+  });
+
+  /**
+   * The snapshot check-in path — the only caller that passes skipCelebrations — is a
+   * user filling in an earlier day, which is exactly the behaviour the XP-decay nudge
+   * exists to produce. If it were indistinguishable from a same-day check, the nudge
+   * could never be shown to have worked.
+   */
+  it("marks a backfilled day as retroactive", () => {
+    const { dispatch } = collect();
+    applyRefreshUi(makeRefresh(), dispatch, { level: 3, constance: 7 }, { skipCelebrations: true });
+
+    expect(tracked(ANALYTICS_EVENTS.CHECK_RECORDED)[0][1]).toMatchObject({ retroactive: true });
+  });
+
+  /**
+   * A skip keeps a streak alive without anything having been done. A funnel that could
+   * not tell the two apart would read a week of skips as a week of progress.
+   */
+  it("distinguishes a skip from a completion", () => {
+    const { dispatch } = collect();
+    const refresh = makeRefresh();
+    refresh.refreshItemChecked!.check.skipped = true;
+    refresh.refreshItemChecked!.check.xpGenerated = 0;
+
+    applyRefreshUi(refresh, dispatch, { level: 3, constance: 7 });
+
+    expect(tracked(ANALYTICS_EVENTS.CHECK_RECORDED)[0][1]).toMatchObject({
+      skipped: true,
+      xp_generated: 0,
+    });
+  });
+
+  /**
+   * Goal actions come through this same function and also refresh the perfil and
+   * categories (see useGoalActions → PUT /goal/complete|increase). Counting them as
+   * check-ins would inflate every completion rate in the product, which is the metric
+   * the whole phase exists to measure.
+   */
+  it("does not count a goal action as a check", () => {
+    const { dispatch } = collect();
+    const goalShaped = {
+      refreshUser: makeRefresh().refreshUser,
+      refreshCategories: [{ id: "c1", xp: 10, level: 1, actualLevelXp: 0, nextLevelXp: 20 }],
+    } as RefreshUI;
+
+    applyRefreshUi(goalShaped, dispatch, { level: 3, constance: 7 });
+
+    expect(tracked(ANALYTICS_EVENTS.CHECK_RECORDED)).toHaveLength(0);
+  });
+
+  it("tracks a habit checked outside a routine as a check", () => {
+    const { dispatch } = collect();
+    const habitOnly = {
+      refreshHabit: { id: "h1", xp: 10, level: 1, actualLevelXp: 0, nextLevelXp: 20 },
+    } as RefreshUI;
+
+    applyRefreshUi(habitOnly, dispatch, { level: 1, constance: 0 });
+
+    expect(tracked(ANALYTICS_EVENTS.CHECK_RECORDED)[0][1]).toMatchObject({ owner: "habit" });
+  });
+
+  /**
+   * Suppressing confetti on a backfilled day is a UI decision. The level really did go
+   * up and the streak really did cross the milestone, so both events fire regardless —
+   * otherwise the retroactive path, the one the nudge drives, would under-report exactly
+   * the outcomes that prove it worked.
+   */
+  it("still reports a level-up and a milestone when the celebrations are suppressed", () => {
+    const { actions, dispatch } = collect();
+    applyRefreshUi(
+      makeRefresh({ level: 4, currentConstance: 7 }),
+      dispatch,
+      { level: 3, constance: 6 },
+      { skipCelebrations: true },
+    );
+
+    expect(actions.some((a) => celebrationPushed.match(a))).toBe(false);
+    expect(tracked(ANALYTICS_EVENTS.LEVEL_UP)[0][1]).toMatchObject({
+      level: 4,
+      previous_level: 3,
+      retroactive: true,
+    });
+    expect(tracked(ANALYTICS_EVENTS.STREAK_MILESTONE_REACHED)[0][1]).toMatchObject({
+      days: 7,
+      retroactive: true,
+    });
+  });
+
+  it("reports no level-up when the level did not move", () => {
+    const { dispatch } = collect();
+    applyRefreshUi(makeRefresh({ level: 3 }), dispatch, { level: 3, constance: 7 });
+
+    expect(tracked(ANALYTICS_EVENTS.LEVEL_UP)).toHaveLength(0);
   });
 });

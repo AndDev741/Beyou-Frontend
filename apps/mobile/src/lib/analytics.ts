@@ -49,7 +49,10 @@ export function initAnalytics(): PostHog | null {
 
   const ph = client;
   setAnalytics({
-    identify: (userId) => ph.identify(userId),
+    // The traits argument is passed on, not dropped: it carries the person
+    // properties every engagement cohort is built from, and posthog-react-native
+    // takes them in the same second position web's posthog-js does.
+    identify: (userId, traits) => ph.identify(userId, traits),
     reset: () => ph.reset(),
     track: (event, properties) => ph.capture(event, properties),
   });

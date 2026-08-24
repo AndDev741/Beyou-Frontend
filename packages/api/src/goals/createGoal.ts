@@ -1,6 +1,7 @@
 import { TFunction } from "i18next";
 import { getHttpClient } from "../httpClient";
 import { ApiErrorPayload, parseApiError } from "../apiError";
+import { trackItemCreated } from "../analyticsEvents";
 import { getLogger } from "../logger";
 
 type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validation?: string }>;
@@ -37,7 +38,9 @@ const createGoal = async (
 
   try {
     const response = await getHttpClient().post("/goal", goalData);
-    return response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
+    const data = response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
+    trackItemCreated('goal', data);
+    return data;
   } catch (e) {
     getLogger().error(e);
     const parsed = parseApiError(e);

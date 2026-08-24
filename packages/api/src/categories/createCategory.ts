@@ -1,6 +1,7 @@
 import { TFunction } from "i18next";
 import { getHttpClient } from "../httpClient";
 import { ApiErrorPayload, parseApiError } from "../apiError";
+import { trackItemCreated } from "../analyticsEvents";
 import { experienceToEnum } from "../utils/experienceToEnum";
 import { getLogger } from "../logger";
 
@@ -22,7 +23,9 @@ const createCategory = async (
 
     try {
         const response = await getHttpClient().post("/category", categoryData);
-        return response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
+        const data = response.data as { success?: unknown; error?: ApiErrorPayload; validation?: string };
+        trackItemCreated('category', data);
+        return data;
     } catch (e) {
         getLogger().error(e);
         const parsed = parseApiError(e);

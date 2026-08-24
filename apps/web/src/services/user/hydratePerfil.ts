@@ -25,7 +25,7 @@ import {
     xpDecayStrategyEnter
 } from "@beyou/state/user/perfilSlice";
 import { reconcileTimezone } from "./reconcileTimezone";
-import { getAnalytics } from "@beyou/api";
+import { getAnalytics, personPropertiesFromProfile } from "@beyou/api";
 
 /**
  * Populate the `perfil` redux slice from a user profile payload.
@@ -68,8 +68,13 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     // display name (a deliberate exception so person profiles are recognizable
     // in PostHog) — never the email. Absent id (backend predating
     // UserResponseDTO.id) means the session simply stays anonymous.
+    //
+    // The rest of the traits are the account-shape person properties the engagement
+    // work cohorts on (streak bucket, level, tutorial state, signup date, ...). They
+    // are built in @beyou/api so web and mobile report the same property names from the
+    // same profile — two hand-written lists would drift on the first field added.
     if (data.id) {
-        getAnalytics().identify(data.id, data.name ? { name: data.name } : undefined);
+        getAnalytics().identify(data.id, personPropertiesFromProfile(data, data.name));
     }
 
     // Fire-and-forget, and deliberately HERE rather than at the five call sites above
