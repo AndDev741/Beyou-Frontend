@@ -16,7 +16,12 @@ import { refreshHabit } from "../habit/habitsSlice";
 import { refreshItemGroup } from "../routine/todayRoutineSlice";
 import { celebrationPushed } from "../celebration/celebrationSlice";
 import { STREAK_MILESTONES } from "../gamification/streakMilestones";
-import { ANALYTICS_EVENTS, getAnalytics } from "@beyou/api";
+// Deep paths, not the "@beyou/api" barrel — the convention every other import of it in
+// this package follows (see onboarding/createFromSuggestions). The barrel re-exports every
+// API module, so importing it here pulls all of them into the graph of anything that loads
+// a slice, which is every test in both apps.
+import { getAnalytics } from "@beyou/api/analytics";
+import { ANALYTICS_EVENTS } from "@beyou/api/analyticsEvents";
 
 export type ApplyRefreshUiOptions = { skipCelebrations?: boolean };
 
