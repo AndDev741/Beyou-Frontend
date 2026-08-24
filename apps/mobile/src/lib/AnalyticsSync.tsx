@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { getAnalytics } from '@beyou/api';
+import { getAnalytics, personPropertiesFromProfile } from '@beyou/api';
+import type { ProfileForAnalytics } from '@beyou/api';
 import type { RootState } from '../store';
 
 /**
@@ -15,6 +16,10 @@ import type { RootState } from '../store';
  * before UserResponseDTO.id simply omits the id and the session stays
  * anonymous.
  *
+ * The traits alongside it are the account-shape person properties the engagement
+ * work cohorts on, built by `personPropertiesFromProfile` in @beyou/api so this
+ * and web's hydratePerfil report the same names off the same response.
+ *
  * Reset fires on the authenticated → unauthenticated transition (logout, or a
  * dead refresh token discovered at boot), so the next account on this device
  * is not merged into the departed one. The ref tracks the previous status
@@ -22,18 +27,23 @@ import type { RootState } from '../store';
  * anonymous id on each launch of the login screen.
  */
 export default function AnalyticsSync() {
-  const userId = useSelector(
-    (s: RootState) => (s.auth.profile as { id?: string } | null)?.id,
+  const profile = useSelector(
+    (s: RootState) => s.auth.profile as (ProfileForAnalytics & { id?: string; name?: string }) | null,
   );
-  const userName = useSelector(
-    (s: RootState) => (s.auth.profile as { name?: string } | null)?.name,
-  );
+  const userId = profile?.id;
   const status = useSelector((s: RootState) => s.auth.status);
   const wasAuthenticated = useRef(false);
 
+  // Serialised so the effect re-runs when a property actually moves — a check-in that
+  // changes the streak has to reach the person profile, but re-identifying on every
+  // render of an unchanged profile is a request per render. Selecting the object itself
+  // is safe here because `auth.profile` is replaced, not mutated, on every load.
+  const properties = profile ? personPropertiesFromProfile(profile, profile.name) : null;
+  const propertiesKey = properties ? JSON.stringify(properties) : null;
+
   useEffect(() => {
-    if (userId) getAnalytics().identify(userId, userName ? { name: userName } : undefined);
-  }, [userId, userName]);
+    if (userId && propertiesKey) getAnalytics().identify(userId, JSON.parse(propertiesKey));
+  }, [userId, propertiesKey]);
 
   useEffect(() => {
     if (status === 'authenticated') {

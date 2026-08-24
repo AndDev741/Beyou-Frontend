@@ -39,5 +39,14 @@ export type UserType = {
      * starts with. Only `DEFAULT` may be adopted over: see `reconcileTimezone`.
      */
     timezoneSource: "DEFAULT" | "DETECTED" | "EXPLICIT",
-    xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW"
+    xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW",
+    /**
+     * The day the account was created, ISO-8601 (`2026-03-14`). Reported to product
+     * analytics as the `signup_date` person property, which nothing else can answer:
+     * the analytics provider's own first-seen timestamp is when it first saw the
+     * account, not when the account was made. Optional for the same reason `id` is —
+     * a backend built before it simply omits it, and the property is then left unset
+     * rather than guessed.
+     */
+    createdAt?: string
 }

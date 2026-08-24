@@ -12,16 +12,29 @@
  * user-written content (habit names, feedback text, chat messages) in
  * `track()` properties.
  */
+/**
+ * The only value types either SDK is allowed to carry, for events and for person
+ * properties alike. Deliberately not `unknown`: a nested object is how user-written
+ * content slips in by accident, and neither PostHog SDK gains anything from one here.
+ */
+export type AnalyticsProperties = Record<string, string | number | boolean>;
+
 export interface Analytics {
   /**
    * Ties the current device/session to the account's opaque UUID.
-   * `traits` become person properties; keep them to the display name.
+   *
+   * `traits` become person properties. They carry the display name (the approved
+   * exception above) plus the account-shape properties from
+   * `personPropertiesFromProfile` — enums, counters and dates, never free text.
+   * They are numbers as often as strings, which is why this is not
+   * `Record<string, string>`: stringifying a level would make every cohort filter
+   * on it a lexical comparison, where 10 sorts below 9.
    */
-  identify(userId: string, traits?: Record<string, string>): void;
+  identify(userId: string, traits?: AnalyticsProperties): void;
   /** Clears the identity on logout so the next user on this device is not merged. */
   reset(): void;
   /** Records a named product event. Property values must be PII-free. */
-  track(event: string, properties?: Record<string, string | number | boolean>): void;
+  track(event: string, properties?: AnalyticsProperties): void;
 }
 
 const noopAnalytics: Analytics = {

@@ -2535,6 +2535,9 @@
               "FLAT",
               "TIME_WINDOW"
             ]
+          },
+          "createdAt": {
+            "type": "string"
           }
         }
       },

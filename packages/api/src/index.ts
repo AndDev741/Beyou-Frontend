@@ -7,6 +7,9 @@ export * from './logger';
 // Product analytics — host app injects its platform SDK (PostHog) here
 export * from './analytics';
 
+// Product analytics — the shared event vocabulary and person-property builder
+export * from './analyticsEvents';
+
 // Error handling
 export * from './apiError';
 
