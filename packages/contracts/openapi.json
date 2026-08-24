@@ -2371,6 +2371,82 @@
           }
         }
       }
+    },
+    "/notification/preferences": {
+      "get": {
+        "tags": [
+          "notification-preferences-controller"
+        ],
+        "operationId": "getPreferences",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "notification-preferences-controller"
+        ],
+        "operationId": "updatePreferences",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotificationPreferencesDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationPreferencesResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notification/unsubscribe": {
+      "post": {
+        "tags": [
+          "notification-preferences-controller"
+        ],
+        "summary": "Disable engagement emails for the holder of an unsubscribe token",
+        "description": "Public: no session required, because the whole point of an unsubscribe link is that it works for someone who cannot sign in. The token in the body is the entire proof of ownership. Rate limited per address. Idempotent \u2014 unsubscribing twice reports the same success. A token matching no account is refused with 400 and `errorKey` INVALID_REQUEST.\n",
+        "operationId": "unsubscribe",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnsubscribeRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Engagement emails disabled"
+          },
+          "400": {
+            "description": "The token matches no account."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4792,6 +4868,38 @@
         },
         "required": [
           "goalId"
+        ]
+      },
+      "NotificationPreferencesResponseDTO": {
+        "type": "object",
+        "properties": {
+          "engagementEmail": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateNotificationPreferencesDTO": {
+        "type": "object",
+        "properties": {
+          "engagementEmail": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "engagementEmail"
+        ]
+      },
+      "UnsubscribeRequestDTO": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "token"
         ]
       }
     }

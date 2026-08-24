@@ -68,6 +68,10 @@ export { default as deleteHabit } from './habits/deleteHabit';
 export { default as editHabit } from './habits/editHabit';
 export { default as getHabits } from './habits/getHabits';
 
+// Notifications — the engagement-mail switch and the unsubscribe link's endpoint
+export * from './notification/notificationPreferences';
+export { default as unsubscribe } from './notification/unsubscribe';
+
 // Routine
 export { default as checkRoutine } from './routine/checkItem';
 export { default as createRoutine } from './routine/createRoutine';

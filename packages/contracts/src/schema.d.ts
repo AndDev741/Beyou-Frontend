@@ -956,6 +956,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notification/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPreferences"];
+        put: operations["updatePreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notification/unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disable engagement emails for the holder of an unsubscribe token
+         * @description Public: no session required, because the whole point of an unsubscribe link is that it works for someone who cannot sign in. The token in the body is the entire proof of ownership. Rate limited per address. Idempotent — unsubscribing twice reports the same success. A token matching no account is refused with 400 and `errorKey` INVALID_REQUEST.
+         */
+        post: operations["unsubscribe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1815,6 +1851,15 @@ export interface components {
             goalId: string;
             /** Format: double */
             value?: number;
+        };
+        NotificationPreferencesResponseDTO: {
+            engagementEmail?: boolean;
+        };
+        UpdateNotificationPreferencesDTO: {
+            engagementEmail: boolean;
+        };
+        UnsubscribeRequestDTO: {
+            token: string;
         };
     };
     responses: never;
@@ -3632,6 +3677,79 @@ export interface operations {
             };
             /** @description Authenticated but not an admin. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotificationPreferencesResponseDTO"];
+                };
+            };
+        };
+    };
+    updatePreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationPreferencesDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotificationPreferencesResponseDTO"];
+                };
+            };
+        };
+    };
+    unsubscribe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UnsubscribeRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Engagement emails disabled */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The token matches no account. */
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };

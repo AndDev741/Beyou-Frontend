@@ -13,6 +13,7 @@ import AppearanceSection from '../../src/ui/config/AppearanceSection';
 import LanguageSection from '../../src/ui/config/LanguageSection';
 import RoutineSettingsSection from '../../src/ui/config/RoutineSettingsSection';
 import ConstanceSection from '../../src/ui/config/ConstanceSection';
+import NotificationSection from '../../src/ui/config/NotificationSection';
 import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import TutorialSection from '../../src/ui/config/TutorialSection';
 import PrivacyPolicySection from '../../src/ui/config/PrivacyPolicySection';
@@ -115,6 +116,7 @@ export default function ConfigurationScreen() {
           <View className="gap-6">
             <LanguageSection />
             <ConstanceSection />
+            <NotificationSection />
             <RoutineSettingsSection />
             <TutorialSection />
             <PrivacyPolicySection />

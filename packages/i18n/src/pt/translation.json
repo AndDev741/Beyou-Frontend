@@ -1154,5 +1154,15 @@
     "RegisterPrivacyNotice": "Ao criar uma conta, você concorda com a",
     "AgentPrivacyNotice": "Suas mensagens, e os hábitos e metas que o assistente lê para responder, são enviados a um provedor de IA externo.",
     "AgentPrivacyLink": "Como isso funciona",
-    "AiOnboardingPrivacyNotice": "Suas respostas são enviadas a um provedor de IA externo para ele sugerir uma configuração."
+    "AiOnboardingPrivacyNotice": "Suas respostas são enviadas a um provedor de IA externo para ele sugerir uma configuração.",
+    "NotificationEmails": "E-mails",
+    "NotificationEmailsDescription": "E-mails ocasionais sobre a sua própria rotina — uma sequência a ponto de quebrar, uma meta com os dias contados.",
+    "NotificationEmailsToggle": "Quero receber esses e-mails",
+    "NotificationEmailsTransactionalNote": "Desligar isso nunca afeta os e-mails que você pede, como a troca de senha.",
+    "UnsubscribeLoading": "Um instante",
+    "UnsubscribeSuccessTitle": "Pronto, cancelado",
+    "UnsubscribeSuccessMessage": "Não vamos mais te escrever sobre sequências ou metas. Você pode religar isso nas configurações quando quiser.",
+    "UnsubscribeTransactionalNote": "Os e-mails que você pede, como a troca de senha, continuam funcionando.",
+    "UnsubscribeErrorTitle": "Esse link não funcionou",
+    "UnsubscribeErrorMessage": "Ele pode ter sido cortado pelo seu app de e-mail. Abra o Beyou e desligue os e-mails nas configurações."
 }

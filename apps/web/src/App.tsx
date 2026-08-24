@@ -18,6 +18,7 @@ const Register = lazy(() => import("./pages/authentication/register/register"));
 const ForgotPassword = lazy(() => import("./pages/authentication/forgot/forgot"));
 const ResetPassword = lazy(() => import("./pages/authentication/reset/reset"));
 const VerifyEmail = lazy(() => import("./pages/authentication/verify/verify"));
+const Unsubscribe = lazy(() => import("./pages/notification/unsubscribe"));
 const Dashboard = lazy(() => import("./pages/dashboard/dashboard"));
 const Categories = lazy(() => import("./pages/categories/categories"));
 const Habits = lazy(() => import("./pages/habits/habits"));
@@ -59,6 +60,9 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/verify" element={<VerifyEmail />} />
+          {/* Public on purpose: an unsubscribe link has to work for somebody who is not
+              signed in, which is most of the population these mails go to. */}
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route element={<ProtectedRoute authState={authState} />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/categories" element={<Categories />} />
