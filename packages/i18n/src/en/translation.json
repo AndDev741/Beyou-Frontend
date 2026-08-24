@@ -1154,5 +1154,15 @@
     "RegisterPrivacyNotice": "By creating an account you agree to the",
     "AgentPrivacyNotice": "Your messages, and the habits and goals the assistant reads to answer, are sent to an external AI provider.",
     "AgentPrivacyLink": "How this works",
-    "AiOnboardingPrivacyNotice": "Your answers are sent to an external AI provider so it can suggest a setup."
+    "AiOnboardingPrivacyNotice": "Your answers are sent to an external AI provider so it can suggest a setup.",
+    "NotificationEmails": "Emails",
+    "NotificationEmailsDescription": "Occasional emails about your own routine — a streak about to break, a goal running out of days.",
+    "NotificationEmailsToggle": "Send me these emails",
+    "NotificationEmailsTransactionalNote": "Turning this off never affects emails you ask for, like password resets.",
+    "UnsubscribeLoading": "One moment",
+    "UnsubscribeSuccessTitle": "You're unsubscribed",
+    "UnsubscribeSuccessMessage": "We won't email you about your streaks or goals again. You can turn it back on in settings whenever you like.",
+    "UnsubscribeTransactionalNote": "Emails you ask for, like password resets, still work.",
+    "UnsubscribeErrorTitle": "That link didn't work",
+    "UnsubscribeErrorMessage": "It may have been cut short by your email app. Open Beyou and turn the emails off in settings instead."
 }

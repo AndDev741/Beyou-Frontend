@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Palette, Settings, LayoutGrid } from "lucide-react";
 import ConstanceConfiguration from "../../components/configuration/ConstanceConfiguration";
 import LanguageSelector from "../../components/configuration/LanguageSelector";
+import NotificationConfiguration from "../../components/configuration/NotificationConfiguration";
 import ProfileConfiguration from "../../components/configuration/ProfileConfiguration";
 import RoutineSettings from "../../components/configuration/RoutineSettings";
 import ThemeSelector from "../../components/configuration/ThemeSelector";
@@ -114,6 +115,7 @@ export default function Configuration() {
                         <div className="flex flex-col gap-5">
                             <LanguageSelector />
                             <ConstanceConfiguration />
+                            <NotificationConfiguration />
                             <RoutineSettings />
                             <TutorialConfiguration />
                             <PrivacyPolicyLink />
