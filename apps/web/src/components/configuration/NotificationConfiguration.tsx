@@ -76,14 +76,24 @@ export default function NotificationConfiguration() {
                     disabled={enabled === null || saving}
                     onClick={handleToggle}
                     data-testid="engagement-email-toggle"
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${
-                        enabled ? "bg-accent" : "bg-border"
+                    className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors disabled:opacity-50 ${
+                        enabled ? "justify-end bg-accent" : "justify-start bg-border"
                     }`}
                 >
+                    {/* The knob's colour is per-state rather than fixed, because no single
+                        token contrasts with both tracks in both themes: `surface` is white
+                        on a near-white off-track in light mode, and near-black on a dark
+                        off-track in dark mode — invisible either way. `on-accent` exists to
+                        sit on the accent, and `text-3` is mid-grey in both themes, so it
+                        reads against the off-track whichever way the theme goes.
+
+                        Positioned by flex rather than an absolute offset: the old version
+                        translated the knob by a hardcoded pixel value that had to stay in
+                        step with the track's width, and justify-start/end cannot drift. */}
                     <span
                         aria-hidden="true"
-                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-surface transition-transform ${
-                            enabled ? "translate-x-[22px]" : "translate-x-0.5"
+                        className={`h-5 w-5 rounded-full transition-colors ${
+                            enabled ? "bg-on-accent" : "bg-text-3"
                         }`}
                     />
                 </button>

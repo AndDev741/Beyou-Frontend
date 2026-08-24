@@ -116,9 +116,9 @@ export default function ConfigurationScreen() {
           <View className="gap-6">
             <LanguageSection />
             <ConstanceSection />
-            <NotificationSection />
             <RoutineSettingsSection />
             <TutorialSection />
+            <NotificationSection />
             <PrivacyPolicySection />
           </View>
         </ConfigSection>
