@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "emoji-datasource": "^16.0.0",
-    "turbo": "^2.3.0",
+    "turbo": "^2.10.11",
     "typescript": "^5.0.0"
   },
   "overrides": {
