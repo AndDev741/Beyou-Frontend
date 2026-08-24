@@ -38,6 +38,7 @@ __NAV__
       <li>The name you chose, your email address, and your password stored only as a bcrypt hash. The plain password is never written down and cannot be recovered, only reset.</li>
       <li>A flag recording whether you signed up with email or with Google, and whether your email address has been confirmed.</li>
       <li>Your time zone, your language, your chosen theme, and which dashboard widgets you use. The time zone matters because it decides when your day rolls over.</li>
+      <li>Whether you want the occasional email about your own routine, and a token that lets the unsubscribe link in those emails work without you signing in. Both are described in section 4.</li>
       <li>A profile picture, if you upload one, and an optional profile quote and its author.</li>
       <li>Your XP, your level, your streaks and the list of days you completed.</li>
     </ul>
@@ -154,6 +155,7 @@ __NAV__
           <tr><td>Keeping the account safe: password hashing, session handling, rate limits, abuse prevention</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Finding and fixing crashes through error reports</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Handling the feedback you chose to send</td><td>Legitimate interests, article 6(1)(f)</td></tr>
+          <tr><td>Sending you the occasional email about your own routine: a streak about to break, a day whose record is about to close. Never an advertisement, never anyone else's message. You can switch these off in the app or from a link in any one of them, and switching them off does not affect the account emails above</td><td>Legitimate interests, article 6(1)(f)</td></tr>
         </tbody>
       </table>
     </div>
@@ -176,7 +178,7 @@ __NAV__
         <tbody>
           <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and the habits, goals, tasks, routines and settings the assistant reads to answer, plus your display name</td><td>Only if you use the AI assistant or the guided setup. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
-          <tr><td>The email provider configured for Beyou</td><td>Your email address and the contents of the account emails, including feedback confirmations that quote your message</td><td>Delivering account email</td></tr>
+          <tr><td>The email provider configured for Beyou</td><td>Your email address and the contents of every email Beyou sends you: the account emails, including feedback confirmations that quote your message, and the routine emails described in section 4</td><td>Delivering email</td></tr>
           <tr><td>A self-hosted error collector</td><td>Error reports, configured to exclude your identity, IP, cookies and request bodies</td><td>Fixing crashes</td></tr>
           <tr><td>PostHog (usage analytics, EU)</td><td>How Beyou is used: pages and screens viewed, interface interactions, a short list of things you did in the app, and the current shape of your account. Both lists are spelled out under this table. Inside the app, the words on your screen are masked out before anything is sent, web addresses are stripped of tokens, and you are identified by an internal account id and your display name, never by your email</td><td>Understanding which features are used and which are not, to decide what to improve</td></tr>
           <tr><td>Cloudflare</td><td>Requests to this website, and the analytics events above, which reach PostHog through a relay Beyou runs on Cloudflare</td><td>Hosting this website and relaying analytics</td></tr>
@@ -328,7 +330,7 @@ __NAV__
       <li>Correction of anything wrong. Most of it you can edit yourself in the app.</li>
       <li>Deletion, as described in section 9.</li>
       <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, categories, habits, tasks, goals, routines, check-in history, feedback, and your assistant conversations along with the notes the assistant wrote about you. What it leaves out: the daily snapshots of your routines, anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
-      <li>Restriction of processing, and objection to processing based on legitimate interests.</li>
+      <li>Restriction of processing, and objection to processing based on legitimate interests. For the routine emails that means the switch in the app's settings, or the unsubscribe link at the bottom of any one of them. No sign-in needed, and it takes effect immediately.</li>
       <li>Withdrawal of any consent you gave, without affecting what happened before.</li>
     </ul>
     <p>
