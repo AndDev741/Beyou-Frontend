@@ -56,8 +56,8 @@ CONTACT = "beyouwebapp@gmail.com"
 
 # Shown as the policy's effective date. Bump it whenever the text changes in a
 # way a reader would care about.
-POLICY_DATE_EN = "19 August 2026"
-POLICY_DATE_PT = "19 de agosto de 2026"
+POLICY_DATE_EN = "24 August 2026"
+POLICY_DATE_PT = "24 de agosto de 2026"
 
 # Site-wide, language-level facts. Page titles live in PAGES.
 LOCALES = {

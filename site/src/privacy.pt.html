@@ -180,13 +180,36 @@ __NAV__
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
           <tr><td>O provedor de e-mail configurado para o Beyou</td><td>Seu e-mail e o conteúdo dos e-mails da conta, incluindo confirmações de feedback que citam sua mensagem</td><td>Entrega dos e-mails da conta</td></tr>
           <tr><td>Um coletor de erros hospedado por conta própria</td><td>Relatórios de erro, configurados para excluir sua identidade, IP, cookies e corpo das requisições</td><td>Corrigir falhas</td></tr>
-          <tr><td>PostHog (métricas de uso, UE)</td><td>Como o Beyou é usado: páginas e telas visitadas e interações com a interface. Dentro do app, as palavras da sua tela são mascaradas antes de qualquer envio, os endereços têm seus tokens removidos, e você é identificado por um id interno da conta e seu nome de exibição, nunca pelo seu email</td><td>Entender quais recursos são usados e quais não são, para decidir o que melhorar</td></tr>
+          <tr><td>PostHog (métricas de uso, UE)</td><td>Como o Beyou é usado: páginas e telas visitadas, interações com a interface, uma lista curta de coisas que você fez no app e o estado atual da sua conta. As duas listas estão detalhadas abaixo desta tabela. Dentro do app, as palavras da sua tela são mascaradas antes de qualquer envio, os endereços têm seus tokens removidos, e você é identificado por um id interno da conta e seu nome de exibição, nunca pelo seu email</td><td>Entender quais recursos são usados e quais não são, para decidir o que melhorar</td></tr>
           <tr><td>Cloudflare</td><td>As requisições a este site, e os eventos de métricas acima, que chegam ao PostHog por um relay que o Beyou roda na Cloudflare</td><td>Hospedagem deste site e relay das métricas</td></tr>
           <tr><td>Google Play</td><td>O que o Google coletar quando você instala ou atualiza o app Android, sob a política do próprio Google</td><td>Distribuição do app Android</td></tr>
           <tr><td>placehold.co</td><td>Seu endereço IP, apenas na tela de perfil da web, e apenas se sua foto de perfil falhar ao carregar</td><td>Desenhar um avatar de reserva</td></tr>
         </tbody>
       </table>
     </div>
+    <p>
+      O que as métricas de uso registram sobre o que você fez: que um item foi
+      marcado ou pulado, incluindo se você estava preenchendo um dia anterior e
+      quanto de XP aquilo rendeu; que um nível foi ganho; que uma sequência atingiu
+      um marco; que um item foi criado, e se era hábito, tarefa, meta, rotina ou
+      categoria; que uma meta foi concluída; que o tutorial foi finalizado; que uma
+      mensagem foi enviada ao assistente, apenas o tamanho dela e nunca o texto; e
+      qual passo da configuração guiada pediu sugestões.
+    </p>
+    <p>
+      Junto disso, o estado atual da sua conta fica anexado ao seu perfil lá, e é
+      sobrescrito sempre que muda: seu nível e XP, sua sequência atual e o recorde,
+      se a sequência está parada, se o tutorial foi concluído, se você se cadastrou
+      com o Google, seu fuso horário e se você o escolheu ou o app o detectou, sua
+      configuração de decaimento de XP, seu idioma, seu tema e o dia em que a conta
+      foi criada.
+    </p>
+    <p>
+      O que nunca chega até eles: os nomes dos seus hábitos, tarefas, metas, rotinas
+      ou categorias, nada do que você escreveu para o assistente, e o texto de
+      qualquer feedback que você enviou. As métricas registram que algo aconteceu e
+      de que tipo era, nunca as palavras que você escolheu.
+    </p>
     <p>
       Dados também podem ser revelados quando a lei exigir, o que até hoje não
       aconteceu.
