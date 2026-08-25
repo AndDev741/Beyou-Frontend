@@ -70,9 +70,10 @@ export default function Configuration() {
             )}
 
             {/* Two columns on desktop (profile, widgets and log out on the left;
-                appearance, preferences and the danger zone on the right). On a phone
-                `contents` undoes the columns and the order classes take over: profile,
-                appearance, preferences, danger zone, widgets, log out. */}
+                appearance and preferences on the right). On a phone `contents` undoes
+                the columns and the order classes take over: profile, appearance,
+                preferences, widgets, log out. The danger zone sits outside the grid
+                so it closes the page at every width, below log out. */}
             <div className="mt-4 flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start">
                 <div className="contents lg:flex lg:flex-col lg:gap-4">
                     <ConfigSection
@@ -88,12 +89,12 @@ export default function Configuration() {
                         title={t("ConfigSectionWidgets")}
                         icon={<LayoutGrid size={16} aria-hidden="true" />}
                         tutorialId="config-dashboard"
-                        className="order-5"
+                        className="order-4"
                     >
                         <WidgetsConfiguration />
                     </ConfigSection>
 
-                    <AccountConfiguration className="order-6" />
+                    <AccountConfiguration className="order-5" />
                 </div>
 
                 <div className="contents lg:flex lg:flex-col lg:gap-4">
@@ -121,10 +122,10 @@ export default function Configuration() {
                             <PrivacyPolicyLink />
                         </div>
                     </ConfigSection>
-
-                    <DangerZone className="order-4" />
                 </div>
             </div>
+
+            <DangerZone className="mt-4" />
         </div>
     );
 }
