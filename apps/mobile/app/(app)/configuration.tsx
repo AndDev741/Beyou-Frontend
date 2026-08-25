@@ -26,7 +26,8 @@ import type { AppDispatch } from '../../src/store';
 
 /**
  * Configuration / settings screen. Profile lands first (P5-A1); Appearance
- * (A2) and Preferences (A3) slot in below. Logout stays at the bottom.
+ * (A2) and Preferences (A3) slot in below. Logout and then the danger zone
+ * close the screen.
  */
 export default function ConfigurationScreen() {
   const { t } = useTranslation();
@@ -84,8 +85,8 @@ export default function ConfigurationScreen() {
           </View>
         </View>
 
-        {/* The mockup's order: profile, appearance, preferences, widgets and, last,
-            log out. The e-mail shows up nowhere. */}
+        {/* The mockup's order: profile, appearance, preferences, widgets, log out
+            and, closing the screen, the danger zone. The e-mail shows up nowhere. */}
         <ConfigSection
           title={t('ConfigSectionProfile')}
           header={<ProfileHeaderRow />}
@@ -123,8 +124,6 @@ export default function ConfigurationScreen() {
           </View>
         </ConfigSection>
 
-        <DangerZoneSection />
-
         <ConfigSection
           icon={<LayoutGrid size={16} color={theme.accent} />}
           title={t('ConfigSectionWidgets')}
@@ -135,7 +134,8 @@ export default function ConfigurationScreen() {
           <WidgetsSection />
         </ConfigSection>
 
-        {/* Log out closes the list, in the destructive tone and on one row — as on the web. */}
+        {/* Log out, in the destructive tone and on one row — as on the web. Only the
+            danger zone comes after it. */}
         <Pressable
           onPress={() => dispatch(logout())}
           accessibilityRole="button"
@@ -150,6 +150,8 @@ export default function ConfigurationScreen() {
           </IconTile>
           <Text className="text-[14px] font-semibold text-danger">{t('Logout')}</Text>
         </Pressable>
+
+        <DangerZoneSection />
       </ScrollView>
     </View>
   );
