@@ -28,12 +28,64 @@ beforeEach(() => {
   (notify.error as jest.Mock).mockClear();
 });
 
-test('opens straight on the form, with the list type shown but disabled', async () => {
+test('opens straight on the form, with both types offered', async () => {
   await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
   // No chooser screen: the type is a segmented control at the top of the form itself.
   expect(screen.getByTestId('routine-name')).toBeTruthy();
   expect(screen.getByTestId('routine-type-daily').props.accessibilityState.selected).toBe(true);
+  // List used to sit here disabled with a "soon" label. It is a real option now.
+  expect(screen.getByTestId('routine-type-list').props.accessibilityState.disabled).toBeFalsy();
+});
+
+test('the type is locked while editing', async () => {
+  const routine = { id: 'r1', name: 'Morning', iconId: '', type: 'DAILY', routineSections: [] } as never;
+  await wrap(<RoutineBuilder visible mode="edit" routine={routine} habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  // The backend refuses a type change, so offering one here would only produce an error
+  // the user cannot act on.
+  expect(screen.getByTestId('routine-type-daily').props.accessibilityState.disabled).toBe(true);
   expect(screen.getByTestId('routine-type-list').props.accessibilityState.disabled).toBe(true);
+});
+
+test('picking list swaps the form: no sections, an item list instead', async () => {
+  await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-list')); });
+
+  expect(screen.queryByTestId('add-section')).toBeNull();
+  expect(screen.getByTestId('add-list-item')).toBeTruthy();
+});
+
+test('posts a list routine with items and no sections', async () => {
+  const onSaved = jest.fn();
+  await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={onSaved} />);
+  await act(async () => { fireEvent.changeText(screen.getByTestId('routine-name'), 'Errands'); });
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-list')); });
+
+  await act(async () => { fireEvent.press(screen.getByTestId('add-list-item')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('list-item-habit-h1')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('list-items-save')); });
+
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-save')); });
+
+  await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+  const [url, body] = post.mock.calls[0];
+  expect(url).toBe('/routine');
+  expect(body.name).toBe('Errands');
+  expect(body.type).toBe('LIST');
+  // The two halves are mutually exclusive on the wire: the backend rejects a body
+  // carrying both, so a payload that hedged would 400 rather than degrade.
+  expect(body.routineSections).toBeUndefined();
+  expect(body.items).toEqual([{ habitId: 'h1', taskId: null }]);
+  expect(onSaved).toHaveBeenCalled();
+}, 20000);
+
+test('a list with no items is refused before it reaches the server', async () => {
+  await wrap(<RoutineBuilder visible mode="create" habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+  await act(async () => { fireEvent.changeText(screen.getByTestId('routine-name'), 'Errands'); });
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-type-list')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-save')); });
+
+  expect(post).not.toHaveBeenCalled();
+  expect(notify.error).toHaveBeenCalled();
 });
 
 test('blocks save with no name/sections', async () => {

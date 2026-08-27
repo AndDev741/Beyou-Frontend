@@ -26,7 +26,10 @@ export const getRoutineSteps = ({
         }
         : {
             id: "routine-form",
-            targetSelector: "[data-tutorial-id='routine-create-area']",
+            // The list form itself, matching how the daily branch above targets its own
+            // form rather than the modal around it. This branch was written before the list
+            // type existed and had nothing more specific to point at.
+            targetSelector: "[data-tutorial-id='routine-list-form']",
             titleKey: "TutorialSpotlightRoutineFormTitle",
             descriptionKey: "TutorialSpotlightRoutineFormDescription",
             position: isMobile ? "top" : "left",

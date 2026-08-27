@@ -4,7 +4,7 @@
  * Both apps carried a byte-identical copy of the formatting half, with a
  * comment admitting "change here, change there". This is the one home.
  */
-import type { Routine } from '@beyou/types/routine/routine';
+import type { Routine, RoutineListItem } from '@beyou/types/routine/routine';
 import type { RoutineSection, check } from '@beyou/types/routine/routineSection';
 
 export type RoutineStats = { totalItems: number; completedItems: number; xpEarned: number };
@@ -61,4 +61,65 @@ export function getRoutineStats(routine: Routine, date: string): RoutineStats {
 
 export function countItemsInRoutine(routine: Routine): number {
   return (routine.routineSections ?? []).reduce((n, s) => n + (s.taskGroup?.length ?? 0) + (s.habitGroup?.length ?? 0), 0);
+}
+
+/**
+ * Whether a routine is the flat checklist kind.
+ *
+ * The one place the "no type at all means DAILY" rule lives — every routine the backend
+ * wrote before the List type existed comes back without the field, and all of them are
+ * daily. Lives here rather than in @beyou/types because that package is types-only and the
+ * first runtime value in it would turn it into a real module for every consumer.
+ *
+ * `packages/api/routine/routinePayload.ts` compares inline instead of calling this: @beyou/state
+ * depends on @beyou/api, so importing back the other way would be a cycle.
+ */
+export const isListRoutine = (routine?: Pick<Routine, 'type'> | null): boolean =>
+  routine?.type === 'LIST';
+
+/**
+ * A LIST routine's entries in the order the user arranged them.
+ *
+ * Reads `items` when the backend sent it and falls back to walking the single internal
+ * section otherwise, which is what a routine cached by an older client looks like after an
+ * app update: `routineSections` is populated, `items` is not, and the list would render
+ * empty without this.
+ */
+export function getListItems(routine: Routine): RoutineListItem[] {
+  if (!isListRoutine(routine)) return [];
+  if (routine.items?.length) {
+    return [...routine.items].sort((a, b) => a.orderIndex - b.orderIndex);
+  }
+  const section = routine.routineSections?.[0];
+  if (!section) return [];
+  const habits: RoutineListItem[] = (section.habitGroup ?? []).map((g, i) => ({
+    id: g.id ?? '',
+    type: 'HABIT',
+    habitId: g.habitId,
+    orderIndex: i,
+    checks: g.habitGroupChecks,
+  }));
+  const tasks: RoutineListItem[] = (section.taskGroup ?? []).map((g, i) => ({
+    id: g.id ?? '',
+    type: 'TASK',
+    taskId: g.taskId,
+    orderIndex: habits.length + i,
+    checks: g.taskGroupChecks,
+  }));
+  return [...habits, ...tasks];
+}
+
+/** How many of a list's items are done on a given date. */
+export function getListStats(routine: Routine, date: string): RoutineStats {
+  return getListItems(routine).reduce<RoutineStats>(
+    (acc, item) => {
+      const done = (item.checks ?? []).filter((c) => c?.checkDate === date && Boolean(c?.checked));
+      return {
+        totalItems: acc.totalItems + 1,
+        completedItems: acc.completedItems + (done.length > 0 ? 1 : 0),
+        xpEarned: acc.xpEarned + done.reduce((sum, c) => sum + (c?.xpGenerated ?? 0), 0),
+      };
+    },
+    { totalItems: 0, completedItems: 0, xpEarned: 0 },
+  );
 }

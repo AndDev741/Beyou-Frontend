@@ -2724,10 +2724,23 @@
           "iconId": {
             "type": "string"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAILY",
+              "LIST"
+            ]
+          },
           "routineSections": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RoutineSectionRequestDTO"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineItemRequestDTO"
             }
           }
         }
@@ -2883,10 +2896,23 @@
           "iconId": {
             "type": "string"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAILY",
+              "LIST"
+            ]
+          },
           "routineSections": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RoutineSectionResponseDTO"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoutineItemResponseDTO"
             }
           },
           "schedule": {
@@ -4901,6 +4927,57 @@
         "required": [
           "token"
         ]
+      },
+      "RoutineItemRequestDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "RoutineItemResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "HABIT",
+              "TASK"
+            ]
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orderIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseCheck"
+            }
+          }
+        }
       }
     }
   }

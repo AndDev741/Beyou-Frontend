@@ -7,7 +7,7 @@ import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
 import Card from "../../ui/Card";
 import Ring from "../../ui/Ring";
-import { formatTimeRange, getSectionStats, getRoutineStats } from "@beyou/state";
+import { formatTimeRange, getSectionStats, getRoutineStats, getListStats, getListItems, isListRoutine } from "@beyou/state";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import { parseLocalDate } from "@beyou/state";
@@ -41,7 +41,17 @@ export const RoutineCard = ({
     const { t } = useTranslation();
     const [expanded, setExpanded] = useState(false);
 
-    const stats = useMemo(() => getRoutineStats(routine, selectedDate), [routine, selectedDate]);
+    const isList = isListRoutine(routine);
+    const stats = useMemo(
+        () => (isList ? getListStats(routine, selectedDate) : getRoutineStats(routine, selectedDate)),
+        [isList, routine, selectedDate],
+    );
+    // The order the user dragged the items into. Empty for a daily routine, which sorts by
+    // start time instead and has no use for this.
+    const listOrder = useMemo(
+        () => (isList ? getListItems(routine).map((item) => item.id) : []),
+        [isList, routine],
+    );
     const completion = stats.totalItems > 0 ? Math.round((stats.completedItems / stats.totalItems) * 100) : 0;
     const totalSections = routine.routineSections?.length || 0;
     const totalItems = routine.routineSections?.reduce((total, section) => {
@@ -93,7 +103,9 @@ export const RoutineCard = ({
                             {routine.name}
                         </b>
                         <span className="text-xs text-text-3">
-                        {t("SectionsCount", { count: totalSections })} · {t("ItemsCount", { count: totalItems })}
+                        {isList
+                            ? t("ItemsCount", { count: totalItems })
+                            : `${t("SectionsCount", { count: totalSections })} · ${t("ItemsCount", { count: totalItems })}`}
                         {scheduleDays.length > 0 &&
                             ` · ${
                                 scheduleDays.length === 7
@@ -257,6 +269,8 @@ export const RoutineCard = ({
                                 routineId={routine.id}
                                 onCheckItem={onCheckItem}
                                 onSkipItem={onSkipItem}
+                                variant={isList ? "list" : "section"}
+                                listOrder={listOrder}
                             />
                         ))}
                 </div>
@@ -275,10 +289,19 @@ type SectionRowProps = {
     routineId?: string;
     onCheckItem: (payload: itemGroupToCheck) => Promise<void>;
     onSkipItem: (payload: itemGroupToSkip) => Promise<void>;
+    /**
+     * "section" draws the header with its name and time range. "list" leaves it out: a LIST
+     * routine keeps its items in one internal section named after the routine, so drawing
+     * that header would repeat the routine's own name back at the user under a clock icon.
+     */
+    variant?: "section" | "list";
+    /** Item group ids in the order the user dragged them. Only read when variant is "list". */
+    listOrder?: string[];
 };
 
-const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem, onSkipItem }: SectionRowProps) => {
+const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem, onSkipItem, variant = "section", listOrder = [] }: SectionRowProps) => {
     const { t } = useTranslation();
+    const isList = variant === "list";
     const sectionStats = useMemo(() => getSectionStats(section, selectedDate), [section, selectedDate]);
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
 
@@ -331,15 +354,26 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                 };
             }) || [];
 
-        return [...tasks, ...habits].sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
-    }, [section, selectedDate, taskLookup, habitLookup, t]);
+        const merged = [...tasks, ...habits];
+        if (isList) {
+            // Dragged order. An id the order does not know sinks to the bottom rather than
+            // to the top, so a row added by another device shows up last instead of jumping
+            // to the front of the list.
+            const rank = (groupId: string) => {
+                const index = listOrder.indexOf(groupId);
+                return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+            };
+            return merged.sort((a, b) => rank(a.groupId) - rank(b.groupId));
+        }
+        return merged.sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
+    }, [section, selectedDate, taskLookup, habitLookup, t, isList, listOrder]);
 
     return (
         <div className="mt-3 first:mt-0">
             {/* Same header as the day's routine: loose icon, 12.5px name in text-2 and
                 the time in mono. The 32px tile with a 13.5px name weighed more than the
                 items it groups. */}
-            <div className="flex w-full items-center gap-2.5 py-1.5">
+            <div className={`w-full items-center gap-2.5 py-1.5 ${isList ? "hidden" : "flex"}`}>
                 <span className="shrink-0 text-[15px] text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                 </span>
@@ -449,9 +483,16 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                                                 +{item.xp} XP
                                             </span>
                                         ) : null}
-                                        <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
-                                            {formatTimeRange(item.startTime, item.endTime)}
-                                        </span>
+                                        {/* Only when there is a time to show: the pill carries
+                                            its own background and padding, so an empty string
+                                            draws a small grey blob instead of nothing. True of
+                                            a list, which has no times, and of any daily item
+                                            left without one. */}
+                                        {!isList && formatTimeRange(item.startTime, item.endTime) ? (
+                                            <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
+                                                {formatTimeRange(item.startTime, item.endTime)}
+                                            </span>
+                                        ) : null}
                                         {!item.completed && (
                                             <button
                                                 type="button"

@@ -152,6 +152,9 @@ export type { TaskSortKey } from './viewFilters/sortTasks';
 export {
     getRoutineStats,
     getSectionStats,
+    isListRoutine,
+    getListItems,
+    getListStats,
     countItemsInRoutine,
     formatTime,
     formatTimeRange,

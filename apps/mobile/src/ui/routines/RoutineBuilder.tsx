@@ -3,11 +3,12 @@ import { Modal, View, Text, ScrollView } from 'react-native';
 import { X } from 'lucide-react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { routineFormSchema, getSectionErrorKeys, getItemTimeErrorKeys } from '@beyou/validation';
+import { routineFormSchema, routineListFormSchema, getSectionErrorKeys, getItemTimeErrorKeys } from '@beyou/validation';
 import createRoutine from '@beyou/api/routine/createRoutine';
 import editRoutine from '@beyou/api/routine/editRoutine';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import type { Routine } from '@beyou/types/routine/routine';
+import { getListItems, isListRoutine } from '@beyou/state';
+import type { Routine, RoutineListItem } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
@@ -19,6 +20,8 @@ import IconButton from '../IconButton';
 import SegmentedControl from '../SegmentedControl';
 import SectionSheet from './SectionSheet';
 import ItemPickerSheet from './ItemPickerSheet';
+import ListItemPickerSheet from './ListItemPickerSheet';
+import ListItemsEditor from './ListItemsEditor';
 import SectionCard from './SectionCard';
 import type { MergedSectionItem } from './sectionItems';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -35,7 +38,7 @@ interface RoutineBuilderProps {
   onSaved: () => void;
 }
 
-const emptyRoutine = (): Routine => ({ name: '', iconId: '', routineSections: [] });
+const emptyRoutine = (): Routine => ({ name: '', iconId: '', type: 'DAILY', routineSections: [], items: [] });
 
 export default function RoutineBuilder({ visible, mode, routine, habits, tasks, onClose, onSaved }: RoutineBuilderProps) {
   const { t } = useTranslation();
@@ -52,15 +55,28 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
   const [working, setWorking] = useState<Routine>(emptyRoutine());
   const [sectionSheet, setSectionSheet] = useState<{ open: boolean; index: number | null }>({ open: false, index: null });
   const [itemSheet, setItemSheet] = useState<number | null>(null);
+  const [listSheetOpen, setListSheetOpen] = useState(false);
+  const [listItems, setListItems] = useState<RoutineListItem[]>([]);
+  const isList = isListRoutine(working);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | undefined>();
 
   useEffect(() => {
     if (!visible) return;
     // Deep clone so edits never mutate the slice.
-    setWorking(routine ? JSON.parse(JSON.stringify(routine)) : emptyRoutine());
+    const next: Routine = routine ? JSON.parse(JSON.stringify(routine)) : emptyRoutine();
+    setWorking(next);
+    setListItems(isListRoutine(next) ? getListItems(next) : []);
     setFormError(undefined);
   }, [visible, routine, isEdit]);
+
+  const moveListItem = (index: number, dir: -1 | 1) => {
+    const to = index + dir;
+    if (to < 0 || to >= listItems.length) return;
+    const next = [...listItems];
+    [next[index], next[to]] = [next[to], next[index]];
+    setListItems(next);
+  };
 
   const setSections = (routineSections: RoutineSection[]) =>
     setWorking((w) => ({ ...w, routineSections: routineSections.map((s, i) => ({ ...s, order: i })) }));
@@ -114,16 +130,35 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
 
   const save = async () => {
     setFormError(undefined);
-    const parsed = routineFormSchema(t).safeParse({
-      routineName: working.name,
-      routineSections: working.routineSections,
-    });
-    if (!parsed.success) {
-      fail(sectionQualifiedError() ?? parsed.error.issues[0]?.message ?? t('UnexpectedError'));
-      return;
+
+    // A list is validated against its own schema: routineFormSchema demands at least one
+    // section with a start time, which is exactly what this shape does not have.
+    const payload: Routine = isList
+      ? { ...working, routineSections: [], items: listItems.map((item, i) => ({ ...item, orderIndex: i })) }
+      : working;
+
+    if (isList) {
+      const parsed = routineListFormSchema(t).safeParse({
+        routineName: payload.name,
+        items: payload.items,
+      });
+      if (!parsed.success) {
+        fail(parsed.error.issues[0]?.message ?? t('UnexpectedError'));
+        return;
+      }
+    } else {
+      const parsed = routineFormSchema(t).safeParse({
+        routineName: working.name,
+        routineSections: working.routineSections,
+      });
+      if (!parsed.success) {
+        fail(sectionQualifiedError() ?? parsed.error.issues[0]?.message ?? t('UnexpectedError'));
+        return;
+      }
     }
+
     setSubmitting(true);
-    const res = isEdit ? await editRoutine(working, t) : await createRoutine(working, t);
+    const res = isEdit ? await editRoutine(payload, t) : await createRoutine(payload, t);
     setSubmitting(false);
     if (res.error) { fail(getFriendlyErrorMessage(t, res.error)); return; }
     if (res.validation) { fail(res.validation); return; }
@@ -161,9 +196,9 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           contentContainerStyle={{ paddingBottom: bottomPad }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Only the daily routine exists; the list one is designed and shows dimmed
-              instead of hidden, as on the web. This replaces the chooser that opened
-              creation with two illustrations. */}
+          {/* Daily is sections with time windows; list is a plain checklist. Locked while
+              editing: the backend refuses a type change, because switching would either
+              discard every window the user set or invent times nobody chose. */}
           <View>
             <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
               {t('RoutineTypeLabel')}
@@ -171,12 +206,22 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
             <SegmentedControl
               className="w-full"
               label={t('RoutineTypeLabel')}
-              value="daily"
-              onChange={() => {}}
+              value={isList ? 'list' : 'daily'}
+              onChange={(value) => setWorking((w) => ({ ...w, type: value === 'list' ? 'LIST' : 'DAILY' }))}
               testID="routine-type"
               options={[
-                { value: 'daily', label: t('RoutineTypeDaily') },
-                { value: 'list', label: t('RoutineTypeList'), disabled: true },
+                {
+                  value: 'daily',
+                  label: t('RoutineTypeDaily'),
+                  description: t('RoutineTypeDailyDescription'),
+                  disabled: isEdit,
+                },
+                {
+                  value: 'list',
+                  label: t('RoutineTypeList'),
+                  description: t('RoutineTypeListDescription'),
+                  disabled: isEdit,
+                },
               ]}
             />
           </View>
@@ -193,6 +238,16 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
             />
           </View>
 
+          {isList ? (
+            <ListItemsEditor
+              items={listItems}
+              habits={habits}
+              tasks={tasks}
+              onMove={moveListItem}
+              onRemove={(index) => setListItems((prev) => prev.filter((_, i) => i !== index))}
+              onAdd={() => setListSheetOpen(true)}
+            />
+          ) : (
           <View>
             <Text className="mb-2 text-[13px] font-semibold text-text-2">{t('Sections')}</Text>
             <View className="gap-2">
@@ -220,6 +275,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
               testID="add-section"
             />
           </View>
+          )}
 
           {formError ? (
             <Text className="text-center text-[12.5px] font-semibold text-danger" testID="routine-form-error">
@@ -245,6 +301,14 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           section={sectionSheet.index !== null ? working.routineSections[sectionSheet.index] : null}
           onSave={upsertSection}
           onClose={() => setSectionSheet({ open: false, index: null })}
+        />
+        <ListItemPickerSheet
+          visible={listSheetOpen}
+          items={listItems}
+          habits={habits}
+          tasks={tasks}
+          onSave={setListItems}
+          onClose={() => setListSheetOpen(false)}
         />
         {itemSheet !== null ? (
           <ItemPickerSheet

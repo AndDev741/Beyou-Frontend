@@ -130,7 +130,9 @@ const EditDailyRoutine = () => {
 
     return (
         <div>
-            <RoutineTypeField />
+            {/* Fixed once the routine exists: the backend refuses a type change, because
+                    switching would either discard every time window or invent times nobody set. */}
+                <RoutineTypeField value="daily" onChange={() => {}} disabled />
 
             <div className="mt-4">
                 <label htmlFor="edit-routine-name" className="mb-1.5 block text-[12.5px] font-semibold text-text-2">

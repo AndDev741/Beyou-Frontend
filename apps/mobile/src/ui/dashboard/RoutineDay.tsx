@@ -18,12 +18,19 @@ import Chip from '../Chip';
 import EmptyState from '../EmptyState';
 import BeyouIcon from '../BeyouIcon';
 import IconButton from '../IconButton';
+import { getListItems, isListRoutine } from '@beyou/state';
 import RoutineItem, { type MergedItem } from './RoutineItem';
 import RoutineCompleteSummary from './RoutineCompleteSummary';
 import type { RootState, AppDispatch } from '../../store';
 
-/** Flatten a section's habit + task groups into one start-time-sorted list. */
-function mergeItems(section: RoutineSection): MergedItem[] {
+/**
+ * Flatten a section's habit + task groups into one display list.
+ *
+ * Sorted by start time, except for a LIST routine: `listOrder` carries the order the user
+ * arranged, and a list has no times to sort by. Anything the order does not know sinks to
+ * the bottom rather than jumping to the top.
+ */
+function mergeItems(section: RoutineSection, listOrder?: string[]): MergedItem[] {
   const tasks: MergedItem[] = (section.taskGroup ?? []).map((g) => ({
     type: 'task',
     id: g.taskId,
@@ -40,7 +47,15 @@ function mergeItems(section: RoutineSection): MergedItem[] {
     endTime: g.endTime,
     check: g.habitGroupChecks,
   }));
-  return [...tasks, ...habits].sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? ''));
+  const merged = [...tasks, ...habits];
+  if (listOrder) {
+    const rank = (groupId: string) => {
+      const index = listOrder.indexOf(groupId);
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+    return merged.sort((a, b) => rank(a.groupId) - rank(b.groupId));
+  }
+  return merged.sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? ''));
 }
 
 function EmptyRoutine() {
@@ -66,12 +81,15 @@ function EmptyRoutine() {
  */
 function Section({
   section,
+  listOrder,
   routineId,
   today,
   collapsedIds,
   onToggle,
 }: {
   section: RoutineSection;
+  /** Item group ids in the user's order, for a LIST routine. Undefined for a daily one. */
+  listOrder?: string[];
   routineId: string;
   today: string;
   collapsedIds: string[];
@@ -84,12 +102,19 @@ function Section({
 
   const sectionId = section.id ?? section.name ?? '';
   const collapsed = collapsedIds.includes(sectionId);
-  const items = mergeItems(section);
+  const isList = listOrder !== undefined;
+  // A list is never collapsed: its toggle lives in the header the list hides, so a
+  // stored `true` would leave the items invisible with nothing on screen to undo it.
+  const collapsedResolved = isList ? false : collapsed;
+  const items = mergeItems(section, listOrder);
   const { xpEarned } = getSectionStats(section, today);
   const timeRange = formatTimeRange(section.startTime, section.endTime);
 
   return (
     <View className="mb-4 w-full" testID={`routine-section-${sectionId}`}>
+      {/* A list keeps its items in one internal section named after the routine, so this
+          header would only echo the card's own title back with an empty time range. */}
+      {isList ? null : (
       <View className="flex-row items-center gap-2">
         <BeyouIcon id={section.iconId} size={16} />
         <Text className="shrink text-[12.5px] font-semibold text-text-2" numberOfLines={1}>
@@ -119,8 +144,9 @@ function Section({
           )}
         </IconButton>
       </View>
+      )}
 
-      {!collapsed
+      {!collapsedResolved
         ? items.map((item) => {
             const resolved =
               item.type === 'habit'
@@ -152,6 +178,7 @@ export default function RoutineDay() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const routine = useSelector((s: RootState) => s.todayRoutine.routine);
+  const isList = isListRoutine(routine);
   const today = new Date().toJSON().slice(0, 10);
   const checked = useSelector((s: RootState) => s.perfil.checkedItemsInScheduledRoutine);
   const total = useSelector((s: RootState) => s.perfil.totalItemsInScheduledRoutine);
@@ -202,7 +229,9 @@ export default function RoutineDay() {
             {routine.name}
           </Text>
           <Text className="text-xs text-text-3" numberOfLines={1}>
-            {`${t('TodaysRoutine')} · ${t('SectionsCount', { count: routine.routineSections?.length ?? 0 })}`}
+            {isList
+              ? `${t('TodaysRoutine')} · ${t('RoutineTypeList')}`
+              : `${t('TodaysRoutine')} · ${t('SectionsCount', { count: routine.routineSections?.length ?? 0 })}`}
           </Text>
         </View>
 
@@ -229,6 +258,7 @@ export default function RoutineDay() {
         <Section
           key={section.id ?? sIdx}
           section={section}
+          listOrder={isList ? getListItems(routine).map((item) => item.id) : undefined}
           routineId={routine.id ?? ''}
           today={today}
           collapsedIds={collapsedIds}

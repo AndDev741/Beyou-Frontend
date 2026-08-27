@@ -5,6 +5,12 @@ interface Option<T extends string | number> {
   label: string;
   /** An option that is designed but not implemented yet — shows dimmed, never hidden. */
   disabled?: boolean;
+  /**
+   * A line under the label saying what the option means. Optional: adding one to any option
+   * switches the whole control to the taller two-line layout, so segments with and without
+   * a description still line up.
+   */
+  description?: string;
 }
 
 interface SegmentedControlProps<T extends string | number> {
@@ -30,8 +36,9 @@ export default function SegmentedControl<T extends string | number>({
   className = '',
   testID,
 }: SegmentedControlProps<T>) {
-  const pad = size === 'sm' ? 'px-3 py-1' : 'px-4 py-1.5';
-  const fontSize = size === 'sm' ? 'text-xs' : 'text-sm';
+  const hasDescriptions = options.some((option) => option.description);
+  const pad = hasDescriptions ? 'px-3 py-2' : size === 'sm' ? 'px-3 py-1' : 'px-4 py-1.5';
+  const fontSize = size === 'sm' && !hasDescriptions ? 'text-xs' : 'text-sm';
 
   return (
     <View
@@ -51,15 +58,20 @@ export default function SegmentedControl<T extends string | number>({
             testID={testID ? `${testID}-${option.value}` : undefined}
             disabled={option.disabled}
             onPress={() => onChange(option.value)}
-            className={`flex-1 items-center rounded-[7px] ${pad} ${isActive ? 'bg-surface' : ''} ${
-              option.disabled ? 'opacity-50' : ''
-            }`}
+            className={`flex-1 rounded-[7px] ${hasDescriptions ? 'items-start' : 'items-center'} ${pad} ${
+              isActive ? 'bg-surface' : ''
+            } ${option.disabled ? 'opacity-50' : ''}`}
           >
             <Text
               className={`${fontSize} font-semibold ${isActive ? 'text-text' : 'text-text-2'}`}
             >
               {option.label}
             </Text>
+            {option.description ? (
+              <Text className={`mt-0.5 text-[11.5px] ${isActive ? 'text-text-2' : 'text-text-3'}`}>
+                {option.description}
+              </Text>
+            ) : null}
           </Pressable>
         );
       })}

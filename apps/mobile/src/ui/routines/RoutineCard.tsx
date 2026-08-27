@@ -4,7 +4,7 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react-native';
-import { calculateLevelProgress, getRoutineStats } from '@beyou/state';
+import { calculateLevelProgress, getRoutineStats, getListStats, getListItems, isListRoutine } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import BeyouIcon from '../BeyouIcon';
@@ -15,7 +15,14 @@ import RoutineItem, { type MergedItem } from '../dashboard/RoutineItem';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
 
-function mergeItems(section: RoutineSection): MergedItem[] {
+/**
+ * A section's items in display order.
+ *
+ * `listOrder` is the order the user arranged a LIST routine into; passing it switches the
+ * sort from start time (which a list does not have) to that arrangement. An id the order
+ * does not know sinks to the bottom rather than jumping to the top.
+ */
+function mergeItems(section: RoutineSection, listOrder?: string[]): MergedItem[] {
   const habits: MergedItem[] = (section.habitGroup ?? []).map((g) => ({
     type: 'habit',
     id: g.habitId,
@@ -32,7 +39,15 @@ function mergeItems(section: RoutineSection): MergedItem[] {
     endTime: g.endTime,
     check: g.taskGroupChecks,
   }));
-  return [...habits, ...tasks].sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? ''));
+  const merged = [...habits, ...tasks];
+  if (listOrder) {
+    const rank = (groupId: string) => {
+      const index = listOrder.indexOf(groupId);
+      return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+    };
+    return merged.sort((a, b) => rank(a.groupId) - rank(b.groupId));
+  }
+  return merged.sort((a, b) => (a.startTime ?? '').localeCompare(b.startTime ?? ''));
 }
 
 interface RoutineCardProps {
@@ -72,7 +87,9 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const tasks = useSelector((s: RootState) => s.tasks.tasks);
   const [expanded, setExpanded] = useState(false);
 
-  const stats = getRoutineStats(routine, today);
+  const isList = isListRoutine(routine);
+  const stats = isList ? getListStats(routine, today) : getRoutineStats(routine, today);
+  const listOrder = isList ? getListItems(routine).map((item) => item.id) : undefined;
   const sections = routine.routineSections?.length ?? 0;
   const totalItems = stats.totalItems;
   const completion = totalItems > 0 ? Math.round((stats.completedItems / totalItems) * 100) : 0;
@@ -99,7 +116,8 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
           </Text>
           <Text className="text-xs text-text-3" numberOfLines={1}>
             {[
-              t('SectionsCount', { count: sections }),
+              // A list has no sections to count — the routine is the list.
+              isList ? null : t('SectionsCount', { count: sections }),
               t('ItemsCount', { count: totalItems }),
               scheduledDays.size > 0
                 ? scheduledDays.size === 7
@@ -193,16 +211,21 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
 
           {routine.routineSections?.map((section, index) => (
             <View key={section.id ?? index} className="mb-3">
-              <View className="flex-row items-center gap-2">
-                <BeyouIcon id={section.iconId} size={16} />
-                <Text className="shrink text-[12.5px] font-semibold text-text-2" numberOfLines={1}>
-                  {section.name}
-                </Text>
-                <Text className="shrink-0 font-mono text-[11px] text-text-3">
-                  {formatTimeRange(section.startTime, section.endTime)}
-                </Text>
-              </View>
-              {mergeItems(section).map((item) => {
+              {/* A list keeps its items in one internal section named after the routine, so
+                  this header would just repeat the card's own title under a time range that
+                  is empty by construction. */}
+              {isList ? null : (
+                <View className="flex-row items-center gap-2">
+                  <BeyouIcon id={section.iconId} size={16} />
+                  <Text className="shrink text-[12.5px] font-semibold text-text-2" numberOfLines={1}>
+                    {section.name}
+                  </Text>
+                  <Text className="shrink-0 font-mono text-[11px] text-text-3">
+                    {formatTimeRange(section.startTime, section.endTime)}
+                  </Text>
+                </View>
+              )}
+              {mergeItems(section, listOrder).map((item) => {
                 const resolved =
                   item.type === 'habit'
                     ? habits?.find((h) => h.id === item.id)
