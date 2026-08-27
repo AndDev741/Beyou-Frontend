@@ -54,6 +54,9 @@ export default function SegmentedControl<T extends string | number>({
             key={String(option.value)}
             accessibilityRole="radio"
             accessibilityLabel={option.label}
+            // The RN counterpart of aria-describedby on web: the description is announced
+            // after the name instead of becoming part of it.
+            accessibilityHint={option.description}
             accessibilityState={{ selected: isActive, checked: isActive, disabled: !!option.disabled }}
             testID={testID ? `${testID}-${option.value}` : undefined}
             disabled={option.disabled}

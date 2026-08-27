@@ -45,12 +45,24 @@ export default function SegmentedControl<T extends string | number>({
         >
             {options.map((option) => {
                 const isActive = option.value === value;
+                // A button takes its name from its CONTENT, so the description inside it
+                // would otherwise be read as part of the option's name ("List Habits and
+                // tasks grouped, with no times"). aria-label pins the name to the label —
+                // matching what the label already says, so no label-in-name conflict — and
+                // aria-describedby announces the explanation after it, which is what a
+                // description is for. Mobile does the same with
+                // accessibilityLabel + accessibilityHint.
+                const descriptionId = option.description
+                    ? `${label}-${option.value}-description`.replace(/\s+/g, "-")
+                    : undefined;
                 return (
                     <button
                         key={String(option.value)}
                         type="button"
                         role="radio"
                         aria-checked={isActive}
+                        aria-label={option.description ? option.label : undefined}
+                        aria-describedby={descriptionId}
                         disabled={option.disabled}
                         onClick={() => onChange(option.value)}
                         className={`flex-1 rounded-[7px] font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-45 ${pad} ${
@@ -63,6 +75,7 @@ export default function SegmentedControl<T extends string | number>({
                         {option.label}
                         {option.description ? (
                             <span
+                                id={descriptionId}
                                 className={`mt-0.5 block text-[11.5px] font-normal leading-snug ${
                                     isActive ? "text-text-2" : "text-text-3"
                                 }`}
