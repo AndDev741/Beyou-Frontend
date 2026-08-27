@@ -19,11 +19,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { routineFormSchema } from "@beyou/validation/forms/routineSchemas";
 
 const CreateDailyRoutine = ({
+    routineType,
+    setRoutineType,
     onSectionChange,
     onSectionModalChange,
     onCancel,
     onCreated
 }: {
+    routineType: string;
+    setRoutineType: (value: string) => void;
     onSectionChange?: (hasSection: boolean) => void;
     onSectionModalChange?: (isOpen: boolean) => void;
     onCancel?: () => void;
@@ -139,7 +143,7 @@ const CreateDailyRoutine = ({
 
     return (
         <div data-tutorial-id="routine-daily-form">
-            <RoutineTypeField />
+            <RoutineTypeField value={routineType} onChange={setRoutineType} />
 
             <div className="mt-4">
                 <label htmlFor="create-routine-name" className="mb-1.5 block text-[12.5px] font-semibold text-text-2">

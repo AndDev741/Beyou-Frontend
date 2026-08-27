@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import CreateDailyRoutine from './dailyRoutine/CreateDailyRoutine';
+import CreateListRoutine from './listRoutine/CreateListRoutine';
 
 type createRoutineProps = {
     setRoutineType: (value: string) => void;
@@ -11,15 +12,15 @@ type createRoutineProps = {
 };
 
 /**
- * The form opens straight on the daily routine.
+ * The creation dialog, showing whichever form the type field is set to.
  *
- * There used to be a fork with two illustrations ("do you want a daily or a list
- * routine?") where the second option does not even exist — one more step to reach
- * the only possible choice. The type is now a field in the form itself, with "list"
- * visible and disabled.
+ * The type used to be a fork screen with two illustrations, one of which led nowhere because
+ * the list routine did not exist yet. It is a field inside the form now, and switching it
+ * swaps the body in place rather than restarting the flow.
  */
 const CreateRoutine = ({
     setRoutineType,
+    routineType,
     onDailySectionChange,
     onSectionModalChange,
     onCancel,
@@ -27,11 +28,24 @@ const CreateRoutine = ({
 }: createRoutineProps) => {
     // O tutorial de rotinas escolhe seus passos a partir do tipo selecionado.
     useEffect(() => {
-        setRoutineType("daily");
-    }, [setRoutineType]);
+        if (!routineType) setRoutineType("daily");
+    }, [routineType, setRoutineType]);
+
+    if (routineType === "list") {
+        return (
+            <CreateListRoutine
+                routineType={routineType}
+                setRoutineType={setRoutineType}
+                onCancel={onCancel}
+                onCreated={onCreated}
+            />
+        );
+    }
 
     return (
         <CreateDailyRoutine
+            routineType={routineType || "daily"}
+            setRoutineType={setRoutineType}
             onSectionChange={onDailySectionChange}
             onSectionModalChange={onSectionModalChange}
             onCancel={onCancel}

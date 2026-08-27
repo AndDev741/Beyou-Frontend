@@ -1076,7 +1076,10 @@ export interface components {
         DiaryRoutineRequestDTO: {
             name?: string;
             iconId?: string;
+            /** @enum {string} */
+            type?: "DAILY" | "LIST";
             routineSections?: components["schemas"]["RoutineSectionRequestDTO"][];
+            items?: components["schemas"]["RoutineItemRequestDTO"][];
         };
         HabitGroupCheck: {
             /** Format: uuid */
@@ -1134,7 +1137,10 @@ export interface components {
             id?: string;
             name?: string;
             iconId?: string;
+            /** @enum {string} */
+            type?: "DAILY" | "LIST";
             routineSections?: components["schemas"]["RoutineSectionResponseDTO"][];
+            items?: components["schemas"]["RoutineItemResponseDTO"][];
             schedule?: components["schemas"]["ScheduleResponseDTO"];
             /** Format: double */
             xp?: number;
@@ -1860,6 +1866,27 @@ export interface components {
         };
         UnsubscribeRequestDTO: {
             token: string;
+        };
+        RoutineItemRequestDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            habitId?: string;
+            /** Format: uuid */
+            taskId?: string;
+        };
+        RoutineItemResponseDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            type?: "HABIT" | "TASK";
+            /** Format: uuid */
+            habitId?: string;
+            /** Format: uuid */
+            taskId?: string;
+            /** Format: int32 */
+            orderIndex?: number;
+            checks?: components["schemas"]["BaseCheck"][];
         };
     };
     responses: never;

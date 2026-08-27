@@ -1,4 +1,14 @@
-type Option<T extends string | number> = { value: T; label: string; disabled?: boolean };
+type Option<T extends string | number> = {
+    value: T;
+    label: string;
+    disabled?: boolean;
+    /**
+     * A line under the label saying what the option means. Optional: adding one to any
+     * option switches the whole control to the taller two-line layout, so that segments
+     * with and without a description still line up.
+     */
+    description?: string;
+};
 
 type SegmentedControlProps<T extends string | number> = {
     options: Option<T>[];
@@ -21,7 +31,12 @@ export default function SegmentedControl<T extends string | number>({
     size = "md",
     className = "",
 }: SegmentedControlProps<T>) {
-    const pad = size === "sm" ? "px-3 py-1 text-xs" : "px-4 py-1.5 text-sm";
+    const hasDescriptions = options.some((option) => option.description);
+    const pad = hasDescriptions
+        ? "px-3 py-2 text-sm"
+        : size === "sm"
+          ? "px-3 py-1 text-xs"
+          : "px-4 py-1.5 text-sm";
     return (
         <div
             role="radiogroup"
@@ -30,19 +45,44 @@ export default function SegmentedControl<T extends string | number>({
         >
             {options.map((option) => {
                 const isActive = option.value === value;
+                // A button takes its name from its CONTENT, so the description inside it
+                // would otherwise be read as part of the option's name ("List Habits and
+                // tasks grouped, with no times"). aria-label pins the name to the label —
+                // matching what the label already says, so no label-in-name conflict — and
+                // aria-describedby announces the explanation after it, which is what a
+                // description is for. Mobile does the same with
+                // accessibilityLabel + accessibilityHint.
+                const descriptionId = option.description
+                    ? `${label}-${option.value}-description`.replace(/\s+/g, "-")
+                    : undefined;
                 return (
                     <button
                         key={String(option.value)}
                         type="button"
                         role="radio"
                         aria-checked={isActive}
+                        aria-label={option.description ? option.label : undefined}
+                        aria-describedby={descriptionId}
                         disabled={option.disabled}
                         onClick={() => onChange(option.value)}
                         className={`flex-1 rounded-[7px] font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-45 ${pad} ${
-                            isActive ? "bg-surface text-accent shadow-sm" : "text-text-3 hover:text-text-2"
-                        }`}
+                            // Top-aligned, not centred: the segments stretch to a shared
+                            // height, so a description that wraps to two lines would
+                            // otherwise push its own label off the other's baseline.
+                            hasDescriptions ? "flex flex-col justify-start text-left" : ""
+                        } ${isActive ? "bg-surface text-accent shadow-sm" : "text-text-3 hover:text-text-2"}`}
                     >
                         {option.label}
+                        {option.description ? (
+                            <span
+                                id={descriptionId}
+                                className={`mt-0.5 block text-[11.5px] font-normal leading-snug ${
+                                    isActive ? "text-text-2" : "text-text-3"
+                                }`}
+                            >
+                                {option.description}
+                            </span>
+                        ) : null}
                     </button>
                 );
             })}

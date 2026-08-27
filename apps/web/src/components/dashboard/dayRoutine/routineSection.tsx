@@ -48,7 +48,24 @@ function writeCollapsed(date: string, sectionId: string, collapsed: boolean) {
     }
 }
 
-export default function RoutineSection({ section, routineId}: { section: section, routineId: string }) {
+export default function RoutineSection({
+    section,
+    routineId,
+    variant = "section",
+    listOrder,
+}: {
+    section: section,
+    routineId: string,
+    /**
+     * "section" draws the header with the section's name and time range. "list" drops it: a
+     * LIST routine keeps its items in one internal section named after the routine, so the
+     * header would just echo the card's own title back under a clock that means nothing.
+     */
+    variant?: "section" | "list",
+    /** Item group ids in the order the user dragged them. Read only when variant is "list". */
+    listOrder?: string[],
+}) {
+    const isList = variant === "list";
     const { t } = useTranslation();
 
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
@@ -93,7 +110,17 @@ export default function RoutineSection({ section, routineId}: { section: section
                 check: item?.habitGroupChecks
             }));
 
-        return [...tasks, ...habits].sort((a, b) =>
+        const merged = [...tasks, ...habits];
+        if (isList) {
+            // Dragged order. Anything the order does not know sinks to the bottom, so a row
+            // added elsewhere appears last rather than jumping to the top.
+            const rank = (groupId: string) => {
+                const index = listOrder?.indexOf(groupId) ?? -1;
+                return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+            };
+            return merged.sort((a, b) => rank(a.groupId) - rank(b.groupId));
+        }
+        return merged.sort((a, b) =>
             a?.startTime ? a.startTime.localeCompare(b.startTime) : 0 - (b?.startTime ? b.startTime.localeCompare(a.startTime) : 0)
         );
     };
@@ -147,7 +174,11 @@ export default function RoutineSection({ section, routineId}: { section: section
     // today, and tomorrow the section is open again.
     const today = new Date().toJSON().slice(0, 10);
     const sectionId = section.id || section.name;
-    const [collapsed, setCollapsed] = useState(() => readCollapsed(today, sectionId));
+    const [collapsedState, setCollapsed] = useState(() => readCollapsed(today, sectionId));
+    // A list is never collapsed. Its toggle lives inside the header that the list variant
+    // hides, so a stored `true` here — from a stale key, or a routine that changed shape —
+    // would leave the items invisible with no control left on screen to bring them back.
+    const collapsed = isList ? false : collapsedState;
     const sectionXp = useMemo(() => getSectionStats(section, today).xpEarned, [section, today]);
 
     const toggleCollapsed = () => {
@@ -181,6 +212,9 @@ export default function RoutineSection({ section, routineId}: { section: section
             // of the check and leaves). It comes from the check itself, so it
             // survives a reload and shows the real value, decay included.
             const xpEarned: number = checked ? (ItemCheck?.xpGenerated ?? 0) : 0;
+            // Empty for a list (no times by definition) and for any daily item left
+            // without one. Either way the pill below is skipped rather than drawn blank.
+            const timeLabel: string = isList ? "" : formatTimeRange(item.startTime, item.endTime);
             // Only habits carry one; `in` narrows the union without a cast.
             const motivationalPhrase =
                 'motivationalPhrase' in itemObj ? itemObj.motivationalPhrase : '';
@@ -264,9 +298,15 @@ export default function RoutineSection({ section, routineId}: { section: section
                                 +{xpEarned} XP
                             </span>
                         )}
-                        <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
-                            {formatTimeRange(item.startTime, item.endTime)}
-                        </span>
+                        {/* Rendered only when there is a time to show. The pill has its own
+                            background and padding, so an empty string still drew a small
+                            grey blob next to the skip button — visible on a list, which has
+                            no times at all, and on any daily item left without one. */}
+                        {timeLabel ? (
+                            <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
+                                {timeLabel}
+                            </span>
+                        ) : null}
                     {!checked && (
                         <button
                             aria-label={skipped ? t("Undo skip") : t("Skip")}
@@ -310,7 +350,7 @@ export default function RoutineSection({ section, routineId}: { section: section
             {/* w-full, not the parent's `items-start` intrinsic width: without it the
                 row sizes to its content, and on a phone a long section name pushed the
                 chevron past the card's right edge instead of shortening the name. */}
-            <div className="flex w-full items-center gap-2.5 py-1.5">
+            <div className={`w-full items-center gap-2.5 py-1.5 ${isList ? "hidden" : "flex"}`}>
                 <span className="shrink-0 text-[15px] text-text-3">
                     <BeyouIcon id={section.iconId} />
                 </span>

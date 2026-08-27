@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Routine } from "@beyou/types/routine/routine";
+import { isListRoutine } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import RoutineSection from "./routineSection";
 import RoutineCompleteSummary from "./RoutineCompleteSummary";
@@ -27,6 +28,7 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
         );
     }
 
+    const isList = isListRoutine(routine);
     const sections = routine.routineSections?.length ?? 0;
     const progress = total > 0 ? Math.round((checked / total) * 100) : 0;
 
@@ -41,7 +43,10 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                         {routine.name}
                     </b>
                     <span className="text-xs text-text-3">
-                        {t("TodaysRoutine")} · {t("SectionsCount", { count: sections })}
+                        {/* A list has no sections to count — the routine IS the list. */}
+                        {isList
+                            ? `${t("TodaysRoutine")} · ${t("RoutineTypeList")}`
+                            : `${t("TodaysRoutine")} · ${t("SectionsCount", { count: sections })}`}
                     </span>
                 </div>
 
@@ -63,7 +68,13 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
             </header>
 
             {routine.routineSections?.map((section, index) => (
-                <RoutineSection key={index} section={section} routineId={routine.id!} />
+                <RoutineSection
+                    key={index}
+                    section={section}
+                    routineId={routine.id!}
+                    variant={isList ? "list" : "section"}
+                    listOrder={isList ? (routine.items ?? []).map((item) => item.id) : undefined}
+                />
             ))}
             <RoutineCompleteSummary />
         </section>

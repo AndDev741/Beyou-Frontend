@@ -7,11 +7,13 @@ import { enterHabits } from "@beyou/state/habit/habitsSlice";
 import getTasks from "@beyou/api/tasks/getTasks";
 import { enterTasks } from "@beyou/state/task/tasksSlice";
 import { Routine as routineType } from "@beyou/types/routine/routine";
+import { isListRoutine } from "@beyou/state";
 import getRoutines from "@beyou/api/routine/getRoutines";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import RenderRoutines from "../../components/routines/renderRoutines";
 import { RootState } from "@beyou/state/rootReducer";
 import EditDailyRoutine from "../../components/routines/dailyRoutine/EditDailyRoutine";
+import EditListRoutine from "../../components/routines/listRoutine/EditListRoutine";
 import { RoutineSummary } from "../../components/routines/RoutineSummary";
 import {
     compareNumbers,
@@ -42,6 +44,7 @@ const Routine = () => {
     const [routineType, setRoutineType] = useState("");
     const [selectedDateLocal, setSelectedDateLocal] = useState(() => new Date().toISOString().split("T")[0]);
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
+    const routineBeingEdited = useSelector((state: RootState) => state.editRoutine.routine);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.routines);
     const snapshotLoading = useSelector((state: RootState) => state.snapshot?.loading ?? false);
@@ -222,7 +225,11 @@ const Routine = () => {
                         </div>
                         <div className="mt-3.5">
                             {editMode ? (
-                                <EditDailyRoutine />
+                                isListRoutine(routineBeingEdited as routineType | undefined) ? (
+                                    <EditListRoutine />
+                                ) : (
+                                    <EditDailyRoutine />
+                                )
                             ) : (
                                 <CreateRoutine
                                     setRoutineType={setRoutineType}

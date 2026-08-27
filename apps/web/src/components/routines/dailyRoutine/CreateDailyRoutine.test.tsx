@@ -12,7 +12,7 @@ vi.mock("@beyou/api/routine/getRoutines", () => ({
 }));
 
 test("shows validation errors for missing name and sections", async () => {
-    renderWithProviders(<CreateDailyRoutine />);
+    renderWithProviders(<CreateDailyRoutine routineType="daily" setRoutineType={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: /save routine/i }));
 

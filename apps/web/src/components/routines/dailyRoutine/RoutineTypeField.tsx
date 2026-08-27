@@ -1,15 +1,25 @@
 import { useTranslation } from "react-i18next";
 import SegmentedControl from "../../../ui/SegmentedControl";
 
+type RoutineTypeFieldProps = {
+    value: string;
+    onChange: (value: string) => void;
+    /**
+     * Editing rather than creating. The backend refuses a type change — switching would
+     * either discard every time window the user set or invent times nobody chose — so the
+     * control shows what the routine is and does not pretend to offer the other option.
+     */
+    disabled?: boolean;
+};
+
 /**
- * The routine's type. Only "daily" exists today — the list one is designed but not
- * implemented, and shows disabled instead of hidden: whoever opens the form can see
- * a second format is on the way.
+ * The routine's shape, picked before anything else in the form.
  *
- * Replaces the two-illustration fork that used to open the creation flow; the form
- * now starts straight on what 100% of users will pick.
+ * "Daily" is sections with time windows. "List" is a plain checklist the user ticks off
+ * whenever they like. Both are scheduled the same way afterwards; the choice here only
+ * decides which form the rest of the dialog shows.
  */
-export default function RoutineTypeField() {
+export default function RoutineTypeField({ value, onChange, disabled = false }: RoutineTypeFieldProps) {
     const { t } = useTranslation();
 
     return (
@@ -20,11 +30,21 @@ export default function RoutineTypeField() {
             <SegmentedControl
                 className="w-full"
                 label={t("RoutineTypeLabel")}
-                value="daily"
-                onChange={() => {}}
+                value={value}
+                onChange={onChange}
                 options={[
-                    { value: "daily", label: t("RoutineTypeDaily") },
-                    { value: "list", label: t("RoutineTypeList"), disabled: true },
+                    {
+                        value: "daily",
+                        label: t("RoutineTypeDaily"),
+                        description: t("RoutineTypeDailyDescription"),
+                        disabled,
+                    },
+                    {
+                        value: "list",
+                        label: t("RoutineTypeList"),
+                        description: t("RoutineTypeListDescription"),
+                        disabled,
+                    },
                 ]}
             />
         </div>
