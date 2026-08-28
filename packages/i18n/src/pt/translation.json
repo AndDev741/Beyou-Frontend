@@ -1223,5 +1223,10 @@
     "FocusStopKeepingTask": "Deixar de guardar",
     "FocusRemoveTask": "Remover",
     "FocusTasksEmpty": "Ainda nada aqui. Coisas pequenas para as pausas.",
-    "FocusTasksFull": "A lista já tem tudo o que cabe."
+    "FocusTasksFull": "A lista já tem tudo o que cabe.",
+    "FocusRest": "Descanso",
+    "FocusLeaveRest": "Sair do descanso",
+    "FocusRestHint": "Nada para fazer aqui. Toque para acordar o ecrã.",
+    "FocusNextAt": "A seguir às {{time}}",
+    "FocusRestNothingScheduled": "Nada agendado para o resto de hoje"
 }

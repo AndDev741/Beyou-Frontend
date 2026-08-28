@@ -155,6 +155,56 @@
   animation: agent-breathe 3s ease-in-out infinite;
 }
 
+/* Rest mode's ambient drift.
+ *
+ * Three soft blooms of the accent, each on its own slow, offset path, so the screen has something
+ * alive on it without anything to watch. Deliberately long (28s to 40s) and low-contrast: the
+ * point is a screen you can leave on a desk, not an animation.
+ *
+ * Built from `--accent-rgb` rather than any literal, so it follows all nine themes. Killed by the
+ * reduced-motion block below, which leaves the blooms sitting still and perfectly usable.
+ */
+@keyframes rest-drift-a {
+  0%, 100% { transform: translate3d(-6%, -4%, 0) scale(1); }
+  50%      { transform: translate3d(6%, 5%, 0) scale(1.18); }
+}
+@keyframes rest-drift-b {
+  0%, 100% { transform: translate3d(5%, 6%, 0) scale(1.12); }
+  50%      { transform: translate3d(-7%, -5%, 0) scale(1); }
+}
+@keyframes rest-drift-c {
+  0%, 100% { transform: translate3d(0, 8%, 0) scale(1.05); }
+  50%      { transform: translate3d(4%, -8%, 0) scale(1.25); }
+}
+
+.rest-bloom {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  will-change: transform;
+}
+.rest-bloom-a {
+  animation: rest-drift-a 34s ease-in-out infinite;
+  background: radial-gradient(circle, rgb(var(--accent-rgb) / 0.28) 0%, transparent 70%);
+}
+.rest-bloom-b {
+  animation: rest-drift-b 40s ease-in-out infinite;
+  background: radial-gradient(circle, rgb(var(--accent-rgb) / 0.2) 0%, transparent 70%);
+}
+.rest-bloom-c {
+  animation: rest-drift-c 28s ease-in-out infinite;
+  background: radial-gradient(circle, rgb(var(--xp-rgb) / 0.14) 0%, transparent 70%);
+}
+
+/* The clock's own slow breath. Scale only, so the digits never reflow. */
+@keyframes rest-breathe {
+  0%, 100% { opacity: 0.92; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.015); }
+}
+.animate-rest-breathe {
+  animation: rest-breathe 7s ease-in-out infinite;
+}
+
 /* Collapses CSS transitions/animations only. framer-motion animates via JS
    transforms — new motion components use useReducedMotion(); the older
    tutorial components (OnboardingTutorial/SpotlightTutorial) do not yet. */

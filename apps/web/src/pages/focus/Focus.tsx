@@ -2,13 +2,14 @@ import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { List, Target, X } from "lucide-react";
+import { List, Moon, Target, X } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { focusEntered, focusExited, focusModeChanged } from "@beyou/state";
 import useAuthGuard from "../../components/useAuthGuard";
 import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import { useFocusRoutine } from "./useFocusRoutine";
 import Ultrafoco from "./Ultrafoco";
+import Descanso from "./Descanso";
 
 /**
  * F1 of the Focus Mode: today's routine with nothing else on screen.
@@ -34,6 +35,7 @@ export default function Focus() {
     const mode = useSelector((state: RootState) => state.focus.mode);
     const { loading, error } = useFocusRoutine();
     const isUltra = mode === "ultrafoco";
+    const isResting = mode === "descanso";
 
     const leave = useCallback(() => {
         navigate("/dashboard");
@@ -77,10 +79,10 @@ export default function Focus() {
                         {t("FocusTitle")}
                     </h1>
 
-                    {/* The two states of the same screen, one toggle. No route change: the
-                        mode lives in the store precisely so switching does not reload
-                        anything or lose the selection. */}
-                    {routine && (
+                    {/* Three states of the same screen. No route change: the mode lives in the
+                        store precisely so switching does not reload anything or lose the
+                        selection. */}
+                    {routine && !isResting && (
                         <button
                             type="button"
                             onClick={() =>
@@ -97,6 +99,23 @@ export default function Focus() {
                             {isUltra ? t("FocusWholeRoutine") : t("FocusOneAtATime")}
                         </button>
                     )}
+
+                    {/* Offered with or without a routine, on the user's instruction: a screen to
+                        rest is worth having on a day with nothing scheduled most of all. */}
+                    <button
+                        type="button"
+                        onClick={() =>
+                            dispatch(focusModeChanged(isResting ? "fullscreen" : "descanso"))
+                        }
+                        className={`inline-flex h-9 items-center gap-2 rounded-control border border-border px-3 text-[12.5px] font-medium transition-colors hover:bg-surface-2 hover:text-text ${
+                            isResting ? "bg-surface-2 text-text" : "text-text-2"
+                        } ${routine && !isResting ? "" : "ml-auto"}`}
+                        aria-pressed={isResting}
+                        data-testid="focus-rest-toggle"
+                    >
+                        <Moon size={15} aria-hidden="true" />
+                        {isResting ? t("FocusLeaveRest") : t("FocusRest")}
+                    </button>
 
                     <button
                         type="button"
@@ -137,12 +156,18 @@ export default function Focus() {
                        cached: `RoutineDay` given null draws "nothing scheduled today", which
                        is a different and wrong statement about a day whose routine we simply
                        could not read. */
-                    (routine || !error) &&
-                    (isUltra && routine ? (
-                        <Ultrafoco routine={routine} />
+                    /* Rest comes first and needs no routine at all: it is the one state of this
+                       screen that has nothing to do with today's list. */
+                    isResting ? (
+                        <Descanso />
                     ) : (
-                        <RoutineDay routine={routine} />
-                    ))
+                        (routine || !error) &&
+                        (isUltra && routine ? (
+                            <Ultrafoco routine={routine} />
+                        ) : (
+                            <RoutineDay routine={routine} />
+                        ))
+                    )
                 )}
             </div>
         </div>

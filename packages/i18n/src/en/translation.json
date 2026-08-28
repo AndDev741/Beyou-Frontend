@@ -1223,5 +1223,10 @@
     "FocusStopKeepingTask": "Stop keeping it",
     "FocusRemoveTask": "Remove",
     "FocusTasksEmpty": "Nothing here yet. Small things for the breaks.",
-    "FocusTasksFull": "That is as many as the list holds."
+    "FocusTasksFull": "That is as many as the list holds.",
+    "FocusRest": "Rest",
+    "FocusLeaveRest": "Leave rest",
+    "FocusRestHint": "Nothing to do here. Tap to wake the screen.",
+    "FocusNextAt": "Next at {{time}}",
+    "FocusRestNothingScheduled": "Nothing scheduled for the rest of today"
 }
