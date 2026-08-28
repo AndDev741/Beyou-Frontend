@@ -1,4 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+    clampCycleMinutes,
+    nextCycleKind,
+    remainingMs,
+    type CycleKind,
+    type FocusTimer,
+} from "./pomodoro";
 
 /**
  * Which state the focus surface is in.
@@ -31,12 +38,24 @@ type focusState = {
      * out of order is not dragged back to "now" every minute.
      */
     manuallySelected: boolean;
+    /**
+     * The pomodoro, or null when none is running.
+     *
+     * **Unlike every other field here, this one is NOT scoped to one visit**, and that reverses
+     * what the F1 comment on `focusExited` said. A timer is a promise about the next 25
+     * minutes: it has to survive leaving the screen to look something up, and it has to survive
+     * a reload. So `focusEntered` and `focusExited` both carry it across, and only a day change
+     * or a deliberate abandon clears it. `FocusTimer.date` is what stops one resurfacing
+     * tomorrow.
+     */
+    timer: FocusTimer | null;
 };
 
 const initialState: focusState = {
     mode: "off",
     selectedIndex: -1,
     manuallySelected: false,
+    timer: null,
 };
 
 /** Clamped, never wrapping. Running off the end of the day should stop, not start over. */
@@ -46,9 +65,20 @@ const focusSlice = createSlice({
     name: "focus",
     initialState,
     reducers: {
-        /** Entering always lands on the full routine. Narrowing to one item is a later step. */
-        focusEntered() {
-            return { ...initialState, mode: "fullscreen" as FocusMode };
+        /**
+         * Entering always lands on the full routine. Narrowing to one item is a later step.
+         *
+         * Takes the user's local day so a timer left in persisted storage is carried across only
+         * when it belongs to today. Without that, somebody opening the app on Tuesday would be
+         * greeted by Monday's finished cycle.
+         */
+        focusEntered(state, action: PayloadAction<string>) {
+            const sameDay = state.timer?.date === action.payload;
+            return {
+                ...initialState,
+                mode: "fullscreen" as FocusMode,
+                timer: sameDay ? state.timer : null,
+            };
         },
         focusModeChanged(state, action: PayloadAction<FocusMode>) {
             return { ...state, mode: action.payload };
@@ -85,12 +115,107 @@ const focusSlice = createSlice({
             };
         },
         /**
-         * Resets the WHOLE slice rather than only the mode. Every field the later phases add
-         * (timer, session micro-tasks) is scoped to one visit, so leaving has to forget all of
-         * it. Written this way so a field added in F3 does not quietly survive an exit.
+         * Resets the selection and the mode, and deliberately KEEPS the timer.
+         *
+         * F1 said this reset everything, on the reasoning that all of it was scoped to one
+         * visit. That turned out to be wrong for the pomodoro specifically: leaving the screen
+         * to look something up must not silently kill a cycle somebody is 18 minutes into.
+         * Abandoning is an explicit action (`pomodoroAbandoned`), never a side effect of
+         * navigating.
          */
-        focusExited() {
-            return initialState;
+        focusExited(state) {
+            return { ...initialState, timer: state.timer };
+        },
+
+        /**
+         * Start a cycle. `now` and `date` come in the payload because a reducer must stay pure:
+         * calling `Date.now()` in here would make every test a function of when it ran.
+         */
+        pomodoroStarted(
+            state,
+            action: PayloadAction<{
+                groupId: string;
+                kind: CycleKind;
+                minutes: number;
+                now: number;
+                date: string;
+            }>
+        ) {
+            const { groupId, kind, minutes, now, date } = action.payload;
+            const durationMinutes = clampCycleMinutes(minutes);
+            // Cycles already finished on THIS item are kept; moving to another item starts the
+            // count again, because the count is about the item and not about the sitting.
+            const carried =
+                state.timer && state.timer.groupId === groupId ? state.timer.completedCycles : 0;
+            return {
+                ...state,
+                timer: {
+                    groupId,
+                    kind,
+                    endsAt: now + durationMinutes * 60_000,
+                    pausedRemainingMs: null,
+                    durationMinutes,
+                    completedCycles: carried,
+                    finished: false,
+                    date,
+                },
+            };
+        },
+
+        /** Freeze what is left. `endsAt` goes stale until the resume recomputes it. */
+        pomodoroPaused(state, action: PayloadAction<{ now: number }>) {
+            if (!state.timer || state.timer.finished) return state;
+            if (state.timer.pausedRemainingMs !== null) return state;
+            return {
+                ...state,
+                timer: {
+                    ...state.timer,
+                    pausedRemainingMs: remainingMs(state.timer, action.payload.now),
+                },
+            };
+        },
+
+        /** A fresh end time from the frozen remainder, so a long pause costs nothing. */
+        pomodoroResumed(state, action: PayloadAction<{ now: number }>) {
+            if (!state.timer || state.timer.finished) return state;
+            if (state.timer.pausedRemainingMs === null) return state;
+            return {
+                ...state,
+                timer: {
+                    ...state.timer,
+                    endsAt: action.payload.now + state.timer.pausedRemainingMs,
+                    pausedRemainingMs: null,
+                },
+            };
+        },
+
+        /**
+         * A finished cycle hands over to the next one, paused at zero so the person starts it
+         * when they are ready rather than being pushed into a break they did not ask for.
+         *
+         * A finished WORK cycle is the only thing that increments the count. Nothing anywhere
+         * records a cycle that was abandoned: there is no failure state in this feature.
+         */
+        pomodoroCycleCompleted(state) {
+            if (!state.timer || state.timer.finished) return state;
+            const ran = state.timer;
+            return {
+                ...state,
+                timer: {
+                    ...ran,
+                    kind: nextCycleKind(ran.kind),
+                    endsAt: 0,
+                    pausedRemainingMs: null,
+                    finished: true,
+                    completedCycles:
+                        ran.kind === "work" ? ran.completedCycles + 1 : ran.completedCycles,
+                },
+            };
+        },
+
+        /** Stop, with nothing kept and nothing counted. */
+        pomodoroAbandoned(state) {
+            return { ...state, timer: null };
         },
     },
 });
@@ -102,5 +227,10 @@ export const {
     focusItemSelected,
     focusMovedBy,
     focusExited,
+    pomodoroStarted,
+    pomodoroPaused,
+    pomodoroResumed,
+    pomodoroCycleCompleted,
+    pomodoroAbandoned,
 } = focusSlice.actions;
 export default focusSlice.reducer;

@@ -1199,5 +1199,18 @@
     "FocusNothingHere": "Nada para focar",
     "FocusNothingHereHint": "Esta rotina ainda não tem hábitos nem tarefas dentro.",
     "FocusStartsAt": "Começa às {{time}}",
-    "FocusAnyTime": "A qualquer hora"
+    "FocusAnyTime": "A qualquer hora",
+    "FocusStartCycle": "Começar",
+    "FocusPause": "Pausar",
+    "FocusResume": "Retomar",
+    "FocusStop": "Parar",
+    "FocusCycleMinutes": "Minutos",
+    "FocusWorkCycle": "Foco",
+    "FocusBreakCycle": "Pausa",
+    "FocusCycleDone": "Ciclo terminado",
+    "FocusStartBreak": "Fazer uma pausa",
+    "FocusStartWork": "Voltar ao trabalho",
+    "FocusCyclesToday": "{{count}} ciclo feito neste",
+    "FocusCyclesToday_plural": "{{count}} ciclos feitos neste",
+    "FocusLeaveWhileRunning": "Ainda há um ciclo a correr. Sair mesmo assim?"
 }

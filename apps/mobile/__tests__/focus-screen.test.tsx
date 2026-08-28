@@ -176,7 +176,7 @@ describe('focus entry button on the routine card', () => {
 
   it('hidden once focus is on, since the focus screen renders this same card', async () => {
     const store = seeded();
-    store.dispatch(focusEntered());
+    store.dispatch(focusEntered(new Date().toJSON().slice(0, 10)));
 
     await act(async () => {
       renderWith(<RoutineDay />, store);

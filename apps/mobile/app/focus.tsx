@@ -50,7 +50,9 @@ export default function FocusScreen() {
   // Dispatched here, the only place that knows the screen is mounted. The mode is what the
   // routine card reads to hide its own way in, since this screen renders that same card.
   useEffect(() => {
-    dispatch(focusEntered());
+    // The day is passed in so a pomodoro left behind is carried across only when it belongs to
+    // today: see `focusEntered` in the slice.
+    dispatch(focusEntered(new Date().toJSON().slice(0, 10)));
     return () => {
       dispatch(focusExited());
     };

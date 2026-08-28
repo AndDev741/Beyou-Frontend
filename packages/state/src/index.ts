@@ -54,11 +54,29 @@ export {
     focusItemSelected,
     focusMovedBy,
     focusExited,
+    pomodoroStarted,
+    pomodoroPaused,
+    pomodoroResumed,
+    pomodoroCycleCompleted,
+    pomodoroAbandoned,
 } from './focus/focusSlice';
 export { getFocusItems, isFocusItemChecked, isFocusItemSkipped, isFocusItemOpen } from './focus/focusItems';
 export type { FocusItem } from './focus/focusItems';
 export { resolveFocusStart, minutesOfDay } from './focus/resolveFocusStart';
 export { FOCUS_REASON_LABEL_KEY, reasonIsFromClock } from './focus/focusLabels';
+export {
+    suggestedMinutes,
+    remainingMs,
+    timerStatus,
+    formatRemaining,
+    clampCycleMinutes,
+    nextCycleKind,
+    WORK_DEFAULT_MINUTES,
+    BREAK_DEFAULT_MINUTES,
+    MIN_CYCLE_MINUTES,
+    MAX_CYCLE_MINUTES,
+} from './focus/pomodoro';
+export type { FocusTimer, CycleKind, TimerStatus } from './focus/pomodoro';
 export type { FocusStart, FocusStartReason } from './focus/resolveFocusStart';
 export { toMinutes, fromMinutes, MINUTES_PER_DAY } from './routine/minutes';
 

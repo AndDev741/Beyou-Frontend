@@ -42,7 +42,9 @@ export default function Focus() {
     // Entering and leaving are dispatched here, at the only place that knows the screen is
     // mounted. The mode is what the dashboard card reads to hide its own way in.
     useEffect(() => {
-        dispatch(focusEntered());
+        // The day is passed in so a pomodoro left in persisted storage is carried across only
+        // when it belongs to today: see `focusEntered` in the slice.
+        dispatch(focusEntered(new Date().toJSON().slice(0, 10)));
         return () => {
             dispatch(focusExited());
         };
