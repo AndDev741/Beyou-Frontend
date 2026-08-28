@@ -28,7 +28,7 @@ export const CYCLE_MESSAGE_KEY: Record<CycleKind, string> = {
 };
 
 export type PomodoroSettings = {
-    /** Minutes, and the default when the current item has no window of its own. */
+    /** Minutes a pomodoro runs for. The authority: nothing overrides it silently. */
     pomodoro: number;
     shortBreak: number;
     longBreak: number;
@@ -114,33 +114,35 @@ export const clampLongBreakEvery = (every: number): number => {
 };
 
 /**
- * How long this cycle should run on this item.
+ * How long this cycle runs. The configured length, and nothing else.
  *
- * Two halves, both decided with the user:
+ * It used to read a pomodoro's length off the item's own window, falling back to the setting.
+ * That shipped and was wrong: the app's own `suggestSlots` hands out 15-minute slices by default,
+ * so nearly every item built through the routine form carries a 15-minute window, and the
+ * Pomodoro field in the settings panel silently did nothing on all of them. Reported as "the
+ * short and long break change but the pomodoro is stuck at 15".
  *
- * A **pomodoro** takes its length from the item's own window when the item has one. Routine
- * ITEMS carry `startTime` and `endTime`, not only sections, so a scheduled item already states
- * how long its owner meant it to take, and neither `Task` nor `Habit` needs a duration field.
- * With no window, which is every item of a LIST routine, it falls back to the configured
- * pomodoro length.
+ * The rule the user set for this whole feature settles it: the clock may SUGGEST, never command,
+ * and a control that does nothing is the opposite of the freedom that rule is about. So the
+ * setting is the authority, and the item's window is offered as a one-tap suggestion in the panel
+ * through `itemWindowMinutes` instead of overriding what somebody typed.
  *
- * A **break** always takes its configured length. An item's window says nothing about how long
- * a rest should be.
- *
- * Whatever comes out is a suggestion in an editable field, never a constraint: the same freedom
- * rule the resolver follows.
+ * No longer takes the item at all, which is the point: there is no "which one wins" question left
+ * to get wrong.
  */
-export function cycleMinutes(
-    kind: CycleKind,
-    item: FocusItem | null | undefined,
-    settings: PomodoroSettings,
-): number {
+export function cycleMinutes(kind: CycleKind, settings: PomodoroSettings): number {
     if (kind === 'shortBreak') return clampCycleMinutes(settings.shortBreak);
     if (kind === 'longBreak') return clampCycleMinutes(settings.longBreak);
-    return clampCycleMinutes(itemWindowMinutes(item) ?? settings.pomodoro);
+    return clampCycleMinutes(settings.pomodoro);
 }
 
-/** The item's window in minutes, or null when it has none to read. */
+/**
+ * The item's window in minutes, or null when it has none to read.
+ *
+ * Routine ITEMS carry `startTime` and `endTime`, not only sections, so a scheduled item already
+ * states how long its owner meant it to take. That is worth offering, and the panel does offer
+ * it — as a button that writes the value into the setting, never as a silent override.
+ */
 export function itemWindowMinutes(item: FocusItem | null | undefined): number | null {
     if (!item?.startTime || !item.endTime) return null;
 

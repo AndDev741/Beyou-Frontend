@@ -37,38 +37,31 @@ const timer = (over: Partial<FocusTimer> = {}): FocusTimer => ({
 });
 
 describe('cycleMinutes', () => {
-    it("takes a pomodoro's length from the item's own window", () => {
-        // The discovery this phase rests on: routine ITEMS carry startTime and endTime, so every
-        // scheduled item already says how long its owner meant it to take. Neither Task nor
-        // Habit needs a duration field.
-        expect(cycleMinutes('pomodoro', item('07:00', '07:45'), settings())).toBe(45);
-        expect(cycleMinutes('pomodoro', item('14:00', '14:20'), settings())).toBe(20);
-    });
+    it('is the configured length, per cycle', () => {
+        expect(cycleMinutes('pomodoro', settings())).toBe(25);
+        expect(cycleMinutes('shortBreak', settings())).toBe(5);
+        expect(cycleMinutes('longBreak', settings())).toBe(15);
 
-    it('falls back to the configured pomodoro length when the item has no window', () => {
-        // Every item of a LIST routine takes this path, which is why it is a fallback and not
-        // an error.
-        expect(cycleMinutes('pomodoro', item(), settings())).toBe(25);
-        expect(cycleMinutes('pomodoro', item(), settings({ pomodoro: 50 }))).toBe(50);
-        expect(cycleMinutes('pomodoro', null, settings({ pomodoro: 30 }))).toBe(30);
-    });
-
-    it("ignores the item's window for a break, because a rest has its own length", () => {
-        const long = item('07:00', '08:30');
-
-        expect(cycleMinutes('shortBreak', long, settings())).toBe(5);
-        expect(cycleMinutes('longBreak', long, settings())).toBe(15);
-        expect(cycleMinutes('shortBreak', long, settings({ shortBreak: 7 }))).toBe(7);
+        const mine = settings({ pomodoro: 50, shortBreak: 7, longBreak: 20 });
+        expect(cycleMinutes('pomodoro', mine)).toBe(50);
+        expect(cycleMinutes('shortBreak', mine)).toBe(7);
+        expect(cycleMinutes('longBreak', mine)).toBe(20);
     });
 
     it('clamps whatever it returns', () => {
-        expect(cycleMinutes('pomodoro', item('06:00', '18:00'), settings())).toBe(180);
-        expect(cycleMinutes('longBreak', item(), settings({ longBreak: 999 }))).toBe(180);
-        expect(cycleMinutes('shortBreak', item(), settings({ shortBreak: 0 }))).toBe(1);
+        expect(cycleMinutes('pomodoro', settings({ pomodoro: 999 }))).toBe(180);
+        expect(cycleMinutes('longBreak', settings({ longBreak: 999 }))).toBe(180);
+        expect(cycleMinutes('shortBreak', settings({ shortBreak: 0 }))).toBe(1);
     });
 });
 
 describe('itemWindowMinutes', () => {
+    // Still read, but only to OFFER the value as a one-tap suggestion in the settings panel.
+    it("reads the item's own window, which is what makes the suggestion possible", () => {
+        expect(itemWindowMinutes(item('07:00', '07:45'))).toBe(45);
+        expect(itemWindowMinutes(item('14:00', '14:20'))).toBe(20);
+    });
+
     it('handles a window that crosses midnight', () => {
         expect(itemWindowMinutes(item('23:30', '00:15'))).toBe(45);
     });

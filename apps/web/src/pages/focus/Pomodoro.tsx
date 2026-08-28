@@ -10,6 +10,7 @@ import {
     MIN_CYCLE_MINUTES,
     MIN_LONG_BREAK_EVERY,
     cycleMinutes,
+    itemWindowMinutes,
     type CycleKind,
     type FocusItem,
 } from "@beyou/state";
@@ -26,9 +27,11 @@ import { usePomodoro } from "./usePomodoro";
  *
  * Two rules from the epic shape the behaviour:
  *
- * All three lengths are editable, and a pomodoro's is pre-filled from the item's own window when
- * the item has one, because routine items already carry `startTime` and `endTime`. Breaks always
- * take their configured length: an item's window says nothing about how long a rest should be.
+ * All three lengths are editable and each is the authority for its own cycle. The item's window
+ * is OFFERED next to the fields as a one-tap suggestion, never applied silently: reading it as the
+ * pomodoro's length is what the first version did, and since `suggestSlots` hands out 15-minute
+ * slices, nearly every item built through the routine form has a 15-minute window and the Pomodoro
+ * field did nothing at all.
  *
  * There is no failure state. Nothing says a cycle was missed, expired or lost. A finished cycle
  * hands over to the next one and waits to be started, resetting has no consequence, and only
@@ -55,13 +58,24 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
 
     const idle = status === "idle";
     const previewFor = (kind: CycleKind) =>
-        `${String(cycleMinutes(kind, item, settings)).padStart(2, "0")}:00`;
+        `${String(cycleMinutes(kind, settings)).padStart(2, "0")}:00`;
+
+    /**
+     * The item's own window, offered rather than imposed.
+     *
+     * Reading it as the pomodoro's length is what the first version did, and it made the Pomodoro
+     * field do nothing: `suggestSlots` hands out 15-minute slices, so nearly every item built
+     * through the routine form has a 15-minute window. Offered as a button, the recommendation
+     * survives and the typed value still wins.
+     */
+    const windowMinutes = itemWindowMinutes(item);
+    const windowDiffers = windowMinutes !== null && windowMinutes !== settings.pomodoro;
 
     // While something runs the clock shows THAT cycle. Idle, it previews the selected tab's
     // length, so switching tabs changes the number the way the reference design does.
     const shown = idle ? previewFor(selectedCycle) : formatted;
     const message = t(CYCLE_MESSAGE_KEY[idle ? selectedCycle : runningCycle]);
-    const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, item, settings));
+    const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, settings));
 
     return (
         <div className="flex flex-col gap-3" data-testid="focus-pomodoro">
@@ -177,6 +191,17 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
                                 </label>
                             ))}
                         </div>
+
+                        {windowDiffers && (
+                            <button
+                                type="button"
+                                onClick={() => changeSettings({ pomodoro: windowMinutes })}
+                                className="mt-3 rounded-control bg-on-accent/15 px-2.5 py-1.5 text-[12px] font-medium text-on-accent transition-opacity hover:opacity-85"
+                                data-testid="focus-use-item-window"
+                            >
+                                {t("FocusUseItemWindow", { minutes: windowMinutes })}
+                            </button>
+                        )}
 
                         <label className="mt-3 flex items-center gap-2 text-[12px] opacity-85">
                             {t("FocusLongBreakEvery")}

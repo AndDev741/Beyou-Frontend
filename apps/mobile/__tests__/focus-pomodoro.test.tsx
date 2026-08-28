@@ -112,13 +112,33 @@ describe('the three cycles', () => {
     expect(screen.getByTestId('focus-pomodoro-message')).toHaveTextContent('Time to focus!');
   });
 
-  it("a pomodoro takes the item's own window; a break never does", async () => {
-    // Routine items carry startTime and endTime, so a scheduled item already says how long its
-    // owner meant it to take. A rest's length has nothing to do with that window.
-    await renderPomodoro(item('07:00', '07:45'));
+  it("the item's window does NOT override the configured length", async () => {
+    // The bug this pins, reported from real use: "the short and long break change but the
+    // pomodoro is stuck at 15". `suggestSlots` hands out 15-minute slices, so nearly every item
+    // built through the routine form carries a 15-minute window, and reading it as the
+    // pomodoro's length made the Pomodoro field silently do nothing.
+    await renderPomodoro(item('07:00', '07:15'));
+
+    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('25:00');
+  });
+
+  it("the item's window is offered as one tap, and applying it changes the setting", async () => {
+    const store = await renderPomodoro(item('07:00', '07:45'));
+    await press('focus-pomodoro-settings-toggle');
+
+    await press('focus-use-item-window');
+
+    expect(store.getState().focus.settings.pomodoro).toBe(45);
     expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('45:00');
+    // Offered only while it would change something.
+    expect(screen.queryByTestId('focus-use-item-window')).toBeNull();
+  });
+
+  it('a break ignores the window entirely', async () => {
+    await renderPomodoro(item('07:00', '08:30'));
 
     await press('focus-cycle-tab-shortBreak');
+
     expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('05:00');
     expect(screen.getByTestId('focus-pomodoro-message')).toHaveTextContent('Time for a break!');
   });

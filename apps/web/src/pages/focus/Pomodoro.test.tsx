@@ -76,16 +76,63 @@ describe("the three cycles", () => {
         );
     });
 
-    test("a pomodoro takes the item's own window; a break never does", async () => {
-        // Routine items carry startTime and endTime, so a scheduled item already says how long
-        // its owner meant it to take. A rest's length has nothing to do with that window.
+    test("the item's window does NOT override the configured length", async () => {
+        /**
+         * The bug this pins, reported from real use: "the short and long break change but the
+         * pomodoro is stuck at 15".
+         *
+         * The first version read a pomodoro's length off the item's own window and only fell back
+         * to the setting when there was none. `suggestSlots` hands out 15-MINUTE slices by
+         * default, so nearly every item built through the routine form carries a 15-minute
+         * window, and the Pomodoro field in the settings panel silently did nothing on all of
+         * them. The window is now offered as a one-tap suggestion instead.
+         */
+        const store = buildStore();
+        renderWithProviders(<Pomodoro item={item("07:00", "07:15")} date={DATE} />, {
+            storeOverride: store,
+        });
+
+        // 25, the configured length, and not the item's 15.
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("25:00");
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+        const field = screen.getByTestId("focus-setting-pomodoro");
+        await userEvent.clear(field);
+        await userEvent.type(field, "40");
+
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("40:00");
+        expect(store.getState().focus.settings.pomodoro).toBe(40);
+    });
+
+    test("the item's window is offered as one tap, and applying it changes the setting", async () => {
+        const store = buildStore();
         renderWithProviders(<Pomodoro item={item("07:00", "07:45")} date={DATE} />, {
+            storeOverride: store,
+        });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+
+        await userEvent.click(screen.getByTestId("focus-use-item-window"));
+
+        expect(store.getState().focus.settings.pomodoro).toBe(45);
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("45:00");
+        // Offered only while it would change something, so it disappears once applied.
+        expect(screen.queryByTestId("focus-use-item-window")).not.toBeInTheDocument();
+    });
+
+    test("an item with no window has nothing to offer", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+
+        expect(screen.queryByTestId("focus-use-item-window")).not.toBeInTheDocument();
+    });
+
+    test("a break ignores the window entirely", async () => {
+        renderWithProviders(<Pomodoro item={item("07:00", "08:30")} date={DATE} />, {
             storeOverride: buildStore(),
         });
 
-        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("45:00");
-
         await userEvent.click(screen.getByTestId("focus-cycle-tab-shortBreak"));
+
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("05:00");
     });
 

@@ -7,6 +7,7 @@ import {
   CYCLE_LABEL_KEY,
   CYCLE_MESSAGE_KEY,
   cycleMinutes,
+  itemWindowMinutes,
   type CycleKind,
   type FocusItem,
 } from '@beyou/state';
@@ -22,9 +23,10 @@ import { usePomodoro } from './usePomodoro';
  * ones. `on-accent` exists precisely to stay readable over `accent` in all nine themes. The cycle
  * is carried by the tab and by the line under the clock.
  *
- * All three lengths are editable. A pomodoro's is pre-filled from the item's own window when it
- * has one, because routine items already carry `startTime` and `endTime`; a break always takes
- * its configured length, since an item's window says nothing about how long a rest should be.
+ * All three lengths are editable and each is the authority for its own cycle. The item's window is
+ * OFFERED next to the fields as a one-tap suggestion, never applied silently: reading it as the
+ * pomodoro's length made the Pomodoro field do nothing, because `suggestSlots` hands out 15-minute
+ * slices and nearly every item built through the routine form carries a 15-minute window.
  *
  * There is no failure state: a finished cycle hands over and waits to be started, resetting has
  * no consequence, and only finished pomodoros are counted.
@@ -51,13 +53,23 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
 
   const idle = status === 'idle';
   const previewFor = (kind: CycleKind) =>
-    `${String(cycleMinutes(kind, item, settings)).padStart(2, '0')}:00`;
+    `${String(cycleMinutes(kind, settings)).padStart(2, '0')}:00`;
+
+  /**
+   * The item's own window, offered rather than imposed.
+   *
+   * Reading it as the pomodoro's length is what the first version did, and it made the Pomodoro
+   * field do nothing: `suggestSlots` hands out 15-minute slices, so nearly every item built
+   * through the routine form has a 15-minute window.
+   */
+  const windowMinutes = itemWindowMinutes(item);
+  const windowDiffers = windowMinutes !== null && windowMinutes !== settings.pomodoro;
 
   // While something runs the clock shows THAT cycle. Idle, it previews the selected tab's
   // length, so switching tabs changes the number.
   const shown = idle ? previewFor(selectedCycle) : formatted;
   const message = t(CYCLE_MESSAGE_KEY[idle ? selectedCycle : runningCycle]);
-  const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, item, settings));
+  const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, settings));
 
   return (
     <View className="gap-3" testID="focus-pomodoro">
@@ -177,6 +189,19 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
                 </View>
               ))}
             </View>
+
+            {windowDiffers ? (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => changeSettings({ pomodoro: windowMinutes })}
+                className="mt-3 self-start rounded-control bg-on-accent/15 px-2.5 py-1.5 active:opacity-85"
+                testID="focus-use-item-window"
+              >
+                <Text className="text-[12px] font-medium text-on-accent">
+                  {t('FocusUseItemWindow', { minutes: windowMinutes })}
+                </Text>
+              </Pressable>
+            ) : null}
 
             <View className="mt-3 flex-row items-center gap-2">
               <Text className="text-[12px] text-on-accent opacity-85">

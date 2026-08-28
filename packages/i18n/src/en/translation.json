@@ -1214,5 +1214,6 @@
     "FocusSettings": "Timer settings",
     "FocusLongBreakEvery": "Long break every",
     "FocusLongBreakEveryUnit": "pomodoros",
-    "FocusStartNext": "Start it"
+    "FocusStartNext": "Start it",
+    "FocusUseItemWindow": "This one is {{minutes}} min · use it"
 }
