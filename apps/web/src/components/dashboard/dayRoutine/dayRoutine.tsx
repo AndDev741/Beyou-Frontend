@@ -1,17 +1,21 @@
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { Routine } from "@beyou/types/routine/routine";
 import { isListRoutine } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import RoutineSection from "./routineSection";
 import RoutineCompleteSummary from "./RoutineCompleteSummary";
 import EmptyState from "../../EmptyState";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Maximize2 } from "lucide-react";
 
 export default function RoutineDay({ routine }: { routine: Routine | null }) {
     const { t } = useTranslation();
     const checked = useSelector((s: RootState) => s.perfil.checkedItemsInScheduledRoutine);
     const total = useSelector((s: RootState) => s.perfil.totalItemsInScheduledRoutine);
+    // The focus screen renders THIS component, so without the guard the way in would be
+    // offered from inside the screen it leads to.
+    const focusMode = useSelector((s: RootState) => s.focus.mode);
 
     if (routine === null) {
         return (
@@ -64,6 +68,23 @@ export default function RoutineDay({ routine }: { routine: Routine | null }) {
                             />
                         </div>
                     </div>
+                )}
+
+                {/* Only on today's card. The routines page renders history through
+                    SnapshotRoutineCard, which deliberately does not get this: focus is about
+                    the day in progress, and there is nothing to execute in a past one. */}
+                {focusMode === "off" && (
+                    <Link
+                        to="/focus"
+                        aria-label={t("FocusEnter")}
+                        title={t("FocusEnter")}
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-text-2 transition-colors hover:bg-surface-2 hover:text-text ${total > 0 ? "ml-3" : "ml-auto"}`}
+                        data-testid="focus-enter"
+                    >
+                        {/* Icon only. The label lives in `aria-label` and `title`, so screen
+                            readers and a hover still name it. */}
+                        <Maximize2 size={16} aria-hidden="true" />
+                    </Link>
                 )}
             </header>
 
