@@ -45,6 +45,23 @@ export { idEnter, descriptionEnter, iconEnter } from './category/editCategorySli
 export type { Celebration } from './celebration/celebrationSlice';
 export { celebrationPushed, celebrationShifted } from './celebration/celebrationSlice';
 
+// focus
+export type { FocusMode } from './focus/focusSlice';
+export {
+    focusEntered,
+    focusModeChanged,
+    focusStartResolved,
+    focusItemSelected,
+    focusMovedBy,
+    focusExited,
+} from './focus/focusSlice';
+export { getFocusItems, isFocusItemChecked, isFocusItemSkipped, isFocusItemOpen } from './focus/focusItems';
+export type { FocusItem } from './focus/focusItems';
+export { resolveFocusStart, minutesOfDay } from './focus/resolveFocusStart';
+export { FOCUS_REASON_LABEL_KEY, reasonIsFromClock } from './focus/focusLabels';
+export type { FocusStart, FocusStartReason } from './focus/resolveFocusStart';
+export { toMinutes, fromMinutes, MINUTES_PER_DAY } from './routine/minutes';
+
 // gamification
 export { STREAK_MILESTONES } from './gamification/streakMilestones';
 export { applyRefreshUi } from './user/refreshUiThunk';

@@ -10,6 +10,7 @@ import tasks from '@beyou/state/task/tasksSlice';
 import goals from '@beyou/state/goal/goalsSlice';
 import categories from '@beyou/state/category/categoriesSlice';
 import celebration from '@beyou/state/celebration/celebrationSlice';
+import focus from '@beyou/state/focus/focusSlice';
 import viewFilters from '@beyou/state/viewFilters/viewFiltersSlice';
 import tutorial from './tutorial/tutorialSlice';
 
@@ -31,6 +32,7 @@ const combinedReducer = combineReducers({
   goals,
   categories,
   celebration,
+  focus,
   viewFilters,
   tutorial,
 });

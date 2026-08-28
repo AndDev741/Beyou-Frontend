@@ -16,6 +16,7 @@ import categories from "./category/categoriesSlice";
 import viewFilters from "./viewFilters/viewFiltersSlice";
 import snapshot from "./routine/snapshotSlice";
 import celebration from "./celebration/celebrationSlice";
+import focus from "./focus/focusSlice";
 
 
 const rootReducer = combineReducers({
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
     viewFilters: viewFilters,
     snapshot: snapshot,
     celebration: celebration,
+    focus: focus,
 
 });
 

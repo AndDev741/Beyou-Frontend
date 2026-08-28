@@ -1,15 +1,9 @@
 import { RoutineSection } from '@beyou/types/routine/routineSection';
 import { isOvernightRange } from '@beyou/validation';
-
-const toMinutes = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    return hours * 60 + minutes;
-};
-
-const fromMinutes = (minutes: number) => {
-    const total = ((minutes % 1440) + 1440) % 1440;
-    return `${Math.floor(total / 60).toString().padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
-};
+// Both helpers used to be defined here. They moved to `minutes.ts` when the focus resolver
+// needed the identical arithmetic, because a second copy of midnight handling is how the two
+// would drift apart.
+import { fromMinutes, toMinutes } from './minutes';
 
 /**
  * Times suggested in sequence inside the section's window.
