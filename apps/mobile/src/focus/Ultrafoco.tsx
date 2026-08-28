@@ -20,6 +20,7 @@ import {
 import { useBeyouTheme } from '../theme/ThemeProvider';
 import { useRoutineCheckin } from '../dashboard/useRoutineCheckin';
 import { useFocusSelection } from './useFocusSelection';
+import Pomodoro from './Pomodoro';
 import BeyouIcon from '../ui/BeyouIcon';
 import Button from '../ui/Button';
 import Chip from '../ui/Chip';
@@ -172,6 +173,10 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
           />
         </View>
       </View>
+
+      {/* Between the item and the navigation, so starting a cycle and then stepping to another
+          item reads as two separate acts. */}
+      <Pomodoro item={current} date={today} />
 
       <View className="flex-row items-center gap-2">
         <IconButton
