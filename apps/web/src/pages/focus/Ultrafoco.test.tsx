@@ -72,7 +72,7 @@ const buildStore = () =>
         preloadedState: {
             ...baseState,
             habits: { ...baseState.habits, habits: habits as never },
-            focus: { mode: "ultrafoco" as const, selectedIndex: -1, manuallySelected: false },
+            focus: { mode: "ultrafoco" as const, selectedIndex: -1, manuallySelected: false, timer: null },
         },
     });
 

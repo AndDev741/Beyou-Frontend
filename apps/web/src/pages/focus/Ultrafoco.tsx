@@ -18,6 +18,7 @@ import type { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import BeyouIcon from "../../ui/BeyouIcon";
 import { useRoutineCheckin } from "../../hooks/useRoutineCheckin";
 import { useFocusSelection } from "./useFocusSelection";
+import Pomodoro from "./Pomodoro";
 
 /**
  * One item at a time.
@@ -178,6 +179,10 @@ export default function Ultrafoco({ routine }: { routine: NonNullable<RootState[
                     </button>
                 </div>
             </div>
+
+            {/* The timer sits between the item and the navigation, so starting a cycle and then
+                stepping to another item reads as two separate acts. */}
+            <Pomodoro item={current} date={today} />
 
             <div className="flex items-center gap-2">
                 <button
