@@ -1,10 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+    DEFAULT_POMODORO_SETTINGS,
     clampCycleMinutes,
+    clampLongBreakEvery,
     nextCycleKind,
     remainingMs,
     type CycleKind,
     type FocusTimer,
+    type PomodoroSettings,
 } from "./pomodoro";
 
 /**
@@ -49,6 +52,25 @@ type focusState = {
      * tomorrow.
      */
     timer: FocusTimer | null;
+    /**
+     * Which of the three cycles the panel is showing.
+     *
+     * Separate from `timer.kind` because the two answer different questions: this is what the
+     * person has SELECTED and may start, while `timer.kind` is what is actually running. Someone
+     * can look at the Long Break tab while a pomodoro counts down, and the tabs would fight the
+     * timer if both read one field.
+     */
+    selectedCycle: CycleKind;
+    /**
+     * The three lengths and the long-break interval.
+     *
+     * Survives entering, exiting AND a change of day, unlike the timer: these are preferences,
+     * not the state of one sitting. Client-side only for now, which was the decision taken with
+     * the user — reaching for `editUser` means touching `UserEditDTO` and `perfilSlice` for four
+     * numbers. On web redux-persist keeps them; on native redux is in-memory, so they reset with
+     * the app.
+     */
+    settings: PomodoroSettings;
 };
 
 const initialState: focusState = {
@@ -56,6 +78,8 @@ const initialState: focusState = {
     selectedIndex: -1,
     manuallySelected: false,
     timer: null,
+    selectedCycle: "pomodoro",
+    settings: DEFAULT_POMODORO_SETTINGS,
 };
 
 /** Clamped, never wrapping. Running off the end of the day should stop, not start over. */
@@ -74,10 +98,15 @@ const focusSlice = createSlice({
          */
         focusEntered(state, action: PayloadAction<string>) {
             const sameDay = state.timer?.date === action.payload;
+            const timer = sameDay ? state.timer : null;
             return {
                 ...initialState,
                 mode: "fullscreen" as FocusMode,
-                timer: sameDay ? state.timer : null,
+                timer,
+                // The tab follows whatever is still running, so re-entering mid-cycle does not
+                // show the Pomodoro tab over a counting-down break.
+                selectedCycle: timer ? timer.kind : "pomodoro",
+                settings: state.settings,
             };
         },
         focusModeChanged(state, action: PayloadAction<FocusMode>) {
@@ -124,7 +153,43 @@ const focusSlice = createSlice({
          * navigating.
          */
         focusExited(state) {
-            return { ...initialState, timer: state.timer };
+            return {
+                ...initialState,
+                timer: state.timer,
+                selectedCycle: state.selectedCycle,
+                settings: state.settings,
+            };
+        },
+
+        /** Which tab is showing. Does not touch a running timer. */
+        cycleSelected(state, action: PayloadAction<CycleKind>) {
+            return { ...state, selectedCycle: action.payload };
+        },
+
+        /** Any of the four numbers, clamped. */
+        pomodoroSettingsChanged(state, action: PayloadAction<Partial<PomodoroSettings>>) {
+            const patch = action.payload;
+            return {
+                ...state,
+                settings: {
+                    pomodoro:
+                        patch.pomodoro !== undefined
+                            ? clampCycleMinutes(patch.pomodoro)
+                            : state.settings.pomodoro,
+                    shortBreak:
+                        patch.shortBreak !== undefined
+                            ? clampCycleMinutes(patch.shortBreak)
+                            : state.settings.shortBreak,
+                    longBreak:
+                        patch.longBreak !== undefined
+                            ? clampCycleMinutes(patch.longBreak)
+                            : state.settings.longBreak,
+                    longBreakEvery:
+                        patch.longBreakEvery !== undefined
+                            ? clampLongBreakEvery(patch.longBreakEvery)
+                            : state.settings.longBreakEvery,
+                },
+            };
         },
 
         /**
@@ -149,6 +214,7 @@ const focusSlice = createSlice({
                 state.timer && state.timer.groupId === groupId ? state.timer.completedCycles : 0;
             return {
                 ...state,
+                selectedCycle: kind,
                 timer: {
                     groupId,
                     kind,
@@ -199,16 +265,21 @@ const focusSlice = createSlice({
         pomodoroCycleCompleted(state) {
             if (!state.timer || state.timer.finished) return state;
             const ran = state.timer;
+            const completedCycles =
+                ran.kind === "pomodoro" ? ran.completedCycles + 1 : ran.completedCycles;
+            // Which break is earned depends on the count AFTER this one, so it is computed here
+            // rather than in the component: a fourth pomodoro pays the long break.
+            const handover = nextCycleKind(ran.kind, completedCycles, state.settings.longBreakEvery);
             return {
                 ...state,
+                selectedCycle: handover,
                 timer: {
                     ...ran,
-                    kind: nextCycleKind(ran.kind),
+                    kind: handover,
                     endsAt: 0,
                     pausedRemainingMs: null,
                     finished: true,
-                    completedCycles:
-                        ran.kind === "work" ? ran.completedCycles + 1 : ran.completedCycles,
+                    completedCycles,
                 },
             };
         },
@@ -223,6 +294,8 @@ const focusSlice = createSlice({
 export const {
     focusEntered,
     focusModeChanged,
+    cycleSelected,
+    pomodoroSettingsChanged,
     focusStartResolved,
     focusItemSelected,
     focusMovedBy,

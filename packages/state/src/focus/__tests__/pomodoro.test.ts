@@ -1,24 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import type { FocusItem } from '../focusItems';
 import {
-    BREAK_DEFAULT_MINUTES,
-    WORK_DEFAULT_MINUTES,
+    DEFAULT_POMODORO_SETTINGS,
     clampCycleMinutes,
+    clampLongBreakEvery,
+    cycleMinutes,
     formatRemaining,
+    itemWindowMinutes,
     nextCycleKind,
+    pomodoroNumber,
     remainingMs,
-    suggestedMinutes,
     timerStatus,
     type FocusTimer,
+    type PomodoroSettings,
 } from '../pomodoro';
 
 const item = (startTime?: string, endTime?: string): FocusItem =>
     ({ groupId: 'g', type: 'habit', itemId: 'h', sectionName: 'S', startTime, endTime } as FocusItem);
 
+const settings = (over: Partial<PomodoroSettings> = {}): PomodoroSettings => ({
+    ...DEFAULT_POMODORO_SETTINGS,
+    ...over,
+});
+
 const NOW = 1_800_000_000_000;
 const timer = (over: Partial<FocusTimer> = {}): FocusTimer => ({
     groupId: 'g',
-    kind: 'work',
+    kind: 'pomodoro',
     endsAt: NOW + 60_000,
     pausedRemainingMs: null,
     durationMinutes: 25,
@@ -28,49 +36,66 @@ const timer = (over: Partial<FocusTimer> = {}): FocusTimer => ({
     ...over,
 });
 
-describe('suggestedMinutes', () => {
-    it('reads the duration off the item\'s own window', () => {
-        // The discovery this phase rests on: routine ITEMS carry startTime and endTime, so
-        // every scheduled item already says how long its owner meant it to take. Neither Task
-        // nor Habit needs a duration field.
-        expect(suggestedMinutes(item('07:00', '07:45'))).toBe(45);
-        expect(suggestedMinutes(item('14:00', '14:20'))).toBe(20);
+describe('cycleMinutes', () => {
+    it("takes a pomodoro's length from the item's own window", () => {
+        // The discovery this phase rests on: routine ITEMS carry startTime and endTime, so every
+        // scheduled item already says how long its owner meant it to take. Neither Task nor
+        // Habit needs a duration field.
+        expect(cycleMinutes('pomodoro', item('07:00', '07:45'), settings())).toBe(45);
+        expect(cycleMinutes('pomodoro', item('14:00', '14:20'), settings())).toBe(20);
     });
 
-    it('handles a window that crosses midnight', () => {
-        expect(suggestedMinutes(item('23:30', '00:15'))).toBe(45);
-    });
-
-    it('falls back to the classic 25 when there is nothing to read', () => {
+    it('falls back to the configured pomodoro length when the item has no window', () => {
         // Every item of a LIST routine takes this path, which is why it is a fallback and not
         // an error.
-        expect(suggestedMinutes(item())).toBe(WORK_DEFAULT_MINUTES);
-        expect(suggestedMinutes(item('07:00'))).toBe(WORK_DEFAULT_MINUTES);
-        expect(suggestedMinutes(null)).toBe(WORK_DEFAULT_MINUTES);
-        expect(suggestedMinutes(item('not-a-time', 'nor-this'))).toBe(WORK_DEFAULT_MINUTES);
+        expect(cycleMinutes('pomodoro', item(), settings())).toBe(25);
+        expect(cycleMinutes('pomodoro', item(), settings({ pomodoro: 50 }))).toBe(50);
+        expect(cycleMinutes('pomodoro', null, settings({ pomodoro: 30 }))).toBe(30);
     });
 
-    it('falls back rather than returning zero for a zero-length window', () => {
-        expect(suggestedMinutes(item('07:00', '07:00'))).toBe(WORK_DEFAULT_MINUTES);
+    it("ignores the item's window for a break, because a rest has its own length", () => {
+        const long = item('07:00', '08:30');
+
+        expect(cycleMinutes('shortBreak', long, settings())).toBe(5);
+        expect(cycleMinutes('longBreak', long, settings())).toBe(15);
+        expect(cycleMinutes('shortBreak', long, settings({ shortBreak: 7 }))).toBe(7);
     });
 
-    it('clamps a window longer than the ceiling', () => {
-        expect(suggestedMinutes(item('06:00', '18:00'))).toBe(180);
+    it('clamps whatever it returns', () => {
+        expect(cycleMinutes('pomodoro', item('06:00', '18:00'), settings())).toBe(180);
+        expect(cycleMinutes('longBreak', item(), settings({ longBreak: 999 }))).toBe(180);
+        expect(cycleMinutes('shortBreak', item(), settings({ shortBreak: 0 }))).toBe(1);
     });
 });
 
-describe('clampCycleMinutes', () => {
-    it('bounds a typo without policing how anyone works', () => {
+describe('itemWindowMinutes', () => {
+    it('handles a window that crosses midnight', () => {
+        expect(itemWindowMinutes(item('23:30', '00:15'))).toBe(45);
+    });
+
+    it('is null when there is nothing readable to measure', () => {
+        expect(itemWindowMinutes(item())).toBeNull();
+        expect(itemWindowMinutes(item('07:00'))).toBeNull();
+        expect(itemWindowMinutes(item('07:00', '07:00'))).toBeNull();
+        expect(itemWindowMinutes(item('not-a-time', 'nor-this'))).toBeNull();
+        expect(itemWindowMinutes(null)).toBeNull();
+    });
+});
+
+describe('clamping', () => {
+    it('bounds a typed duration without policing how anyone works', () => {
         expect(clampCycleMinutes(300)).toBe(180);
         expect(clampCycleMinutes(0)).toBe(1);
         expect(clampCycleMinutes(-5)).toBe(1);
-        expect(clampCycleMinutes(25)).toBe(25);
         expect(clampCycleMinutes(25.6)).toBe(26);
+        expect(clampCycleMinutes(Number.NaN)).toBe(DEFAULT_POMODORO_SETTINGS.pomodoro);
     });
 
-    it('gives the default for a value that is not a number at all', () => {
-        expect(clampCycleMinutes(Number.NaN)).toBe(WORK_DEFAULT_MINUTES);
-        expect(clampCycleMinutes(Number.POSITIVE_INFINITY)).toBe(WORK_DEFAULT_MINUTES);
+    it('bounds how often the long break comes round', () => {
+        expect(clampLongBreakEvery(0)).toBe(1);
+        expect(clampLongBreakEvery(99)).toBe(12);
+        expect(clampLongBreakEvery(4)).toBe(4);
+        expect(clampLongBreakEvery(Number.NaN)).toBe(DEFAULT_POMODORO_SETTINGS.longBreakEvery);
     });
 });
 
@@ -89,8 +114,9 @@ describe('remainingMs', () => {
         expect(remainingMs(paused, NOW)).toBe(120_000);
     });
 
-    it('is zero with no timer', () => {
+    it('is zero with no timer, and zero once finished', () => {
         expect(remainingMs(null, NOW)).toBe(0);
+        expect(remainingMs(timer({ finished: true, endsAt: NOW + 60_000 }), NOW)).toBe(0);
     });
 });
 
@@ -103,22 +129,13 @@ describe('timerStatus', () => {
         expect(timerStatus(timer({ endsAt: NOW - 1 }), NOW)).toBe('elapsed');
     });
 
-    it('a finished cycle reports elapsed, whatever is parked in the other fields', () => {
-        // The bug this replaced: the completed action left a 0 in `pausedRemainingMs`, the
-        // pause branch matched first, and a finished cycle showed the pause controls while the
-        // "cycle finished" panel never appeared.
-        const done = timer({ endsAt: 0, pausedRemainingMs: null, finished: true });
-
-        expect(timerStatus(done, NOW)).toBe('elapsed');
-        expect(remainingMs(done, NOW)).toBe(0);
-    });
-
     it('stays elapsed even if something later marks a finished cycle paused', () => {
         // Not a state the reducer produces today. It pins the branch ORDER, which is the shape
-        // the previous version got wrong.
-        const both = timer({ finished: true, pausedRemainingMs: 60_000 });
-
-        expect(timerStatus(both, NOW)).toBe('elapsed');
+        // the previous version got wrong: a 0 parked in `pausedRemainingMs` matched the pause
+        // branch first, and the "cycle finished" panel never appeared at all.
+        expect(timerStatus(timer({ finished: true, pausedRemainingMs: 60_000 }), NOW)).toBe(
+            'elapsed',
+        );
     });
 
     it('reads paused even when the stale end time is in the past', () => {
@@ -129,10 +146,12 @@ describe('timerStatus', () => {
 });
 
 describe('formatRemaining', () => {
-    it('counts in minutes and seconds', () => {
+    it('counts in zero-padded minutes and seconds', () => {
+        // Padded because the number renders at 64px: a display that changes width between
+        // "9:59" and "10:00" shifts the whole card sideways every ten minutes.
         expect(formatRemaining(25 * 60_000)).toBe('25:00');
-        expect(formatRemaining(61_000)).toBe('1:01');
-        expect(formatRemaining(0)).toBe('0:00');
+        expect(formatRemaining(61_000)).toBe('01:01');
+        expect(formatRemaining(0)).toBe('00:00');
     });
 
     it('rounds UP, so a fresh 25 minute cycle never opens at 24:59', () => {
@@ -140,7 +159,7 @@ describe('formatRemaining', () => {
     });
 
     it('never shows a negative time', () => {
-        expect(formatRemaining(-5_000)).toBe('0:00');
+        expect(formatRemaining(-5_000)).toBe('00:00');
     });
 
     it('grows an hours field once a cycle runs past the hour', () => {
@@ -149,9 +168,34 @@ describe('formatRemaining', () => {
 });
 
 describe('nextCycleKind', () => {
-    it('work pays a break and a break pays work', () => {
-        expect(nextCycleKind('work')).toBe('break');
-        expect(nextCycleKind('break')).toBe('work');
-        expect(BREAK_DEFAULT_MINUTES).toBeLessThan(WORK_DEFAULT_MINUTES);
+    it('a pomodoro pays a short break, until the interval comes round', () => {
+        expect(nextCycleKind('pomodoro', 1, 4)).toBe('shortBreak');
+        expect(nextCycleKind('pomodoro', 2, 4)).toBe('shortBreak');
+        expect(nextCycleKind('pomodoro', 3, 4)).toBe('shortBreak');
+        expect(nextCycleKind('pomodoro', 4, 4)).toBe('longBreak');
+        expect(nextCycleKind('pomodoro', 8, 4)).toBe('longBreak');
+    });
+
+    it('respects a configured interval, including every single one', () => {
+        expect(nextCycleKind('pomodoro', 2, 2)).toBe('longBreak');
+        expect(nextCycleKind('pomodoro', 1, 1)).toBe('longBreak');
+        expect(nextCycleKind('pomodoro', 3, 5)).toBe('shortBreak');
+    });
+
+    it('any break pays a pomodoro', () => {
+        expect(nextCycleKind('shortBreak', 4, 4)).toBe('pomodoro');
+        expect(nextCycleKind('longBreak', 4, 4)).toBe('pomodoro');
+    });
+
+    it('clamps a nonsense interval rather than dividing by zero', () => {
+        expect(nextCycleKind('pomodoro', 1, 0)).toBe('longBreak');
+        expect(nextCycleKind('pomodoro', 1, Number.NaN)).toBe('shortBreak');
+    });
+});
+
+describe('pomodoroNumber', () => {
+    it('counts from one, so a fresh sitting reads #1', () => {
+        expect(pomodoroNumber(0)).toBe(1);
+        expect(pomodoroNumber(3)).toBe(4);
     });
 });

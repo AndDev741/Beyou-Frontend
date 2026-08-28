@@ -6,10 +6,12 @@ import reducer, {
     focusModeChanged,
     focusMovedBy,
     focusStartResolved,
+    cycleSelected,
     pomodoroAbandoned,
     pomodoroCycleCompleted,
     pomodoroPaused,
     pomodoroResumed,
+    pomodoroSettingsChanged,
     pomodoroStarted,
 } from '../focusSlice';
 
@@ -105,7 +107,7 @@ describe('the pomodoro', () => {
     const started = (minutes = 25, groupId = 'g1', now = NOW) =>
         reducer(
             reducer(undefined, enter()),
-            pomodoroStarted({ groupId, kind: 'work', minutes, now, date: TODAY }),
+            pomodoroStarted({ groupId, kind: 'pomodoro', minutes, now, date: TODAY }),
         );
 
     it('is an absolute end time, never a countdown', () => {
@@ -114,7 +116,7 @@ describe('the pomodoro', () => {
 
         expect(state.timer).toMatchObject({
             groupId: 'g1',
-            kind: 'work',
+            kind: 'pomodoro',
             endsAt: NOW + 25 * 60_000,
             pausedRemainingMs: null,
             durationMinutes: 25,
@@ -156,10 +158,10 @@ describe('the pomodoro', () => {
         expect(reducer(running, pomodoroResumed({ now: NOW + 60_000 }))).toEqual(running);
     });
 
-    it('a finished work cycle counts, and hands over to a break the person has to start', () => {
+    it('a finished pomodoro counts, and hands over to a break the person has to start', () => {
         const done = reducer(started(25), pomodoroCycleCompleted());
 
-        expect(done.timer).toMatchObject({ kind: 'break', completedCycles: 1, finished: true });
+        expect(done.timer).toMatchObject({ kind: 'shortBreak', completedCycles: 1, finished: true });
         // Marked finished rather than parked as paused: a 0 in `pausedRemainingMs` made
         // `timerStatus` report PAUSED, and the "cycle finished" panel never showed at all.
         expect(done.timer?.pausedRemainingMs).toBeNull();
@@ -173,16 +175,16 @@ describe('the pomodoro', () => {
         expect(reducer(once, pomodoroCycleCompleted())).toEqual(once);
     });
 
-    it('a finished BREAK does not count as a cycle', () => {
+    it('a finished BREAK does not count as a pomodoro', () => {
         const afterWork = reducer(started(25), pomodoroCycleCompleted());
         // Starting the break, then letting it run out.
         const breakRunning = reducer(
             afterWork,
-            pomodoroStarted({ groupId: 'g1', kind: 'break', minutes: 5, now: NOW, date: TODAY }),
+            pomodoroStarted({ groupId: 'g1', kind: 'shortBreak', minutes: 5, now: NOW, date: TODAY }),
         );
         const afterBreak = reducer(breakRunning, pomodoroCycleCompleted());
 
-        expect(afterBreak.timer).toMatchObject({ kind: 'work', completedCycles: 1 });
+        expect(afterBreak.timer).toMatchObject({ kind: 'pomodoro', completedCycles: 1 });
     });
 
     it('keeps the count while the item stays the same, and restarts it on another item', () => {
@@ -191,13 +193,13 @@ describe('the pomodoro', () => {
 
         const sameItem = reducer(
             oneDone,
-            pomodoroStarted({ groupId: 'g1', kind: 'work', minutes: 25, now: NOW, date: TODAY }),
+            pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: NOW, date: TODAY }),
         );
         expect(sameItem.timer?.completedCycles).toBe(1);
 
         const otherItem = reducer(
             oneDone,
-            pomodoroStarted({ groupId: 'g2', kind: 'work', minutes: 25, now: NOW, date: TODAY }),
+            pomodoroStarted({ groupId: 'g2', kind: 'pomodoro', minutes: 25, now: NOW, date: TODAY }),
         );
         expect(otherItem.timer?.completedCycles).toBe(0);
     });
@@ -230,5 +232,115 @@ describe('the pomodoro', () => {
         const running = started(25);
 
         expect(reducer(running, focusEntered('2026-08-29')).timer).toBeNull();
+    });
+});
+
+describe('the three cycles and their settings', () => {
+    const NOW = 1_800_000_000_000;
+
+    it('starts on the pomodoro tab with the classic numbers', () => {
+        const entered = reducer(undefined, enter());
+
+        expect(entered.selectedCycle).toBe('pomodoro');
+        expect(entered.settings).toEqual({
+            pomodoro: 25,
+            shortBreak: 5,
+            longBreak: 15,
+            longBreakEvery: 4,
+        });
+    });
+
+    it('a tab is just a tab: selecting one does not touch a running timer', () => {
+        const running = reducer(
+            reducer(undefined, enter()),
+            pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: NOW, date: TODAY }),
+        );
+
+        const looking = reducer(running, cycleSelected('longBreak'));
+
+        expect(looking.selectedCycle).toBe('longBreak');
+        expect(looking.timer).toEqual(running.timer);
+    });
+
+    it('starting a cycle moves the tab to it, so the two never disagree', () => {
+        const state = reducer(reducer(undefined, enter()), cycleSelected('longBreak'));
+
+        const started = reducer(
+            state,
+            pomodoroStarted({ groupId: 'g1', kind: 'shortBreak', minutes: 5, now: NOW, date: TODAY }),
+        );
+
+        expect(started.selectedCycle).toBe('shortBreak');
+    });
+
+    it('each setting can be changed on its own, and every one is clamped', () => {
+        let state = reducer(undefined, enter());
+
+        state = reducer(state, pomodoroSettingsChanged({ pomodoro: 50 }));
+        expect(state.settings).toMatchObject({ pomodoro: 50, shortBreak: 5, longBreak: 15 });
+
+        state = reducer(state, pomodoroSettingsChanged({ shortBreak: 999, longBreakEvery: 0 }));
+        expect(state.settings).toMatchObject({ pomodoro: 50, shortBreak: 180, longBreakEvery: 1 });
+    });
+
+    it('the fourth pomodoro pays the LONG break', () => {
+        // Which break is earned depends on the count after this one, so the reducer decides it
+        // rather than the component.
+        let state = reducer(undefined, enter());
+        for (let n = 1; n <= 4; n += 1) {
+            state = reducer(
+                state,
+                pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 1, now: NOW, date: TODAY }),
+            );
+            state = reducer(state, pomodoroCycleCompleted());
+            if (n < 4) {
+                expect(state.timer?.kind).toBe('shortBreak');
+            }
+        }
+
+        expect(state.timer).toMatchObject({ kind: 'longBreak', completedCycles: 4 });
+        expect(state.selectedCycle).toBe('longBreak');
+    });
+
+    it('a configured interval of two makes every second one long', () => {
+        let state = reducer(
+            reducer(undefined, enter()),
+            pomodoroSettingsChanged({ longBreakEvery: 2 }),
+        );
+
+        state = reducer(
+            state,
+            pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 1, now: NOW, date: TODAY }),
+        );
+        state = reducer(state, pomodoroCycleCompleted());
+        expect(state.timer?.kind).toBe('shortBreak');
+
+        state = reducer(
+            state,
+            pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 1, now: NOW, date: TODAY }),
+        );
+        state = reducer(state, pomodoroCycleCompleted());
+        expect(state.timer?.kind).toBe('longBreak');
+    });
+
+    it('settings survive exiting, and survive a change of day', () => {
+        // Unlike the timer: these are preferences, not the state of one sitting.
+        const configured = reducer(
+            reducer(undefined, enter()),
+            pomodoroSettingsChanged({ pomodoro: 40, longBreak: 20 }),
+        );
+
+        expect(reducer(configured, focusExited()).settings).toEqual(configured.settings);
+        expect(reducer(configured, focusEntered('2026-09-01')).settings).toEqual(configured.settings);
+    });
+
+    it('re-entering mid-cycle shows the tab of what is actually running', () => {
+        // Otherwise the Pomodoro tab sat over a counting-down break.
+        const onBreak = reducer(
+            reducer(undefined, enter()),
+            pomodoroStarted({ groupId: 'g1', kind: 'longBreak', minutes: 15, now: NOW, date: TODAY }),
+        );
+
+        expect(reducer(onBreak, focusEntered(TODAY)).selectedCycle).toBe('longBreak');
     });
 });

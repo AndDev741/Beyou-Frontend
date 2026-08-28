@@ -2,9 +2,52 @@ import { isOvernightRange } from '@beyou/validation';
 import { MINUTES_PER_DAY, toMinutes } from '../routine/minutes';
 import type { FocusItem } from './focusItems';
 
-/** The classic pair, used when the item's own window says nothing. */
-export const WORK_DEFAULT_MINUTES = 25;
-export const BREAK_DEFAULT_MINUTES = 5;
+/**
+ * The three cycles, in the order the tabs offer them.
+ *
+ * "pomodoro" rather than "work": it is the word on the tab and the word the technique uses, and
+ * the two-value version this replaced called one of them "break" while there are now two breaks
+ * of different lengths.
+ */
+export type CycleKind = 'pomodoro' | 'shortBreak' | 'longBreak';
+
+export const CYCLE_KINDS: CycleKind[] = ['pomodoro', 'shortBreak', 'longBreak'];
+
+/** The i18n key naming each cycle, so neither platform invents its own wording. */
+export const CYCLE_LABEL_KEY: Record<CycleKind, string> = {
+    pomodoro: 'FocusCyclePomodoro',
+    shortBreak: 'FocusCycleShortBreak',
+    longBreak: 'FocusCycleLongBreak',
+};
+
+/** What the line under the clock says, per cycle. */
+export const CYCLE_MESSAGE_KEY: Record<CycleKind, string> = {
+    pomodoro: 'FocusTimeToFocus',
+    shortBreak: 'FocusTimeForABreak',
+    longBreak: 'FocusTimeForALongBreak',
+};
+
+export type PomodoroSettings = {
+    /** Minutes, and the default when the current item has no window of its own. */
+    pomodoro: number;
+    shortBreak: number;
+    longBreak: number;
+    /**
+     * How many pomodoros earn the long break. The technique's own number is four.
+     *
+     * A 1 means every break is a long one, which is a legitimate way to work and not worth
+     * forbidding.
+     */
+    longBreakEvery: number;
+};
+
+/** The classic numbers, and what a fresh account starts with. */
+export const DEFAULT_POMODORO_SETTINGS: PomodoroSettings = {
+    pomodoro: 25,
+    shortBreak: 5,
+    longBreak: 15,
+    longBreakEvery: 4,
+};
 
 /**
  * Bounds for a hand-typed duration.
@@ -15,7 +58,9 @@ export const BREAK_DEFAULT_MINUTES = 5;
 export const MIN_CYCLE_MINUTES = 1;
 export const MAX_CYCLE_MINUTES = 180;
 
-export type CycleKind = 'work' | 'break';
+/** And for how often the long break comes round. */
+export const MIN_LONG_BREAK_EVERY = 1;
+export const MAX_LONG_BREAK_EVERY = 12;
 
 export type FocusTimer = {
     /** The item group this cycle was started on. */
@@ -27,20 +72,20 @@ export type FocusTimer = {
      * when the phone locks, and drifts whenever the interval is throttled. Subtracting from the
      * wall clock survives all three.
      *
-     * Stale while `pausedRemainingMs` is set.
+     * Stale while `pausedRemainingMs` is set, and meaningless once `finished`.
      */
     endsAt: number;
     /** Milliseconds left at the moment it was paused, or null while it runs. */
     pausedRemainingMs: number | null;
     /** What it was started with, so the next cycle can offer the same shape. */
     durationMinutes: number;
-    /** Work cycles finished on this item. Breaks do not count. */
+    /** Pomodoros finished on this item. Breaks do not count. */
     completedCycles: number;
     /**
      * True once a cycle has run out and handed over to the next one.
      *
      * An explicit flag rather than a sentinel, because both obvious sentinels lie. Leaving
-     * `endsAt` in the past keeps the status at "elapsed" forever, so the effect that notices the
+     * `endsAt` in the past keeps the status at "elapsed", so the effect that notices the
      * crossing re-fires and flips `kind` on every render. Parking a 0 in `pausedRemainingMs`
      * reads as PAUSED to `timerStatus`, which is the bug this replaced: a finished cycle showed
      * the pause controls and the "cycle finished" panel never appeared at all.
@@ -59,28 +104,49 @@ export type TimerStatus = 'idle' | 'running' | 'paused' | 'elapsed';
 
 /** Clamp a hand-typed duration into something a timer can actually run. */
 export const clampCycleMinutes = (minutes: number): number => {
-    if (!Number.isFinite(minutes)) return WORK_DEFAULT_MINUTES;
+    if (!Number.isFinite(minutes)) return DEFAULT_POMODORO_SETTINGS.pomodoro;
     return Math.min(Math.max(Math.round(minutes), MIN_CYCLE_MINUTES), MAX_CYCLE_MINUTES);
 };
 
+export const clampLongBreakEvery = (every: number): number => {
+    if (!Number.isFinite(every)) return DEFAULT_POMODORO_SETTINGS.longBreakEvery;
+    return Math.min(Math.max(Math.round(every), MIN_LONG_BREAK_EVERY), MAX_LONG_BREAK_EVERY);
+};
+
 /**
- * How many minutes to offer for this item.
+ * How long this cycle should run on this item.
  *
- * Taken from the item's own window, which is the pleasant discovery behind this whole phase:
- * routine ITEMS carry `startTime` and `endTime`, not only sections, so every scheduled item
- * already states how long its owner meant it to take. Neither `Task` nor `Habit` has a
- * duration field and neither needs one.
+ * Two halves, both decided with the user:
  *
- * Falls back to the classic 25 for an item with no window, which is every item of a LIST
- * routine. The value is a suggestion in an editable field, never a constraint: see the freedom
- * rule in `resolveFocusStart`.
+ * A **pomodoro** takes its length from the item's own window when the item has one. Routine
+ * ITEMS carry `startTime` and `endTime`, not only sections, so a scheduled item already states
+ * how long its owner meant it to take, and neither `Task` nor `Habit` needs a duration field.
+ * With no window, which is every item of a LIST routine, it falls back to the configured
+ * pomodoro length.
+ *
+ * A **break** always takes its configured length. An item's window says nothing about how long
+ * a rest should be.
+ *
+ * Whatever comes out is a suggestion in an editable field, never a constraint: the same freedom
+ * rule the resolver follows.
  */
-export function suggestedMinutes(item: FocusItem | null | undefined): number {
-    if (!item?.startTime || !item.endTime) return WORK_DEFAULT_MINUTES;
+export function cycleMinutes(
+    kind: CycleKind,
+    item: FocusItem | null | undefined,
+    settings: PomodoroSettings,
+): number {
+    if (kind === 'shortBreak') return clampCycleMinutes(settings.shortBreak);
+    if (kind === 'longBreak') return clampCycleMinutes(settings.longBreak);
+    return clampCycleMinutes(itemWindowMinutes(item) ?? settings.pomodoro);
+}
+
+/** The item's window in minutes, or null when it has none to read. */
+export function itemWindowMinutes(item: FocusItem | null | undefined): number | null {
+    if (!item?.startTime || !item.endTime) return null;
 
     const start = toMinutes(item.startTime);
     const end = toMinutes(item.endTime);
-    if (Number.isNaN(start) || Number.isNaN(end)) return WORK_DEFAULT_MINUTES;
+    if (Number.isNaN(start) || Number.isNaN(end)) return null;
 
     // Same overnight helper as the resolver and the routine validation, so a 23:30 to 00:15
     // window is 45 minutes here too rather than a negative number.
@@ -88,8 +154,7 @@ export function suggestedMinutes(item: FocusItem | null | undefined): number {
         ? end + MINUTES_PER_DAY - start
         : end - start;
 
-    if (span <= 0) return WORK_DEFAULT_MINUTES;
-    return clampCycleMinutes(span);
+    return span > 0 ? span : null;
 }
 
 /** Milliseconds left, floored at zero. Reads the frozen value while paused. */
@@ -119,17 +184,39 @@ export function timerStatus(timer: FocusTimer | null | undefined, now: number): 
     return timer.endsAt > now ? 'running' : 'elapsed';
 }
 
-/** "24:59", and "1:04:00" once a cycle runs past the hour. */
+/**
+ * "25:00", and "1:04:00" once a cycle runs past the hour.
+ *
+ * Zero-padded minutes, because the number is rendered at 64px and a display that jumps between
+ * "9:59" and "10:00" widths shifts the whole card sideways every ten minutes.
+ */
 export function formatRemaining(ms: number): string {
     const total = Math.max(0, Math.ceil(ms / 1000));
     const hours = Math.floor(total / 3600);
     const minutes = Math.floor((total % 3600) / 60);
     const seconds = total % 60;
-    const mm = hours > 0 ? String(minutes).padStart(2, '0') : String(minutes);
+    const mm = String(minutes).padStart(2, '0');
     return hours > 0
         ? `${hours}:${mm}:${String(seconds).padStart(2, '0')}`
         : `${mm}:${String(seconds).padStart(2, '0')}`;
 }
 
-/** What the next cycle should be after this one finishes: work pays a break, a break pays work. */
-export const nextCycleKind = (kind: CycleKind): CycleKind => (kind === 'work' ? 'break' : 'work');
+/**
+ * What comes after this cycle.
+ *
+ * A pomodoro pays a short break, except every `longBreakEvery`th one, which pays the long break.
+ * Any break pays a pomodoro. `completedCycles` is the count AFTER this cycle was counted, which
+ * is what the reducer hands in.
+ */
+export function nextCycleKind(
+    kind: CycleKind,
+    completedCycles: number,
+    longBreakEvery: number,
+): CycleKind {
+    if (kind !== 'pomodoro') return 'pomodoro';
+    const every = clampLongBreakEvery(longBreakEvery);
+    return completedCycles > 0 && completedCycles % every === 0 ? 'longBreak' : 'shortBreak';
+}
+
+/** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
+export const pomodoroNumber = (completedCycles: number): number => completedCycles + 1;
