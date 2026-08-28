@@ -109,81 +109,9 @@ export default function Ultrafoco({ routine }: { routine: NonNullable<RootState[
 
     return (
         <div className="flex flex-col gap-4" data-testid="focus-ultra">
-            <div className="rounded-card border border-border bg-surface px-4 py-6 text-center lg:py-10">
-                <div className="flex items-center justify-center gap-2">
-                    <span
-                        className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-2"
-                        data-testid="focus-ultra-reason"
-                    >
-                        {t(FOCUS_REASON_LABEL_KEY[reason])}
-                    </span>
-                    {current.sectionName && (
-                        <span className="text-[11px] text-text-3">{current.sectionName}</span>
-                    )}
-                </div>
-
-                <div className="mt-5 flex justify-center">
-                    <BeyouIcon id={found?.iconId ?? ""} size={44} />
-                </div>
-
-                <h2 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-text lg:text-2xl">
-                    {found?.name ?? current.itemId}
-                </h2>
-
-                {/* A time is shown only when there is one, and only when the clock is what put
-                    this item on screen. Over a LIST item it would invent a schedule. */}
-                <p className="mt-1.5 font-mono text-[12.5px] text-text-3" data-testid="focus-ultra-window">
-                    {window && reasonIsFromClock(reason) ? window : t("FocusAnyTime")}
-                </p>
-
-                {found && "motivationalPhrase" in found && found.motivationalPhrase ? (
-                    <p className="mx-auto mt-4 max-w-md text-sm text-text-2">
-                        {String(found.motivationalPhrase)}
-                    </p>
-                ) : null}
-
-                <div className="mt-7 flex items-center justify-center gap-2.5">
-                    <button
-                        type="button"
-                        disabled={pending}
-                        onClick={() =>
-                            guard(() =>
-                                check(groupDto<itemGroupToCheck>({}), {
-                                    wasChecked: checked,
-                                    name: found?.name,
-                                    motivationalPhrase:
-                                        found && "motivationalPhrase" in found
-                                            ? (found.motivationalPhrase as string | undefined)
-                                            : undefined,
-                                })
-                            )
-                        }
-                        className={`inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 ${
-                            checked ? "bg-surface-2 text-text" : "bg-accent text-on-accent"
-                        }`}
-                        data-testid="focus-ultra-check"
-                    >
-                        <Check size={16} aria-hidden="true" />
-                        {checked ? t("Undo") : t("Done")}
-                    </button>
-
-                    <button
-                        type="button"
-                        disabled={pending}
-                        onClick={() => guard(() => skip(groupDto<itemGroupToSkip>({ skip: !skipped })))}
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-control border border-border px-4 text-sm font-medium text-text-2 transition-colors hover:bg-surface-2 hover:text-text disabled:cursor-not-allowed disabled:opacity-60"
-                        data-testid="focus-ultra-skip"
-                    >
-                        <FiSlash size={15} aria-hidden="true" />
-                        {skipped ? t("Undo") : t("Skip")}
-                    </button>
-                </div>
-            </div>
-
-            {/* The timer sits between the item and the navigation, so starting a cycle and then
-                stepping to another item reads as two separate acts. */}
-            <Pomodoro item={current} date={today} />
-
+            {/* The day's counter and the jump list come FIRST, right under the screen's
+                title and its actions: "which of the day am I on" is the orientation
+                question, and it belongs above the item rather than buried under it. */}
             <div className="flex items-center gap-2">
                 <button
                     type="button"
@@ -266,6 +194,82 @@ export default function Ultrafoco({ routine }: { routine: NonNullable<RootState[
                     })}
                 </ul>
             )}
+
+            <div className="rounded-card border border-border bg-surface px-4 py-6 text-center lg:py-10">
+                <div className="flex items-center justify-center gap-2">
+                    <span
+                        className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-2"
+                        data-testid="focus-ultra-reason"
+                    >
+                        {t(FOCUS_REASON_LABEL_KEY[reason])}
+                    </span>
+                    {current.sectionName && (
+                        <span className="text-[11px] text-text-3">{current.sectionName}</span>
+                    )}
+                </div>
+
+                <div className="mt-5 flex justify-center">
+                    <BeyouIcon id={found?.iconId ?? ""} size={44} />
+                </div>
+
+                <h2 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-text lg:text-2xl">
+                    {found?.name ?? current.itemId}
+                </h2>
+
+                {/* A time is shown only when there is one, and only when the clock is what put
+                    this item on screen. Over a LIST item it would invent a schedule. */}
+                <p className="mt-1.5 font-mono text-[12.5px] text-text-3" data-testid="focus-ultra-window">
+                    {window && reasonIsFromClock(reason) ? window : t("FocusAnyTime")}
+                </p>
+
+                {found && "motivationalPhrase" in found && found.motivationalPhrase ? (
+                    <p className="mx-auto mt-4 max-w-md text-sm text-text-2">
+                        {String(found.motivationalPhrase)}
+                    </p>
+                ) : null}
+
+                <div className="mt-7 flex items-center justify-center gap-2.5">
+                    <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() =>
+                            guard(() =>
+                                check(groupDto<itemGroupToCheck>({}), {
+                                    wasChecked: checked,
+                                    name: found?.name,
+                                    motivationalPhrase:
+                                        found && "motivationalPhrase" in found
+                                            ? (found.motivationalPhrase as string | undefined)
+                                            : undefined,
+                                })
+                            )
+                        }
+                        className={`inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 ${
+                            checked ? "bg-surface-2 text-text" : "bg-accent text-on-accent"
+                        }`}
+                        data-testid="focus-ultra-check"
+                    >
+                        <Check size={16} aria-hidden="true" />
+                        {checked ? t("Undo") : t("Done")}
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => guard(() => skip(groupDto<itemGroupToSkip>({ skip: !skipped })))}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-control border border-border px-4 text-sm font-medium text-text-2 transition-colors hover:bg-surface-2 hover:text-text disabled:cursor-not-allowed disabled:opacity-60"
+                        data-testid="focus-ultra-skip"
+                    >
+                        <FiSlash size={15} aria-hidden="true" />
+                        {skipped ? t("Undo") : t("Skip")}
+                    </button>
+                </div>
+            </div>
+
+            {/* The timer sits between the item and the navigation, so starting a cycle and then
+                stepping to another item reads as two separate acts. */}
+            <Pomodoro item={current} date={today} />
+
         </div>
     );
 }

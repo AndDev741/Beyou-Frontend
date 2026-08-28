@@ -16,13 +16,11 @@ const item = (startTime?: string, endTime?: string, groupId = "hg1"): FocusItem 
 const buildStore = () => configureStore({ reducer: rootReducer, preloadedState: baseState });
 
 /**
- * The clock is frozen and advanced by hand, so the countdown is never a function of when CI
- * runs.
+ * The clock is frozen and advanced by hand, so the countdown is never a function of when CI runs.
  *
- * Deliberately NOT `{ shouldAdvanceTime: true }`: that lets the fake clock drift forward on its
- * own, and every arithmetic assertion here went unstable (a 24:00 read as 44:01). A frozen clock
- * is safe here because this repo is on user-event v13, which is synchronous and awaits no timers
- * of its own — the v14 `userEvent.setup({ advanceTimers })` pairing does not exist yet.
+ * Deliberately NOT `{ shouldAdvanceTime: true }`: that lets the fake clock drift on its own and
+ * every arithmetic assertion went unstable (a 24:00 read as 44:01). A frozen clock is safe here
+ * because this repo is on user-event v13, which is synchronous and awaits no timers of its own.
  */
 beforeEach(() => {
     vi.useFakeTimers();
@@ -37,50 +35,109 @@ afterEach(() => {
  * Jump the clock, then let ONE interval fire.
  *
  * Not `advanceTimersByTimeAsync(ms)`: the hook re-renders on a one-second interval, so walking
- * 25 minutes fires it 1500 times and re-renders 1500 times. That was expensive enough to starve
- * the sibling vitest workers when turbo runs every workspace at once, and five unrelated tests
- * in categories, goals and telemetry started timing out at 5000ms. Proven by hiding this file
- * and watching the full run go back to green.
- *
- * `setSystemTime` moves the clock without firing anything, so one tick afterwards is all it
- * takes to read the new value. It is also closer to the real case: a suspended tab that wakes.
+ * 25 minutes fires it 1500 times. That was expensive enough to starve the sibling vitest workers
+ * when turbo runs every workspace at once, and five UNRELATED tests in categories, goals and
+ * telemetry started timing out at 5000ms. Proven by hiding this file and watching the full run go
+ * back to green. `setSystemTime` moves the clock without firing anything, so one tick afterwards
+ * reads the new value, and it models a suspended tab better anyway.
  */
 const jump = async (ms: number) => {
-    vi.setSystemTime(Date.now() + ms);
+    // The one second the tick itself burns is taken off the jump, so `jump(60_000)` really is a
+    // minute of elapsed time and a call site can read the number it means.
+    vi.setSystemTime(Date.now() + Math.max(0, ms - 1_000));
     await act(async () => {
         await vi.advanceTimersByTimeAsync(1_000);
     });
 };
 
-describe("the duration comes from the item, and stays editable", () => {
-    test("pre-filled from the item's own window", () => {
+describe("the three cycles", () => {
+    test("opens on Pomodoro, previewing the length it would run", () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+
+        expect(screen.getByTestId("focus-cycle-tab-pomodoro")).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("25:00");
+        expect(screen.getByTestId("focus-pomodoro-message")).toHaveTextContent("FocusTimeToFocus");
+    });
+
+    test("switching tab changes the previewed length and the message", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+
+        await userEvent.click(screen.getByTestId("focus-cycle-tab-shortBreak"));
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("05:00");
+        expect(screen.getByTestId("focus-pomodoro-message")).toHaveTextContent("FocusTimeForABreak");
+
+        await userEvent.click(screen.getByTestId("focus-cycle-tab-longBreak"));
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("15:00");
+        expect(screen.getByTestId("focus-pomodoro-message")).toHaveTextContent(
+            "FocusTimeForALongBreak"
+        );
+    });
+
+    test("a pomodoro takes the item's own window; a break never does", async () => {
         // Routine items carry startTime and endTime, so a scheduled item already says how long
-        // its owner meant it to take. No duration field on Task or Habit is needed.
+        // its owner meant it to take. A rest's length has nothing to do with that window.
         renderWithProviders(<Pomodoro item={item("07:00", "07:45")} date={DATE} />, {
             storeOverride: buildStore(),
         });
 
-        expect(screen.getByTestId("focus-pomodoro-minutes")).toHaveValue(45);
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("45:00");
+
+        await userEvent.click(screen.getByTestId("focus-cycle-tab-shortBreak"));
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("05:00");
     });
 
-    test("the classic 25 for an item with no window, which is every LIST item", () => {
+    test("the tab stays live during a cycle, and the clock keeps showing what runs", async () => {
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+        await jump(60_000);
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
 
-        expect(screen.getByTestId("focus-pomodoro-minutes")).toHaveValue(25);
+        await userEvent.click(screen.getByTestId("focus-cycle-tab-longBreak"));
+
+        // Looking at another tab does not hijack the running countdown.
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
+    });
+});
+
+describe("the settings", () => {
+    test("all three lengths are editable, and clamped", async () => {
+        const store = buildStore();
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+
+        const field = screen.getByTestId("focus-setting-pomodoro");
+        await userEvent.clear(field);
+        await userEvent.type(field, "50");
+        expect(store.getState().focus.settings.pomodoro).toBe(50);
+
+        const longField = screen.getByTestId("focus-setting-longBreak");
+        await userEvent.clear(longField);
+        await userEvent.type(longField, "999");
+        expect(store.getState().focus.settings.longBreak).toBe(180);
     });
 
-    test("a typed value is used, and clamped rather than obeyed blindly", async () => {
+    test("the long-break interval is editable too", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item("07:00", "07:45")} date={DATE} />, {
-            storeOverride: store,
-        });
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
 
-        const field = screen.getByTestId("focus-pomodoro-minutes");
+        const field = screen.getByTestId("focus-setting-longBreakEvery");
         await userEvent.clear(field);
-        await userEvent.type(field, "300");
-        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+        await userEvent.type(field, "2");
 
-        expect(store.getState().focus.timer?.durationMinutes).toBe(180);
+        expect(store.getState().focus.settings.longBreakEvery).toBe(2);
+    });
+
+    test("a changed length shows up in the preview at once", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+
+        const field = screen.getByTestId("focus-setting-pomodoro");
+        await userEvent.clear(field);
+        await userEvent.type(field, "40");
+
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("40:00");
     });
 });
 
@@ -95,7 +152,7 @@ describe("running a cycle", () => {
         expect(store.getState().focus.timer?.endsAt).toBe(Date.now() + 25 * 60_000);
 
         await jump(60_000);
-        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("23:59");
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
     });
 
     test("a long pause costs nothing", async () => {
@@ -104,29 +161,37 @@ describe("running a cycle", () => {
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
 
-        await jump(59_000);
+        await jump(60_000);
         await userEvent.click(screen.getByTestId("focus-pomodoro-pause"));
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
 
         await jump(20 * 60_000);
-        // Still 24:00 after twenty minutes of pause.
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
 
         await userEvent.click(screen.getByTestId("focus-pomodoro-resume"));
+        // 44:00 here was a real bug: resume recomputes endsAt from the clock, and the hook's
+        // `now` was still pre-pause until the next tick.
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
     });
 
-    test("crossing zero finishes the cycle and offers a break the person has to start", async () => {
+    test("crossing zero hands over to the short break and counts the pomodoro", async () => {
         const store = buildStore();
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
 
         await jump(25 * 60_000);
 
-        expect(screen.getByTestId("focus-pomodoro-done")).toBeInTheDocument();
+        expect(store.getState().focus.timer).toMatchObject({
+            kind: "shortBreak",
+            completedCycles: 1,
+            finished: true,
+        });
+        // Waiting to be started, not already running: nobody is pushed into a break.
         expect(screen.getByTestId("focus-pomodoro-next")).toBeInTheDocument();
-        // Not already running: nobody is pushed into a break they did not ask for.
-        expect(store.getState().focus.timer).toMatchObject({ kind: "break", completedCycles: 1 });
+        // The `#N` line renders the raw i18n key in this suite (no interpolation), so the number
+        // it would show is asserted on the store instead.
+        expect(screen.getByTestId("focus-pomodoro-number")).toBeInTheDocument();
+        expect(store.getState().focus.timer?.completedCycles).toBe(1);
     });
 
     test("nothing anywhere calls a finished cycle a failure", async () => {
@@ -138,7 +203,7 @@ describe("running a cycle", () => {
         expect(panel.textContent ?? "").not.toMatch(/fail|miss|expire|lost|overdue/i);
     });
 
-    test("stopping keeps nothing and counts nothing", async () => {
+    test("resetting keeps nothing and counts nothing", async () => {
         const store = buildStore();
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
@@ -149,7 +214,8 @@ describe("running a cycle", () => {
 
         expect(store.getState().focus.timer).toBeNull();
         expect(screen.getByTestId("focus-pomodoro-start")).toBeInTheDocument();
-        expect(screen.queryByTestId("focus-pomodoro-cycles")).not.toBeInTheDocument();
+        // The reset control only exists while there is something to reset.
+        expect(screen.queryByTestId("focus-pomodoro-stop")).not.toBeInTheDocument();
     });
 });
 
@@ -158,9 +224,10 @@ describe("one timer at a time", () => {
         // Hiding it meant the start control reappeared on the next item, and pressing it
         // silently replaced a cycle somebody was 18 minutes into.
         const store = buildStore();
-        const { unmount } = renderWithProviders(<Pomodoro item={item("07:00", "07:45", "hg1")} date={DATE} />, {
-            storeOverride: store,
-        });
+        const { unmount } = renderWithProviders(
+            <Pomodoro item={item("07:00", "07:45", "hg1")} date={DATE} />,
+            { storeOverride: store }
+        );
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         unmount();
 
@@ -168,7 +235,7 @@ describe("one timer at a time", () => {
             storeOverride: store,
         });
 
-        expect(screen.getByTestId("focus-pomodoro-remaining")).toBeInTheDocument();
+        expect(screen.getByTestId("focus-pomodoro-pause")).toBeInTheDocument();
         expect(screen.queryByTestId("focus-pomodoro-start")).not.toBeInTheDocument();
     });
 });

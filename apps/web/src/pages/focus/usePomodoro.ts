@@ -3,17 +3,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import type { RootState } from "@beyou/state/rootReducer";
 import {
-    BREAK_DEFAULT_MINUTES,
+    cycleSelected,
     formatRemaining,
-    nextCycleKind,
     pomodoroAbandoned,
     pomodoroCycleCompleted,
+    pomodoroNumber,
     pomodoroPaused,
     pomodoroResumed,
+    pomodoroSettingsChanged,
     pomodoroStarted,
     remainingMs,
     timerStatus,
     type CycleKind,
+    type PomodoroSettings,
 } from "@beyou/state";
 
 /**
@@ -21,8 +23,8 @@ import {
  *
  * The native twin is `apps/mobile/src/focus/usePomodoro.ts`, per-app for the same reason as
  * `useFocusSelection`: `@beyou/state` holds no React. Everything that decides anything is
- * shared — the reducer, `remainingMs`, `timerStatus`, `formatRemaining` — and what is written
- * twice is the interval and the platform's own side effects.
+ * shared — the reducer, `remainingMs`, `timerStatus`, `formatRemaining`, `nextCycleKind` — and
+ * what is written twice is the interval and the platform's own side effects.
  *
  * Nothing counts down in a variable. The tick exists only to re-render; the number it displays
  * is always `endsAt` minus the wall clock. That is what survives a throttled background tab,
@@ -32,6 +34,8 @@ export function usePomodoro(groupId: string | null, date: string) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const timer = useSelector((state: RootState) => state.focus.timer);
+    const selectedCycle = useSelector((state: RootState) => state.focus.selectedCycle);
+    const settings = useSelector((state: RootState) => state.focus.settings);
     const [now, setNow] = useState(() => Date.now());
 
     const status = timerStatus(timer, now);
@@ -78,7 +82,7 @@ export function usePomodoro(groupId: string | null, date: string) {
     }, [status]);
 
     const start = useCallback(
-        (minutes: number, kind: CycleKind = "work") => {
+        (kind: CycleKind, minutes: number) => {
             if (!groupId) return;
             dispatch(pomodoroStarted({ groupId, kind, minutes, now: Date.now(), date }));
             setNow(Date.now());
@@ -91,24 +95,29 @@ export function usePomodoro(groupId: string | null, date: string) {
         status,
         remaining,
         formatted: formatRemaining(remaining),
-        /** Work cycles finished on this item. A break never counts, and neither does a stop. */
+        /** The tab showing, which is a different question from what is running. */
+        selectedCycle,
+        settings,
+        /** Pomodoros finished on this item. A break never counts, and neither does a stop. */
         cycles: timer?.completedCycles ?? 0,
-        /** What the timer is currently for, or what the finished one hands over to. */
-        kind: (timer?.kind ?? "work") as CycleKind,
-        /** Minutes to offer for the cycle after this one: a break is short by default. */
-        nextMinutes:
-            timer && nextCycleKind(timer.kind) === "break"
-                ? BREAK_DEFAULT_MINUTES
-                : (timer?.durationMinutes ?? null),
+        /** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
+        number: pomodoroNumber(timer?.completedCycles ?? 0),
+        /** What is actually running, or the tab's cycle when nothing is. */
+        runningCycle: timer?.kind ?? selectedCycle,
+        selectCycle: useCallback((kind: CycleKind) => dispatch(cycleSelected(kind)), [dispatch]),
+        changeSettings: useCallback(
+            (patch: Partial<PomodoroSettings>) => dispatch(pomodoroSettingsChanged(patch)),
+            [dispatch]
+        ),
         start,
         pause: useCallback(() => dispatch(pomodoroPaused({ now: Date.now() })), [dispatch]),
         /**
          * Refreshes `now` alongside the dispatch, exactly as `start` does.
          *
          * Without it the display was briefly wrong and wrong in the alarming direction: resume
-         * recomputes `endsAt` from the current clock, while the hook's `now` was still whatever
-         * the interval last wrote before the pause. A 24:00 cycle resumed after twenty minutes
-         * away rendered 44:00 until the next tick corrected it.
+         * recomputes `endsAt` from the current clock while the hook's `now` was still whatever
+         * the interval last wrote before the pause, so a 24:00 cycle resumed after twenty minutes
+         * away rendered 44:00 until the next tick.
          */
         resume: useCallback(() => {
             dispatch(pomodoroResumed({ now: Date.now() }));
