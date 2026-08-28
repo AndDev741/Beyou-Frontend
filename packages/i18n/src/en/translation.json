@@ -1228,5 +1228,6 @@
     "FocusLeaveRest": "Leave rest",
     "FocusRestHint": "Nothing to do here. Tap to wake the screen.",
     "FocusNextAt": "Next at {{time}}",
-    "FocusRestNothingScheduled": "Nothing scheduled for the rest of today"
+    "FocusRestNothingScheduled": "Nothing scheduled for the rest of today",
+    "FocusRunningHub": "Back to the timer"
 }

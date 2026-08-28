@@ -1228,5 +1228,6 @@
     "FocusLeaveRest": "Sair do descanso",
     "FocusRestHint": "Nada para fazer aqui. Toque para acordar o ecrã.",
     "FocusNextAt": "A seguir às {{time}}",
-    "FocusRestNothingScheduled": "Nada agendado para o resto de hoje"
+    "FocusRestNothingScheduled": "Nada agendado para o resto de hoje",
+    "FocusRunningHub": "Voltar ao timer"
 }
