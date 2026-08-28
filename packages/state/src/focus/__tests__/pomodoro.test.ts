@@ -11,6 +11,7 @@ import {
     pomodoroNumber,
     remainingMs,
     timerStatus,
+    toServerCycleKind,
     type FocusTimer,
     type PomodoroSettings,
 } from '../pomodoro';
@@ -27,6 +28,7 @@ const NOW = 1_800_000_000_000;
 const timer = (over: Partial<FocusTimer> = {}): FocusTimer => ({
     groupId: 'g',
     kind: 'pomodoro',
+    startedAt: NOW,
     endsAt: NOW + 60_000,
     pausedRemainingMs: null,
     durationMinutes: 25,
@@ -190,5 +192,13 @@ describe('pomodoroNumber', () => {
     it('counts from one, so a fresh sitting reads #1', () => {
         expect(pomodoroNumber(0)).toBe(1);
         expect(pomodoroNumber(3)).toBe(4);
+    });
+});
+
+describe('toServerCycleKind', () => {
+    it('spells each kind the way the column CHECK expects', () => {
+        expect(toServerCycleKind('pomodoro')).toBe('POMODORO');
+        expect(toServerCycleKind('shortBreak')).toBe('SHORT_BREAK');
+        expect(toServerCycleKind('longBreak')).toBe('LONG_BREAK');
     });
 });

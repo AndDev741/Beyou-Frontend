@@ -26,5 +26,6 @@ export const axiosHttpClient: HttpClient = {
   get: (url, config) => call(instance.get(url, toAxios(config))),
   post: (url, body, config) => call(instance.post(url, body, toAxios(config))),
   put: (url, body, config) => call(instance.put(url, body, toAxios(config))),
+  patch: (url, body, config) => call(instance.patch(url, body, toAxios(config))),
   delete: (url, config) => call(instance.delete(url, toAxios(config))),
 };

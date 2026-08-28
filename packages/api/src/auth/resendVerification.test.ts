@@ -13,6 +13,7 @@ beforeEach(() => {
     post,
     put: vi.fn(),
     delete: vi.fn(),
+    patch: vi.fn(),
   });
 });
 

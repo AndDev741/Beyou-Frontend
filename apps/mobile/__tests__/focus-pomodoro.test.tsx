@@ -28,6 +28,16 @@ jest.mock('expo-router', () => ({
 // typecheck, so only the root `npm run typecheck` catches it.
 const mockActivateKeepAwake = jest.fn((..._args: unknown[]) => Promise.resolve());
 const mockDeactivateKeepAwake = jest.fn((..._args: unknown[]) => undefined);
+jest.mock('@beyou/api/focus/focusApi', () => ({
+  listFocusMicroTasks: jest.fn(() => Promise.resolve({ success: [] })),
+  addFocusMicroTask: jest.fn(),
+  toggleFocusMicroTask: jest.fn(),
+  pinFocusMicroTask: jest.fn(),
+  deleteFocusMicroTask: jest.fn(),
+  recordFocusCycle: jest.fn(() => Promise.resolve({ success: {} })),
+  getFocusDay: jest.fn(),
+}));
+
 jest.mock('expo-keep-awake', () => ({
   activateKeepAwakeAsync: (...a: unknown[]) => mockActivateKeepAwake(...a),
   deactivateKeepAwake: (...a: unknown[]) => mockDeactivateKeepAwake(...a),
@@ -51,6 +61,7 @@ import type { FocusItem } from '@beyou/state';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
+import { recordFocusCycle } from '@beyou/api/focus/focusApi';
 import Pomodoro from '../src/focus/Pomodoro';
 
 const DATE = '2026-08-28';
@@ -222,6 +233,36 @@ describe('running a cycle', () => {
     });
     // Waiting, not already running: nobody is pushed into a break they did not ask for.
     expect(screen.getByTestId('focus-pomodoro-next')).toBeTruthy();
+  });
+
+  it("a finished cycle is reported to the server, from the timer's own fields", async () => {
+    await renderPomodoro(item('07:00', '07:25', 'hg1'));
+    const startedAt = Date.now();
+    await press('focus-pomodoro-start');
+
+    await jump(25 * 60_000);
+
+    expect(recordFocusCycle).toHaveBeenCalledTimes(1);
+    expect(recordFocusCycle).toHaveBeenCalledWith(
+      {
+        itemGroupId: 'hg1',
+        kind: 'POMODORO',
+        startedAt: new Date(startedAt).toISOString(),
+        endedAt: new Date(startedAt + 25 * 60_000).toISOString(),
+        minutes: 25,
+      },
+      expect.anything(),
+    );
+  });
+
+  it('an abandoned cycle is never reported', async () => {
+    await renderPomodoro(item());
+    await press('focus-pomodoro-start');
+    await jump(60_000);
+
+    await press('focus-pomodoro-stop');
+
+    expect(recordFocusCycle).not.toHaveBeenCalled();
   });
 
   it('never calls a finished cycle a failure', async () => {

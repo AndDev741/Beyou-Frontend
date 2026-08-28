@@ -236,7 +236,7 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
       </View>
 
       {/* The break's micro-tasks, under the message exactly as in the reference design. */}
-      <MicroTasks date={date} />
+      <MicroTasks itemGroupId={item.groupId} />
     </View>
   );
 }

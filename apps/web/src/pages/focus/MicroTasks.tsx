@@ -4,73 +4,96 @@ import { useTranslation } from "react-i18next";
 import { Pin, PinOff, Plus, X } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import {
-    MAX_MICRO_TASKS,
     MICRO_TASK_MAX_LENGTH,
     isMicroTaskDone,
-    microTaskAdded,
-    microTaskPinToggled,
     microTaskRemoved,
-    microTaskToggled,
-    microTasksHydrated,
+    microTaskUpserted,
+    microTasksLoaded,
+    normalizeMicroTaskName,
 } from "@beyou/state";
-import { loadMicroTasks, saveMicroTasks } from "../../lib/microTasks";
+import {
+    addFocusMicroTask,
+    deleteFocusMicroTask,
+    listFocusMicroTasks,
+    pinFocusMicroTask,
+    toggleFocusMicroTask,
+} from "@beyou/api/focus/focusApi";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
+import { notify } from "../../lib/notify";
 
 /**
- * The small things done between cycles, under the timer where the reference design puts them.
+ * The small things done alongside ONE routine item, under the timer where the reference puts them.
  *
- * Two kinds, from the backlog card: standing ones and one-off ones. Adding makes a ONE-OFF, and
- * pinning is a separate tap on the row. That way typing something in a break costs one field and
- * one Enter, and nothing silently accumulates forever — which is the worse of the two failures.
+ * Server-owned since F6, and scoped to the item on the user's specification: switching items
+ * switches lists. A pinned name shows up on the new item because the server materialised a row for
+ * it there on the read — this component never copies anything across.
  *
- * A pinned task's tick is a DATE, not a boolean, so it comes back fresh tomorrow like every other
- * checkable thing in Beyou. Nothing has to reset it.
+ * Every mutation goes to the server and the response is what lands in the slice. There is no
+ * optimistic write: a break checklist is not latency-critical, and a row the server refused should
+ * not linger on screen looking saved.
  */
-export default function MicroTasks({ date }: { date: string }) {
+export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
-    /**
-     * Falls back, for the same load-bearing reason the pomodoro settings do: this slice is
-     * persisted, and redux-persist replaces a stored slice wholesale rather than merging it into
-     * the reducer's initial state. A browser holding the shape from before micro-tasks existed
-     * reads this as `undefined` on the first render. The store's migration repairs those browsers;
-     * this is what stops the next added field white-screening the app in the meantime.
-     *
-     * Not hypothetical: the stale-shape test written for the reported `settings` crash caught this
-     * exact omission the moment micro-tasks landed.
-     */
-    const tasks = useSelector((state: RootState) => state.focus.microTasks) ?? [];
+    const tasks = useSelector((state: RootState) => state.focus.microTasks?.[itemGroupId]) ?? [];
 
     const [draft, setDraft] = useState("");
     const [adding, setAdding] = useState(false);
+    const [busy, setBusy] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Read the standing ones once, on mount. Merged rather than replacing, so a one-off typed
-    // before this resolved is not swallowed by it.
+    // Read whenever the item changes. This is the read that also materialises the pinned ones.
     useEffect(() => {
-        dispatch(microTasksHydrated(loadMicroTasks()));
-    }, [dispatch]);
-
-    // Mirrored back on every change. Only the pinned ones are written; see the storage module.
-    useEffect(() => {
-        saveMicroTasks(tasks, date);
-    }, [tasks, date]);
+        let active = true;
+        listFocusMicroTasks(itemGroupId, t).then((result) => {
+            if (!active) return;
+            if (result.success) dispatch(microTasksLoaded({ itemGroupId, tasks: result.success }));
+            else if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+        });
+        return () => {
+            active = false;
+        };
+    }, [itemGroupId, dispatch, t]);
 
     useEffect(() => {
         if (adding) inputRef.current?.focus();
     }, [adding]);
 
-    const full = tasks.length >= MAX_MICRO_TASKS;
-
-    const submit = () => {
-        const name = draft.trim();
+    const submit = async () => {
+        const name = normalizeMicroTaskName(draft);
         if (!name) {
             setAdding(false);
             return;
         }
-        dispatch(microTaskAdded(name));
-        setDraft("");
-        // Left open: a break checklist is usually typed in a burst of two or three.
-        inputRef.current?.focus();
+        setBusy(true);
+        const result = await addFocusMicroTask({ itemGroupId, name, pinned: false }, t);
+        setBusy(false);
+        if (result.success) {
+            dispatch(microTaskUpserted(result.success));
+            setDraft("");
+            // Left open: a break checklist is usually typed in a burst of two or three.
+            inputRef.current?.focus();
+        } else if (result.error) {
+            notify.error(getFriendlyErrorMessage(t, result.error));
+        }
+    };
+
+    const toggle = async (id: string) => {
+        const result = await toggleFocusMicroTask(id, t);
+        if (result.success) dispatch(microTaskUpserted(result.success));
+        else if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+    };
+
+    const pin = async (id: string, pinned: boolean) => {
+        const result = await pinFocusMicroTask(id, pinned, t);
+        if (result.success) dispatch(microTaskUpserted(result.success));
+        else if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+    };
+
+    const remove = async (id: string) => {
+        const result = await deleteFocusMicroTask(id, t);
+        if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+        else dispatch(microTaskRemoved({ itemGroupId, id }));
     };
 
     return (
@@ -81,7 +104,7 @@ export default function MicroTasks({ date }: { date: string }) {
 
             <ul className="mt-1.5 flex flex-col gap-1">
                 {tasks.map((task) => {
-                    const done = isMicroTaskDone(task, date);
+                    const done = isMicroTaskDone(task);
                     return (
                         <li
                             key={task.id}
@@ -92,9 +115,7 @@ export default function MicroTasks({ date }: { date: string }) {
                                 <input
                                     type="checkbox"
                                     checked={done}
-                                    onChange={() =>
-                                        dispatch(microTaskToggled({ id: task.id, date }))
-                                    }
+                                    onChange={() => toggle(task.id)}
                                     className="h-4 w-4 shrink-0 accent-accent"
                                     data-testid={`focus-micro-task-check-${task.id}`}
                                 />
@@ -109,27 +130,21 @@ export default function MicroTasks({ date }: { date: string }) {
 
                             <button
                                 type="button"
-                                onClick={() => dispatch(microTaskPinToggled(task.id))}
-                                aria-label={
-                                    task.pinned ? t("FocusStopKeepingTask") : t("FocusKeepTask")
-                                }
-                                title={task.pinned ? t("FocusStopKeepingTask") : t("FocusKeepTask")}
+                                onClick={() => pin(task.id, !task.pinned)}
+                                aria-label={task.pinned ? t("FocusStopKeepingTask") : t("FocusKeepTask")}
+                                title={task.pinned ? t("FocusKeepTaskHint") : t("FocusKeepTask")}
                                 aria-pressed={task.pinned}
                                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-control transition-colors hover:bg-surface-2 ${
                                     task.pinned ? "text-accent" : "text-text-3"
                                 }`}
                                 data-testid={`focus-micro-task-pin-${task.id}`}
                             >
-                                {task.pinned ? (
-                                    <Pin size={14} aria-hidden="true" />
-                                ) : (
-                                    <PinOff size={14} aria-hidden="true" />
-                                )}
+                                {task.pinned ? <Pin size={14} aria-hidden="true" /> : <PinOff size={14} aria-hidden="true" />}
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => dispatch(microTaskRemoved(task.id))}
+                                onClick={() => remove(task.id)}
                                 aria-label={t("FocusRemoveTask")}
                                 title={t("FocusRemoveTask")}
                                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-text-3 transition-colors hover:bg-surface-2 hover:text-text"
@@ -143,35 +158,33 @@ export default function MicroTasks({ date }: { date: string }) {
             </ul>
 
             {adding ? (
-                <div className="mt-1.5 flex items-center gap-2">
-                    <input
-                        ref={inputRef}
-                        value={draft}
-                        maxLength={MICRO_TASK_MAX_LENGTH}
-                        onChange={(event) => setDraft(event.target.value)}
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter") submit();
-                            if (event.key === "Escape") {
-                                setDraft("");
-                                setAdding(false);
-                            }
-                        }}
-                        onBlur={submit}
-                        placeholder={t("FocusTaskPlaceholder")}
-                        className="h-10 flex-1 rounded-control border border-border bg-surface px-2.5 text-[13px] text-text"
-                        data-testid="focus-micro-task-input"
-                    />
-                </div>
+                <input
+                    ref={inputRef}
+                    value={draft}
+                    maxLength={MICRO_TASK_MAX_LENGTH}
+                    disabled={busy}
+                    onChange={(event) => setDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") void submit();
+                        if (event.key === "Escape") {
+                            setDraft("");
+                            setAdding(false);
+                        }
+                    }}
+                    onBlur={() => void submit()}
+                    placeholder={t("FocusTaskPlaceholder")}
+                    className="mt-1.5 h-10 w-full rounded-control border border-border bg-surface px-2.5 text-[13px] text-text"
+                    data-testid="focus-micro-task-input"
+                />
             ) : (
                 <button
                     type="button"
                     onClick={() => setAdding(true)}
-                    disabled={full}
-                    className="mt-1.5 flex h-10 w-full items-center justify-center gap-2 rounded-control border border-dashed border-border text-[13px] font-medium text-text-2 transition-colors hover:bg-surface-2 hover:text-text disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-1.5 flex h-10 w-full items-center justify-center gap-2 rounded-control border border-dashed border-border text-[13px] font-medium text-text-2 transition-colors hover:bg-surface-2 hover:text-text"
                     data-testid="focus-micro-task-add"
                 >
                     <Plus size={15} aria-hidden="true" />
-                    {full ? t("FocusTasksFull") : t("FocusAddTask")}
+                    {t("FocusAddTask")}
                 </button>
             )}
 

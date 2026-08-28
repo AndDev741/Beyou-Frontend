@@ -1920,7 +1920,7 @@
           "feedback-controller"
         ],
         "summary": "Submit user feedback",
-        "description": "Authenticated. Rate limited to 10 submissions per hour per user; over\nbudget the request is rejected with 429 and a Retry-After header.\nThe response deliberately omits `status` \u2014 triage state is internal.\n",
+        "description": "Authenticated. Rate limited to 10 submissions per hour per user; over\nbudget the request is rejected with 429 and a Retry-After header.\nThe response deliberately omits `status` — triage state is internal.\n",
         "operationId": "createFeedback",
         "requestBody": {
           "content": {
@@ -1957,7 +1957,7 @@
             "description": "Not authenticated."
           },
           "429": {
-            "description": "Rate limit exceeded \u2014 `errorKey` is `RATE_LIMIT_EXCEEDED`.",
+            "description": "Rate limit exceeded — `errorKey` is `RATE_LIMIT_EXCEEDED`.",
             "headers": {
               "Retry-After": {
                 "description": "Seconds until the rate-limit window resets.",
@@ -2019,7 +2019,7 @@
             }
           },
           "400": {
-            "description": "Upload rejected \u2014 see `errorKey`.",
+            "description": "Upload rejected — see `errorKey`.",
             "content": {
               "*/*": {
                 "schema": {
@@ -2083,7 +2083,7 @@
             }
           },
           "400": {
-            "description": "Unknown or non-owned attachment \u2014 see `errorKey`.",
+            "description": "Unknown or non-owned attachment — see `errorKey`.",
             "content": {
               "*/*": {
                 "schema": {
@@ -2104,7 +2104,7 @@
           "feedback-admin-controller"
         ],
         "summary": "List feedback for triage",
-        "description": "ROLE_ADMIN only. Filters are AND-ed; results are sorted by `createdAt`\ndescending. Totals describe the filtered set. Rows carry no attachment\nor reply counts \u2014 fetch the detail endpoint for those.\n",
+        "description": "ROLE_ADMIN only. Filters are AND-ed; results are sorted by `createdAt`\ndescending. Totals describe the filtered set. Rows carry no attachment\nor reply counts — fetch the detail endpoint for those.\n",
         "operationId": "getFeedbackItems",
         "parameters": [
           {
@@ -2236,7 +2236,7 @@
             }
           },
           "400": {
-            "description": "Unknown feedback \u2014 `errorKey` is `FEEDBACK_NOT_FOUND`.",
+            "description": "Unknown feedback — `errorKey` is `FEEDBACK_NOT_FOUND`.",
             "content": {
               "*/*": {
                 "schema": {
@@ -2319,7 +2319,7 @@
           "feedback-admin-controller"
         ],
         "summary": "Reply to a feedback item",
-        "description": "ROLE_ADMIN only. The author is always the authenticated admin \u2014 it is\nnever read from the request body. A storage failure returns 400 with\n`errorKey` `FEEDBACK_REPLY_FAILED`.\n",
+        "description": "ROLE_ADMIN only. The author is always the authenticated admin — it is\nnever read from the request body. A storage failure returns 400 with\n`errorKey` `FEEDBACK_REPLY_FAILED`.\n",
         "operationId": "createFeedbackReply",
         "parameters": [
           {
@@ -2426,7 +2426,7 @@
           "notification-preferences-controller"
         ],
         "summary": "Disable engagement emails for the holder of an unsubscribe token",
-        "description": "Public: no session required, because the whole point of an unsubscribe link is that it works for someone who cannot sign in. The token in the body is the entire proof of ownership. Rate limited per address. Idempotent \u2014 unsubscribing twice reports the same success. A token matching no account is refused with 400 and `errorKey` INVALID_REQUEST.\n",
+        "description": "Public: no session required, because the whole point of an unsubscribe link is that it works for someone who cannot sign in. The token in the body is the entire proof of ownership. Rate limited per address. Idempotent — unsubscribing twice reports the same success. A token matching no account is refused with 400 and `errorKey` INVALID_REQUEST.\n",
         "operationId": "unsubscribe",
         "requestBody": {
           "required": true,
@@ -2444,6 +2444,223 @@
           },
           "400": {
             "description": "The token matches no account."
+          }
+        }
+      }
+    },
+    "/focus/cycles": {
+      "post": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "recordCycle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordCycleRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusCycleResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/focus/day": {
+      "get": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "getFocusDay",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusDayResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/focus/micro-tasks": {
+      "get": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "listMicroTasks",
+        "parameters": [
+          {
+            "name": "itemGroupId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FocusMicroTaskResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "addMicroTask",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMicroTaskRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusMicroTaskResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/focus/micro-tasks/{id}": {
+      "delete": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "deleteMicroTask",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/focus/micro-tasks/{id}/toggle": {
+      "patch": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "toggleMicroTask",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusMicroTaskResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/focus/micro-tasks/{id}/pin": {
+      "patch": {
+        "tags": [
+          "focus-controller"
+        ],
+        "operationId": "pinMicroTask",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pinned",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FocusMicroTaskResponseDTO"
+                }
+              }
+            }
           }
         }
       }
@@ -4002,6 +4219,16 @@
           "xpGenerated": {
             "type": "number",
             "format": "double"
+          },
+          "microTasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FocusMicroTaskResponseDTO"
+            }
+          },
+          "pomodoros": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -4032,6 +4259,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SnapshotCheckResponseDTO"
+            }
+          },
+          "focusCycles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FocusCycleResponseDTO"
             }
           }
         }
@@ -4584,7 +4817,7 @@
       },
       "FeedbackResponse": {
         "type": "object",
-        "description": "What the submitter gets back. `status` is deliberately absent \u2014 it is\ninternal triage state.\n",
+        "description": "What the submitter gets back. `status` is deliberately absent — it is\ninternal triage state.\n",
         "properties": {
           "id": {
             "type": "string",
@@ -4641,7 +4874,7 @@
           },
           "contentType": {
             "type": "string",
-            "description": "Always `image/jpeg` \u2014 everything is re-encoded."
+            "description": "Always `image/jpeg` — everything is re-encoded."
           },
           "width": {
             "type": "integer",
@@ -4976,6 +5209,149 @@
             "items": {
               "$ref": "#/components/schemas/BaseCheck"
             }
+          }
+        }
+      },
+      "FocusCycleResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "itemGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "POMODORO",
+              "SHORT_BREAK",
+              "LONG_BREAK"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "minutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FocusMicroTaskResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "itemGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "doneAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FocusDayResponseDTO": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "cycles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FocusCycleResponseDTO"
+            }
+          },
+          "microTasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FocusMicroTaskResponseDTO"
+            }
+          }
+        }
+      },
+      "RecordCycleRequestDTO": {
+        "required": [
+          "endedAt",
+          "kind",
+          "minutes",
+          "startedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "itemGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "POMODORO",
+              "SHORT_BREAK",
+              "LONG_BREAK"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "minutes": {
+            "maximum": 180,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateMicroTaskRequestDTO": {
+        "required": [
+          "itemGroupId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "itemGroupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 0,
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
           }
         }
       }

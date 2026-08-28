@@ -1,164 +1,144 @@
 import { screen, waitFor } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import rootReducer from "@beyou/state/rootReducer";
+import type { FocusMicroTask } from "@beyou/types/focus/focus";
 import { renderWithProviders } from "../../test/test-utils";
+
+vi.mock("@beyou/api/focus/focusApi", () => ({
+    listFocusMicroTasks: vi.fn(),
+    addFocusMicroTask: vi.fn(),
+    toggleFocusMicroTask: vi.fn(),
+    pinFocusMicroTask: vi.fn(),
+    deleteFocusMicroTask: vi.fn(),
+    recordFocusCycle: vi.fn(),
+    getFocusDay: vi.fn(),
+}));
+
+import {
+    addFocusMicroTask,
+    deleteFocusMicroTask,
+    listFocusMicroTasks,
+    pinFocusMicroTask,
+    toggleFocusMicroTask,
+} from "@beyou/api/focus/focusApi";
 import MicroTasks from "./MicroTasks";
 
 const baseState = rootReducer(undefined as never, { type: "@@INIT" } as never);
-const DATE = "2026-08-28";
-const STORAGE_KEY = "beyou-focus-micro-tasks";
-
 const buildStore = () => configureStore({ reducer: rootReducer, preloadedState: baseState });
 
+const row = (over: Partial<FocusMicroTask> = {}): FocusMicroTask => ({
+    id: "1",
+    date: "2026-08-28",
+    itemGroupId: "item-a",
+    name: "Stretch",
+    pinned: false,
+    doneAt: null,
+    ...over,
+});
+
 beforeEach(() => {
-    localStorage.clear();
+    vi.clearAllMocks();
+    vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: [] });
 });
 
-afterEach(() => {
-    localStorage.clear();
-});
+describe("the list belongs to the item", () => {
+    test("is read from the server for the item on screen", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: [row()] });
 
-/**
- * Opens the field only when it is closed: submitting leaves it open on purpose, so the add BUTTON
- * is gone after the first call.
- */
-const add = async (name: string) => {
-    const opener = screen.queryByTestId("focus-micro-task-add");
-    if (opener) await userEvent.click(opener);
-    await userEvent.type(screen.getByTestId("focus-micro-task-input"), name);
-    await userEvent.keyboard("{Enter}");
-};
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
 
-describe("adding", () => {
-    test("one field and Enter, and it lands as a one-off", async () => {
-        const store = buildStore();
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: store });
-
-        await add("Stretch");
-
-        expect(screen.getByText("Stretch")).toBeInTheDocument();
-        expect(store.getState().focus.microTasks[0]).toMatchObject({
-            name: "Stretch",
-            pinned: false,
-        });
+        expect(await screen.findByText("Stretch")).toBeInTheDocument();
+        expect(listFocusMicroTasks).toHaveBeenCalledWith("item-a", expect.anything());
     });
 
-    test("the field stays open, because a checklist is typed in a burst", async () => {
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
+    test("switching item re-reads, and shows THAT item's list", async () => {
+        // The user's rule: changing item does not carry the list over. The server decides what is
+        // on the new item (including any pinned name it materialised there); this side only asks.
+        vi.mocked(listFocusMicroTasks).mockImplementation(async (itemGroupId: string) => ({
+            success: itemGroupId === "item-a" ? [row({ id: "1", name: "Only on A" })] : [],
+        }));
+        const store = buildStore();
+        const { rerender } = renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: store });
+        expect(await screen.findByText("Only on A")).toBeInTheDocument();
 
-        await add("Stretch");
+        rerender(<MicroTasks itemGroupId="item-b" />);
+
+        await waitFor(() => expect(listFocusMicroTasks).toHaveBeenCalledWith("item-b", expect.anything()));
+        await waitFor(() => expect(screen.queryByText("Only on A")).not.toBeInTheDocument());
+    });
+});
+
+describe("mutations go to the server, and the response is what lands", () => {
+    test("adding posts to the item, unpinned, and shows the row the server returned", async () => {
+        vi.mocked(addFocusMicroTask).mockResolvedValue({ success: row({ id: "9", name: "Water" }) });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
+
+        await userEvent.click(await screen.findByTestId("focus-micro-task-add"));
         await userEvent.type(screen.getByTestId("focus-micro-task-input"), "Water{Enter}");
 
-        expect(screen.getByText("Stretch")).toBeInTheDocument();
-        expect(screen.getByText("Water")).toBeInTheDocument();
-    });
-
-    test("an empty name adds nothing", async () => {
-        const store = buildStore();
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: store });
-
-        await userEvent.click(screen.getByTestId("focus-micro-task-add"));
-        await userEvent.keyboard("{Enter}");
-
-        expect(store.getState().focus.microTasks).toEqual([]);
-    });
-});
-
-describe("ticking", () => {
-    test("done is a DATE, so tomorrow it comes back fresh", async () => {
-        // A boolean would need something to reset it, and nothing would.
-        const store = buildStore();
-        const { unmount } = renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: store });
-        await add("Stretch");
-
-        await userEvent.click(screen.getByTestId("focus-micro-task-check-1"));
-        expect(store.getState().focus.microTasks[0].doneOn).toBe(DATE);
-        unmount();
-
-        renderWithProviders(<MicroTasks date="2026-08-29" />, { storeOverride: store });
-        expect(screen.getByTestId("focus-micro-task-check-1")).not.toBeChecked();
-    });
-});
-
-describe("keeping one for next time", () => {
-    test("pinning writes it to storage; a one-off is never written", async () => {
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
-        await add("One-off");
-        await add("Standing");
-
-        await waitFor(() =>
-            expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")).toHaveLength(0)
+        expect(addFocusMicroTask).toHaveBeenCalledWith(
+            { itemGroupId: "item-a", name: "Water", pinned: false },
+            expect.anything()
         );
-
-        await userEvent.click(screen.getByTestId("focus-micro-task-pin-2"));
-
-        await waitFor(() => {
-            const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-            expect(stored).toHaveLength(1);
-            expect(stored[0].name).toBe("Standing");
-        });
-    });
-
-    test("a stored one is read back on mount", async () => {
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify([{ id: "7", name: "Water", pinned: true, doneOn: null }])
-        );
-
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
-
         expect(await screen.findByText("Water")).toBeInTheDocument();
     });
 
-    test("a task typed before the read is not swallowed by it", async () => {
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify([{ id: "7", name: "Water", pinned: true, doneOn: null }])
-        );
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
-        await screen.findByText("Water");
+    test("an empty name posts nothing", async () => {
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
 
-        await add("Typed");
+        await userEvent.click(await screen.findByTestId("focus-micro-task-add"));
+        await userEvent.keyboard("{Enter}");
 
-        expect(screen.getByText("Water")).toBeInTheDocument();
-        expect(screen.getByText("Typed")).toBeInTheDocument();
+        expect(addFocusMicroTask).not.toHaveBeenCalled();
     });
 
-    test("junk in storage is ignored rather than crashing the render", async () => {
-        // User-editable storage: a half-written entry must not reach the reducer.
-        localStorage.setItem(STORAGE_KEY, '[{"id":1},{"name":""},null,"nope"]');
+    test("ticking toggles on the server and shows its answer", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: [row()] });
+        vi.mocked(toggleFocusMicroTask).mockResolvedValue({ success: row({ doneAt: "2026-08-28T10:00:00Z" }) });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
 
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(await screen.findByTestId("focus-micro-task-check-1"));
 
-        expect(screen.getByTestId("focus-micro-tasks")).toBeInTheDocument();
-        expect(screen.getByTestId("focus-micro-task-add")).toBeInTheDocument();
+        expect(toggleFocusMicroTask).toHaveBeenCalledWith("1", expect.anything());
+        await waitFor(() => expect(screen.getByTestId("focus-micro-task-check-1")).toBeChecked());
     });
 
-    test("unreadable storage is ignored too", async () => {
-        localStorage.setItem(STORAGE_KEY, "{not json");
+    test("pinning asks the server to keep the NAME, and reflects the answer", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: [row()] });
+        vi.mocked(pinFocusMicroTask).mockResolvedValue({ success: row({ pinned: true }) });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
 
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(await screen.findByTestId("focus-micro-task-pin-1"));
 
-        expect(screen.getByTestId("focus-micro-tasks")).toBeInTheDocument();
-    });
-});
-
-describe("removing", () => {
-    test("takes it off the list and out of storage", async () => {
-        renderWithProviders(<MicroTasks date={DATE} />, { storeOverride: buildStore() });
-        await add("Stretch");
-        await userEvent.click(screen.getByTestId("focus-micro-task-pin-1"));
+        expect(pinFocusMicroTask).toHaveBeenCalledWith("1", true, expect.anything());
         await waitFor(() =>
-            expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")).toHaveLength(1)
+            expect(screen.getByTestId("focus-micro-task-pin-1")).toHaveAttribute("aria-pressed", "true")
         );
+    });
 
-        await userEvent.click(screen.getByTestId("focus-micro-task-remove-1"));
+    test("removing deletes on the server and drops the row", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: [row()] });
+        vi.mocked(deleteFocusMicroTask).mockResolvedValue({ success: undefined });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
 
-        expect(screen.queryByText("Stretch")).not.toBeInTheDocument();
-        await waitFor(() =>
-            expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]")).toHaveLength(0)
-        );
+        await userEvent.click(await screen.findByTestId("focus-micro-task-remove-1"));
+
+        expect(deleteFocusMicroTask).toHaveBeenCalledWith("1", expect.anything());
+        await waitFor(() => expect(screen.queryByText("Stretch")).not.toBeInTheDocument());
+    });
+
+    test("a refused write leaves the list as it was, rather than showing a row that never saved", async () => {
+        vi.mocked(addFocusMicroTask).mockResolvedValue({ error: { message: "nope" } });
+        const store = buildStore();
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: store });
+
+        await userEvent.click(await screen.findByTestId("focus-micro-task-add"));
+        await userEvent.type(screen.getByTestId("focus-micro-task-input"), "Ghost{Enter}");
+
+        await waitFor(() => expect(addFocusMicroTask).toHaveBeenCalled());
+        expect(screen.queryByText("Ghost")).not.toBeInTheDocument();
+        expect(store.getState().focus.microTasks["item-a"] ?? []).toEqual([]);
     });
 });

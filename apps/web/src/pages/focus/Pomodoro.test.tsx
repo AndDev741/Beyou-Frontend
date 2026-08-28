@@ -5,6 +5,18 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import rootReducer from "@beyou/state/rootReducer";
 import type { FocusItem } from "@beyou/state";
 import { renderWithProviders } from "../../test/test-utils";
+
+vi.mock("@beyou/api/focus/focusApi", () => ({
+    listFocusMicroTasks: vi.fn().mockResolvedValue({ success: [] }),
+    addFocusMicroTask: vi.fn(),
+    toggleFocusMicroTask: vi.fn(),
+    pinFocusMicroTask: vi.fn(),
+    deleteFocusMicroTask: vi.fn(),
+    recordFocusCycle: vi.fn().mockResolvedValue({ success: {} }),
+    getFocusDay: vi.fn(),
+}));
+
+import { addFocusMicroTask, listFocusMicroTasks, recordFocusCycle } from "@beyou/api/focus/focusApi";
 import Pomodoro from "./Pomodoro";
 
 const baseState = rootReducer(undefined as never, { type: "@@INIT" } as never);
@@ -23,6 +35,11 @@ const buildStore = () => configureStore({ reducer: rootReducer, preloadedState: 
  * because this repo is on user-event v13, which is synchronous and awaits no timers of its own.
  */
 beforeEach(() => {
+    vi.clearAllMocks();
+    // The config resets mock implementations before each test, so what the factory above set is
+    // gone by now; both reads are re-armed here.
+    vi.mocked(recordFocusCycle).mockResolvedValue({ success: {} as never });
+    vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: [] });
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 7, 28, 10, 0, 0));
 });
@@ -224,6 +241,40 @@ describe("running a cycle", () => {
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
     });
 
+    test("a finished cycle is reported to the server, from the timer's own fields", async () => {
+        // Reported BEFORE the reducer hands over: after the dispatch, `kind` is already the break.
+        // Fire-and-forget, so a lost report cannot stop the handover.
+        renderWithProviders(<Pomodoro item={item("07:00", "07:25", "hg1")} date={DATE} />, {
+            storeOverride: buildStore(),
+        });
+        const startedAt = Date.now();
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+
+        await jump(25 * 60_000);
+
+        expect(recordFocusCycle).toHaveBeenCalledTimes(1);
+        expect(recordFocusCycle).toHaveBeenCalledWith(
+            {
+                itemGroupId: "hg1",
+                kind: "POMODORO",
+                startedAt: new Date(startedAt).toISOString(),
+                endedAt: new Date(startedAt + 25 * 60_000).toISOString(),
+                minutes: 25,
+            },
+            expect.anything()
+        );
+    });
+
+    test("an abandoned cycle is never reported: there is no failure state to record", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+        await jump(60_000);
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-stop"));
+
+        expect(recordFocusCycle).not.toHaveBeenCalled();
+    });
+
     test("crossing zero hands over to the short break and counts the pomodoro", async () => {
         const store = buildStore();
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
@@ -351,6 +402,9 @@ describe("a persisted state from before these fields existed", () => {
     });
 
     test("the micro-task list renders and is usable, rather than filtering undefined", async () => {
+        vi.mocked(addFocusMicroTask).mockResolvedValue({
+            success: { id: "9", date: DATE, itemGroupId: "hg1", name: "Stretch", pinned: false, doneAt: null },
+        });
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
 
         expect(screen.getByTestId("focus-micro-tasks")).toBeInTheDocument();
@@ -359,7 +413,8 @@ describe("a persisted state from before these fields existed", () => {
         await userEvent.type(screen.getByTestId("focus-micro-task-input"), "Stretch");
         await userEvent.keyboard("{Enter}");
 
-        expect(screen.getByText("Stretch")).toBeInTheDocument();
+        // The add is a server round-trip now, so the row lands after the mocked promise settles.
+        expect(await screen.findByText("Stretch")).toBeInTheDocument();
     });
 
     test("the break tabs work too, rather than reading a length off nothing", async () => {

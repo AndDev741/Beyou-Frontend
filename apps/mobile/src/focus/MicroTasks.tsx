@@ -4,73 +4,90 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Pin, PinOff, Plus, X } from 'lucide-react-native';
 import {
-  MAX_MICRO_TASKS,
   MICRO_TASK_MAX_LENGTH,
   isMicroTaskDone,
-  microTaskAdded,
-  microTaskPinToggled,
   microTaskRemoved,
-  microTaskToggled,
-  microTasksHydrated,
+  microTaskUpserted,
+  microTasksLoaded,
+  normalizeMicroTaskName,
 } from '@beyou/state';
+import {
+  addFocusMicroTask,
+  deleteFocusMicroTask,
+  listFocusMicroTasks,
+  pinFocusMicroTask,
+  toggleFocusMicroTask,
+} from '@beyou/api/focus/focusApi';
+import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { useBeyouTheme } from '../theme/ThemeProvider';
-import { loadMicroTasks, saveMicroTasks } from '../lib/microTasks';
+import { notify } from '../notify';
 import Ring from '../ui/Ring';
 import type { RootState, AppDispatch } from '../store';
 
 /**
- * The small things done between cycles, under the timer where the reference design puts them.
+ * The small things done alongside ONE routine item. Native twin of the web component.
  *
- * Native twin of the web component. Two kinds, from the backlog card: standing ones and one-off
- * ones. Adding makes a ONE-OFF, and pinning is a separate tap on the row — typing something in a
- * break costs one field and one submit, and nothing silently accumulates forever.
- *
- * A pinned task's tick is a DATE, not a boolean, so it comes back fresh tomorrow like every other
- * checkable thing in Beyou.
+ * Server-owned since F6, scoped to the item on the user's specification: switching items switches
+ * lists, and a pinned name appears on the new item because the server materialised it there on the
+ * read. Every mutation goes to the server and the response is what lands in the slice.
  */
-export default function MicroTasks({ date }: { date: string }) {
+export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const dispatch = useDispatch<AppDispatch>();
-  /**
-   * Falls back, mirroring the web component. Redux is in-memory here so there is nothing stale to
-   * rehydrate, but the two staying identical is worth more than saving one `??`.
-   */
-  const tasks = useSelector((s: RootState) => s.focus.microTasks) ?? [];
+  const tasks = useSelector((s: RootState) => s.focus.microTasks?.[itemGroupId]) ?? [];
 
   const [draft, setDraft] = useState('');
   const [adding, setAdding] = useState(false);
+  const [busy, setBusy] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  // Read the standing ones once, on mount. Merged rather than replacing, so a one-off typed
-  // before this resolved is not swallowed by it.
   useEffect(() => {
     let active = true;
-    loadMicroTasks().then((stored) => {
-      if (active) dispatch(microTasksHydrated(stored));
+    listFocusMicroTasks(itemGroupId, t).then((result) => {
+      if (!active) return;
+      if (result.success) dispatch(microTasksLoaded({ itemGroupId, tasks: result.success }));
+      else if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
     });
     return () => {
       active = false;
     };
-  }, [dispatch]);
+  }, [itemGroupId, dispatch, t]);
 
-  // Mirrored back on every change. Only the pinned ones are written; see the storage module.
-  useEffect(() => {
-    void saveMicroTasks(tasks, date);
-  }, [tasks, date]);
-
-  const full = tasks.length >= MAX_MICRO_TASKS;
-
-  const submit = () => {
-    const name = draft.trim();
+  const submit = async () => {
+    const name = normalizeMicroTaskName(draft);
     if (!name) {
       setAdding(false);
       return;
     }
-    dispatch(microTaskAdded(name));
-    setDraft('');
-    // Left open: a break checklist is usually typed in a burst of two or three.
-    inputRef.current?.focus();
+    setBusy(true);
+    const result = await addFocusMicroTask({ itemGroupId, name, pinned: false }, t);
+    setBusy(false);
+    if (result.success) {
+      dispatch(microTaskUpserted(result.success));
+      setDraft('');
+      inputRef.current?.focus();
+    } else if (result.error) {
+      notify.error(getFriendlyErrorMessage(t, result.error));
+    }
+  };
+
+  const toggle = async (id: string) => {
+    const result = await toggleFocusMicroTask(id, t);
+    if (result.success) dispatch(microTaskUpserted(result.success));
+    else if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+  };
+
+  const pin = async (id: string, pinned: boolean) => {
+    const result = await pinFocusMicroTask(id, pinned, t);
+    if (result.success) dispatch(microTaskUpserted(result.success));
+    else if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+  };
+
+  const remove = async (id: string) => {
+    const result = await deleteFocusMicroTask(id, t);
+    if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+    else dispatch(microTaskRemoved({ itemGroupId, id }));
   };
 
   return (
@@ -81,7 +98,7 @@ export default function MicroTasks({ date }: { date: string }) {
 
       <View className="mt-1.5 gap-1">
         {tasks.map((task) => {
-          const done = isMicroTaskDone(task, date);
+          const done = isMicroTaskDone(task);
           return (
             <View
               key={task.id}
@@ -92,7 +109,7 @@ export default function MicroTasks({ date }: { date: string }) {
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: done }}
                 accessibilityLabel={task.name}
-                onPress={() => dispatch(microTaskToggled({ id: task.id, date }))}
+                onPress={() => void toggle(task.id)}
                 className="flex-1 flex-row items-center gap-2.5"
                 testID={`focus-micro-task-check-${task.id}`}
               >
@@ -109,21 +126,17 @@ export default function MicroTasks({ date }: { date: string }) {
                 accessibilityRole="button"
                 accessibilityLabel={task.pinned ? t('FocusStopKeepingTask') : t('FocusKeepTask')}
                 accessibilityState={{ selected: task.pinned }}
-                onPress={() => dispatch(microTaskPinToggled(task.id))}
+                onPress={() => void pin(task.id, !task.pinned)}
                 className="h-7 w-7 items-center justify-center rounded-control active:bg-surface-2"
                 testID={`focus-micro-task-pin-${task.id}`}
               >
-                {task.pinned ? (
-                  <Pin size={14} color={theme.accent} />
-                ) : (
-                  <PinOff size={14} color={theme.text3} />
-                )}
+                {task.pinned ? <Pin size={14} color={theme.accent} /> : <PinOff size={14} color={theme.text3} />}
               </Pressable>
 
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={t('FocusRemoveTask')}
-                onPress={() => dispatch(microTaskRemoved(task.id))}
+                onPress={() => void remove(task.id)}
                 className="h-7 w-7 items-center justify-center rounded-control active:bg-surface-2"
                 testID={`focus-micro-task-remove-${task.id}`}
               >
@@ -140,8 +153,9 @@ export default function MicroTasks({ date }: { date: string }) {
           value={draft}
           onChangeText={setDraft}
           maxLength={MICRO_TASK_MAX_LENGTH}
-          onSubmitEditing={submit}
-          onBlur={submit}
+          editable={!busy}
+          onSubmitEditing={() => void submit()}
+          onBlur={() => void submit()}
           autoFocus
           placeholder={t('FocusTaskPlaceholder')}
           placeholderTextColor={theme.text3}
@@ -152,18 +166,12 @@ export default function MicroTasks({ date }: { date: string }) {
       ) : (
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ disabled: full }}
-          disabled={full}
           onPress={() => setAdding(true)}
-          className={`mt-1.5 h-10 flex-row items-center justify-center gap-2 rounded-control border border-dashed border-border active:bg-surface-2 ${
-            full ? 'opacity-60' : ''
-          }`}
+          className="mt-1.5 h-10 flex-row items-center justify-center gap-2 rounded-control border border-dashed border-border active:bg-surface-2"
           testID="focus-micro-task-add"
         >
           <Plus size={15} color={theme.text2} />
-          <Text className="text-[13px] font-medium text-text-2">
-            {full ? t('FocusTasksFull') : t('FocusAddTask')}
-          </Text>
+          <Text className="text-[13px] font-medium text-text-2">{t('FocusAddTask')}</Text>
         </Pressable>
       )}
 

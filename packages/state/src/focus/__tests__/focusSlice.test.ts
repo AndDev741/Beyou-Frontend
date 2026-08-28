@@ -117,6 +117,8 @@ describe('the pomodoro', () => {
         expect(state.timer).toMatchObject({
             groupId: 'g1',
             kind: 'pomodoro',
+            // Frozen across pause and resume: it is what the server is told on completion.
+            startedAt: NOW,
             endsAt: NOW + 25 * 60_000,
             pausedRemainingMs: null,
             durationMinutes: 25,
@@ -141,6 +143,7 @@ describe('the pomodoro', () => {
 
         expect(resumed.timer?.pausedRemainingMs).toBeNull();
         expect(resumed.timer?.endsAt).toBe(NOW + 21 * 60_000 + 24 * 60_000);
+        expect(resumed.timer?.startedAt).toBe(NOW);
     });
 
     it('a finished cycle cannot be paused or resumed', () => {

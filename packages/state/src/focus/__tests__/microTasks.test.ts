@@ -2,36 +2,33 @@ import { describe, expect, it } from 'vitest';
 import reducer, {
     focusEntered,
     focusExited,
-    microTaskAdded,
-    microTaskPinToggled,
     microTaskRemoved,
-    microTaskToggled,
-    microTasksHydrated,
+    microTaskUpserted,
+    microTasksLoaded,
 } from '../focusSlice';
 import {
-    MAX_MICRO_TASKS,
     MICRO_TASK_MAX_LENGTH,
     isMicroTaskDone,
     normalizeMicroTaskName,
-    persistableMicroTasks,
     suggestMicroTask,
-    type MicroTask,
+    type FocusMicroTask,
 } from '../microTasks';
 
 const TODAY = '2026-08-28';
-const YESTERDAY = '2026-08-27';
-const enter = (date = TODAY) => focusEntered(date);
+const enter = () => focusEntered(TODAY);
 
-const task = (over: Partial<MicroTask> = {}): MicroTask => ({
+const task = (over: Partial<FocusMicroTask> = {}): FocusMicroTask => ({
     id: '1',
+    date: TODAY,
+    itemGroupId: 'item-a',
     name: 'Stretch',
     pinned: false,
-    doneOn: null,
+    doneAt: null,
     ...over,
 });
 
 describe('normalizeMicroTaskName', () => {
-    it('trims, and bounds one line so it cannot fill the storage value alone', () => {
+    it('trims, and bounds one line to what the column takes', () => {
         expect(normalizeMicroTaskName('  Stretch  ')).toBe('Stretch');
         expect(normalizeMicroTaskName('x'.repeat(200))).toHaveLength(MICRO_TASK_MAX_LENGTH);
         expect(normalizeMicroTaskName('   ')).toBe('');
@@ -39,174 +36,90 @@ describe('normalizeMicroTaskName', () => {
 });
 
 describe('isMicroTaskDone', () => {
-    it('is a date comparison, so a pinned task comes back fresh tomorrow', () => {
-        // A boolean would need something to reset it, and nothing would.
-        expect(isMicroTaskDone(task({ doneOn: TODAY }), TODAY)).toBe(true);
-        expect(isMicroTaskDone(task({ doneOn: YESTERDAY }), TODAY)).toBe(false);
-        expect(isMicroTaskDone(task(), TODAY)).toBe(false);
-    });
-});
-
-describe('persistableMicroTasks', () => {
-    it('writes only the standing ones', () => {
-        const list = [task({ id: '1', pinned: true }), task({ id: '2', pinned: false })];
-
-        expect(persistableMicroTasks(list, TODAY).map((entry) => entry.id)).toEqual(['1']);
-    });
-
-    it("drops a tick from another day rather than storing it", () => {
-        const stale = [task({ id: '1', pinned: true, doneOn: YESTERDAY })];
-
-        expect(persistableMicroTasks(stale, TODAY)[0].doneOn).toBeNull();
-    });
-
-    it("keeps today's tick, so a reload does not lose what was just done", () => {
-        const fresh = [task({ id: '1', pinned: true, doneOn: TODAY })];
-
-        expect(persistableMicroTasks(fresh, TODAY)[0].doneOn).toBe(TODAY);
+    it('reads the server timestamp: set is done, null is open', () => {
+        expect(isMicroTaskDone(task({ doneAt: '2026-08-28T10:00:00Z' }))).toBe(true);
+        expect(isMicroTaskDone(task())).toBe(false);
     });
 });
 
 describe('suggestMicroTask', () => {
-    it('offers a standing one first, then anything still open', () => {
+    it('offers a standing one first, then anything still open, then nothing', () => {
         const list = [task({ id: '1' }), task({ id: '2', pinned: true })];
-
-        expect(suggestMicroTask(list, TODAY)?.id).toBe('2');
-        expect(suggestMicroTask([task({ id: '9' })], TODAY)?.id).toBe('9');
-    });
-
-    it('offers nothing once everything is done', () => {
-        const done = [task({ id: '1', doneOn: TODAY }), task({ id: '2', pinned: true, doneOn: TODAY })];
-
-        expect(suggestMicroTask(done, TODAY)).toBeNull();
-        expect(suggestMicroTask([], TODAY)).toBeNull();
+        expect(suggestMicroTask(list)?.id).toBe('2');
+        expect(suggestMicroTask([task({ id: '9' })])?.id).toBe('9');
+        expect(suggestMicroTask([task({ doneAt: '2026-08-28T10:00:00Z' })])).toBeNull();
+        expect(suggestMicroTask([])).toBeNull();
     });
 });
 
-describe('the micro-task reducers', () => {
-    it('adds as a ONE-OFF, because pinning is a separate deliberate act', () => {
-        // A list that silently accumulates forever is the worse of the two failures.
-        const state = reducer(reducer(undefined, enter()), microTaskAdded('Stretch'));
+describe('the micro-task cache', () => {
+    it('is keyed by item, so switching items switches lists', () => {
+        // The user's rule: a micro-task belongs to an item, and moving to another item does not
+        // carry the list over. The slice cannot get this wrong because it never merges items.
+        let state = reducer(undefined, enter());
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-a', tasks: [task({ id: '1' })] }));
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-b', tasks: [] }));
 
-        expect(state.microTasks).toEqual([
-            { id: '1', name: 'Stretch', pinned: false, doneOn: null },
+        expect(state.microTasks['item-a']).toHaveLength(1);
+        expect(state.microTasks['item-b']).toEqual([]);
+    });
+
+    it("a load replaces that item's cache wholesale, and leaves other items alone", () => {
+        let state = reducer(undefined, enter());
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-a', tasks: [task({ id: '1' }), task({ id: '2' })] }));
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-b', tasks: [task({ id: '3', itemGroupId: 'item-b' })] }));
+
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-a', tasks: [task({ id: '2' })] }));
+
+        expect(state.microTasks['item-a'].map((t) => t.id)).toEqual(['2']);
+        expect(state.microTasks['item-b'].map((t) => t.id)).toEqual(['3']);
+    });
+
+    it('upserts by id: a new row appends, a known row is replaced in place', () => {
+        let state = reducer(undefined, enter());
+        state = reducer(state, microTaskUpserted(task({ id: '1', name: 'Water' })));
+        state = reducer(state, microTaskUpserted(task({ id: '2', name: 'Stretch' })));
+        state = reducer(state, microTaskUpserted(task({ id: '1', name: 'Water', doneAt: '2026-08-28T10:00:00Z' })));
+
+        expect(state.microTasks['item-a'].map((t) => [t.id, t.doneAt !== null])).toEqual([
+            ['1', true],
+            ['2', false],
         ]);
     });
 
-    it('ignores an empty name and trims what it keeps', () => {
+    it('an upsert lands under the row\'s OWN item, whatever is selected', () => {
+        // A pinned name the server materialised on item B arrives tagged item-b, and must not be
+        // filed under whichever item happens to be on screen.
+        const state = reducer(reducer(undefined, enter()), microTaskUpserted(task({ id: '7', itemGroupId: 'item-b' })));
+
+        expect(state.microTasks['item-b']).toHaveLength(1);
+        expect(state.microTasks['item-a']).toBeUndefined();
+    });
+
+    it('removes by id within the item', () => {
         let state = reducer(undefined, enter());
-        state = reducer(state, microTaskAdded('   '));
-        expect(state.microTasks).toEqual([]);
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-a', tasks: [task({ id: '1' }), task({ id: '2' })] }));
 
-        state = reducer(state, microTaskAdded('  Water  '));
-        expect(state.microTasks[0].name).toBe('Water');
+        state = reducer(state, microTaskRemoved({ itemGroupId: 'item-a', id: '1' }));
+
+        expect(state.microTasks['item-a'].map((t) => t.id)).toEqual(['2']);
     });
 
-    it('stops at the cap rather than growing past what storage holds', () => {
-        // The native side keeps the whole list in ONE SecureStore value, which caps around 2048
-        // bytes; the routine-collapsed map broke silently on exactly that limit.
+    it('tolerates a rehydrated slice from before the cache existed', () => {
+        // The persisted-shape rule again: the reducer must not throw on `undefined.microTasks`.
+        const stale = { ...reducer(undefined, enter()), microTasks: undefined } as never;
+
+        expect(() => reducer(stale, microTaskUpserted(task()))).not.toThrow();
+        expect(() => reducer(stale, microTaskRemoved({ itemGroupId: 'x', id: 'y' }))).not.toThrow();
+    });
+
+    it('is dropped on entering and on exiting: the server is the source of truth', () => {
+        // Cheap to refetch, and holding it across visits risked showing yesterday's list for a
+        // second before the read came back.
         let state = reducer(undefined, enter());
-        for (let n = 0; n < MAX_MICRO_TASKS + 5; n += 1) {
-            state = reducer(state, microTaskAdded(`Task ${n}`));
-        }
+        state = reducer(state, microTasksLoaded({ itemGroupId: 'item-a', tasks: [task()] }));
 
-        expect(state.microTasks).toHaveLength(MAX_MICRO_TASKS);
-    });
-
-    it('gives every task its own id, even after one is removed', () => {
-        let state = reducer(undefined, enter());
-        state = reducer(state, microTaskAdded('One'));
-        state = reducer(state, microTaskAdded('Two'));
-        state = reducer(state, microTaskRemoved('1'));
-        state = reducer(state, microTaskAdded('Three'));
-
-        const ids = state.microTasks.map((entry) => entry.id);
-        expect(new Set(ids).size).toBe(ids.length);
-    });
-
-    it('ticks and un-ticks against the date it was given', () => {
-        let state = reducer(reducer(undefined, enter()), microTaskAdded('Stretch'));
-
-        state = reducer(state, microTaskToggled({ id: '1', date: TODAY }));
-        expect(state.microTasks[0].doneOn).toBe(TODAY);
-
-        state = reducer(state, microTaskToggled({ id: '1', date: TODAY }));
-        expect(state.microTasks[0].doneOn).toBeNull();
-    });
-
-    it("re-ticking on a new day moves the date rather than clearing it", () => {
-        const yesterdayDone = reducer(
-            reducer(reducer(undefined, enter()), microTaskAdded('Stretch')),
-            microTaskToggled({ id: '1', date: YESTERDAY }),
-        );
-
-        const today = reducer(yesterdayDone, microTaskToggled({ id: '1', date: TODAY }));
-
-        expect(today.microTasks[0].doneOn).toBe(TODAY);
-    });
-
-    it('pins and unpins', () => {
-        let state = reducer(reducer(undefined, enter()), microTaskAdded('Stretch'));
-
-        state = reducer(state, microTaskPinToggled('1'));
-        expect(state.microTasks[0].pinned).toBe(true);
-
-        state = reducer(state, microTaskPinToggled('1'));
-        expect(state.microTasks[0].pinned).toBe(false);
-    });
-});
-
-describe('what survives leaving the screen', () => {
-    const withBoth = () => {
-        let state = reducer(undefined, enter());
-        state = reducer(state, microTaskAdded('One-off'));
-        state = reducer(state, microTaskAdded('Standing'));
-        return reducer(state, microTaskPinToggled('2'));
-    };
-
-    it('keeps the standing ones and drops the one-offs', () => {
-        const left = reducer(withBoth(), focusExited());
-
-        expect(left.microTasks.map((entry) => entry.name)).toEqual(['Standing']);
-    });
-
-    it('same on re-entering, on any day', () => {
-        const back = reducer(withBoth(), focusEntered('2026-09-05'));
-
-        expect(back.microTasks.map((entry) => entry.name)).toEqual(['Standing']);
-    });
-});
-
-describe('hydrating from device storage', () => {
-    it('merges rather than replacing, so a task typed first is not swallowed', () => {
-        const typed = reducer(reducer(undefined, enter()), microTaskAdded('Typed'));
-
-        const merged = reducer(
-            typed,
-            microTasksHydrated([task({ id: '77', name: 'Stored', pinned: true })]),
-        );
-
-        expect(merged.microTasks.map((entry) => entry.name)).toEqual(['Stored', 'Typed']);
-    });
-
-    it('moves the id counter past anything stored, so a new task cannot collide', () => {
-        const hydrated = reducer(
-            reducer(undefined, enter()),
-            microTasksHydrated([task({ id: '77', pinned: true })]),
-        );
-
-        const added = reducer(hydrated, microTaskAdded('After'));
-
-        expect(added.microTasks.map((entry) => entry.id)).toEqual(['77', '78']);
-    });
-
-    it('caps what it takes from storage', () => {
-        const many = Array.from({ length: MAX_MICRO_TASKS + 5 }, (_, n) =>
-            task({ id: String(n + 1), pinned: true }),
-        );
-
-        expect(reducer(reducer(undefined, enter()), microTasksHydrated(many)).microTasks).toHaveLength(
-            MAX_MICRO_TASKS,
-        );
+        expect(reducer(state, focusExited()).microTasks).toEqual({});
+        expect(reducer(state, focusEntered('2026-08-29')).microTasks).toEqual({});
     });
 });

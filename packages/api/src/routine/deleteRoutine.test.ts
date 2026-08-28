@@ -6,7 +6,7 @@ import deleteRoutine from './deleteRoutine';
 const t = ((key: string) => key) as never;
 
 const client = (deleteFn: HttpClient['delete']): HttpClient => ({
-  get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: deleteFn,
+  get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: deleteFn,
 });
 
 beforeEach(() => setLogger({ error: () => {} }));

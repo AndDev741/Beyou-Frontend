@@ -1,9 +1,7 @@
 /**
- * The break's micro-tasks (F4) on native.
+ * The break's micro-tasks (F6) on native: server-owned and scoped to one routine item.
  *
- * What only this side can check: that the standing ones round-trip through SecureStore, which is
- * where they live until F6 puts them on the server. Note this suite asserts TRANSLATED text, not
- * i18n keys: it imports `../src/i18n`.
+ * Note this suite asserts TRANSLATED text, not i18n keys: it imports `../src/i18n`.
  */
 jest.mock('react-native-toast-message', () => {
   const S = () => null;
@@ -18,41 +16,55 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => true }),
 }));
 
-// One in-memory store standing in for the device's, so a write can be read back.
-const mockSecureStore: Record<string, string> = {};
-jest.mock('expo-secure-store', () => ({
-  getItemAsync: (key: string) => Promise.resolve(mockSecureStore[key] ?? null),
-  setItemAsync: (key: string, value: string) => {
-    mockSecureStore[key] = value;
-    return Promise.resolve();
-  },
-  deleteItemAsync: (key: string) => {
-    delete mockSecureStore[key];
-    return Promise.resolve();
-  },
+jest.mock('@beyou/api/focus/focusApi', () => ({
+  listFocusMicroTasks: jest.fn(),
+  addFocusMicroTask: jest.fn(),
+  toggleFocusMicroTask: jest.fn(),
+  pinFocusMicroTask: jest.fn(),
+  deleteFocusMicroTask: jest.fn(),
+  recordFocusCycle: jest.fn(),
+  getFocusDay: jest.fn(),
 }));
 
 import { Provider } from 'react-redux';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react-native';
+import type { FocusMicroTask } from '@beyou/types/focus/focus';
+import {
+  addFocusMicroTask,
+  deleteFocusMicroTask,
+  listFocusMicroTasks,
+  pinFocusMicroTask,
+  toggleFocusMicroTask,
+} from '@beyou/api/focus/focusApi';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import MicroTasks from '../src/focus/MicroTasks';
 
-const DATE = '2026-08-28';
-const KEY = 'beyou.focusMicroTasks';
+const row = (over: Partial<FocusMicroTask> = {}): FocusMicroTask => ({
+  id: '1',
+  date: '2026-08-28',
+  itemGroupId: 'item-a',
+  name: 'Stretch',
+  pinned: false,
+  doneAt: null,
+  ...over,
+});
 
-const renderTasks = async (date = DATE, store = makeStore()) => {
+// Returns the two things the tests need, named. Spreading the render result loses `store` in the
+// inferred type under tsc while jest stays green; jest does not typecheck (AGENTS.md).
+const renderTasks = async (itemGroupId = 'item-a', store = makeStore()) => {
+  let result!: Awaited<ReturnType<typeof render>>;
   await act(async () => {
-    render(
+    result = await render(
       <Provider store={store}>
         <BeyouThemeProvider>
-          <MicroTasks date={date} />
+          <MicroTasks itemGroupId={itemGroupId} />
         </BeyouThemeProvider>
       </Provider>,
     );
   });
-  return store;
+  return { store, rerender: result.rerender };
 };
 
 const press = async (testID: string) => {
@@ -61,130 +73,98 @@ const press = async (testID: string) => {
   });
 };
 
-const add = async (name: string) => {
-  const opener = screen.queryByTestId('focus-micro-task-add');
-  if (opener) {
-    await act(async () => {
-      fireEvent.press(opener);
-    });
-  }
-  await act(async () => {
-    fireEvent.changeText(screen.getByTestId('focus-micro-task-input'), name);
-  });
-  await act(async () => {
-    fireEvent(screen.getByTestId('focus-micro-task-input'), 'submitEditing');
-  });
-};
-
 beforeEach(() => {
   jest.clearAllMocks();
-  for (const key of Object.keys(mockSecureStore)) delete mockSecureStore[key];
+  (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: [] });
 });
 
-describe('adding', () => {
-  it('lands as a one-off, because pinning is a separate deliberate tap', async () => {
-    const store = await renderTasks();
+describe('the list belongs to the item', () => {
+  it('is read from the server for the item on screen', async () => {
+    (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: [row()] });
 
-    await add('Stretch');
+    await renderTasks('item-a');
 
-    expect(screen.getByText('Stretch')).toBeTruthy();
-    expect(store.getState().focus.microTasks[0]).toMatchObject({
-      name: 'Stretch',
-      pinned: false,
-    });
+    expect(await screen.findByText('Stretch')).toBeTruthy();
+    expect(listFocusMicroTasks).toHaveBeenCalledWith('item-a', expect.anything());
   });
 
-  it('adds nothing for an empty name', async () => {
-    const store = await renderTasks();
+  it("switching item re-reads, and shows THAT item's list", async () => {
+    (listFocusMicroTasks as jest.Mock).mockImplementation(async (itemGroupId: string) => ({
+      success: itemGroupId === 'item-a' ? [row({ name: 'Only on A' })] : [],
+    }));
+    const { rerender } = await renderTasks('item-a');
+    expect(await screen.findByText('Only on A')).toBeTruthy();
+
+    await act(async () => {
+      rerender(
+        <Provider store={makeStore()}>
+          <BeyouThemeProvider>
+            <MicroTasks itemGroupId="item-b" />
+          </BeyouThemeProvider>
+        </Provider>,
+      );
+    });
+
+    await waitFor(() => expect(listFocusMicroTasks).toHaveBeenCalledWith('item-b', expect.anything()));
+    expect(screen.queryByText('Only on A')).toBeNull();
+  });
+});
+
+describe('mutations go to the server', () => {
+  it('adding posts to the item, unpinned', async () => {
+    (addFocusMicroTask as jest.Mock).mockResolvedValue({ success: row({ id: '9', name: 'Water' }) });
+    await renderTasks();
 
     await press('focus-micro-task-add');
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('focus-micro-task-input'), 'Water');
+    });
     await act(async () => {
       fireEvent(screen.getByTestId('focus-micro-task-input'), 'submitEditing');
     });
 
-    expect(store.getState().focus.microTasks).toEqual([]);
-  });
-});
-
-describe('what reaches the device store', () => {
-  it('a pinned one is written; a one-off never is', async () => {
-    await renderTasks();
-    await add('One-off');
-    await add('Standing');
-
-    expect(JSON.parse(mockSecureStore[KEY] ?? '[]')).toHaveLength(0);
-
-    await press('focus-micro-task-pin-2');
-
-    await waitFor(() => {
-      const stored = JSON.parse(mockSecureStore[KEY] ?? '[]');
-      expect(stored).toHaveLength(1);
-      expect(stored[0].name).toBe('Standing');
-    });
-  });
-
-  it('is read back on mount', async () => {
-    mockSecureStore[KEY] = JSON.stringify([
-      { id: '7', name: 'Water', pinned: true, doneOn: null },
-    ]);
-
-    await renderTasks();
-
+    expect(addFocusMicroTask).toHaveBeenCalledWith(
+      { itemGroupId: 'item-a', name: 'Water', pinned: false },
+      expect.anything(),
+    );
     expect(await screen.findByText('Water')).toBeTruthy();
   });
 
-  it('junk is ignored rather than crashing the render', async () => {
-    mockSecureStore[KEY] = '[{"id":1},{"name":""},null,"nope"]';
+  it('ticking, pinning and removing each call the server and reflect its answer', async () => {
+    (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: [row()] });
+    (toggleFocusMicroTask as jest.Mock).mockResolvedValue({ success: row({ doneAt: '2026-08-28T10:00:00Z' }) });
+    (pinFocusMicroTask as jest.Mock).mockResolvedValue({ success: row({ pinned: true, doneAt: '2026-08-28T10:00:00Z' }) });
+    (deleteFocusMicroTask as jest.Mock).mockResolvedValue({ success: undefined });
+    const { store } = await renderTasks();
+    await screen.findByText('Stretch');
 
-    await renderTasks();
+    await press('focus-micro-task-check-1');
+    expect(toggleFocusMicroTask).toHaveBeenCalledWith('1', expect.anything());
+    await waitFor(() => expect(store.getState().focus.microTasks['item-a'][0].doneAt).not.toBeNull());
 
-    expect(screen.getByTestId('focus-micro-tasks')).toBeTruthy();
-    expect(screen.getByTestId('focus-micro-task-add')).toBeTruthy();
-  });
-
-  it('unreadable storage is ignored too', async () => {
-    mockSecureStore[KEY] = '{not json';
-
-    await renderTasks();
-
-    expect(screen.getByTestId('focus-micro-tasks')).toBeTruthy();
-  });
-});
-
-describe('ticking', () => {
-  it("done is a DATE, so a pinned one comes back fresh tomorrow", async () => {
-    mockSecureStore[KEY] = JSON.stringify([
-      { id: '7', name: 'Water', pinned: true, doneOn: null },
-    ]);
-    const store = await renderTasks();
-    await screen.findByText('Water');
-
-    await press('focus-micro-task-check-7');
-    expect(store.getState().focus.microTasks[0].doneOn).toBe(DATE);
-
-    // A stale tick is not written, so tomorrow reads as not done.
-    await waitFor(() => {
-      const stored = JSON.parse(mockSecureStore[KEY] ?? '[]');
-      expect(stored[0].doneOn).toBe(DATE);
-    });
-    await renderTasks('2026-08-29', makeStore());
-    await waitFor(() => {
-      const stored = JSON.parse(mockSecureStore[KEY] ?? '[]');
-      expect(stored[0].doneOn).toBeNull();
-    });
-  });
-});
-
-describe('removing', () => {
-  it('takes it off the list and out of the device store', async () => {
-    await renderTasks();
-    await add('Stretch');
     await press('focus-micro-task-pin-1');
-    await waitFor(() => expect(JSON.parse(mockSecureStore[KEY] ?? '[]')).toHaveLength(1));
+    expect(pinFocusMicroTask).toHaveBeenCalledWith('1', true, expect.anything());
+    await waitFor(() => expect(store.getState().focus.microTasks['item-a'][0].pinned).toBe(true));
 
     await press('focus-micro-task-remove-1');
+    expect(deleteFocusMicroTask).toHaveBeenCalledWith('1', expect.anything());
+    await waitFor(() => expect(screen.queryByText('Stretch')).toBeNull());
+  });
 
-    expect(screen.queryByText('Stretch')).toBeNull();
-    await waitFor(() => expect(JSON.parse(mockSecureStore[KEY] ?? '[]')).toHaveLength(0));
+  it('a refused write leaves the list as it was', async () => {
+    (addFocusMicroTask as jest.Mock).mockResolvedValue({ error: { message: 'nope' } });
+    const { store } = await renderTasks();
+
+    await press('focus-micro-task-add');
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('focus-micro-task-input'), 'Ghost');
+    });
+    await act(async () => {
+      fireEvent(screen.getByTestId('focus-micro-task-input'), 'submitEditing');
+    });
+
+    await waitFor(() => expect(addFocusMicroTask).toHaveBeenCalled());
+    expect(screen.queryByText('Ghost')).toBeNull();
+    expect(store.getState().focus.microTasks['item-a'] ?? []).toEqual([]);
   });
 });

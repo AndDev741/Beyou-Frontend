@@ -67,6 +67,11 @@ export type FocusTimer = {
     groupId: string;
     kind: CycleKind;
     /**
+     * Epoch milliseconds when this cycle was started. Frozen across pause and resume, unlike
+     * `endsAt`, because it is what the server is told when the cycle completes.
+     */
+    startedAt: number;
+    /**
      * Epoch milliseconds when this cycle ends, and the ONLY source of truth for how much is
      * left. Nothing counts down in a variable: a decrementing number dies with the tab, sleeps
      * when the phone locks, and drifts whenever the interval is throttled. Subtracting from the
@@ -222,3 +227,7 @@ export function nextCycleKind(
 
 /** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
 export const pomodoroNumber = (completedCycles: number): number => completedCycles + 1;
+
+/** The server's spelling of a cycle kind, for `POST /focus/cycles`. */
+export const toServerCycleKind = (kind: CycleKind): 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK' =>
+    kind === 'pomodoro' ? 'POMODORO' : kind === 'shortBreak' ? 'SHORT_BREAK' : 'LONG_BREAK';

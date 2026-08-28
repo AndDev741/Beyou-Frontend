@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { recordFocusCycle } from '@beyou/api/focus/focusApi';
 import {
   CYCLE_LABEL_KEY,
   DEFAULT_POMODORO_SETTINGS,
+  toServerCycleKind,
   cycleSelected,
   formatRemaining,
   pomodoroAbandoned,
@@ -67,11 +69,24 @@ export function usePomodoro(groupId: string | null, date: string) {
 
   // Crossing zero is derived from the clock rather than armed with a setTimeout: a timeout does
   // not survive the suspension this design exists to survive, and could not be trusted to fire.
+  // Reported to the server from the timer's own fields, BEFORE the reducer hands over — after the
+  // dispatch, `kind` is already the break. Fire-and-forget: a lost report must not stop the
+  // handover, and an abandoned cycle is never reported at all.
   useEffect(() => {
     if (status === 'elapsed' && timer && !timer.finished) {
+      void recordFocusCycle(
+        {
+          itemGroupId: timer.groupId || null,
+          kind: toServerCycleKind(timer.kind),
+          startedAt: new Date(timer.startedAt).toISOString(),
+          endedAt: new Date(timer.endsAt).toISOString(),
+          minutes: timer.durationMinutes,
+        },
+        t,
+      );
       dispatch(pomodoroCycleCompleted());
     }
-  }, [status, timer, dispatch]);
+  }, [status, timer, dispatch, t]);
 
   // Screen stays on for the length of a cycle, and only for that. Released on pause, on stop,
   // and on unmount, so a forgotten cycle cannot hold the display awake indefinitely.

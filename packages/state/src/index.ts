@@ -56,10 +56,8 @@ export {
     focusExited,
     cycleSelected,
     pomodoroSettingsChanged,
-    microTasksHydrated,
-    microTaskAdded,
-    microTaskToggled,
-    microTaskPinToggled,
+    microTasksLoaded,
+    microTaskUpserted,
     microTaskRemoved,
     pomodoroStarted,
     pomodoroPaused,
@@ -74,12 +72,10 @@ export { FOCUS_REASON_LABEL_KEY, reasonIsFromClock } from './focus/focusLabels';
 export {
     isMicroTaskDone,
     normalizeMicroTaskName,
-    persistableMicroTasks,
     suggestMicroTask,
-    MAX_MICRO_TASKS,
     MICRO_TASK_MAX_LENGTH,
 } from './focus/microTasks';
-export type { MicroTask } from './focus/microTasks';
+export type { FocusMicroTask, MicroTasksByItem } from './focus/microTasks';
 export {
     cycleMinutes,
     itemWindowMinutes,
@@ -90,6 +86,7 @@ export {
     clampLongBreakEvery,
     nextCycleKind,
     pomodoroNumber,
+    toServerCycleKind,
     CYCLE_KINDS,
     CYCLE_LABEL_KEY,
     CYCLE_MESSAGE_KEY,

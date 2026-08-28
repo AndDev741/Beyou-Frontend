@@ -1,9 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-    MAX_MICRO_TASKS,
-    normalizeMicroTaskName,
-    type MicroTask,
-} from "./microTasks";
+import type { FocusMicroTask, MicroTasksByItem } from "./microTasks";
 import {
     DEFAULT_POMODORO_SETTINGS,
     clampCycleMinutes,
@@ -77,20 +73,13 @@ type focusState = {
      */
     settings: PomodoroSettings;
     /**
-     * The break's micro-tasks.
+     * The break's micro-tasks, cached per routine item as the server last returned them.
      *
-     * Pinned ones survive leaving the screen and are mirrored to device storage by the screen;
-     * the rest belong to this visit and `focusExited` drops them.
+     * Server-owned since F6, and scoped to the ITEM: switching items switches lists, and a pinned
+     * name shows up on the new item because the server materialised a row for it there, not because
+     * anything here copied it. Nothing in this slice is the source of truth for a micro-task.
      */
-    microTasks: MicroTask[];
-    /**
-     * Source of micro-task ids.
-     *
-     * A counter rather than a uuid: a reducer must stay pure, `crypto.randomUUID` does not exist
-     * on React Native, and no id here ever leaves the device. Monotonic within a session is all
-     * that is needed to key a list.
-     */
-    microTaskSeq: number;
+    microTasks: MicroTasksByItem;
 };
 
 const initialState: focusState = {
@@ -100,23 +89,8 @@ const initialState: focusState = {
     timer: null,
     selectedCycle: "pomodoro",
     settings: DEFAULT_POMODORO_SETTINGS,
-    microTasks: [],
-    microTaskSeq: 0,
+    microTasks: {},
 };
-
-/**
- * The micro-tasks, tolerating a rehydrated state that predates them.
- *
- * This slice is persisted on web, and redux-persist replaces a stored slice WHOLESALE rather than
- * merging it into the reducer's initial state. So a browser holding an older shape hands this
- * reducer a state with the field simply absent, and `state.microTasks.filter(...)` throws before
- * anything can repair it. Reading through here means the first dispatch normalises the slice,
- * which is a better place for the guard than every component that reads it.
- *
- * The store's persist migration is still the proper fix for those browsers; this is what stops the
- * next added field from white-screening the app while somebody forgets to bump the version.
- */
-const tasksOf = (state: focusState): MicroTask[] => state.microTasks ?? [];
 
 /** Clamped, never wrapping. Running off the end of the day should stop, not start over. */
 const clamp = (index: number, count: number) => Math.min(Math.max(index, 0), count - 1);
@@ -143,10 +117,6 @@ const focusSlice = createSlice({
                 // show the Pomodoro tab over a counting-down break.
                 selectedCycle: timer ? timer.kind : "pomodoro",
                 settings: state.settings,
-                // Only the standing ones come along. The screen hydrates the rest from device
-                // storage right after this, which is why nothing is lost by dropping them here.
-                microTasks: tasksOf(state).filter((task) => task.pinned),
-                microTaskSeq: state.microTaskSeq ?? 0,
             };
         },
         focusModeChanged(state, action: PayloadAction<FocusMode>) {
@@ -198,77 +168,6 @@ const focusSlice = createSlice({
                 timer: state.timer,
                 selectedCycle: state.selectedCycle,
                 settings: state.settings,
-                // One-off micro-tasks belong to the visit that created them; standing ones do not.
-                microTasks: tasksOf(state).filter((task) => task.pinned),
-                microTaskSeq: state.microTaskSeq ?? 0,
-            };
-        },
-
-        /**
-         * The standing micro-tasks read back from device storage, merged in on mount.
-         *
-         * Merged rather than replacing: a one-off typed before the read resolved would otherwise
-         * vanish under it. Stored entries win on id, since they are the ones with history.
-         */
-        microTasksHydrated(state, action: PayloadAction<MicroTask[]>) {
-            const stored = action.payload.slice(0, MAX_MICRO_TASKS);
-            const storedIds = new Set(stored.map((task) => task.id));
-            const merged = [...stored, ...tasksOf(state).filter((task) => !storedIds.has(task.id))];
-            return {
-                ...state,
-                microTasks: merged.slice(0, MAX_MICRO_TASKS),
-                // Past anything the store already holds, so a fresh id cannot collide with one
-                // that came back from storage.
-                microTaskSeq: merged.reduce(
-                    (highest, task) => Math.max(highest, Number(task.id) || 0),
-                    state.microTaskSeq ?? 0,
-                ),
-            };
-        },
-
-        /** Added as a one-off. Pinning is a separate, deliberate act on the row. */
-        microTaskAdded(state, action: PayloadAction<string>) {
-            const name = normalizeMicroTaskName(action.payload);
-            if (!name) return state;
-            if (tasksOf(state).length >= MAX_MICRO_TASKS) return state;
-            const seq = (state.microTaskSeq ?? 0) + 1;
-            return {
-                ...state,
-                microTaskSeq: seq,
-                microTasks: [
-                    ...tasksOf(state),
-                    { id: String(seq), name, pinned: false, doneOn: null },
-                ],
-            };
-        },
-
-        /** Ticked, or un-ticked. The date is the payload so the reducer stays pure. */
-        microTaskToggled(state, action: PayloadAction<{ id: string; date: string }>) {
-            const { id, date } = action.payload;
-            return {
-                ...state,
-                microTasks: tasksOf(state).map((task) =>
-                    task.id === id
-                        ? { ...task, doneOn: task.doneOn === date ? null : date }
-                        : task
-                ),
-            };
-        },
-
-        /** Keep it for next time, or stop keeping it. */
-        microTaskPinToggled(state, action: PayloadAction<string>) {
-            return {
-                ...state,
-                microTasks: tasksOf(state).map((task) =>
-                    task.id === action.payload ? { ...task, pinned: !task.pinned } : task
-                ),
-            };
-        },
-
-        microTaskRemoved(state, action: PayloadAction<string>) {
-            return {
-                ...state,
-                microTasks: tasksOf(state).filter((task) => task.id !== action.payload),
             };
         },
 
@@ -303,6 +202,30 @@ const focusSlice = createSlice({
             };
         },
 
+        /** What the server returned for one item. Replaces that item's cache wholesale. */
+        microTasksLoaded(state, action: PayloadAction<{ itemGroupId: string; tasks: FocusMicroTask[] }>) {
+            const { itemGroupId, tasks } = action.payload;
+            return { ...state, microTasks: { ...(state.microTasks ?? {}), [itemGroupId]: tasks } };
+        },
+
+        /** One row as the server returned it after a create, toggle or pin. Upserted by id. */
+        microTaskUpserted(state, action: PayloadAction<FocusMicroTask>) {
+            const task = action.payload;
+            const list = (state.microTasks ?? {})[task.itemGroupId] ?? [];
+            const index = list.findIndex((entry) => entry.id === task.id);
+            const next = index === -1 ? [...list, task] : list.map((entry, i) => (i === index ? task : entry));
+            return { ...state, microTasks: { ...(state.microTasks ?? {}), [task.itemGroupId]: next } };
+        },
+
+        microTaskRemoved(state, action: PayloadAction<{ itemGroupId: string; id: string }>) {
+            const { itemGroupId, id } = action.payload;
+            const list = (state.microTasks ?? {})[itemGroupId] ?? [];
+            return {
+                ...state,
+                microTasks: { ...(state.microTasks ?? {}), [itemGroupId]: list.filter((entry) => entry.id !== id) },
+            };
+        },
+
         /**
          * Start a cycle. `now` and `date` come in the payload because a reducer must stay pure:
          * calling `Date.now()` in here would make every test a function of when it ran.
@@ -329,6 +252,7 @@ const focusSlice = createSlice({
                 timer: {
                     groupId,
                     kind,
+                    startedAt: now,
                     endsAt: now + durationMinutes * 60_000,
                     pausedRemainingMs: null,
                     durationMinutes,
@@ -407,10 +331,8 @@ export const {
     focusModeChanged,
     cycleSelected,
     pomodoroSettingsChanged,
-    microTasksHydrated,
-    microTaskAdded,
-    microTaskToggled,
-    microTaskPinToggled,
+    microTasksLoaded,
+    microTaskUpserted,
     microTaskRemoved,
     focusStartResolved,
     focusItemSelected,

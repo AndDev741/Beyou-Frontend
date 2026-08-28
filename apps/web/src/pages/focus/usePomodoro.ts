@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import type { RootState } from "@beyou/state/rootReducer";
+import { recordFocusCycle } from "@beyou/api/focus/focusApi";
 import {
     DEFAULT_POMODORO_SETTINGS,
     cycleSelected,
+    toServerCycleKind,
     formatRemaining,
     pomodoroAbandoned,
     pomodoroCycleCompleted,
@@ -65,11 +67,26 @@ export function usePomodoro(groupId: string | null, date: string) {
     // Crossing zero is noticed here rather than by a setTimeout armed at start time. A timeout
     // would not survive the reload that `endsAt` exists to survive, and it fires late or never
     // in a throttled tab; deriving the state from the clock cannot miss.
+    //
+    // The cycle is reported to the server in the same breath, from the timer's own fields and
+    // BEFORE the reducer hands over to the next cycle — after the dispatch, `kind` is already the
+    // break. Fire-and-forget: a lost report must not stop the handover, and the server never hears
+    // about an abandoned cycle at all, because there is no failure state to record.
     useEffect(() => {
         if (status === "elapsed" && timer && !timer.finished) {
+            void recordFocusCycle(
+                {
+                    itemGroupId: timer.groupId || null,
+                    kind: toServerCycleKind(timer.kind),
+                    startedAt: new Date(timer.startedAt).toISOString(),
+                    endedAt: new Date(timer.endsAt).toISOString(),
+                    minutes: timer.durationMinutes,
+                },
+                t
+            );
             dispatch(pomodoroCycleCompleted());
         }
-    }, [status, timer, dispatch]);
+    }, [status, timer, dispatch, t]);
 
     // The tab title carries the countdown, so the cycle is readable from another tab. Restored
     // on cleanup, including when the component unmounts mid-cycle.

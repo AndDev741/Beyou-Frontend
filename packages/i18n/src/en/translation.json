@@ -1229,5 +1229,8 @@
     "FocusRestHint": "Nothing to do here. Tap to wake the screen.",
     "FocusNextAt": "Next at {{time}}",
     "FocusRestNothingScheduled": "Nothing scheduled for the rest of today",
-    "FocusRunningHub": "Back to the timer"
+    "FocusRunningHub": "Back to the timer",
+    "FocusPomodorosOnItem": "{{count}} pomodoro",
+    "FocusPomodorosOnItem_plural": "{{count}} pomodoros",
+    "FocusKeepTaskHint": "Kept: it shows up on every item you move to."
 }
