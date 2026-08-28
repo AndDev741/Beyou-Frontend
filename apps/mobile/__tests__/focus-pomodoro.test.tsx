@@ -87,7 +87,9 @@ const press = async (testID: string) => {
  * suspended and then resumed.
  */
 const jump = async (ms: number) => {
-  jest.setSystemTime(new Date(Date.now() + ms));
+  // The one second the tick itself burns is taken off the jump, so `jump(60_000)` really is a
+  // minute of elapsed time and a call site can read the number it means.
+  jest.setSystemTime(new Date(Date.now() + Math.max(0, ms - 1_000)));
   await act(async () => {
     jest.advanceTimersByTime(1_000);
   });
@@ -103,17 +105,59 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-describe('the duration comes from the item', () => {
-  it("is pre-filled from the item's own window", async () => {
-    await renderPomodoro(item('07:00', '07:45'));
-
-    expect(screen.getByTestId('focus-pomodoro-minutes').props.value).toBe('45');
-  });
-
-  it('is the classic 25 for an item with no window, which is every LIST item', async () => {
+describe('the three cycles', () => {
+  it('opens on Pomodoro, previewing the length it would run', async () => {
     await renderPomodoro(item());
 
-    expect(screen.getByTestId('focus-pomodoro-minutes').props.value).toBe('25');
+    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('25:00');
+    expect(screen.getByTestId('focus-pomodoro-message')).toHaveTextContent('Time to focus!');
+  });
+
+  it("a pomodoro takes the item's own window; a break never does", async () => {
+    // Routine items carry startTime and endTime, so a scheduled item already says how long its
+    // owner meant it to take. A rest's length has nothing to do with that window.
+    await renderPomodoro(item('07:00', '07:45'));
+    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('45:00');
+
+    await press('focus-cycle-tab-shortBreak');
+    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('05:00');
+    expect(screen.getByTestId('focus-pomodoro-message')).toHaveTextContent('Time for a break!');
+  });
+
+  it('the long break has its own length', async () => {
+    await renderPomodoro(item());
+
+    await press('focus-cycle-tab-longBreak');
+
+    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('15:00');
+  });
+});
+
+describe('the settings', () => {
+  it('every length is editable, and clamped', async () => {
+    const store = await renderPomodoro(item());
+    await press('focus-pomodoro-settings-toggle');
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('focus-setting-pomodoro'), '50');
+    });
+    expect(store.getState().focus.settings.pomodoro).toBe(50);
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('focus-setting-longBreak'), '999');
+    });
+    expect(store.getState().focus.settings.longBreak).toBe(180);
+  });
+
+  it('so is how often the long break comes round', async () => {
+    const store = await renderPomodoro(item());
+    await press('focus-pomodoro-settings-toggle');
+
+    await act(async () => {
+      fireEvent.changeText(screen.getByTestId('focus-setting-longBreakEvery'), '2');
+    });
+
+    expect(store.getState().focus.settings.longBreakEvery).toBe(2);
   });
 });
 
@@ -127,14 +171,14 @@ describe('running a cycle', () => {
     expect(store.getState().focus.timer?.endsAt).toBe(Date.now() + 25 * 60_000);
 
     await jump(60_000);
-    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('23:59');
+    expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('24:00');
   });
 
   it('a long pause costs nothing', async () => {
     await renderPomodoro(item());
     await press('focus-pomodoro-start');
 
-    await jump(59_000);
+    await jump(60_000);
     await press('focus-pomodoro-pause');
     expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('24:00');
 
@@ -146,18 +190,19 @@ describe('running a cycle', () => {
     expect(screen.getByTestId('focus-pomodoro-remaining')).toHaveTextContent('24:00');
   });
 
-  it('crossing zero finishes the cycle and offers a break the person has to start', async () => {
+  it('crossing zero hands over to the short break, waiting to be started', async () => {
     const store = await renderPomodoro(item());
     await press('focus-pomodoro-start');
 
     await jump(25 * 60_000);
 
-    expect(screen.getByTestId('focus-pomodoro-done')).toBeTruthy();
     expect(store.getState().focus.timer).toMatchObject({
-      kind: 'break',
+      kind: 'shortBreak',
       completedCycles: 1,
       finished: true,
     });
+    // Waiting, not already running: nobody is pushed into a break they did not ask for.
+    expect(screen.getByTestId('focus-pomodoro-next')).toBeTruthy();
   });
 
   it('never calls a finished cycle a failure', async () => {
@@ -165,8 +210,9 @@ describe('running a cycle', () => {
     await press('focus-pomodoro-start');
     await jump(25 * 60_000);
 
-    const shown = screen.getByTestId('focus-pomodoro-done').props.children;
-    expect(String(shown)).not.toMatch(/fail|miss|expire|lost|overdue/i);
+    expect(screen.getByTestId('focus-pomodoro-message')).not.toHaveTextContent(
+      /fail|miss|expire|lost|overdue/i,
+    );
   });
 });
 

@@ -115,69 +115,9 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
 
   return (
     <View className="gap-4" testID="focus-ultra">
-      <View className="items-center rounded-card border border-border bg-surface px-4 py-7">
-        <View className="flex-row items-center gap-2">
-          <Chip size="sm" testID="focus-ultra-reason">
-            {t(FOCUS_REASON_LABEL_KEY[reason])}
-          </Chip>
-          {current.sectionName ? (
-            <Text className="text-[11px] text-text-3">{current.sectionName}</Text>
-          ) : null}
-        </View>
-
-        <View className="mt-5">
-          <BeyouIcon id={found?.iconId ?? ''} size={44} />
-        </View>
-
-        <Text className="mt-3 text-center text-xl font-semibold tracking-[-0.01em] text-text">
-          {found?.name ?? current.itemId}
-        </Text>
-
-        {/* A time only when there is one, and only when the clock is what put this item on
-            screen. Over a LIST item it would invent a schedule. */}
-        <Text className="mt-1.5 font-mono text-[12.5px] text-text-3" testID="focus-ultra-window">
-          {window && reasonIsFromClock(reason) ? window : t('FocusAnyTime')}
-        </Text>
-
-        {found && 'motivationalPhrase' in found && found.motivationalPhrase ? (
-          <Text className="mt-4 text-center text-sm text-text-2">
-            {String(found.motivationalPhrase)}
-          </Text>
-        ) : null}
-
-        <View className="mt-7 w-full flex-row items-center justify-center gap-2.5">
-          <Button
-            text={checked ? t('Undo') : t('Done')}
-            mode={checked ? 'cancel' : 'primary'}
-            size="medium"
-            disabled={pending}
-            icon={<Check size={16} color={checked ? theme.text : theme.onAccent} />}
-            onPress={() => guard(() => check(groupDto<itemGroupToCheck>({}), {
-              wasChecked: checked,
-              name: found?.name,
-              motivationalPhrase:
-                found && 'motivationalPhrase' in found
-                  ? (found.motivationalPhrase as string | undefined)
-                  : undefined,
-            }))}
-            testID="focus-ultra-check"
-          />
-          <Button
-            text={skipped ? t('Undo') : t('Skip')}
-            mode="default"
-            size="medium"
-            disabled={pending}
-            icon={<Ban size={15} color={theme.text2} />}
-            onPress={() => guard(() => skip(groupDto<itemGroupToSkip>({ skip: !skipped })))}
-            testID="focus-ultra-skip"
-          />
-        </View>
-      </View>
-
-      {/* Between the item and the navigation, so starting a cycle and then stepping to another
-          item reads as two separate acts. */}
-      <Pomodoro item={current} date={today} />
-
+      {/* The day's counter and the jump list come FIRST, right under the screen's title and
+          its actions: "which of the day am I on" is the orientation question, and it belongs
+          above the item rather than buried under it. */}
       <View className="flex-row items-center gap-2">
         <IconButton
           label={t('FocusPreviousItem')}
@@ -255,6 +195,70 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
           })}
         </ScrollView>
       ) : null}
+
+      <View className="items-center rounded-card border border-border bg-surface px-4 py-7">
+        <View className="flex-row items-center gap-2">
+          <Chip size="sm" testID="focus-ultra-reason">
+            {t(FOCUS_REASON_LABEL_KEY[reason])}
+          </Chip>
+          {current.sectionName ? (
+            <Text className="text-[11px] text-text-3">{current.sectionName}</Text>
+          ) : null}
+        </View>
+
+        <View className="mt-5">
+          <BeyouIcon id={found?.iconId ?? ''} size={44} />
+        </View>
+
+        <Text className="mt-3 text-center text-xl font-semibold tracking-[-0.01em] text-text">
+          {found?.name ?? current.itemId}
+        </Text>
+
+        {/* A time only when there is one, and only when the clock is what put this item on
+            screen. Over a LIST item it would invent a schedule. */}
+        <Text className="mt-1.5 font-mono text-[12.5px] text-text-3" testID="focus-ultra-window">
+          {window && reasonIsFromClock(reason) ? window : t('FocusAnyTime')}
+        </Text>
+
+        {found && 'motivationalPhrase' in found && found.motivationalPhrase ? (
+          <Text className="mt-4 text-center text-sm text-text-2">
+            {String(found.motivationalPhrase)}
+          </Text>
+        ) : null}
+
+        <View className="mt-7 w-full flex-row items-center justify-center gap-2.5">
+          <Button
+            text={checked ? t('Undo') : t('Done')}
+            mode={checked ? 'cancel' : 'primary'}
+            size="medium"
+            disabled={pending}
+            icon={<Check size={16} color={checked ? theme.text : theme.onAccent} />}
+            onPress={() => guard(() => check(groupDto<itemGroupToCheck>({}), {
+              wasChecked: checked,
+              name: found?.name,
+              motivationalPhrase:
+                found && 'motivationalPhrase' in found
+                  ? (found.motivationalPhrase as string | undefined)
+                  : undefined,
+            }))}
+            testID="focus-ultra-check"
+          />
+          <Button
+            text={skipped ? t('Undo') : t('Skip')}
+            mode="default"
+            size="medium"
+            disabled={pending}
+            icon={<Ban size={15} color={theme.text2} />}
+            onPress={() => guard(() => skip(groupDto<itemGroupToSkip>({ skip: !skipped })))}
+            testID="focus-ultra-skip"
+          />
+        </View>
+      </View>
+
+      {/* Between the item and the navigation, so starting a cycle and then stepping to another
+          item reads as two separate acts. */}
+      <Pomodoro item={current} date={today} />
+
     </View>
   );
 }

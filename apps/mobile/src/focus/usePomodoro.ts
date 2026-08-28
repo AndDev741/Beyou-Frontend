@@ -3,17 +3,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import {
-  BREAK_DEFAULT_MINUTES,
+  CYCLE_LABEL_KEY,
+  cycleSelected,
   formatRemaining,
-  nextCycleKind,
   pomodoroAbandoned,
   pomodoroCycleCompleted,
+  pomodoroNumber,
   pomodoroPaused,
   pomodoroResumed,
+  pomodoroSettingsChanged,
   pomodoroStarted,
   remainingMs,
   timerStatus,
   type CycleKind,
+  type PomodoroSettings,
 } from '@beyou/state';
 import { armCycleEndNotification, cancelCycleEndNotification } from './notifyCycleEnd';
 import type { RootState, AppDispatch } from '../store';
@@ -25,8 +28,8 @@ const KEEP_AWAKE_TAG = 'beyou-focus';
  *
  * The web twin is `apps/web/src/pages/focus/usePomodoro.ts`, per-app for the same reason as
  * `useFocusSelection`: `@beyou/state` holds no React. Everything that decides anything is
- * shared — the reducer, `remainingMs`, `timerStatus`, `formatRemaining`. What differs is the
- * two platform effects, and on native they are the ones that make the timer real:
+ * shared — the reducer, `remainingMs`, `timerStatus`, `formatRemaining`, `nextCycleKind`. What
+ * differs is the two platform effects, and on native they are what make the timer real:
  *
  *  - **keep-awake** while a cycle runs, so the screen does not go dark on somebody watching it.
  *  - **a scheduled local notification**, because a JS interval stops dead when the app is
@@ -41,6 +44,8 @@ export function usePomodoro(groupId: string | null, date: string) {
   const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation();
   const timer = useSelector((s: RootState) => s.focus.timer);
+  const selectedCycle = useSelector((s: RootState) => s.focus.selectedCycle);
+  const settings = useSelector((s: RootState) => s.focus.settings);
   const [now, setNow] = useState(() => Date.now());
 
   const status = timerStatus(timer, now);
@@ -85,7 +90,7 @@ export function usePomodoro(groupId: string | null, date: string) {
       return;
     }
     void armCycleEndNotification(timer.endsAt, {
-      title: timer.kind === 'break' ? t('FocusBreakCycle') : t('FocusWorkCycle'),
+      title: t(CYCLE_LABEL_KEY[timer.kind]),
       message: t('FocusCycleDone'),
     });
     return () => {
@@ -94,7 +99,7 @@ export function usePomodoro(groupId: string | null, date: string) {
   }, [status, timer?.endsAt, timer?.kind, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = useCallback(
-    (minutes: number, kind: CycleKind = 'work') => {
+    (kind: CycleKind, minutes: number) => {
       if (!groupId) return;
       dispatch(pomodoroStarted({ groupId, kind, minutes, now: Date.now(), date }));
       setNow(Date.now());
@@ -107,12 +112,20 @@ export function usePomodoro(groupId: string | null, date: string) {
     status,
     remaining,
     formatted: formatRemaining(remaining),
+    /** The tab showing, which is a different question from what is running. */
+    selectedCycle,
+    settings,
+    /** Pomodoros finished on this item. A break never counts, and neither does a stop. */
     cycles: timer?.completedCycles ?? 0,
-    kind: (timer?.kind ?? 'work') as CycleKind,
-    nextMinutes:
-      timer && nextCycleKind(timer.kind) === 'break'
-        ? BREAK_DEFAULT_MINUTES
-        : (timer?.durationMinutes ?? null),
+    /** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
+    number: pomodoroNumber(timer?.completedCycles ?? 0),
+    /** What is actually running, or the tab's cycle when nothing is. */
+    runningCycle: timer?.kind ?? selectedCycle,
+    selectCycle: useCallback((kind: CycleKind) => dispatch(cycleSelected(kind)), [dispatch]),
+    changeSettings: useCallback(
+      (patch: Partial<PomodoroSettings>) => dispatch(pomodoroSettingsChanged(patch)),
+      [dispatch],
+    ),
     start,
     pause: useCallback(() => dispatch(pomodoroPaused({ now: Date.now() })), [dispatch]),
     /**
