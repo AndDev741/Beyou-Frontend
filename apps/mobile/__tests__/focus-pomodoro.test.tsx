@@ -80,10 +80,9 @@ const press = async (testID: string) => {
 /**
  * Jump the clock, then let ONE interval fire.
  *
- * Not `advanceTimersByTime(ms)`: the hook re-renders every second, so walking 25 minutes fires
- * it 1500 times. On the web side that was expensive enough to starve the sibling vitest workers
- * and time out five unrelated tests. `setSystemTime` moves the clock without firing anything, so
- * one tick afterwards reads the new value, and it is closer to the real case anyway: an app
+ * Not `advanceTimersByTime(ms)`: the hook re-renders every second, so walking 25 minutes fires it
+ * 1500 times for one assertion. `setSystemTime` moves the clock without firing anything, so one
+ * tick afterwards reads the new value, and it is closer to the real case anyway: an app that was
  * suspended and then resumed.
  */
 const jump = async (ms: number) => {

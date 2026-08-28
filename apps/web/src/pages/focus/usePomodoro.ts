@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import type { RootState } from "@beyou/state/rootReducer";
 import {
+    DEFAULT_POMODORO_SETTINGS,
     cycleSelected,
     formatRemaining,
     pomodoroAbandoned,
@@ -34,8 +35,20 @@ export function usePomodoro(groupId: string | null, date: string) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const timer = useSelector((state: RootState) => state.focus.timer);
-    const selectedCycle = useSelector((state: RootState) => state.focus.selectedCycle);
-    const settings = useSelector((state: RootState) => state.focus.settings);
+    /**
+     * Both fall back, and the fallbacks are load-bearing rather than paranoia.
+     *
+     * This slice is persisted, and redux-persist replaces a stored slice wholesale instead of
+     * merging it into the reducer's initial state. A browser holding the shape from before these
+     * two fields existed rehydrates them as `undefined`, and the first render reads them before
+     * any reducer can correct it. The store's migration fixes those browsers properly; this makes
+     * sure the next field added here cannot white-screen the app while somebody forgets to bump
+     * the version.
+     */
+    const selectedCycle =
+        useSelector((state: RootState) => state.focus.selectedCycle) ?? "pomodoro";
+    const settings =
+        useSelector((state: RootState) => state.focus.settings) ?? DEFAULT_POMODORO_SETTINGS;
     const [now, setNow] = useState(() => Date.now());
 
     const status = timerStatus(timer, now);

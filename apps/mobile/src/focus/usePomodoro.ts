@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import {
   CYCLE_LABEL_KEY,
+  DEFAULT_POMODORO_SETTINGS,
   cycleSelected,
   formatRemaining,
   pomodoroAbandoned,
@@ -44,8 +45,14 @@ export function usePomodoro(groupId: string | null, date: string) {
   const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation();
   const timer = useSelector((s: RootState) => s.focus.timer);
-  const selectedCycle = useSelector((s: RootState) => s.focus.selectedCycle);
-  const settings = useSelector((s: RootState) => s.focus.settings);
+  /**
+   * Both fall back, mirroring the web hook. Redux is in-memory here so there is nothing stale to
+   * rehydrate, but the two hooks staying identical is worth more than saving two `??`s: the web
+   * side needs them because a persisted slice is replaced wholesale rather than merged, and a
+   * browser holding the older shape reads these as `undefined` on the first render.
+   */
+  const selectedCycle = useSelector((s: RootState) => s.focus.selectedCycle) ?? 'pomodoro';
+  const settings = useSelector((s: RootState) => s.focus.settings) ?? DEFAULT_POMODORO_SETTINGS;
   const [now, setNow] = useState(() => Date.now());
 
   const status = timerStatus(timer, now);

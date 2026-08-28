@@ -35,11 +35,14 @@ afterEach(() => {
  * Jump the clock, then let ONE interval fire.
  *
  * Not `advanceTimersByTimeAsync(ms)`: the hook re-renders on a one-second interval, so walking
- * 25 minutes fires it 1500 times. That was expensive enough to starve the sibling vitest workers
- * when turbo runs every workspace at once, and five UNRELATED tests in categories, goals and
- * telemetry started timing out at 5000ms. Proven by hiding this file and watching the full run go
- * back to green. `setSystemTime` moves the clock without firing anything, so one tick afterwards
- * reads the new value, and it models a suspended tab better anyway.
+ * 25 minutes fires it 1500 times and re-renders 1500 times, for one assertion. `setSystemTime`
+ * moves the clock without firing anything, so a single tick afterwards reads the new value — and
+ * it models the real case better anyway, which is a tab that was suspended and woke up.
+ *
+ * (An earlier version of this comment blamed those 1500 renders for timing out unrelated tests in
+ * other files. That was a misattribution: the machine was running at load 30 with a browser
+ * eating ten cores, and the failures followed the load rather than this file. The helper is still
+ * the right shape; the causal claim was not.)
  */
 const jump = async (ms: number) => {
     // The one second the tick itself burns is taken off the jump, so `jump(60_000)` really is a
@@ -250,5 +253,54 @@ describe("the tab says what is happening", () => {
 
         await userEvent.click(screen.getByTestId("focus-pomodoro-stop"));
         expect(document.title).toBe(original);
+    });
+});
+
+describe("a persisted state from before these fields existed", () => {
+    /**
+     * The crash this reproduces, reported from a real browser:
+     *
+     *   Uncaught TypeError: Cannot read properties of undefined (reading 'shortBreak')
+     *       at cycleMinutes (pomodoro.ts)
+     *       at previewFor (Pomodoro.tsx)
+     *
+     * redux-persist replaces a stored slice WHOLESALE rather than merging it into the reducer's
+     * initial state, so a browser that had opened the Focus Mode before `settings` and
+     * `selectedCycle` existed rehydrates them as undefined, and the first render reads them
+     * before any reducer can correct it. Restarting the dev stack does not help: the stale shape
+     * is in localStorage.
+     *
+     * Neither existing layer could have caught it. The e2e suite always starts from a fresh
+     * browser context, and every unit test built its state from `rootReducer(undefined)`, which
+     * by definition has the current shape. This one hands in the OLD shape on purpose.
+     */
+    const staleStore = () =>
+        configureStore({
+            reducer: rootReducer,
+            preloadedState: {
+                ...baseState,
+                focus: {
+                    mode: "ultrafoco",
+                    selectedIndex: 0,
+                    manuallySelected: false,
+                    timer: null,
+                } as never,
+            },
+        });
+
+    test("renders instead of white-screening, and falls back to the defaults", () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
+
+        expect(screen.getByTestId("focus-pomodoro")).toBeInTheDocument();
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("25:00");
+        expect(screen.getByTestId("focus-cycle-tab-pomodoro")).toHaveAttribute("aria-pressed", "true");
+    });
+
+    test("the break tabs work too, rather than reading a length off nothing", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
+
+        await userEvent.click(screen.getByTestId("focus-cycle-tab-longBreak"));
+
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("15:00");
     });
 });
