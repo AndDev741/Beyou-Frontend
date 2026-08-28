@@ -1215,5 +1215,13 @@
     "FocusLongBreakEvery": "Pausa longa a cada",
     "FocusLongBreakEveryUnit": "pomodoros",
     "FocusStartNext": "Começar",
-    "FocusUseItemWindow": "Este dura {{minutes}} min · usar"
+    "FocusUseItemWindow": "Este dura {{minutes}} min · usar",
+    "FocusTasks": "Tarefas",
+    "FocusAddTask": "Adicionar tarefa",
+    "FocusTaskPlaceholder": "Algo pequeno",
+    "FocusKeepTask": "Guardar para a próxima",
+    "FocusStopKeepingTask": "Deixar de guardar",
+    "FocusRemoveTask": "Remover",
+    "FocusTasksEmpty": "Ainda nada aqui. Coisas pequenas para as pausas.",
+    "FocusTasksFull": "A lista já tem tudo o que cabe."
 }

@@ -56,6 +56,11 @@ export {
     focusExited,
     cycleSelected,
     pomodoroSettingsChanged,
+    microTasksHydrated,
+    microTaskAdded,
+    microTaskToggled,
+    microTaskPinToggled,
+    microTaskRemoved,
     pomodoroStarted,
     pomodoroPaused,
     pomodoroResumed,
@@ -66,6 +71,15 @@ export { getFocusItems, isFocusItemChecked, isFocusItemSkipped, isFocusItemOpen 
 export type { FocusItem } from './focus/focusItems';
 export { resolveFocusStart, minutesOfDay } from './focus/resolveFocusStart';
 export { FOCUS_REASON_LABEL_KEY, reasonIsFromClock } from './focus/focusLabels';
+export {
+    isMicroTaskDone,
+    normalizeMicroTaskName,
+    persistableMicroTasks,
+    suggestMicroTask,
+    MAX_MICRO_TASKS,
+    MICRO_TASK_MAX_LENGTH,
+} from './focus/microTasks';
+export type { MicroTask } from './focus/microTasks';
 export {
     cycleMinutes,
     itemWindowMinutes,
