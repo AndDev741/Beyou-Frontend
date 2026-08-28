@@ -15,6 +15,7 @@ import {
     type FocusItem,
 } from "@beyou/state";
 import { usePomodoro } from "./usePomodoro";
+import MicroTasks from "./MicroTasks";
 
 /**
  * The timer: three cycles, one panel.
@@ -78,8 +79,8 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
     const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, settings));
 
     return (
-        <div className="flex flex-col gap-3" data-testid="focus-pomodoro">
-            <div className="rounded-card bg-accent px-4 py-6 text-on-accent lg:px-6 lg:py-7">
+        <div className="flex flex-col gap-2" data-testid="focus-pomodoro">
+            <div className="rounded-card bg-accent px-4 py-4 text-on-accent lg:px-6 lg:py-5">
                 <div className="flex items-center gap-1">
                     {/* The tabs stay live during a cycle: looking at the Long Break tab while a
                         pomodoro counts down is reasonable, and the clock keeps showing the
@@ -121,13 +122,13 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
                 </div>
 
                 <p
-                    className="mt-5 text-center font-mono text-[64px] font-bold leading-none tabular-nums lg:text-[86px]"
+                    className="mt-3 text-center font-mono text-[52px] font-bold leading-none tabular-nums lg:text-[64px]"
                     data-testid="focus-pomodoro-remaining"
                 >
                     {shown}
                 </p>
 
-                <div className="mt-6 flex items-center justify-center gap-2.5">
+                <div className="mt-4 flex items-center justify-center gap-2.5">
                     {status === "running" ? (
                         <PanelButton onClick={pause} testId="focus-pomodoro-pause">
                             <Pause size={16} aria-hidden="true" />
@@ -168,7 +169,7 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
 
                 {settingsOpen && (
                     <div
-                        className="mt-6 border-t border-on-accent/20 pt-4"
+                        className="mt-4 border-t border-on-accent/20 pt-3"
                         data-testid="focus-pomodoro-settings"
                     >
                         <div className="grid grid-cols-3 gap-2.5">
@@ -231,11 +232,8 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
                 </p>
             </div>
 
-            {/*
-             * F4 slots in here: the break's micro-tasks, under the message exactly as in the
-             * reference design. Deliberately nothing is rendered yet rather than an inert
-             * "Add task" control, because a button that does nothing is worse than an honest gap.
-             */}
+            {/* The break's micro-tasks, under the message exactly as in the reference design. */}
+            <MicroTasks date={date} />
         </div>
     );
 }

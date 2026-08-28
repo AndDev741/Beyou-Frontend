@@ -20,7 +20,7 @@
  * field.** Dropping the slice is usually the right migration: the reducer then supplies its own
  * initial state, which is by definition the current shape.
  */
-export const PERSIST_VERSION = 1;
+export const PERSIST_VERSION = 2;
 
 export const migrations = {
     // v1: the focus slice gained `settings` and `selectedCycle` (the three-cycle pomodoro).
@@ -28,4 +28,9 @@ export const migrations = {
     // selection and the mode are per visit, and a timer from before the rework carries a cycle
     // kind the new code does not know.
     1: (state: Record<string, unknown>) => ({ ...state, focus: undefined }),
+    // v2: the focus slice gained `microTasks` and `microTaskSeq` (the break's micro-tasks).
+    // Dropped again for the same reason, and this repeat is the point of the rule above: every
+    // field added to a persisted slice needs a bump, or the browsers holding the previous shape
+    // read the new field as undefined on their first render.
+    2: (state: Record<string, unknown>) => ({ ...state, focus: undefined }),
 };

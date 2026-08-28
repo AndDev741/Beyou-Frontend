@@ -71,8 +71,8 @@ export default function Focus() {
             aria-label={t("FocusTitle")}
             data-testid="focus-screen"
         >
-            <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-3 py-4 lg:px-6 lg:py-6">
-                <header className="flex items-center gap-3 pb-4">
+            <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-3 py-3 lg:px-6 lg:py-4">
+                <header className="flex items-center gap-3 pb-2.5">
                     <h1 className="text-sm font-semibold uppercase tracking-[0.08em] text-text-3">
                         {t("FocusTitle")}
                     </h1>

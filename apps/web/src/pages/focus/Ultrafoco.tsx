@@ -108,7 +108,7 @@ export default function Ultrafoco({ routine }: { routine: NonNullable<RootState[
     };
 
     return (
-        <div className="flex flex-col gap-4" data-testid="focus-ultra">
+        <div className="flex flex-col gap-2.5" data-testid="focus-ultra">
             {/* The day's counter and the jump list come FIRST, right under the screen's
                 title and its actions: "which of the day am I on" is the orientation
                 question, and it belongs above the item rather than buried under it. */}
@@ -195,7 +195,7 @@ export default function Ultrafoco({ routine }: { routine: NonNullable<RootState[
                 </ul>
             )}
 
-            <div className="rounded-card border border-border bg-surface px-4 py-6 text-center lg:py-10">
+            <div className="rounded-card border border-border bg-surface px-4 py-4 text-center lg:py-5">
                 <div className="flex items-center justify-center gap-2">
                     <span
                         className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-2"
@@ -208,27 +208,27 @@ export default function Ultrafoco({ routine }: { routine: NonNullable<RootState[
                     )}
                 </div>
 
-                <div className="mt-5 flex justify-center">
+                <div className="mt-3 flex justify-center">
                     <BeyouIcon id={found?.iconId ?? ""} size={44} />
                 </div>
 
-                <h2 className="mt-3 text-xl font-semibold tracking-[-0.01em] text-text lg:text-2xl">
+                <h2 className="mt-2 text-xl font-semibold tracking-[-0.01em] text-text lg:text-2xl">
                     {found?.name ?? current.itemId}
                 </h2>
 
                 {/* A time is shown only when there is one, and only when the clock is what put
                     this item on screen. Over a LIST item it would invent a schedule. */}
-                <p className="mt-1.5 font-mono text-[12.5px] text-text-3" data-testid="focus-ultra-window">
+                <p className="mt-1 font-mono text-[12.5px] text-text-3" data-testid="focus-ultra-window">
                     {window && reasonIsFromClock(reason) ? window : t("FocusAnyTime")}
                 </p>
 
                 {found && "motivationalPhrase" in found && found.motivationalPhrase ? (
-                    <p className="mx-auto mt-4 max-w-md text-sm text-text-2">
+                    <p className="mx-auto mt-2.5 max-w-md text-sm text-text-2">
                         {String(found.motivationalPhrase)}
                     </p>
                 ) : null}
 
-                <div className="mt-7 flex items-center justify-center gap-2.5">
+                <div className="mt-4 flex items-center justify-center gap-2.5">
                     <button
                         type="button"
                         disabled={pending}

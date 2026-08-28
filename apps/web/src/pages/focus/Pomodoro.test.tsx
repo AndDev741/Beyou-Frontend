@@ -320,12 +320,19 @@ describe("a persisted state from before these fields existed", () => {
      * Neither existing layer could have caught it. The e2e suite always starts from a fresh
      * browser context, and every unit test built its state from `rootReducer(undefined)`, which
      * by definition has the current shape. This one hands in the OLD shape on purpose.
+     *
+     * It has since earned its keep twice: it caught the same omission again the moment the break's
+     * micro-tasks landed, both in the component that read `microTasks` and in the reducer that
+     * filtered it. Every field added to this slice needs a persist-version bump AND a tolerant
+     * read; this test is what notices when one is missing.
      */
     const staleStore = () =>
         configureStore({
             reducer: rootReducer,
             preloadedState: {
                 ...baseState,
+                // Exactly the fields the slice had before the three-cycle rework: no `settings`,
+                // no `selectedCycle`, no `microTasks`, no `microTaskSeq`.
                 focus: {
                     mode: "ultrafoco",
                     selectedIndex: 0,
@@ -341,6 +348,18 @@ describe("a persisted state from before these fields existed", () => {
         expect(screen.getByTestId("focus-pomodoro")).toBeInTheDocument();
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("25:00");
         expect(screen.getByTestId("focus-cycle-tab-pomodoro")).toHaveAttribute("aria-pressed", "true");
+    });
+
+    test("the micro-task list renders and is usable, rather than filtering undefined", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
+
+        expect(screen.getByTestId("focus-micro-tasks")).toBeInTheDocument();
+
+        await userEvent.click(screen.getByTestId("focus-micro-task-add"));
+        await userEvent.type(screen.getByTestId("focus-micro-task-input"), "Stretch");
+        await userEvent.keyboard("{Enter}");
+
+        expect(screen.getByText("Stretch")).toBeInTheDocument();
     });
 
     test("the break tabs work too, rather than reading a length off nothing", async () => {
