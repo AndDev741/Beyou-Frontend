@@ -4,12 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { List, Target, X } from 'lucide-react-native';
+import { List, Moon, Target, X } from 'lucide-react-native';
 import { focusEntered, focusExited, focusModeChanged } from '@beyou/state';
 import { useBeyouTheme } from '../src/theme/ThemeProvider';
 import { useFocusRoutine } from '../src/focus/useFocusRoutine';
 import RoutineDay from '../src/ui/dashboard/RoutineDay';
 import Ultrafoco from '../src/focus/Ultrafoco';
+import Descanso from '../src/focus/Descanso';
 import IconButton from '../src/ui/IconButton';
 import type { RootState, AppDispatch } from '../src/store';
 
@@ -38,6 +39,7 @@ export default function FocusScreen() {
   const mode = useSelector((s: RootState) => s.focus.mode);
   const { loading, error } = useFocusRoutine();
   const isUltra = mode === 'ultrafoco';
+  const isResting = mode === 'descanso';
 
   const leave = useCallback(() => {
     // A deep link or a cold start straight onto /focus has nothing beneath it in the stack,
@@ -65,9 +67,9 @@ export default function FocusScreen() {
           {t('FocusTitle')}
         </Text>
 
-        {/* The two states of the same screen, one control. No route change: the mode lives in
-            the store precisely so switching keeps the selection. */}
-        {routine ? (
+        {/* Three states of the same screen. No route change: the mode lives in the store
+            precisely so switching keeps the selection. */}
+        {routine && !isResting ? (
           <Pressable
             accessibilityRole="button"
             onPress={() => dispatch(focusModeChanged(isUltra ? 'fullscreen' : 'ultrafoco'))}
@@ -84,6 +86,25 @@ export default function FocusScreen() {
             </Text>
           </Pressable>
         ) : null}
+
+        {/* Offered with or without a routine, on the user's instruction: a screen to rest is worth
+            having on a day with nothing scheduled most of all. */}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: isResting }}
+          onPress={() => dispatch(focusModeChanged(isResting ? 'fullscreen' : 'descanso'))}
+          className={`h-9 flex-row items-center gap-2 rounded-control border border-border px-3 active:bg-surface-2 ${
+            isResting ? 'bg-surface-2' : ''
+          } ${routine && !isResting ? '' : 'ml-auto'}`}
+          testID="focus-rest-toggle"
+        >
+          <Moon size={15} color={isResting ? theme.text : theme.text2} />
+          <Text
+            className={`text-[12.5px] font-medium ${isResting ? 'text-text' : 'text-text-2'}`}
+          >
+            {isResting ? t('FocusLeaveRest') : t('FocusRest')}
+          </Text>
+        </Pressable>
 
         <IconButton
           label={t('FocusExit')}
@@ -117,11 +138,17 @@ export default function FocusScreen() {
             </View>
           ) : null}
 
-          {routine || !error
-            ? isUltra && routine
-              ? <Ultrafoco routine={routine} />
-              : <RoutineDay />
-            : null}
+          {/* Rest comes first and needs no routine at all: it is the one state of this screen
+              that has nothing to do with today's list. */}
+          {isResting ? (
+            <Descanso />
+          ) : routine || !error ? (
+            isUltra && routine ? (
+              <Ultrafoco routine={routine} />
+            ) : (
+              <RoutineDay />
+            )
+          ) : null}
         </ScrollView>
       )}
     </SafeAreaView>
