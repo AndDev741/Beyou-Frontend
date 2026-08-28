@@ -60,7 +60,7 @@ export default function FocusScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg" testID="focus-screen">
-      <View className="flex-row items-center gap-3 px-3 pb-2 pt-1">
+      <View className="flex-row items-center gap-3 px-3 pb-1.5 pt-0.5">
         <Text className="text-[12.5px] font-semibold uppercase tracking-[1px] text-text-3">
           {t('FocusTitle')}
         </Text>
@@ -102,7 +102,7 @@ export default function FocusScreen() {
       ) : (
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 32, gap: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24, gap: 10 }}
         >
           {/* Said inline rather than as a toast: the whole screen is what failed to load, and
               without it `RoutineDay` with no routine says "nothing scheduled today", which is

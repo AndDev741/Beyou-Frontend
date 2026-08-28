@@ -114,7 +114,7 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
   };
 
   return (
-    <View className="gap-4" testID="focus-ultra">
+    <View className="gap-2.5" testID="focus-ultra">
       {/* The day's counter and the jump list come FIRST, right under the screen's title and
           its actions: "which of the day am I on" is the orientation question, and it belongs
           above the item rather than buried under it. */}
@@ -196,7 +196,7 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
         </ScrollView>
       ) : null}
 
-      <View className="items-center rounded-card border border-border bg-surface px-4 py-7">
+      <View className="items-center rounded-card border border-border bg-surface px-4 py-4">
         <View className="flex-row items-center gap-2">
           <Chip size="sm" testID="focus-ultra-reason">
             {t(FOCUS_REASON_LABEL_KEY[reason])}
@@ -206,27 +206,27 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
           ) : null}
         </View>
 
-        <View className="mt-5">
+        <View className="mt-3">
           <BeyouIcon id={found?.iconId ?? ''} size={44} />
         </View>
 
-        <Text className="mt-3 text-center text-xl font-semibold tracking-[-0.01em] text-text">
+        <Text className="mt-2 text-center text-xl font-semibold tracking-[-0.01em] text-text">
           {found?.name ?? current.itemId}
         </Text>
 
         {/* A time only when there is one, and only when the clock is what put this item on
             screen. Over a LIST item it would invent a schedule. */}
-        <Text className="mt-1.5 font-mono text-[12.5px] text-text-3" testID="focus-ultra-window">
+        <Text className="mt-1 font-mono text-[12.5px] text-text-3" testID="focus-ultra-window">
           {window && reasonIsFromClock(reason) ? window : t('FocusAnyTime')}
         </Text>
 
         {found && 'motivationalPhrase' in found && found.motivationalPhrase ? (
-          <Text className="mt-4 text-center text-sm text-text-2">
+          <Text className="mt-2.5 text-center text-sm text-text-2">
             {String(found.motivationalPhrase)}
           </Text>
         ) : null}
 
-        <View className="mt-7 w-full flex-row items-center justify-center gap-2.5">
+        <View className="mt-4 w-full flex-row items-center justify-center gap-2.5">
           <Button
             text={checked ? t('Undo') : t('Done')}
             mode={checked ? 'cancel' : 'primary'}

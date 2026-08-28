@@ -13,6 +13,7 @@ import {
 } from '@beyou/state';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 import { usePomodoro } from './usePomodoro';
+import MicroTasks from './MicroTasks';
 
 /**
  * The timer: three cycles, one panel. Native twin of the web component.
@@ -72,8 +73,8 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
   const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, settings));
 
   return (
-    <View className="gap-3" testID="focus-pomodoro">
-      <View className="rounded-card bg-accent px-4 py-6">
+    <View className="gap-2" testID="focus-pomodoro">
+      <View className="rounded-card bg-accent px-4 py-4">
         <View className="flex-row items-center gap-1">
           {/* The tabs stay live during a cycle: looking at the Long Break tab while a pomodoro
               counts down is reasonable, and the clock keeps showing the running cycle. */}
@@ -116,13 +117,13 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
         </View>
 
         <Text
-          className="mt-5 text-center font-mono text-[64px] font-bold text-on-accent"
+          className="mt-3 text-center font-mono text-[52px] font-bold text-on-accent"
           testID="focus-pomodoro-remaining"
         >
           {shown}
         </Text>
 
-        <View className="mt-6 flex-row items-center justify-center gap-2.5">
+        <View className="mt-4 flex-row items-center justify-center gap-2.5">
           {status === 'running' ? (
             <PanelButton
               label={t('FocusPause')}
@@ -170,7 +171,7 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
 
         {settingsOpen ? (
           <View
-            className="mt-6 border-t border-on-accent/20 pt-4"
+            className="mt-4 border-t border-on-accent/20 pt-3"
             testID="focus-pomodoro-settings"
           >
             <View className="flex-row gap-2.5">
@@ -234,11 +235,8 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
         </Text>
       </View>
 
-      {/*
-       * F4 slots in here: the break's micro-tasks, under the message exactly as in the reference
-       * design. Deliberately nothing is rendered yet rather than an inert "Add task" control,
-       * because a button that does nothing is worse than an honest gap.
-       */}
+      {/* The break's micro-tasks, under the message exactly as in the reference design. */}
+      <MicroTasks date={date} />
     </View>
   );
 }
