@@ -22,6 +22,7 @@ jest.mock('@beyou/api/focus/focusApi', () => ({
   toggleFocusMicroTask: jest.fn(),
   pinFocusMicroTask: jest.fn(),
   deleteFocusMicroTask: jest.fn(),
+  reorderFocusMicroTasks: jest.fn(),
   recordFocusCycle: jest.fn(),
   getFocusDay: jest.fn(),
 }));
@@ -34,6 +35,7 @@ import {
   deleteFocusMicroTask,
   listFocusMicroTasks,
   pinFocusMicroTask,
+  reorderFocusMicroTasks,
   toggleFocusMicroTask,
 } from '@beyou/api/focus/focusApi';
 import '../src/i18n';
@@ -166,5 +168,48 @@ describe('mutations go to the server', () => {
     await waitFor(() => expect(addFocusMicroTask).toHaveBeenCalled());
     expect(screen.queryByText('Ghost')).toBeNull();
     expect(store.getState().focus.microTasks['item-a'] ?? []).toEqual([]);
+  });
+});
+
+describe('ordering', () => {
+  const two = [row({ id: '1', name: 'First' }), row({ id: '2', name: 'Second' })];
+  const namesInOrder = () =>
+    screen
+      .getAllByTestId(/^focus-micro-task-(1|2)$/)
+      .map((node) => node.props.testID as string);
+
+  it('moves a row down and sends the whole list in its new order', async () => {
+    // Up/down rather than a drag, matching the routine builder on this platform. The REQUEST is
+    // identical to the web's drag, which is what makes one backend rule serve both.
+    (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: two });
+    (reorderFocusMicroTasks as jest.Mock).mockResolvedValue({
+      success: [row({ id: '2', name: 'Second' }), row({ id: '1', name: 'First' })],
+    });
+    await renderTasks();
+
+    await press('focus-micro-task-down-1');
+
+    expect(reorderFocusMicroTasks).toHaveBeenCalledWith('item-a', ['2', '1'], expect.anything());
+    await waitFor(() => expect(namesInOrder()[0]).toBe('focus-micro-task-2'));
+  });
+
+  it('offers no way up from the first row, and no way down from the last', async () => {
+    (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: two });
+    await renderTasks();
+
+    expect(screen.queryByTestId('focus-micro-task-up-1')).toBeNull();
+    expect(screen.queryByTestId('focus-micro-task-down-2')).toBeNull();
+    expect(screen.getByTestId('focus-micro-task-down-1')).toBeTruthy();
+    expect(screen.getByTestId('focus-micro-task-up-2')).toBeTruthy();
+  });
+
+  it('puts the old order back when the server refuses', async () => {
+    (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: two });
+    (reorderFocusMicroTasks as jest.Mock).mockResolvedValue({ error: { message: 'nope' } });
+    await renderTasks();
+
+    await press('focus-micro-task-down-1');
+
+    await waitFor(() => expect(namesInOrder()[0]).toBe('focus-micro-task-1'));
   });
 });

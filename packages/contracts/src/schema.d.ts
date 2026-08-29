@@ -1088,6 +1088,22 @@ export interface paths {
         patch: operations["pinMicroTask"];
         trace?: never;
     };
+    "/focus/micro-tasks/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["reorderMicroTasks"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2039,6 +2055,11 @@ export interface components {
             itemGroupId: string;
             name: string;
             pinned?: boolean;
+        };
+        ReorderMicroTasksRequestDTO: {
+            /** Format: uuid */
+            itemGroupId: string;
+            ids: string[];
         };
     };
     responses: never;
@@ -4090,6 +4111,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["FocusMicroTaskResponseDTO"];
+                };
+            };
+        };
+    };
+    reorderMicroTasks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderMicroTasksRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusMicroTaskResponseDTO"][];
                 };
             };
         };

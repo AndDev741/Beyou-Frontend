@@ -12,15 +12,20 @@ vi.mock("@beyou/api/focus/focusApi", () => ({
     toggleFocusMicroTask: vi.fn(),
     pinFocusMicroTask: vi.fn(),
     deleteFocusMicroTask: vi.fn(),
+    reorderFocusMicroTasks: vi.fn(),
     recordFocusCycle: vi.fn(),
     getFocusDay: vi.fn(),
 }));
+
+// See `src/test/dndStub.tsx` for why the library is stubbed rather than driven.
+vi.mock("react-beautiful-dnd", async () => (await import("../../test/dndStub")).dndStub);
 
 import {
     addFocusMicroTask,
     deleteFocusMicroTask,
     listFocusMicroTasks,
     pinFocusMicroTask,
+    reorderFocusMicroTasks,
     toggleFocusMicroTask,
 } from "@beyou/api/focus/focusApi";
 import MicroTasks from "./MicroTasks";
@@ -140,5 +145,46 @@ describe("mutations go to the server, and the response is what lands", () => {
         await waitFor(() => expect(addFocusMicroTask).toHaveBeenCalled());
         expect(screen.queryByText("Ghost")).not.toBeInTheDocument();
         expect(store.getState().focus.microTasks["item-a"] ?? []).toEqual([]);
+    });
+});
+
+describe("ordering", () => {
+    const two = [row({ id: "1", name: "First" }), row({ id: "2", name: "Second" })];
+    const names = () =>
+        screen.getAllByTestId(/^focus-micro-task-(1|2)$/).map((node) => node.textContent ?? "");
+
+    test("every row offers a labelled handle to drag by", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: two });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
+
+        expect(await screen.findByTestId("focus-micro-task-handle-1")).toBeInTheDocument();
+        // Named after the row it moves, so the control says what it does out of context.
+        expect(screen.getByTestId("focus-micro-task-handle-2")).toHaveAttribute("aria-label", "ReorderItem");
+    });
+
+    test("dropping sends the whole list in its new order and keeps the server's answer", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: two });
+        const swapped = [row({ id: "2", name: "Second" }), row({ id: "1", name: "First" })];
+        vi.mocked(reorderFocusMicroTasks).mockResolvedValue({ success: swapped });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
+        await screen.findByTestId("focus-micro-task-1");
+
+        await userEvent.click(screen.getByTestId("drop-second-onto-first"));
+
+        // The whole list, not one move: the client already holds what it is showing.
+        expect(reorderFocusMicroTasks).toHaveBeenCalledWith("item-a", ["2", "1"], expect.anything());
+        await waitFor(() => expect(names()[0]).toContain("Second"));
+    });
+
+    test("a refused reorder puts the old order back", async () => {
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: two });
+        vi.mocked(reorderFocusMicroTasks).mockResolvedValue({ error: { message: "nope" } });
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
+        await screen.findByTestId("focus-micro-task-1");
+
+        await userEvent.click(screen.getByTestId("drop-second-onto-first"));
+
+        // The optimistic move is undone rather than left on screen looking saved.
+        await waitFor(() => expect(names()[0]).toContain("First"));
     });
 });

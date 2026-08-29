@@ -6,6 +6,10 @@ import rootReducer from "@beyou/state/rootReducer";
 import type { FocusItem } from "@beyou/state";
 import { renderWithProviders } from "../../test/test-utils";
 
+// MicroTasks renders inside this panel, and this suite runs on a frozen clock. The real library
+// schedules through rAF and never settles here. See `src/test/dndStub.tsx`.
+vi.mock("react-beautiful-dnd", async () => (await import("../../test/dndStub")).dndStub);
+
 vi.mock("@beyou/api/focus/focusApi", () => ({
     listFocusMicroTasks: vi.fn().mockResolvedValue({ success: [] }),
     addFocusMicroTask: vi.fn(),
@@ -408,6 +412,12 @@ describe("a persisted state from before these fields existed", () => {
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
 
         expect(screen.getByTestId("focus-micro-tasks")).toBeInTheDocument();
+        // The list is wrapped in StrictModeDroppable, which renders null until a rAF fires. This
+        // suite runs on a frozen clock, so nothing ever fires unless a frame is handed to it, and
+        // the rows would never appear. Real browsers pay one frame for this and nobody notices.
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(20);
+        });
 
         await userEvent.click(screen.getByTestId("focus-micro-task-add"));
         await userEvent.type(screen.getByTestId("focus-micro-task-input"), "Stretch");

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { Pin, PinOff, Plus, X } from "lucide-react";
+import { GripVertical, Pin, PinOff, Plus, X } from "lucide-react";
+import { DragDropContext, Draggable, type DropResult } from "react-beautiful-dnd";
 import type { RootState } from "@beyou/state/rootReducer";
 import {
     MICRO_TASK_MAX_LENGTH,
@@ -16,10 +17,12 @@ import {
     deleteFocusMicroTask,
     listFocusMicroTasks,
     pinFocusMicroTask,
+    reorderFocusMicroTasks,
     toggleFocusMicroTask,
 } from "@beyou/api/focus/focusApi";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { notify } from "../../lib/notify";
+import Droppable from "../../components/utils/StrictModeDroppable";
 
 /**
  * The small things done alongside ONE routine item, under the timer where the reference puts them.
@@ -96,66 +99,120 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
         else dispatch(microTaskRemoved({ itemGroupId, id }));
     };
 
+    /**
+     * Dropped into a new position.
+     *
+     * The one optimistic write in this component, and the exception is the point: a row that waits
+     * for a round trip before following the cursor reads as a broken drag, while a checkbox that
+     * waits reads as a checkbox. The server's answer replaces the guess either way, and a refusal
+     * puts the old order straight back.
+     */
+    const handleDragEnd = async (result: DropResult) => {
+        if (!result.destination || result.destination.index === result.source.index) return;
+
+        const previous = tasks;
+        const next = Array.from(tasks);
+        const [moved] = next.splice(result.source.index, 1);
+        next.splice(result.destination.index, 0, moved);
+        dispatch(microTasksLoaded({ itemGroupId, tasks: next }));
+
+        const response = await reorderFocusMicroTasks(itemGroupId, next.map((task) => task.id), t);
+        if (response.success) {
+            dispatch(microTasksLoaded({ itemGroupId, tasks: response.success }));
+        } else if (response.error) {
+            dispatch(microTasksLoaded({ itemGroupId, tasks: previous }));
+            notify.error(getFriendlyErrorMessage(t, response.error));
+        }
+    };
+
     return (
         <div data-testid="focus-micro-tasks">
             <h3 className="text-[12.5px] font-semibold uppercase tracking-[0.06em] text-text-3">
                 {t("FocusTasks")}
             </h3>
 
-            <ul className="mt-1.5 flex flex-col gap-1">
-                {tasks.map((task) => {
-                    const done = isMicroTaskDone(task);
-                    return (
-                        <li
-                            key={task.id}
-                            className="flex items-center gap-2 rounded-control border border-border bg-surface px-2.5 py-1.5"
-                            data-testid={`focus-micro-task-${task.id}`}
+            {/* Dragged into order. The handle is its own control rather than the whole row: the
+                row already carries a checkbox and two buttons, and a row that drags from anywhere
+                makes ticking one off a coin toss on a touchscreen. */}
+            <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="focus-micro-tasks">
+                    {(provided) => (
+                        <ul
+                            className="mt-1.5 flex flex-col gap-1"
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
                         >
-                            <label className="flex min-w-0 flex-1 items-center gap-2.5">
-                                <input
-                                    type="checkbox"
-                                    checked={done}
-                                    onChange={() => toggle(task.id)}
-                                    className="h-4 w-4 shrink-0 accent-accent"
-                                    data-testid={`focus-micro-task-check-${task.id}`}
-                                />
-                                <span
-                                    className={`min-w-0 flex-1 truncate text-[13px] ${
-                                        done ? "text-text-3 line-through" : "text-text"
-                                    }`}
-                                >
-                                    {task.name}
-                                </span>
-                            </label>
+                            {tasks.map((task, index) => {
+                                const done = isMicroTaskDone(task);
+                                return (
+                                    <Draggable key={task.id} draggableId={task.id} index={index}>
+                                        {(dragProvided) => (
+                                            <li
+                                                ref={dragProvided.innerRef}
+                                                {...dragProvided.draggableProps}
+                                                className="flex items-center gap-2 rounded-control border border-border bg-surface px-2.5 py-1.5"
+                                                data-testid={`focus-micro-task-${task.id}`}
+                                            >
+                                                <span
+                                                    {...(dragProvided.dragHandleProps ?? {})}
+                                                    aria-label={t("ReorderItem", { name: task.name })}
+                                                    className="shrink-0 cursor-grab text-text-3"
+                                                    data-testid={`focus-micro-task-handle-${task.id}`}
+                                                >
+                                                    <GripVertical size={14} aria-hidden="true" />
+                                                </span>
 
-                            <button
-                                type="button"
-                                onClick={() => pin(task.id, !task.pinned)}
-                                aria-label={task.pinned ? t("FocusStopKeepingTask") : t("FocusKeepTask")}
-                                title={task.pinned ? t("FocusKeepTaskHint") : t("FocusKeepTask")}
-                                aria-pressed={task.pinned}
-                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-control transition-colors hover:bg-surface-2 ${
-                                    task.pinned ? "text-accent" : "text-text-3"
-                                }`}
-                                data-testid={`focus-micro-task-pin-${task.id}`}
-                            >
-                                {task.pinned ? <Pin size={14} aria-hidden="true" /> : <PinOff size={14} aria-hidden="true" />}
-                            </button>
+                                                <label className="flex min-w-0 flex-1 items-center gap-2.5">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={done}
+                                                        onChange={() => toggle(task.id)}
+                                                        className="h-4 w-4 shrink-0 accent-accent"
+                                                        data-testid={`focus-micro-task-check-${task.id}`}
+                                                    />
+                                                    <span
+                                                        className={`min-w-0 flex-1 truncate text-[13px] ${
+                                                            done ? "text-text-3 line-through" : "text-text"
+                                                        }`}
+                                                    >
+                                                        {task.name}
+                                                    </span>
+                                                </label>
 
-                            <button
-                                type="button"
-                                onClick={() => remove(task.id)}
-                                aria-label={t("FocusRemoveTask")}
-                                title={t("FocusRemoveTask")}
-                                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-text-3 transition-colors hover:bg-surface-2 hover:text-text"
-                                data-testid={`focus-micro-task-remove-${task.id}`}
-                            >
-                                <X size={14} aria-hidden="true" />
-                            </button>
-                        </li>
-                    );
-                })}
-            </ul>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => pin(task.id, !task.pinned)}
+                                                    aria-label={task.pinned ? t("FocusStopKeepingTask") : t("FocusKeepTask")}
+                                                    title={task.pinned ? t("FocusKeepTaskHint") : t("FocusKeepTask")}
+                                                    aria-pressed={task.pinned}
+                                                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-control transition-colors hover:bg-surface-2 ${
+                                                        task.pinned ? "text-accent" : "text-text-3"
+                                                    }`}
+                                                    data-testid={`focus-micro-task-pin-${task.id}`}
+                                                >
+                                                    {task.pinned ? <Pin size={14} aria-hidden="true" /> : <PinOff size={14} aria-hidden="true" />}
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => remove(task.id)}
+                                                    aria-label={t("FocusRemoveTask")}
+                                                    title={t("FocusRemoveTask")}
+                                                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-text-3 transition-colors hover:bg-surface-2 hover:text-text"
+                                                    data-testid={`focus-micro-task-remove-${task.id}`}
+                                                >
+                                                    <X size={14} aria-hidden="true" />
+                                                </button>
+                                            </li>
+                                        )}
+                                    </Draggable>
+                                );
+                            })}
+                            {provided.placeholder}
+                        </ul>
+                    )}
+                </Droppable>
+            </DragDropContext>
 
             {adding ? (
                 <input

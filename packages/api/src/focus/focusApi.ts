@@ -78,6 +78,29 @@ export async function pinFocusMicroTask(id: string, pinned: boolean, t: TFunctio
     }
 }
 
+/**
+ * The item's list, in the order it should now be in.
+ *
+ * Sends the whole list rather than one move: the client already holds what it is showing, so the
+ * server never has to reconstruct it, and two tabs dragging at once end on one of the two orders
+ * instead of an interleaving neither asked for. Returns the list the server settled on.
+ */
+export async function reorderFocusMicroTasks(
+    itemGroupId: string,
+    ids: string[],
+    t: TFunction,
+): Promise<Result<FocusMicroTask[]>> {
+    try {
+        const response = await getHttpClient().patch<FocusMicroTask[]>('/focus/micro-tasks/reorder', {
+            itemGroupId,
+            ids,
+        });
+        return { success: response.data };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
 export async function deleteFocusMicroTask(id: string, t: TFunction): Promise<Result<void>> {
     try {
         await getHttpClient().delete(`/focus/micro-tasks/${id}`);

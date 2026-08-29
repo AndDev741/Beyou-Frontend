@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Pin, PinOff, Plus, X } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Pin, PinOff, Plus, X } from 'lucide-react-native';
 import {
   MICRO_TASK_MAX_LENGTH,
   isMicroTaskDone,
@@ -16,6 +16,7 @@ import {
   deleteFocusMicroTask,
   listFocusMicroTasks,
   pinFocusMicroTask,
+  reorderFocusMicroTasks,
   toggleFocusMicroTask,
 } from '@beyou/api/focus/focusApi';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
@@ -90,6 +91,33 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
     else dispatch(microTaskRemoved({ itemGroupId, id }));
   };
 
+  /**
+   * Up and down rather than a drag handle, matching how `ListItemsEditor` reorders on this
+   * platform. Both ends send the same thing — the position of each row in the array — so the web's
+   * drag and this produce identical requests.
+   *
+   * Optimistic, unlike every other write here: a row that waits for a round trip before moving
+   * reads as a button that did nothing. The server's answer replaces the guess, and a refusal puts
+   * the old order straight back.
+   */
+  const move = async (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= tasks.length) return;
+
+    const previous = tasks;
+    const next = Array.from(tasks);
+    [next[index], next[target]] = [next[target], next[index]];
+    dispatch(microTasksLoaded({ itemGroupId, tasks: next }));
+
+    const response = await reorderFocusMicroTasks(itemGroupId, next.map((task) => task.id), t);
+    if (response.success) {
+      dispatch(microTasksLoaded({ itemGroupId, tasks: response.success }));
+    } else if (response.error) {
+      dispatch(microTasksLoaded({ itemGroupId, tasks: previous }));
+      notify.error(getFriendlyErrorMessage(t, response.error));
+    }
+  };
+
   return (
     <View testID="focus-micro-tasks">
       <Text className="text-[12.5px] font-semibold uppercase tracking-[1px] text-text-3">
@@ -97,7 +125,7 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
       </Text>
 
       <View className="mt-1.5 gap-1">
-        {tasks.map((task) => {
+        {tasks.map((task, index) => {
           const done = isMicroTaskDone(task);
           return (
             <View
@@ -121,6 +149,31 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
                   {task.name}
                 </Text>
               </Pressable>
+
+              {/* Only where there is somewhere to go: the first row cannot go up. */}
+              {index > 0 ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('MoveUp')}
+                  onPress={() => void move(index, -1)}
+                  className="h-7 w-7 items-center justify-center rounded-control active:bg-surface-2"
+                  testID={`focus-micro-task-up-${task.id}`}
+                >
+                  <ChevronUp size={14} color={theme.text3} />
+                </Pressable>
+              ) : null}
+
+              {index < tasks.length - 1 ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('MoveDown')}
+                  onPress={() => void move(index, 1)}
+                  className="h-7 w-7 items-center justify-center rounded-control active:bg-surface-2"
+                  testID={`focus-micro-task-down-${task.id}`}
+                >
+                  <ChevronDown size={14} color={theme.text3} />
+                </Pressable>
+              ) : null}
 
               <Pressable
                 accessibilityRole="button"
