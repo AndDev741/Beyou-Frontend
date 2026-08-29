@@ -14,6 +14,7 @@ import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import getHabits from "@beyou/api/habits/getHabits";
 import getTasks from "@beyou/api/tasks/getTasks";
 import { logger } from "../../utils/logger";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 /**
  * Everything the focus screen needs, fetched by the screen itself.
@@ -32,6 +33,9 @@ import { logger } from "../../utils/logger";
  */
 export function useFocusRoutine(): { loading: boolean; error: string | null } {
     const dispatch = useDispatch();
+    // The owner's day, re-read when it turns: `toJSON()` would give the UTC one, and the progress
+    // header would count yesterday's checks in Brazil after 21:00.
+    const today = useTodayInZone();
     const { t } = useTranslation();
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const [settled, setSettled] = useState(false);
@@ -76,11 +80,10 @@ export function useFocusRoutine(): { loading: boolean; error: string | null } {
     // `perfil` is blacklisted from redux-persist, so a reload straight onto the focus screen
     // has nothing there and the count would sit at zero next to a half-done routine.
     useEffect(() => {
-        const today = new Date().toJSON().slice(0, 10);
         const { checked, total } = calculateDailyProgress(routine, today);
         dispatch(checkedItemsInScheduledRoutineEnter(checked));
         dispatch(totalItemsInScheduledRoutineEnter(total));
-    }, [routine, dispatch]);
+    }, [routine, today, dispatch]);
 
     return { loading: !settled && routine === null, error };
 }

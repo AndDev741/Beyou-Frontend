@@ -126,6 +126,37 @@ export function restoreFocusState(stored: unknown): focusState {
     };
 }
 
+/**
+ * A cycle hands over to the next one, paused at zero so the person starts it when they are
+ * ready rather than being pushed into a break they did not ask for.
+ *
+ * The ONE transition both `pomodoroCycleCompleted` and `pomodoroSkipped` make. They used to carry
+ * byte-identical bodies, which is how a rule change lands in one and not the other. The two differ
+ * only in what caused them, and that difference lives outside the reducer: a completed cycle is
+ * reported to the server by the owner effect before this runs; a skipped one never is.
+ *
+ * A pomodoro, finished or skipped, moves `rounds`; a break does not. Which break is earned depends
+ * on the count AFTER this one, so it is computed here rather than in a component.
+ */
+function handOver(state: focusState): focusState {
+    if (!state.timer || state.timer.finished) return state;
+    const ran = state.timer;
+    const rounds = ran.kind === "pomodoro" ? ran.rounds + 1 : ran.rounds;
+    const next = nextCycleKind(ran.kind, rounds, state.settings.longBreakEvery);
+    return {
+        ...state,
+        selectedCycle: next,
+        timer: {
+            ...ran,
+            kind: next,
+            endsAt: 0,
+            pausedRemainingMs: null,
+            finished: true,
+            rounds,
+        },
+    };
+}
+
 /** Clamped, never wrapping. Running off the end of the day should stop, not start over. */
 const clamp = (index: number, count: number) => Math.min(Math.max(index, 0), count - 1);
 
@@ -251,6 +282,25 @@ const focusSlice = createSlice({
             return { ...state, microTasks: { ...(state.microTasks ?? {}), [task.itemGroupId]: next } };
         },
 
+        /**
+         * The item's list in a new order, by id.
+         *
+         * Sorts what is CURRENTLY cached rather than replacing it, which is the point: a reorder
+         * and a toggle can be in flight at once, and the version that replaced the list wholesale
+         * (both to move optimistically and to roll back) discarded whichever landed second — a
+         * ticked row came back unticked, a deleted one reappeared. Ids the cache does not know are
+         * ignored; rows the payload does not name keep their relative order at the end, mirroring
+         * the server's own rule.
+         */
+        microTasksReordered(state, action: PayloadAction<{ itemGroupId: string; ids: string[] }>) {
+            const { itemGroupId, ids } = action.payload;
+            const list = (state.microTasks ?? {})[itemGroupId] ?? [];
+            const rank = new Map(ids.map((id, index) => [id, index]));
+            const named = list.filter((task) => rank.has(task.id)).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+            const rest = list.filter((task) => !rank.has(task.id));
+            return { ...state, microTasks: { ...(state.microTasks ?? {}), [itemGroupId]: [...named, ...rest] } };
+        },
+
         microTaskRemoved(state, action: PayloadAction<{ itemGroupId: string; id: string }>) {
             const { itemGroupId, id } = action.payload;
             const list = (state.microTasks ?? {})[itemGroupId] ?? [];
@@ -332,24 +382,7 @@ const focusSlice = createSlice({
          * that was abandoned: there is no failure state in this feature.
          */
         pomodoroCycleCompleted(state) {
-            if (!state.timer || state.timer.finished) return state;
-            const ran = state.timer;
-            const rounds = ran.kind === "pomodoro" ? ran.rounds + 1 : ran.rounds;
-            // Which break is earned depends on the count AFTER this one, so it is computed here
-            // rather than in the component: a fourth pomodoro pays the long break.
-            const handover = nextCycleKind(ran.kind, rounds, state.settings.longBreakEvery);
-            return {
-                ...state,
-                selectedCycle: handover,
-                timer: {
-                    ...ran,
-                    kind: handover,
-                    endsAt: 0,
-                    pausedRemainingMs: null,
-                    finished: true,
-                    rounds,
-                },
-            };
+            return handOver(state);
         },
 
         /**
@@ -369,24 +402,7 @@ const focusSlice = createSlice({
          * the next pomodoro is right there.
          */
         pomodoroSkipped(state) {
-            if (!state.timer || state.timer.finished) return state;
-            const ran = state.timer;
-            // A skipped pomodoro is still a pomodoro gone through, so it moves the count and can
-            // reach the long break. Withholding it would be the app policing how somebody works.
-            const rounds = ran.kind === "pomodoro" ? ran.rounds + 1 : ran.rounds;
-            const handover = nextCycleKind(ran.kind, rounds, state.settings.longBreakEvery);
-            return {
-                ...state,
-                selectedCycle: handover,
-                timer: {
-                    ...ran,
-                    kind: handover,
-                    endsAt: 0,
-                    pausedRemainingMs: null,
-                    finished: true,
-                    rounds,
-                },
-            };
+            return handOver(state);
         },
 
         /** Stop, with nothing kept and nothing counted. */
@@ -403,6 +419,7 @@ export const {
     pomodoroSettingsChanged,
     microTasksLoaded,
     microTaskUpserted,
+    microTasksReordered,
     microTaskRemoved,
     focusStartResolved,
     focusItemSelected,

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
@@ -19,6 +19,7 @@ import BeyouIcon from "../../ui/BeyouIcon";
 import { useRoutineCheckin } from "../../hooks/useRoutineCheckin";
 import { useFocusSelection } from "./useFocusSelection";
 import Pomodoro from "./Pomodoro";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 /**
  * One item at a time.
@@ -35,7 +36,10 @@ import Pomodoro from "./Pomodoro";
  */
 export default function Ultrafoco({ routine }: { routine: NonNullable<RootState["todayRoutine"]["routine"]> }) {
     const { t } = useTranslation();
-    const today = useMemo(() => new Date().toJSON().slice(0, 10), []);
+    // The OWNER's day, not the UTC one. `toJSON()` is UTC, and checks are stamped in the user's
+    // timezone, so in Brazil after 21:00 a checked item read as open and the done panel never
+    // arrived. Re-read when the day actually turns.
+    const today = useTodayInZone();
     const { check, skip } = useRoutineCheckin();
     const [pending, setPending] = useState(false);
     const [pickerOpen, setPickerOpen] = useState(false);

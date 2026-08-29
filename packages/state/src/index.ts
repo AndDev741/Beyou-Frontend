@@ -59,6 +59,7 @@ export {
     pomodoroSettingsChanged,
     microTasksLoaded,
     microTaskUpserted,
+    microTasksReordered,
     microTaskRemoved,
     pomodoroStarted,
     pomodoroPaused,

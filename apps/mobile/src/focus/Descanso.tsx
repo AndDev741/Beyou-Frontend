@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { holdScreenAwake, releaseScreenAwake } from './keepAwake';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -13,6 +13,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { formatTime, getFocusItems, minutesOfDay, resolveFocusStart } from '@beyou/state';
 import type { RootState } from '../store';
+import useTodayInZone from '../ui/useTodayInZone';
 
 const KEEP_AWAKE_TAG = 'beyou-focus-rest';
 
@@ -45,6 +46,8 @@ export default function Descanso() {
   const reduceMotion = useReducedMotion();
 
   const [now, setNow] = useState(() => new Date());
+  // The owner's day, re-read at midnight. `toJSON()` would give the UTC one.
+  const today = useTodayInZone();
   const [dimmed, setDimmed] = useState(false);
   const dimTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,15 +81,9 @@ export default function Descanso() {
   // The whole point of a rest screen is that it stays lit. Released on unmount, so leaving rest
   // does not hold the display awake behind the person's back.
   useEffect(() => {
-    void activateKeepAwakeAsync(KEEP_AWAKE_TAG).catch(() => {
-      /* unsupported platform: the screen dims on its own schedule, which is not a bug */
-    });
+    void holdScreenAwake(KEEP_AWAKE_TAG);
     return () => {
-      try {
-        deactivateKeepAwake(KEEP_AWAKE_TAG);
-      } catch {
-        /* never activated */
-      }
+      releaseScreenAwake(KEEP_AWAKE_TAG);
     };
   }, []);
 
@@ -122,7 +119,6 @@ export default function Descanso() {
   const next = useMemo(() => {
     const items = getFocusItems(routine);
     if (items.length === 0) return null;
-    const today = new Date().toJSON().slice(0, 10);
     const resolved = resolveFocusStart(items, minutesOfDay(now), today);
     if (resolved.index < 0) return null;
     const item = items[resolved.index];
@@ -135,7 +131,7 @@ export default function Descanso() {
       startTime: item.startTime,
       reason: resolved.reason,
     };
-  }, [routine, allHabits, allTasks, now]);
+  }, [routine, allHabits, allTasks, now, today]);
 
   const clock = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 

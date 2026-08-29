@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +26,7 @@ import Button from '../ui/Button';
 import Chip from '../ui/Chip';
 import IconButton from '../ui/IconButton';
 import type { RootState } from '../store';
+import useTodayInZone from '../ui/useTodayInZone';
 
 /**
  * One item at a time, on native.
@@ -42,7 +43,9 @@ import type { RootState } from '../store';
 export default function Ultrafoco({ routine }: { routine: Routine }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
-  const today = useMemo(() => new Date().toJSON().slice(0, 10), []);
+  // The OWNER's day, not the UTC one: checks are stamped in the user's timezone. Re-read when
+  // the day turns, which a phone left open will see.
+  const today = useTodayInZone();
   const { check, skip } = useRoutineCheckin();
   const [pending, setPending] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);

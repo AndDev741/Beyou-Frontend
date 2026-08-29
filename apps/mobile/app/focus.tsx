@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { List, Moon, Target, X } from 'lucide-react-native';
-import { focusEntered, focusExited, focusModeChanged } from '@beyou/state';
+import { focusEntered, focusExited, focusModeChanged, todayInZone } from '@beyou/state';
 import { useBeyouTheme } from '../src/theme/ThemeProvider';
 import { useFocusRoutine } from '../src/focus/useFocusRoutine';
 import RoutineDay from '../src/ui/dashboard/RoutineDay';
@@ -37,6 +37,7 @@ export default function FocusScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const routine = useSelector((s: RootState) => s.todayRoutine.routine);
   const mode = useSelector((s: RootState) => s.focus.mode);
+  const timezone = useSelector((s: RootState) => s.perfil.timezone);
   const { loading, error } = useFocusRoutine();
   const isUltra = mode === 'ultrafoco';
   const isResting = mode === 'descanso';
@@ -54,11 +55,13 @@ export default function FocusScreen() {
   useEffect(() => {
     // The day is passed in so a pomodoro left behind is carried across only when it belongs to
     // today: see `focusEntered` in the slice.
-    dispatch(focusEntered(new Date().toJSON().slice(0, 10)));
+    // In the OWNER's zone, not UTC: a timer started at 22:00 in Brazil would otherwise be filed
+    // under tomorrow and dropped as stale on the very next mount.
+    dispatch(focusEntered(todayInZone(timezone)));
     return () => {
       dispatch(focusExited());
     };
-  }, [dispatch]);
+  }, [dispatch, timezone]);
 
   return (
     <SafeAreaView className="flex-1 bg-bg" testID="focus-screen">

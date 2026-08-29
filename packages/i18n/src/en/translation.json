@@ -1232,6 +1232,7 @@
     "FocusRestNothingScheduled": "Nothing scheduled for the rest of today",
     "FocusRunningHub": "Back to the timer",
     "FocusPomodorosOnItem": "{{count}} pomodoro",
-    "FocusPomodorosOnItem_plural": "{{count}} pomodoros",
+    "FocusPomodorosOnItem_one": "{{count}} pomodoro",
+    "FocusPomodorosOnItem_other": "{{count}} pomodoros",
     "FocusKeepTaskHint": "Kept: it shows up on every item you move to."
 }

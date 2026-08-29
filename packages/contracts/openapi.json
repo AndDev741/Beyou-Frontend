@@ -2465,8 +2465,8 @@
           "required": true
         },
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
@@ -2483,7 +2483,7 @@
         "tags": [
           "focus-controller"
         ],
-        "operationId": "getFocusDay",
+        "operationId": "getDay",
         "parameters": [
           {
             "name": "date",
@@ -2558,8 +2558,8 @@
           "required": true
         },
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
@@ -2576,7 +2576,7 @@
         "tags": [
           "focus-controller"
         ],
-        "operationId": "deleteMicroTask",
+        "operationId": "delete",
         "parameters": [
           {
             "name": "id",
@@ -2589,8 +2589,8 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -2600,7 +2600,7 @@
         "tags": [
           "focus-controller"
         ],
-        "operationId": "toggleMicroTask",
+        "operationId": "toggle",
         "parameters": [
           {
             "name": "id",
@@ -2631,7 +2631,7 @@
         "tags": [
           "focus-controller"
         ],
-        "operationId": "pinMicroTask",
+        "operationId": "pin",
         "parameters": [
           {
             "name": "id",
@@ -2670,7 +2670,7 @@
         "tags": [
           "focus-controller"
         ],
-        "operationId": "reorderMicroTasks",
+        "operationId": "reorder",
         "requestBody": {
           "content": {
             "application/json": {
@@ -4272,6 +4272,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "snapshotDate": {
             "type": "string",
             "format": "date"
@@ -5331,12 +5335,6 @@
         }
       },
       "RecordCycleRequestDTO": {
-        "required": [
-          "endedAt",
-          "kind",
-          "minutes",
-          "startedAt"
-        ],
         "type": "object",
         "properties": {
           "itemGroupId": {
@@ -5360,18 +5358,20 @@
             "format": "date-time"
           },
           "minutes": {
-            "maximum": 180,
-            "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "maximum": 180,
+            "minimum": 1
           }
-        }
+        },
+        "required": [
+          "endedAt",
+          "kind",
+          "minutes",
+          "startedAt"
+        ]
       },
       "CreateMicroTaskRequestDTO": {
-        "required": [
-          "itemGroupId",
-          "name"
-        ],
         "type": "object",
         "properties": {
           "itemGroupId": {
@@ -5379,20 +5379,20 @@
             "format": "uuid"
           },
           "name": {
+            "type": "string",
             "maxLength": 80,
-            "minLength": 0,
-            "type": "string"
+            "minLength": 1
           },
           "pinned": {
             "type": "boolean"
           }
-        }
+        },
+        "required": [
+          "itemGroupId",
+          "name"
+        ]
       },
       "ReorderMicroTasksRequestDTO": {
-        "required": [
-          "ids",
-          "itemGroupId"
-        ],
         "type": "object",
         "properties": {
           "itemGroupId": {
@@ -5404,9 +5404,14 @@
             "items": {
               "type": "string",
               "format": "uuid"
-            }
+            },
+            "minItems": 1
           }
-        }
+        },
+        "required": [
+          "ids",
+          "itemGroupId"
+        ]
       }
     }
   }

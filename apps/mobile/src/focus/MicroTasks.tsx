@@ -9,6 +9,7 @@ import {
   microTaskRemoved,
   microTaskUpserted,
   microTasksLoaded,
+  microTasksReordered,
   normalizeMicroTaskName,
 } from '@beyou/state';
 import {
@@ -97,23 +98,25 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
    * drag and this produce identical requests.
    *
    * Optimistic, unlike every other write here: a row that waits for a round trip before moving
-   * reads as a button that did nothing. The server's answer replaces the guess, and a refusal puts
+   * reads as a button that did nothing. The server's answer settles the order, and a refusal puts
    * the old order straight back.
    */
   const move = async (index: number, dir: -1 | 1) => {
     const target = index + dir;
     if (target < 0 || target >= tasks.length) return;
 
-    const previous = tasks;
-    const next = Array.from(tasks);
-    [next[index], next[target]] = [next[target], next[index]];
-    dispatch(microTasksLoaded({ itemGroupId, tasks: next }));
+    // An ORDER OF IDS over whatever the cache holds, never a snapshot of the rows: a snapshot put
+    // back on failure discarded any toggle, pin or delete that landed while the move was in flight.
+    const previousIds = tasks.map((task) => task.id);
+    const nextIds = Array.from(previousIds);
+    [nextIds[index], nextIds[target]] = [nextIds[target], nextIds[index]];
+    dispatch(microTasksReordered({ itemGroupId, ids: nextIds }));
 
-    const response = await reorderFocusMicroTasks(itemGroupId, next.map((task) => task.id), t);
+    const response = await reorderFocusMicroTasks(itemGroupId, nextIds, t);
     if (response.success) {
-      dispatch(microTasksLoaded({ itemGroupId, tasks: response.success }));
+      dispatch(microTasksReordered({ itemGroupId, ids: response.success.map((task) => task.id) }));
     } else if (response.error) {
-      dispatch(microTasksLoaded({ itemGroupId, tasks: previous }));
+      dispatch(microTasksReordered({ itemGroupId, ids: previousIds }));
       notify.error(getFriendlyErrorMessage(t, response.error));
     }
   };

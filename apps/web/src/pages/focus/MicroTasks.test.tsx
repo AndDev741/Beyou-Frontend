@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import rootReducer from "@beyou/state/rootReducer";
+import { microTaskUpserted } from "@beyou/state";
 import type { FocusMicroTask } from "@beyou/types/focus/focus";
 import { renderWithProviders } from "../../test/test-utils";
 
@@ -174,6 +175,31 @@ describe("ordering", () => {
         // The whole list, not one move: the client already holds what it is showing.
         expect(reorderFocusMicroTasks).toHaveBeenCalledWith("item-a", ["2", "1"], expect.anything());
         await waitFor(() => expect(names()[0]).toContain("Second"));
+    });
+
+    test("a tick that lands while the reorder is in flight survives its rollback", async () => {
+        // The bug this guards: the rollback used to put back a SNAPSHOT of the rows taken before
+        // the drag, so a toggle that landed in between came back unticked and a deleted row came
+        // back from the dead. Order and content are separate facts; only the order is rolled back.
+        vi.mocked(listFocusMicroTasks).mockResolvedValue({ success: two });
+        let refuse: (() => void) | null = null;
+        vi.mocked(reorderFocusMicroTasks).mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    refuse = () => resolve({ error: { message: "nope" } });
+                }),
+        );
+        const store = buildStore();
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: store });
+        await screen.findByTestId("focus-micro-task-1");
+
+        await userEvent.click(screen.getByTestId("drop-second-onto-first"));
+        // The server answered a toggle while the reorder was still pending.
+        store.dispatch(microTaskUpserted(row({ id: "1", name: "First", doneAt: "2026-08-28T10:00:00Z" })));
+        refuse!();
+
+        await waitFor(() => expect(names()[0]).toContain("First"));
+        expect(screen.getByTestId("focus-micro-task-check-1")).toBeChecked();
     });
 
     test("a refused reorder puts the old order back", async () => {

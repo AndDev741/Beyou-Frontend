@@ -1015,7 +1015,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getFocusDay"];
+        get: operations["getDay"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1050,7 +1050,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["deleteMicroTask"];
+        delete: operations["delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1069,7 +1069,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["toggleMicroTask"];
+        patch: operations["toggle"];
         trace?: never;
     };
     "/focus/micro-tasks/{id}/pin": {
@@ -1085,7 +1085,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["pinMicroTask"];
+        patch: operations["pin"];
         trace?: never;
     };
     "/focus/micro-tasks/reorder": {
@@ -1101,7 +1101,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["reorderMicroTasks"];
+        patch: operations["reorder"];
         trace?: never;
     };
 }
@@ -1614,6 +1614,8 @@ export interface components {
         SnapshotResponseDTO: {
             /** Format: uuid */
             id?: string;
+            /** Format: uuid */
+            routineId?: string;
             /** Format: date */
             snapshotDate?: string;
             routineName?: string;
@@ -3970,8 +3972,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Created */
-            201: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3981,7 +3983,7 @@ export interface operations {
             };
         };
     };
-    getFocusDay: {
+    getDay: {
         parameters: {
             query: {
                 date: string;
@@ -4038,8 +4040,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Created */
-            201: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4049,7 +4051,7 @@ export interface operations {
             };
         };
     };
-    deleteMicroTask: {
+    delete: {
         parameters: {
             query?: never;
             header?: never;
@@ -4060,8 +4062,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4069,7 +4071,7 @@ export interface operations {
             };
         };
     };
-    toggleMicroTask: {
+    toggle: {
         parameters: {
             query?: never;
             header?: never;
@@ -4091,7 +4093,7 @@ export interface operations {
             };
         };
     };
-    pinMicroTask: {
+    pin: {
         parameters: {
             query: {
                 pinned: boolean;
@@ -4115,7 +4117,7 @@ export interface operations {
             };
         };
     };
-    reorderMicroTasks: {
+    reorder: {
         parameters: {
             query?: never;
             header?: never;

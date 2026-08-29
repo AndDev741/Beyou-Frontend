@@ -10,6 +10,7 @@ import {
     microTaskRemoved,
     microTaskUpserted,
     microTasksLoaded,
+    microTasksReordered,
     normalizeMicroTaskName,
 } from "@beyou/state";
 import {
@@ -104,23 +105,29 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
      *
      * The one optimistic write in this component, and the exception is the point: a row that waits
      * for a round trip before following the cursor reads as a broken drag, while a checkbox that
-     * waits reads as a checkbox. The server's answer replaces the guess either way, and a refusal
+     * waits reads as a checkbox. The server's answer settles the order either way, and a refusal
      * puts the old order straight back.
      */
     const handleDragEnd = async (result: DropResult) => {
         if (!result.destination || result.destination.index === result.source.index) return;
 
-        const previous = tasks;
-        const next = Array.from(tasks);
-        const [moved] = next.splice(result.source.index, 1);
-        next.splice(result.destination.index, 0, moved);
-        dispatch(microTasksLoaded({ itemGroupId, tasks: next }));
+        // Both the move and the rollback are expressed as an ORDER OF IDS over whatever the cache
+        // holds at that moment, never as a snapshot of the rows. A snapshot put back on failure
+        // discarded any toggle, pin or delete that landed while the drag was in flight — a ticked
+        // row came back unticked, a removed one reappeared.
+        const previousIds = tasks.map((task) => task.id);
+        const nextIds = Array.from(previousIds);
+        const [moved] = nextIds.splice(result.source.index, 1);
+        nextIds.splice(result.destination.index, 0, moved);
+        dispatch(microTasksReordered({ itemGroupId, ids: nextIds }));
 
-        const response = await reorderFocusMicroTasks(itemGroupId, next.map((task) => task.id), t);
+        const response = await reorderFocusMicroTasks(itemGroupId, nextIds, t);
         if (response.success) {
-            dispatch(microTasksLoaded({ itemGroupId, tasks: response.success }));
+            // The server's answer is the order it settled on; sorted in, not swapped in, for the
+            // same reason as above.
+            dispatch(microTasksReordered({ itemGroupId, ids: response.success.map((task) => task.id) }));
         } else if (response.error) {
-            dispatch(microTasksLoaded({ itemGroupId, tasks: previous }));
+            dispatch(microTasksReordered({ itemGroupId, ids: previousIds }));
             notify.error(getFriendlyErrorMessage(t, response.error));
         }
     };

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { List, Moon, Target, X } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
-import { focusEntered, focusExited, focusModeChanged } from "@beyou/state";
+import { focusEntered, focusExited, focusModeChanged, todayInZone } from "@beyou/state";
 import useAuthGuard from "../../components/useAuthGuard";
 import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import { useFocusRoutine } from "./useFocusRoutine";
@@ -33,6 +33,7 @@ export default function Focus() {
     const navigate = useNavigate();
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const mode = useSelector((state: RootState) => state.focus.mode);
+    const timezone = useSelector((state: RootState) => state.perfil.timezone);
     const { loading, error } = useFocusRoutine();
     const isUltra = mode === "ultrafoco";
     const isResting = mode === "descanso";
@@ -46,11 +47,13 @@ export default function Focus() {
     useEffect(() => {
         // The day is passed in so a pomodoro left in persisted storage is carried across only
         // when it belongs to today: see `focusEntered` in the slice.
-        dispatch(focusEntered(new Date().toJSON().slice(0, 10)));
+        // In the OWNER's zone: `toJSON()` is UTC, and a timer started at 22:00 in Brazil would
+        // otherwise be filed under tomorrow and dropped as stale on the very next mount.
+        dispatch(focusEntered(todayInZone(timezone)));
         return () => {
             dispatch(focusExited());
         };
-    }, [dispatch]);
+    }, [dispatch, timezone]);
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {

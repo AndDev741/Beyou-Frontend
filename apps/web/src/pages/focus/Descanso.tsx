@@ -8,6 +8,7 @@ import {
     minutesOfDay,
     resolveFocusStart,
 } from "@beyou/state";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 /** How long without a pointer or a key before the screen fades itself down. */
 const DIM_AFTER_MS = 25_000;
@@ -37,6 +38,8 @@ export default function Descanso() {
     const allTasks = useSelector((state: RootState) => state.tasks.tasks);
 
     const [now, setNow] = useState(() => new Date());
+    // The owner's day, re-read at midnight. `toJSON()` would give the UTC one.
+    const today = useTodayInZone();
     const [dimmed, setDimmed] = useState(false);
 
     // Aligned to the next minute boundary, so the digits change when the clock does rather than up
@@ -109,7 +112,6 @@ export default function Descanso() {
     const next = useMemo(() => {
         const items = getFocusItems(routine);
         if (items.length === 0) return null;
-        const today = new Date().toJSON().slice(0, 10);
         const resolved = resolveFocusStart(items, minutesOfDay(now), today);
         if (resolved.index < 0) return null;
         const item = items[resolved.index];
@@ -118,7 +120,7 @@ export default function Descanso() {
                 ? allHabits?.find((habit) => habit.id === item.itemId)
                 : allTasks?.find((task) => task.id === item.itemId);
         return { name: found?.name ?? item.itemId, startTime: item.startTime, reason: resolved.reason };
-    }, [routine, allHabits, allTasks, now]);
+    }, [routine, allHabits, allTasks, now, today]);
 
     const clock = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
