@@ -32,9 +32,22 @@ describe("persisted state migrations", () => {
 
         const migrated = migrations[1](stale as never) as Record<string, unknown>;
 
-        expect(migrated.focus).toBeUndefined();
+        // ABSENT, not undefined. `toBeUndefined()` was true for both the broken shape
+        // (`{ focus: undefined }`) and the right one, so the test shipped green over a migration
+        // that left the key in place and crashed the dashboard on rehydrate.
+        expect("focus" in migrated).toBe(false);
         // And it touches nothing else: a migration that reset the world would lose the user's
         // habits along with the stale field.
         expect(migrated.habits).toEqual(stale.habits);
+    });
+
+    test("every migration removes the key rather than parking undefined under it", () => {
+        // redux-persist's reconciler hard-sets every key it finds on the inbound state, so a key
+        // holding `undefined` becomes `state.focus === undefined` and the first selector throws.
+        const stale = { habits: {}, focus: { mode: "ultrafoco" } };
+        for (const key of Object.keys(migrations).map(Number)) {
+            const migrated = migrations[key as keyof typeof migrations](stale as never);
+            expect("focus" in migrated).toBe(false);
+        }
     });
 });

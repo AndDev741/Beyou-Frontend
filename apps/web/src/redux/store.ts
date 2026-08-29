@@ -22,11 +22,16 @@ import { PERSIST_VERSION, migrations } from "./persistMigrations";
  * all is what caused the bug: the reconciler hard-sets the stored slice, so a tab closed inside
  * the focus screen booted the app with `mode: "ultrafoco"` and the dashboard hid the button that
  * leads there. The rule about WHICH fields survive lives with the slice that defines them; this
- * only says when it runs. Outbound only: storage may already hold a stale mode written by an
- * earlier build, so the repair has to happen on the way in.
+ * only says when it runs. Applied in BOTH directions: outbound because storage may already hold
+ * a stale mode written by an earlier build, inbound so the visit-scoped fields are never written
+ * in the first place.
  */
 const focusVisitTransform = createTransform(
-    (state) => state,
+    // Inbound too, not only outbound: with an identity inbound every micro-task the person typed,
+    // the mode and the selection were written verbatim to localStorage and sat there until logout.
+    // `restoreFocusState` returns a complete state, so it is safe in both directions, and what is
+    // never written cannot come back stale.
+    (state) => restoreFocusState(state),
     (state) => restoreFocusState(state),
     { whitelist: ['focus'] },
 );
