@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Pause, Play, RotateCcw, Settings2, X } from 'lucide-react-native';
+import { Pause, Play, RotateCcw, Settings2, SkipForward, X } from 'lucide-react-native';
 import {
   CYCLE_KINDS,
   CYCLE_LABEL_KEY,
@@ -47,6 +47,7 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
     start,
     pause,
     resume,
+    skip,
     stop,
   } = usePomodoro(item.groupId, date);
 
@@ -153,6 +154,21 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
               testID="focus-pomodoro-start"
             />
           )}
+
+          {/* Hand this cycle over early. Only while one is actually running or held: a finished
+              cycle already offers the next one, and there is nothing to skip on an idle clock.
+              Nothing is counted and nothing is reported. */}
+          {status === 'running' || status === 'paused' ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('FocusSkipCycle')}
+              onPress={skip}
+              className="h-11 w-11 items-center justify-center rounded-control"
+              testID="focus-pomodoro-skip"
+            >
+              <SkipForward size={17} color={theme.onAccent} />
+            </Pressable>
+          ) : null}
 
           {/* Only when there is something to reset, and quiet: resetting has no consequence,
               since nothing is recorded and nothing is lost. */}

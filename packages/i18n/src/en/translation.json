@@ -1202,6 +1202,7 @@
     "FocusPause": "Pause",
     "FocusResume": "Resume",
     "FocusStop": "Stop",
+    "FocusSkipCycle": "Skip this cycle",
     "FocusCycleDone": "Cycle finished",
     "FocusCyclePomodoro": "Pomodoro",
     "FocusCycleShortBreak": "Short Break",

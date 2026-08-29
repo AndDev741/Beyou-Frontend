@@ -9,6 +9,7 @@ import reducer, {
     cycleSelected,
     pomodoroAbandoned,
     pomodoroCycleCompleted,
+    pomodoroSkipped,
     pomodoroPaused,
     pomodoroResumed,
     pomodoroSettingsChanged,
@@ -405,5 +406,73 @@ describe('what survives storage', () => {
 
         expect(restored.settings.pomodoro).toBe(50);
         expect(restored.settings.longBreakEvery).toBeGreaterThan(0);
+    });
+});
+
+describe('skipping a cycle', () => {
+    const running = (kind: 'pomodoro' | 'shortBreak' | 'longBreak' = 'pomodoro') => {
+        const entered = reducer(undefined, enter());
+        return reducer(
+            entered,
+            pomodoroStarted({ groupId: 'g1', kind, minutes: 25, now: 1_000, date: TODAY }),
+        );
+    };
+
+    it('hands over to the next cycle, finished, so nothing reports it', () => {
+        const after = reducer(running(), pomodoroSkipped());
+
+        expect(after.timer).toMatchObject({ kind: 'shortBreak', finished: true });
+        // `finished` is the same flag the report effect checks, which is what keeps the server
+        // from hearing about a cycle nobody sat through.
+        expect(after.selectedCycle).toBe('shortBreak');
+    });
+
+    it('does not count the pomodoro it skipped', () => {
+        const after = reducer(running(), pomodoroSkipped());
+
+        expect(after.timer?.completedCycles).toBe(0);
+    });
+
+    it('cannot buy a long break: four skips earn nothing', () => {
+        // The reason the count does not move. Were a skip to count, four taps would hand out the
+        // long break that four pomodoros are supposed to pay for.
+        let state = reducer(undefined, enter());
+        for (let i = 0; i < 4; i += 1) {
+            state = reducer(
+                state,
+                pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: 1_000, date: TODAY }),
+            );
+            state = reducer(state, pomodoroSkipped());
+        }
+
+        expect(state.timer?.completedCycles).toBe(0);
+        expect(state.timer?.kind).toBe('shortBreak');
+    });
+
+    it('skips a break back to work, which is the case it was asked for', () => {
+        const after = reducer(running('shortBreak'), pomodoroSkipped());
+
+        expect(after.timer?.kind).toBe('pomodoro');
+    });
+
+    it('is inert on an idle clock and on a cycle already finished', () => {
+        const idle = reducer(undefined, enter());
+        expect(reducer(idle, pomodoroSkipped())).toEqual(idle);
+
+        const finished = reducer(running(), pomodoroCycleCompleted());
+        expect(reducer(finished, pomodoroSkipped())).toEqual(finished);
+    });
+
+    it('leaves a real pomodoro counted, so skipping the break keeps the tally', () => {
+        const done = reducer(running(), pomodoroCycleCompleted());
+        const onBreak = reducer(
+            done,
+            pomodoroStarted({ groupId: 'g1', kind: 'shortBreak', minutes: 5, now: 2_000, date: TODAY }),
+        );
+
+        const after = reducer(onBreak, pomodoroSkipped());
+
+        expect(after.timer?.completedCycles).toBe(1);
+        expect(after.timer?.kind).toBe('pomodoro');
     });
 });

@@ -11,6 +11,7 @@ import {
   formatRemaining,
   pomodoroAbandoned,
   pomodoroCycleCompleted,
+  pomodoroSkipped,
   pomodoroNumber,
   pomodoroPaused,
   pomodoroResumed,
@@ -160,6 +161,12 @@ export function usePomodoro(groupId: string | null, date: string) {
       dispatch(pomodoroResumed({ now: Date.now() }));
       setNow(Date.now());
     }, [dispatch]),
+    /**
+     * Hand over to the next cycle now. Nothing reported, nothing counted. The scheduled
+     * notification is taken back by the effect above, which cancels whenever the status stops
+     * being "running".
+     */
+    skip: useCallback(() => dispatch(pomodoroSkipped()), [dispatch]),
     stop: useCallback(() => dispatch(pomodoroAbandoned()), [dispatch]),
   };
 }

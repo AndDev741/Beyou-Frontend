@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Pause, Play, RotateCcw, Settings2, X } from "lucide-react";
+import { Pause, Play, RotateCcw, Settings2, SkipForward, X } from "lucide-react";
 import {
     CYCLE_KINDS,
     CYCLE_LABEL_KEY,
@@ -52,6 +52,7 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
         start,
         pause,
         resume,
+        skip,
         stop,
     } = usePomodoro(item.groupId, date);
 
@@ -149,6 +150,23 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
                             <Play size={16} aria-hidden="true" />
                             {t("FocusStart")}
                         </PanelButton>
+                    )}
+
+                    {/* Hand this cycle over early. Only while one is actually running or held:
+                        a finished cycle already offers the next one, and there is nothing to
+                        skip on an idle clock. Nothing is counted and nothing is reported, so a
+                        skipped break costs exactly what it looks like it costs. */}
+                    {(status === "running" || status === "paused") && (
+                        <button
+                            type="button"
+                            onClick={skip}
+                            aria-label={t("FocusSkipCycle")}
+                            title={t("FocusSkipCycle")}
+                            className="flex h-11 w-11 items-center justify-center rounded-control text-on-accent opacity-80 transition-opacity hover:opacity-100"
+                            data-testid="focus-pomodoro-skip"
+                        >
+                            <SkipForward size={17} aria-hidden="true" />
+                        </button>
                     )}
 
                     {/* Only when there is something to reset, and quiet: resetting has no

@@ -353,6 +353,39 @@ const focusSlice = createSlice({
             };
         },
 
+        /**
+         * Hand over early, because the person is done with this cycle.
+         *
+         * The same handover a finished cycle does, minus the two things that would turn a skip
+         * into a lie. It does NOT increment `completedCycles`: a pomodoro nobody sat through is
+         * not a pomodoro done, and counting it would also let four taps buy a long break. And it
+         * leaves the timer `finished`, which is what keeps the report effect quiet — the server
+         * only ever hears about a cycle that ran out.
+         *
+         * Because the count does not move, the break a skipped fourth pomodoro hands over to is
+         * the short one. That falls out of `nextCycleKind` rather than being decided here, and it
+         * is the honest answer: the long break is what four pomodoros pay for.
+         *
+         * Skipping a BREAK is the common case and the one this was asked for. It costs nothing:
+         * the next pomodoro is right there.
+         */
+        pomodoroSkipped(state) {
+            if (!state.timer || state.timer.finished) return state;
+            const ran = state.timer;
+            const handover = nextCycleKind(ran.kind, ran.completedCycles, state.settings.longBreakEvery);
+            return {
+                ...state,
+                selectedCycle: handover,
+                timer: {
+                    ...ran,
+                    kind: handover,
+                    endsAt: 0,
+                    pausedRemainingMs: null,
+                    finished: true,
+                },
+            };
+        },
+
         /** Stop, with nothing kept and nothing counted. */
         pomodoroAbandoned(state) {
             return { ...state, timer: null };
@@ -376,6 +409,7 @@ export const {
     pomodoroPaused,
     pomodoroResumed,
     pomodoroCycleCompleted,
+    pomodoroSkipped,
     pomodoroAbandoned,
 } = focusSlice.actions;
 export default focusSlice.reducer;

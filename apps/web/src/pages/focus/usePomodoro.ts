@@ -11,6 +11,7 @@ import {
     pomodoroAbandoned,
     pomodoroCycleCompleted,
     pomodoroNumber,
+    pomodoroSkipped,
     pomodoroPaused,
     pomodoroResumed,
     pomodoroSettingsChanged,
@@ -153,6 +154,12 @@ export function usePomodoro(groupId: string | null, date: string) {
             dispatch(pomodoroResumed({ now: Date.now() }));
             setNow(Date.now());
         }, [dispatch]),
+        /**
+         * Hand over to the next cycle now. Nothing is reported and nothing is counted: the
+         * reducer marks the timer finished, which is the same flag that keeps the report effect
+         * above from firing.
+         */
+        skip: useCallback(() => dispatch(pomodoroSkipped()), [dispatch]),
         stop: useCallback(() => dispatch(pomodoroAbandoned()), [dispatch]),
     };
 }

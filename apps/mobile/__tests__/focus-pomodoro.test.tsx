@@ -265,6 +265,48 @@ describe('running a cycle', () => {
     expect(recordFocusCycle).not.toHaveBeenCalled();
   });
 
+  it('skipping hands over without counting it or reporting it', async () => {
+    const store = await renderPomodoro(item());
+    await press('focus-pomodoro-start');
+    await jump(60_000);
+
+    await press('focus-pomodoro-skip');
+
+    expect(store.getState().focus.timer).toMatchObject({
+      kind: 'shortBreak',
+      completedCycles: 0,
+      finished: true,
+    });
+    expect(recordFocusCycle).not.toHaveBeenCalled();
+    expect(screen.getByTestId('focus-pomodoro-next')).toBeTruthy();
+  });
+
+  it('offers the skip while a cycle runs or is held, and nowhere else', async () => {
+    await renderPomodoro(item());
+    expect(screen.queryByTestId('focus-pomodoro-skip')).toBeNull();
+
+    await press('focus-pomodoro-start');
+    expect(screen.getByTestId('focus-pomodoro-skip')).toBeTruthy();
+
+    await press('focus-pomodoro-pause');
+    expect(screen.getByTestId('focus-pomodoro-skip')).toBeTruthy();
+
+    await press('focus-pomodoro-resume');
+    await jump(25 * 60_000);
+    // Finished already offers the next cycle; a skip would say the same thing twice.
+    expect(screen.queryByTestId('focus-pomodoro-skip')).toBeNull();
+  });
+
+  it('takes the notification back when a cycle is skipped', async () => {
+    await renderPomodoro(item());
+    await press('focus-pomodoro-start');
+    mockCancelNotification.mockClear();
+
+    await press('focus-pomodoro-skip');
+
+    expect(mockCancelNotification).toHaveBeenCalled();
+  });
+
   it('never calls a finished cycle a failure', async () => {
     await renderPomodoro(item());
     await press('focus-pomodoro-start');

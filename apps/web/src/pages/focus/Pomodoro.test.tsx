@@ -299,6 +299,43 @@ describe("running a cycle", () => {
         expect(store.getState().focus.timer?.completedCycles).toBe(1);
     });
 
+    test("skipping hands over to the next cycle without counting or reporting it", async () => {
+        const store = buildStore();
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+        await jump(60_000);
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-skip"));
+
+        expect(store.getState().focus.timer).toMatchObject({
+            kind: "shortBreak",
+            completedCycles: 0,
+            finished: true,
+        });
+        // A pomodoro nobody sat through is not a pomodoro done, and the server only ever hears
+        // about a cycle that ran out.
+        expect(recordFocusCycle).not.toHaveBeenCalled();
+        expect(screen.getByTestId("focus-pomodoro-next")).toBeInTheDocument();
+    });
+
+    test("the skip is offered while a cycle runs or is held, and nowhere else", async () => {
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        // Idle: there is nothing to skip.
+        expect(screen.queryByTestId("focus-pomodoro-skip")).not.toBeInTheDocument();
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+        expect(screen.getByTestId("focus-pomodoro-skip")).toBeInTheDocument();
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-pause"));
+        expect(screen.getByTestId("focus-pomodoro-skip")).toBeInTheDocument();
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-resume"));
+        await jump(25 * 60_000);
+        // Finished: the panel already offers the next cycle, so a skip would say the same thing
+        // twice.
+        expect(screen.queryByTestId("focus-pomodoro-skip")).not.toBeInTheDocument();
+    });
+
     test("nothing anywhere calls a finished cycle a failure", async () => {
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
