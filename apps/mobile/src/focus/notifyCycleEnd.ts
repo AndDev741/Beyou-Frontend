@@ -1,5 +1,29 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+
+type NotificationsModule = typeof import('expo-notifications');
+
+/**
+ * `expo-notifications` is a NATIVE module, loaded lazily and behind a try.
+ *
+ * Imported at the top of this file it is evaluated the moment the focus ROUTE loads, and on a
+ * build compiled before the module was added that throws `Cannot find native module` — which
+ * expo-router surfaces as a route module of `undefined` and the whole screen dies with
+ * "Cannot read property 'ErrorBoundary' of undefined". That is what happened on the first device
+ * test of F6. A missing notification is a quieter pomodoro; a missing route is a broken app, and
+ * the two must not be the same failure. The rebuild is still required to actually get the alert
+ * (RUNNING.md, prebuild --clean), this only makes its absence survivable.
+ */
+let notificationsModule: NotificationsModule | null | undefined;
+function notifications(): NotificationsModule | null {
+    if (notificationsModule !== undefined) return notificationsModule;
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        notificationsModule = require('expo-notifications') as NotificationsModule;
+    } catch {
+        notificationsModule = null;
+    }
+    return notificationsModule;
+}
 
 /**
  * The local notification that tells somebody their cycle ended while the app was not in front
@@ -21,6 +45,16 @@ const ANDROID_CHANNEL = 'beyou-focus';
 /** Ids of what we scheduled, so a stop or a restart can take back the alert it armed. */
 let scheduled: string[] = [];
 
+/**
+ * The schedule call still in flight, if any.
+ *
+ * `arm` only learns the id once the OS answers, and a cancel that lands in between found an
+ * empty list and took nothing back — start a pomodoro and stop it at once, and the alert still
+ * fired 25 minutes later. Cancel now waits for the pending arm to settle before it clears, so it
+ * always sees the id it needs.
+ */
+let arming: Promise<void> | null = null;
+
 let permissionAsked = false;
 
 /**
@@ -30,6 +64,8 @@ let permissionAsked = false;
  * what the app is for, is the kind of thing that gets refused forever.
  */
 async function ensurePermission(): Promise<boolean> {
+    const Notifications = notifications();
+    if (!Notifications) return false;
     try {
         const current = await Notifications.getPermissionsAsync();
         if (current.granted) return true;
@@ -47,7 +83,8 @@ async function ensurePermission(): Promise<boolean> {
 
 /** Android needs a channel before anything it posts will make a sound. */
 async function ensureChannel(): Promise<void> {
-    if (Platform.OS !== 'android') return;
+    const Notifications = notifications();
+    if (Platform.OS !== 'android' || !Notifications) return;
     try {
         await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL, {
             name: 'Focus',
@@ -76,28 +113,44 @@ export async function armCycleEndNotification(
     // in front of the person and will say so itself.
     if (seconds < 2) return;
 
-    if (!(await ensurePermission())) return;
-    await ensureChannel();
+    const Notifications = notifications();
+    if (!Notifications) return;
 
+    const pending = (async () => {
+        if (!(await ensurePermission())) return;
+        await ensureChannel();
+        try {
+            const id = await Notifications.scheduleNotificationAsync({
+                content: { title: body.title, body: body.message, sound: true },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                    seconds,
+                    channelId: ANDROID_CHANNEL,
+                },
+            });
+            scheduled.push(id);
+        } catch {
+            /* scheduling refused: the in-app timer still works, it is just quiet */
+        }
+    })();
+    arming = pending;
     try {
-        const id = await Notifications.scheduleNotificationAsync({
-            content: { title: body.title, body: body.message, sound: true },
-            trigger: {
-                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                seconds,
-                channelId: ANDROID_CHANNEL,
-            },
-        });
-        scheduled.push(id);
-    } catch {
-        /* scheduling refused: the in-app timer still works, it is just quiet */
+        await pending;
+    } finally {
+        if (arming === pending) arming = null;
     }
 }
 
 /** Take back whatever was armed. Called on pause, stop, and on starting a new cycle. */
 export async function cancelCycleEndNotification(): Promise<void> {
+    // Let an arm that has not yet received its id finish first, or there is nothing to cancel
+    // yet and the alert outlives the stop that was meant to take it back.
+    if (arming) await arming;
+
+    const Notifications = notifications();
     const ids = scheduled;
     scheduled = [];
+    if (!Notifications) return;
     await Promise.all(
         ids.map((id) =>
             Notifications.cancelScheduledNotificationAsync(id).catch(() => {

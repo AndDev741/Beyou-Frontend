@@ -1,16 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { recordFocusCycle } from '@beyou/api/focus/focusApi';
+import { holdScreenAwake, releaseScreenAwake } from './keepAwake';
 import {
-  CYCLE_LABEL_KEY,
   DEFAULT_POMODORO_SETTINGS,
-  toServerCycleKind,
   cycleSelected,
   formatRemaining,
   pomodoroAbandoned,
-  pomodoroCycleCompleted,
   pomodoroSkipped,
   pomodoroNumber,
   pomodoroPaused,
@@ -22,7 +18,6 @@ import {
   type CycleKind,
   type PomodoroSettings,
 } from '@beyou/state';
-import { armCycleEndNotification, cancelCycleEndNotification } from './notifyCycleEnd';
 import type { RootState, AppDispatch } from '../store';
 
 const KEEP_AWAKE_TAG = 'beyou-focus';
@@ -68,58 +63,18 @@ export function usePomodoro(groupId: string | null, date: string) {
     return () => clearInterval(id);
   }, [status]);
 
-  // Crossing zero is derived from the clock rather than armed with a setTimeout: a timeout does
-  // not survive the suspension this design exists to survive, and could not be trusted to fire.
-  // Reported to the server from the timer's own fields, BEFORE the reducer hands over — after the
-  // dispatch, `kind` is already the break. Fire-and-forget: a lost report must not stop the
-  // handover, and an abandoned cycle is never reported at all.
-  useEffect(() => {
-    if (status === 'elapsed' && timer && !timer.finished) {
-      void recordFocusCycle(
-        {
-          itemGroupId: timer.groupId || null,
-          kind: toServerCycleKind(timer.kind),
-          startedAt: new Date(timer.startedAt).toISOString(),
-          endedAt: new Date(timer.endsAt).toISOString(),
-          minutes: timer.durationMinutes,
-        },
-        t,
-      );
-      dispatch(pomodoroCycleCompleted());
-    }
-  }, [status, timer, dispatch, t]);
+  // Crossing zero and the scheduled notification are NOT handled here. `PomodoroOwner`, mounted
+  // in the root layout, owns both, so a cycle that ends while this panel is unmounted still
+  // completes, still reaches the server, and still alerts. Exactly one mount may dispatch the
+  // completion, or the cycle is POSTed twice — this hook only paints and takes input.
 
   // Screen stays on for the length of a cycle, and only for that. Released on pause, on stop,
   // and on unmount, so a forgotten cycle cannot hold the display awake indefinitely.
   useEffect(() => {
     if (status !== 'running') return;
-    void activateKeepAwakeAsync(KEEP_AWAKE_TAG).catch(() => {
-      /* unsupported platform: the cycle still runs, the screen just dims */
-    });
-    return () => {
-      try {
-        deactivateKeepAwake(KEEP_AWAKE_TAG);
-      } catch {
-        /* never activated */
-      }
-    };
+    void holdScreenAwake(KEEP_AWAKE_TAG);
+    return () => releaseScreenAwake(KEEP_AWAKE_TAG);
   }, [status]);
-
-  // Armed on the exact `endsAt` the reducer holds, and taken back the moment the cycle stops
-  // being a running cycle. Keyed on endsAt so a resume re-arms at the new moment.
-  useEffect(() => {
-    if (status !== 'running' || !timer) {
-      void cancelCycleEndNotification();
-      return;
-    }
-    void armCycleEndNotification(timer.endsAt, {
-      title: t(CYCLE_LABEL_KEY[timer.kind]),
-      message: t('FocusCycleDone'),
-    });
-    return () => {
-      void cancelCycleEndNotification();
-    };
-  }, [status, timer?.endsAt, timer?.kind, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const start = useCallback(
     (kind: CycleKind, minutes: number) => {

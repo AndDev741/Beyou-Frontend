@@ -63,6 +63,7 @@ import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import { recordFocusCycle } from '@beyou/api/focus/focusApi';
 import Pomodoro from '../src/focus/Pomodoro';
+import PomodoroOwner from '../src/focus/PomodoroOwner';
 
 const DATE = '2026-08-28';
 
@@ -74,6 +75,9 @@ const renderPomodoro = async (focusItem: FocusItem, store = makeStore()) => {
     render(
       <Provider store={store}>
         <BeyouThemeProvider>
+          {/* As in production: the owner rides the root layout and is the only thing that
+              finishes a cycle or arms the notification. The panel alone would never hand over. */}
+          <PomodoroOwner />
           <Pomodoro item={focusItem} date={DATE} />
         </BeyouThemeProvider>
       </Provider>,

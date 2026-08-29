@@ -5,6 +5,7 @@ import AgentWidget from "./agent/AgentWidget";
 import BottomNav from "./dashboard/BottomNav";
 import Sidebar from "./shell/Sidebar";
 import RunningTimerHub from "./focus/RunningTimerHub";
+import PomodoroOwner from "./focus/PomodoroOwner";
 
 type Props = {
     authState: AuthBootState;
@@ -46,6 +47,8 @@ function ProtectedRoute({ authState }: Props) {
             {/* Rides every authenticated route, and hides itself on /focus. Renders nothing at
                 all unless a cycle is actually running or paused. */}
             <RunningTimerHub />
+            {/* Finishes and reports a cycle wherever the person is. Renders nothing. */}
+            <PomodoroOwner />
         </div>
     );
 }

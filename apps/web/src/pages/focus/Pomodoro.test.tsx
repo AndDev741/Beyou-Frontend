@@ -1,4 +1,5 @@
 import { act, screen } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { configureStore } from "@reduxjs/toolkit";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -22,6 +23,19 @@ vi.mock("@beyou/api/focus/focusApi", () => ({
 
 import { addFocusMicroTask, listFocusMicroTasks, recordFocusCycle } from "@beyou/api/focus/focusApi";
 import Pomodoro from "./Pomodoro";
+import PomodoroOwner from "../../components/focus/PomodoroOwner";
+
+/**
+ * The panel as it exists in production: never alone. `PomodoroOwner` rides the app shell and is
+ * the only thing that finishes a cycle, so every test that walks a cycle to zero mounts both. A
+ * test that rendered the panel by itself would wait for a handover that no longer comes from it.
+ */
+const Panel = (props: ComponentProps<typeof Pomodoro>) => (
+    <>
+        <PomodoroOwner />
+        <Pomodoro {...props} />
+    </>
+);
 
 const baseState = rootReducer(undefined as never, { type: "@@INIT" } as never);
 const DATE = "2026-08-28";
@@ -76,7 +90,7 @@ const jump = async (ms: number) => {
 
 describe("the three cycles", () => {
     test("opens on Pomodoro, previewing the length it would run", () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
 
         expect(screen.getByTestId("focus-cycle-tab-pomodoro")).toHaveAttribute("aria-pressed", "true");
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("25:00");
@@ -84,7 +98,7 @@ describe("the three cycles", () => {
     });
 
     test("switching tab changes the previewed length and the message", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
 
         await userEvent.click(screen.getByTestId("focus-cycle-tab-shortBreak"));
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("05:00");
@@ -109,7 +123,7 @@ describe("the three cycles", () => {
          * them. The window is now offered as a one-tap suggestion instead.
          */
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item("07:00", "07:15")} date={DATE} />, {
+        renderWithProviders(<Panel item={item("07:00", "07:15")} date={DATE} />, {
             storeOverride: store,
         });
 
@@ -127,7 +141,7 @@ describe("the three cycles", () => {
 
     test("the item's window is offered as one tap, and applying it changes the setting", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item("07:00", "07:45")} date={DATE} />, {
+        renderWithProviders(<Panel item={item("07:00", "07:45")} date={DATE} />, {
             storeOverride: store,
         });
         await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
@@ -141,14 +155,14 @@ describe("the three cycles", () => {
     });
 
     test("an item with no window has nothing to offer", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
 
         expect(screen.queryByTestId("focus-use-item-window")).not.toBeInTheDocument();
     });
 
     test("a break ignores the window entirely", async () => {
-        renderWithProviders(<Pomodoro item={item("07:00", "08:30")} date={DATE} />, {
+        renderWithProviders(<Panel item={item("07:00", "08:30")} date={DATE} />, {
             storeOverride: buildStore(),
         });
 
@@ -158,7 +172,7 @@ describe("the three cycles", () => {
     });
 
     test("the tab stays live during a cycle, and the clock keeps showing what runs", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(60_000);
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("24:00");
@@ -173,7 +187,7 @@ describe("the three cycles", () => {
 describe("the settings", () => {
     test("all three lengths are editable, and clamped", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
 
         await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
 
@@ -190,7 +204,7 @@ describe("the settings", () => {
 
     test("the long-break interval is editable too", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
 
         const field = screen.getByTestId("focus-setting-longBreakEvery");
@@ -201,7 +215,7 @@ describe("the settings", () => {
     });
 
     test("a changed length shows up in the preview at once", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
 
         const field = screen.getByTestId("focus-setting-pomodoro");
@@ -215,7 +229,7 @@ describe("the settings", () => {
 describe("running a cycle", () => {
     test("starts on an absolute end time and counts down from it", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
 
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
 
@@ -229,7 +243,7 @@ describe("running a cycle", () => {
     test("a long pause costs nothing", async () => {
         // The point of storing an end time rather than counting down: the pause freezes what is
         // left, and resuming recomputes the end from it, so twenty minutes away is free.
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
 
         await jump(60_000);
@@ -248,7 +262,7 @@ describe("running a cycle", () => {
     test("a finished cycle is reported to the server, from the timer's own fields", async () => {
         // Reported BEFORE the reducer hands over: after the dispatch, `kind` is already the break.
         // Fire-and-forget, so a lost report cannot stop the handover.
-        renderWithProviders(<Pomodoro item={item("07:00", "07:25", "hg1")} date={DATE} />, {
+        renderWithProviders(<Panel item={item("07:00", "07:25", "hg1")} date={DATE} />, {
             storeOverride: buildStore(),
         });
         const startedAt = Date.now();
@@ -270,7 +284,7 @@ describe("running a cycle", () => {
     });
 
     test("an abandoned cycle is never reported: there is no failure state to record", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(60_000);
 
@@ -281,7 +295,7 @@ describe("running a cycle", () => {
 
     test("crossing zero hands over to the short break and counts the pomodoro", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
 
         await jump(25 * 60_000);
@@ -301,7 +315,7 @@ describe("running a cycle", () => {
 
     test("skipping hands over to the next cycle without counting or reporting it", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(60_000);
 
@@ -323,7 +337,7 @@ describe("running a cycle", () => {
     test("the clock previews the cycle it is about to run, not a dead zero", async () => {
         // Reported: skipping a pomodoro left the short break reading 00:00 until start was pressed,
         // under a line saying it was time for a break.
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(60_000);
 
@@ -336,7 +350,7 @@ describe("running a cycle", () => {
         // The user's exact path, and the one that was broken: set the long break to every third
         // pomodoro in the panel, then skip. Seven skips used to pass without it ever arriving.
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
         const every = screen.getByTestId("focus-setting-longBreakEvery");
         await userEvent.clear(every);
@@ -358,7 +372,7 @@ describe("running a cycle", () => {
 
     test("three skips read as the fourth pomodoro", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
 
         for (let round = 0; round < 3; round += 1) {
             // Each skip hands over to a break, so the Pomodoro tab is chosen again every round.
@@ -373,7 +387,7 @@ describe("running a cycle", () => {
     });
 
     test("the skip is offered while a cycle runs or is held, and nowhere else", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         // Idle: there is nothing to skip.
         expect(screen.queryByTestId("focus-pomodoro-skip")).not.toBeInTheDocument();
 
@@ -391,7 +405,7 @@ describe("running a cycle", () => {
     });
 
     test("nothing anywhere calls a finished cycle a failure", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(25 * 60_000);
 
@@ -401,7 +415,7 @@ describe("running a cycle", () => {
 
     test("resetting keeps nothing and counts nothing", async () => {
         const store = buildStore();
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(25 * 60_000);
         expect(store.getState().focus.timer?.rounds).toBe(1);
@@ -421,13 +435,13 @@ describe("one timer at a time", () => {
         // silently replaced a cycle somebody was 18 minutes into.
         const store = buildStore();
         const { unmount } = renderWithProviders(
-            <Pomodoro item={item("07:00", "07:45", "hg1")} date={DATE} />,
+            <Panel item={item("07:00", "07:45", "hg1")} date={DATE} />,
             { storeOverride: store }
         );
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         unmount();
 
-        renderWithProviders(<Pomodoro item={item("12:00", "12:20", "hg2")} date={DATE} />, {
+        renderWithProviders(<Panel item={item("12:00", "12:20", "hg2")} date={DATE} />, {
             storeOverride: store,
         });
 
@@ -439,7 +453,7 @@ describe("one timer at a time", () => {
 describe("the tab says what is happening", () => {
     test("the title counts while a cycle runs, and is put back afterwards", async () => {
         const original = document.title;
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: buildStore() });
 
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         expect(document.title).toContain("25:00");
@@ -489,7 +503,7 @@ describe("a persisted state from before these fields existed", () => {
         });
 
     test("renders instead of white-screening, and falls back to the defaults", () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: staleStore() });
 
         expect(screen.getByTestId("focus-pomodoro")).toBeInTheDocument();
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("25:00");
@@ -500,7 +514,7 @@ describe("a persisted state from before these fields existed", () => {
         vi.mocked(addFocusMicroTask).mockResolvedValue({
             success: { id: "9", date: DATE, itemGroupId: "hg1", name: "Stretch", pinned: false, doneAt: null },
         });
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: staleStore() });
 
         expect(screen.getByTestId("focus-micro-tasks")).toBeInTheDocument();
         // The list is wrapped in StrictModeDroppable, which renders null until a rAF fires. This
@@ -519,7 +533,7 @@ describe("a persisted state from before these fields existed", () => {
     });
 
     test("the break tabs work too, rather than reading a length off nothing", async () => {
-        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: staleStore() });
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: staleStore() });
 
         await userEvent.click(screen.getByTestId("focus-cycle-tab-longBreak"));
 
