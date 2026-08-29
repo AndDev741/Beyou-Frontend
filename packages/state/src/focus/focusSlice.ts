@@ -92,6 +92,40 @@ const initialState: focusState = {
     microTasks: {},
 };
 
+/**
+ * What may come back from storage, and what may not.
+ *
+ * The web store persists this slice, and redux-persist's reconciler HARD SETS a stored slice
+ * over the reducer's initial state (`autoMergeLevel1` assigns, it does not merge). So whatever
+ * was in localStorage when the tab closed is what the app boots with, key for key.
+ *
+ * That is wrong for every field here except two. `mode`, the selection and the micro-task cache
+ * describe a VISIT: the person is on the focus screen right now, looking at item 4, with that
+ * item's list loaded. A tab closed inside the focus screen never runs `focusExited`, so the mode
+ * comes back as "ultrafoco" on a dashboard that is not the focus screen — and the button that
+ * offers the way in hides itself, because a stored boolean says the user is already there. Same
+ * shape of bug for `manuallySelected`: left true, the clock is barred from seeding tomorrow's
+ * selection and the screen opens wherever yesterday ended.
+ *
+ * Only the timer and the settings earn a place in storage. A cycle is a promise about the next
+ * 25 minutes and has to survive a reload; the four durations are preferences. Everything else is
+ * rebuilt from `initialState`, which is also why this returns a COMPLETE state rather than the
+ * kept fields alone — a partial object would leave the rest undefined, which is the crash the
+ * persist migrations exist to prevent.
+ *
+ * Reads defensively because the input is whatever an older build wrote.
+ */
+export function restoreFocusState(stored: unknown): focusState {
+    const saved = (stored ?? {}) as Partial<focusState>;
+    return {
+        ...initialState,
+        timer: saved.timer ?? null,
+        // Merged over the defaults, not taken whole: a build that shipped fewer settings than
+        // today's would otherwise hand a component `undefined` where a number belongs.
+        settings: { ...initialState.settings, ...(saved.settings ?? {}) },
+    };
+}
+
 /** Clamped, never wrapping. Running off the end of the day should stop, not start over. */
 const clamp = (index: number, count: number) => Math.min(Math.max(index, 0), count - 1);
 

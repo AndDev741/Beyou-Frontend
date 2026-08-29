@@ -47,6 +47,7 @@ export { celebrationPushed, celebrationShifted } from './celebration/celebration
 
 // focus
 export type { FocusMode } from './focus/focusSlice';
+export { restoreFocusState } from './focus/focusSlice';
 export {
     focusEntered,
     focusModeChanged,

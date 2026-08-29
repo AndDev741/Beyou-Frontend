@@ -13,6 +13,7 @@ import reducer, {
     pomodoroResumed,
     pomodoroSettingsChanged,
     pomodoroStarted,
+    restoreFocusState,
 } from '../focusSlice';
 
 const TODAY = '2026-08-28';
@@ -345,5 +346,64 @@ describe('the three cycles and their settings', () => {
         );
 
         expect(reducer(onBreak, focusEntered(TODAY)).selectedCycle).toBe('longBreak');
+    });
+});
+
+describe('what survives storage', () => {
+    // The web store persists this slice and redux-persist HARD SETS a stored slice over the
+    // reducer's initial state. Everything below is about one reported bug: the "enter focus"
+    // button vanished from the dashboard and stayed gone across restarts of the dev stack,
+    // because a tab closed inside the focus screen never ran `focusExited` and left
+    // `mode: "ultrafoco"` in localStorage.
+    const stale = {
+        mode: 'ultrafoco',
+        selectedIndex: 7,
+        manuallySelected: true,
+        timer: {
+            kind: 'pomodoro',
+            date: '2026-08-29',
+            startedAt: 1,
+            endsAt: 2,
+            minutes: 25,
+            pausedRemainingMs: null,
+            finished: false,
+        },
+        selectedCycle: 'longBreak',
+        settings: { pomodoro: 30, shortBreak: 7, longBreak: 20, longBreakEvery: 3 },
+        microTasks: { 'item-1': [{ id: 'a', name: 'Stretch' }] },
+    };
+
+    it('drops the visit: the mode, the selection and the cached micro-tasks', () => {
+        const restored = restoreFocusState(stale);
+
+        expect(restored.mode).toBe('off');
+        expect(restored.selectedIndex).toBe(-1);
+        expect(restored.manuallySelected).toBe(false);
+        expect(restored.microTasks).toEqual({});
+    });
+
+    it('keeps the timer and the settings, which is why a blacklist would not do', () => {
+        const restored = restoreFocusState(stale);
+
+        expect(restored.timer).toEqual(stale.timer);
+        expect(restored.settings).toEqual(stale.settings);
+    });
+
+    it('returns a COMPLETE state, whatever the stored shape was', () => {
+        // A partial object would leave the rest undefined, which is the white screen the persist
+        // migrations exist to prevent. Both of these are shapes an older build could have written.
+        for (const stored of [{}, { mode: 'descanso' }, null, undefined, 'nonsense']) {
+            const restored = restoreFocusState(stored);
+            expect(Object.keys(restored).sort()).toEqual(Object.keys(restoreFocusState(stale)).sort());
+            expect(restored.settings.shortBreak).toBeGreaterThan(0);
+            expect(restored.selectedCycle).toBe('pomodoro');
+        }
+    });
+
+    it('fills in a setting a shorter stored shape never had', () => {
+        const restored = restoreFocusState({ settings: { pomodoro: 50 } });
+
+        expect(restored.settings.pomodoro).toBe(50);
+        expect(restored.settings.longBreakEvery).toBeGreaterThan(0);
     });
 });
