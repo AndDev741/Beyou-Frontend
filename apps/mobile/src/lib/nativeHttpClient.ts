@@ -108,5 +108,6 @@ export const nativeHttpClient: HttpClient = {
   get: (url, config) => request('GET', url, undefined, config),
   post: (url, body, config) => request('POST', url, body, config),
   put: (url, body, config) => request('PUT', url, body, config),
+  patch: (url, body, config) => request('PATCH', url, body, config),
   delete: (url, config) => request('DELETE', url, undefined, config),
 };

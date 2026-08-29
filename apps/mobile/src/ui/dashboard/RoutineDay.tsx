@@ -10,7 +10,7 @@ import {
   checkedItemsInScheduledRoutineEnter,
   totalItemsInScheduledRoutineEnter,
 } from '@beyou/state/user/perfilSlice';
-import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react-native';
+import { CalendarDays, ChevronDown, ChevronRight, Maximize2 } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { loadCollapsedSections, saveCollapsedSection } from '../../lib/collapsedSections';
 import { formatTimeRange, getSectionStats } from '@beyou/state';
@@ -177,7 +177,12 @@ function Section({
 export default function RoutineDay() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const { theme } = useBeyouTheme();
   const routine = useSelector((s: RootState) => s.todayRoutine.routine);
+  // The focus screen renders THIS component, so without the guard the way in would be
+  // offered from inside the screen it leads to.
+  const focusMode = useSelector((s: RootState) => s.focus.mode);
   const isList = isListRoutine(routine);
   const today = new Date().toJSON().slice(0, 10);
   const checked = useSelector((s: RootState) => s.perfil.checkedItemsInScheduledRoutine);
@@ -251,6 +256,19 @@ export default function RoutineDay() {
               />
             </View>
           </View>
+        ) : null}
+
+        {/* Only on today's card. History is drawn by SnapshotCard, which deliberately does
+            not get this: focus is about the day in progress. */}
+        {focusMode === 'off' ? (
+          <IconButton
+            label={t('FocusEnter')}
+            onPress={() => router.push('/focus')}
+            className={total > 0 ? 'ml-1' : 'ml-auto'}
+            testID="focus-enter"
+          >
+            <Maximize2 size={16} color={theme.text2} />
+          </IconButton>
         ) : null}
       </View>
 

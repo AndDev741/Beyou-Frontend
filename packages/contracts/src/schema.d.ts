@@ -992,6 +992,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/focus/cycles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["recordCycle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/focus/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getDay"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/focus/micro-tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listMicroTasks"];
+        put?: never;
+        post: operations["addMicroTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/focus/micro-tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/focus/micro-tasks/{id}/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["toggle"];
+        trace?: never;
+    };
+    "/focus/micro-tasks/{id}/pin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["pin"];
+        trace?: never;
+    };
+    "/focus/micro-tasks/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["reorder"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1495,10 +1607,15 @@ export interface components {
             checkTime?: string;
             /** Format: double */
             xpGenerated?: number;
+            microTasks?: components["schemas"]["FocusMicroTaskResponseDTO"][];
+            /** Format: int32 */
+            pomodoros?: number;
         };
         SnapshotResponseDTO: {
             /** Format: uuid */
             id?: string;
+            /** Format: uuid */
+            routineId?: string;
             /** Format: date */
             snapshotDate?: string;
             routineName?: string;
@@ -1506,6 +1623,7 @@ export interface components {
             completed?: boolean;
             structure?: string;
             checks?: components["schemas"]["SnapshotCheckResponseDTO"][];
+            focusCycles?: components["schemas"]["FocusCycleResponseDTO"][];
         };
         Category: {
             /** Format: uuid */
@@ -1887,6 +2005,63 @@ export interface components {
             /** Format: int32 */
             orderIndex?: number;
             checks?: components["schemas"]["BaseCheck"][];
+        };
+        FocusCycleResponseDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: date */
+            date?: string;
+            /** Format: uuid */
+            itemGroupId?: string;
+            /** @enum {string} */
+            kind?: "POMODORO" | "SHORT_BREAK" | "LONG_BREAK";
+            /** Format: date-time */
+            startedAt?: string;
+            /** Format: date-time */
+            endedAt?: string;
+            /** Format: int32 */
+            minutes?: number;
+        };
+        FocusMicroTaskResponseDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: date */
+            date?: string;
+            /** Format: uuid */
+            itemGroupId?: string;
+            name?: string;
+            pinned?: boolean;
+            /** Format: date-time */
+            doneAt?: string;
+        };
+        FocusDayResponseDTO: {
+            /** Format: date */
+            date?: string;
+            cycles?: components["schemas"]["FocusCycleResponseDTO"][];
+            microTasks?: components["schemas"]["FocusMicroTaskResponseDTO"][];
+        };
+        RecordCycleRequestDTO: {
+            /** Format: uuid */
+            itemGroupId?: string;
+            /** @enum {string} */
+            kind: "POMODORO" | "SHORT_BREAK" | "LONG_BREAK";
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date-time */
+            endedAt: string;
+            /** Format: int32 */
+            minutes: number;
+        };
+        CreateMicroTaskRequestDTO: {
+            /** Format: uuid */
+            itemGroupId: string;
+            name: string;
+            pinned?: boolean;
+        };
+        ReorderMicroTasksRequestDTO: {
+            /** Format: uuid */
+            itemGroupId: string;
+            ids: string[];
         };
     };
     responses: never;
@@ -3781,6 +3956,188 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    recordCycle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordCycleRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusCycleResponseDTO"];
+                };
+            };
+        };
+    };
+    getDay: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusDayResponseDTO"];
+                };
+            };
+        };
+    };
+    listMicroTasks: {
+        parameters: {
+            query: {
+                itemGroupId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusMicroTaskResponseDTO"][];
+                };
+            };
+        };
+    };
+    addMicroTask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMicroTaskRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusMicroTaskResponseDTO"];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    toggle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusMicroTaskResponseDTO"];
+                };
+            };
+        };
+    };
+    pin: {
+        parameters: {
+            query: {
+                pinned: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusMicroTaskResponseDTO"];
+                };
+            };
+        };
+    };
+    reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReorderMicroTasksRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FocusMicroTaskResponseDTO"][];
+                };
             };
         };
     };

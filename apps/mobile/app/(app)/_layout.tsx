@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { TutorialOverlayHost } from '../../src/tutorial/TutorialOverlaySlot';
 import AgentWidget from '../../src/ui/agent/AgentWidget';
 import BottomNav from '../../src/ui/dashboard/BottomNav';
+import RunningTimerHub from '../../src/focus/RunningTimerHub';
 
 // Anchor the (app) group on the dashboard so deep-linking / reloading onto a
 // section screen (e.g. /goals) still has the dashboard beneath it — back returns
@@ -37,6 +38,9 @@ export default function AppLayout() {
             same panel would be permanent furniture on a small screen — the widget
             stays mounted here because it is what holds the conversation. */}
         <AgentWidget showFab={false} />
+        {/* Rides every screen in this group. Renders nothing unless a focus cycle is live, and the
+            focus screen itself lives outside the group so it never competes with the real panel. */}
+        <RunningTimerHub />
       </TutorialOverlayHost>
     </View>
   );

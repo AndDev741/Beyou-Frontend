@@ -153,8 +153,12 @@ const SnapshotSection = ({ section, checks, onCheck, onSkip }: SnapshotSectionPr
                 const hasItemIcon = item.iconId ? resolveIcon(item.iconId).kind !== "fallback" : false;
                 const range = formatTimeRange(item.startTime || undefined, item.endTime || undefined);
 
+                const microTasks = check?.microTasks ?? [];
+                const pomodoros = check?.pomodoros ?? 0;
+
                 return (
-                    <div key={item.groupId} className="mt-2 flex items-center gap-2">
+                    <div key={item.groupId} className="mt-2">
+                    <div className="flex items-center gap-2">
                         <span className="shrink-0 text-text-3">
                             {hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle aria-hidden="true" />}
                         </span>
@@ -200,6 +204,34 @@ const SnapshotSection = ({ section, checks, onCheck, onSkip }: SnapshotSectionPr
                                 )}
                             </div>
                         )}
+                    </div>
+
+                    {/* What the Focus Mode did on this item that day, on the user's request: each
+                        micro-task created for a task or habit of the routine, and the pomodoros run
+                        on it. Nothing here is interactive — history is read. */}
+                    {(microTasks.length > 0 || pomodoros > 0) && (
+                        <div className="ml-6 mt-1 flex flex-wrap items-center gap-1.5" data-testid={`snapshot-focus-${item.groupId}`}>
+                            {pomodoros > 0 && (
+                                <span
+                                    className="rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[11px] font-medium text-accent"
+                                    data-testid={`snapshot-pomodoros-${item.groupId}`}
+                                >
+                                    {t("FocusPomodorosOnItem", { count: pomodoros })}
+                                </span>
+                            )}
+                            {microTasks.map((task) => (
+                                <span
+                                    key={task.id}
+                                    className={`rounded-full border border-border px-2 py-0.5 text-[11px] ${
+                                        task.doneAt ? "text-text-3 line-through" : "text-text-2"
+                                    }`}
+                                    data-testid={`snapshot-micro-task-${task.id}`}
+                                >
+                                    {task.name}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                     </div>
                 );
             })}

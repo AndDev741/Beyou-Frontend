@@ -45,6 +45,70 @@ export { idEnter, descriptionEnter, iconEnter } from './category/editCategorySli
 export type { Celebration } from './celebration/celebrationSlice';
 export { celebrationPushed, celebrationShifted } from './celebration/celebrationSlice';
 
+// focus
+export type { FocusMode } from './focus/focusSlice';
+export { restoreFocusState } from './focus/focusSlice';
+export {
+    focusEntered,
+    focusReturnConsumed,
+    focusModeChanged,
+    focusStartResolved,
+    focusItemSelected,
+    focusMovedBy,
+    focusExited,
+    cycleSelected,
+    pomodoroSettingsChanged,
+    microTasksLoaded,
+    microTaskUpserted,
+    microTasksReordered,
+    microTaskRemoved,
+    pomodoroStarted,
+    pomodoroPaused,
+    pomodoroResumed,
+    pomodoroCycleCompleted,
+    pomodoroSkipped,
+    pomodoroAbandoned,
+} from './focus/focusSlice';
+export { getFocusItems, isFocusItemChecked, isFocusItemSkipped, isFocusItemOpen } from './focus/focusItems';
+export type { FocusItem } from './focus/focusItems';
+export { resolveFocusStart, minutesOfDay } from './focus/resolveFocusStart';
+export { FOCUS_REASON_LABEL_KEY, reasonIsFromClock } from './focus/focusLabels';
+export {
+    isMicroTaskDone,
+    normalizeMicroTaskName,
+    suggestMicroTask,
+    MICRO_TASK_MAX_LENGTH,
+} from './focus/microTasks';
+export type { FocusMicroTask, MicroTasksByItem } from './focus/microTasks';
+export {
+    cycleMinutes,
+    itemWindowMinutes,
+    remainingMs,
+    timerStatus,
+    formatRemaining,
+    clampCycleMinutes,
+    clampLongBreakEvery,
+    nextCycleKind,
+    pomodoroNumber,
+    toServerCycleKind,
+    CYCLE_KINDS,
+    CYCLE_LABEL_KEY,
+    CYCLE_MESSAGE_KEY,
+    DEFAULT_POMODORO_SETTINGS,
+    MIN_CYCLE_MINUTES,
+    MAX_CYCLE_MINUTES,
+    MIN_LONG_BREAK_EVERY,
+    MAX_LONG_BREAK_EVERY,
+} from './focus/pomodoro';
+export type {
+    FocusTimer,
+    CycleKind,
+    TimerStatus,
+    PomodoroSettings,
+} from './focus/pomodoro';
+export type { FocusStart, FocusStartReason } from './focus/resolveFocusStart';
+export { toMinutes, fromMinutes, MINUTES_PER_DAY } from './routine/minutes';
+
 // gamification
 export { STREAK_MILESTONES } from './gamification/streakMilestones';
 export { applyRefreshUi } from './user/refreshUiThunk';

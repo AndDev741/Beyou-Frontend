@@ -32,6 +32,7 @@ import { PostHogProvider } from 'posthog-react-native';
 import { initAnalytics } from '../src/lib/analytics';
 import AnalyticsSync from '../src/lib/AnalyticsSync';
 import { BeyouToastHost } from '../src/ui/BeyouToast';
+import PomodoroOwner from '../src/focus/PomodoroOwner';
 
 // Error reporting comes up before any app wiring so a crash *during* the setup
 // below is still captured. No-ops when EXPO_PUBLIC_SENTRY_DSN is unset.
@@ -114,7 +115,14 @@ function Gate() {
     );
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <>
+      {/* Finishes, reports and alerts for a running cycle wherever the person is — on the focus
+          screen or off it. Renders nothing. */}
+      <PomodoroOwner />
+      <Stack screenOptions={{ headerShown: false }} />
+    </>
+  );
 }
 
 // The native splash stays up until the typeface loads. Without this it leaves as

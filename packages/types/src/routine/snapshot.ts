@@ -1,3 +1,5 @@
+import type { FocusCycle, FocusMicroTask } from '../focus/focus';
+
 export type SnapshotCheck = {
     id: string;
     itemType: 'HABIT' | 'TASK';
@@ -11,6 +13,13 @@ export type SnapshotCheck = {
     skipped: boolean;
     checkTime: string | null;
     xpGenerated: number;
+    /**
+     * What the Focus Mode did on this item that day. Joined server-side on `originalGroupId`.
+     * Absent from snapshots written before the Focus Mode existed, so read with a default.
+     */
+    microTasks?: FocusMicroTask[];
+    /** Completed POMODORO cycles on this item. Breaks do not count. */
+    pomodoros?: number;
 };
 
 export type SnapshotStructureItem = {
@@ -45,6 +54,11 @@ export type Snapshot = {
     completed: boolean;
     structure: SnapshotStructure;
     checks: SnapshotCheck[];
+    /**
+     * Every cycle of the day that ran on one of this routine's items, plus every cycle that ran on
+     * no item at all. Absent from older snapshots.
+     */
+    focusCycles?: FocusCycle[];
 };
 
 export type SnapshotMonthResponse = {

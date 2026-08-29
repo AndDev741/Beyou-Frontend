@@ -1,0 +1,142 @@
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import type { RootState } from "@beyou/state/rootReducer";
+import {
+    DEFAULT_POMODORO_SETTINGS,
+    cycleSelected,
+    formatRemaining,
+    pomodoroAbandoned,
+    pomodoroNumber,
+    pomodoroSkipped,
+    pomodoroPaused,
+    pomodoroResumed,
+    pomodoroSettingsChanged,
+    pomodoroStarted,
+    remainingMs,
+    timerStatus,
+    type CycleKind,
+    type PomodoroSettings,
+} from "@beyou/state";
+
+/**
+ * The pomodoro, ticking.
+ *
+ * The native twin is `apps/mobile/src/focus/usePomodoro.ts`, per-app for the same reason as
+ * `useFocusSelection`: `@beyou/state` holds no React. Everything that decides anything is
+ * shared — the reducer, `remainingMs`, `timerStatus`, `formatRemaining`, `nextCycleKind` — and
+ * what is written twice is the interval and the platform's own side effects.
+ *
+ * Nothing counts down in a variable. The tick exists only to re-render; the number it displays
+ * is always `endsAt` minus the wall clock. That is what survives a throttled background tab,
+ * a sleeping laptop, and a reload.
+ */
+export function usePomodoro(groupId: string | null, date: string) {
+    const dispatch = useDispatch();
+    const { t } = useTranslation();
+    const timer = useSelector((state: RootState) => state.focus.timer);
+    /**
+     * Both fall back, and the fallbacks are load-bearing rather than paranoia.
+     *
+     * This slice is persisted, and redux-persist replaces a stored slice wholesale instead of
+     * merging it into the reducer's initial state. A browser holding the shape from before these
+     * two fields existed rehydrates them as `undefined`, and the first render reads them before
+     * any reducer can correct it. The store's migration fixes those browsers properly; this makes
+     * sure the next field added here cannot white-screen the app while somebody forgets to bump
+     * the version.
+     */
+    const selectedCycle =
+        useSelector((state: RootState) => state.focus.selectedCycle) ?? "pomodoro";
+    const settings =
+        useSelector((state: RootState) => state.focus.settings) ?? DEFAULT_POMODORO_SETTINGS;
+    const [now, setNow] = useState(() => Date.now());
+
+    const status = timerStatus(timer, now);
+    const remaining = remainingMs(timer, now);
+
+    // One second while it runs, and nothing at all otherwise: an idle or paused screen has no
+    // reason to wake up 60 times a minute.
+    useEffect(() => {
+        if (status !== "running") return;
+        const id = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(id);
+    }, [status]);
+
+    // Crossing zero is NOT handled here. `PomodoroOwner`, mounted in the app shell, notices the
+    // clock running out and reports the cycle, so a cycle that ends while this panel is unmounted
+    // (person on the dashboard, or on the "whole routine" view) still completes and still reaches
+    // the server. Exactly one mount may dispatch that, or the cycle is POSTed twice — this hook
+    // only paints and takes input.
+
+    // The tab title carries the countdown, so the cycle is readable from another tab. Restored
+    // on cleanup, including when the component unmounts mid-cycle.
+    useEffect(() => {
+        if (status !== "running") return;
+        const original = document.title;
+        document.title = `${formatRemaining(remaining)} · ${t("FocusTitle")}`;
+        return () => {
+            document.title = original;
+        };
+    }, [status, remaining, t]);
+
+    // Closing the tab on a running cycle asks first. Browsers show their own wording and ignore
+    // ours, which is why the string is not translated here.
+    useEffect(() => {
+        if (status !== "running") return;
+        const onBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = "";
+        };
+        window.addEventListener("beforeunload", onBeforeUnload);
+        return () => window.removeEventListener("beforeunload", onBeforeUnload);
+    }, [status]);
+
+    const start = useCallback(
+        (kind: CycleKind, minutes: number) => {
+            if (!groupId) return;
+            dispatch(pomodoroStarted({ groupId, kind, minutes, now: Date.now(), date }));
+            setNow(Date.now());
+        },
+        [dispatch, groupId, date]
+    );
+
+    return {
+        timer,
+        status,
+        remaining,
+        formatted: formatRemaining(remaining),
+        /** The tab showing, which is a different question from what is running. */
+        selectedCycle,
+        settings,
+        /** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
+        number: pomodoroNumber(timer?.rounds ?? 0),
+        /** What is actually running, or the tab's cycle when nothing is. */
+        runningCycle: timer?.kind ?? selectedCycle,
+        selectCycle: useCallback((kind: CycleKind) => dispatch(cycleSelected(kind)), [dispatch]),
+        changeSettings: useCallback(
+            (patch: Partial<PomodoroSettings>) => dispatch(pomodoroSettingsChanged(patch)),
+            [dispatch]
+        ),
+        start,
+        pause: useCallback(() => dispatch(pomodoroPaused({ now: Date.now() })), [dispatch]),
+        /**
+         * Refreshes `now` alongside the dispatch, exactly as `start` does.
+         *
+         * Without it the display was briefly wrong and wrong in the alarming direction: resume
+         * recomputes `endsAt` from the current clock while the hook's `now` was still whatever
+         * the interval last wrote before the pause, so a 24:00 cycle resumed after twenty minutes
+         * away rendered 44:00 until the next tick.
+         */
+        resume: useCallback(() => {
+            dispatch(pomodoroResumed({ now: Date.now() }));
+            setNow(Date.now());
+        }, [dispatch]),
+        /**
+         * Hand over to the next cycle now. Nothing is reported and nothing is counted: the
+         * reducer marks the timer finished, which is the same flag that keeps the report effect
+         * above from firing.
+         */
+        skip: useCallback(() => dispatch(pomodoroSkipped()), [dispatch]),
+        stop: useCallback(() => dispatch(pomodoroAbandoned()), [dispatch]),
+    };
+}

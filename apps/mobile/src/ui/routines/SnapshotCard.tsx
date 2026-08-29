@@ -45,8 +45,11 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
           {[...section.items].sort(byStart).map((item) => {
             const check = snapshot.checks.find((c) => c.originalGroupId === item.groupId);
             const itemRange = range(item.startTime, item.endTime);
+            const microTasks = check?.microTasks ?? [];
+            const pomodoros = check?.pomodoros ?? 0;
             return (
-              <View key={item.groupId} className="mt-2 flex-row items-center gap-2">
+              <View key={item.groupId} className="mt-2">
+              <View className="flex-row items-center gap-2">
                 <BeyouIcon id={item.iconId} size={16} />
                 <Text className={`flex-1 text-sm ${check?.checked ? 'text-text-2 line-through' : 'text-text'}`}>{item.name}</Text>
                 {itemRange ? <Text className="text-text-2 text-xs">{itemRange}</Text> : null}
@@ -60,6 +63,33 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
                     </Pressable>
                   </View>
                 ) : null}
+              </View>
+
+              {/* What the Focus Mode did on this item that day. History is read, so nothing here
+                  is interactive. */}
+              {microTasks.length > 0 || pomodoros > 0 ? (
+                <View className="ml-6 mt-1 flex-row flex-wrap items-center gap-1.5" testID={`snapshot-focus-${item.groupId}`}>
+                  {pomodoros > 0 ? (
+                    <Text
+                      className="rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[11px] font-medium text-accent"
+                      testID={`snapshot-pomodoros-${item.groupId}`}
+                    >
+                      {t('FocusPomodorosOnItem', { count: pomodoros })}
+                    </Text>
+                  ) : null}
+                  {microTasks.map((task) => (
+                    <Text
+                      key={task.id}
+                      className={`rounded-full border border-border px-2 py-0.5 text-[11px] ${
+                        task.doneAt ? 'text-text-3 line-through' : 'text-text-2'
+                      }`}
+                      testID={`snapshot-micro-task-${task.id}`}
+                    >
+                      {task.name}
+                    </Text>
+                  ))}
+                </View>
+              ) : null}
               </View>
             );
           })}

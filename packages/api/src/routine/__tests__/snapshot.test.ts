@@ -13,6 +13,7 @@ function makeMockClient(): HttpClient {
         post: vi.fn(),
         put: vi.fn(),
         delete: vi.fn(),
+        patch: vi.fn(),
     };
 }
 
