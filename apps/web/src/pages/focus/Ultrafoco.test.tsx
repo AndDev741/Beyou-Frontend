@@ -13,7 +13,16 @@ import skipRoutine from "@beyou/api/routine/skipItem";
 import Ultrafoco from "./Ultrafoco";
 
 const baseState = rootReducer(undefined as never, { type: "@@INIT" } as never);
-const today = new Date().toJSON().slice(0, 10);
+/**
+ * The day this suite lives in, and the day `atClock` pins the clock to.
+ *
+ * Read from the REAL clock at module load, this line made the file pass only on the day it was
+ * written: the fixtures dated their checks "today" while the code under test read a frozen
+ * 2026-08-28, so the finished-day test went red at the next midnight. A fixture and the clock
+ * the component reads have to be the same clock.
+ */
+const FIXED_DAY: [number, number, number] = [2026, 7, 28];
+const today = new Date(...FIXED_DAY, 12, 0, 0).toJSON().slice(0, 10);
 
 const habits = [
     { id: "h1", name: "Drink water", iconId: "lucide:droplet" },
@@ -85,12 +94,15 @@ const buildStore = () =>
 /** Freeze the wall clock so the resolver's answer is not a function of when CI runs. */
 const atClock = (hhmm: string) => {
     const [h, m] = hhmm.split(":").map(Number);
-    vi.setSystemTime(new Date(2026, 7, 28, h, m, 0));
+    vi.setSystemTime(new Date(...FIXED_DAY, h, m, 0));
 };
 
 beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
+    // Midday of the fixed day, so a test that does not care about the hour still starts on the
+    // day its fixtures are dated, instead of inheriting whatever the last `atClock` left behind.
+    atClock("12:00");
     vi.mocked(checkRoutine).mockResolvedValue({ success: {} as never });
     vi.mocked(skipRoutine).mockResolvedValue({ success: {} as never });
 });
