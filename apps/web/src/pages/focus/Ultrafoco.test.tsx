@@ -11,6 +11,7 @@ vi.mock("@beyou/api/routine/skipItem", () => ({ __esModule: true, default: vi.fn
 import checkRoutine from "@beyou/api/routine/checkItem";
 import skipRoutine from "@beyou/api/routine/skipItem";
 import Ultrafoco from "./Ultrafoco";
+import { focusEntered, pomodoroStarted } from "@beyou/state";
 
 const baseState = rootReducer(undefined as never, { type: "@@INIT" } as never);
 /**
@@ -256,5 +257,27 @@ describe("Ultrafoco edge states", () => {
         renderWithProviders(<Ultrafoco routine={done as never} />, { storeOverride: buildStore() });
 
         expect(await screen.findByTestId("focus-ultra-done")).toBeInTheDocument();
+    });
+});
+
+describe("coming back to a running timer", () => {
+    test("opens on the item the pomodoro is running on, not on the clock's pick", async () => {
+        // Reported: tapping the running-timer hub on the dashboard landed on the default view with
+        // the clock choosing "now" (Read, at 12:30), while the pomodoro kept counting on Stretch
+        // two swipes away. `focusEntered` now hands the timer's item to the selection hook.
+        atClock("12:30");
+        const store = buildStore();
+        store.dispatch(
+            pomodoroStarted({ groupId: "hg3", kind: "pomodoro", minutes: 25, now: Date.now(), date: today }),
+        );
+        store.dispatch(focusEntered(today));
+
+        renderWithProviders(<Ultrafoco routine={dailyRoutine as never} />, { storeOverride: store });
+
+        await waitFor(() => expect(screen.getByText("Stretch")).toBeInTheDocument());
+        expect(screen.queryByText("Read")).not.toBeInTheDocument();
+        // Chosen as a manual pick: the clock's next tick cannot drag it back to Read.
+        expect(store.getState().focus.manuallySelected).toBe(true);
+        expect(store.getState().focus.returnToGroupId).toBeNull();
     });
 });

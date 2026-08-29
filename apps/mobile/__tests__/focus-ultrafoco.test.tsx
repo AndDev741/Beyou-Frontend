@@ -23,7 +23,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import checkRoutine from '@beyou/api/routine/checkItem';
 import skipRoutine from '@beyou/api/routine/skipItem';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
-import { focusModeChanged } from '@beyou/state';
+import { focusEntered, focusModeChanged, pomodoroStarted } from '@beyou/state';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
@@ -228,5 +228,26 @@ describe('ultrafoco edge states', () => {
     await renderUltra({ id: 'r3', name: 'Empty', iconId: '', routineSections: [] });
 
     expect(screen.getByTestId('focus-ultra-empty')).toBeTruthy();
+  });
+});
+
+describe('coming back to a running timer', () => {
+  it("opens on the item the pomodoro is running on, not on the clock's pick", async () => {
+    // Reported: tapping the running-timer hub landed on the default view with the clock choosing
+    // "now" (Read, at 12:30), while the pomodoro kept counting on Stretch. `focusEntered` now
+    // hands the timer's item to the selection hook, which selects it as a manual choice.
+    atClock('12:30');
+    const store = seeded();
+    store.dispatch(
+      pomodoroStarted({ groupId: 'hg3', kind: 'pomodoro', minutes: 25, now: Date.now(), date: '2026-08-28' }),
+    );
+    store.dispatch(focusEntered('2026-08-28'));
+
+    await renderUltra(dailyRoutine, store);
+
+    expect(screen.getByText('Stretch')).toBeTruthy();
+    expect(screen.queryByText('Read')).toBeNull();
+    expect(store.getState().focus.manuallySelected).toBe(true);
+    expect(store.getState().focus.returnToGroupId).toBeNull();
   });
 });

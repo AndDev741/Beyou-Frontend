@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import reducer, {
     focusEntered,
     focusExited,
+    focusReturnConsumed,
     focusItemSelected,
     focusModeChanged,
     focusMovedBy,
@@ -521,5 +522,55 @@ describe('skipping a cycle', () => {
 
         expect(after.timer?.rounds).toBe(1);
         expect(after.timer?.kind).toBe('pomodoro');
+    });
+});
+
+describe('coming back to a running timer', () => {
+    const startedOn = (groupId: string) =>
+        reducer(
+            reducer(undefined, enter()),
+            pomodoroStarted({ groupId, kind: 'pomodoro', minutes: 25, now: 1_000, date: TODAY }),
+        );
+
+    it('opens one-at-a-time on the item the timer is running on', () => {
+        // Reported: tapping the hub on the dashboard landed on the focus screen's default view,
+        // with the clock picking whatever is "now", while the pomodoro counted on another item.
+        const away = reducer(startedOn('hg3'), focusExited());
+
+        const back = reducer(away, focusEntered(TODAY));
+
+        expect(back.mode).toBe('ultrafoco');
+        expect(back.returnToGroupId).toBe('hg3');
+        expect(back.timer?.groupId).toBe('hg3');
+    });
+
+    it('opens the overview when nothing is running', () => {
+        const back = reducer(reducer(undefined, enter()), focusEntered(TODAY));
+
+        expect(back.mode).toBe('fullscreen');
+        expect(back.returnToGroupId).toBeNull();
+    });
+
+    it("a timer from another day is dropped, and so is the return to its item", () => {
+        const yesterday = reducer(startedOn('hg3'), focusExited());
+
+        const back = reducer(yesterday, focusEntered('2026-08-29'));
+
+        expect(back.timer).toBeNull();
+        expect(back.mode).toBe('fullscreen');
+        expect(back.returnToGroupId).toBeNull();
+    });
+
+    it('the hand-off is consumed once, so a later clock tick is free to seed again', () => {
+        const back = reducer(reducer(startedOn('hg3'), focusExited()), focusEntered(TODAY));
+
+        const consumed = reducer(back, focusReturnConsumed());
+
+        expect(consumed.returnToGroupId).toBeNull();
+        expect(consumed.mode).toBe('ultrafoco');
+    });
+
+    it('is visit-scoped: storage never gives it back', () => {
+        expect(restoreFocusState({ returnToGroupId: 'hg3', mode: 'ultrafoco' }).returnToGroupId).toBeNull();
     });
 });

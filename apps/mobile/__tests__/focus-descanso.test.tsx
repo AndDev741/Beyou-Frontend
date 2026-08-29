@@ -6,6 +6,10 @@
  *
  * Note this suite asserts TRANSLATED text, not i18n keys: it imports `../src/i18n`.
  */
+// The test binary has no native modules at all; pretend they are present so the mocked
+// packages below are actually reached.
+jest.mock('../src/focus/nativeModule', () => ({ hasNativeModule: () => true }));
+
 jest.mock('react-native-toast-message', () => {
   const S = () => null;
   (S as unknown as { show: unknown }).show = jest.fn();

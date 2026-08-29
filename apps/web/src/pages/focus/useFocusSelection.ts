@@ -5,6 +5,7 @@ import type { RootState } from "@beyou/state/rootReducer";
 import {
     focusItemSelected,
     focusMovedBy,
+    focusReturnConsumed,
     focusStartResolved,
     getFocusItems,
     minutesOfDay,
@@ -37,6 +38,7 @@ import {
 export function useFocusSelection(routine: Routine | null, date: string) {
     const dispatch = useDispatch();
     const selectedIndex = useSelector((state: RootState) => state.focus.selectedIndex);
+    const returnTo = useSelector((state: RootState) => state.focus.returnToGroupId);
     const manuallySelected = useSelector((state: RootState) => state.focus.manuallySelected);
 
     const items = useMemo(() => getFocusItems(routine), [routine]);
@@ -65,6 +67,18 @@ export function useFocusSelection(routine: Routine | null, date: string) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [identity, date, nowMinutes]
     );
+
+    // Coming back to a running timer lands on ITS item. `focusEntered` parks the group id; this is
+    // where it becomes an index, and it is selected as a manual choice so the clock's own pick
+    // (which follows) cannot move it. Consumed either way: an item no longer in today's routine
+    // simply falls through to the clock.
+    useEffect(() => {
+        if (!returnTo) return;
+        const target = items.findIndex((item) => item.groupId === returnTo);
+        if (target >= 0) dispatch(focusItemSelected(target));
+        dispatch(focusReturnConsumed());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch, returnTo, identity]);
 
     // Offered, not imposed. `focusStartResolved` is a no-op once the person has chosen, so this
     // firing every time the clock's answer changes is exactly the intended behaviour.

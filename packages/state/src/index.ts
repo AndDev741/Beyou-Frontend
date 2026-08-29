@@ -50,6 +50,7 @@ export type { FocusMode } from './focus/focusSlice';
 export { restoreFocusState } from './focus/focusSlice';
 export {
     focusEntered,
+    focusReturnConsumed,
     focusModeChanged,
     focusStartResolved,
     focusItemSelected,

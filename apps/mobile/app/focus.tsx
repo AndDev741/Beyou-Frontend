@@ -126,7 +126,10 @@ export default function FocusScreen() {
       ) : (
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24, gap: 10 }}
+          // `flexGrow: 1` so a child that wants the whole height (rest mode) can have it. Without
+          // it the content box was the height of its text, and the rest screen came out as a
+          // small card at the top with its ambient shapes clipped inside.
+          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24, gap: 10, flexGrow: 1 }}
         >
           {/* Said inline rather than as a toast: the whole screen is what failed to load, and
               without it `RoutineDay` with no routine says "nothing scheduled today", which is

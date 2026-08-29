@@ -73,6 +73,18 @@ type focusState = {
      */
     settings: PomodoroSettings;
     /**
+     * The item a live timer was running on, handed from `focusEntered` to the selection hook.
+     *
+     * Tapping the running-timer hub on the dashboard used to land on the focus screen's default
+     * view, with the clock picking whatever item is "now" — while the pomodoro kept counting on a
+     * different item two swipes away. Reported as: "clicking the badge should take me to the task
+     * I was on, not the main focus page". The reducer knows the timer's item but not the
+     * routine's item order, so it parks the group id here; `useFocusSelection` turns it into an
+     * index once the items exist, selects it as a MANUAL choice (so the clock cannot move it), and
+     * clears this. Visit-scoped, never persisted.
+     */
+    returnToGroupId: string | null;
+    /**
      * The break's micro-tasks, cached per routine item as the server last returned them.
      *
      * Server-owned since F6, and scoped to the ITEM: switching items switches lists, and a pinned
@@ -89,6 +101,7 @@ const initialState: focusState = {
     timer: null,
     selectedCycle: "pomodoro",
     settings: DEFAULT_POMODORO_SETTINGS,
+    returnToGroupId: null,
     microTasks: {},
 };
 
@@ -174,15 +187,24 @@ const focusSlice = createSlice({
         focusEntered(state, action: PayloadAction<string>) {
             const sameDay = state.timer?.date === action.payload;
             const timer = sameDay ? state.timer : null;
+            // A live timer on an item means the person is mid-pomodoro on THAT item: the screen
+            // opens in one-at-a-time on it, wherever they came in from (the hub, the dashboard
+            // card, a reload). With no timer, the day's overview as before.
+            const returnTo = timer?.groupId || null;
             return {
                 ...initialState,
-                mode: "fullscreen" as FocusMode,
+                mode: (returnTo ? "ultrafoco" : "fullscreen") as FocusMode,
                 timer,
                 // The tab follows whatever is still running, so re-entering mid-cycle does not
                 // show the Pomodoro tab over a counting-down break.
                 selectedCycle: timer ? timer.kind : "pomodoro",
                 settings: state.settings,
+                returnToGroupId: returnTo,
             };
+        },
+        /** The selection hook has acted on `returnToGroupId` (or found the item gone). */
+        focusReturnConsumed(state) {
+            return { ...state, returnToGroupId: null };
         },
         focusModeChanged(state, action: PayloadAction<FocusMode>) {
             return { ...state, mode: action.payload };
@@ -414,6 +436,7 @@ const focusSlice = createSlice({
 
 export const {
     focusEntered,
+    focusReturnConsumed,
     focusModeChanged,
     cycleSelected,
     pomodoroSettingsChanged,

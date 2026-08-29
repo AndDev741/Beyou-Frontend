@@ -141,7 +141,7 @@ export default function Descanso() {
       accessibilityLabel={t('FocusRest')}
       onPress={wake}
       style={{ opacity: dimmed ? DIM_OPACITY : 1 }}
-      className="min-h-[60%] flex-1 items-center justify-center overflow-hidden rounded-card"
+      className="flex-1 items-center justify-center overflow-hidden rounded-card"
       testID="focus-descanso"
     >
       {/* Behind everything and inert: decoration must never eat a tap. */}

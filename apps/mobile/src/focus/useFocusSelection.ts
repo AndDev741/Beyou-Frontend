@@ -4,6 +4,7 @@ import type { Routine } from '@beyou/types/routine/routine';
 import {
   focusItemSelected,
   focusMovedBy,
+  focusReturnConsumed,
   focusStartResolved,
   getFocusItems,
   minutesOfDay,
@@ -33,6 +34,7 @@ import type { RootState, AppDispatch } from '../store';
 export function useFocusSelection(routine: Routine | null, date: string) {
   const dispatch = useDispatch<AppDispatch>();
   const selectedIndex = useSelector((s: RootState) => s.focus.selectedIndex);
+  const returnTo = useSelector((s: RootState) => s.focus.returnToGroupId);
   const manuallySelected = useSelector((s: RootState) => s.focus.manuallySelected);
 
   const items = useMemo(() => getFocusItems(routine), [routine]);
@@ -56,6 +58,18 @@ export function useFocusSelection(routine: Routine | null, date: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [identity, date, nowMinutes],
   );
+
+  // Coming back to a running timer lands on ITS item. `focusEntered` parks the group id; this is
+  // where it becomes an index, and it is selected as a manual choice so the clock's own pick
+  // (which follows) cannot move it. Consumed either way: an item no longer in today's routine
+  // simply falls through to the clock.
+  useEffect(() => {
+    if (!returnTo) return;
+    const target = items.findIndex((item) => item.groupId === returnTo);
+    if (target >= 0) dispatch(focusItemSelected(target));
+    dispatch(focusReturnConsumed());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, returnTo, identity]);
 
   // Offered, not imposed. `focusStartResolved` is a no-op once the person has chosen.
   useEffect(() => {

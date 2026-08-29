@@ -7,6 +7,10 @@
  * leaving the screen took back the one alert that exists for when the screen is not in front of
  * you. The owner rides the root layout instead.
  */
+// The test binary has no native modules at all; pretend they are present so the mocked
+// packages below are actually reached.
+jest.mock('../src/focus/nativeModule', () => ({ hasNativeModule: () => true }));
+
 jest.mock('react-native-toast-message', () => {
   const S = () => null;
   (S as unknown as { show: unknown }).show = jest.fn();

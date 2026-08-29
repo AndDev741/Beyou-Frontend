@@ -1,9 +1,11 @@
 import { Platform } from 'react-native';
+import { hasNativeModule } from './nativeModule';
 
 type NotificationsModule = typeof import('expo-notifications');
 
 /**
- * `expo-notifications` is a NATIVE module, loaded lazily and behind a try.
+ * `expo-notifications` is a NATIVE module, loaded lazily and only after the binary is known to
+ * carry it.
  *
  * Imported at the top of this file it is evaluated the moment the focus ROUTE loads, and on a
  * build compiled before the module was added that throws `Cannot find native module` — which
@@ -13,15 +15,28 @@ type NotificationsModule = typeof import('expo-notifications');
  * the two must not be the same failure. The rebuild is still required to actually get the alert
  * (RUNNING.md, prebuild --clean), this only makes its absence survivable.
  */
+/**
+ * The native modules `expo-notifications`' index pulls in at import time. Every one of them is
+ * `requireNativeModule` at module scope, so the package cannot be required unless all of them are
+ * in the binary — and Metro reports a missing one as a fatal error rather than throwing to us (see
+ * `nativeModule.ts`). Checked up front instead.
+ */
+const REQUIRED_NATIVE = [
+    'ExpoNotificationScheduler',
+    'ExpoNotificationPermissionsModule',
+    'ExpoNotificationChannelManager',
+    'ExpoPushTokenManager',
+];
+
 let notificationsModule: NotificationsModule | null | undefined;
 function notifications(): NotificationsModule | null {
     if (notificationsModule !== undefined) return notificationsModule;
-    try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        notificationsModule = require('expo-notifications') as NotificationsModule;
-    } catch {
+    if (!REQUIRED_NATIVE.every(hasNativeModule)) {
         notificationsModule = null;
+        return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    notificationsModule = (require('expo-notifications') as NotificationsModule | undefined) ?? null;
     return notificationsModule;
 }
 
