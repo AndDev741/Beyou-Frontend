@@ -288,7 +288,7 @@ describe("running a cycle", () => {
 
         expect(store.getState().focus.timer).toMatchObject({
             kind: "shortBreak",
-            completedCycles: 1,
+            rounds: 1,
             finished: true,
         });
         // Waiting to be started, not already running: nobody is pushed into a break.
@@ -296,7 +296,7 @@ describe("running a cycle", () => {
         // The `#N` line renders the raw i18n key in this suite (no interpolation), so the number
         // it would show is asserted on the store instead.
         expect(screen.getByTestId("focus-pomodoro-number")).toBeInTheDocument();
-        expect(store.getState().focus.timer?.completedCycles).toBe(1);
+        expect(store.getState().focus.timer?.rounds).toBe(1);
     });
 
     test("skipping hands over to the next cycle without counting or reporting it", async () => {
@@ -309,9 +309,8 @@ describe("running a cycle", () => {
 
         expect(store.getState().focus.timer).toMatchObject({
             kind: "shortBreak",
-            completedCycles: 0,
-            // The round moves even though the tally does not. The `#N` line renders a raw i18n key
-            // in this suite, so the counter behind it is asserted here.
+            // The `#N` line renders a raw i18n key in this suite, so the counter behind it is
+            // asserted here.
             rounds: 1,
             finished: true,
         });
@@ -333,7 +332,31 @@ describe("running a cycle", () => {
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("05:00");
     });
 
-    test("three skips read as the fourth pomodoro, and still earn no long break", async () => {
+    test("the long break arrives on the interval that was configured, skips included", async () => {
+        // The user's exact path, and the one that was broken: set the long break to every third
+        // pomodoro in the panel, then skip. Seven skips used to pass without it ever arriving.
+        const store = buildStore();
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+        const every = screen.getByTestId("focus-setting-longBreakEvery");
+        await userEvent.clear(every);
+        await userEvent.type(every, "3");
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+
+        for (let round = 0; round < 3; round += 1) {
+            await userEvent.click(screen.getByTestId("focus-cycle-tab-pomodoro"));
+            await userEvent.click(
+                screen.getByTestId(round === 0 ? "focus-pomodoro-start" : "focus-pomodoro-next"),
+            );
+            await userEvent.click(screen.getByTestId("focus-pomodoro-skip"));
+        }
+
+        expect(store.getState().focus.timer?.kind).toBe("longBreak");
+        // And the clock is showing its length rather than a zero.
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("15:00");
+    });
+
+    test("three skips read as the fourth pomodoro", async () => {
         const store = buildStore();
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
 
@@ -347,7 +370,6 @@ describe("running a cycle", () => {
         }
 
         expect(store.getState().focus.timer?.rounds).toBe(3);
-        expect(store.getState().focus.timer?.completedCycles).toBe(0);
     });
 
     test("the skip is offered while a cycle runs or is held, and nowhere else", async () => {
@@ -382,7 +404,7 @@ describe("running a cycle", () => {
         renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
         await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
         await jump(25 * 60_000);
-        expect(store.getState().focus.timer?.completedCycles).toBe(1);
+        expect(store.getState().focus.timer?.rounds).toBe(1);
 
         await userEvent.click(screen.getByTestId("focus-pomodoro-stop"));
 

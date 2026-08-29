@@ -228,7 +228,7 @@ describe('running a cycle', () => {
 
     expect(store.getState().focus.timer).toMatchObject({
       kind: 'shortBreak',
-      completedCycles: 1,
+      rounds: 1,
       finished: true,
     });
     // Waiting, not already running: nobody is pushed into a break they did not ask for.
@@ -274,8 +274,6 @@ describe('running a cycle', () => {
 
     expect(store.getState().focus.timer).toMatchObject({
       kind: 'shortBreak',
-      completedCycles: 0,
-      // The round moves even though the tally does not.
       rounds: 1,
       finished: true,
     });

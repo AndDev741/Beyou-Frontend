@@ -138,10 +138,8 @@ export function usePomodoro(groupId: string | null, date: string) {
     /** The tab showing, which is a different question from what is running. */
     selectedCycle,
     settings,
-    /** Pomodoros finished on this item. A break never counts, and neither does a stop. */
-    cycles: timer?.completedCycles ?? 0,
     /** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
-    number: pomodoroNumber(timer?.rounds ?? timer?.completedCycles ?? 0),
+    number: pomodoroNumber(timer?.rounds ?? 0),
     /** What is actually running, or the tab's cycle when nothing is. */
     runningCycle: timer?.kind ?? selectedCycle,
     selectCycle: useCallback((kind: CycleKind) => dispatch(cycleSelected(kind)), [dispatch]),

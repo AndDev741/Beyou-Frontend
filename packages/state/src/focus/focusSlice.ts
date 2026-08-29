@@ -279,10 +279,7 @@ const focusSlice = createSlice({
             // Cycles already finished on THIS item are kept; moving to another item starts the
             // count again, because the count is about the item and not about the sitting.
             const sameItem = state.timer && state.timer.groupId === groupId;
-            const carried = sameItem ? state.timer!.completedCycles : 0;
-            // Tolerant: a timer restored from storage before `rounds` existed has none, and the
-            // earned count is the closest true answer for it.
-            const carriedRounds = sameItem ? (state.timer!.rounds ?? state.timer!.completedCycles) : 0;
+            const carried = sameItem ? state.timer!.rounds : 0;
             return {
                 ...state,
                 selectedCycle: kind,
@@ -293,8 +290,7 @@ const focusSlice = createSlice({
                     endsAt: now + durationMinutes * 60_000,
                     pausedRemainingMs: null,
                     durationMinutes,
-                    completedCycles: carried,
-                    rounds: carriedRounds,
+                    rounds: carried,
                     finished: false,
                     date,
                 },
@@ -332,18 +328,16 @@ const focusSlice = createSlice({
          * A finished cycle hands over to the next one, paused at zero so the person starts it
          * when they are ready rather than being pushed into a break they did not ask for.
          *
-         * A finished WORK cycle is the only thing that increments the count. Nothing anywhere
-         * records a cycle that was abandoned: there is no failure state in this feature.
+         * A work cycle increments the count; a break does not. Nothing anywhere records a cycle
+         * that was abandoned: there is no failure state in this feature.
          */
         pomodoroCycleCompleted(state) {
             if (!state.timer || state.timer.finished) return state;
             const ran = state.timer;
-            const completedCycles =
-                ran.kind === "pomodoro" ? ran.completedCycles + 1 : ran.completedCycles;
-            const rounds = ran.kind === "pomodoro" ? (ran.rounds ?? ran.completedCycles) + 1 : (ran.rounds ?? ran.completedCycles);
+            const rounds = ran.kind === "pomodoro" ? ran.rounds + 1 : ran.rounds;
             // Which break is earned depends on the count AFTER this one, so it is computed here
             // rather than in the component: a fourth pomodoro pays the long break.
-            const handover = nextCycleKind(ran.kind, completedCycles, state.settings.longBreakEvery);
+            const handover = nextCycleKind(ran.kind, rounds, state.settings.longBreakEvery);
             return {
                 ...state,
                 selectedCycle: handover,
@@ -353,7 +347,6 @@ const focusSlice = createSlice({
                     endsAt: 0,
                     pausedRemainingMs: null,
                     finished: true,
-                    completedCycles,
                     rounds,
                 },
             };
@@ -362,15 +355,15 @@ const focusSlice = createSlice({
         /**
          * Hand over early, because the person is done with this cycle.
          *
-         * The same handover a finished cycle does, minus the two things that would turn a skip
-         * into a lie. It does NOT increment `completedCycles`: a pomodoro nobody sat through is
-         * not a pomodoro done, and counting it would also let four taps buy a long break. And it
-         * leaves the timer `finished`, which is what keeps the report effect quiet — the server
-         * only ever hears about a cycle that ran out.
+         * The same handover a finished cycle does, and it counts the same way: a skipped pomodoro
+         * moves `rounds`, so somebody who set the long break to every third and skipped three gets
+         * the long break. The first version withheld it, reasoning that four taps should not buy a
+         * break four pomodoros are meant to pay for. That was the app policing the person, which is
+         * the one thing this feature is built not to do.
          *
-         * Because the count does not move, the break a skipped fourth pomodoro hands over to is
-         * the short one. That falls out of `nextCycleKind` rather than being decided here, and it
-         * is the honest answer: the long break is what four pomodoros pay for.
+         * The one thing a skip does NOT do is reach the server: it leaves the timer `finished`,
+         * which is the flag the report effect checks. `focus_cycles` only ever receives a cycle
+         * that ran out, so the history stays a record of work actually done.
          *
          * Skipping a BREAK is the common case and the one this was asked for. It costs nothing:
          * the next pomodoro is right there.
@@ -378,10 +371,10 @@ const focusSlice = createSlice({
         pomodoroSkipped(state) {
             if (!state.timer || state.timer.finished) return state;
             const ran = state.timer;
-            const handover = nextCycleKind(ran.kind, ran.completedCycles, state.settings.longBreakEvery);
-            // The round moves even though the tally does not: the person is on their next pomodoro,
-            // they just did not sit through this one.
-            const rounds = ran.kind === "pomodoro" ? (ran.rounds ?? ran.completedCycles) + 1 : (ran.rounds ?? ran.completedCycles);
+            // A skipped pomodoro is still a pomodoro gone through, so it moves the count and can
+            // reach the long break. Withholding it would be the app policing how somebody works.
+            const rounds = ran.kind === "pomodoro" ? ran.rounds + 1 : ran.rounds;
+            const handover = nextCycleKind(ran.kind, rounds, state.settings.longBreakEvery);
             return {
                 ...state,
                 selectedCycle: handover,

@@ -125,7 +125,7 @@ describe('the pomodoro', () => {
             endsAt: NOW + 25 * 60_000,
             pausedRemainingMs: null,
             durationMinutes: 25,
-            completedCycles: 0,
+            rounds: 0,
             finished: false,
             date: TODAY,
         });
@@ -167,7 +167,7 @@ describe('the pomodoro', () => {
     it('a finished pomodoro counts, and hands over to a break the person has to start', () => {
         const done = reducer(started(25), pomodoroCycleCompleted());
 
-        expect(done.timer).toMatchObject({ kind: 'shortBreak', completedCycles: 1, finished: true });
+        expect(done.timer).toMatchObject({ kind: 'shortBreak', rounds: 1, finished: true });
         // Marked finished rather than parked as paused: a 0 in `pausedRemainingMs` made
         // `timerStatus` report PAUSED, and the "cycle finished" panel never showed at all.
         expect(done.timer?.pausedRemainingMs).toBeNull();
@@ -190,7 +190,7 @@ describe('the pomodoro', () => {
         );
         const afterBreak = reducer(breakRunning, pomodoroCycleCompleted());
 
-        expect(afterBreak.timer).toMatchObject({ kind: 'pomodoro', completedCycles: 1 });
+        expect(afterBreak.timer).toMatchObject({ kind: 'pomodoro', rounds: 1 });
     });
 
     it('keeps the count while the item stays the same, and restarts it on another item', () => {
@@ -201,13 +201,13 @@ describe('the pomodoro', () => {
             oneDone,
             pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: NOW, date: TODAY }),
         );
-        expect(sameItem.timer?.completedCycles).toBe(1);
+        expect(sameItem.timer?.rounds).toBe(1);
 
         const otherItem = reducer(
             oneDone,
             pomodoroStarted({ groupId: 'g2', kind: 'pomodoro', minutes: 25, now: NOW, date: TODAY }),
         );
-        expect(otherItem.timer?.completedCycles).toBe(0);
+        expect(otherItem.timer?.rounds).toBe(0);
     });
 
     it('abandoning keeps nothing and counts nothing', () => {
@@ -304,7 +304,7 @@ describe('the three cycles and their settings', () => {
             }
         }
 
-        expect(state.timer).toMatchObject({ kind: 'longBreak', completedCycles: 4 });
+        expect(state.timer).toMatchObject({ kind: 'longBreak', rounds: 4 });
         expect(state.selectedCycle).toBe('longBreak');
     });
 
@@ -428,17 +428,13 @@ describe('skipping a cycle', () => {
         expect(after.selectedCycle).toBe('shortBreak');
     });
 
-    it('does not count the pomodoro it skipped, but does move the round on', () => {
+    it('counts the pomodoro it skipped: a round gone through is a round', () => {
         const after = reducer(running(), pomodoroSkipped());
 
-        // Two counters, two questions. The tally is what four pomodoros pay the long break with;
-        // the round is where the person is in the stint, and skipping the first puts them on the
-        // second. Reported as a stuck `#1` when one field served both.
-        expect(after.timer?.completedCycles).toBe(0);
         expect(after.timer?.rounds).toBe(1);
     });
 
-    it('moves the round on every time, so three skips read as the fourth pomodoro', () => {
+    it('moves the count on every time, so three skips read as the fourth pomodoro', () => {
         let state = reducer(undefined, enter());
         for (let i = 0; i < 3; i += 1) {
             state = reducer(
@@ -449,30 +445,49 @@ describe('skipping a cycle', () => {
         }
 
         expect(pomodoroNumber(state.timer!.rounds)).toBe(4);
-        expect(state.timer?.completedCycles).toBe(0);
     });
 
-    it('skipping a break moves neither counter: a round is a pomodoro', () => {
+    it('skipping a break moves nothing: a round is a pomodoro', () => {
         const after = reducer(running('shortBreak'), pomodoroSkipped());
 
         expect(after.timer?.rounds).toBe(0);
-        expect(after.timer?.completedCycles).toBe(0);
     });
 
-    it('cannot buy a long break: four skips earn nothing', () => {
-        // The reason the count does not move. Were a skip to count, four taps would hand out the
-        // long break that four pomodoros are supposed to pay for.
+    it('reaches the long break on skips alone, at whatever interval was configured', () => {
+        // Reported: long break set to every 3, seven skips, and it never came. The first version
+        // excluded skips from the cadence on purpose; the user overruled it, and they are right —
+        // this feature does not police how somebody works.
         let state = reducer(undefined, enter());
-        for (let i = 0; i < 4; i += 1) {
+        state = reducer(state, pomodoroSettingsChanged({ longBreakEvery: 3 }));
+        for (let i = 0; i < 3; i += 1) {
             state = reducer(
                 state,
                 pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: 1_000, date: TODAY }),
             );
             state = reducer(state, pomodoroSkipped());
+            if (i < 2) expect(state.timer?.kind).toBe('shortBreak');
         }
 
-        expect(state.timer?.completedCycles).toBe(0);
-        expect(state.timer?.kind).toBe('shortBreak');
+        expect(state.timer?.kind).toBe('longBreak');
+        expect(state.timer?.rounds).toBe(3);
+    });
+
+    it('mixes finished and skipped rounds towards the same long break', () => {
+        let state = reducer(undefined, enter());
+        state = reducer(state, pomodoroSettingsChanged({ longBreakEvery: 2 }));
+        state = reducer(
+            state,
+            pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: 1_000, date: TODAY }),
+        );
+        state = reducer(state, pomodoroCycleCompleted());
+        state = reducer(
+            state,
+            pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: 2_000, date: TODAY }),
+        );
+
+        state = reducer(state, pomodoroSkipped());
+
+        expect(state.timer?.kind).toBe('longBreak');
     });
 
     it('skips a break back to work, which is the case it was asked for', () => {
@@ -489,10 +504,9 @@ describe('skipping a cycle', () => {
         expect(reducer(finished, pomodoroSkipped())).toEqual(finished);
     });
 
-    it('a finished pomodoro moves both counters', () => {
+    it('a finished pomodoro moves the count too', () => {
         const after = reducer(running(), pomodoroCycleCompleted());
 
-        expect(after.timer?.completedCycles).toBe(1);
         expect(after.timer?.rounds).toBe(1);
     });
 
@@ -505,7 +519,7 @@ describe('skipping a cycle', () => {
 
         const after = reducer(onBreak, pomodoroSkipped());
 
-        expect(after.timer?.completedCycles).toBe(1);
+        expect(after.timer?.rounds).toBe(1);
         expect(after.timer?.kind).toBe('pomodoro');
     });
 });

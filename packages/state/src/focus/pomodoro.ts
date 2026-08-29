@@ -85,19 +85,19 @@ export type FocusTimer = {
     /** What it was started with, so the next cycle can offer the same shape. */
     durationMinutes: number;
     /**
-     * Pomodoros FINISHED on this item. Breaks do not count, and neither does skipping one.
+     * Pomodoros gone through on this item, finished OR skipped. Breaks never count.
      *
-     * This is the earned count, and its only job is deciding which break comes next. Were a skip
-     * to move it, four taps would buy the long break that four pomodoros are supposed to pay for.
-     */
-    completedCycles: number;
-    /**
-     * Pomodoros GONE THROUGH on this item, finished or skipped. What the `#N` line shows.
+     * One counter, doing both jobs: it is the `#N` line, and it is what decides when the long
+     * break comes round. Skipping used to be excluded from the cadence, on the reasoning that four
+     * taps should not buy a break four pomodoros are meant to pay for. The user overruled it, and
+     * they are right: the rule this whole feature is built on is that the clock SUGGESTS and never
+     * commands, and withholding a long break from somebody who moved through three pomodoros their
+     * own way is the app policing them. Reported as "I set the long break to every 3, skipped
+     * seven times, and it never came".
      *
-     * A separate field from `completedCycles` because the two answer different questions, the same
-     * way `selectedCycle` and `timer.kind` do. `#N` is where you are in the stint — skip the first
-     * pomodoro and you are on your second, whatever the tally of finished ones says. Reported as a
-     * stuck counter otherwise: three skips and the line still read #1.
+     * The honest tally of pomodoros actually SAT THROUGH is not kept here at all. It is on the
+     * server, in `focus_cycles`, which only ever receives a cycle that ran out — so nothing a
+     * person taps in this panel can inflate their history.
      */
     rounds: number;
     /**
@@ -226,17 +226,17 @@ export function formatRemaining(ms: number): string {
  * What comes after this cycle.
  *
  * A pomodoro pays a short break, except every `longBreakEvery`th one, which pays the long break.
- * Any break pays a pomodoro. `completedCycles` is the count AFTER this cycle was counted, which
- * is what the reducer hands in.
+ * Any break pays a pomodoro. `rounds` is the count AFTER this cycle was counted, which is what the
+ * reducer hands in — and it counts skipped pomodoros too, deliberately. See `FocusTimer.rounds`.
  */
 export function nextCycleKind(
     kind: CycleKind,
-    completedCycles: number,
+    rounds: number,
     longBreakEvery: number,
 ): CycleKind {
     if (kind !== 'pomodoro') return 'pomodoro';
     const every = clampLongBreakEvery(longBreakEvery);
-    return completedCycles > 0 && completedCycles % every === 0 ? 'longBreak' : 'shortBreak';
+    return rounds > 0 && rounds % every === 0 ? 'longBreak' : 'shortBreak';
 }
 
 /** Which pomodoro the person is on, counting from one. Reads `rounds`, not the earned count. */

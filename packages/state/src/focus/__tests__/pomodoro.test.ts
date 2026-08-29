@@ -32,7 +32,6 @@ const timer = (over: Partial<FocusTimer> = {}): FocusTimer => ({
     endsAt: NOW + 60_000,
     pausedRemainingMs: null,
     durationMinutes: 25,
-    completedCycles: 0,
     rounds: 0,
     finished: false,
     date: '2026-08-28',
