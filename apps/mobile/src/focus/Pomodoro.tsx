@@ -69,8 +69,14 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
 
   // While something runs the clock shows THAT cycle. Idle, it previews the selected tab's
   // length, so switching tabs changes the number.
-  const shown = idle ? previewFor(selectedCycle) : formatted;
-  const message = t(CYCLE_MESSAGE_KEY[idle ? selectedCycle : runningCycle]);
+  /**
+   * Running: that cycle's clock. Otherwise the selected tab's length, finished cycles included —
+   * handing over to a break used to park the clock at 00:00 under a "time for a break" line, which
+   * reads as a dead timer rather than one waiting to start.
+   */
+  const previewing = idle || status === 'elapsed';
+  const shown = previewing ? previewFor(selectedCycle) : formatted;
+  const message = t(CYCLE_MESSAGE_KEY[previewing ? selectedCycle : runningCycle]);
   const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, settings));
 
   return (

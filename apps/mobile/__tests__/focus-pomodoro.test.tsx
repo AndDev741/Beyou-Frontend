@@ -275,10 +275,26 @@ describe('running a cycle', () => {
     expect(store.getState().focus.timer).toMatchObject({
       kind: 'shortBreak',
       completedCycles: 0,
+      // The round moves even though the tally does not.
+      rounds: 1,
       finished: true,
     });
     expect(recordFocusCycle).not.toHaveBeenCalled();
     expect(screen.getByTestId('focus-pomodoro-next')).toBeTruthy();
+  });
+
+  it('shows the next cycle on the clock and its number, not a dead zero and a stuck #1', async () => {
+    // Both halves of the same report: skipping parked the break at 00:00, and the line under it
+    // stayed on #1 however many times you skipped. This suite renders real translations, so the
+    // number can be read off the screen.
+    await renderPomodoro(item());
+    await press('focus-pomodoro-start');
+    await jump(60_000);
+
+    await press('focus-pomodoro-skip');
+
+    expect(screen.getByTestId('focus-pomodoro-remaining').props.children).toBe('05:00');
+    expect(screen.getByTestId('focus-pomodoro-number').props.children).toBe('#2');
   });
 
   it('offers the skip while a cycle runs or is held, and nowhere else', async () => {

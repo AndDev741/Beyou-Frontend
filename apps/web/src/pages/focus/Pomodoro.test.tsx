@@ -310,12 +310,44 @@ describe("running a cycle", () => {
         expect(store.getState().focus.timer).toMatchObject({
             kind: "shortBreak",
             completedCycles: 0,
+            // The round moves even though the tally does not. The `#N` line renders a raw i18n key
+            // in this suite, so the counter behind it is asserted here.
+            rounds: 1,
             finished: true,
         });
         // A pomodoro nobody sat through is not a pomodoro done, and the server only ever hears
         // about a cycle that ran out.
         expect(recordFocusCycle).not.toHaveBeenCalled();
         expect(screen.getByTestId("focus-pomodoro-next")).toBeInTheDocument();
+    });
+
+    test("the clock previews the cycle it is about to run, not a dead zero", async () => {
+        // Reported: skipping a pomodoro left the short break reading 00:00 until start was pressed,
+        // under a line saying it was time for a break.
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: buildStore() });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+        await jump(60_000);
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-skip"));
+
+        expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("05:00");
+    });
+
+    test("three skips read as the fourth pomodoro, and still earn no long break", async () => {
+        const store = buildStore();
+        renderWithProviders(<Pomodoro item={item()} date={DATE} />, { storeOverride: store });
+
+        for (let round = 0; round < 3; round += 1) {
+            // Each skip hands over to a break, so the Pomodoro tab is chosen again every round.
+            await userEvent.click(screen.getByTestId("focus-cycle-tab-pomodoro"));
+            await userEvent.click(
+                screen.getByTestId(round === 0 ? "focus-pomodoro-start" : "focus-pomodoro-next"),
+            );
+            await userEvent.click(screen.getByTestId("focus-pomodoro-skip"));
+        }
+
+        expect(store.getState().focus.timer?.rounds).toBe(3);
+        expect(store.getState().focus.timer?.completedCycles).toBe(0);
     });
 
     test("the skip is offered while a cycle runs or is held, and nowhere else", async () => {

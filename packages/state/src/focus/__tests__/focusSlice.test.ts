@@ -16,6 +16,7 @@ import reducer, {
     pomodoroStarted,
     restoreFocusState,
 } from '../focusSlice';
+import { pomodoroNumber } from '../pomodoro';
 
 const TODAY = '2026-08-28';
 const enter = () => focusEntered(TODAY);
@@ -427,9 +428,34 @@ describe('skipping a cycle', () => {
         expect(after.selectedCycle).toBe('shortBreak');
     });
 
-    it('does not count the pomodoro it skipped', () => {
+    it('does not count the pomodoro it skipped, but does move the round on', () => {
         const after = reducer(running(), pomodoroSkipped());
 
+        // Two counters, two questions. The tally is what four pomodoros pay the long break with;
+        // the round is where the person is in the stint, and skipping the first puts them on the
+        // second. Reported as a stuck `#1` when one field served both.
+        expect(after.timer?.completedCycles).toBe(0);
+        expect(after.timer?.rounds).toBe(1);
+    });
+
+    it('moves the round on every time, so three skips read as the fourth pomodoro', () => {
+        let state = reducer(undefined, enter());
+        for (let i = 0; i < 3; i += 1) {
+            state = reducer(
+                state,
+                pomodoroStarted({ groupId: 'g1', kind: 'pomodoro', minutes: 25, now: 1_000, date: TODAY }),
+            );
+            state = reducer(state, pomodoroSkipped());
+        }
+
+        expect(pomodoroNumber(state.timer!.rounds)).toBe(4);
+        expect(state.timer?.completedCycles).toBe(0);
+    });
+
+    it('skipping a break moves neither counter: a round is a pomodoro', () => {
+        const after = reducer(running('shortBreak'), pomodoroSkipped());
+
+        expect(after.timer?.rounds).toBe(0);
         expect(after.timer?.completedCycles).toBe(0);
     });
 
@@ -461,6 +487,13 @@ describe('skipping a cycle', () => {
 
         const finished = reducer(running(), pomodoroCycleCompleted());
         expect(reducer(finished, pomodoroSkipped())).toEqual(finished);
+    });
+
+    it('a finished pomodoro moves both counters', () => {
+        const after = reducer(running(), pomodoroCycleCompleted());
+
+        expect(after.timer?.completedCycles).toBe(1);
+        expect(after.timer?.rounds).toBe(1);
     });
 
     it('leaves a real pomodoro counted, so skipping the break keeps the tally', () => {

@@ -20,7 +20,7 @@
  * field.** Dropping the slice is usually the right migration: the reducer then supplies its own
  * initial state, which is by definition the current shape.
  */
-export const PERSIST_VERSION = 3;
+export const PERSIST_VERSION = 4;
 
 export const migrations = {
     // v1: the focus slice gained `settings` and `selectedCycle` (the three-cycle pomodoro).
@@ -36,4 +36,8 @@ export const migrations = {
     // v3: `microTasks` changed shape (array → per-item map, server-owned), `microTaskSeq` went
     // away, and `FocusTimer` gained `startedAt`. Dropped for the same reason as before.
     3: (state: Record<string, unknown>) => ({ ...state, focus: undefined }),
+    // v4: `FocusTimer` gained `rounds`, the counter the `#N` line reads. The reducer reads it
+    // tolerantly too, so this bump is belt and braces rather than the only defence — but the rule
+    // above says every added field gets one, and the two times it was skipped both cost a bug.
+    4: (state: Record<string, unknown>) => ({ ...state, focus: undefined }),
 };

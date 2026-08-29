@@ -84,8 +84,22 @@ export type FocusTimer = {
     pausedRemainingMs: number | null;
     /** What it was started with, so the next cycle can offer the same shape. */
     durationMinutes: number;
-    /** Pomodoros finished on this item. Breaks do not count. */
+    /**
+     * Pomodoros FINISHED on this item. Breaks do not count, and neither does skipping one.
+     *
+     * This is the earned count, and its only job is deciding which break comes next. Were a skip
+     * to move it, four taps would buy the long break that four pomodoros are supposed to pay for.
+     */
     completedCycles: number;
+    /**
+     * Pomodoros GONE THROUGH on this item, finished or skipped. What the `#N` line shows.
+     *
+     * A separate field from `completedCycles` because the two answer different questions, the same
+     * way `selectedCycle` and `timer.kind` do. `#N` is where you are in the stint — skip the first
+     * pomodoro and you are on your second, whatever the tally of finished ones says. Reported as a
+     * stuck counter otherwise: three skips and the line still read #1.
+     */
+    rounds: number;
     /**
      * True once a cycle has run out and handed over to the next one.
      *
@@ -225,8 +239,8 @@ export function nextCycleKind(
     return completedCycles > 0 && completedCycles % every === 0 ? 'longBreak' : 'shortBreak';
 }
 
-/** Which pomodoro the person is on, counting from one. What the `#N` line shows. */
-export const pomodoroNumber = (completedCycles: number): number => completedCycles + 1;
+/** Which pomodoro the person is on, counting from one. Reads `rounds`, not the earned count. */
+export const pomodoroNumber = (rounds: number): number => rounds + 1;
 
 /** The server's spelling of a cycle kind, for `POST /focus/cycles`. */
 export const toServerCycleKind = (kind: CycleKind): 'POMODORO' | 'SHORT_BREAK' | 'LONG_BREAK' =>

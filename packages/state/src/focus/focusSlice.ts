@@ -278,8 +278,11 @@ const focusSlice = createSlice({
             const durationMinutes = clampCycleMinutes(minutes);
             // Cycles already finished on THIS item are kept; moving to another item starts the
             // count again, because the count is about the item and not about the sitting.
-            const carried =
-                state.timer && state.timer.groupId === groupId ? state.timer.completedCycles : 0;
+            const sameItem = state.timer && state.timer.groupId === groupId;
+            const carried = sameItem ? state.timer!.completedCycles : 0;
+            // Tolerant: a timer restored from storage before `rounds` existed has none, and the
+            // earned count is the closest true answer for it.
+            const carriedRounds = sameItem ? (state.timer!.rounds ?? state.timer!.completedCycles) : 0;
             return {
                 ...state,
                 selectedCycle: kind,
@@ -291,6 +294,7 @@ const focusSlice = createSlice({
                     pausedRemainingMs: null,
                     durationMinutes,
                     completedCycles: carried,
+                    rounds: carriedRounds,
                     finished: false,
                     date,
                 },
@@ -336,6 +340,7 @@ const focusSlice = createSlice({
             const ran = state.timer;
             const completedCycles =
                 ran.kind === "pomodoro" ? ran.completedCycles + 1 : ran.completedCycles;
+            const rounds = ran.kind === "pomodoro" ? (ran.rounds ?? ran.completedCycles) + 1 : (ran.rounds ?? ran.completedCycles);
             // Which break is earned depends on the count AFTER this one, so it is computed here
             // rather than in the component: a fourth pomodoro pays the long break.
             const handover = nextCycleKind(ran.kind, completedCycles, state.settings.longBreakEvery);
@@ -349,6 +354,7 @@ const focusSlice = createSlice({
                     pausedRemainingMs: null,
                     finished: true,
                     completedCycles,
+                    rounds,
                 },
             };
         },
@@ -373,6 +379,9 @@ const focusSlice = createSlice({
             if (!state.timer || state.timer.finished) return state;
             const ran = state.timer;
             const handover = nextCycleKind(ran.kind, ran.completedCycles, state.settings.longBreakEvery);
+            // The round moves even though the tally does not: the person is on their next pomodoro,
+            // they just did not sit through this one.
+            const rounds = ran.kind === "pomodoro" ? (ran.rounds ?? ran.completedCycles) + 1 : (ran.rounds ?? ran.completedCycles);
             return {
                 ...state,
                 selectedCycle: handover,
@@ -382,6 +391,7 @@ const focusSlice = createSlice({
                     endsAt: 0,
                     pausedRemainingMs: null,
                     finished: true,
+                    rounds,
                 },
             };
         },

@@ -73,10 +73,18 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
     const windowMinutes = itemWindowMinutes(item);
     const windowDiffers = windowMinutes !== null && windowMinutes !== settings.pomodoro;
 
-    // While something runs the clock shows THAT cycle. Idle, it previews the selected tab's
-    // length, so switching tabs changes the number the way the reference design does.
-    const shown = idle ? previewFor(selectedCycle) : formatted;
-    const message = t(CYCLE_MESSAGE_KEY[idle ? selectedCycle : runningCycle]);
+    /**
+     * While something runs the clock shows THAT cycle. Otherwise it previews the selected tab's
+     * length, so switching tabs changes the number the way the reference design does.
+     *
+     * "Otherwise" covers a finished cycle as well as an idle one, and that second case was
+     * reported as a bug: handing over to a break parked the clock at 00:00 until the person
+     * pressed start, so the panel read "time for a break" over a dead zero. Nothing is running at
+     * that moment either, and what matters is the length of what is about to.
+     */
+    const previewing = idle || status === "elapsed";
+    const shown = previewing ? previewFor(selectedCycle) : formatted;
+    const message = t(CYCLE_MESSAGE_KEY[previewing ? selectedCycle : runningCycle]);
     const startSelected = () => start(selectedCycle, cycleMinutes(selectedCycle, settings));
 
     return (
