@@ -1034,7 +1034,14 @@
         "skipRoutineItem": "Item da rotina pulado",
         "updateGlobalContext": "Memória atualizada",
         "updateChatContext": "Nota da conversa salva",
-        "updateUserConfiguration": "Configurações atualizadas"
+        "updateUserConfiguration": "Configurações atualizadas",
+        "getItemMicroTasks": "Micro-tarefas consultadas",
+        "getFocusDay": "Histórico de foco consultado",
+        "addMicroTask": "Micro-tarefa adicionada",
+        "toggleMicroTask": "Micro-tarefa atualizada",
+        "pinMicroTask": "Fixação da micro-tarefa atualizada",
+        "deleteMicroTask": "Micro-tarefa excluída",
+        "reorderMicroTasks": "Micro-tarefas reordenadas"
     },
     "ThemeMode": "Modo",
     "ThemeModeSystem": "Sistema",

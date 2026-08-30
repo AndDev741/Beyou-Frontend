@@ -84,6 +84,26 @@ describe('AgentSegments tool rendering', () => {
 });
 
 describe('destinationFor', () => {
+  it('sends micro-task writes to the focus screen, not to the tasks page', () => {
+    // Every one of these has "Task" in its name and none of them is about a task.
+    // `/Task/` matched them all and the card offered a trip to /tasks to look for
+    // something that was never going to be there.
+    for (const tool of [
+      'addMicroTask',
+      'toggleMicroTask',
+      'pinMicroTask',
+      'deleteMicroTask',
+      'reorderMicroTasks',
+    ]) {
+      expect(destinationFor(tool)?.route).toBe('/focus');
+    }
+  });
+
+  it('leaves the focus reads as chips, with nothing to open', () => {
+    expect(destinationFor('getItemMicroTasks')).toBeNull();
+    expect(destinationFor('getFocusDay')).toBeNull();
+  });
+
   it.each([
     ['createUserHabit', '/habits'],
     ['editUserCategory', '/categories'],
