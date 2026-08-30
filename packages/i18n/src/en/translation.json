@@ -1034,7 +1034,14 @@
         "skipRoutineItem": "Routine item skipped",
         "updateGlobalContext": "Memory updated",
         "updateChatContext": "Conversation note saved",
-        "updateUserConfiguration": "Settings updated"
+        "updateUserConfiguration": "Settings updated",
+        "getItemMicroTasks": "Micro-tasks checked",
+        "getFocusDay": "Focus history checked",
+        "addMicroTask": "Micro-task added",
+        "toggleMicroTask": "Micro-task updated",
+        "pinMicroTask": "Micro-task pinning updated",
+        "deleteMicroTask": "Micro-task deleted",
+        "reorderMicroTasks": "Micro-tasks reordered"
     },
     "ThemeMode": "Mode",
     "ThemeModeSystem": "System",

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { resources } from '@beyou/i18n';
+import { KNOWN_TOOLS } from "../components/agent/AgentSegments";
 
 const en = resources.en.translation;
 const pt = resources.pt.translation;
@@ -73,4 +74,22 @@ test("EN and PT translation files declare the same keys, nested ones included", 
 
     expect(onlyEn).toEqual([]);
     expect(onlyPt).toEqual([]);
+});
+
+/**
+ * The gap the test above cannot close: en/pt parity says the two files agree, not that
+ * either of them covers the tools that exist. Seven Focus Mode tools shipped with no
+ * label at all and the chat rendered the raw `getItemMicroTasks` at the user, in both
+ * languages, which is exactly the failure the note above predicted.
+ *
+ * KNOWN_TOOLS is not the whole registry — that lives on the backend — but it is every
+ * name this app states an opinion about, which is where a new tool gets added first.
+ */
+test("every agent tool the app knows about has a label in both languages", () => {
+    const labelled = (locale: typeof en) => Object.keys(locale.AgentTool ?? {});
+    const missingEn = KNOWN_TOOLS.filter((tool) => !labelled(en).includes(tool)).sort();
+    const missingPt = KNOWN_TOOLS.filter((tool) => !labelled(pt).includes(tool)).sort();
+
+    expect(missingEn).toEqual([]);
+    expect(missingPt).toEqual([]);
 });
