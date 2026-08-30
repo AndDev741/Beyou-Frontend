@@ -2,7 +2,8 @@ import BeyouIcon from "../../../ui/BeyouIcon";
 import { resolveIcon } from "@beyou/icons";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import type { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
-import { FiEdit2, FiTrash2, FiX, FiClock, FiChevronDown } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiX, FiClock, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { GripVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import TaskAndHabitSelector from "./taskSelector/TaskAndHabitSelector";
@@ -19,7 +20,11 @@ interface SectionItemProps {
     onDelete: () => void;
     setRoutineSection?: React.Dispatch<React.SetStateAction<RoutineSection[]>>;
     index: number;
-    /** react-beautiful-dnd drag handle, applied to the section icon. */
+    /** How many sections the list holds, so the arrows know which end they are at. */
+    count: number;
+    /** Moves this section one place up (-1) or down (1). */
+    onMove: (dir: -1 | 1) => void;
+    /** react-beautiful-dnd drag handle, applied to the grip. */
     dragHandleProps?: DraggableProvidedDragHandleProps;
 }
 
@@ -30,7 +35,7 @@ const TimeChip = ({ children }: { children: React.ReactNode }) => (
     </span>
 );
 
-const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, dragHandleProps }: SectionItemProps) => {
+const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, count, onMove, dragHandleProps }: SectionItemProps) => {
     const { t } = useTranslation();
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
     const [openTaskSelector, setOpenTaskSelector] = useState(false);
@@ -297,11 +302,20 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
             }`}
         >
             <div className="flex items-center gap-2.5 p-2.5">
+                {/* The grip has its own column again. The redesign moved the handle onto
+                    the section's icon, which reads as an icon and nothing else, so the
+                    drag was still there and nobody could see it. Desktop only: rbd wants
+                    a long press on touch and this is a 16px target, so below md the
+                    arrows in the open body do the reordering instead. */}
                 <span
                     {...(dragHandleProps ?? {})}
-                    className="flex shrink-0 cursor-grab items-center text-text-3"
-                    title={t("Reorder")}
+                    aria-label={t("ReorderItem", { name: section.name })}
+                    className="hidden shrink-0 cursor-grab items-center text-text-3 transition-colors duration-200 hover:text-text-2 md:flex"
                 >
+                    <GripVertical size={16} aria-hidden="true" />
+                </span>
+
+                <span className="flex shrink-0 items-center text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
                 </span>
 
@@ -377,6 +391,33 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, drag
                     {renderItems()}
 
                     <GhostAdd label={t("Add Habit or task")} onClick={() => setOpenTaskSelector(true)} />
+
+                    {/* Touch's half of the reordering, the grip above being desktop's. They
+                        sit inside the open section rather than in the header, where they
+                        would be a fifth and sixth target on a 390px row. The native
+                        SectionCard puts them in the same place, for the same reason. */}
+                    {count > 1 && (
+                        <div className="flex items-center justify-end gap-1 md:hidden">
+                            <button
+                                type="button"
+                                aria-label={t("MoveUp")}
+                                disabled={index === 0}
+                                onClick={() => onMove(-1)}
+                                className="rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                            >
+                                <FiChevronUp aria-hidden="true" />
+                            </button>
+                            <button
+                                type="button"
+                                aria-label={t("MoveDown")}
+                                disabled={index === count - 1}
+                                onClick={() => onMove(1)}
+                                className="rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                            >
+                                <FiChevronDown aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
 
                     {/* The picker opens over the editor, as in the mockup. */}
                     {openTaskSelector && (

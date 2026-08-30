@@ -44,6 +44,15 @@ export default function SectionsEditor({
         setRoutineSection(items);
     };
 
+    /** The arrows' half of the same move, for touch, where the grip is out of reach. */
+    const moveSection = (index: number, dir: -1 | 1) => {
+        const to = index + dir;
+        if (to < 0 || to >= sections.length) return;
+        const items = Array.from(sections);
+        [items[index], items[to]] = [items[to], items[index]];
+        setRoutineSection(items);
+    };
+
     return (
         <div>
             <span className="mb-2 block text-[13px] font-semibold text-text-2">{t("Sections")}</span>
@@ -74,6 +83,8 @@ export default function SectionsEditor({
                                                 onDelete={() => onDeleteSection(index)}
                                                 setRoutineSection={setRoutineSection}
                                                 index={index}
+                                                count={sections.length}
+                                                onMove={(dir) => moveSection(index, dir)}
                                                 dragHandleProps={dragProvided.dragHandleProps ?? undefined}
                                             />
                                         </div>

@@ -202,7 +202,7 @@ const Routine = () => {
                         }}
                         labelledBy="routine-form-title"
                         dataTutorialId="routine-create-area"
-                        className="max-w-3xl"
+                        className="max-w-4xl"
                     >
                         <div className="flex items-center gap-3">
                             <h2

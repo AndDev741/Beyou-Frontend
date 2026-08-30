@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { DragDropContext, Draggable, type DropResult } from "react-beautiful-dnd";
 import { FiTrash2 } from "react-icons/fi";
-import { GripVertical } from "lucide-react";
+import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
 import { RootState } from "@beyou/state/rootReducer";
 import type { RoutineListItem } from "@beyou/types/routine/routine";
 import Droppable from "../../utils/StrictModeDroppable";
@@ -19,9 +19,11 @@ type ListItemsEditorProps = {
 /**
  * The ordered entries of a LIST routine, dragged into whatever order the user wants.
  *
- * Order here is the whole ordering model. A daily routine sorts its items by start time and
- * needs no handles; a list has no times, so position in this array is the only thing that
- * says what comes first, and it is sent to the server as exactly that.
+ * Order here is the whole ordering model. A list has no times, so position in this array is
+ * the only thing that says what comes first, and it is sent to the server as exactly that.
+ *
+ * Two affordances for one move, split by width: the grip drags on desktop, the arrows step on
+ * touch. SectionsEditor makes the same split for a daily routine's sections.
  */
 export default function ListItemsEditor({ items, setItems, onAddItem }: ListItemsEditorProps) {
     const { t } = useTranslation();
@@ -47,6 +49,15 @@ export default function ListItemsEditor({ items, setItems, onAddItem }: ListItem
     };
 
     const remove = (index: number) => setItems((prev) => prev.filter((_, i) => i !== index));
+
+    /** The arrows' half of the same move, for touch, where the grip is out of reach. */
+    const move = (index: number, dir: -1 | 1) => {
+        const to = index + dir;
+        if (to < 0 || to >= items.length) return;
+        const next = Array.from(items);
+        [next[index], next[to]] = [next[to], next[index]];
+        setItems(next);
+    };
 
     return (
         <div>
@@ -79,10 +90,14 @@ export default function ListItemsEditor({ items, setItems, onAddItem }: ListItem
                                                 {...dragProvided.draggableProps}
                                                 className="flex items-center gap-2.5 rounded-control border border-border bg-surface px-3 py-2.5"
                                             >
+                                                {/* Desktop's affordance. rbd wants a long press on
+                                                    touch and this is a 16px target, so below md the
+                                                    arrows further along the row do the reordering,
+                                                    the way the native editor already does it. */}
                                                 <span
                                                     {...(dragProvided.dragHandleProps ?? {})}
                                                     aria-label={t("ReorderItem", { name })}
-                                                    className="cursor-grab text-text-3"
+                                                    className="hidden cursor-grab text-text-3 md:block"
                                                 >
                                                     <GripVertical size={16} aria-hidden="true" />
                                                 </span>
@@ -90,6 +105,28 @@ export default function ListItemsEditor({ items, setItems, onAddItem }: ListItem
                                                 <span className="min-w-0 flex-1 truncate text-[13.5px] text-text">
                                                     {name}
                                                 </span>
+                                                {items.length > 1 && (
+                                                    <span className="flex shrink-0 items-center gap-1 md:hidden">
+                                                        <button
+                                                            type="button"
+                                                            aria-label={t("MoveUp")}
+                                                            disabled={index === 0}
+                                                            onClick={() => move(index, -1)}
+                                                            className="rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                                                        >
+                                                            <ChevronUp size={16} aria-hidden="true" />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            aria-label={t("MoveDown")}
+                                                            disabled={index === items.length - 1}
+                                                            onClick={() => move(index, 1)}
+                                                            className="rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                                                        >
+                                                            <ChevronDown size={16} aria-hidden="true" />
+                                                        </button>
+                                                    </span>
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => remove(index)}
