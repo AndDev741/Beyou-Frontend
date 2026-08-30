@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Routine } from '@beyou/types/routine/routine';
-import { getFocusItems, isFocusItemOpen } from '../focusItems';
+import { getFocusItems, isFocusItemOpen, selectedFocusGroupId } from '../focusItems';
 
 const daily = (sections: unknown[]): Routine =>
   ({ id: 'r', name: 'R', iconId: '', routineSections: sections } as unknown as Routine);
@@ -131,5 +131,31 @@ describe('isFocusItemOpen', () => {
     // Yesterday's check says nothing about today.
     expect(isFocusItemOpen(withChecks([{ checkDate: '2026-08-27', checked: true }]), '2026-08-28')).toBe(true);
     expect(isFocusItemOpen(withChecks([]), '2026-08-28')).toBe(true);
+  });
+});
+
+describe('selectedFocusGroupId', () => {
+  const routine = daily([
+    section('Morning', {
+      habitGroup: [{ id: 'hg-a', habitId: 'h1', startTime: '07:00' }],
+      taskGroup: [{ id: 'tg-b', taskId: 't1', startTime: '08:00' }],
+    }),
+  ]);
+
+  // Both clients send this with an agent message, so the two have to agree on which entry the
+  // person is looking at. It has to be an index into getFocusItems: reading the routine directly
+  // would give a different entry as soon as a section holds more than one thing.
+  it('resolves the index the focus screen is showing into an entry id', () => {
+    expect(selectedFocusGroupId(routine, 0)).toBe('hg-a');
+    expect(selectedFocusGroupId(routine, 1)).toBe('tg-b');
+  });
+
+  it('is undefined when nothing is selected, or when the index no longer fits', () => {
+    expect(selectedFocusGroupId(routine, -1)).toBeUndefined();
+    expect(selectedFocusGroupId(routine, null)).toBeUndefined();
+    expect(selectedFocusGroupId(routine, undefined)).toBeUndefined();
+    // An index left over from a longer routine must not resolve to the wrong entry.
+    expect(selectedFocusGroupId(routine, 5)).toBeUndefined();
+    expect(selectedFocusGroupId(null, 0)).toBeUndefined();
   });
 });

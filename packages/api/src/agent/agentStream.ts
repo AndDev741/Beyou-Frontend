@@ -13,6 +13,18 @@ export interface AgentToolEvent {
     domains?: string[];
 }
 
+/**
+ * Where the user is when they send. Both fields are hints the agent may use to resolve "this"
+ * and "here", and both are optional: a message must never fail to send because the client could
+ * not work one of them out.
+ */
+export interface AgentTurnContext {
+    /** App route the user is on (e.g. "/habits"). */
+    currentPage?: string;
+    /** The routine entry open in Focus Mode, when they are in it. */
+    selectedItemGroupId?: string;
+}
+
 export interface AgentStreamHandlers {
     onToken: (text: string) => void;
     onTool: (event: AgentToolEvent) => void;
@@ -136,10 +148,11 @@ export async function streamAgentMessage(
     chatId: string,
     userInput: string,
     handlers: AgentStreamHandlers,
-    /** App route the user is on (e.g. "/habits") — page context for the agent. */
-    currentPage?: string,
+    context?: AgentTurnContext,
     signal?: AbortSignal,
 ): Promise<void> {
+    const currentPage = context?.currentPage;
+    const selectedItemGroupId = context?.selectedItemGroupId;
     if (!config) {
         throw new Error('Agent stream not configured — call setAgentStreamConfig() at app startup');
     }
@@ -155,6 +168,7 @@ export async function streamAgentMessage(
     getAnalytics().track(ANALYTICS_EVENTS.AGENT_MESSAGE_SENT, {
         input_length: userInput.length,
         has_page_context: Boolean(currentPage),
+        has_focus_item: Boolean(selectedItemGroupId),
     });
 
     // getHeaders() is re-read on each call, so a retry after refreshAuth()
@@ -163,7 +177,7 @@ export async function streamAgentMessage(
         doFetch(`${cfg.baseUrl}/ai/agent/chats/${chatId}/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...cfg.getHeaders() },
-            body: JSON.stringify({ userInput, currentPage }),
+            body: JSON.stringify({ userInput, currentPage, selectedItemGroupId }),
             signal,
         });
 

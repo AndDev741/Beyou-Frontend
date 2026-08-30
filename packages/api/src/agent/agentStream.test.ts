@@ -160,6 +160,42 @@ describe('streamAgentMessage 401 retry', () => {
         expect(handlers.onError).not.toHaveBeenCalled();
     });
 
+    /**
+     * The turn context is what lets a tool resolve "add a step here" without asking. It is two
+     * optional hints in one object, so the thing worth locking in is that both reach the body and
+     * that an absent one does not become a literal.
+     */
+    test('sends the page and the open Focus entry with the message', async () => {
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValue(new Response(bodyOf('event: done\ndata: {"segments":[]}\n\n'), { status: 200 }));
+        vi.stubGlobal('fetch', fetchMock);
+
+        await streamAgentMessage('c1', 'add a step here', makeHandlers(), {
+            currentPage: '/focus',
+            selectedItemGroupId: 'entry-b',
+        });
+
+        expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+            userInput: 'add a step here',
+            currentPage: '/focus',
+            selectedItemGroupId: 'entry-b',
+        });
+    });
+
+    test('omits both hints when the caller has none', async () => {
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValue(new Response(bodyOf('event: done\ndata: {"segments":[]}\n\n'), { status: 200 }));
+        vi.stubGlobal('fetch', fetchMock);
+
+        await streamAgentMessage('c1', 'hi', makeHandlers());
+
+        expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ userInput: 'hi' });
+    });
+
     test('gives up with an error if refresh fails', async () => {
         const refreshAuth = vi.fn().mockResolvedValue(false);
         setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}), refreshAuth });

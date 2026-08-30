@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useStore } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { getLogger } from "@beyou/api";
 import getHabits from "@beyou/api/habits/getHabits";
@@ -15,6 +15,10 @@ import { enterTasks } from "@beyou/state/task/tasksSlice";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
+import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
+import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
+import { selectedFocusGroupId } from "@beyou/state";
+import type { RootState } from "@beyou/state/rootReducer";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
 /**
@@ -28,6 +32,9 @@ import { hydratePerfil } from "../services/user/hydratePerfil";
  */
 export function useAgentRefresh() {
     const dispatch = useDispatch();
+    // The store rather than a selector: the focus refresher needs the CURRENT selection at the
+    // moment the turn ends, and a selector would bake the one from render into the callback.
+    const store = useStore();
     const { t } = useTranslation();
 
     return useCallback(
@@ -61,6 +68,20 @@ export function useAgentRefresh() {
                     const profile = await getProfile();
                     if (profile.data) hydratePerfil(dispatch, profile.data);
                 },
+                focus: async () => {
+                    // Micro-tasks are stored per routine entry and there is no "fetch them all".
+                    // What the agent can have changed AND the person can see right now is the
+                    // entry they have open, so that is what is refetched; any other entry re-reads
+                    // when they next arrive at it.
+                    const state = store.getState() as RootState;
+                    const itemGroupId = selectedFocusGroupId(
+                        state.todayRoutine.routine,
+                        state.focus.selectedIndex
+                    );
+                    if (!itemGroupId) return;
+                    const r = await listFocusMicroTasks(itemGroupId, t);
+                    if (r.success) dispatch(microTasksLoaded({ itemGroupId, tasks: r.success }));
+                },
             };
 
             const unique = [...new Set(domains)];
@@ -76,6 +97,6 @@ export function useAgentRefresh() {
                 }).filter(Boolean),
             );
         },
-        [dispatch, t],
+        [dispatch, store, t],
     );
 }

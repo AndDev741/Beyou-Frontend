@@ -69,7 +69,7 @@ export {
     pomodoroSkipped,
     pomodoroAbandoned,
 } from './focus/focusSlice';
-export { getFocusItems, isFocusItemChecked, isFocusItemSkipped, isFocusItemOpen } from './focus/focusItems';
+export { getFocusItems, isFocusItemChecked, isFocusItemSkipped, isFocusItemOpen, selectedFocusGroupId } from './focus/focusItems';
 export type { FocusItem } from './focus/focusItems';
 export { resolveFocusStart, minutesOfDay } from './focus/resolveFocusStart';
 export { FOCUS_REASON_LABEL_KEY, reasonIsFromClock } from './focus/focusLabels';
