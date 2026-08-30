@@ -129,9 +129,14 @@ describe('AgentWidget', () => {
     });
 
     expect(api.createAgentChat).toHaveBeenCalledWith(expect.anything(), 'create a habit');
-    // 4th arg: page context from usePathname (mocked as /habits)
+    // 4th arg: turn context. The page comes from usePathname (mocked as /habits); the Focus
+    // entry is undefined because /habits is not the focus screen.
     expect(stream.streamAgentMessage).toHaveBeenCalledWith(
-      'new1', 'create a habit', expect.anything(), '/habits', expect.anything(),
+      'new1',
+      'create a habit',
+      expect.anything(),
+      { currentPage: '/habits', selectedItemGroupId: undefined },
+      expect.anything(),
     );
     await waitFor(() => expect(getByText('Read')).toBeTruthy());
   });

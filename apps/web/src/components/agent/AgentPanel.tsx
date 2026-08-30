@@ -17,6 +17,9 @@ import {
 import { streamAgentMessage } from "@beyou/api/agent/agentStream";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useAgentRefresh } from "../../hooks/useAgentRefresh";
+import { useSelector } from "react-redux";
+import type { RootState } from "@beyou/state/rootReducer";
+import { selectedFocusGroupId } from "@beyou/state";
 import Modal from "../modals/Modal";
 import AgentSegments from "./AgentSegments";
 import AgentPrivacyNotice from "./AgentPrivacyNotice";
@@ -73,6 +76,16 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
     // Ref so an in-flight send captures the page the message was SENT from.
     const currentPageRef = useRef(location.pathname);
     currentPageRef.current = location.pathname;
+
+    // The entry open in Focus Mode travels with the message, so "add a step here" has something
+    // to resolve to. Only from /focus: the slice keeps its selection after the person leaves, and
+    // an entry they stopped looking at is not what "here" means.
+    const focusRoutine = useSelector((state: RootState) => state.todayRoutine.routine);
+    const focusIndex = useSelector((state: RootState) => state.focus.selectedIndex);
+    const focusItemRef = useRef<string | undefined>(undefined);
+    focusItemRef.current = location.pathname.startsWith("/focus")
+        ? selectedFocusGroupId(focusRoutine, focusIndex)
+        : undefined;
 
     const [historyOpen, setHistoryOpen] = useState(false);
     const [chats, setChats] = useState<agentChat[]>([]);
@@ -374,7 +387,9 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     setMessages((prev) => prev.slice(0, -1));
                     setInput(text);
                 },
-            }, currentPageRef.current, controller.signal);
+            },
+                { currentPage: currentPageRef.current, selectedItemGroupId: focusItemRef.current },
+                controller.signal);
         } finally {
             // Clear only if a newer send hasn't taken over the streaming slot.
             setStreamingChatId((cur) => (cur === chatId ? null : cur));

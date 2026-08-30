@@ -14,6 +14,9 @@ import { streamAgentMessage } from '@beyou/api/agent/agentStream';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { notify } from '../../notify';
 import { useAgentRefresh } from './useAgentRefresh';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@beyou/state/rootReducer';
+import { selectedFocusGroupId } from '@beyou/state';
 
 const VISIBLE_ROLES = ['USER', 'ASSISTANT'];
 const AUTO_TITLE_MAX = 40;
@@ -30,6 +33,16 @@ export function useAgentChat() {
   // prompt knows, and the mobile dashboard lives at '/'.
   const currentPageRef = useRef('/dashboard');
   currentPageRef.current = pathname === '/' ? '/dashboard' : pathname;
+
+  // The entry open in Focus Mode travels with the message, so "add a step here" has something to
+  // resolve to. Only from the focus screen: the slice keeps its selection after the person leaves,
+  // and an entry they stopped looking at is not what "here" means.
+  const focusRoutine = useSelector((state: RootState) => state.todayRoutine.routine);
+  const focusIndex = useSelector((state: RootState) => state.focus.selectedIndex);
+  const focusItemRef = useRef<string | undefined>(undefined);
+  focusItemRef.current = currentPageRef.current.startsWith('/focus')
+    ? selectedFocusGroupId(focusRoutine, focusIndex)
+    : undefined;
   const [chats, setChats] = useState<agentChat[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<agentMessage[]>([]);
@@ -277,7 +290,7 @@ export function useAgentChat() {
               setInput(text);
             },
           },
-          currentPageRef.current,
+          { currentPage: currentPageRef.current, selectedItemGroupId: focusItemRef.current },
           controller.signal,
         );
       } finally {

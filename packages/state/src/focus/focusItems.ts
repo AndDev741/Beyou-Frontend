@@ -39,6 +39,22 @@ export type FocusItem = {
  * overlapping sections would sort differently under a global sort, and then the focus screen's
  * "next" would disagree with the list the person just looked at.
  */
+/**
+ * The entry the person has open in Focus Mode, or undefined when nothing is selected.
+ *
+ * Both clients send this with an agent message so a tool can be told which entry "this" means,
+ * and the answer has to be the same one on both. `selectedIndex` is an index into
+ * `getFocusItems`, so nothing else can resolve it: reading the routine directly would give a
+ * different item the moment a section has more than one thing in it.
+ */
+export function selectedFocusGroupId(
+  routine: Routine | null | undefined,
+  selectedIndex: number | null | undefined,
+): string | undefined {
+  if (selectedIndex == null || selectedIndex < 0) return undefined;
+  return getFocusItems(routine)[selectedIndex]?.groupId || undefined;
+}
+
 export function getFocusItems(routine: Routine | null | undefined): FocusItem[] {
   if (!routine) return [];
 
