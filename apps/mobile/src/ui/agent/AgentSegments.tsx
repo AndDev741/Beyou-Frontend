@@ -8,6 +8,7 @@ import {
   ListChecks,
   Repeat,
   Settings,
+  Target,
   Trophy,
   X,
 } from 'lucide-react-native';
@@ -33,6 +34,11 @@ const READ_TOOLS = new Set([
   'getTodayRoutine',
   'getUserSchedules',
   'getUserConfiguration',
+  // getItemMicroTasks materialises pinned names as it reads, so it is not a pure
+  // get. It is a chip anyway: nothing the person asked for changed, and "your
+  // micro-tasks, re-pinned" is not a sentence anyone wants in a chat transcript.
+  'getItemMicroTasks',
+  'getFocusDay',
 ]);
 
 /** Where each write tool points: route + icon + link label. */
@@ -63,8 +69,32 @@ const ROUTINE_ITEM_TOOLS = new Set([
   'removeRoutineItem',
 ]);
 
+// The same trap, worse: every micro-task tool has "Task" in its name and none of
+// them has anything to do with the tasks page. `/Task/` matched them all and sent
+// people to /tasks to look for something that was never going to be there. Listed
+// by name rather than fixed with a cleverer regex, because a name is what the next
+// tool will also be added as.
+const FOCUS_TOOLS = new Set([
+  'addMicroTask',
+  'toggleMicroTask',
+  'pinMicroTask',
+  'deleteMicroTask',
+  'reorderMicroTasks',
+]);
+
+/** Every tool name this file knows, for the label guard in the test. */
+export const KNOWN_TOOLS = [...READ_TOOLS, ...ROUTINE_ITEM_TOOLS, ...FOCUS_TOOLS];
+
 export function destinationFor(tool: string | undefined): Destination | null {
   if (!tool) return null;
+  // A read has nothing to go and look at. The renderer already sends reads down the
+  // chip path, so this changes no pixel — it keeps the exported function honest on
+  // its own, which matters because `getItemMicroTasks` matches /Task/ and would
+  // otherwise answer "/tasks" to anyone who asked it directly.
+  if (READ_TOOLS.has(tool)) return null;
+  if (FOCUS_TOOLS.has(tool)) {
+    return { route: '/focus', Icon: Target, labelKey: 'FocusTitle' };
+  }
   if (ROUTINE_ITEM_TOOLS.has(tool)) {
     return { route: '/routines', Icon: CalendarDays, labelKey: 'Routines' };
   }
