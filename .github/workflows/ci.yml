@@ -205,6 +205,16 @@ jobs:
             # defaults to the US ingest) — set it only for an EU project.
             VITE_POSTHOG_KEY=${{ vars.PROD_POSTHOG_KEY }}
             VITE_POSTHOG_HOST=${{ vars.PROD_POSTHOG_HOST }}
+            # Federated sign-in. Same build-time contract as everything above:
+            # leaving these unset ships a bundle with the extra sign-in buttons
+            # permanently absent, because OidcButtons returns null without both.
+            # That is the intended off state, and it is independent of the
+            # server's own OIDC_* — BOTH sides must be set before a button both
+            # appears and works. `vars` and not `secrets`: an issuer URL is
+            # public, and a public OAuth client id is public by definition
+            # (build args are readable in `docker history` regardless).
+            VITE_OIDC_ISSUER=${{ vars.OIDC_ISSUER }}
+            VITE_OIDC_CLIENT_ID=${{ vars.OIDC_CLIENT_ID }}
           tags: |
             ghcr.io/anddev741/beyou-web:latest
             ghcr.io/anddev741/beyou-web:sha-${{ env.SHORT_SHA }}
