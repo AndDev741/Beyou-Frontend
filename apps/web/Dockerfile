@@ -38,12 +38,18 @@ ARG VITE_SENTRY_DSN
 # an EU-cloud project; unset falls back to the US ingest in lib/analytics.ts.
 ARG VITE_POSTHOG_KEY
 ARG VITE_POSTHOG_HOST
+# Federated sign-in. Both are needed before OidcButtons renders anything;
+# unset ships the buttons permanently absent, which is the intended off state.
+ARG VITE_OIDC_ISSUER
+ARG VITE_OIDC_CLIENT_ID
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
 ENV VITE_APP_URL=${VITE_APP_URL}
 ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
 ENV VITE_POSTHOG_KEY=${VITE_POSTHOG_KEY}
 ENV VITE_POSTHOG_HOST=${VITE_POSTHOG_HOST}
+ENV VITE_OIDC_ISSUER=${VITE_OIDC_ISSUER}
+ENV VITE_OIDC_CLIENT_ID=${VITE_OIDC_CLIENT_ID}
 COPY . .
 RUN npm run build
 
