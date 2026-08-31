@@ -37,6 +37,7 @@ __NAV__
     <ul>
       <li>The name you chose, your email address, and your password stored only as a bcrypt hash. The plain password is never written down and cannot be recovered, only reset.</li>
       <li>A flag recording whether you signed up with email or with Google, and whether your email address has been confirmed.</li>
+      <li>If you connect another sign-in provider, the name of that provider, the account identifier it gave you, and the email address it told Beyou at the time. That stored address is a record of what the provider said; it is never used to decide which account you reach.</li>
       <li>Your time zone, your language, your chosen theme, and which dashboard widgets you use. The time zone matters because it decides when your day rolls over.</li>
       <li>Whether you want the occasional email about your own routine, and a token that lets the unsubscribe link in those emails work without you signing in. Both are described in section 4.</li>
       <li>A profile picture, if you upload one, and an optional profile quote and its author.</li>
@@ -47,6 +48,14 @@ __NAV__
       and the address of your Google profile picture. Beyou stores those and
       nothing more, and never receives your Google password, your contacts, your
       calendar or your Drive.
+    </p>
+    <p>
+      Beyou can also be configured to accept a second sign-in provider. When one is
+      switched on, the same three things reach Beyou from it (your email address,
+      your name and a picture address) and nothing else. Connecting such a provider
+      is always something you start yourself, from an account you are already signed
+      in to; a provider can never claim an account that already exists just because
+      it says it knows the email address on it.
     </p>
 
     <h3>What you create in the app</h3>
@@ -178,6 +187,7 @@ __NAV__
         <tbody>
           <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and the habits, goals, tasks, routines and settings the assistant reads to answer, plus your display name</td><td>Only if you use the AI assistant or the guided setup. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
+          <tr><td>Any additional sign-in provider switched on for Beyou</td><td>The fact that you signed in, if you use it. It also sees your IP address while you are on its own sign-in page</td><td>Sign-in, only for accounts that connected it</td></tr>
           <tr><td>The email provider configured for Beyou</td><td>Your email address and the contents of every email Beyou sends you: the account emails, including feedback confirmations that quote your message, and the routine emails described in section 4</td><td>Delivering email</td></tr>
           <tr><td>A self-hosted error collector</td><td>Error reports, configured to exclude your identity, IP, cookies and request bodies</td><td>Fixing crashes</td></tr>
           <tr><td>PostHog (usage analytics, EU)</td><td>How Beyou is used: pages and screens viewed, interface interactions, a short list of things you did in the app, and the current shape of your account. Both lists are spelled out under this table. Inside the app, the words on your screen are masked out before anything is sent, web addresses are stripped of tokens, and you are identified by an internal account id and your display name, never by your email</td><td>Understanding which features are used and which are not, to decide what to improve</td></tr>

@@ -1104,6 +1104,74 @@ export interface paths {
         patch: operations["reorder"];
         trace?: never;
     };
+    "/auth/oidc/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The federated sign-in providers this deployment offers. Public, and an empty list is the normal answer when none is configured. */
+        get: operations["oidcProviders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/oidc/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Federated sign-in. The client sends the verified ID token, not the authorization code: the code_verifier never leaves the device that generated it. 403 FEDERATED_LINK_REQUIRED means the identity verified but may not enter on its own. */
+        post: operations["oidcLogin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/oidc/{provider}/mobile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description As above, on the mobile contract: X-Access-Token header and refreshToken in the body. */
+        post: operations["oidcLoginMobile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/oidc/{provider}/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Attaches a federated identity to the account making the request. AUTHENTICATED, and the only way an identity reaches an account that already exists. */
+        post: operations["oidcLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2062,6 +2130,12 @@ export interface components {
             /** Format: uuid */
             itemGroupId: string;
             ids: string[];
+        };
+        OidcLoginDTO: {
+            /** @description The raw ID token from the provider. Signature, issuer, audience, azp and expiry are verified server-side before any claim is read. */
+            idToken: string;
+            /** @description Claimed by the client, never by the issuer, and applied only when an account is created. */
+            timezone?: string;
         };
     };
     responses: never;
@@ -4138,6 +4212,103 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["FocusMicroTaskResponseDTO"][];
                 };
+            };
+        };
+    };
+    oidcProviders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        providers?: {
+                            slug?: string;
+                            displayName?: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    oidcLogin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OidcLoginDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    oidcLoginMobile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OidcLoginDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    oidcLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OidcLoginDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

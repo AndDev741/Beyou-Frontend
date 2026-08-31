@@ -2697,6 +2697,145 @@
           }
         }
       }
+    },
+    "/auth/oidc/providers": {
+      "get": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "oidcProviders",
+        "description": "The federated sign-in providers this deployment offers. Public, and an empty list is the normal answer when none is configured.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "providers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/oidc/{provider}": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "oidcLogin",
+        "description": "Federated sign-in. The client sends the verified ID token, not the authorization code: the code_verifier never leaves the device that generated it. 403 FEDERATED_LINK_REQUIRED means the identity verified but may not enter on its own.",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OidcLoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/oidc/{provider}/mobile": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "oidcLoginMobile",
+        "description": "As above, on the mobile contract: X-Access-Token header and refreshToken in the body.",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OidcLoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/oidc/{provider}/link": {
+      "post": {
+        "tags": [
+          "authentication-controller"
+        ],
+        "operationId": "oidcLink",
+        "description": "Attaches a federated identity to the account making the request. AUTHENTICATED, and the only way an identity reaches an account that already exists.",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OidcLoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5412,6 +5551,22 @@
           "ids",
           "itemGroupId"
         ]
+      },
+      "OidcLoginDTO": {
+        "type": "object",
+        "required": [
+          "idToken"
+        ],
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "description": "The raw ID token from the provider. Signature, issuer, audience, azp and expiry are verified server-side before any claim is read."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "Claimed by the client, never by the issuer, and applied only when an account is created."
+          }
+        }
       }
     }
   }

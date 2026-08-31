@@ -1168,7 +1168,7 @@
     "DeleteAccountFinalConfirm": "Delete my account forever",
     "DeleteAccountDone": "Your account is gone. Take care.",
     "ACCOUNT_DELETE_FAILED": "We could not delete your account. Nothing was removed and your code still works, so you can try again.",
-    "DeleteAccountUnclear": "We lost the connection before we could confirm. Your account may already be deleted \u2014 try signing in to check.",
+    "DeleteAccountUnclear": "We lost the connection before we could confirm. Your account may already be deleted — try signing in to check.",
     "DELETION_CODE_INVALID": "That code is not right. Check the email and try again.",
     "DELETION_CODE_EXPIRED": "That code expired. Ask for a new one.",
     "DELETION_CODE_TOO_MANY_ATTEMPTS": "Too many wrong codes. Ask for a new one.",
@@ -1241,5 +1241,9 @@
     "FocusPomodorosOnItem": "{{count}} pomodoro",
     "FocusPomodorosOnItem_one": "{{count}} pomodoro",
     "FocusPomodorosOnItem_other": "{{count}} pomodoros",
-    "FocusKeepTaskHint": "Kept: it shows up on every item you move to."
+    "FocusKeepTaskHint": "Kept: it shows up on every item you move to.",
+    "ContinueWithProvider": "Continue with {{provider}}",
+    "OidcLoginError": "That sign-in did not go through. Try again.",
+    "OidcLinkRequiredTitle": "One more step",
+    "OidcLinkRequiredMessage": "Sign in the way you normally do, then connect this provider from your settings. After that you can use it to sign in."
 }

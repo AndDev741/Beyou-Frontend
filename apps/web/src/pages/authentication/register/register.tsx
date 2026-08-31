@@ -5,6 +5,7 @@ import Button from "../../../components/Button";
 import FormNotice from "../../../components/authentication/FormNotice";
 import { Loader } from "lucide-react";
 import GoogleIcon from "../../../components/authentication/googleIcon";
+import OidcButtons from "../../../components/authentication/OidcButtons";
 import PasswordHints from "../../../components/authentication/PasswordHints";
 // Functions
 import { Link } from "react-router-dom";
@@ -192,6 +193,7 @@ function Register() {
                     </form>
 
                     <GoogleIcon />
+                    <OidcButtons />
         </AuthShell>
     );
 }
