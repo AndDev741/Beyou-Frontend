@@ -37,6 +37,7 @@ __NAV__
     <ul>
       <li>O nome que você escolheu, seu e-mail e sua senha guardada apenas como hash bcrypt. A senha em texto puro nunca é registrada e não pode ser recuperada, só redefinida.</li>
       <li>Um marcador de como você se cadastrou, por e-mail ou pelo Google, e se seu e-mail já foi confirmado.</li>
+      <li>Se você conectar outro provedor de login, o nome desse provedor, o identificador de conta que ele te deu e o e-mail que ele informou ao Beyou na ocasião. Esse e-mail guardado é um registro do que o provedor disse; nunca é usado para decidir a qual conta você chega.</li>
       <li>Seu fuso horário, seu idioma, seu tema e quais widgets você usa no painel. O fuso importa porque é ele que define quando seu dia vira.</li>
       <li>Uma foto de perfil, se você enviar uma, além de uma frase de perfil opcional e o autor dela.</li>
       <li>Seu XP, seu nível, suas sequências e a lista de dias que você completou.</li>
@@ -45,6 +46,14 @@ __NAV__
       Se você entrar com o Google, o Google entrega ao Beyou seu e-mail, seu nome e
       o endereço da sua foto de perfil do Google. O Beyou guarda isso e nada mais,
       e nunca recebe sua senha do Google, seus contatos, sua agenda ou seu Drive.
+    </p>
+    <p>
+      O Beyou também pode ser configurado para aceitar um segundo provedor de login.
+      Quando algum está ativo, chegam dele as mesmas três coisas (seu e-mail, seu
+      nome e o endereço de uma foto) e nada além disso. Conectar um provedor desses
+      é sempre algo que você inicia, de dentro de uma conta em que já está logado; um
+      provedor nunca consegue reivindicar uma conta que já existe só por dizer que
+      conhece o e-mail dela.
     </p>
 
     <h3>O que você cria no app</h3>
@@ -179,6 +188,7 @@ __NAV__
         <tbody>
           <tr><td>Mistral AI e Google Gemini</td><td>Suas mensagens ao assistente e os hábitos, metas, tarefas, rotinas e configurações que ele lê para responder, mais seu nome de exibição</td><td>Somente se você usar o assistente de IA ou a configuração guiada. Veja a seção 3</td></tr>
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
+          <tr><td>Qualquer provedor de login adicional ativado no Beyou</td><td>O fato de você ter entrado, se usar esse provedor. Ele também vê seu endereço IP enquanto você está na página de login dele</td><td>Login, apenas para contas que o conectaram</td></tr>
           <tr><td>O provedor de e-mail configurado para o Beyou</td><td>Seu e-mail e o conteúdo de todo e-mail que o Beyou te envia: os e-mails da conta, incluindo confirmações de feedback que citam sua mensagem, e os e-mails sobre a rotina descritos na seção 4</td><td>Entrega de e-mail</td></tr>
           <tr><td>Um coletor de erros hospedado por conta própria</td><td>Relatórios de erro, configurados para excluir sua identidade, IP, cookies e corpo das requisições</td><td>Corrigir falhas</td></tr>
           <tr><td>PostHog (métricas de uso, UE)</td><td>Como o Beyou é usado: páginas e telas visitadas, interações com a interface, uma lista curta de coisas que você fez no app e o estado atual da sua conta. As duas listas estão detalhadas abaixo desta tabela. Dentro do app, as palavras da sua tela são mascaradas antes de qualquer envio, os endereços têm seus tokens removidos, e você é identificado por um id interno da conta e seu nome de exibição, nunca pelo seu email</td><td>Entender quais recursos são usados e quais não são, para decidir o que melhorar</td></tr>

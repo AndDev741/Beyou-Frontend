@@ -4,6 +4,7 @@ import Input from "../../../components/authentication/input";
 import Button from "../../../components/Button";
 import FormNotice from "../../../components/authentication/FormNotice";
 import GoogleIcon from "../../../components/authentication/googleIcon";
+import OidcButtons from "../../../components/authentication/OidcButtons";
 // Functions
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useState } from "react";
@@ -14,10 +15,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 // Services
 import useGoogleLogin from "../../../services/authentication/useGoogleLogin";
+import useOidcLogin from "../../../services/authentication/useOidcLogin";
 import handleLogin from "../../../services/authentication/useLogin";
 import useResendVerification from "../../../services/authentication/useResendVerification";
 import { loginSchema } from "@beyou/validation/forms/authSchemas";
 import { successRegisterEnter } from "@beyou/state/authentication/registerSlice";
+import type { OidcLinkRequiredReason } from "@beyou/api";
 import { RootState } from "@beyou/state/rootReducer";
 // Assets
 import EmailIcon from "../../../assets/authentication/emailIcon.svg?react";
@@ -61,6 +64,16 @@ function Login() {
     // not in the form — so the notice offers resend only once the user has typed one.
     const onGoogleEmailNotVerified = useCallback(() => setUnverifiedEmail(""), []);
     useGoogleLogin(navigate, dispatch, t, onGoogleEmailNotVerified);
+
+    // A federated identity that verified but may not enter on its own. Not an error:
+    // the account has to claim the provider from inside, so the notice says so rather
+    // than a toast saying the sign-in broke.
+    const [oidcLinkNotice, setOidcLinkNotice] = useState<string | null>(null);
+    const onOidcLinkRequired = useCallback(
+        (_reason: OidcLinkRequiredReason, provider: string) => setOidcLinkNotice(provider),
+        [],
+    );
+    useOidcLogin(navigate, dispatch, t, onOidcLinkRequired);
 
     useEffect(() => {
         if (!successRegister) return;
@@ -194,7 +207,16 @@ function Login() {
                         />
                     </form>
 
+            {oidcLinkNotice && (
+                <FormNotice
+                    tone="info"
+                    title={t("OidcLinkRequiredTitle")}
+                    message={t("OidcLinkRequiredMessage")}
+                />
+            )}
+
             <GoogleIcon />
+            <OidcButtons />
         </AuthShell>
     );
 }

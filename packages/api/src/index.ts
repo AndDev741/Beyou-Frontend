@@ -22,6 +22,9 @@ export * from './utils/experienceToEnum';
 // Auth — the unauthenticated calls both clients share
 export { default as resendVerification } from './auth/resendVerification';
 export * from './auth/resendVerification';
+export { default as fetchOidcProviders } from './auth/oidc/oidcProviders';
+export { default as oidcLogin, oidcLink } from './auth/oidc/oidcLogin';
+export * from './auth/oidc/types';
 
 // AI agent chats
 export * from './agent/agentChats';
