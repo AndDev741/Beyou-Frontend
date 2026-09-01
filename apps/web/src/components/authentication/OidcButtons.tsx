@@ -57,7 +57,7 @@ function OidcButtons() {
     };
 
     return (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="mt-4 flex flex-col gap-2">
             {providers.map((provider) => (
                 <button
                     key={provider.slug}

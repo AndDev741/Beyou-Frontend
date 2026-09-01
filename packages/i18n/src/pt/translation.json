@@ -1244,6 +1244,8 @@
     "FocusKeepTaskHint": "Guardada: aparece em todo item para onde fores.",
     "ContinueWithProvider": "Continuar com {{provider}}",
     "OidcLoginError": "Esse acesso não passou. Tenta outra vez.",
-    "OidcLinkRequiredTitle": "Falta um passo",
-    "OidcLinkRequiredMessage": "Entra como costumas entrar e liga este provedor nas tuas definições. Depois disso podes usá-lo para entrar."
+    "OidcAccountExistsTitle": "Este endereço já tem conta",
+    "OidcAccountExistsMessage": "Já existe uma conta Beyou com este e-mail, criada por outro login. Entra como costumas entrar e depois podes ligar este provedor a ela.",
+    "OidcNotAvailableTitle": "Ainda não dá para entrar por aqui",
+    "OidcNotAvailableMessage": "Este provedor ainda não pode ser usado para entrar nem para criar conta sozinho. Usa o teu login habitual."
 }
