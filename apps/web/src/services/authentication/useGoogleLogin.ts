@@ -26,6 +26,18 @@ function useGoogleLogin(
         const authCode = params.get('code');
         const stateParam = params.get('state');
         if(authCode && !codeUsed){
+            // A federated provider's callback lands on this same URL with the same
+            // parameter names. Its verifier is still in session storage at this point
+            // (this hook runs before useOidcLogin, which is what consumes it), so its
+            // presence is what tells the two apart.
+            //
+            // Without this check, every federated sign-in logged "OAuth state mismatch
+            // — possible CSRF attack" from here: alarming, wrong, and pointing at the
+            // wrong flow while the real one carried on fine underneath.
+            if (sessionStorage.getItem('oidc_code_verifier')) {
+                return;
+            }
+
             const savedState = sessionStorage.getItem('oauth_state');
             sessionStorage.removeItem('oauth_state');
 

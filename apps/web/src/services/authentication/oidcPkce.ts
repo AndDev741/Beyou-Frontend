@@ -108,6 +108,18 @@ export async function completeOidcLogin(params: {
     sessionStorage.removeItem(STATE_KEY);
     sessionStorage.removeItem(PROVIDER_KEY);
 
+    // Strip ?code= HERE, while we are certainly still on the login route.
+    //
+    // This used to sit in a .finally() in the calling hook, which ran after
+    // navigate('/dashboard') in the same promise chain. React Router had not
+    // committed the navigation yet, so window.location.pathname was still the
+    // login path, and replaceState wrote it back -- undoing the navigation. It
+    // failed intermittently because it depended on which committed first.
+    //
+    // Doing it before the network call removes the race entirely: nothing after
+    // this point reads or writes the URL.
+    window.history.replaceState(null, '', window.location.origin + window.location.pathname);
+
     if (!state || state !== savedState) {
         throw new Error('OAuth state mismatch — possible CSRF attack');
     }

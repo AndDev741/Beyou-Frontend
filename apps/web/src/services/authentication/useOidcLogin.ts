@@ -57,11 +57,10 @@ function useOidcLogin(
             .catch((e) => {
                 console.error(e);
                 toast.error(t('OidcLoginError'));
-            })
-            .finally(() => {
-                const cleanUrl = window.location.origin + window.location.pathname;
-                window.history.replaceState(null, '', cleanUrl);
             });
+        // No .finally() cleaning the URL here: completeOidcLogin does it up front,
+        // before the exchange. Doing it after navigate() raced with React Router and
+        // sometimes put the login URL back, cancelling the redirect to the dashboard.
     }, [t, handled, navigate, dispatch, onLinkRequired]);
 }
 

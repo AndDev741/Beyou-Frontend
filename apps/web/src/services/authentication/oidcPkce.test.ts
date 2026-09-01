@@ -61,3 +61,58 @@ describe('completeOidcLogin', () => {
         expect(sessionStorage.getItem('oidc_provider')).toBeNull();
     });
 });
+
+/**
+ * The URL is stripped of ?code= BEFORE the token exchange, not after the redirect.
+ *
+ * <p>It used to happen in a .finally() that ran after navigate('/dashboard'), in the
+ * same promise chain. React Router had not committed the navigation yet, so the
+ * pathname read there was still the login route and replaceState put it back —
+ * cancelling the redirect. It failed intermittently, which is the worst way for it to
+ * fail, because whether it broke depended on which committed first.
+ */
+describe('completeOidcLogin URL cleanup', () => {
+    beforeEach(() => {
+        sessionStorage.clear();
+        Object.defineProperty(window, 'location', {
+            writable: true,
+            value: { search: '?code=abc&state=sent', origin: 'http://localhost:3000', pathname: '/' },
+        });
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    it('strips the query before the token exchange, not after', async () => {
+        const order: string[] = [];
+        const replaceState = vi.spyOn(window.history, 'replaceState')
+            .mockImplementation(() => { order.push('replaceState'); });
+        vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+            order.push(`fetch:${String(url).includes('well-known') ? 'discovery' : 'token'}`);
+            if (String(url).includes('well-known')) {
+                return { ok: true, json: async () => ({
+                    issuer: 'https://idp.example',
+                    authorization_endpoint: 'https://idp.example/a',
+                    token_endpoint: 'https://idp.example/t',
+                }) };
+            }
+            return { ok: true, json: async () => ({ id_token: 'tok' }) };
+        }));
+
+        sessionStorage.setItem('oidc_code_verifier', 'verifier');
+        sessionStorage.setItem('oidc_provider', 'someprovider');
+        sessionStorage.setItem('oidc_state', 'sent');
+
+        const result = await completeOidcLogin({
+            issuer: 'https://idp.example', clientId: 'client', redirectUri: 'http://localhost:3000/',
+        });
+
+        expect(result).toEqual({ slug: 'someprovider', idToken: 'tok' });
+        expect(replaceState).toHaveBeenCalled();
+        // The whole point: cleanup happens first, so nothing after it can race with
+        // the caller's navigate().
+        expect(order[0]).toBe('replaceState');
+    });
+});
