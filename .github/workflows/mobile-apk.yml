@@ -60,7 +60,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
 
       # Restores ~/.gradle between runs. A cold runner re-downloads every Maven
       # dependency and recompiles every module: the last uncached build reported
