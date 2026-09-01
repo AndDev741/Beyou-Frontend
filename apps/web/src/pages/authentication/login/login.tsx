@@ -68,9 +68,15 @@ function Login() {
     // A federated identity that verified but may not enter on its own. Not an error:
     // the account has to claim the provider from inside, so the notice says so rather
     // than a toast saying the sign-in broke.
-    const [oidcLinkNotice, setOidcLinkNotice] = useState<string | null>(null);
+    // The reason decides the wording, because the two are not the same news.
+    // ACCOUNT_EXISTS means this address already has a Beyou account and the
+    // provider has to be attached to it. EMAIL_NOT_TRUSTED means this deployment
+    // does not accept that issuer's word on addresses at all, which happens to
+    // someone with no Beyou account too -- telling them their account is already
+    // linked would be false.
+    const [oidcLinkNotice, setOidcLinkNotice] = useState<OidcLinkRequiredReason | null>(null);
     const onOidcLinkRequired = useCallback(
-        (_reason: OidcLinkRequiredReason, provider: string) => setOidcLinkNotice(provider),
+        (reason: OidcLinkRequiredReason) => setOidcLinkNotice(reason),
         [],
     );
     useOidcLogin(navigate, dispatch, t, onOidcLinkRequired);
@@ -210,8 +216,10 @@ function Login() {
             {oidcLinkNotice && (
                 <FormNotice
                     tone="info"
-                    title={t("OidcLinkRequiredTitle")}
-                    message={t("OidcLinkRequiredMessage")}
+                    title={t(oidcLinkNotice === "ACCOUNT_EXISTS"
+                        ? "OidcAccountExistsTitle" : "OidcNotAvailableTitle")}
+                    message={t(oidcLinkNotice === "ACCOUNT_EXISTS"
+                        ? "OidcAccountExistsMessage" : "OidcNotAvailableMessage")}
                 />
             )}
 

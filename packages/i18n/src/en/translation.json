@@ -1244,6 +1244,8 @@
     "FocusKeepTaskHint": "Kept: it shows up on every item you move to.",
     "ContinueWithProvider": "Continue with {{provider}}",
     "OidcLoginError": "That sign-in did not go through. Try again.",
-    "OidcLinkRequiredTitle": "One more step",
-    "OidcLinkRequiredMessage": "Sign in the way you normally do, then connect this provider from your settings. After that you can use it to sign in."
+    "OidcAccountExistsTitle": "This address already has an account",
+    "OidcAccountExistsMessage": "A Beyou account already uses this email, signed in another way. Sign in the way you normally do, and you can connect this provider to it later.",
+    "OidcNotAvailableTitle": "Not available for signing in yet",
+    "OidcNotAvailableMessage": "This provider cannot be used to sign in or create an account on its own right now. Use your usual sign-in."
 }
