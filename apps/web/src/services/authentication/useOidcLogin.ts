@@ -5,6 +5,7 @@ import { NavigateFunction } from "react-router-dom";
 import { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { oidcLogin, OidcLinkRequiredReason } from "@beyou/api";
 import { UserType } from "@beyou/types/user/UserType";
+import axios from "../axiosConfig";
 import { hydratePerfil } from "../user/hydratePerfil";
 import { completeOidcLogin } from "./oidcPkce";
 import { detectTimezone } from "../user/reconcileTimezone";
@@ -46,6 +47,18 @@ function useOidcLogin(
                 const result = await oidcLogin(callback.slug, callback.idToken, detectTimezone() ?? undefined);
 
                 if (result.kind === 'success') {
+                    // The JWT lives only in-memory, so the login response is the one
+                    // place it has to be captured — and it must be captured here, not
+                    // left to a first authenticated request racing a refresh. The
+                    // httpOnly cookie gives ProtectedRoute its "hasRuntimeToken" signal,
+                    // and every dashboard fetch needs the bearer token on the wire.
+                    // Password and Google login capture the same header at their call
+                    // site (loginRequest.ts, googleRequest.ts); missing this line made
+                    // the federated path rely on a race and fail the sign-in for real
+                    // trips between the exchange and the redirect.
+                    if (result.accessToken) {
+                        axios.defaults.headers.common.Authorization = `Bearer ${result.accessToken}`;
+                    }
                     hydratePerfil(dispatch, result.user as unknown as UserType);
                     navigate('/dashboard');
                 } else if (result.kind === 'linkRequired') {
