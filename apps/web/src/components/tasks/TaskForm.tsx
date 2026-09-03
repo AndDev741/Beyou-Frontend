@@ -14,7 +14,7 @@ import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import createTask from "@beyou/api/tasks/createTask";
 import editTask from "@beyou/api/tasks/editTask";
-import getTasks from "@beyou/api/tasks/getTasks";
+import { useSyncedTasks } from "../../hooks/useSyncedLists";
 import { RootState } from "@beyou/state/rootReducer";
 import {
     editCaegoriesIdEnter,
@@ -65,6 +65,7 @@ const defaultValues: TaskFormValues = {
 function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const refreshTasks = useSyncedTasks();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
     const [search, setSearch] = useState("");
 
@@ -169,9 +170,11 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                   );
 
         if (response?.success) {
-            const newTasks = await getTasks(t);
-            if (Array.isArray(newTasks.success)) {
-                setTasks(newTasks.success);
+            // The refetch also lands in the store (see useSyncedTasks): a rename saved here
+            // used to live only in this page's list, and the focus screen kept the old name.
+            const newTasks = await refreshTasks();
+            if (newTasks) {
+                setTasks(newTasks);
             }
             if (mode === "edit") {
                 handleCancel();

@@ -14,7 +14,7 @@ import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import createHabit from "@beyou/api/habits/createHabit";
 import editHabit from "@beyou/api/habits/editHabit";
-import getHabits from "@beyou/api/habits/getHabits";
+import { useSyncedHabits } from "../../hooks/useSyncedLists";
 import { RootState } from "@beyou/state/rootReducer";
 import {
     editCaegoriesIdEnter,
@@ -67,6 +67,7 @@ const defaultValues: HabitFormValues = {
 function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const refreshHabits = useSyncedHabits();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
     const [search, setSearch] = useState("");
 
@@ -171,9 +172,11 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                   );
 
         if (response?.success) {
-            const newHabits = await getHabits(t);
-            if (Array.isArray(newHabits.success)) {
-                setHabits(newHabits.success);
+            // The refetch also lands in the store (see useSyncedHabits): a rename saved here
+            // used to live only in this page's list, and the focus screen kept the old name.
+            const newHabits = await refreshHabits();
+            if (newHabits) {
+                setHabits(newHabits);
             }
             if (mode === "edit") {
                 handleCancel();

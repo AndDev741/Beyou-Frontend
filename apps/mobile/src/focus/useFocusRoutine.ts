@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import getTodayRoutine from '@beyou/api/routine/getTodayRoutine';
 import getHabits from '@beyou/api/habits/getHabits';
 import getTasks from '@beyou/api/tasks/getTasks';
+import type { RefreshReason } from '@beyou/state/sync/autoRefresh';
 import { enterTodayRoutine } from '@beyou/state/routine/todayRoutineSlice';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
 import type { RootState, AppDispatch } from '../store';
+import { useAutoRefresh } from '../hooks/useAutoRefresh';
 
 /**
  * Everything the focus screen needs, fetched by the screen itself.
@@ -25,6 +27,13 @@ import type { RootState, AppDispatch } from '../store';
  * an empty array cannot be told apart from a user who genuinely has no habits. Whatever the
  * store already holds keeps rendering while the requests are in flight, so arriving from the
  * dashboard shows the routine at once and this is only a refresh.
+ *
+ * And it keeps refreshing. This was the one data screen without `useAutoRefresh`, on the
+ * platform where it matters most: the phone keeps this screen on for a whole pomodoro, the
+ * Stack keeps it mounted underneath whatever is pushed on top, and a mount effect runs once.
+ * A habit renamed on the web in that window never reached it, because the names come from the
+ * slices and nothing here asked again. Same policy as the dashboard now: returning to the
+ * screen, the app coming to the foreground, the day turning over, and time passing.
  */
 export function useFocusRoutine(): { loading: boolean; error: string | null } {
   const dispatch = useDispatch<AppDispatch>();
@@ -33,17 +42,17 @@ export function useFocusRoutine(): { loading: boolean; error: string | null } {
   const [settled, setSettled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
-
-    (async () => {
+  // `reason` is set by the auto-refresh and absent on the mount fetch. A background refresh
+  // that fails keeps what is on screen and says nothing (the runner logs it in dev); the first
+  // load has nothing to fall back on, so that one reports.
+  const load = useCallback(
+    async (reason?: RefreshReason) => {
       try {
         const [routineRes, habitsRes, tasksRes] = await Promise.all([
           getTodayRoutine(t),
           getHabits(t),
           getTasks(t),
         ]);
-        if (!active) return;
         // Applied one by one: a failed habits call must not throw away a routine that
         // arrived fine. `useAgentRefresh` had to be fixed into this shape once already.
         if (routineRes.success) dispatch(enterTodayRoutine(routineRes.success));
@@ -53,18 +62,22 @@ export function useFocusRoutine(): { loading: boolean; error: string | null } {
         // failed habits call leaves sections with no rows in them, which reads as a bug
         // rather than as a failure. First error wins; they are all the same sentence.
         const failure = routineRes.error ?? habitsRes.error ?? tasksRes.error;
-        if (failure) setError(String(failure));
+        if (!failure) setError(null);
+        else if (!reason) setError(String(failure));
       } catch {
-        if (active) setError(t('UnexpectedError'));
+        if (!reason) setError(t('UnexpectedError'));
       } finally {
-        if (active) setSettled(true);
+        setSettled(true);
       }
-    })();
+    },
+    [dispatch, t],
+  );
 
-    return () => {
-      active = false;
-    };
-  }, [dispatch, t]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  useAutoRefresh(load);
 
   return { loading: !settled && routine === null, error };
 }

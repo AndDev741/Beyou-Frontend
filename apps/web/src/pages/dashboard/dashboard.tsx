@@ -108,12 +108,28 @@ function Dashboard() {
     // timezone, which is what makes this enough to answer a tab left open past
     // midnight: asking again IS asking about the new day.
     const loadDashboardData = useCallback(async () => {
+        // Each result is applied only when it arrived. A failed call used to dispatch
+        // `undefined` into its slice, so one throttled or aborted GET during a background
+        // refresh emptied every habit name on this page AND on the focus screen, which
+        // resolves its rows from the same slices. Today's routine keeps the distinction the
+        // agent refresh already draws: `null` is a day with no routine and is applied,
+        // `undefined` is a failed fetch and is not.
         await Promise.all([
-            getTodayRoutine(t).then((r) => dispatch(enterTodayRoutine(r.success))),
-            getHabits(t).then((r) => dispatch(enterHabits(r.success))),
-            getTasks(t).then((r) => dispatch(enterTasks(r.success))),
-            getGoals(t).then((r) => dispatch(enterGoals(r.success))),
-            getCategories(t).then((r) => dispatch(enterCategories(r.success))),
+            getTodayRoutine(t).then((r) => {
+                if (r.success !== undefined) dispatch(enterTodayRoutine(r.success));
+            }),
+            getHabits(t).then((r) => {
+                if (r.success) dispatch(enterHabits(r.success));
+            }),
+            getTasks(t).then((r) => {
+                if (r.success) dispatch(enterTasks(r.success));
+            }),
+            getGoals(t).then((r) => {
+                if (r.success) dispatch(enterGoals(r.success));
+            }),
+            getCategories(t).then((r) => {
+                if (r.success) dispatch(enterCategories(r.success));
+            }),
             // The week of bars behind Better/Worst area. Folded into the same
             // Promise.all so it costs no extra round trip, and held locally: it is
             // read by two widgets and nothing else in the app.

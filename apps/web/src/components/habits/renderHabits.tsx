@@ -1,9 +1,8 @@
-import getHabits from "@beyou/api/habits/getHabits";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
+import { useSyncedHabits } from "../../hooks/useSyncedLists";
 import { useEffect, useCallback } from "react";
 import HabitBox from "./habitBox";
 import { habit } from "@beyou/types/habit/habitType";
-import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { editModeEnter } from "@beyou/state/habit/editHabitSlice";
@@ -28,12 +27,13 @@ function RenderHabits({habits, setHabits, emptyTitle, onClearFilters}: renderHab
         dispatch(editModeEnter(false));
     }, []);
     
+    // Through the synced hook, never the api module directly: the list this page shows has
+    // to be the list the store holds, or the focus screen keeps resolving stale names.
+    const refreshHabits = useSyncedHabits();
     const loadHabits = useCallback(async () => {
-        const response = await getHabits(t);
-        if(Array.isArray(response.success)){
-            setHabits(response.success);
-        }
-    }, [setHabits]);
+        const fresh = await refreshHabits();
+        if (fresh) setHabits(fresh);
+    }, [refreshHabits, setHabits]);
 
     useEffect(() => {
         void loadHabits();
