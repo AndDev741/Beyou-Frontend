@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import axios from "../services/axiosConfig";
 import type { AuthBootState } from "../hooks/useSilentRefresh";
@@ -10,6 +11,18 @@ import PomodoroOwner from "./focus/PomodoroOwner";
 type Props = {
     authState: AuthBootState;
 };
+
+/**
+ * Where the page area waits for its chunk. Same drawing as the boot spinner in App.tsx, sized
+ * to the page instead of the screen, so the shell around it stays where it was.
+ */
+function PageFallback() {
+    return (
+        <div className="flex min-h-[60vh] items-center justify-center" data-testid="page-fallback">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-transparent" />
+        </div>
+    );
+}
 
 /**
  * Signed-in gate for every app route. The admin console needs a second,
@@ -34,7 +47,26 @@ function ProtectedRoute({ authState }: Props) {
         <div className="flex min-h-screen bg-bg">
             <Sidebar />
             <div className="min-w-0 flex-1">
-                <Outlet />
+                {/*
+                 * The Suspense boundary for page chunks lives HERE, around the page alone, and
+                 * that placement is load-bearing. Every page is a `React.lazy` chunk. When the
+                 * only boundary sat above this component, in App.tsx, the first visit to any
+                 * page hid the entire shell while the chunk came down: sidebar, bottom bar, the
+                 * assistant bubble and its open panel. React tears down layout effects on a
+                 * Suspense hide, and framer-motion keeps its animation state in one, so a panel
+                 * that was mid-exit at that moment lost its animation and never told
+                 * `AnimatePresence` it had finished. On reveal it came back at full opacity
+                 * while `AgentWidget` already held `open: false`: the bubble drew over the chat,
+                 * Escape did nothing, and the next tap on the bubble "reopened" a panel that
+                 * had never left. The agent's own internal links close and navigate in one
+                 * tick, which is exactly that sequence, once per page per session.
+                 *
+                 * With the boundary in here a loading page can only ever blank the page area.
+                 * Auth pages keep the App.tsx boundary; nothing of theirs outlives a route.
+                 */}
+                <Suspense fallback={<PageFallback />}>
+                    <Outlet />
+                </Suspense>
                 {/* `BottomNav` (phones) and the assistant's bubble (desktop) are
                     fixed and would cover the end of the page — on desktop the
                     bubble ate the last card's bottom border. The spacer lives here
