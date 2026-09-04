@@ -152,3 +152,74 @@ describe("GoalBox", () => {
     expect(screen.getByText(/Stay motivated/)).toBeInTheDocument();
   });
 });
+
+describe("GoalBox with sub-goals", () => {
+  const child = (id: string, over: Record<string, unknown> = {}) => ({
+    id,
+    name: `Child ${id}`,
+    iconId: "lucide:book",
+    description: "",
+    targetValue: 10,
+    unit: "km",
+    currentValue: 5,
+    complete: false,
+    categories: {},
+    motivation: "",
+    startDate: new Date("2026-01-01"),
+    endDate: new Date("2026-06-30"),
+    xpReward: 10,
+    status: "IN_PROGRESS",
+    term: "SHORT_TERM",
+    parentId: "goal-1",
+    ...over,
+  });
+
+  it("shows the sub-goal count chip and the rows behind the chevron", () => {
+    const kids = [child("c1"), child("c2", { currentValue: 10, complete: true, status: "COMPLETED" })];
+    const all = [{ ...baseProps, name: baseProps.title, targetValue: 100, currentValue: 0, parentId: null }, ...kids];
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={100} currentValue={0} subGoals={kids} allGoals={all as never} />
+    );
+
+    // 1 of 2 done, no rows until the list is opened.
+    expect(screen.getByText("SubGoalsCount")).toBeInTheDocument();
+    expect(screen.queryByTestId("subgoal-row-c1")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /SubGoals/ }));
+    expect(screen.getByTestId("subgoal-row-c1")).toBeInTheDocument();
+    expect(screen.getByText("Child c1")).toBeInTheDocument();
+    // The one still open gets a plus; the done one gets nothing to press.
+    expect(screen.getByRole("button", { name: "Increase: Child c1" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Increase: Child c2" })).toBeNull();
+    // Half done overall: the parent is not nudged to complete yet.
+    expect(screen.queryByTestId("subgoals-done-goal-1")).toBeNull();
+  });
+
+  it("nudges to complete the parent once every sub-goal is done", () => {
+    const kids = [child("c1", { currentValue: 10, complete: true, status: "COMPLETED" })];
+    const all = [{ ...baseProps, name: baseProps.title, targetValue: 100, currentValue: 40, parentId: null }, ...kids];
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={100} currentValue={40} subGoals={kids} allGoals={all as never} />
+    );
+
+    const nudge = screen.getByTestId("subgoals-done-goal-1");
+    expect(nudge).toHaveTextContent("AllSubGoalsDone");
+    // The nudge's Complete is the same call the card makes: XP moves there and only there.
+    expect(screen.getByRole("button", { name: "Complete" })).toBeInTheDocument();
+  });
+
+  it("offers Add sub-goal only while there is a level left", () => {
+    const onAdd = vi.fn();
+    const { unmount } = renderWithProviders(
+      <GoalBox {...baseProps} targetValue={10} currentValue={1} depth={2} onAddSubGoal={onAdd} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: "AddSubGoal" }));
+    expect(onAdd).toHaveBeenCalledWith("goal-1");
+    unmount();
+
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={10} currentValue={1} depth={3} onAddSubGoal={onAdd} />
+    );
+    expect(screen.queryByRole("button", { name: "AddSubGoal" })).toBeNull();
+  });
+});

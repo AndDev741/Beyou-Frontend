@@ -7,7 +7,7 @@ import DeleteModal from "../DeleteModal";
 import GoalProgressModal from "./GoalProgressModal";
 import getGoals from "@beyou/api/goals/getGoals";
 import deleteGoal from "@beyou/api/goals/deleteGoal";
-import { CalendarDays, ChevronDown, ChevronUp, Minus, Pencil, Plus, Trash2 } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronRight, ChevronUp, GitBranch, Maximize2, Minus, Pencil, Plus, Trash2 } from "lucide-react";
 import {
   editModeEnter,
   editGoalIdEnter,
@@ -25,6 +25,7 @@ import {
   editStatusEnter,
   editTermEnter,
   editIconIdEnter,
+  editParentIdEnter,
 } from "@beyou/state/goal/editGoalSlice";
 import BeyouIcon from "../../ui/BeyouIcon";
 import Card from "../../ui/Card";
@@ -38,7 +39,13 @@ import { enterGoals, updateGoal } from "@beyou/state/goal/goalsSlice";
 import increaseCurrentValue from "@beyou/api/goals/increaseCurrentValue";
 import decreaseCurrentValue from "@beyou/api/goals/decreaseCurrentValue";
 import useUiRefresh from "../../hooks/useUiRefresh";
-import { formatGoalDeadline } from "@beyou/state";
+import {
+  MAX_GOAL_DEPTH,
+  allChildrenComplete,
+  childrenOf,
+  childrenSummary,
+  formatGoalDeadline,
+} from "@beyou/state";
 
 
 type GoalBoxProps = {
@@ -58,6 +65,19 @@ type GoalBoxProps = {
   status: string;
   term: string;
   readonly?: boolean;
+  parentId?: string | null;
+  /** Direct sub-goals, already in the order the caller wants them shown. */
+  subGoals?: GoalType[];
+  /** The whole list, so nested rows and the children summary can be derived. */
+  allGoals?: GoalType[];
+  /** 1 for a main goal, 2 for its sub-goal, 3 for a leaf. Gates "Add sub-goal". */
+  depth?: number;
+  onAddSubGoal?: (parentId: string) => void;
+  onOpenViewer?: (goalId: string) => void;
+  /** Set when the card is shown away from its parent (flat list, filtered parent). */
+  parentName?: string;
+  /** Open the sub-goal list on mount (deep link into a child). */
+  initialChildrenOpen?: boolean;
 };
 
 function GoalBox({
@@ -77,12 +97,25 @@ function GoalBox({
   status,
   term,
   readonly = false,
+  parentId = null,
+  subGoals = [],
+  allGoals = [],
+  depth = 1,
+  onAddSubGoal,
+  onOpenViewer,
+  parentName,
+  initialChildrenOpen = false,
 }: GoalBoxProps) {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [childrenOpen, setChildrenOpen] = useState(initialChildrenOpen);
+
+  useEffect(() => {
+    if (initialChildrenOpen) setChildrenOpen(true);
+  }, [initialChildrenOpen]);
   const [termPhrase, setTermPhrase] = useState("");
   const [statusPhrase, setStatusPhrase] = useState("");
   const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
@@ -94,6 +127,12 @@ function GoalBox({
   const statusVariant: ChipVariant =
     status === "COMPLETED" ? "ok" : status === "IN_PROGRESS" ? "accent" : "neutral";
   const categoryEntries = Object.entries(categories ?? {});
+  const hasSubGoals = subGoals.length > 0;
+  // Derived from the flat list rather than from the rows: the summary must agree with
+  // the viewer and the mobile card, which read the same helper.
+  const summary = hasSubGoals ? childrenSummary(allGoals, id) : null;
+  const childrenDone = hasSubGoals && allChildrenComplete(allGoals, id);
+  const canAddSubGoal = !readonly && Boolean(onAddSubGoal) && depth < MAX_GOAL_DEPTH;
 
   function handleEditMode() {
     dispatch(editModeEnter(true));
@@ -112,6 +151,7 @@ function GoalBox({
     dispatch(editXpRewardEnter(xpReward));
     dispatch(editStatusEnter(status));
     dispatch(editTermEnter(term));
+    dispatch(editParentIdEnter(parentId));
   }
 
   useUiRefresh(refreshUi);
@@ -185,6 +225,90 @@ function GoalBox({
 
   const isCompleted = status === "COMPLETED";
 
+  const refreshGoals = async () => {
+    const goals = await getGoals(t);
+    if (Array.isArray(goals.success)) dispatch(enterGoals(goals.success));
+  };
+
+  const increaseChild = async (childId: string) => {
+    const updated = await increaseCurrentValue(childId, t, 1);
+    if (updated?.id) {
+      dispatch(updateGoal(updated));
+    } else {
+      await refreshGoals();
+    }
+    // The first increment in a sub-goal starts its parent server-side; the card's own
+    // status chip only follows if the list is refreshed.
+    if (status === "NOT_STARTED") await refreshGoals();
+  };
+
+  const completeChild = async (childId: string) => {
+    const refresh = await markGoalAsComplete(childId, t);
+    if (refresh?.success) setRefreshUi(refresh.success);
+    await refreshGoals();
+  };
+
+  /**
+   * One compact row per sub-goal: icon, name, its own bar and counter, and the one
+   * action that matters right now (plus, or Complete once the target lands). A row
+   * with rows of its own repeats once more, indented, so the three levels the server
+   * allows are all visible from the main goal's card.
+   */
+  const renderChildRow = (child: GoalType, level: number) => {
+    const childDone = child.status === "COMPLETED";
+    const childReached = child.targetValue > 0 && child.currentValue >= child.targetValue;
+    const grandChildren = allGoals.length
+      ? childrenOf(allGoals, child.id).sort(
+          (a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime(),
+        )
+      : [];
+    return (
+      <li key={child.id} data-testid={`subgoal-row-${child.id}`}>
+        <div
+          className={`flex items-center gap-2 rounded-control px-2 py-1.5 ${level > 1 ? "ml-5" : ""} ${
+            childDone ? "opacity-70" : ""
+          }`}
+        >
+          <IconTile size={24} tone={childDone ? "neutral" : "accent"}>
+            <BeyouIcon id={child.iconId} size={13} />
+          </IconTile>
+          <span
+            className={`min-w-0 flex-1 truncate text-[12.5px] font-medium ${childDone ? "text-text-3 line-through" : "text-text"}`}
+            title={child.name}
+          >
+            {child.name}
+          </span>
+          <XpBar className="hidden w-16 sm:block" current={child.currentValue} target={child.targetValue} compact />
+          <span className="shrink-0 font-mono text-[11px] text-text-3">
+            {child.currentValue}/{child.targetValue}
+          </span>
+          {!readonly && !childDone && (
+            childReached ? (
+              <Button
+                text={t("Complete")}
+                size="small"
+                mode="tonal"
+                onClick={() => completeChild(child.id)}
+                className="!h-7 !px-2.5 !text-[11px]"
+              />
+            ) : (
+              <IconButton
+                label={`${t("Increase")}: ${child.name}`}
+                onClick={() => increaseChild(child.id)}
+                className="!h-7 !w-7 border border-border"
+              >
+                <Plus size={13} aria-hidden="true" />
+              </IconButton>
+            )
+          )}
+        </div>
+        {grandChildren.length > 0 && level < MAX_GOAL_DEPTH - 1 && (
+          <ul className="flex flex-col">{grandChildren.map((gc) => renderChildRow(gc, level + 1))}</ul>
+        )}
+      </li>
+    );
+  };
+
   const counterText = `${currentValue}/${targetValue} ${unit}`;
   // Read-only cards (the dashboard carousel) keep the plain number: there is
   // nothing to press there.
@@ -215,6 +339,14 @@ function GoalBox({
         {/* Title and badges share what is left: the chips wrap to the line below
             instead of squeezing the goal's name down to three letters. */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+          {/* Away from its parent (flat list, or the parent fell to a filter) the card
+              says where it belongs; nested under the parent that line is the layout. */}
+          {parentName && (
+            <span className="flex w-full items-center gap-1 truncate text-[10.5px] text-text-3" title={parentName}>
+              <GitBranch size={10} aria-hidden="true" />
+              {t("SubGoalOf", { name: parentName })}
+            </span>
+          )}
           {/* Closed, the name gives way to the chips on one line; open, it is
               shown whole. A goal called "Regularizar-me em Portugal" was being
               cut to "Regularizar-me em..." with no way to read the rest. */}
@@ -237,12 +369,33 @@ function GoalBox({
           {isCompleted && (
             <Chip size="sm" variant="ok" className="shrink-0">{t("Completed")}</Chip>
           )}
+          {summary && (
+            <Chip
+              size="sm"
+              variant={childrenDone ? "ok" : "neutral"}
+              className="shrink-0"
+              icon={<GitBranch size={11} aria-hidden="true" />}
+              title={t("SubGoals")}
+            >
+              {t("SubGoalsCount", { completed: summary.completed, total: summary.total })}
+            </Chip>
+          )}
         </div>
 
         {!readonly && (
           <>
             {/* Edit and delete on desktop hover, always visible on phones. */}
             <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+              {canAddSubGoal && (
+                <IconButton label={t('AddSubGoal')} onClick={() => onAddSubGoal?.(id)} data-testid={`add-subgoal-${id}`}>
+                  <GitBranch size={15} aria-hidden="true" />
+                </IconButton>
+              )}
+              {onOpenViewer && (
+                <IconButton label={t('OpenInViewer')} onClick={() => onOpenViewer(id)} data-testid={`open-viewer-${id}`}>
+                  <Maximize2 size={15} aria-hidden="true" />
+                </IconButton>
+              )}
               <IconButton label={t('Edit')} onClick={handleEditMode}>
                 <Pencil size={15} aria-hidden="true" />
               </IconButton>
@@ -336,6 +489,49 @@ function GoalBox({
         )}
       </div>
 
+      {/* The sub-goals: a thin second bar with the mean of their progress, and the list
+          behind a chevron. The main bar above stays the goal's own numbers, because the
+          parent is still a goal with its own target; this one says how the pieces are doing. */}
+      {summary && (
+        <div className="flex flex-col gap-1.5" data-testid={`subgoals-${id}`}>
+          <button
+            type="button"
+            onClick={() => setChildrenOpen((open) => !open)}
+            aria-expanded={childrenOpen}
+            aria-controls={`subgoals-list-${id}`}
+            className="flex items-center gap-2 rounded-control text-left transition-colors duration-200 hover:text-text"
+          >
+            <ChevronRight
+              size={14}
+              aria-hidden="true"
+              className={`shrink-0 text-text-3 transition-transform duration-200 ${childrenOpen ? "rotate-90" : ""}`}
+            />
+            <span className="text-[11px] font-semibold text-text-3">{t("SubGoals")}</span>
+            <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-2">
+              <div
+                className={`h-full rounded-full transition-[width] duration-500 ease-out ${childrenDone ? "bg-success" : "bg-accent/60"}`}
+                style={{ width: `${Math.round(summary.progress * 100)}%` }}
+              />
+            </div>
+            <span className="shrink-0 font-mono text-[11px] text-text-3">{Math.round(summary.progress * 100)}%</span>
+          </button>
+          {childrenOpen && (
+            <ul id={`subgoals-list-${id}`} className="flex flex-col rounded-control border border-border/70 bg-surface-2/40 py-1">
+              {subGoals.map((child) => renderChildRow(child, 1))}
+            </ul>
+          )}
+          {childrenDone && !isCompleted && !readonly && (
+            <div
+              className="flex items-center justify-between gap-2 rounded-control bg-success/10 px-2.5 py-1.5 text-[12px] text-success"
+              data-testid={`subgoals-done-${id}`}
+            >
+              <span>{t("AllSubGoalsDone")}</span>
+              <Button text={t("Complete")} size="small" mode="tonal" onClick={() => completeTask(id)} className="!h-7 !px-2.5 !text-[11px]" />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* The at-a-glance footer: term on the left, deadline on the right. */}
       <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-text-3">
         <span>{termPhrase}</span>
@@ -361,7 +557,11 @@ function GoalBox({
         dispatchFunction={enterGoals}
         deleteObject={deleteGoal}
         getObjects={getGoals}
-        deletePhrase={t("ConfirmDeleteOfGoalPhrase")}
+        deletePhrase={
+          hasSubGoals
+            ? `${t("ConfirmDeleteOfGoalPhrase")} ${t("SubGoalsBecomeTopLevel", { count: subGoals.length })}`
+            : t("ConfirmDeleteOfGoalPhrase")
+        }
         mode="goal"
       />
     </Card>

@@ -41,13 +41,36 @@ describe("persisted state migrations", () => {
         expect(migrated.habits).toEqual(stale.habits);
     });
 
-    test("every migration removes the key rather than parking undefined under it", () => {
+    test("every focus migration removes the key rather than parking undefined under it", () => {
         // redux-persist's reconciler hard-sets every key it finds on the inbound state, so a key
         // holding `undefined` becomes `state.focus === undefined` and the first selector throws.
         const stale = { habits: {}, focus: { mode: "ultrafoco" } };
-        for (const key of Object.keys(migrations).map(Number)) {
-            const migrated = migrations[key as keyof typeof migrations](stale as never);
+        for (const key of [1, 2, 3, 4] as const) {
+            const migrated = migrations[key](stale as never);
             expect("focus" in migrated).toBe(false);
         }
+    });
+
+    test("v5 fills the new goal fields and leaves every other slice, focus included, alone", () => {
+        // A running pomodoro has to survive this deploy: v5 is about goals, so the focus slice
+        // is not dropped, and the two new fields get the reducers' defaults instead of being
+        // read as undefined by the first component.
+        const stale = {
+            focus: { mode: "fullscreen", timer: { endsAt: 1 } },
+            viewFilters: { goals: "name-asc", habits: "default" },
+            editGoal: { editMode: false, goalId: "g1" },
+        };
+
+        const migrated = migrations[5](stale as never) as Record<string, Record<string, unknown>>;
+
+        expect(migrated.focus).toEqual(stale.focus);
+        expect(migrated.viewFilters).toEqual({ goalsViewer: "status", goals: "name-asc", habits: "default" });
+        expect(migrated.editGoal).toEqual({ parentId: null, editMode: false, goalId: "g1" });
+    });
+
+    test("v5 does not invent slices that were never stored", () => {
+        const migrated = migrations[5]({ habits: {} } as never) as Record<string, unknown>;
+        expect("viewFilters" in migrated).toBe(false);
+        expect("editGoal" in migrated).toBe(false);
     });
 });

@@ -20,7 +20,9 @@ const editGoal = async (
   endDate: string,
   status: string,
   term: string,
-  t: TFunction
+  t: TFunction,
+  /** Parent goal id; null moves the goal to the top level. Always sent: the server treats an absent value as "detach". */
+  parentId: string | null = null
 ): apiResponse => {
   const goalData = {
     goalId: goalId,
@@ -36,7 +38,8 @@ const editGoal = async (
     startDate: startDate,
     endDate: endDate,
     status: status,
-    term: term
+    term: term,
+    parentId: parentId ?? null
   };
 
   try {

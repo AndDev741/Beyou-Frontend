@@ -20,7 +20,7 @@
  * field.** Dropping the slice is usually the right migration: the reducer then supplies its own
  * initial state, which is by definition the current shape.
  */
-export const PERSIST_VERSION = 4;
+export const PERSIST_VERSION = 5;
 
 /**
  * Drop the focus slice by REMOVING the key, never by assigning `undefined`.
@@ -55,4 +55,17 @@ export const migrations = {
     // tolerantly too, so this bump is belt and braces rather than the only defence — but the rule
     // above says every added field gets one, and the two times it was skipped both cost a bug.
     4: dropFocus,
+    // v5: nested goals and the goal viewer. `viewFilters` gained `goalsViewer` and `editGoal`
+    // gained `parentId`. Neither slice is worth dropping (the sort preferences are the whole
+    // point of persisting viewFilters), so the two fields are filled with the reducers'
+    // defaults instead of the slices being reset.
+    5: (state: Record<string, unknown>) => {
+        const viewFilters = (state.viewFilters ?? {}) as Record<string, unknown>;
+        const editGoal = (state.editGoal ?? {}) as Record<string, unknown>;
+        return {
+            ...state,
+            ...(state.viewFilters ? { viewFilters: { goalsViewer: 'status', ...viewFilters } } : {}),
+            ...(state.editGoal ? { editGoal: { parentId: null, ...editGoal } } : {}),
+        };
+    },
 };

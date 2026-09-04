@@ -1400,6 +1400,11 @@ export interface components {
             status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
             /** @enum {string} */
             term: "SHORT_TERM" | "MEDIUM_TERM" | "LONG_TERM";
+            /**
+             * Format: uuid
+             * @description Optional parent goal; null detaches the goal to the top level. Same rules as on create.
+             */
+            parentId?: string;
         };
         CategoryMiniDTO: {
             name?: string;
@@ -1433,6 +1438,8 @@ export interface components {
             term?: "SHORT_TERM" | "MEDIUM_TERM" | "LONG_TERM";
             /** Format: date */
             completeDate?: string;
+            /** Format: uuid */
+            parentId?: string;
         };
         BaseCheck: {
             /** Format: uuid */
@@ -1570,6 +1577,11 @@ export interface components {
             status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
             /** @enum {string} */
             term: "SHORT_TERM" | "MEDIUM_TERM" | "LONG_TERM";
+            /**
+             * Format: uuid
+             * @description Optional parent goal. Must belong to the same user, must not create a cycle, and the chain may be at most three goals deep (GoalService.resolveParent).
+             */
+            parentId?: string;
         };
         ProjectDocsImportRequestDTO: {
             repoOwner?: string;

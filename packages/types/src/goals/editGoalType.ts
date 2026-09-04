@@ -15,4 +15,5 @@ export type editGoal = {
   endDate: string;
   status: string;
   term: string;
+  parentId: string | null;
 };

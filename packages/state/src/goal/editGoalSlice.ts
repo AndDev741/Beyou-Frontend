@@ -18,6 +18,7 @@ const initialState: {
   xpReward: number;
   status: string;
   term: string;
+  parentId: string | null;
 } = {
   editMode: false,
   goalId: '',
@@ -35,6 +36,7 @@ const initialState: {
   xpReward: 0,
   status: '',
   term: '',
+  parentId: null,
 };
 
 const editGoalSlice = createSlice({
@@ -105,6 +107,10 @@ const editGoalSlice = createSlice({
       const term = action.payload;
       return { ...state, term };
     },
+    editParentIdEnter(state, action) {
+      const parentId = (action.payload ?? null) as string | null;
+      return { ...state, parentId };
+    },
   },
 });
 
@@ -125,6 +131,7 @@ export const {
   editXpRewardEnter,
   editStatusEnter,
   editTermEnter,
+  editParentIdEnter,
 } = editGoalSlice.actions;
 
 export default editGoalSlice.reducer;

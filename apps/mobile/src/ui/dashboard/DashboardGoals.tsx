@@ -63,6 +63,9 @@ export default function DashboardGoals() {
   }, []);
 
   const grouped = useMemo(() => sortGoalsByTime(goals ?? []), [goals]);
+  // A sub-goal that is due this week matters as much as a main goal, so it stays in
+  // the horizon; the small line above its name says where it hangs.
+  const nameById = useMemo(() => new Map((goals ?? []).map((g) => [g.id, g.name])), [goals]);
 
   const toggle = (key: HorizonKey) => {
     setActive((prev) => {
@@ -159,12 +162,16 @@ export default function DashboardGoals() {
                     <View className="h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft">
                       <BeyouIcon id={item.iconId} size={15} showFallback />
                     </View>
-                    <Text
-                      className="min-w-0 flex-1 text-[13.5px] font-semibold text-text"
-                      numberOfLines={1}
-                    >
-                      {item.name}
-                    </Text>
+                    <View className="min-w-0 flex-1">
+                      {item.parentId && nameById.has(item.parentId) ? (
+                        <Text className="text-[10.5px] text-text-3" numberOfLines={1}>
+                          {`↳ ${nameById.get(item.parentId)}`}
+                        </Text>
+                      ) : null}
+                      <Text className="text-[13.5px] font-semibold text-text" numberOfLines={1}>
+                        {item.name}
+                      </Text>
+                    </View>
                     {reached ? (
                       <View className="shrink-0 rounded-full bg-xp-soft px-2 py-0.5">
                         <Text className="font-mono-semibold text-[11px] text-xp">
