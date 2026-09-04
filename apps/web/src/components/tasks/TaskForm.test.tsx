@@ -2,6 +2,8 @@ import { renderWithProviders } from "../../test/test-utils";
 import TaskForm from "./TaskForm";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
+import { configureStore } from "@reduxjs/toolkit";
+import rootReducer from "@beyou/state/rootReducer";
 
 const mockCreateTask = vi.fn().mockResolvedValue({});
 const mockGetTasks = vi.fn().mockResolvedValue({ success: [] });
@@ -39,6 +41,33 @@ test("shows required errors for create task", async () => {
     expect(await screen.findByText("YupIconRequired")).toBeInTheDocument();
 });
 
+
+/**
+ * Same rule as the habit form: the refetch after a save has to reach the shared store, not
+ * only this page's list, because the focus screen resolves task names from the slice.
+ */
+test("hands the list it refetches after a save to the shared store too", async () => {
+    const saved = [{ id: "t-1", name: "My Task", iconId: "icon" }];
+    mockCreateTask.mockResolvedValueOnce({ success: "Task created" });
+    mockGetTasks.mockResolvedValue({ success: saved });
+    const store = configureStore({ reducer: rootReducer });
+    const setTasks = vi.fn();
+
+    renderWithProviders(<TaskForm mode="create" setTasks={setTasks} />, { storeOverride: store });
+
+    fireEvent.change(screen.getByPlaceholderText("TaskNamePlaceholder"), {
+        target: { value: "My Task" }
+    });
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save task" }));
+
+    await waitFor(() => expect(setTasks).toHaveBeenCalledWith(saved));
+    expect(store.getState().tasks.tasks).toEqual(saved);
+});
 
 test("shows API validation error when backend returns INVALID_REQUEST", async () => {
     mockCreateTask.mockResolvedValueOnce({

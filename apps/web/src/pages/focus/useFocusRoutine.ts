@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import type { RootState } from "@beyou/state/rootReducer";
+import type { RefreshReason } from "@beyou/state/sync/autoRefresh";
 import { calculateDailyProgress } from "@beyou/state/dashboard/helpers";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import { enterHabits } from "@beyou/state/habit/habitsSlice";
@@ -15,6 +16,7 @@ import getHabits from "@beyou/api/habits/getHabits";
 import getTasks from "@beyou/api/tasks/getTasks";
 import { logger } from "../../utils/logger";
 import useTodayInZone from "../../hooks/useTodayInZone";
+import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 
 /**
  * Everything the focus screen needs, fetched by the screen itself.
@@ -30,6 +32,12 @@ import useTodayInZone from "../../hooks/useTodayInZone";
  * What it does instead is keep rendering whatever the store already holds while the requests
  * are in flight, so arriving from the dashboard shows the routine immediately and the fetch
  * is just a refresh.
+ *
+ * And it keeps refreshing. This screen was the one data screen without `useAutoRefresh`, and
+ * it is the screen people leave open longest: a pomodoro is 25 minutes with nothing else on
+ * the display. A habit renamed on the phone, or in another tab, in that window never arrived,
+ * because the names come from the slices and nothing here asked again. Now it joins the same
+ * policy as the dashboard: coming back to the tab, the day turning over, and time passing.
  */
 export function useFocusRoutine(): { loading: boolean; error: string | null } {
     const dispatch = useDispatch();
@@ -41,17 +49,18 @@ export function useFocusRoutine(): { loading: boolean; error: string | null } {
     const [settled, setSettled] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        let active = true;
-
-        (async () => {
+    // `reason` is set by the auto-refresh and absent on the mount fetch. A background refresh
+    // that fails keeps whatever is on screen and says nothing: the runner logs it, and a banner
+    // over a routine that was fine a minute ago would be noise. The first load has nothing to
+    // fall back on, so that one does report.
+    const load = useCallback(
+        async (reason?: RefreshReason) => {
             try {
                 const [routineRes, habitsRes, tasksRes] = await Promise.all([
                     getTodayRoutine(t),
                     getHabits(t),
                     getTasks(t),
                 ]);
-                if (!active) return;
                 // Each is applied on its own: a failed habits call must not throw away a
                 // routine that arrived fine, which is the shape the mobile agent refresh
                 // had to be fixed into once already.
@@ -62,19 +71,23 @@ export function useFocusRoutine(): { loading: boolean; error: string | null } {
                 // failed habits call leaves sections with no rows in them, which reads as a bug
                 // rather than as a failure. First error wins; they are all the same sentence.
                 const failure = routineRes.error ?? habitsRes.error ?? tasksRes.error;
-                if (failure) setError(String(failure));
+                if (!failure) setError(null);
+                else if (!reason) setError(String(failure));
             } catch (e) {
                 logger.error(e);
-                if (active) setError(t("UnexpectedError"));
+                if (!reason) setError(t("UnexpectedError"));
             } finally {
-                if (active) setSettled(true);
+                setSettled(true);
             }
-        })();
+        },
+        [dispatch, t]
+    );
 
-        return () => {
-            active = false;
-        };
-    }, [dispatch, t]);
+    useEffect(() => {
+        void load();
+    }, [load]);
+
+    useAutoRefresh(load);
 
     // The header's "checked of total" reads the perfil slice, which the dashboard fills in.
     // `perfil` is blacklisted from redux-persist, so a reload straight onto the focus screen

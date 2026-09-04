@@ -3,7 +3,7 @@ import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import useAuthGuard from "../../components/useAuthGuard";
 import { task } from "@beyou/types/tasks/taskType";
 import RenderTasks from "../../components/tasks/renderTasks";
-import getTasks from "@beyou/api/tasks/getTasks";
+import { useSyncedTasks } from "../../hooks/useSyncedLists";
 import CreateTask from "../../components/tasks/createTask";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
@@ -130,12 +130,13 @@ function Tasks() {
         }
     };
 
+    // Through the synced hook, never the api module directly: the list this page shows has
+    // to be the list the store holds, or the focus screen keeps resolving stale names.
+    const refreshTasks = useSyncedTasks();
     const loadTasks = useCallback(async () => {
-        const response = await getTasks(t);
-        if (Array.isArray(response.success)) {
-            setTasks(response.success);
-        }
-    }, [t]);
+        const fresh = await refreshTasks();
+        if (fresh) setTasks(fresh);
+    }, [refreshTasks]);
 
     useEffect(() => {
         void loadTasks();

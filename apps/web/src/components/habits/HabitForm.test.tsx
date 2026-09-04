@@ -2,6 +2,8 @@ import { renderWithProviders } from "../../test/test-utils";
 import HabitForm from "./HabitForm";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
+import { configureStore } from "@reduxjs/toolkit";
+import rootReducer from "@beyou/state/rootReducer";
 
 const mockCreateHabit = vi.fn().mockResolvedValue({});
 const mockGetHabits = vi.fn().mockResolvedValue({ success: [] });
@@ -80,6 +82,37 @@ test("does not double-submit while a create request is in flight", async () => {
     // Once the request settles the button is usable again.
     resolveCreate({});
     await waitFor(() => expect(submit).not.toBeDisabled());
+});
+
+/**
+ * The page keeps its own list, but the store is what every routine row on the dashboard
+ * and on the focus screen resolves names from. A save that refreshed only the page's list
+ * left the persisted slice with the old name, and the focus screen kept showing it. The
+ * refetch after a save must land in both.
+ */
+test("hands the list it refetches after a save to the shared store too", async () => {
+    const saved = [{ id: "h-1", name: "My Habit", iconId: "icon", motivationalPhrase: "" }];
+    mockCreateHabit.mockResolvedValueOnce({ success: "Habit created" });
+    mockGetHabits.mockResolvedValue({ success: saved });
+    const store = configureStore({ reducer: rootReducer });
+    const setHabits = vi.fn();
+
+    renderWithProviders(<HabitForm mode="create" setHabits={setHabits} />, { storeOverride: store });
+
+    fireEvent.change(screen.getByPlaceholderText("HabitNamePlaceholder"), {
+        target: { value: "My Habit" }
+    });
+    fireEvent.click(screen.getByRole("radio", { name: "Low" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Easy" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
+    fireEvent.click(await screen.findByRole("checkbox", { name: /Health/i }));
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save habit" }));
+
+    await waitFor(() => expect(setHabits).toHaveBeenCalledWith(saved));
+    expect(store.getState().habits.habits).toEqual(saved);
 });
 
 test("shows API validation error when backend returns INVALID_REQUEST", async () => {
