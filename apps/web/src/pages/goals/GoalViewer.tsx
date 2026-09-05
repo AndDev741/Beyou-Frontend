@@ -90,13 +90,12 @@ export default function GoalViewer() {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const goals = useSelector((state: RootState) => state.goals.goals) || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.goalsViewer) ?? "status";
     const [status, setStatus] = useState("all");
     const [categoryId, setCategoryId] = useState("all");
-    const [index, setIndex] = useState<number | null>(null);
     const [progressOpen, setProgressOpen] = useState(false);
     const [refreshUi, setRefreshUi] = useState<RefreshUI>({});
     useUiRefresh(refreshUi);
@@ -118,10 +117,13 @@ export default function GoalViewer() {
         [goals, sortBy, status, categoryId],
     );
 
-    // The first render opens on the requested goal; from then on the index is the
-    // user's, clamped whenever a filter shrinks the deck under it.
+    // The URL is the position. `?goal=` names the slide, so the browser's own back button
+    // works the way a person expects after tapping into a sub-goal: back is the main goal,
+    // not the goals page. The arrows REPLACE the entry (walking the deck is one visit),
+    // the jumps into a sub-goal or up to the parent PUSH one (that is a move worth
+    // returning from). A filter that hides the named goal lands on the first slide.
     const requestedId = searchParams.get("goal");
-    const current = index === null ? viewerIndexFor(deck, requestedId) : Math.min(index, Math.max(0, deck.length - 1));
+    const current = viewerIndexFor(deck, requestedId);
     const goal: GoalType | undefined = deck[current];
     const next: GoalType | undefined = deck[current + 1];
 
@@ -137,8 +139,12 @@ export default function GoalViewer() {
 
     const leave = useCallback(() => navigate("/goals"), [navigate]);
     const goTo = useCallback(
-        (target: number) => setIndex(Math.min(Math.max(0, target), Math.max(0, deck.length - 1))),
-        [deck.length],
+        (target: number) => {
+            const clamped = Math.min(Math.max(0, target), Math.max(0, deck.length - 1));
+            const landing = deck[clamped];
+            if (landing) setSearchParams({ goal: landing.id }, { replace: true });
+        },
+        [deck, setSearchParams],
     );
     const goPrev = useCallback(() => goTo(current - 1), [current, goTo]);
     const goNext = useCallback(() => goTo(current + 1), [current, goTo]);
@@ -157,8 +163,7 @@ export default function GoalViewer() {
     }, [leave, goNext, goPrev]);
 
     const jumpTo = (goalId: string) => {
-        const at = deck.findIndex((g) => g.id === goalId);
-        if (at >= 0) goTo(at);
+        if (deck.some((g) => g.id === goalId)) setSearchParams({ goal: goalId });
     };
 
     const applyProgress = async (amount: number, direction: "increase" | "decrease") => {
@@ -236,7 +241,7 @@ export default function GoalViewer() {
                         <select
                             aria-label={t("Status")}
                             value={status}
-                            onChange={(event) => { setStatus(event.target.value); setIndex(0); }}
+                            onChange={(event) => setStatus(event.target.value)}
                             className={CONTROL_CLASS}
                             data-testid="goal-viewer-status"
                         >
@@ -249,7 +254,7 @@ export default function GoalViewer() {
                             <select
                                 aria-label={t("Categories")}
                                 value={categoryId}
-                                onChange={(event) => { setCategoryId(event.target.value); setIndex(0); }}
+                                onChange={(event) => setCategoryId(event.target.value)}
                                 className={CONTROL_CLASS}
                                 data-testid="goal-viewer-category"
                             >

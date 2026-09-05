@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import rootReducer, { type RootState } from "@beyou/state/rootReducer";
 import type { goal } from "@beyou/types/goals/goalType";
+import { useLocation, useNavigationType } from "react-router-dom";
 import { renderWithProviders } from "../../test/test-utils";
 
 vi.mock("@beyou/api/goals/getGoals", () => ({ default: vi.fn().mockResolvedValue({ success: [] }) }));
@@ -19,6 +20,13 @@ vi.mock("react-router-dom", async () => {
 });
 
 import GoalViewer from "./GoalViewer";
+
+/** What the router holds: the search string and whether the last move pushed or replaced. */
+function LocationProbe() {
+    const { search } = useLocation();
+    const type = useNavigationType();
+    return <span data-testid="location-probe">{`${type} ${search}`}</span>;
+}
 
 const makeGoal = (over: Partial<goal>): goal => ({
     id: "g",
@@ -127,5 +135,36 @@ describe("GoalViewer", () => {
         // And the main goal lists the sub-goal, which jumps back down.
         fireEvent.click(screen.getByTestId("goal-viewer-subgoal-mid"));
         expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "mid");
+    });
+
+    test("tapping into a sub-goal pushes a history entry, walking with the arrows does not", () => {
+        // The point: the browser's back button after opening a sub-goal returns to the main
+        // goal, not to the goals page. That only holds if the jump is a PUSH and the arrows
+        // are REPLACEs, otherwise back would either skip the parent or leave the viewer.
+        const initial = rootReducer(undefined, { type: "init" }) as RootState;
+        const tree = [
+            makeGoal({ id: "big", name: "Marathon", status: "IN_PROGRESS" }),
+            makeGoal({ id: "mid", name: "Run 10k", status: "IN_PROGRESS", parentId: "big" }),
+            makeGoal({ id: "other", name: "Other", status: "NOT_STARTED" }),
+        ];
+        const store = configureStore({
+            reducer: rootReducer,
+            preloadedState: { ...initial, goals: { ...initial.goals, goals: tree } },
+        });
+        renderWithProviders(
+            <>
+                <GoalViewer />
+                <LocationProbe />
+            </>,
+            { storeOverride: store, route: "/goals/view?goal=big" },
+        );
+
+        fireEvent.click(screen.getByTestId("goal-viewer-subgoal-mid"));
+        expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "mid");
+        expect(screen.getByTestId("location-probe")).toHaveTextContent("PUSH ?goal=mid");
+
+        fireEvent.click(screen.getByTestId("goal-viewer-next"));
+        expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "other");
+        expect(screen.getByTestId("location-probe")).toHaveTextContent("REPLACE ?goal=other");
     });
 });
