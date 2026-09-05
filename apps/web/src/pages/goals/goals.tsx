@@ -9,6 +9,7 @@ import CreateGoal from "../../components/goals/createGoal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import EditGoal from "../../components/goals/editGoal";
+import AddSubGoalModal from "../../components/goals/AddSubGoalModal";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import {
@@ -51,6 +52,8 @@ function Goals() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   // "Add sub-goal" on a card opens the same modal with the parent already chosen.
   const [createParentId, setCreateParentId] = useState<string | undefined>(undefined);
+  // "Add sub-goal" opens an explanation first, not the form: see AddSubGoalModal.
+  const [subGoalParent, setSubGoalParent] = useState<goal | null>(null);
   // Grouped is the default: a main goal with its sub-goals folded under it. Flat is
   // for whoever wants every goal as its own card, hierarchy or not.
   const [viewMode, setViewMode] = useState<GoalsViewMode>("tree");
@@ -302,12 +305,23 @@ function Goals() {
           allGoals={goals}
           viewMode={viewMode}
           dimmedIds={viewMode === "tree" ? tree.viaDescendantOnly : undefined}
-          onAddSubGoal={(parentId) => openCreate(parentId)}
+          onAddSubGoal={(parentId) => setSubGoalParent(goals.find((g) => g.id === parentId) ?? null)}
           onOpenViewer={(goalId) => openViewer(goalId)}
           emptyTitle={isFiltering && goals.length > 0 ? t("NoResultsTitle") : undefined}
           onClearFilters={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); }}
         />
       </main>
+
+      <AddSubGoalModal
+        parent={subGoalParent}
+        allGoals={goals}
+        onClose={() => setSubGoalParent(null)}
+        onCreateNew={(parent) => {
+          setSubGoalParent(null);
+          openCreate(parent.id);
+        }}
+        onMoved={() => void loadGoals()}
+      />
 
       {isFormOpen && (
         <Modal

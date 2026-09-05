@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { goal as GoalType } from "@beyou/types/goals/goalType";
@@ -79,6 +79,35 @@ type GoalBoxProps = {
   /** Open the sub-goal list on mount (deep link into a child). */
   initialChildrenOpen?: boolean;
 };
+
+/** A small labelled action for the card's fold on phones: icon, name, one tap. */
+function FoldAction({
+  label,
+  icon,
+  onClick,
+  danger = false,
+  testId,
+}: {
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+  danger?: boolean;
+  testId?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      data-testid={testId}
+      className={`inline-flex items-center gap-1.5 rounded-control border border-border px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-200 hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-accent/40 ${
+        danger ? "text-danger" : "text-text-2"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
 
 function GoalBox({
   id,
@@ -384,24 +413,30 @@ function GoalBox({
 
         {!readonly && (
           <>
-            {/* Edit and delete on desktop hover, always visible on phones. */}
+            {/* Desktop: every action on hover, there is room. Phone: only Edit stays up
+                here, because five icons beside the name cut it to three letters; the
+                rest waits in the fold, with its names. */}
             <div className="flex shrink-0 items-center gap-0.5 md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
-              {canAddSubGoal && (
-                <IconButton label={t('AddSubGoal')} onClick={() => onAddSubGoal?.(id)} data-testid={`add-subgoal-${id}`}>
-                  <GitBranch size={15} aria-hidden="true" />
-                </IconButton>
-              )}
-              {onOpenViewer && (
-                <IconButton label={t('OpenInViewer')} onClick={() => onOpenViewer(id)} data-testid={`open-viewer-${id}`}>
-                  <Maximize2 size={15} aria-hidden="true" />
-                </IconButton>
-              )}
               <IconButton label={t('Edit')} onClick={handleEditMode}>
                 <Pencil size={15} aria-hidden="true" />
               </IconButton>
-              <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
-                <Trash2 size={15} aria-hidden="true" />
-              </IconButton>
+              {/* `md:contents` rather than a class on each button: IconButton already
+                  sets its own display, and two display utilities on one element race. */}
+              <span className="hidden md:contents">
+                {canAddSubGoal && (
+                  <IconButton label={t('AddSubGoal')} onClick={() => onAddSubGoal?.(id)} data-testid={`add-subgoal-${id}`}>
+                    <GitBranch size={15} aria-hidden="true" />
+                  </IconButton>
+                )}
+                {onOpenViewer && (
+                  <IconButton label={t('OpenInViewer')} onClick={() => onOpenViewer(id)} data-testid={`open-viewer-${id}`}>
+                    <Maximize2 size={15} aria-hidden="true" />
+                  </IconButton>
+                )}
+                <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
+                  <Trash2 size={15} aria-hidden="true" />
+                </IconButton>
+              </span>
             </div>
 
             <IconButton
@@ -445,6 +480,18 @@ function GoalBox({
             <CalendarDays size={12} aria-hidden="true" />
             {formatDate(startDate.toString())} - {formatDate(endDate.toString())}
           </span>
+          {/* Phone only: the actions the header gave up, as icon plus name. */}
+          {!readonly && (
+            <div className="flex flex-wrap gap-1.5 pt-1 md:hidden">
+              {onOpenViewer && (
+                <FoldAction label={t('OpenInViewer')} icon={<Maximize2 size={13} aria-hidden="true" />} onClick={() => onOpenViewer(id)} testId={`open-viewer-fold-${id}`} />
+              )}
+              {canAddSubGoal && (
+                <FoldAction label={t('AddSubGoal')} icon={<GitBranch size={13} aria-hidden="true" />} onClick={() => onAddSubGoal?.(id)} testId={`add-subgoal-fold-${id}`} />
+              )}
+              <FoldAction label={t('Delete')} icon={<Trash2 size={13} aria-hidden="true" />} danger onClick={() => setOnDelete(true)} testId={`delete-fold-${id}`} />
+            </div>
+          )}
         </div>
       )}
 
