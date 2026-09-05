@@ -131,13 +131,18 @@ describe('GoalCard', () => {
     expect(screen.getByText('Long Term')).toBeTruthy();
   });
 
-  it('fires edit and delete from the top row, without expanding', async () => {
+  it('fires edit from the top row, and delete from the fold', async () => {
     const onEdit = jest.fn();
     const onDelete = jest.fn();
     await wrap(<GoalCard goal={goal} onEdit={onEdit} onDelete={onDelete} onChanged={jest.fn()} />);
 
+    // The header keeps two icons so the name has room; delete waits in the fold.
+    expect(screen.queryByTestId('goal-delete-g1')).toBeNull();
     await act(async () => {
       fireEvent.press(screen.getByTestId('goal-edit-g1'));
+      fireEvent.press(screen.getByTestId('goal-card-g1'));
+    });
+    await act(async () => {
       fireEvent.press(screen.getByTestId('goal-delete-g1'));
     });
 

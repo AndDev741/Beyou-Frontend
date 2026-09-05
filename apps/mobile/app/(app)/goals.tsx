@@ -16,6 +16,7 @@ import { childrenOf, depthOf, rootsForFilter, setViewSort, sortGoals } from '@be
 import type { goal } from '@beyou/types/goals/goalType';
 import GoalCard from '../../src/ui/goals/GoalCard';
 import GoalForm from '../../src/ui/goals/GoalForm';
+import AddSubGoalModal from '../../src/ui/goals/AddSubGoalModal';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
@@ -57,6 +58,8 @@ export default function GoalsScreen() {
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('tree');
+  // "Add sub-goal" opens an explanation first, not the form: see AddSubGoalModal.
+  const [subGoalParent, setSubGoalParent] = useState<goal | null>(null);
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
   const hasAnyTree = useMemo(() => goals.some((g) => Boolean(g.parentId)), [goals]);
@@ -318,7 +321,7 @@ export default function GoalsScreen() {
                   onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
                   onDelete={setDeleteTarget}
                   onChanged={load}
-                  onAddSubGoal={(g) => setForm({ visible: true, mode: 'create', goal: null, parentId: g.id })}
+                  onAddSubGoal={setSubGoalParent}
                   onOpenViewer={(g) => router.push({ pathname: '/goals-view', params: { goal: g.id } })}
                 />
               </View>
@@ -364,6 +367,17 @@ export default function GoalsScreen() {
         pending={deleting}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
+      />
+
+      <AddSubGoalModal
+        parent={subGoalParent}
+        allGoals={goals}
+        onClose={() => setSubGoalParent(null)}
+        onCreateNew={(parent) => {
+          setSubGoalParent(null);
+          setForm({ visible: true, mode: 'create', goal: null, parentId: parent.id });
+        }}
+        onMoved={load}
       />
 
       <GoalForm

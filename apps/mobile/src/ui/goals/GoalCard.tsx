@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronUp,
+  GitBranch,
   Maximize2,
   Minus,
   Pencil,
@@ -69,6 +70,34 @@ const TERM_KEY: Record<string, string> = {
  * once complete, the same button becomes "Undo" and the card KEEPS its whole
  * design, only gaining the XP and done chips up top.
  */
+/** A small labelled action for the card's fold: icon, name, one tap. */
+function CardAction({
+  label,
+  icon,
+  onPress,
+  danger = false,
+  testID,
+}: {
+  label: string;
+  icon: ReactNode;
+  onPress: () => void;
+  danger?: boolean;
+  testID?: string;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      testID={testID}
+      className="flex-row items-center gap-1.5 rounded-control border border-border px-2.5 py-1.5 active:bg-surface-2"
+    >
+      {icon}
+      <Text className={`text-[12px] font-semibold ${danger ? 'text-danger' : 'text-text-2'}`}>{label}</Text>
+    </Pressable>
+  );
+}
+
 export default function GoalCard({
   goal,
   onEdit,
@@ -186,28 +215,13 @@ export default function GoalCard({
           ) : null}
         </View>
 
+        {/* Two icons and no more: the name is what the row is for, and five actions in
+            a 360px header had cut it to three letters. Edit stays because it is the
+            frequent one; the rest waits in the fold below. */}
         {!readonly ? (
           <>
-            {onOpenViewer ? (
-              <IconButton label={t('OpenInViewer')} onPress={() => onOpenViewer(goal)} testID={`goal-open-viewer-${goal.id}`}>
-                <Maximize2 size={15} color={theme.text3} />
-              </IconButton>
-            ) : null}
-            {onAddSubGoal && depth < MAX_GOAL_DEPTH ? (
-              <IconButton label={t('AddSubGoal')} onPress={() => onAddSubGoal(goal)} testID={`goal-add-sub-${goal.id}`}>
-                <Plus size={15} color={theme.text3} />
-              </IconButton>
-            ) : null}
             <IconButton label={t('Edit')} onPress={() => onEdit(goal)} testID={`goal-edit-${goal.id}`}>
               <Pencil size={15} color={theme.text3} />
-            </IconButton>
-            <IconButton
-              label={t('Delete')}
-              tone="danger"
-              onPress={() => onDelete(goal)}
-              testID={`goal-delete-${goal.id}`}
-            >
-              <Trash2 size={15} color={theme.text3} />
             </IconButton>
             <IconButton
               label={expanded ? t('Collapse') : t('Expand')}
@@ -266,6 +280,35 @@ export default function GoalCard({
               {`${formatGoalDeadline(goal.startDate, i18n.language)} - ${formatGoalDeadline(goal.endDate, i18n.language)}`}
             </Text>
           </View>
+          {/* The less frequent actions, with their names: an icon alone is what left a
+              person wondering why a form had opened. */}
+          {!readonly ? (
+            <View className="flex-row flex-wrap gap-1.5 pt-1">
+              {onOpenViewer ? (
+                <CardAction
+                  label={t('OpenInViewer')}
+                  icon={<Maximize2 size={13} color={theme.text2} />}
+                  onPress={() => onOpenViewer(goal)}
+                  testID={`goal-open-viewer-${goal.id}`}
+                />
+              ) : null}
+              {onAddSubGoal && depth < MAX_GOAL_DEPTH ? (
+                <CardAction
+                  label={t('AddSubGoal')}
+                  icon={<GitBranch size={13} color={theme.text2} />}
+                  onPress={() => onAddSubGoal(goal)}
+                  testID={`goal-add-sub-${goal.id}`}
+                />
+              ) : null}
+              <CardAction
+                label={t('Delete')}
+                icon={<Trash2 size={13} color={theme.danger} />}
+                danger
+                onPress={() => onDelete(goal)}
+                testID={`goal-delete-${goal.id}`}
+              />
+            </View>
+          ) : null}
         </View>
       ) : null}
 

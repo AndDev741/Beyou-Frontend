@@ -14,6 +14,7 @@ import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import GoalCard from '../src/ui/goals/GoalCard';
 import GoalForm from '../src/ui/goals/GoalForm';
+import AddSubGoalModal from '../src/ui/goals/AddSubGoalModal';
 
 const g = (id: string, over: Partial<goal> = {}): goal =>
   ({
@@ -80,6 +81,8 @@ describe('GoalCard with sub-goals', () => {
     await act(async () => { fireEvent.press(screen.getByTestId('goal-complete-parent-tenk')); });
     await waitFor(() => expect(put).toHaveBeenCalledWith('/goal/complete', 'tenk', expect.anything()));
 
+    // Add sub-goal sits in the fold, with its name next to the icon.
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-tenk')); });
     await act(async () => { fireEvent.press(screen.getByTestId('goal-add-sub-tenk')); });
     expect(onAddSubGoal).toHaveBeenCalledWith(tenK);
   });
@@ -89,6 +92,7 @@ describe('GoalCard with sub-goals', () => {
       <GoalCard goal={weekly} allGoals={all} depth={3}
         onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} onAddSubGoal={jest.fn()} />,
     );
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-weekly')); });
     expect(screen.queryByTestId('goal-add-sub-weekly')).toBeNull();
     expect(screen.queryByTestId('goal-subgoals-weekly')).toBeNull();
   });
@@ -145,4 +149,38 @@ describe('GoalForm parent picker', () => {
     const [, body] = post.mock.calls[0] as unknown as [string, Record<string, unknown>];
     expect(body).toMatchObject({ name: 'Run 5 km', parentId: 'marathon', endDate: '2026-12-31' });
   }, 20000);
+});
+
+describe('AddSubGoalModal', () => {
+  it('explains the move, offers only goals that fit, and moves one through PUT /goal', async () => {
+    const onMoved = jest.fn();
+    const onCreateNew = jest.fn();
+    // `other` is a root with no children: fits under tenK (level 2) as a third level.
+    // `marathon` is tenK's ancestor and `weekly` already its child: neither is offered.
+    const other = g('other', { name: 'Learn French' });
+    await wrap(
+      <AddSubGoalModal parent={tenK} allGoals={[...all, other]} onClose={jest.fn()} onCreateNew={onCreateNew} onMoved={onMoved} />,
+    );
+
+    expect(screen.getByText('A sub-goal sits under “Run 10 km” and shows its progress there. Pick one of your goals to move here, or create a new one.')).toBeTruthy();
+    expect(screen.getByTestId('add-subgoal-modal-pick-other')).toBeTruthy();
+    expect(screen.queryByTestId('add-subgoal-modal-pick-marathon')).toBeNull();
+    expect(screen.queryByTestId('add-subgoal-modal-pick-weekly')).toBeNull();
+
+    await act(async () => { fireEvent.press(screen.getByTestId('add-subgoal-modal-pick-other')); });
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal', expect.objectContaining({ goalId: 'other', parentId: 'tenk', name: 'Learn French' })),
+    );
+    expect(onMoved).toHaveBeenCalled();
+
+    await act(async () => { fireEvent.press(screen.getByTestId('add-subgoal-modal-create')); });
+    expect(onCreateNew).toHaveBeenCalledWith(tenK);
+  });
+
+  it('says so when nothing can go under a third-level goal', async () => {
+    await wrap(
+      <AddSubGoalModal parent={weekly} allGoals={all} onClose={jest.fn()} onCreateNew={jest.fn()} onMoved={jest.fn()} />,
+    );
+    expect(screen.getByTestId('add-subgoal-modal-none')).toBeTruthy();
+  });
 });
