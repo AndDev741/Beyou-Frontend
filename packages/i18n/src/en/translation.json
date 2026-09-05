@@ -839,6 +839,8 @@
     "YupStatusRequired": "The status is required",
     "YupTermRequired": "The term is required",
     "YupUnitRequired": "The unit is required",
+    "YupDateRequired": "Pick a date",
+    "YupRequiredValue": "Enter a number",
     "NoWidgetsTitle": "Your dashboard is waiting",
     "NoWidgetsDescription": "Widgets show your XP, daily progress, streak and more — pick your favorites.",
     "AddWidgets": "Add widgets",

@@ -839,6 +839,8 @@
     "YupStatusRequired": "O status é necessário",
     "YupTermRequired": "O prazo é necessário",
     "YupUnitRequired": "A unidade é necessária",
+    "YupDateRequired": "Escolha uma data",
+    "YupRequiredValue": "Informe um número",
     "NoWidgetsTitle": "Seu dashboard está esperando",
     "NoWidgetsDescription": "Widgets mostram seu XP, progresso diário, constância e mais — escolha seus favoritos.",
     "AddWidgets": "Adicionar widgets",
