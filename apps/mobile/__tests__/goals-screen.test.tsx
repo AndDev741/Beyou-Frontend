@@ -70,6 +70,8 @@ describe('GoalsScreen', () => {
     await renderScreen();
     await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
 
+    // Delete lives in the card's fold now.
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-g1')); });
     await act(async () => { fireEvent.press(screen.getByTestId('goal-delete-g1')); });
     await act(async () => { fireEvent.press(screen.getByTestId('delete-modal-confirm')); });
 

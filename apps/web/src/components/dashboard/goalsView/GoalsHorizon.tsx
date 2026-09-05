@@ -178,6 +178,11 @@ export default function GoalsHorizon() {
 
                         <div className="mt-2 grid gap-2 lg:mt-3 lg:gap-3 lg:grid-cols-3">
                             {grouped[key].map((item: goal) => {
+                                // A sub-goal keeps its own deadline card here; the line above
+                                // the name says which main goal it serves.
+                                const parentName = item.parentId
+                                    ? goals?.find((g) => g.id === item.parentId)?.name
+                                    : undefined;
                                 const target = item.targetValue > 0 ? item.targetValue : 1;
                                 const percent = Math.min(100, Math.round((item.currentValue / target) * 100));
                                 const reached = item.currentValue >= item.targetValue;
@@ -190,6 +195,11 @@ export default function GoalsHorizon() {
                                             reached ? "border-success" : "border-border"
                                         }`}
                                     >
+                                        {parentName && (
+                                            <span className="mb-1 block truncate text-[10.5px] text-text-3" title={parentName}>
+                                                ↳ {parentName}
+                                            </span>
+                                        )}
                                         <div className="flex items-center gap-2.5">
                                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
                                                 <BeyouIcon id={item.iconId} />

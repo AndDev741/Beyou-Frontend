@@ -9,6 +9,11 @@ interface ListToolbarProps {
   searchLabel: string;
   /** The selects (sorting, category) — they go on the second row, side by side. */
   children?: ReactNode;
+  /**
+   * A control that needs the whole width, on a third row. A segmented control squeezed
+   * into the selects' row wrapped its labels letter by letter on a 360px screen.
+   */
+  footer?: ReactNode;
   testID?: string;
 }
 
@@ -23,6 +28,7 @@ export default function ListToolbar({
   onSearchChange,
   searchLabel,
   children,
+  footer,
   testID,
 }: ListToolbarProps) {
   const { theme } = useBeyouTheme();
@@ -42,6 +48,7 @@ export default function ListToolbar({
         />
       </View>
       {children ? <View className="flex-row gap-2">{children}</View> : null}
+      {footer ? <View>{footer}</View> : null}
     </View>
   );
 }

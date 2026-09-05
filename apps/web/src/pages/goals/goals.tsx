@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import useAuthGuard from "../../components/useAuthGuard";
-import RenderGoals from "../../components/goals/renderGoals";
+import RenderGoals, { type GoalsViewMode } from "../../components/goals/renderGoals";
 import getGoals from "@beyou/api/goals/getGoals";
 import { useAutoRefresh } from "../../hooks/useAutoRefresh";
 import { useTranslation } from "react-i18next";
@@ -8,6 +9,7 @@ import CreateGoal from "../../components/goals/createGoal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import EditGoal from "../../components/goals/editGoal";
+import AddSubGoalModal from "../../components/goals/AddSubGoalModal";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import {
@@ -18,10 +20,12 @@ import {
 } from "../../components/utils/sortHelpers";
 import { goal } from "@beyou/types/goals/goalType";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
+import { rootsForFilter } from "@beyou/state";
 import PageHeader from "../../ui/PageHeader";
+import SegmentedControl from "../../ui/SegmentedControl";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
-import { Plus, Search, X } from "lucide-react";
+import { Maximize2, Plus, Search, X } from "lucide-react";
 
 /** "all", or one value of the backend's status enum. */
 type StatusFilter = "all" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
@@ -35,6 +39,7 @@ const FILTER_CLASS =
 function Goals() {
   useAuthGuard();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const isEditMode = useSelector((state: RootState) => state.editGoal.editMode);
@@ -45,6 +50,13 @@ function Goals() {
   // The form left the side of the list: the grid takes the full width and
   // criar/editar acontece em modal.
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  // "Add sub-goal" on a card opens the same modal with the parent already chosen.
+  const [createParentId, setCreateParentId] = useState<string | undefined>(undefined);
+  // "Add sub-goal" opens an explanation first, not the form: see AddSubGoalModal.
+  const [subGoalParent, setSubGoalParent] = useState<goal | null>(null);
+  // Grouped is the default: a main goal with its sub-goals folded under it. Flat is
+  // for whoever wants every goal as its own card, hierarchy or not.
+  const [viewMode, setViewMode] = useState<GoalsViewMode>("tree");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -100,40 +112,49 @@ function Goals() {
     });
   }, [goals, search, statusFilter, categoryFilter]);
 
-  const sortedGoals = useMemo(() => {
+  const sortList = useCallback((list: goal[]) => {
     switch (sortBy) {
       case "name-asc":
-        return sortItems(filteredGoals, (a, b) => compareStrings(a.name, b.name));
+        return sortItems(list, (a, b) => compareStrings(a.name, b.name));
       case "name-desc":
-        return sortItems(filteredGoals, (a, b) => compareStrings(b.name, a.name));
+        return sortItems(list, (a, b) => compareStrings(b.name, a.name));
       case "xp-desc":
-        return sortItems(filteredGoals, (a, b) => compareNumbers(b.xpReward, a.xpReward));
+        return sortItems(list, (a, b) => compareNumbers(b.xpReward, a.xpReward));
       case "xp-asc":
-        return sortItems(filteredGoals, (a, b) => compareNumbers(a.xpReward, b.xpReward));
+        return sortItems(list, (a, b) => compareNumbers(a.xpReward, b.xpReward));
       case "progress-desc":
-        return sortItems(filteredGoals, (a, b) => compareNumbers(getProgress(b), getProgress(a)));
+        return sortItems(list, (a, b) => compareNumbers(getProgress(b), getProgress(a)));
       case "progress-asc":
-        return sortItems(filteredGoals, (a, b) => compareNumbers(getProgress(a), getProgress(b)));
+        return sortItems(list, (a, b) => compareNumbers(getProgress(a), getProgress(b)));
       case "end-asc":
-        return sortItems(filteredGoals, (a, b) =>
+        return sortItems(list, (a, b) =>
           compareNumbers(getTimestamp(a.endDate), getTimestamp(b.endDate))
         );
       case "end-desc":
-        return sortItems(filteredGoals, (a, b) =>
+        return sortItems(list, (a, b) =>
           compareNumbers(getTimestamp(b.endDate), getTimestamp(a.endDate))
         );
       case "start-desc":
-        return sortItems(filteredGoals, (a, b) =>
+        return sortItems(list, (a, b) =>
           compareNumbers(getTimestamp(b.startDate), getTimestamp(a.startDate))
         );
       case "start-asc":
-        return sortItems(filteredGoals, (a, b) =>
+        return sortItems(list, (a, b) =>
           compareNumbers(getTimestamp(a.startDate), getTimestamp(b.startDate))
         );
       default:
-        return filteredGoals;
+        return list;
     }
-  }, [filteredGoals, sortBy]);
+  }, [sortBy]);
+
+  // Grouped: the filter runs over every goal, and a main goal whose sub-goal matched
+  // stays on the page (dimmed) so the match has somewhere to render. Sorting applies
+  // to the roots; sub-goals inside a card come by deadline.
+  const tree = useMemo(() => rootsForFilter(goals, filteredGoals), [goals, filteredGoals]);
+  const sortedGoals = useMemo(
+    () => sortList(viewMode === "tree" ? tree.roots : filteredGoals),
+    [filteredGoals, sortList, tree.roots, viewMode]
+  );
 
   const handleSortChange = (value: string) => {
     dispatch(setViewSort({ view: "goals", sortBy: value }));
@@ -141,8 +162,17 @@ function Goals() {
 
   const closeForm = () => {
     setIsCreateOpen(false);
+    setCreateParentId(undefined);
     dispatch(editModeEnter(false));
   };
+
+  const openCreate = (parentId?: string) => {
+    setCreateParentId(parentId);
+    setIsCreateOpen(true);
+  };
+
+  const openViewer = (goalId?: string) =>
+    navigate(goalId ? `/goals/view?goal=${goalId}` : "/goals/view");
 
   const isFiltering = Boolean(search.trim()) || statusFilter !== "all" || categoryFilter !== "all";
 
@@ -173,15 +203,28 @@ function Goals() {
             : `${goals.length} ${t("Goals")}`
         }
         action={
-          <Button
-            text={t("Create Goal")}
-            mode="primary"
-            size="medium"
-            icon={<Plus size={16} aria-hidden="true" />}
-            onClick={() => setIsCreateOpen(true)}
-            testId="create-goal"
-            collapseLabel
-          />
+          <div className="flex items-center gap-2">
+            {goals.length > 0 && (
+              <Button
+                text={t("ViewOneByOne")}
+                mode="ghost"
+                size="medium"
+                icon={<Maximize2 size={16} aria-hidden="true" />}
+                onClick={() => openViewer()}
+                testId="open-goal-viewer"
+                collapseLabel
+              />
+            )}
+            <Button
+              text={t("Create Goal")}
+              mode="primary"
+              size="medium"
+              icon={<Plus size={16} aria-hidden="true" />}
+              onClick={() => openCreate()}
+              testId="create-goal"
+              collapseLabel
+            />
+          </div>
         }
       />
       <main className="mt-4 flex flex-col gap-4 pb-4">
@@ -242,15 +285,43 @@ function Goals() {
                 </option>
               ))}
             </select>
+            {goals.some((goalItem) => goalItem.parentId) && (
+              <SegmentedControl
+                size="sm"
+                label={t("SubGoals")}
+                value={viewMode}
+                onChange={setViewMode}
+                options={[
+                  { value: "tree", label: t("ShowAsTree") },
+                  { value: "flat", label: t("ShowAsFlatList") },
+                ]}
+              />
+            )}
           </div>
         </div>
 
         <RenderGoals
           goals={sortedGoals}
+          allGoals={goals}
+          viewMode={viewMode}
+          dimmedIds={viewMode === "tree" ? tree.viaDescendantOnly : undefined}
+          onAddSubGoal={(parentId) => setSubGoalParent(goals.find((g) => g.id === parentId) ?? null)}
+          onOpenViewer={(goalId) => openViewer(goalId)}
           emptyTitle={isFiltering && goals.length > 0 ? t("NoResultsTitle") : undefined}
           onClearFilters={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); }}
         />
       </main>
+
+      <AddSubGoalModal
+        parent={subGoalParent}
+        allGoals={goals}
+        onClose={() => setSubGoalParent(null)}
+        onCreateNew={(parent) => {
+          setSubGoalParent(null);
+          openCreate(parent.id);
+        }}
+        onMoved={() => void loadGoals()}
+      />
 
       {isFormOpen && (
         <Modal
@@ -276,7 +347,11 @@ function Goals() {
             </button>
           </div>
           <div className="mt-3.5">
-            {isEditMode ? <EditGoal onClose={closeForm} /> : <CreateGoal onClose={closeForm} />}
+            {isEditMode ? (
+              <EditGoal onClose={closeForm} />
+            ) : (
+              <CreateGoal onClose={closeForm} defaultParentId={createParentId} />
+            )}
           </div>
         </Modal>
       )}

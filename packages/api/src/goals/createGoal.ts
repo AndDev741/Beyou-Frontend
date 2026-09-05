@@ -19,7 +19,9 @@ const createGoal = async (
   endDate: string,
   status: string,
   term: string,
-  t: TFunction
+  t: TFunction,
+  /** Parent goal id for a sub-goal; omit or null for a top-level goal. */
+  parentId: string | null = null
 ): apiResponse => {
   const goalData = {
     name: title,
@@ -33,7 +35,8 @@ const createGoal = async (
     startDate: startDate,
     endDate: endDate,
     status: status,
-    term: term
+    term: term,
+    parentId: parentId ?? null
   };
 
   try {

@@ -1,4 +1,4 @@
-import { ChevronLeft, Trophy, Plus, Search } from 'lucide-react-native';
+import { ChevronLeft, Trophy, Plus, Search, Maximize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAutoRefresh } from '../../src/hooks/useAutoRefresh';
 import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
@@ -12,10 +12,11 @@ import deleteGoal from '@beyou/api/goals/deleteGoal';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
-import { setViewSort, sortGoals } from '@beyou/state';
+import { childrenOf, depthOf, rootsForFilter, setViewSort, sortGoals } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import GoalCard from '../../src/ui/goals/GoalCard';
 import GoalForm from '../../src/ui/goals/GoalForm';
+import AddSubGoalModal from '../../src/ui/goals/AddSubGoalModal';
 import CelebrationOverlay from '../../src/ui/dashboard/CelebrationOverlay';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
@@ -24,10 +25,13 @@ import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
+import SegmentedControl from '../../src/ui/SegmentedControl';
 import { GOAL_SORT_OPTIONS } from '../../src/ui/sortOptions';
 
-type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null };
+type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null; parentId?: string | null };
 const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
+/** Grouped folds sub-goals under their main goal; flat gives every goal its own card. */
+type ViewMode = 'tree' | 'flat';
 const ALL_CATEGORIES = 'all';
 type StatusFilter = 'all' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 
@@ -53,8 +57,12 @@ export default function GoalsScreen() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(ALL_CATEGORIES);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('tree');
+  // "Add sub-goal" opens an explanation first, not the form: see AddSubGoalModal.
+  const [subGoalParent, setSubGoalParent] = useState<goal | null>(null);
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
+  const hasAnyTree = useMemo(() => goals.some((g) => Boolean(g.parentId)), [goals]);
 
   // Only the categories SOME item uses: a filter full of options that return
   // nothing is noise.
@@ -63,7 +71,7 @@ export default function GoalsScreen() {
     [categories, goals],
   );
 
-  const visibleItems = useMemo(() => {
+  const filteredItems = useMemo(() => {
     const term = search.trim().toLowerCase();
     return sortedGoals.filter((item) => {
       const matchesTerm =
@@ -76,6 +84,29 @@ export default function GoalsScreen() {
       return matchesTerm && matchesCategory && matchesStatus;
     });
   }, [sortedGoals, search, categoryFilter, statusFilter]);
+
+  // Grouped: the filter runs over every goal, and a main goal whose sub-goal matched
+  // stays on the list (dimmed) so the match has somewhere to render. Sorting applies
+  // to the roots, in the order `sortedGoals` already gave them.
+  const tree = useMemo(() => rootsForFilter(sortedGoals, filteredItems), [sortedGoals, filteredItems]);
+  const visibleItems = viewMode === 'tree' ? tree.roots : filteredItems;
+  const byId = useMemo(() => new Map(goals.map((g) => [g.id, g])), [goals]);
+  const subGoalsOf = useCallback(
+    (id: string) =>
+      childrenOf(goals, id).sort((a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime()),
+    [goals],
+  );
+  // A deep link to a sub-goal lands on the card of its root, with the sub-goal rows open.
+  const expandRoot = useMemo(() => {
+    if (!expand) return undefined;
+    let cursor = byId.get(expand);
+    const guard = new Set<string>();
+    while (cursor?.parentId && byId.has(cursor.parentId) && !guard.has(cursor.id)) {
+      guard.add(cursor.id);
+      cursor = byId.get(cursor.parentId);
+    }
+    return cursor?.id;
+  }, [byId, expand]);
 
   const isFiltered =
     search.trim() !== '' || categoryFilter !== ALL_CATEGORIES || statusFilter !== 'all';
@@ -129,14 +160,14 @@ export default function GoalsScreen() {
    */
   useEffect(() => {
     if (!expand || loading) return;
-    const index = visibleItems.findIndex((item) => item.id === expand);
+    const index = visibleItems.findIndex((item) => item.id === expand || item.id === expandRoot);
     if (index < 0) return;
     const timer = setTimeout(
       () => listRef.current?.scrollToIndex({ index, viewPosition: 0.5, animated: true }),
       250,
     );
     return () => clearTimeout(timer);
-  }, [expand, loading, visibleItems]);
+  }, [expand, expandRoot, loading, visibleItems]);
 
   // Delete uses the system's own modal: the native Alert carries no theme, no
   // typography and no item name, and brings the OS button order.
@@ -179,15 +210,28 @@ export default function GoalsScreen() {
             </Text>
           </View>
         </View>
-        <Pressable
-          onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
-          accessibilityRole="button"
-          accessibilityLabel={t('CreateGoal')}
-          testID="create-goal"
-          className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
-        >
-          <Plus size={22} color={theme.onAccent} />
-        </Pressable>
+        <View className="flex-row items-center gap-2">
+          {goals.length > 0 ? (
+            <Pressable
+              onPress={() => router.push('/goals-view')}
+              accessibilityRole="button"
+              accessibilityLabel={t('ViewOneByOne')}
+              testID="goals-open-viewer"
+              className="h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border active:bg-surface-2"
+            >
+              <Maximize2 size={18} color={theme.text2} />
+            </Pressable>
+          ) : null}
+          <Pressable
+            onPress={() => setForm({ visible: true, mode: 'create', goal: null })}
+            accessibilityRole="button"
+            accessibilityLabel={t('CreateGoal')}
+            testID="create-goal"
+            className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent active:opacity-80"
+          >
+            <Plus size={22} color={theme.onAccent} />
+          </Pressable>
+        </View>
       </View>
 
       {loading ? (
@@ -214,6 +258,23 @@ export default function GoalsScreen() {
                 onSearchChange={setSearch}
                 searchLabel={t('GoalSearchPlaceholder')}
                 testID="goals-toolbar"
+                footer={
+                  // Only once there is a tree to fold: with no sub-goals the two modes
+                  // draw the same list, and the control would be a question with one answer.
+                  hasAnyTree ? (
+                    <SegmentedControl<ViewMode>
+                      label={t('SubGoals')}
+                      value={viewMode}
+                      onChange={setViewMode}
+                      size="sm"
+                      options={[
+                        { value: 'tree', label: t('ShowAsTree') },
+                        { value: 'flat', label: t('ShowAsFlatList') },
+                      ]}
+                      testID="goals-view-mode"
+                    />
+                  ) : null
+                }
               >
                 <SelectField
                   label={t('Status')}
@@ -242,16 +303,30 @@ export default function GoalsScreen() {
               </ListToolbar>
             ) : null
           }
-          renderItem={({ item }) => (
-            <GoalCard
-              goal={item}
-              initialExpanded={item.id === expand}
-              focused={item.id === expand}
-              onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
-              onDelete={setDeleteTarget}
-              onChanged={load}
-            />
-          )}
+          renderItem={({ item }) => {
+            const isTree = viewMode === 'tree';
+            const parent = item.parentId ? byId.get(item.parentId) : undefined;
+            return (
+              // Dimmed when it is only here because a sub-goal matched the filter.
+              <View className={isTree && tree.viaDescendantOnly.has(item.id) ? 'opacity-60' : ''}>
+                <GoalCard
+                  goal={item}
+                  initialExpanded={item.id === expand}
+                  initialChildrenOpen={!!expand && item.id === expandRoot && expand !== item.id}
+                  focused={item.id === expand}
+                  subGoals={isTree ? subGoalsOf(item.id) : []}
+                  allGoals={goals}
+                  depth={depthOf(goals, item.id)}
+                  parentName={!isTree ? parent?.name : undefined}
+                  onEdit={(g) => setForm({ visible: true, mode: 'edit', goal: g })}
+                  onDelete={setDeleteTarget}
+                  onChanged={load}
+                  onAddSubGoal={setSubGoalParent}
+                  onOpenViewer={(g) => router.push({ pathname: '/goals-view', params: { goal: g.id } })}
+                />
+              </View>
+            );
+          }}
           ListEmptyComponent={
             isFiltered ? (
               <EmptyState
@@ -283,11 +358,26 @@ export default function GoalsScreen() {
 
       <DeleteModal
         visible={deleteTarget !== null}
-        deletePhrase={t('ConfirmDeleteOfGoalPhrase')}
+        deletePhrase={
+          deleteTarget && childrenOf(goals, deleteTarget.id).length > 0
+            ? `${t('ConfirmDeleteOfGoalPhrase')} ${t('SubGoalsBecomeTopLevel', { count: childrenOf(goals, deleteTarget.id).length })}`
+            : t('ConfirmDeleteOfGoalPhrase')
+        }
         name={deleteTarget?.name ?? ''}
         pending={deleting}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
+      />
+
+      <AddSubGoalModal
+        parent={subGoalParent}
+        allGoals={goals}
+        onClose={() => setSubGoalParent(null)}
+        onCreateNew={(parent) => {
+          setSubGoalParent(null);
+          setForm({ visible: true, mode: 'create', goal: null, parentId: parent.id });
+        }}
+        onMoved={load}
       />
 
       <GoalForm
@@ -295,6 +385,8 @@ export default function GoalsScreen() {
         mode={form.mode}
         goal={form.goal}
         categories={categories}
+        allGoals={goals}
+        defaultParentId={form.parentId}
         onClose={() => setForm(CLOSED)}
         onSaved={load}
       />

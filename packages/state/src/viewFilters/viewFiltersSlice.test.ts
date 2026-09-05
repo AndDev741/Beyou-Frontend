@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import reducer, { setViewSort, hydrateViewFilters } from './viewFiltersSlice';
 
-const initial = { categories: 'default', goals: 'default', habits: 'default', routines: 'default', tasks: 'default' };
+const initial = { categories: 'default', goals: 'default', goalsViewer: 'status', habits: 'default', routines: 'default', tasks: 'default' };
 
 describe('viewFiltersSlice', () => {
   it('setViewSort updates one view', () => {

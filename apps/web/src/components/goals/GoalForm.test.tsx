@@ -3,7 +3,8 @@ import GoalForm from "./GoalForm";
 import { screen, fireEvent } from "@testing-library/react";
 import { vi } from "vitest";
 import store from "../../redux/store";
-import { editStatusEnter } from "@beyou/state/goal/editGoalSlice";
+import { editStatusEnter, editGoalIdEnter, editParentIdEnter } from "@beyou/state/goal/editGoalSlice";
+import { enterGoals } from "@beyou/state/goal/goalsSlice";
 
 vi.mock("@beyou/api/goals/createGoal", () => ({
     default: vi.fn().mockResolvedValue({})
@@ -45,4 +46,37 @@ test("a completed goal shows the status locked, pointing at Undo", () => {
 
     expect(screen.getByRole("radio", { name: "Completed" })).toBeDisabled();
     expect(screen.getByText("GoalStatusLockedByCompletion")).toBeInTheDocument();
+});
+
+test("the parent picker never offers the goal being edited, and starts on its current parent", () => {
+    const g = (id: string, name: string, parentId: string | null) => ({
+        id, name, iconId: "i", targetValue: 10, unit: "u", currentValue: 0, complete: false,
+        categories: {}, startDate: new Date("2026-01-01"), endDate: new Date("2026-12-31"),
+        xpReward: 0, status: "NOT_STARTED", term: "SHORT_TERM", parentId,
+    });
+    store.dispatch(enterGoals([g("big", "Marathon", null), g("mid", "Run 10k", "big"), g("other", "Read", null)]));
+    store.dispatch(editGoalIdEnter("mid"));
+    store.dispatch(editParentIdEnter("big"));
+    store.dispatch(editStatusEnter("IN_PROGRESS"));
+    renderWithProviders(<GoalForm mode="edit" />);
+
+    const picker = screen.getByTestId("goal-parent") as HTMLSelectElement;
+    const labels = Array.from(picker.options).map((o) => o.textContent);
+    expect(labels).toContain("ParentGoalNone");
+    expect(labels).toContain("Marathon");
+    expect(labels).toContain("Read");
+    expect(labels).not.toContain("Run 10k");
+    expect(picker.value).toBe("big");
+});
+
+test("Add sub-goal opens the create form with the parent chosen and its categories borrowed", () => {
+    store.dispatch(enterGoals([{
+        id: "big", name: "Marathon", iconId: "i", targetValue: 42, unit: "km", currentValue: 0, complete: false,
+        categories: { cat1: { name: "Health", iconId: "i" } }, startDate: new Date("2026-01-01"),
+        endDate: new Date("2026-12-31"), xpReward: 0, status: "NOT_STARTED", term: "LONG_TERM", parentId: null,
+    }]));
+    renderWithProviders(<GoalForm mode="create" defaultParentId="big" />);
+
+    expect((screen.getByTestId("goal-parent") as HTMLSelectElement).value).toBe("big");
+    expect(screen.getByText("ParentGoalHint")).toBeInTheDocument();
 });

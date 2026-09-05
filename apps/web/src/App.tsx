@@ -23,6 +23,7 @@ const Dashboard = lazy(() => import("./pages/dashboard/dashboard"));
 const Categories = lazy(() => import("./pages/categories/categories"));
 const Habits = lazy(() => import("./pages/habits/habits"));
 const Goals = lazy(() => import("./pages/goals/goals"));
+const GoalViewer = lazy(() => import("./pages/goals/GoalViewer"));
 const Tasks = lazy(() => import("./pages/tasks/Tasks"));
 const Routine = lazy(() => import("./pages/routines/routine"));
 const Configuration = lazy(() => import("./pages/configuration/Configuration"));
@@ -69,6 +70,8 @@ function AppContent() {
             <Route path="/categories" element={<Categories />} />
             <Route path="/habits" element={<Habits />} />
             <Route path="/goals" element={<Goals />} />
+            {/* One goal at a time, over the shell like /focus. */}
+            <Route path="/goals/view" element={<GoalViewer />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/routines" element={<Routine />} />
             {/* Inside the gate, but the page covers the shell rather than sitting

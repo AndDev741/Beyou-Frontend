@@ -22,5 +22,7 @@ export const goalFormSchema = (t: TFunction) =>
         startDate: stringDateRequired(t, "YupDateRequired"),
         endDate: stringDateRequired(t, "YupDateRequired"),
         status: z.string().min(1, t("YupStatusRequired")),
-        term: z.string().min(1, t("YupTermRequired"))
+        term: z.string().min(1, t("YupTermRequired")),
+        // The tree rules (owner, cycle, depth) are the server's; the form only carries the id.
+        parentId: z.string().nullable().optional()
     });

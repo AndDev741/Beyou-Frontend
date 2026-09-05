@@ -3548,6 +3548,11 @@
               "MEDIUM_TERM",
               "LONG_TERM"
             ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional parent goal; null detaches the goal to the top level. Same rules as on create."
           }
         },
         "required": [
@@ -3645,6 +3650,10 @@
           "completeDate": {
             "type": "string",
             "format": "date"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -4069,6 +4078,11 @@
               "MEDIUM_TERM",
               "LONG_TERM"
             ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional parent goal. Must belong to the same user, must not create a cycle, and the chain may be at most three goals deep (GoalService.resolveParent)."
           }
         },
         "required": [

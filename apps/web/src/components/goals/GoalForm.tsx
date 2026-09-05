@@ -17,6 +17,8 @@ import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import { RootState } from "@beyou/state/rootReducer";
 import { goalFormSchema } from "@beyou/validation/forms/goalSchemas";
+import { depthOf, eligibleParents, parseLocalDate } from "@beyou/state";
+import type { goal as GoalType } from "@beyou/types/goals/goalType";
 
 export type GoalFormMode = "create" | "edit";
 
@@ -24,6 +26,12 @@ type GoalFormProps = {
     mode: GoalFormMode;
     /** Closes the modal wrapping the form (undefined outside one). */
     onClose?: () => void;
+    /**
+     * Create mode only: the goal this one is being added under ("Add sub-goal" on a
+     * card). Pre-selects the parent and borrows its categories and deadline as a
+     * starting point; everything stays editable.
+     */
+    defaultParentId?: string;
 };
 
 type GoalFormValues = {
@@ -39,6 +47,8 @@ type GoalFormValues = {
     endDate: string;
     status: string;
     term: string;
+    /** "" for a main goal; the select cannot hold null. */
+    parentId: string;
 };
 
 const defaultValues: GoalFormValues = {
@@ -53,7 +63,18 @@ const defaultValues: GoalFormValues = {
     startDate: "",
     endDate: "",
     status: "NOT_STARTED",
-    term: "SHORT_TERM"
+    term: "SHORT_TERM",
+    parentId: ""
+};
+
+/** The form's ISO day for a goal date that may arrive as a Date or a string. */
+const toIsoDay = (value: Date | string | null | undefined): string => {
+    if (!value) return "";
+    if (typeof value === "string") return value.slice(0, 10);
+    const y = value.getFullYear();
+    const m = String(value.getMonth() + 1).padStart(2, "0");
+    const d = String(value.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
 };
 
 /**
@@ -68,11 +89,12 @@ const defaultValues: GoalFormValues = {
  * COMPLETED is not on offer here. Completion is the card's Complete/Undo button,
  * the one path that pays and takes back the XP.
  */
-function GoalForm({ mode, onClose }: GoalFormProps) {
+function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
     const dispatch = useDispatch();
     const { t } = useTranslation();
     const [apiError, setApiError] = useState<ApiErrorPayload | null>(null);
     const [search, setSearch] = useState("");
+    const allGoals = useSelector((state: RootState) => state.goals.goals) || [];
 
     const goalId = useSelector((state: RootState) => state.editGoal.goalId);
     const titleEdit = useSelector((state: RootState) => state.editGoal.title);
@@ -88,6 +110,25 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
     const endDateEdit = useSelector((state: RootState) => state.editGoal.endDate);
     const statusEdit = useSelector((state: RootState) => state.editGoal.status);
     const termEdit = useSelector((state: RootState) => state.editGoal.term);
+    const parentIdEdit = useSelector((state: RootState) => state.editGoal.parentId);
+
+    // The parent a fresh create starts from, when the card's "Add sub-goal" opened us.
+    const defaultParent = useMemo<GoalType | undefined>(
+        () => (mode === "create" && defaultParentId ? allGoals.find((g) => g.id === defaultParentId) : undefined),
+        [allGoals, defaultParentId, mode]
+    );
+    const createDefaults = useMemo<GoalFormValues>(
+        () =>
+            defaultParent
+                ? {
+                      ...defaultValues,
+                      parentId: defaultParent.id,
+                      categoriesId: Object.keys(defaultParent.categories ?? {}),
+                      endDate: toIsoDay(defaultParent.endDate)
+                  }
+                : defaultValues,
+        [defaultParent]
+    );
 
     const editDefaults = useMemo<GoalFormValues>(
         () => ({
@@ -102,9 +143,11 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
             startDate: startDateEdit || "",
             endDate: endDateEdit || "",
             status: statusEdit || "",
-            term: termEdit || ""
+            term: termEdit || "",
+            parentId: parentIdEdit ?? ""
         }),
         [
+            parentIdEdit,
             titleEdit,
             iconId,
             descriptionEdit,
@@ -126,12 +169,36 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
         reset,
         setError,
         clearErrors,
+        watch,
         formState: { errors, isSubmitting }
     } = useForm<GoalFormValues>({
         resolver: zodResolver(goalFormSchema(t)),
         mode: "onBlur",
-        defaultValues: mode === "edit" ? editDefaults : defaultValues
+        defaultValues: mode === "edit" ? editDefaults : createDefaults
     });
+
+    // Which goals may be the parent: the same rule the server applies (not itself, not a
+    // descendant, and the chain still fits in three levels), so the picker never offers
+    // something the save would refuse. Sorted by name; a second-level goal is marked with
+    // an arrow so the list reads as the tree it is.
+    const parentOptions = useMemo(() => {
+        const eligible = eligibleParents(allGoals, mode === "edit" ? goalId : undefined);
+        return [...eligible]
+            .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }))
+            .map((g) => ({ id: g.id, label: `${depthOf(allGoals, g.id) > 1 ? "\u21b3 " : ""}${g.name}` }));
+    }, [allGoals, goalId, mode]);
+
+    const chosenParentId = watch("parentId");
+    const chosenEndDate = watch("endDate");
+    const chosenParent = chosenParentId ? allGoals.find((g) => g.id === chosenParentId) : undefined;
+    // A warning, not a rule: a sub-goal that outlives its main goal is odd, but the person
+    // may know something the form does not.
+    const endsAfterParent = Boolean(
+        chosenParent &&
+            chosenEndDate &&
+            (parseLocalDate(chosenEndDate)?.getTime() ?? 0) >
+                (parseLocalDate(toIsoDay(chosenParent.endDate))?.getTime() ?? Number.POSITIVE_INFINITY)
+    );
 
     useEffect(() => {
         if (mode === "edit") {
@@ -139,6 +206,13 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
             setSearch(iconId || "");
         }
     }, [editDefaults, iconId, mode, reset]);
+
+    // The goals list may arrive after the modal opened; the borrowed values land then.
+    useEffect(() => {
+        if (mode === "create" && defaultParent) {
+            reset(createDefaults);
+        }
+    }, [createDefaults, defaultParent, mode, reset]);
 
     const handleCancel = () => {
         dispatch(editModeEnter(false));
@@ -171,7 +245,8 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                       values.endDate,
                       status,
                       values.term,
-                      t
+                      t,
+                      values.parentId || null
                   )
                 : await createGoal(
                       values.title,
@@ -186,7 +261,8 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                       values.endDate,
                       status,
                       values.term,
-                      t
+                      t,
+                      values.parentId || null
                   );
 
         if (response?.success) {
@@ -405,6 +481,37 @@ function GoalForm({ mode, onClose }: GoalFormProps) {
                         />
                     )}
                 />
+            </div>
+
+            <div className="mt-4">
+                <label htmlFor="goal-parent" className={labelClass}>{t("ParentGoal")}</label>
+                <Controller
+                    control={control}
+                    name="parentId"
+                    render={({ field }) => (
+                        <select
+                            id="goal-parent"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            data-testid="goal-parent"
+                            className={fieldClass}
+                        >
+                            <option value="">{t("ParentGoalNone")}</option>
+                            {parentOptions.map((option) => (
+                                <option key={option.id} value={option.id}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                />
+                <span className="mt-1.5 block text-[10.5px] text-text-3">{t("ParentGoalHint")}</span>
+                {endsAfterParent && (
+                    <span className="mt-1 block text-[11px] text-flame" role="status">
+                        {t("SubGoalEndsAfterParent")}
+                    </span>
+                )}
             </div>
 
             {mode === "edit" && (

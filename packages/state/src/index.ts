@@ -156,6 +156,30 @@ export { parseLocalDate } from './date/parseLocalDate';
 export { formatGoalDeadline } from './goal/formatGoalDeadline';
 export type { DeadlineShape } from './goal/formatGoalDeadline';
 export type { SortedGoals } from './goal/sortGoalsByTime';
+export {
+  MAX_GOAL_DEPTH,
+  goalProgress,
+  childrenOf,
+  rootGoals,
+  hasChildren,
+  ancestorsOf,
+  descendantsOf,
+  depthOf,
+  subtreeHeight,
+  childrenSummary,
+  allChildrenComplete,
+  eligibleParents,
+  buildGoalTree,
+  rootsForFilter,
+} from './goal/goalTree';
+export type { GoalChildrenSummary, GoalTreeNode } from './goal/goalTree';
+export {
+  GOAL_VIEWER_SORT_KEYS,
+  isGoalViewerSortKey,
+  orderGoalsForViewer,
+  viewerIndexFor,
+} from './goal/goalViewer';
+export type { GoalViewerSortKey, GoalViewerFilter } from './goal/goalViewer';
 // editGoalSlice: editModeEnter, editDescriptionEnter, editIconIdEnter collide — import via deep path @beyou/state/goal/editGoalSlice
 export {
   editGoalIdEnter,
@@ -171,6 +195,7 @@ export {
   editXpRewardEnter,
   editStatusEnter,
   editTermEnter,
+  editParentIdEnter,
 } from './goal/editGoalSlice';
 
 // habits

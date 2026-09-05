@@ -42,8 +42,12 @@ test("every literal t() key exists in the EN and PT translation files", () => {
     const used = collectLiteralKeys();
     expect(used.size).toBeGreaterThan(200); // sanity: extraction actually ran
 
-    const missingEn = [...used].filter((key) => !(key in en)).sort();
-    const missingPt = [...used].filter((key) => !(key in pt)).sort();
+    // A plural key is called as `t("DaysLeft", { count })` and stored as `DaysLeft_one` /
+    // `DaysLeft_other`: the bare key never exists, and i18next picks the form itself.
+    const has = (table: Record<string, unknown>, key: string) =>
+        key in table || `${key}_one` in table || `${key}_other` in table;
+    const missingEn = [...used].filter((key) => !has(en, key)).sort();
+    const missingPt = [...used].filter((key) => !has(pt, key)).sort();
 
     expect(missingEn).toEqual([]);
     expect(missingPt).toEqual([]);
