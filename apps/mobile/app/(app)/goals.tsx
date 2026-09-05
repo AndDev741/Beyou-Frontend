@@ -59,6 +59,7 @@ export default function GoalsScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('tree');
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
+  const hasAnyTree = useMemo(() => goals.some((g) => Boolean(g.parentId)), [goals]);
 
   // Only the categories SOME item uses: a filter full of options that return
   // nothing is noise.
@@ -254,6 +255,23 @@ export default function GoalsScreen() {
                 onSearchChange={setSearch}
                 searchLabel={t('GoalSearchPlaceholder')}
                 testID="goals-toolbar"
+                footer={
+                  // Only once there is a tree to fold: with no sub-goals the two modes
+                  // draw the same list, and the control would be a question with one answer.
+                  hasAnyTree ? (
+                    <SegmentedControl<ViewMode>
+                      label={t('SubGoals')}
+                      value={viewMode}
+                      onChange={setViewMode}
+                      size="sm"
+                      options={[
+                        { value: 'tree', label: t('ShowAsTree') },
+                        { value: 'flat', label: t('ShowAsFlatList') },
+                      ]}
+                      testID="goals-view-mode"
+                    />
+                  ) : null
+                }
               >
                 <SelectField
                   label={t('Status')}
@@ -277,18 +295,6 @@ export default function GoalsScreen() {
                   options={categoryOptions}
                   onChange={setCategoryFilter}
                   testID="goals-category-filter"
-                  className="flex-1"
-                />
-                <SegmentedControl<ViewMode>
-                  label={t('SubGoals')}
-                  value={viewMode}
-                  onChange={setViewMode}
-                  size="sm"
-                  options={[
-                    { value: 'tree', label: t('ShowAsTree') },
-                    { value: 'flat', label: t('ShowAsFlatList') },
-                  ]}
-                  testID="goals-view-mode"
                   className="flex-1"
                 />
               </ListToolbar>
