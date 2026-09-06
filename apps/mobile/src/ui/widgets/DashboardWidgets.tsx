@@ -13,6 +13,7 @@ import { BetterAreaWidget, WorstAreaWidget } from './AreaWidget';
 import FastTipsWidget from './FastTipsWidget';
 import DailyProgressWidget from './DailyProgressWidget';
 import CategoryBalanceWidget from './CategoryBalanceWidget';
+import MoodWeekWidget from './MoodWeekWidget';
 import WidgetCarousel from './WidgetCarousel';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import EmptyState from '../EmptyState';
@@ -105,6 +106,8 @@ export default function DashboardWidgets() {
       />
     ),
     categoryBalance: () => <CategoryBalanceWidget categories={categories} />,
+    // Self-fetching, like the heatmap: nothing to pass from here.
+    moodWeek: () => <MoodWeekWidget />,
   };
 
   if (!widgetsIdsInUse || widgetsIdsInUse.length === 0) {

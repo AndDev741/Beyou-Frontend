@@ -9,6 +9,7 @@ export const WIDGET_IDS = [
   'fastTips',
   'levelProgress',
   'categoryBalance',
+  'moodWeek',
 ] as const;
 
 export type WidgetId = (typeof WIDGET_IDS)[number];

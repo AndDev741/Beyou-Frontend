@@ -6,6 +6,8 @@ interface WidgetCardProps {
   title: string;
   /** Header icon (14.5px, in text-3). */
   icon?: ReactNode;
+  /** Action right of the title (a shortcut), same slot the web's baseDiv has. */
+  action?: ReactNode;
   children: ReactNode;
   testID?: string;
 }
@@ -18,7 +20,7 @@ interface WidgetCardProps {
  * that the rest of the system uses for a label. The widget is the data, not the
  * title.
  */
-export default function WidgetCard({ title, icon, children, testID }: WidgetCardProps) {
+export default function WidgetCard({ title, icon, action, children, testID }: WidgetCardProps) {
   return (
     <Card
       padded={false}
@@ -28,6 +30,7 @@ export default function WidgetCard({ title, icon, children, testID }: WidgetCard
       <View className="flex-row items-center gap-2">
         {icon}
         <Text className="text-[12.5px] font-semibold text-text-2">{title}</Text>
+        {action ? <View className="ml-auto">{action}</View> : null}
       </View>
       {children}
     </Card>

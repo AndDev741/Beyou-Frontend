@@ -16,8 +16,9 @@ import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
+import { getMoodEntries } from "@beyou/api/mood/moodApi";
 import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
-import { selectedFocusGroupId } from "@beyou/state";
+import { selectedFocusGroupId, addDays, enterMoodEntries, todayInZone } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
@@ -67,6 +68,16 @@ export function useAgentRefresh() {
                 perfil: async () => {
                     const profile = await getProfile();
                     if (profile.data) hydratePerfil(dispatch, profile.data);
+                },
+                mood: async () => {
+                    // The agent only ever writes today (logUserMood defaults to it and the
+                    // server refuses the future), so re-reading the week the widget draws
+                    // covers everything a screen could be showing. The page's month view
+                    // re-reads on its own next mount.
+                    const state = store.getState() as RootState;
+                    const today = todayInZone(state.perfil.timezone);
+                    const r = await getMoodEntries({ from: addDays(today, -6), to: today }, t);
+                    if (r.success) dispatch(enterMoodEntries(r.success));
                 },
                 focus: async () => {
                     // Micro-tasks are stored per routine entry and there is no "fetch them all".
