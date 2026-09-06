@@ -9,12 +9,17 @@ import Card from '../Card';
 import Chip from '../Chip';
 import IconButton from '../IconButton';
 import IconTile from '../IconTile';
+import XpSparkline from '../XpSparkline';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 interface CategoryCardProps {
   category: category;
   onEdit: (category: category) => void;
   onDelete: (category: category) => void;
+  /** The category's XP per day, oldest first; drawn only while the card is open. */
+  xpSeries?: number[];
+  /** ISO days matching `xpSeries`. */
+  xpDays?: string[];
   /** Tutorial target — only the first card gets one (`category-first`). */
   viewRef?: RefObject<View | null>;
 }
@@ -33,10 +38,18 @@ const namesOf = (source?: Record<string, string> | Map<string, string>): string[
  * Edit and delete sit left of the chevron. On the web they appear on hover; here
  * they are always visible, as the web itself does below `md`.
  */
-export default function CategoryCard({ category, onEdit, onDelete, viewRef }: CategoryCardProps) {
+export default function CategoryCard({
+  category,
+  onEdit,
+  onDelete,
+  xpSeries,
+  xpDays,
+  viewRef,
+}: CategoryCardProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const [expanded, setExpanded] = useState(false);
+  const weekTotal = (xpSeries ?? []).reduce((sum, value) => sum + value, 0);
 
   const usedIn = [
     { label: t('Habits'), names: namesOf(category.habits) },
@@ -124,6 +137,21 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
         )
       ) : null}
 
+      {/* Behind the chevron with everything else the card keeps back, as on the web:
+          closed, a category is a name and where it stands; the week is detail. Small,
+          because it sits under body text and not on a dashboard rail. */}
+      {expanded && xpSeries && xpSeries.length > 0 ? (
+        <XpSparkline
+          values={xpSeries}
+          days={xpDays}
+          tone="accent"
+          size="sm"
+          labels={[t('WeekdayShortFirst'), t('WeekdayShortLast')]}
+          summary={t('XpLastDaysFor', { name: category.name, count: xpSeries.length })}
+          testID={`category-sparkline-${category.id}`}
+        />
+      ) : null}
+
       {/* A category accumulates its habits' XP: level and progress, no streak. */}
       <View className="mt-3">
         <View className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
@@ -131,9 +159,20 @@ export default function CategoryCard({ category, onEdit, onDelete, viewRef }: Ca
         </View>
         <View className="mt-1 flex-row items-center justify-between">
           <Text className="font-mono-semibold text-[11px] text-text-2">LV {category.level}</Text>
-          <Text className="font-mono text-[11px] text-text-3">
-            {category.xp}/{category.nextLevelXp}
-          </Text>
+          <View className="flex-row items-center gap-2">
+            {weekTotal > 0 ? (
+              <Text
+                className="font-mono text-[11px] text-accent"
+                accessibilityLabel={t('XpThisWeek')}
+                testID={`category-week-xp-${category.id}`}
+              >
+                +{Math.round(weekTotal)}
+              </Text>
+            ) : null}
+            <Text className="font-mono text-[11px] text-text-3">
+              {category.xp}/{category.nextLevelXp}
+            </Text>
+          </View>
         </View>
       </View>
     </Card>

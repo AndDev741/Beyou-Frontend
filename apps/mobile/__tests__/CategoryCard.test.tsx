@@ -79,4 +79,37 @@ describe('CategoryCard', () => {
     expect(onEdit).toHaveBeenCalledWith(category);
     expect(onDelete).toHaveBeenCalledWith(category);
   });
+
+  /**
+   * The week beside the level, as on the web: the bars wait behind the chevron (twelve
+   * open charts turned the list into a wall), the week's total does not.
+   */
+  it('draws the week of XP only once expanded, and its total always', async () => {
+    await wrap(
+      <CategoryCard
+        category={category}
+        onEdit={jest.fn()}
+        onDelete={jest.fn()}
+        xpSeries={[1, 2, 3, 4, 5, 6, 7]}
+        xpDays={['2026-08-09', '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14', '2026-08-15']}
+      />,
+    );
+
+    expect(screen.getByTestId('category-week-xp-cat1').props.children.join('')).toBe('+28');
+    expect(screen.queryByTestId('category-sparkline-cat1')).toBeNull();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('category-expand-cat1'));
+    });
+
+    expect(screen.getByTestId('category-sparkline-cat1')).toBeTruthy();
+    expect(screen.getAllByTestId('xp-bar')).toHaveLength(7);
+  });
+
+  it('shows no week total when the week earned nothing', async () => {
+    await wrap(
+      <CategoryCard category={category} onEdit={jest.fn()} onDelete={jest.fn()} xpSeries={[0, 0, 0]} />,
+    );
+    expect(screen.queryByTestId('category-week-xp-cat1')).toBeNull();
+  });
 });

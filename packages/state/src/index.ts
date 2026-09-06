@@ -251,3 +251,4 @@ export {
 } from './routine/routineMetrics';
 export { suggestSlots } from './routine/suggestSlots';
 export type { RoutineStats, SectionStats } from './routine/routineMetrics';
+export { seriesFor as xpSeriesFor } from './xp/xpSeries';
