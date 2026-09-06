@@ -54,16 +54,19 @@ test("dropping a section on another reorders the list", () => {
     expect(names(setRoutineSection)).toEqual(["Evening", "Morning"]);
 });
 
-test("the arrows move a section and stop at the ends", async () => {
+test("the arrows move a section from the closed header and stop at the ends", async () => {
     const setRoutineSection = renderEditor();
 
-    const toggle = await screen.findByRole("button", { name: "Morning" });
-    // They live inside the open section, so nothing shows until it is expanded.
-    expect(screen.queryByRole("button", { name: "MoveDown" })).not.toBeInTheDocument();
-    fireEvent.click(toggle);
+    await screen.findByRole("button", { name: "Morning" });
+    // Both sections closed, both pairs of arrows present: they used to hide inside the
+    // open body, which is how the reorder got lost on phones.
+    expect(screen.getAllByRole("button", { name: "MoveDown" })).toHaveLength(2);
 
-    expect(screen.getByRole("button", { name: "MoveUp" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "MoveDown" }));
+    const [upFirst] = screen.getAllByRole("button", { name: "MoveUp" });
+    const [downFirst, downLast] = screen.getAllByRole("button", { name: "MoveDown" });
+    expect(upFirst).toBeDisabled();
+    expect(downLast).toBeDisabled();
+    fireEvent.click(downFirst);
 
     expect(names(setRoutineSection)).toEqual(["Evening", "Morning"]);
 });

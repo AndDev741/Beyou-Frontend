@@ -131,3 +131,24 @@ test('posts a routine with a section', async () => {
   expect(body.routineSections[0]).toEqual(expect.objectContaining({ name: 'Wake', startTime: '06:00' }));
   expect(onSaved).toHaveBeenCalled();
 }, 20000);
+
+test('moving a section from its closed header changes the order the PUT sends', async () => {
+  const put: jest.Mock = jest.fn(async () => ({ data: { success: true } }));
+  setHttpClient({ get: async () => ({ data: null }), post, put, delete: async () => ({ data: null }) } as never);
+  const routine = {
+    id: 'r1', name: 'Day', iconId: '', type: 'DAILY', routineSections: [
+      { id: 's1', name: 'Wake', iconId: '', startTime: '06:00', endTime: '07:00', order: 0, habitGroup: [], taskGroup: [] },
+      { id: 's2', name: 'Night', iconId: '', startTime: '21:00', endTime: '22:00', order: 1, habitGroup: [], taskGroup: [] },
+    ],
+  } as never;
+  await wrap(<RoutineBuilder visible mode="edit" routine={routine} habits={habits} tasks={[]} onClose={jest.fn()} onSaved={jest.fn()} />);
+
+  // No section-toggle press: the arrows have to work on a closed card.
+  await act(async () => { fireEvent.press(screen.getByTestId('section-down-0')); });
+  await act(async () => { fireEvent.press(screen.getByTestId('routine-save')); });
+
+  await waitFor(() => expect(put).toHaveBeenCalledTimes(1));
+  const [url, body] = put.mock.calls[0];
+  expect(url).toBe('/routine/r1');
+  expect(body.routineSections.map((s: { name: string }) => s.name)).toEqual(['Night', 'Wake']);
+});

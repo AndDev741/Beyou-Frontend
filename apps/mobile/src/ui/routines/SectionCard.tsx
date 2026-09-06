@@ -55,9 +55,13 @@ function TimeChip({ children }: { children: string }) {
  * habits and tasks (3) · Delete") and the list always open — three sections did
  * not fit on screen.
  *
- * The order arrows live INSIDE the open section: in the header they would be a
- * fifth and sixth target on a 390px row, and the header is what has to match the
- * web. Drag reordering does not exist here (see AGENTS.md).
+ * The order arrows are a column of their own at the left edge, stacked, always
+ * visible when there is something to reorder. They used to sit at the bottom of
+ * the OPEN section, to spare the header a fifth and sixth target; nobody found
+ * them there, and the header's expand chevron uses the same glyph as "move
+ * down", so tapping it only opened the card. Stacked, the pair reads as a
+ * handle, which is where the web puts its grip. Drag reordering does not exist
+ * here (see AGENTS.md).
  */
 export default function SectionCard({
   section,
@@ -82,6 +86,29 @@ export default function SectionCard({
     // Closed ones stay neutral, as in the mockup.
     <View className={`rounded-control border bg-bg ${open ? 'border-accent' : 'border-border'}`}>
       <View className="flex-row items-center gap-2.5 p-2.5">
+        {count > 1 ? (
+          <View className="shrink-0" testID={`section-reorder-${index}`}>
+            <IconButton
+              label={t('MoveUp')}
+              size="sm"
+              onPress={() => onMove(-1)}
+              disabled={index === 0}
+              testID={`section-up-${index}`}
+            >
+              <ChevronUp size={14} color={theme.text3} />
+            </IconButton>
+            <IconButton
+              label={t('MoveDown')}
+              size="sm"
+              onPress={() => onMove(1)}
+              disabled={index === count - 1}
+              testID={`section-down-${index}`}
+            >
+              <ChevronDown size={14} color={theme.text3} />
+            </IconButton>
+          </View>
+        ) : null}
+
         <View className="shrink-0">
           {section.iconId ? (
             <BeyouIcon id={section.iconId} size={16} />
@@ -136,10 +163,10 @@ export default function SectionCard({
             fill={section.favorite ? theme.xp : 'transparent'}
           />
         </IconButton>
-        <IconButton label={t('Edit')} onPress={onEdit} testID="section-edit">
+        <IconButton label={t('Edit')} onPress={onEdit} testID={`section-edit-${index}`}>
           <Pencil size={15} color={theme.text3} />
         </IconButton>
-        <IconButton label={t('Delete')} tone="danger" onPress={onRemove} testID="section-remove">
+        <IconButton label={t('Delete')} tone="danger" onPress={onRemove} testID={`section-remove-${index}`}>
           <Trash2 size={15} color={theme.text3} />
         </IconButton>
       </View>
@@ -172,28 +199,7 @@ export default function SectionCard({
             );
           })}
 
-          <GhostAdd label={t('Add Habit or task')} onPress={onAssign} testID="section-assign" />
-
-          {count > 1 ? (
-            <View className="flex-row items-center justify-end gap-1">
-              <IconButton
-                label={t('MoveUp')}
-                onPress={() => onMove(-1)}
-                disabled={index === 0}
-                testID="section-up"
-              >
-                <ChevronUp size={16} color={theme.text3} />
-              </IconButton>
-              <IconButton
-                label={t('MoveDown')}
-                onPress={() => onMove(1)}
-                disabled={index === count - 1}
-                testID="section-down"
-              >
-                <ChevronDown size={16} color={theme.text3} />
-              </IconButton>
-            </View>
-          ) : null}
+          <GhostAdd label={t('Add Habit or task')} onPress={onAssign} testID={`section-assign-${index}`} />
         </View>
       ) : null}
     </View>
