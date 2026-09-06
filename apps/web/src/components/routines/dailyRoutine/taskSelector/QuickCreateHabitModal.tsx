@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Modal from "../../../modals/Modal";
 import IconsBoxSmall from "../../../inputs/iconsBoxSmall";
 import SegmentedControl from "../../../../ui/SegmentedControl";
+import FormLabel from "../../../../ui/FormLabel";
 import { FiX } from "react-icons/fi";
 import ChooseCategories from "../../../inputs/chooseCategory/chooseCategories";
 import Button from "../../../Button";
@@ -115,7 +116,6 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
     const controlClass =
         "rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
     const fieldClass = `w-full ${controlClass}`;
-    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
         <Modal isOpen={isOpen} onClose={closeAndReset} className="max-w-xl">
@@ -135,7 +135,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-3.5 text-text">
                 <div>
-                    <label htmlFor="quick-habit-name" className={labelClass}>{t("Name")}</label>
+                    <FormLabel htmlFor="quick-habit-name" required>{t("Name")}</FormLabel>
                     <Controller
                         control={control}
                         name="name"
@@ -155,7 +155,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                 </div>
 
                 <div className="mt-4">
-                    <label htmlFor="quick-habit-description" className={labelClass}>{t("Description")}</label>
+                    <FormLabel htmlFor="quick-habit-description" optional>{t("Description")}</FormLabel>
                     <Controller
                         control={control}
                         name="description"
@@ -174,7 +174,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                 </div>
 
                 <div className="mt-4">
-                    <label htmlFor="quick-habit-motivation" className={labelClass}>{t("MotivationPhrase")}</label>
+                    <FormLabel htmlFor="quick-habit-motivation" optional>{t("MotivationPhrase")}</FormLabel>
                     <Controller
                         control={control}
                         name="motivationalPhrase"
@@ -202,6 +202,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                                 setSearch={setSearch}
                                 t={t}
                                 iconError={errors.iconId?.message ?? ""}
+                                required
                                 setSelectedIcon={field.onChange}
                                 selectedIcon={field.value || ""}
                             />
@@ -210,7 +211,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Importance")}</span>
+                    <FormLabel required>{t("Importance")}</FormLabel>
                     <Controller
                         control={control}
                         name="importance"
@@ -232,7 +233,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Difficulty")}</span>
+                    <FormLabel required>{t("Difficulty")}</FormLabel>
                     <Controller
                         control={control}
                         name="difficulty"
@@ -254,7 +255,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("YourExperience")}</span>
+                    <FormLabel required>{t("YourExperience")}</FormLabel>
                     <Controller
                         control={control}
                         name="experience"
@@ -275,7 +276,7 @@ function QuickCreateHabitModal({ isOpen, onClose, onCreated }: QuickCreateHabitM
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Categories")}</span>
+                    <FormLabel required>{t("Categories")}</FormLabel>
                     <Controller
                         control={control}
                         name="categoriesId"

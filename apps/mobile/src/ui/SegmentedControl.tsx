@@ -21,6 +21,11 @@ interface SegmentedControlProps<T extends string | number> {
   size?: 'sm' | 'md';
   className?: string;
   testID?: string;
+  /**
+   * For an OPTIONAL choice: tapping the active segment again clears it to this value.
+   * Left out, the control behaves as a plain radio group (a choice is never undone).
+   */
+  clearValue?: T;
 }
 
 /**
@@ -35,6 +40,7 @@ export default function SegmentedControl<T extends string | number>({
   size = 'md',
   className = '',
   testID,
+  clearValue,
 }: SegmentedControlProps<T>) {
   const hasDescriptions = options.some((option) => option.description);
   const pad = hasDescriptions ? 'px-3 py-2' : size === 'sm' ? 'px-3 py-1' : 'px-4 py-1.5';
@@ -60,7 +66,7 @@ export default function SegmentedControl<T extends string | number>({
             accessibilityState={{ selected: isActive, checked: isActive, disabled: !!option.disabled }}
             testID={testID ? `${testID}-${option.value}` : undefined}
             disabled={option.disabled}
-            onPress={() => onChange(option.value)}
+            onPress={() => onChange(isActive && clearValue !== undefined ? clearValue : option.value)}
             className={`flex-1 rounded-[7px] ${hasDescriptions ? 'items-start' : 'items-center'} ${pad} ${
               isActive ? 'bg-surface' : ''
             } ${option.disabled ? 'opacity-50' : ''}`}

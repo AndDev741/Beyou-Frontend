@@ -129,6 +129,7 @@ export default function LoginRoute() {
             <Input
               testID="login-email-input"
               label={t('Email')}
+              required
               accessibilityLabel={t('Email')}
               placeholder={t('EmailPlaceholder')}
               value={field.value}
@@ -151,6 +152,7 @@ export default function LoginRoute() {
             <Input
               testID="login-password-input"
               label={t('Password')}
+              required
               accessibilityLabel={t('Password')}
               placeholder={t('PasswordPlaceholder')}
               value={field.value}

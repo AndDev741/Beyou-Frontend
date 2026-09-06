@@ -109,6 +109,7 @@ export default function RegisterRoute() {
                 <Input
                   testID="register-name-input"
                   label={t('Name')}
+                  required
                   accessibilityLabel={t('Name')}
                   placeholder={t('NamePlaceholder')}
                   value={field.value}
@@ -130,6 +131,7 @@ export default function RegisterRoute() {
                 <Input
                   testID="register-email-input"
                   label={t('Email')}
+                  required
                   accessibilityLabel={t('Email')}
                   placeholder={t('EmailPlaceholder')}
                   value={field.value}
@@ -152,6 +154,7 @@ export default function RegisterRoute() {
                 <Input
                   testID="register-password-input"
                   label={t('Password')}
+                  required
                   accessibilityLabel={t('Password')}
                   placeholder={t('PasswordPlaceholder')}
                   value={field.value}

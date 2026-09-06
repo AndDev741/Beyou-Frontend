@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { View, TextInput, Text, Pressable, type TextInputProps } from 'react-native';
 import { useBeyouTheme } from '../theme/ThemeProvider';
+import FieldLabel from './form/FieldLabel';
 
 interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   value: string;
@@ -23,6 +24,9 @@ interface Props extends Omit<TextInputProps, 'value' | 'onChangeText'> {
   compact?: boolean;
   /** Visible label above the field (system default, same as the web). */
   label?: string;
+  /** With `label`: the field's standing, see FieldLabel. */
+  required?: boolean;
+  optional?: boolean;
 }
 
 export default function Input({
@@ -39,6 +43,8 @@ export default function Input({
   multiline,
   compact,
   label,
+  required,
+  optional,
   ...rest
 }: Props) {
   const [hidden, setHidden] = useState(!!password);
@@ -47,7 +53,9 @@ export default function Input({
   return (
     <View className="w-full">
       {label ? (
-        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+        <FieldLabel required={required} optional={optional}>
+          {label}
+        </FieldLabel>
       ) : null}
       <View
         className={`flex-row rounded-control ${compact ? 'border' : 'border-2'} ${

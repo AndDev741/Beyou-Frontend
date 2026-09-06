@@ -82,6 +82,7 @@ export default function ForgotRoute() {
               <Input
                 testID="forgot-email-input"
                 label={t('Email')}
+                required
                 accessibilityLabel={t('Email')}
                 placeholder={t('EmailPlaceholder')}
                 value={field.value}

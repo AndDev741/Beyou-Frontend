@@ -4,9 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { getEntryById } from '@beyou/icons';
 import BeyouIcon from '../BeyouIcon';
 import IconPicker from './IconPicker';
+import FieldLabel from '../form/FieldLabel';
 
 interface IconPickerFieldProps {
   label: string;
+  /** The field's standing above the control, see FieldLabel. */
+  required?: boolean;
+  optional?: boolean;
   value?: string | null;
   onChange: (iconId: string) => void;
   error?: string;
@@ -17,14 +21,16 @@ interface IconPickerFieldProps {
  * Labeled form field showing the currently selected icon; tapping opens the
  * bottom-sheet IconPicker. Used by the habit (and later category/routine) forms.
  */
-export default function IconPickerField({ label, value, onChange, error, testID }: IconPickerFieldProps) {
+export default function IconPickerField({ label, required, optional, value, onChange, error, testID }: IconPickerFieldProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const entry = value ? getEntryById(value) : null;
 
   return (
     <View className="w-full">
-      <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+      <FieldLabel required={required} optional={optional}>
+        {label}
+      </FieldLabel>
       <Pressable
         onPress={() => setOpen(true)}
         accessibilityRole="button"

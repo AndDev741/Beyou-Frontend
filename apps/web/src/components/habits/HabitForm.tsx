@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import IconsBoxSmall from "../inputs/iconsBoxSmall";
 import SegmentedControl from "../../ui/SegmentedControl";
+import FormLabel from "../../ui/FormLabel";
 import Button from "../Button";
 import IconButton from "../../ui/IconButton";
 import { X } from "lucide-react";
@@ -204,7 +205,6 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
 
     const fieldClass =
         "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
-    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
         <div className="text-text">
@@ -222,7 +222,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-3.5">
                 <div>
-                    <label htmlFor="habit-name" className={labelClass}>{t("Name")}</label>
+                    <FormLabel htmlFor="habit-name" required>{t("Name")}</FormLabel>
                     <Controller
                         control={control}
                         name="name"
@@ -242,7 +242,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                 </div>
 
                 <div className="mt-4">
-                    <label htmlFor="habit-description" className={labelClass}>{t("Description")}</label>
+                    <FormLabel htmlFor="habit-description" optional>{t("Description")}</FormLabel>
                     <Controller
                         control={control}
                         name="description"
@@ -261,7 +261,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                 </div>
 
                 <div className="mt-4">
-                    <label htmlFor="habit-motivation" className={labelClass}>{t("MotivationPhrase")}</label>
+                    <FormLabel htmlFor="habit-motivation" optional>{t("MotivationPhrase")}</FormLabel>
                     <Controller
                         control={control}
                         name="motivationalPhrase"
@@ -289,6 +289,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                                 setSearch={setSearch}
                                 t={t}
                                 iconError={errors.iconId?.message ?? ""}
+                                required
                                 setSelectedIcon={field.onChange}
                                 selectedIcon={field.value || ""}
                             />
@@ -297,7 +298,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Importance")}</span>
+                    <FormLabel required>{t("Importance")}</FormLabel>
                     <Controller
                         control={control}
                         name="importance"
@@ -319,7 +320,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Difficulty")}</span>
+                    <FormLabel required>{t("Difficulty")}</FormLabel>
                     <Controller
                         control={control}
                         name="difficulty"
@@ -342,7 +343,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
 
                 {mode === "create" && (
                     <div className="mt-4">
-                        <span className={labelClass}>{t("YourExperience")}</span>
+                        <FormLabel required>{t("YourExperience")}</FormLabel>
                         <Controller
                             control={control}
                             name="experience"
@@ -367,7 +368,7 @@ function HabitForm({ mode, setHabits, onClose }: HabitFormProps) {
                 )}
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Categories")}</span>
+                    <FormLabel required>{t("Categories")}</FormLabel>
                     <Controller
                         control={control}
                         name="categoriesId"

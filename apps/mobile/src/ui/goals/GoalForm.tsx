@@ -193,7 +193,7 @@ export default function GoalForm({
       onSubmit={handleSubmit(onSubmit)}
       testID="goal-form"
     >
-      <FormField label={t('Name')}>
+      <FormField label={t('Name')} required>
         <Controller
           control={control}
           name="title"
@@ -217,6 +217,7 @@ export default function GoalForm({
         render={({ field }) => (
           <IconPickerField
             label={t('Icon')}
+            required
             value={field.value}
             onChange={field.onChange}
             error={errors.iconId?.message}
@@ -225,7 +226,7 @@ export default function GoalForm({
         )}
       />
 
-      <FormField label={t('Description')}>
+      <FormField label={t('Description')} optional>
         <Controller
           control={control}
           name="description"
@@ -247,7 +248,7 @@ export default function GoalForm({
       {/* Target, current and unit share the row: they are one sentence ("12 books"),
           and splitting them into three blocks stretched the form for nothing. */}
       <View className="flex-row gap-2">
-        <FormField label={t('TargetValue')} className="flex-1">
+        <FormField label={t('TargetValue')} required className="flex-1">
           <Controller
             control={control}
             name="targetValue"
@@ -264,7 +265,7 @@ export default function GoalForm({
             )}
           />
         </FormField>
-        <FormField label={t('CurrentValue')} className="flex-1">
+        <FormField label={t('CurrentValue')} required className="flex-1">
           <Controller
             control={control}
             name="currentValue"
@@ -281,7 +282,7 @@ export default function GoalForm({
             )}
           />
         </FormField>
-        <FormField label={t('Unit')} className="flex-1">
+        <FormField label={t('Unit')} required className="flex-1">
           <Controller
             control={control}
             name="unit"
@@ -307,6 +308,7 @@ export default function GoalForm({
           render={({ field }) => (
             <DateField
               label={t('StartDate')}
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.startDate?.message}
@@ -320,6 +322,7 @@ export default function GoalForm({
           render={({ field }) => (
             <DateField
               label={t('EndDate')}
+              required
               value={field.value}
               onChange={field.onChange}
               error={errors.endDate?.message}
@@ -335,6 +338,7 @@ export default function GoalForm({
       {isEdit ? (
         <FormField
           label={t('Status')}
+          required
           error={errors.status?.message}
           hint={isCompletedGoal ? t('GoalStatusLockedByCompletion') : undefined}
         >
@@ -355,7 +359,7 @@ export default function GoalForm({
         </FormField>
       ) : null}
 
-      <FormField label={t('Term')} error={errors.term?.message}>
+      <FormField label={t('Term')} required error={errors.term?.message}>
         <Controller
           control={control}
           name="term"
@@ -375,7 +379,7 @@ export default function GoalForm({
       {/* Hidden when there is nothing to pick: a select with one option is a question
           with no answer. */}
       {parentOptions.length > 1 ? (
-        <FormField label={t('ParentGoal')} hint={endsAfterParent ? undefined : t('ParentGoalHint')}>
+        <FormField label={t('ParentGoal')} optional hint={endsAfterParent ? undefined : t('ParentGoalHint')}>
           <Controller
             control={control}
             name="parentId"
@@ -397,7 +401,7 @@ export default function GoalForm({
         </FormField>
       ) : null}
 
-      <FormField label={t('Motivation')}>
+      <FormField label={t('Motivation')} optional>
         <Controller
           control={control}
           name="motivation"
@@ -416,7 +420,7 @@ export default function GoalForm({
         />
       </FormField>
 
-      <FormField label={t('Categories')} error={errors.categoriesId?.message}>
+      <FormField label={t('Categories')} optional error={errors.categoriesId?.message}>
         <Controller
           control={control}
           name="categoriesId"

@@ -132,6 +132,7 @@ export default function ResetRoute() {
               <Input
                 testID="reset-password-input"
                 label={t('Password')}
+                required
                 accessibilityLabel={t('Password')}
                 placeholder={t('PasswordPlaceholder')}
                 value={field.value}
@@ -158,6 +159,7 @@ export default function ResetRoute() {
               <Input
                 testID="reset-confirm-input"
                 label={t('ConfirmPassword')}
+                required
                 accessibilityLabel={t('ConfirmPassword')}
                 placeholder={t('ConfirmPasswordPlaceholder')}
                 value={field.value}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import FormLabel from "../../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -114,12 +115,9 @@ export default function CreateListRoutine({
             <RoutineTypeField value={routineType} onChange={setRoutineType} />
 
             <div className="mt-4">
-                <label
-                    htmlFor="create-list-routine-name"
-                    className="mb-1.5 block text-[12.5px] font-semibold text-text-2"
-                >
+                <FormLabel htmlFor="create-list-routine-name" required>
                     {t("Name")}
-                </label>
+                </FormLabel>
                 <Controller
                     control={control}
                     name="routineName"

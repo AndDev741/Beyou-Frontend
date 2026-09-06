@@ -18,6 +18,7 @@ import Button from '../Button';
 import GhostAdd from '../GhostAdd';
 import IconButton from '../IconButton';
 import SegmentedControl from '../SegmentedControl';
+import FieldLabel from '../form/FieldLabel';
 import SectionSheet from './SectionSheet';
 import ItemPickerSheet from './ItemPickerSheet';
 import ListItemPickerSheet from './ListItemPickerSheet';
@@ -200,9 +201,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
               editing: the backend refuses a type change, because switching would either
               discard every window the user set or invent times nobody chose. */}
           <View>
-            <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
-              {t('RoutineTypeLabel')}
-            </Text>
+            <FieldLabel>{t('RoutineTypeLabel')}</FieldLabel>
             <SegmentedControl
               className="w-full"
               label={t('RoutineTypeLabel')}
@@ -227,7 +226,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
           </View>
 
           <View>
-            <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('Name')}</Text>
+            <FieldLabel required>{t('Name')}</FieldLabel>
             <Input
               value={working.name}
               onChangeText={(v) => setWorking((w) => ({ ...w, name: v }))}

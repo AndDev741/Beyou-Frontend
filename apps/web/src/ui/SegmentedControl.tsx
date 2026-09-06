@@ -17,6 +17,11 @@ type SegmentedControlProps<T extends string | number> = {
     label: string;
     size?: "sm" | "md";
     className?: string;
+    /**
+     * For an OPTIONAL choice: clicking the active segment again clears it to this value.
+     * Left out, the control behaves as a plain radio group (a choice is never undone).
+     */
+    clearValue?: T;
 };
 
 /**
@@ -30,6 +35,7 @@ export default function SegmentedControl<T extends string | number>({
     label,
     size = "md",
     className = "",
+    clearValue,
 }: SegmentedControlProps<T>) {
     const hasDescriptions = options.some((option) => option.description);
     const pad = hasDescriptions
@@ -64,7 +70,9 @@ export default function SegmentedControl<T extends string | number>({
                         aria-label={option.description ? option.label : undefined}
                         aria-describedby={descriptionId}
                         disabled={option.disabled}
-                        onClick={() => onChange(option.value)}
+                        onClick={() =>
+                            onChange(isActive && clearValue !== undefined ? clearValue : option.value)
+                        }
                         className={`flex-1 rounded-[7px] font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-45 ${pad} ${
                             // Top-aligned, not centred: the segments stretch to a shared
                             // height, so a description that wraps to two lines would

@@ -189,7 +189,7 @@ describe("Feedback screen", () => {
         const first = new File(["a"], "screenshot-1.png", { type: "image/png" });
         const second = new File(["b"], "screenshot-2.jpg", { type: "image/jpeg" });
 
-        fireEvent.change(screen.getByLabelText("Images · optional"), {
+        fireEvent.change(screen.getByLabelText("Images"), {
             target: { files: [first, second] }
         });
 
@@ -218,7 +218,7 @@ describe("Feedback screen", () => {
         const huge = new File(["x"], "huge.png", { type: "image/png" });
         Object.defineProperty(huge, "size", { value: 6 * 1024 * 1024 });
 
-        fireEvent.change(screen.getByLabelText("Images · optional"), { target: { files: [huge] } });
+        fireEvent.change(screen.getByLabelText("Images"), { target: { files: [huge] } });
 
         expect(await screen.findByText("huge.png is larger than 5 MB.")).toBeInTheDocument();
         expect(screen.queryByAltText("huge.png")).not.toBeInTheDocument();

@@ -104,7 +104,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
       onSubmit={handleSubmit(onSubmit)}
       testID="task-form"
     >
-      <FormField label={t('Name')}>
+      <FormField label={t('Name')} required>
         <Controller
           control={control}
           name="name"
@@ -122,7 +122,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
         />
       </FormField>
 
-      <FormField label={t('Description')}>
+      <FormField label={t('Description')} optional>
         <Controller
           control={control}
           name="description"
@@ -147,6 +147,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
         render={({ field }) => (
           <IconPickerField
             label={t('Icon')}
+            required
             value={field.value}
             onChange={field.onChange}
             error={errors.iconId?.message}
@@ -155,7 +156,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
         )}
       />
 
-      <FormField label={t('Importance')} error={errors.importance?.message}>
+      <FormField label={t('Importance')} optional error={errors.importance?.message}>
         <Controller
           control={control}
           name="importance"
@@ -164,6 +165,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
               label={t('Importance')}
               value={field.value}
               onChange={field.onChange}
+              clearValue={0}
               options={labelOptions(IMPORTANCE_KEYS, t)}
               testID="task-importance"
             />
@@ -171,7 +173,14 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
         />
       </FormField>
 
-      <FormField label={t('Difficulty')} error={errors.difficulty?.message}>
+      {/* Both optional, each clearing on a second tap; the server counts a missing one
+          as 1 for XP. The hint says so once, under the pair. */}
+      <FormField
+        label={t('Difficulty')}
+        optional
+        hint={t('PriorityOptionalHint')}
+        error={errors.difficulty?.message}
+      >
         <Controller
           control={control}
           name="difficulty"
@@ -180,6 +189,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
               label={t('Difficulty')}
               value={field.value}
               onChange={field.onChange}
+              clearValue={0}
               options={labelOptions(DIFFICULTY_KEYS, t)}
               testID="task-difficulty"
             />
@@ -187,7 +197,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
         />
       </FormField>
 
-      <FormField label={t('Categories')} error={errors.categoriesId?.message}>
+      <FormField label={t('Categories')} optional error={errors.categoriesId?.message}>
         <Controller
           control={control}
           name="categoriesId"

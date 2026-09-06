@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import SegmentedControl from "../../../ui/SegmentedControl";
+import FormLabel from "../../../ui/FormLabel";
 
 type RoutineTypeFieldProps = {
     value: string;
@@ -24,9 +25,7 @@ export default function RoutineTypeField({ value, onChange, disabled = false }: 
 
     return (
         <div>
-            <span className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
-                {t("RoutineTypeLabel")}
-            </span>
+            <FormLabel>{t("RoutineTypeLabel")}</FormLabel>
             <SegmentedControl
                 className="w-full"
                 label={t("RoutineTypeLabel")}

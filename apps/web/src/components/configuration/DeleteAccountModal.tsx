@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import FormLabel from "../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -169,9 +170,9 @@ export default function DeleteAccountModal({
                                 : t("DeleteAccountStep2BodyNoEmail")}
                         </p>
 
-                        <label htmlFor={codeId} className="mb-1.5 mt-4 block text-[12.5px] font-semibold text-text-2">
+                        <FormLabel htmlFor={codeId} required className="mt-4">
                             {t("DeleteAccountCodeLabel")}
-                        </label>
+                        </FormLabel>
                         <input
                             id={codeId}
                             inputMode="numeric"

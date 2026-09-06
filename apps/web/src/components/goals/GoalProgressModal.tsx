@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "lucide-react";
 import Button from "../Button";
 import Modal from "../modals/Modal";
+import FormLabel from "../../ui/FormLabel";
 
 type GoalProgressModalProps = {
     isOpen: boolean;
@@ -80,9 +81,9 @@ function GoalProgressModal({
                     {currentValue}/{targetValue} {unit}
                 </p>
 
-                <label htmlFor={amountId} className="mb-1.5 mt-4 block text-[12.5px] font-semibold text-text-2">
+                <FormLabel htmlFor={amountId} required className="mt-4">
                     {t("Amount")}
-                </label>
+                </FormLabel>
                 <div className="flex flex-wrap items-center gap-2">
                     <input
                         id={amountId}

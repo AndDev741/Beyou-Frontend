@@ -139,7 +139,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
       onSubmit={handleSubmit(onSubmit)}
       testID="habit-form"
     >
-      <FormField label={t('Name')}>
+      <FormField label={t('Name')} required>
         <Controller
           control={control}
           name="name"
@@ -157,7 +157,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         />
       </FormField>
 
-      <FormField label={t('Description')}>
+      <FormField label={t('Description')} optional>
         <Controller
           control={control}
           name="description"
@@ -176,7 +176,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         />
       </FormField>
 
-      <FormField label={t('MotivationPhrase')}>
+      <FormField label={t('MotivationPhrase')} optional>
         <Controller
           control={control}
           name="motivationalPhrase"
@@ -200,6 +200,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         render={({ field }) => (
           <IconPickerField
             label={t('Icon')}
+            required
             value={field.value}
             onChange={field.onChange}
             error={errors.iconId?.message}
@@ -208,7 +209,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         )}
       />
 
-      <FormField label={t('Importance')} error={errors.importance?.message}>
+      <FormField label={t('Importance')} required error={errors.importance?.message}>
         <Controller
           control={control}
           name="importance"
@@ -224,7 +225,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         />
       </FormField>
 
-      <FormField label={t('Difficulty')} error={errors.difficulty?.message}>
+      <FormField label={t('Difficulty')} required error={errors.difficulty?.message}>
         <Controller
           control={control}
           name="difficulty"
@@ -241,7 +242,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
       </FormField>
 
       {!isEdit ? (
-        <FormField label={t('YourExperience')} hint={t('HabitExperienceCaption')}>
+        <FormField label={t('YourExperience')} required hint={t('HabitExperienceCaption')}>
           <Controller
             control={control}
             name="experience"
@@ -258,7 +259,7 @@ export default function HabitForm({ visible, mode, habit, categories, onClose, o
         </FormField>
       ) : null}
 
-      <FormField label={t('Categories')} error={errors.categoriesId?.message}>
+      <FormField label={t('Categories')} required error={errors.categoriesId?.message}>
         <Controller
           control={control}
           name="categoriesId"

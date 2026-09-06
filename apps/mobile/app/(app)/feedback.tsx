@@ -181,7 +181,7 @@ export default function FeedbackScreen() {
             control={control}
             name="category"
             render={({ field }) => (
-              <FormField label={t('FeedbackCategoryLabel')} error={errors.category?.message}>
+              <FormField label={t('FeedbackCategoryLabel')} required error={errors.category?.message}>
                 {/* Segmented, like the rest of the forms: the three options are
                     exclusivas e cabem numa linha, inclusive no telefone. */}
                 <View className="flex-row rounded-control border border-border bg-surface-2 p-[3px]">
@@ -219,7 +219,7 @@ export default function FeedbackScreen() {
             control={control}
             name="body"
             render={({ field }) => (
-              <FormField label={t('FeedbackBodyLabel')}>
+              <FormField label={t('FeedbackBodyLabel')} required>
                 <Input
                   compact
                   multiline

@@ -10,6 +10,7 @@ import Button from '../Button';
 import BottomSheet from '../BottomSheet';
 import IconButton from '../IconButton';
 import IconPickerField from '../icons/IconPickerField';
+import FieldLabel from '../form/FieldLabel';
 import BeyouIcon from '../BeyouIcon';
 import TimeField from './TimeField';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -116,7 +117,7 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
         keyboardShouldPersistTaps="handled"
       >
         <View>
-          <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{t('name')}</Text>
+          <FieldLabel required>{t('name')}</FieldLabel>
           <Input
             value={name}
             onChangeText={setName}
@@ -128,20 +129,18 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
         </View>
 
         <View className="flex-row gap-3">
-          <TimeField label={t('Start time')} value={startTime} onChange={setStartTime} testID="section-start" />
-          <TimeField label={t('End time')} value={endTime} onChange={setEndTime} testID="section-end" />
+          <TimeField label={t('Start time')} required value={startTime} onChange={setStartTime} testID="section-start" />
+          <TimeField label={t('End time')} optional value={endTime} onChange={setEndTime} testID="section-end" />
         </View>
 
-        <IconPickerField label={t('Icon')} value={iconId} onChange={setIconId} testID="section-icon" />
+        <IconPickerField label={t('Icon')} optional value={iconId} onChange={setIconId} testID="section-icon" />
 
         {/* Favourite sections become templates: reusing a finished one is the
             fastest way to build the next routine. Creation only — while editing,
             swapping the section for another is not "editing". */}
         {section == null && favorites.length > 0 ? (
           <View>
-            <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
-              {t('Your favorite sections')}
-            </Text>
+            <FieldLabel>{t('Your favorite sections')}</FieldLabel>
             {/* Three fit whole; from the fourth on it scrolls in here, without
                 pushing the rest of the form off screen. */}
             <ScrollView

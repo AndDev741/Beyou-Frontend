@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import type { FunctionComponent, SVGProps } from "react";
+import FormLabel from "../../ui/FormLabel";
 
 type IconComponent = FunctionComponent<
     SVGProps<SVGSVGElement> & { title?: string }
@@ -19,6 +20,8 @@ type InputProps = {
     autoComplete?: string;
     /** A visible label above the field (the system's default). */
     label?: string;
+    /** The field's standing, drawn by FormLabel next to `label`. */
+    required?: boolean;
 };
 
 function Input({
@@ -34,6 +37,7 @@ function Input({
     testId,
     autoComplete,
     label,
+    required,
 }: InputProps) {
     const isPasswordField = useMemo(() => inputType === "password", [inputType]);
     const inputId = useId();
@@ -51,12 +55,9 @@ function Input({
     return (
         <div className="w-full">
             {label && (
-                <label
-                    htmlFor={inputId}
-                    className="mb-1.5 block text-[12.5px] font-semibold text-text-2"
-                >
+                <FormLabel htmlFor={inputId} required={required}>
                     {label}
-                </label>
+                </FormLabel>
             )}
             <div
                 className={`flex w-full items-center gap-2.5 rounded-control border bg-surface px-3 py-[9.5px] text-[13.5px] text-text transition-colors duration-200 focus-within:border-accent focus-within:ring-[3px] focus-within:ring-accent-soft ${

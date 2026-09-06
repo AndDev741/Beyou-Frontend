@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import FormLabel from "../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
@@ -305,12 +306,11 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
     const controlClass =
         "rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
     const fieldClass = `w-full ${controlClass}`;
-    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="text-text">
             <div>
-                <label htmlFor="goal-title" className={labelClass}>{t("Name")}</label>
+                <FormLabel htmlFor="goal-title" required>{t("Name")}</FormLabel>
                 <Controller
                     control={control}
                     name="title"
@@ -330,7 +330,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             </div>
 
             <div className="mt-4">
-                <label htmlFor="goal-description" className={labelClass}>{t("Description")}</label>
+                <FormLabel htmlFor="goal-description" optional>{t("Description")}</FormLabel>
                 <Controller
                     control={control}
                     name="description"
@@ -349,7 +349,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             </div>
 
             <div className="mt-4">
-                <label htmlFor="goal-motivation" className={labelClass}>{t("Motivation")}</label>
+                <FormLabel htmlFor="goal-motivation" optional>{t("Motivation")}</FormLabel>
                 <Controller
                     control={control}
                     name="motivation"
@@ -377,6 +377,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
                             setSearch={setSearch}
                             t={t}
                             iconError={errors.iconId?.message ?? ""}
+                            required
                             setSelectedIcon={field.onChange}
                             selectedIcon={field.value || ""}
                         />
@@ -385,7 +386,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             </div>
 
             <div className="mt-4">
-                <span className={labelClass}>{t("Target")}</span>
+                <FormLabel required>{t("Target")}</FormLabel>
                 <div className="flex gap-2">
                     <Controller
                         control={control}
@@ -427,7 +428,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             </div>
 
             <div className="mt-4">
-                <span className={labelClass}>{t("Period")}</span>
+                <FormLabel required>{t("Period")}</FormLabel>
                 <div className="flex gap-2">
                     <Controller
                         control={control}
@@ -463,7 +464,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             </div>
 
             <div className="mt-4">
-                <span className={labelClass}>{t("Term")}</span>
+                <FormLabel required>{t("Term")}</FormLabel>
                 <Controller
                     control={control}
                     name="term"
@@ -484,7 +485,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             </div>
 
             <div className="mt-4">
-                <label htmlFor="goal-parent" className={labelClass}>{t("ParentGoal")}</label>
+                <FormLabel htmlFor="goal-parent" optional>{t("ParentGoal")}</FormLabel>
                 <Controller
                     control={control}
                     name="parentId"
@@ -516,7 +517,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
 
             {mode === "edit" && (
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Status")}</span>
+                    <FormLabel required>{t("Status")}</FormLabel>
                     <Controller
                         control={control}
                         name="status"
@@ -539,7 +540,7 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
             )}
 
             <div className="mt-4">
-                <span className={labelClass}>{t("Categories")}</span>
+                <FormLabel optional>{t("Categories")}</FormLabel>
                 <Controller
                     control={control}
                     name="categoriesId"
