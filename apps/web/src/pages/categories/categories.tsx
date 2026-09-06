@@ -31,6 +31,8 @@ import PageHeader from "../../ui/PageHeader";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
 import { Plus, Search, X } from "lucide-react";
+import { xpSeriesFor } from "@beyou/state";
+import type { XpHistory } from "@beyou/types/xp/xpHistory";
 // import categoryGeneratedByAi from "@beyou/types/category/categoryGeneratedByAiType";
 
 type SortOption = { value: string; label: string };
@@ -113,21 +115,24 @@ function Categories(){
         dispatch(editModeEnter(false));
     }, []);
 
-    const [xpSeriesById, setXpSeriesById] = useState<Record<string, number[]>>({});
-    const [xpDays, setXpDays] = useState<string[] | undefined>(undefined);
+    const [xpHistory, setXpHistory] = useState<XpHistory | null>(null);
+    // Every card gets a week: its own when it moved, zeros when it did not (see
+    // xpSeriesFor), nothing until the response lands.
+    const xpSeriesById = useMemo(() => {
+        const series: Record<string, number[]> = {};
+        categories.forEach((category) => {
+            const week = xpSeriesFor(xpHistory, "CATEGORY", category.id);
+            if (week) series[category.id] = week;
+        });
+        return series;
+    }, [xpHistory, categories]);
+    const xpDays = xpHistory?.days;
 
     const loadCategories = useCallback(async () => {
         // Both in one pass: the cards draw the week beside the level, and refreshing
         // one without the other would leave a chart describing a different moment
         // from the number under it.
-        void getXpHistory(t).then((history) => {
-            const series: Record<string, number[]> = {};
-            history.success?.series
-                .filter((entry) => entry.ownerType === "CATEGORY")
-                .forEach((entry) => { series[entry.ownerId] = entry.values; });
-            setXpSeriesById(series);
-            setXpDays(history.success?.days);
-        });
+        void getXpHistory(t).then((history) => setXpHistory(history.success ?? null));
 
         const response = await getCategories(t);
         if(Array.isArray(response.success)){

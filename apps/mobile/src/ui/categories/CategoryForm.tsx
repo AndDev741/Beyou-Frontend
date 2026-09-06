@@ -93,7 +93,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
       onSubmit={handleSubmit(onSubmit)}
       testID="category-form"
     >
-      <FormField label={t('Name')}>
+      <FormField label={t('Name')} required>
         <Controller
           control={control}
           name="name"
@@ -111,7 +111,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
         />
       </FormField>
 
-      <FormField label={t('Description')}>
+      <FormField label={t('Description')} optional>
         <Controller
           control={control}
           name="description"
@@ -136,6 +136,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
         render={({ field }) => (
           <IconPickerField
             label={t('Icon')}
+            required
             value={field.value}
             onChange={field.onChange}
             error={errors.iconId?.message}
@@ -145,7 +146,7 @@ export default function CategoryForm({ visible, mode, category, onCreated, onClo
       />
 
       {!isEdit ? (
-        <FormField label={t('YourExperience')} hint={t('CategoryExperienceCaption')}>
+        <FormField label={t('YourExperience')} required hint={t('CategoryExperienceCaption')}>
           <Controller
             control={control}
             name="experience"

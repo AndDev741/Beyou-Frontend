@@ -122,7 +122,7 @@ The dashboard reuses the shared `@beyou/*` data layer end-to-end: slices wired i
 loaded by `src/dashboard/useDashboardData.ts`, check-in via `src/dashboard/useRoutineCheckin.ts` →
 `@beyou/state` `applyRefreshUi` (the gamification brain, shared with web). UI lives in
 `src/ui/dashboard/` (ProfileHeader, RoutineDay/RoutineItem, Shortcuts, XpFloat, CelebrationOverlay,
-RoutineCompleteSummary, ProgressRing). Section screens (categories/habits/…) are `ComingSoon` stubs;
+RoutineCompleteSummary). Section screens (categories/habits/…) are `ComingSoon` stubs;
 logout lives on the configuration stub.
 
 ## Icons (Phase 4 — shared `@beyou/icons` + Lucide)
@@ -152,7 +152,7 @@ use an inline `style` margin there.
 Dashboard widgets (`src/ui/widgets/`): `WIDGET_IDS`/`BIG_WIDGETS` come from `@beyou/state`.
 `DashboardWidgets` renders `perfil.widgetsIdsInUse` (full-width stack; empty → CTA to config). The 7
 widgets mirror web; charts are hand-drawn with `react-native-svg` (`CategoryBalanceWidget` radar,
-`DailyProgressWidget` reuses `ProgressRing`) — NOT chart.js. The picker (`config/WidgetsSection`) is
+`DailyProgressWidget` ring; the area widgets and `CategoryCard` draw the week of XP with the View-based `src/ui/XpSparkline.tsx`, fed by `src/ui/useXpHistory.ts`) — NOT chart.js. The picker (`config/WidgetsSection`) is
 add/remove + ↑↓ reorder (no drag-drop) → `editUser({widgetsId})`.
 
 ## Icon picker + Habits (Phase 6)

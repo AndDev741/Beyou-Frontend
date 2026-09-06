@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import FormLabel from "../../../ui/FormLabel";
 import IconsBoxSmall from "../../inputs/iconsBoxSmall";
 import { useTranslation } from "react-i18next";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
@@ -122,7 +123,6 @@ const CreateRoutineSection = ({
 
     const fieldClass =
         "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
-    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
         <div>
@@ -143,7 +143,7 @@ const CreateRoutineSection = ({
             </div>
 
             <div className="mt-3.5">
-                <label className={labelClass} htmlFor="section-name">{t("name")}</label>
+                <FormLabel htmlFor="section-name" required>{t("name")}</FormLabel>
                 <Controller
                     control={control}
                     name="name"
@@ -163,7 +163,7 @@ const CreateRoutineSection = ({
 
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <div>
-                    <label className={labelClass} htmlFor="section-start">{t("Start time")}</label>
+                    <FormLabel htmlFor="section-start" required>{t("Start time")}</FormLabel>
                     <Controller
                         control={control}
                         name="startTime"
@@ -182,7 +182,7 @@ const CreateRoutineSection = ({
                     )}
                 </div>
                 <div>
-                    <label className={labelClass} htmlFor="section-end">{t("End time")}</label>
+                    <FormLabel htmlFor="section-end" optional>{t("End time")}</FormLabel>
                     <Controller
                         control={control}
                         name="endTime"
@@ -220,7 +220,7 @@ const CreateRoutineSection = ({
                 fastest way to build the next routine. */}
             {editSection == null && favoritedSections.length > 0 && (
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Your favorite sections")}</span>
+                    <FormLabel>{t("Your favorite sections")}</FormLabel>
                     <div className="flex flex-col gap-1.5">
                         {favoritedSections.map((section) => {
                             const hasIcon = resolveIcon(section.iconId).kind !== "fallback";

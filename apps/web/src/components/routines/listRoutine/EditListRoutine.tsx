@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import FormLabel from "../../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -112,12 +113,9 @@ export default function EditListRoutine() {
     return (
         <div>
             <div className="mt-1">
-                <label
-                    htmlFor="edit-list-routine-name"
-                    className="mb-1.5 block text-[12.5px] font-semibold text-text-2"
-                >
+                <FormLabel htmlFor="edit-list-routine-name" required>
                     {t("Name")}
-                </label>
+                </FormLabel>
                 <Controller
                     control={control}
                     name="routineName"

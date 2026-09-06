@@ -15,6 +15,7 @@ import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { scheduleSchema } from "@beyou/validation/forms/scheduleSchemas";
+import FormLabel from "../../ui/FormLabel";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -46,7 +47,7 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
         reset,
         formState: { errors }
     } = useForm<ScheduleFormValues>({
-        resolver: zodResolver(scheduleSchema),
+        resolver: zodResolver(scheduleSchema(t)),
         mode: "onBlur",
         defaultValues: {
             days: routine?.schedule?.days || []
@@ -174,7 +175,8 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                 {/* One row of seven: the whole week fits in a glance, and a day
                     already taken by another routine is marked on the square itself
                     rather than in a separate notice. */}
-                <div className="mt-3.5 flex gap-1.5">
+                <FormLabel as="span" required className="mt-3.5">{t("Days")}</FormLabel>
+                <div className="flex gap-1.5">
                     {WEEK_ORDER.map((day) => {
                         const isBlocked = blockedSet.has(day) && !overrides.has(day);
                         const active = selectedDays.includes(day);

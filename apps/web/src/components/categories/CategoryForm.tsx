@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "../Button";
 import IconsBoxSmall from "../inputs/iconsBoxSmall";
 import SegmentedControl from "../../ui/SegmentedControl";
+import FormLabel from "../../ui/FormLabel";
 import { toast } from "react-toastify";
 import ErrorNotice from "../ErrorNotice";
 import { ApiErrorPayload, getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -155,7 +156,6 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
 
     const fieldClass =
         "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
-    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
         <form
@@ -164,7 +164,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
             data-tutorial-id={mode === "create" ? "category-create-form" : undefined}
         >
             <div>
-                <label htmlFor="category-name" className={labelClass}>{t("Name")}</label>
+                <FormLabel htmlFor="category-name" required>{t("Name")}</FormLabel>
                 <Controller
                     control={control}
                     name="name"
@@ -184,7 +184,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
             </div>
 
             <div className="mt-4">
-                <label htmlFor="category-description" className={labelClass}>{t("Description")}</label>
+                <FormLabel htmlFor="category-description" optional>{t("Description")}</FormLabel>
                 <Controller
                     control={control}
                     name="description"
@@ -212,6 +212,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
                             setSearch={setSearch}
                             t={t}
                             iconError={errors.iconId?.message ?? ""}
+                            required
                             setSelectedIcon={field.onChange}
                             selectedIcon={field.value || ""}
                         />
@@ -221,7 +222,7 @@ function CategoryForm({ mode, dispatchFunction, generatedCategory, onCreated, on
 
             {mode === "create" && (
                 <div className="mt-4">
-                    <span className={labelClass}>{t("YourExperience")}</span>
+                    <FormLabel required>{t("YourExperience")}</FormLabel>
                     <Controller
                         control={control}
                         name="experience"

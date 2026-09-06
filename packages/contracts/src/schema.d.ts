@@ -1234,10 +1234,16 @@ export interface components {
             name?: string;
             description?: string;
             iconId?: string;
-            /** Format: int32 */
-            importance: number;
-            /** Format: int32 */
-            difficulty: number;
+            /**
+             * Format: int32
+             * @description Optional. 1 to 5 when sent; omit or send null to leave the task without an importance. Missing values count as 1 for XP.
+             */
+            importance?: number;
+            /**
+             * Format: int32
+             * @description Optional, same contract as importance. Missing values count as 1 for XP.
+             */
+            difficulty?: number;
             categoriesId?: string[];
             oneTimeTask?: boolean;
         };
@@ -1500,10 +1506,16 @@ export interface components {
             name: string;
             description?: string;
             iconId: string;
-            /** Format: int32 */
-            importance: number;
-            /** Format: int32 */
-            difficulty: number;
+            /**
+             * Format: int32
+             * @description Optional. 1 to 5 when sent; omit or send null to leave the task without an importance. Missing values count as 1 for XP.
+             */
+            importance?: number;
+            /**
+             * Format: int32
+             * @description Optional, same contract as importance. Missing values count as 1 for XP.
+             */
+            difficulty?: number;
             categoriesId?: string[];
             oneTimeTask?: boolean;
         };
@@ -1650,10 +1662,16 @@ export interface components {
             name?: string;
             description?: string;
             iconId?: string;
-            /** Format: int32 */
-            importance?: number;
-            /** Format: int32 */
-            difficulty?: number;
+            /**
+             * Format: int32
+             * @description Null when the user chose nothing.
+             */
+            importance?: number | null;
+            /**
+             * Format: int32
+             * @description Null when the user chose nothing.
+             */
+            difficulty?: number | null;
             categories?: {
                 [key: string]: components["schemas"]["CategoryMiniDTO"];
             };

@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { View, Text } from 'react-native';
+import FieldLabel, { type FieldMarkerProps } from './FieldLabel';
 
-interface FormFieldProps {
+interface FormFieldProps extends FieldMarkerProps {
   label: string;
   children: ReactNode;
   error?: string;
@@ -17,6 +18,8 @@ interface FormFieldProps {
  */
 export default function FormField({
   label,
+  required,
+  optional,
   children,
   error,
   hint,
@@ -25,7 +28,9 @@ export default function FormField({
 }: FormFieldProps) {
   return (
     <View className={className} testID={testID}>
-      <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+      <FieldLabel required={required} optional={optional}>
+        {label}
+      </FieldLabel>
       {children}
       {hint ? <Text className="mt-1.5 font-mono text-[10.5px] text-text-3">{hint}</Text> : null}
       {error ? <Text className="mt-1.5 text-xs text-danger">{error}</Text> : null}

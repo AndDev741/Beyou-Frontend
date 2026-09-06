@@ -40,7 +40,8 @@ export const loginSchema = (t: TFunction) =>
         password: z
             .string()
             .min(1, t("YupNecessaryPassword"))
-            .max(256, t("YupMaxLength"))
+            // UserLoginDTO allows 300 here (the other password fields stop at 256).
+            .max(300, t("YupMaxLength"))
     });
 
 export const registerSchema = (t: TFunction) =>

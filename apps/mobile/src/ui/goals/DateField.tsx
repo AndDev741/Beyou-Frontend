@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import FieldLabel from '../form/FieldLabel';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -16,13 +17,16 @@ export const ymdToDate = (ymd: string): Date => {
 
 interface DateFieldProps {
   label?: string;
+  /** The field's standing above the control, see FieldLabel. */
+  required?: boolean;
+  optional?: boolean;
   value: string;
   onChange: (ymd: string) => void;
   error?: string;
   testID?: string;
 }
 
-export default function DateField({ label, value, onChange, error, testID }: DateFieldProps) {
+export default function DateField({ label, required, optional, value, onChange, error, testID }: DateFieldProps) {
   const [show, setShow] = useState(false);
 
   const handle = (e: DateTimePickerEvent, date?: Date) => {
@@ -33,7 +37,9 @@ export default function DateField({ label, value, onChange, error, testID }: Dat
   return (
     <View className="flex-1">
       {label ? (
-        <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">{label}</Text>
+        <FieldLabel required={required} optional={optional}>
+          {label}
+        </FieldLabel>
       ) : null}
       <Pressable
         onPress={() => setShow(true)}

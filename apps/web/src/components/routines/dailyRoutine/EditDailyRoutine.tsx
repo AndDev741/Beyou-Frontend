@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import FormLabel from "../../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import CreateRoutineSection from "./CreateRoutineSection";
 import SectionsEditor from "./SectionsEditor";
@@ -135,9 +136,9 @@ const EditDailyRoutine = () => {
                 <RoutineTypeField value="daily" onChange={() => {}} disabled />
 
             <div className="mt-4">
-                <label htmlFor="edit-routine-name" className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
+                <FormLabel htmlFor="edit-routine-name" required>
                     {t("Name")}
-                </label>
+                </FormLabel>
                 <Controller
                     control={control}
                     name="routineName"

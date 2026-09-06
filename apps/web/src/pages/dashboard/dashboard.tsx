@@ -34,6 +34,7 @@ import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
 import { LayoutGrid } from "lucide-react";
 import { useDismissed } from "../../hooks/useDismissed";
+import { xpSeriesFor } from "@beyou/state";
 
 function Dashboard() {
     useAuthGuard();
@@ -45,13 +46,9 @@ function Dashboard() {
     const [isDashboardLoading, setIsDashboardLoading] = useState(true);
     const [xpHistory, setXpHistory] = useState<XpHistory | null>(null);
 
-    /** That category's week, or nothing if it has no history in the window yet. */
-    const seriesFor = (categoryId?: string) =>
-        categoryId
-            ? xpHistory?.series.find(
-                  (entry) => entry.ownerType === "CATEGORY" && entry.ownerId === categoryId
-              )?.values
-            : undefined;
+    // That category's week; a week of zeros once the response is in and the category
+    // simply did not move (see xpSeriesFor), nothing while the request is still out.
+    const seriesFor = (categoryId?: string) => xpSeriesFor(xpHistory, "CATEGORY", categoryId);
 
     const routine = useSelector((state: RootState) => state.todayRoutine.routine);
     const widgetsIdsInUse = useSelector((state: RootState) => state.perfil.widgetsIdsInUse);

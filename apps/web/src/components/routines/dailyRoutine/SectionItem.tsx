@@ -306,7 +306,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
                     the section's icon, which reads as an icon and nothing else, so the
                     drag was still there and nobody could see it. Desktop only: rbd wants
                     a long press on touch and this is a 16px target, so below md the
-                    arrows in the open body do the reordering instead. */}
+                    same column holds a stacked pair of arrows instead. */}
                 <span
                     {...(dragHandleProps ?? {})}
                     aria-label={t("ReorderItem", { name: section.name })}
@@ -314,6 +314,35 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
                 >
                     <GripVertical size={16} aria-hidden="true" />
                 </span>
+
+                {/* Touch's half of the reordering. These lived at the bottom of the OPEN
+                    section, to spare the header a fifth and sixth target, and nobody found
+                    them there; the header's expand chevron uses the same glyph as "move
+                    down", so a tap only opened the card. Stacked in the grip's column the
+                    pair reads as a handle and costs the row one narrow column. The native
+                    SectionCard does the same. */}
+                {count > 1 && (
+                    <span className="flex shrink-0 flex-col md:hidden" data-testid={`section-reorder-${index}`}>
+                        <button
+                            type="button"
+                            aria-label={t("MoveUp")}
+                            disabled={index === 0}
+                            onClick={() => onMove(-1)}
+                            className="rounded-md p-0.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                        >
+                            <FiChevronUp aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            aria-label={t("MoveDown")}
+                            disabled={index === count - 1}
+                            onClick={() => onMove(1)}
+                            className="rounded-md p-0.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                        >
+                            <FiChevronDown aria-hidden="true" />
+                        </button>
+                    </span>
+                )}
 
                 <span className="flex shrink-0 items-center text-text-3">
                     {hasIcon ? <BeyouIcon id={section.iconId} /> : <FiClock />}
@@ -391,33 +420,6 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
                     {renderItems()}
 
                     <GhostAdd label={t("Add Habit or task")} onClick={() => setOpenTaskSelector(true)} />
-
-                    {/* Touch's half of the reordering, the grip above being desktop's. They
-                        sit inside the open section rather than in the header, where they
-                        would be a fifth and sixth target on a 390px row. The native
-                        SectionCard puts them in the same place, for the same reason. */}
-                    {count > 1 && (
-                        <div className="flex items-center justify-end gap-1 md:hidden">
-                            <button
-                                type="button"
-                                aria-label={t("MoveUp")}
-                                disabled={index === 0}
-                                onClick={() => onMove(-1)}
-                                className="rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
-                            >
-                                <FiChevronUp aria-hidden="true" />
-                            </button>
-                            <button
-                                type="button"
-                                aria-label={t("MoveDown")}
-                                disabled={index === count - 1}
-                                onClick={() => onMove(1)}
-                                className="rounded-lg p-1.5 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
-                            >
-                                <FiChevronDown aria-hidden="true" />
-                            </button>
-                        </div>
-                    )}
 
                     {/* The picker opens over the editor, as in the mockup. */}
                     {openTaskSelector && (

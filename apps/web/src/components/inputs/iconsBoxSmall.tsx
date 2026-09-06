@@ -12,6 +12,7 @@ import {
     type IconEntry,
 } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
+import FormLabel from "../../ui/FormLabel";
 
 const iconRecents = createIconRecents(typeof window !== "undefined" ? window.localStorage : undefined);
 
@@ -23,6 +24,8 @@ type IconsBoxSmallProps = {
     selectedIcon: string,
     setSelectedIcon: React.Dispatch<React.SetStateAction<string>>,
     minLgH?: number,
+    /** The field's standing, drawn by FormLabel. Every form that uses this picker requires the icon. */
+    required?: boolean,
 }
 
 function IconsBoxSmall({
@@ -33,6 +36,7 @@ function IconsBoxSmall({
     selectedIcon,
     setSelectedIcon,
     minLgH = 100,
+    required,
 }: IconsBoxSmallProps) {
     const [category, setCategory] = useState("all");
     const [showDomains, setShowDomains] = useState(false);
@@ -109,9 +113,9 @@ function IconsBoxSmall({
         // placeholder in half.
         <div className="w-full">
             <div className="flex items-center gap-2.5">
-                <label htmlFor="icon-small" className="shrink-0 text-[12.5px] font-semibold text-text-2">
+                <FormLabel htmlFor="icon-small" required={required} className="mb-0 shrink-0">
                     {t("Icon")}
-                </label>
+                </FormLabel>
                 <input
                     type="text"
                     value={search}

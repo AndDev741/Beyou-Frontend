@@ -13,6 +13,7 @@ import { DAYS } from './ScheduleIndicator';
 import { notify } from '../../notify';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
+import FieldLabel from '../form/FieldLabel';
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const WEEKEND = ['Saturday', 'Sunday'];
@@ -84,6 +85,8 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
   const [days, setDays] = useState<string[]>([]);
   const [overrides, setOverrides] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
+  // CreateScheduleDTO.days is @NotEmpty: say so here instead of letting the 400 say it.
+  const [daysError, setDaysError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!visible) return;
@@ -128,8 +131,13 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
     });
 
   const save = async () => {
-    setSubmitting(true);
     const payload = ordered(days);
+    if (payload.length === 0) {
+      setDaysError(t('DaysRequired'));
+      return;
+    }
+    setDaysError(null);
+    setSubmitting(true);
     const res = routine.schedule?.id
       ? await editSchedule(routine.schedule.id, payload, routine.id as string, t)
       : await createSchedule(payload, routine.id as string, t);
@@ -176,7 +184,10 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
 
       {/* One row of seven: the whole week lands in a glance, and a day another
           routine already owns is marked on the square itself. */}
-      <View className="mt-3.5 flex-row" style={{ gap: 6 }}>
+      <FieldLabel required className="mt-3.5">
+        {t('Days')}
+      </FieldLabel>
+      <View className="flex-row" style={{ gap: 6 }}>
         {WEEK_ORDER.map((day) => {
           const blocked = isBlocked(day);
           const active = days.includes(day);
@@ -203,6 +214,12 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
           );
         })}
       </View>
+
+      {daysError ? (
+        <Text className="mt-1.5 text-xs text-danger" testID="schedule-days-error">
+          {daysError}
+        </Text>
+      ) : null}
 
       {blockedDays.length > 0 ? (
         <View className="mt-3 rounded-control border border-danger/30 bg-danger/5 p-2.5">

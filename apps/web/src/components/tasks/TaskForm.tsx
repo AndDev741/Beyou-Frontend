@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ChooseCategories from "../inputs/chooseCategory/chooseCategories";
 import IconsBoxSmall from "../inputs/iconsBoxSmall";
 import SegmentedControl from "../../ui/SegmentedControl";
+import FormLabel from "../../ui/FormLabel";
 import Button from "../Button";
 import IconButton from "../../ui/IconButton";
 import { X } from "lucide-react";
@@ -202,7 +203,6 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
 
     const fieldClass =
         "w-full rounded-control border border-border bg-surface px-3 py-2.5 text-[13.5px] text-text transition-colors duration-200 placeholder:text-text-3 focus:outline-none focus:ring-2 focus:ring-accent/40";
-    const labelClass = "mb-1.5 block text-[12.5px] font-semibold text-text-2";
 
     return (
         <div className="w-full text-text">
@@ -220,7 +220,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-3.5">
                 <div>
-                    <label htmlFor="task-name" className={labelClass}>{t("Name")}</label>
+                    <FormLabel htmlFor="task-name" required>{t("Name")}</FormLabel>
                     <Controller
                         control={control}
                         name="name"
@@ -240,7 +240,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                 </div>
 
                 <div className="mt-4">
-                    <label htmlFor="task-description" className={labelClass}>{t("Description")}</label>
+                    <FormLabel htmlFor="task-description" optional>{t("Description")}</FormLabel>
                     <Controller
                         control={control}
                         name="description"
@@ -270,13 +270,14 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                                 iconError={errors.iconId?.message ?? ""}
                                 setSelectedIcon={field.onChange}
                                 selectedIcon={field.value || ""}
+                                required
                             />
                         )}
                     />
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Importance")}</span>
+                    <FormLabel optional>{t("Importance")}</FormLabel>
                     <Controller
                         control={control}
                         name="importance"
@@ -286,6 +287,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                                 label={t("Importance")}
                                 value={field.value}
                                 onChange={field.onChange}
+                                clearValue={0}
                                 options={[
                                     { value: 1, label: t("Low") },
                                     { value: 2, label: t("Medium") },
@@ -295,10 +297,11 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                             />
                         )}
                     />
+                    {errors.importance?.message && <p className="mt-1.5 text-xs text-danger">{errors.importance.message}</p>}
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Difficulty")}</span>
+                    <FormLabel optional>{t("Difficulty")}</FormLabel>
                     <Controller
                         control={control}
                         name="difficulty"
@@ -308,6 +311,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                                 label={t("Difficulty")}
                                 value={field.value}
                                 onChange={field.onChange}
+                                clearValue={0}
                                 options={[
                                     { value: 1, label: t("Easy") },
                                     { value: 2, label: t("Normal") },
@@ -317,10 +321,14 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                             />
                         )}
                     />
+                    {/* Both are optional and each clears on a second click: the server counts
+                        a missing one as 1 for XP. The hint says so once, under the pair. */}
+                    <span className="mt-1.5 block font-mono text-[10.5px] text-text-3">{t("PriorityOptionalHint")}</span>
+                    {errors.difficulty?.message && <p className="mt-1.5 text-xs text-danger">{errors.difficulty.message}</p>}
                 </div>
 
                 <div className="mt-4">
-                    <span className={labelClass}>{t("Categories")}</span>
+                    <FormLabel optional>{t("Categories")}</FormLabel>
                     <Controller
                         control={control}
                         name="categoriesId"

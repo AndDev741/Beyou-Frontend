@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { Image as ImageIcon, X } from 'lucide-react-native';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import FieldLabel from '../form/FieldLabel';
 import { MAX_ATTACHMENTS, selectImages, type FeedbackImage } from './feedbackAttachments';
 
 interface Props {
@@ -55,9 +56,7 @@ export default function AttachmentsField({ images, onChange }: Props) {
 
   return (
     <View>
-      <Text className="mb-1.5 text-[12.5px] font-semibold text-text-2">
-        {t('FeedbackImagesLabelOptional')}
-      </Text>
+      <FieldLabel optional>{t('FeedbackImagesLabel')}</FieldLabel>
 
       {/* A drop zone instead of a button: on a phone the tap opens the same picker,
           and the big target is easier to hit than a pill. */}

@@ -102,6 +102,7 @@ function Register() {
                                     icon3={null}
                                     seePasswordIconAlt={""}
                                     label={t("Name")}
+                                    required
                                     placeholder={t("NamePlaceholder")}
                                     inputType={"text"}
                                     data={field.value}
@@ -123,6 +124,7 @@ function Register() {
                                     icon3={null}
                                     seePasswordIconAlt=""
                                     label={t("Email")}
+                                    required
                                     placeholder={t("EmailPlaceholder")}
                                     inputType="text"
                                     data={field.value}
@@ -141,6 +143,7 @@ function Register() {
                                 <Input
                                     icon1={PasswordIcon}
                                     label={t("Password")}
+                                    required
                                     placeholder={t("PasswordPlaceholder")}
                                     inputType="password"
                                     icon2={EyeClosedIcon}

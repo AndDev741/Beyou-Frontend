@@ -25,6 +25,7 @@ import {
 import { FEEDBACK_CATEGORY_LABEL_KEYS, buildFeedbackMailtoHref } from "./feedbackMailto";
 import { FEEDBACK_BODY_MAX_LENGTH, FeedbackFormValues, NO_CATEGORY, feedbackSchema } from "./feedbackSchema";
 import PageHeader from "../../ui/PageHeader";
+import FormLabel from "../../ui/FormLabel";
 
 const CATEGORY_ORDER: FeedbackFormValues["category"][] = ["BUG", "FEATURE_REQUEST", "OTHER"];
 
@@ -215,9 +216,9 @@ function Feedback() {
                         name="category"
                         render={({ field }) => (
                             <fieldset className="border-0 p-0">
-                                <legend className="mb-1.5 text-[12.5px] font-semibold text-text-2">
+                                <FormLabel as="legend" required>
                                     {t("FeedbackCategoryLabel")}
-                                </legend>
+                                </FormLabel>
                                 {/* Segmented, like the rest of the forms: the three
                                     options are exclusive and fit in one
                                     linha, inclusive no telefone. */}
@@ -261,12 +262,9 @@ function Feedback() {
                         name="body"
                         render={({ field }) => (
                             <div className="flex flex-col">
-                                <label
-                                    htmlFor="feedback-body"
-                                    className="mb-1.5 text-[12.5px] font-semibold text-text-2"
-                                >
+                                <FormLabel htmlFor="feedback-body" required>
                                     {t("FeedbackBodyLabel")}
-                                </label>
+                                </FormLabel>
                                 <textarea
                                     id="feedback-body"
                                     rows={7}
@@ -285,9 +283,9 @@ function Feedback() {
                     />
 
                     <div className="flex flex-col">
-                        <span className="mb-1.5 text-[12.5px] font-semibold text-text-2">
-                            {t("FeedbackImagesLabelOptional")}
-                        </span>
+                        <FormLabel optional>
+                            {t("FeedbackImagesLabel")}
+                        </FormLabel>
 
                         {/* A drop zone instead of a button: dragging the shot is
                             the natural desktop gesture, and on phones a tap
@@ -308,7 +306,7 @@ function Feedback() {
                         <input
                             id="feedback-images"
                             type="file"
-                            aria-label={t("FeedbackImagesLabelOptional")}
+                            aria-label={t("FeedbackImagesLabel")}
                             multiple
                             accept={ATTACHMENT_ACCEPT}
                             onChange={onFilesChosen}

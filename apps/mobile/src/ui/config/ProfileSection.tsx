@@ -178,7 +178,7 @@ export default function ProfileSection() {
         <Pencil size={13} color={theme.accent} />
       </Pressable>
 
-      <FormField label={t('Name')} className="mt-4">
+      <FormField label={t('Name')} required className="mt-4">
         <Controller
           control={control}
           name="name"
@@ -207,7 +207,7 @@ export default function ProfileSection() {
         />
       </FormField>
 
-      <FormField label={t('Phrase')} className="mt-4">
+      <FormField label={t('Phrase')} optional className="mt-4">
         <Controller
           control={control}
           name="phrase"
@@ -226,7 +226,7 @@ export default function ProfileSection() {
         />
       </FormField>
 
-      <FormField label={t('Author')} className="mt-4">
+      <FormField label={t('Author')} optional className="mt-4">
         <Controller
           control={control}
           name="phrase_author"

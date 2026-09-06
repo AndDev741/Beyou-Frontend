@@ -204,6 +204,7 @@ export default function DeleteAccountSheet({ visible, onClose }: DeleteAccountSh
               <View className="mt-4">
                 <Input
                   label={t('DeleteAccountCodeLabel')}
+                  required
                   value={code}
                   onChangeText={(value) => setCode(value.replace(/\D/g, '').slice(0, 6))}
                   keyboardType="numeric"

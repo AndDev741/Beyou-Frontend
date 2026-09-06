@@ -6,6 +6,8 @@ interface IconButtonProps extends Omit<PressableProps, 'children'> {
   /** Required: the button has no visible text. */
   label: string;
   tone?: 'default' | 'danger';
+  /** `sm` is for two buttons stacked in one row's height (the section order arrows). */
+  size?: 'md' | 'sm';
   className?: string;
   testID?: string;
 }
@@ -15,6 +17,7 @@ export default function IconButton({
   children,
   label,
   tone = 'default',
+  size = 'md',
   className = '',
   disabled,
   testID,
@@ -27,7 +30,7 @@ export default function IconButton({
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
       testID={testID}
-      className={`h-8 w-8 items-center justify-center rounded-control ${
+      className={`${size === 'sm' ? 'h-6 w-7' : 'h-8 w-8'} items-center justify-center rounded-control ${
         tone === 'danger' ? 'active:bg-danger/10' : 'active:bg-surface-2'
       } ${disabled ? 'opacity-50' : ''} ${className}`}
       {...rest}

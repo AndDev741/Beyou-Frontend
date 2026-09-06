@@ -17,6 +17,7 @@ import WidgetCarousel from './WidgetCarousel';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import EmptyState from '../EmptyState';
 import { useDismissed } from '../useDismissed';
+import useXpHistory from '../useXpHistory';
 import type { RootState } from '../../store';
 
 /** Strongest/weakest category by XP, or null when there are no categories. */
@@ -55,8 +56,9 @@ function NoWidgets() {
 /**
  * Os widgets configurados (ordem de `perfil.widgetsIdsInUse`), num carrossel de
  * one at a time — the way the web does it on a phone. Every piece of data comes from
- * redux (perfil + the categories slice). An unknown id is skipped; an empty list shows
- * the invitation.
+ * redux (perfil + the categories slice), except the week of XP, which no slice holds:
+ * `useXpHistory` asks once here and the two area widgets read their category's row.
+ * An unknown id is skipped; an empty list shows the invitation.
  */
 export default function DashboardWidgets() {
   const widgetsIdsInUse = useSelector((s: RootState) => s.perfil.widgetsIdsInUse);
@@ -71,12 +73,27 @@ export default function DashboardWidgets() {
 
   const categoryWithMoreXp = useMemo(() => pickExtremeCategory(categories, 'more'), [categories]);
   const categoryWithLessXp = useMemo(() => pickExtremeCategory(categories, 'less'), [categories]);
+  const xpHistory = useXpHistory();
+  const seriesOf = (cat: category | null) =>
+    cat ? xpHistory.seriesFor('CATEGORY', cat.id) : undefined;
 
   const widgetMap: Record<WidgetId, () => React.ReactElement> = {
-    worstArea: () => <WorstAreaWidget category={categoryWithLessXp} />,
+    worstArea: () => (
+      <WorstAreaWidget
+        category={categoryWithLessXp}
+        xpSeries={seriesOf(categoryWithLessXp)}
+        xpDays={xpHistory.days}
+      />
+    ),
     constance: () => <ConstanceWidget constance={constance} />,
     constanceHeatmap: () => <ConstanceHeatmapWidget />,
-    betterArea: () => <BetterAreaWidget category={categoryWithMoreXp} />,
+    betterArea: () => (
+      <BetterAreaWidget
+        category={categoryWithMoreXp}
+        xpSeries={seriesOf(categoryWithMoreXp)}
+        xpDays={xpHistory.days}
+      />
+    ),
     dailyProgress: () => <DailyProgressWidget checked={checked} total={total} />,
     fastTips: () => <FastTipsWidget />,
     levelProgress: () => (

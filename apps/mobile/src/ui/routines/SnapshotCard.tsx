@@ -1,9 +1,10 @@
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
+import { SkipForward } from 'lucide-react-native';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
 import BeyouIcon from '../BeyouIcon';
 import Card from '../Card';
+import Ring from '../Ring';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 const fmt = (s?: string | null) => (s ? s.slice(0, 5) : '');
@@ -54,13 +55,31 @@ export default function SnapshotCard({ snapshot, onCheck, onSkip }: SnapshotCard
                 <Text className={`flex-1 text-sm ${check?.checked ? 'text-text-2 line-through' : 'text-text'}`}>{item.name}</Text>
                 {itemRange ? <Text className="text-text-2 text-xs">{itemRange}</Text> : null}
                 {check ? (
-                  <View className="flex-row gap-2">
-                    <Pressable onPress={() => onCheck(check.id)} accessibilityRole="button" testID={`snap-check-${check.id}`}>
-                      <Ionicons name={check.checked ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={check.checked ? theme.primary : theme.description} />
+                  <View className="flex-row items-center gap-1">
+                    {/* The system ring, as on today's routine and on the web's snapshot
+                        card: check-in, level and the brand are the SAME piece. This
+                        was the one place a stock checkmark icon stood in for it. */}
+                    <Pressable
+                      onPress={() => onCheck(check.id)}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: check.checked }}
+                      accessibilityLabel={item.name}
+                      testID={`snap-check-${check.id}`}
+                      className="h-8 w-8 items-center justify-center"
+                    >
+                      <Ring size={22} state={check.checked ? 'done' : check.skipped ? 'skipped' : 'todo'} />
                     </Pressable>
-                    <Pressable onPress={() => onSkip(check.id)} accessibilityRole="button" testID={`snap-skip-${check.id}`}>
-                      <Ionicons name={check.skipped ? 'play-skip-forward-circle' : 'play-skip-forward-outline'} size={24} color={check.skipped ? theme.icon : theme.description} />
-                    </Pressable>
+                    {!check.checked ? (
+                      <Pressable
+                        onPress={() => onSkip(check.id)}
+                        accessibilityRole="button"
+                        accessibilityLabel={check.skipped ? t('Undo skip') : t('Skip')}
+                        testID={`snap-skip-${check.id}`}
+                        className="h-8 w-8 items-center justify-center rounded-full active:bg-surface-2"
+                      >
+                        <SkipForward size={16} color={check.skipped ? theme.text2 : theme.text3} />
+                      </Pressable>
+                    ) : null}
                   </View>
                 ) : null}
               </View>

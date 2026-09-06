@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import FormLabel from "../../ui/FormLabel";
 import { MdCreate } from "react-icons/md";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
@@ -68,7 +69,6 @@ export default function ProfileConfiguration() {
     // Same field grammar as the other screens: small label in text-2 and a
     // 13.5px input. Here the label was 18px, shouting louder than the section's
     // title.
-    const labelStyle = "mb-1.5 block self-start text-[12.5px] font-semibold text-text-2";
     const inputStyle =
         "w-full rounded-control border border-border bg-surface px-3 py-[9.5px] text-[13.5px] text-text outline-none transition-colors duration-200 placeholder:text-text-3 focus:border-accent focus:ring-[3px] focus:ring-accent-soft";
 
@@ -148,7 +148,7 @@ export default function ProfileConfiguration() {
             </div>
 
             <div className="mt-4">
-                <label className={labelStyle} htmlFor="name">{t("Name")}</label>
+                <FormLabel htmlFor="name" required className="self-start">{t("Name")}</FormLabel>
                 <Controller
                     control={control}
                     name="name"
@@ -169,7 +169,7 @@ export default function ProfileConfiguration() {
             </div>
 
             <div className="mt-4">
-                <label className={labelStyle} htmlFor="email">{t("Email")}</label>
+                <FormLabel htmlFor="email" className="self-start">{t("Email")}</FormLabel>
                 <input
                     type="email"
                     placeholder={t("EmailPlaceholder")}
@@ -182,7 +182,7 @@ export default function ProfileConfiguration() {
             </div>
 
             <div className="mt-4">
-                <label className={labelStyle} htmlFor="phrase">{t("Phrase")}</label>
+                <FormLabel htmlFor="phrase" optional className="self-start">{t("Phrase")}</FormLabel>
                 <Controller
                     control={control}
                     name="phrase"
@@ -203,7 +203,7 @@ export default function ProfileConfiguration() {
             </div>
 
             <div className="mt-4">
-                <label className={labelStyle} htmlFor="author">{t("Author")}</label>
+                <FormLabel htmlFor="author" optional className="self-start">{t("Author")}</FormLabel>
                 <Controller
                     control={control}
                     name="phrase_author"

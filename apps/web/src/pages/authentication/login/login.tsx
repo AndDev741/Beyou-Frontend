@@ -165,6 +165,7 @@ function Login() {
                                     icon2={null}
                                     icon3={null}
                                     label={t("Email")}
+                                    required
                                     placeholder={"email@gmail.com"}
                                     inputType={"text"}
                                     seePasswordIconAlt={""}
@@ -183,6 +184,7 @@ function Login() {
                                 <Input
                                     icon1={PasswordIcon}
                                     label={t("Password")}
+                                    required
                                     placeholder={"xxxxxxxx"}
                                     inputType={"password"}
                                     icon2={EyeClosedIcon}

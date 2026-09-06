@@ -24,6 +24,7 @@ import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
+import useXpHistory from '../../src/ui/useXpHistory';
 import { CATEGORY_SORT_OPTIONS } from '../../src/ui/sortOptions';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; category: category | null };
@@ -54,6 +55,9 @@ export default function CategoriesScreen() {
   const firstCardRef = useTutorialTarget('category-first');
 
   const sortedCategories = useMemo(() => sortCategories(categories, sortBy), [categories, sortBy]);
+  // The cards draw the week beside the level, as the web's do. One request for the
+  // whole list; each card reads its own row.
+  const xpHistory = useXpHistory();
 
   const visibleCategories = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -174,6 +178,8 @@ export default function CategoriesScreen() {
               category={item}
               onEdit={(c) => setForm({ visible: true, mode: 'edit', category: c })}
               onDelete={setDeleteTarget}
+              xpSeries={xpHistory.seriesFor('CATEGORY', item.id)}
+              xpDays={xpHistory.days}
               viewRef={index === 0 ? firstCardRef : undefined}
             />
           )}

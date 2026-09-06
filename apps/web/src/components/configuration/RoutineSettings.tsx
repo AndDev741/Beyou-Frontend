@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
+import FormLabel from "../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -165,9 +166,7 @@ export default function RoutineSettings() {
 
             {/* Timezone Selector */}
             <div className="w-full mb-6">
-                <label className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
-                    {t("TimezoneLabel")}
-                </label>
+                <FormLabel>{t("TimezoneLabel")}</FormLabel>
 
                 {showTimezoneSuggestion && (
                     <div className="mb-3 p-3 rounded-control border border-border bg-accent/5">
@@ -258,9 +257,7 @@ export default function RoutineSettings() {
 
             {/* XP Decay Strategy Selector */}
             <div className="w-full mb-4">
-                <label className="mb-1.5 block text-[12.5px] font-semibold text-text-2">
-                    {t("XpDecayLabel")}
-                </label>
+                <FormLabel>{t("XpDecayLabel")}</FormLabel>
                 <p className="mb-2 text-xs text-text-3">
                     {t("XpDecayDescription")}
                 </p>

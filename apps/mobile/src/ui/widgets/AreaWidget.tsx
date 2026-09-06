@@ -7,10 +7,15 @@ import type category from '@beyou/types/category/categoryType';
 import { calculateLevelProgress } from '@beyou/state/dashboard/helpers';
 import WidgetCard from './WidgetCard';
 import BeyouIcon from '../BeyouIcon';
+import XpSparkline from '../XpSparkline';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 export interface AreaWidgetProps {
   category: category | null;
+  /** The category's XP per day, oldest first. Without it the card shows the level bar. */
+  xpSeries?: number[];
+  /** ISO days matching `xpSeries`. */
+  xpDays?: string[];
 }
 
 interface InnerProps extends AreaWidgetProps {
@@ -36,12 +41,14 @@ const categoryExample: category = {
 
 /**
  * The shared body of the best/worst area widgets: the icon in a tile, the name, the
- * level and XP line in mono, and the level bar.
+ * level and XP line in mono, and the week of XP as bars.
  *
- * The mockup shows a week of bars here, but the API returns no per-category daily
- * XP — the card shows what exists instead of inventing a series. Same as the web.
+ * The bars arrive with `GET /xp/history`. Without a window yet (request still out, or
+ * an account with no history) the card falls back to the level bar, which is what it
+ * showed for months while the series did not exist. Same as the web.
  */
-function AreaWidget({ category, title, icon, variant, testID }: InnerProps) {
+function AreaWidget({ category, xpSeries, xpDays, title, icon, variant, testID }: InnerProps) {
+  const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const cat = category ?? categoryExample;
   const progress = calculateLevelProgress(cat.xp, cat.actualLevelXp, cat.nextLevelXp);
@@ -70,22 +77,35 @@ function AreaWidget({ category, title, icon, variant, testID }: InnerProps) {
         </View>
       </View>
 
-      <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
-        <View
-          className={`h-full rounded-full ${isWorst ? 'bg-flame' : 'bg-success'}`}
-          style={{ width: `${progress}%` }}
+      {xpSeries && xpSeries.length > 0 ? (
+        <XpSparkline
+          values={xpSeries}
+          days={xpDays}
+          tone={isWorst ? 'warm' : 'good'}
+          labels={[t('WeekdayShortFirst'), t('WeekdayShortLast')]}
+          summary={t('XpLastDaysFor', { name: cat.name, count: xpSeries.length })}
+          testID={`${testID}-sparkline`}
         />
-      </View>
+      ) : (
+        <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-2">
+          <View
+            className={`h-full rounded-full ${isWorst ? 'bg-flame' : 'bg-success'}`}
+            style={{ width: `${progress}%` }}
+          />
+        </View>
+      )}
     </WidgetCard>
   );
 }
 
-export function BetterAreaWidget({ category }: AreaWidgetProps) {
+export function BetterAreaWidget({ category, xpSeries, xpDays }: AreaWidgetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   return (
     <AreaWidget
       category={category}
+      xpSeries={xpSeries}
+      xpDays={xpDays}
       title={t('Better Area')}
       icon={<ArrowUpRight size={14.5} color={theme.text3} />}
       variant="better"
@@ -95,12 +115,14 @@ export function BetterAreaWidget({ category }: AreaWidgetProps) {
 }
 
 /** Weakest category (less XP) — error bar. */
-export function WorstAreaWidget({ category }: AreaWidgetProps) {
+export function WorstAreaWidget({ category, xpSeries, xpDays }: AreaWidgetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   return (
     <AreaWidget
       category={category}
+      xpSeries={xpSeries}
+      xpDays={xpDays}
       title={t('Worst Area')}
       icon={<Gauge size={14.5} color={theme.text3} />}
       variant="worst"

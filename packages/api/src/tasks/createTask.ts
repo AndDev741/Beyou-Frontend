@@ -3,6 +3,7 @@ import { getHttpClient } from '../httpClient';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 import { trackItemCreated } from '../analyticsEvents';
 import { getLogger } from '../logger';
+import { priorityOrNull } from './priority';
 
 type apiResponse = Promise<{ success?: unknown; error?: ApiErrorPayload; validation?: string }>;
 
@@ -20,8 +21,8 @@ async function createTask(
     name: name,
     description: description,
     iconId: iconId,
-    importance: importance,
-    difficulty: difficulty,
+    importance: priorityOrNull(importance),
+    difficulty: priorityOrNull(difficulty),
     categoriesId: categoriesId,
     oneTimeTask: oneTimeTask,
   };

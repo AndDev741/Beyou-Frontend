@@ -72,6 +72,7 @@ function ForgotPassword() {
                                     icon2={null}
                                     icon3={null}
                                     label={t("Email")}
+                                    required
                                     placeholder={t("EmailPlaceholder")}
                                     inputType={"email"}
                                     seePasswordIconAlt={""}

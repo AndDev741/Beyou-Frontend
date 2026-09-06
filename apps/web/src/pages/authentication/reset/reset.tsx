@@ -144,6 +144,7 @@ function ResetPassword() {
                                     <Input
                                         icon1={PasswordIcon}
                                         label={t("NewPassword")}
+                                        required
                                         placeholder={t("PasswordPlaceholder")}
                                         inputType={"password"}
                                         icon2={EyeClosedIcon}
@@ -164,6 +165,7 @@ function ResetPassword() {
                                     <Input
                                         icon1={PasswordIcon}
                                         label={t("ConfirmPassword")}
+                                        required
                                         placeholder={t("ConfirmPasswordPlaceholder")}
                                         inputType={"password"}
                                         icon2={EyeClosedIcon}
