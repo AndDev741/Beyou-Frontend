@@ -17,6 +17,7 @@ import viewFilters from "./viewFilters/viewFiltersSlice";
 import snapshot from "./routine/snapshotSlice";
 import celebration from "./celebration/celebrationSlice";
 import focus from "./focus/focusSlice";
+import mood from "./mood/moodSlice";
 
 
 const rootReducer = combineReducers({
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
     snapshot: snapshot,
     celebration: celebration,
     focus: focus,
+    mood: mood,
 
 });
 

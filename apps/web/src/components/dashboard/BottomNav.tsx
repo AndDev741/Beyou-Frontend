@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+    BookHeart,
     House,
     CalendarDays,
     Repeat,
@@ -35,6 +36,9 @@ const SHEET: NavItem[] = [
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
     { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
+    // Last of the domain destinations, matching the desktop sidebar's order: the diary is about
+    // the day that happened, not the day being planned.
+    { key: "Mood", to: "/mood", Icon: BookHeart },
     { key: "Config", to: "/configuration", Icon: Settings, tutorial: "shortcut-configuration" },
     { key: "FeedbackShortcutLabel", to: "/feedback", Icon: MessageSquare, tutorial: "shortcut-feedback" },
 ];

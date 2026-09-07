@@ -28,6 +28,7 @@ const Tasks = lazy(() => import("./pages/tasks/Tasks"));
 const Routine = lazy(() => import("./pages/routines/routine"));
 const Configuration = lazy(() => import("./pages/configuration/Configuration"));
 const Focus = lazy(() => import("./pages/focus/Focus"));
+const Mood = lazy(() => import("./pages/mood/mood"));
 const Feedback = lazy(() => import("./pages/feedback/Feedback"));
 // Admin console (KD7): both the gate and the page are lazy, so no ordinary
 // user ever downloads the triage interface or its admin API client.
@@ -77,6 +78,7 @@ function AppContent() {
             {/* Inside the gate, but the page covers the shell rather than sitting
                 inside it. See Focus.tsx. */}
             <Route path="/focus" element={<Focus />} />
+            <Route path="/mood" element={<Mood />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route element={<AdminRoute />}>

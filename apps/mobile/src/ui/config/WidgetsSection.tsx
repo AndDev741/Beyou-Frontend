@@ -13,6 +13,7 @@ import {
   Gauge,
   Lightbulb,
   Plus,
+  Smile,
   Target,
   X,
 } from 'lucide-react-native';
@@ -35,6 +36,7 @@ const WIDGET_META: Record<WidgetId, { labelKey: string; Icon: typeof Target }> =
   betterArea: { labelKey: 'Better Area', Icon: ArrowUpRight },
   worstArea: { labelKey: 'Worst Area', Icon: Gauge },
   fastTips: { labelKey: 'Fast Tips', Icon: Lightbulb },
+  moodWeek: { labelKey: 'MoodWeek', Icon: Smile },
 };
 
 const isKnownWidget = (id: string): id is WidgetId => (WIDGET_IDS as readonly string[]).includes(id);

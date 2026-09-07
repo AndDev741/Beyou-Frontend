@@ -11,6 +11,7 @@ import {
     Trophy,
     Settings,
     MessageSquare,
+    BookHeart,
     PanelLeft,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -32,6 +33,8 @@ const MAIN: Item[] = [
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Routines", to: "/routines", Icon: CalendarDays, tutorial: "shortcut-routines" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
+    // Last in the list: the diary is about the day that happened, not the day being planned.
+    { key: "Mood", to: "/mood", Icon: BookHeart },
 ];
 
 const FOOT: Item[] = [

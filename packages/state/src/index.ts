@@ -142,6 +142,26 @@ export {
   MS_PER_DAY,
 } from './date/isoDay';
 
+// mood + journaling
+export {
+  enterMoodEntries,
+  upsertMoodEntry,
+  removeMoodEntry,
+  clearMoodEntries,
+} from './mood/moodSlice';
+export {
+  MOOD_LEVELS,
+  moodLabelKey,
+  indexByDate,
+  addDays,
+  weekEnding,
+  journalStreak,
+  averageMood,
+  nearestLevel,
+  monthRange,
+  monthGrid,
+} from './mood/moodStats';
+
 // dashboard widgets (ids shared by web + mobile)
 export { WIDGET_IDS, BIG_WIDGETS } from './dashboard/widgets';
 export type { WidgetId } from './dashboard/widgets';

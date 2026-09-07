@@ -21,8 +21,8 @@
 
 Beyou helps people build better days. You define **categories** of life, attach **habits**, **goals**,
 **tasks**, and daily **routines**, then check them off — earning XP, leveling up, and keeping streaks
-alive. The app is bilingual (English / Portuguese), ships nine themes, and can draft a whole routine
-for you with AI.
+alive. A **diary** records how each day actually felt, alongside what got done. The app is bilingual
+(English / Portuguese), themeable, and ships an AI assistant that can act on your account.
 
 This repository is the **frontend monorepo**. It contains both user-facing clients and the shared
 TypeScript core they have in common. The Spring Boot API lives in a separate `Beyou-backend-spring`
@@ -36,10 +36,14 @@ repository.
   an axios adapter and mobile a `fetch` adapter, so business logic never knows which client it runs in.
 - **Gamification built in** — XP, per-habit levels, streaks, level-up and streak-milestone
   celebrations, and floating `+XP` feedback on check-in.
-- **AI routine generation** — describe your day in plain language and preview a full draft (categories,
-  habits, tasks, schedule) before confirming.
-- **Theming & i18n as data** — 9 themes expressed as design tokens and `en`/`pt` resources, shared
-  across both apps.
+- **A diary that cannot lose your writing** — a five-point mood a day plus optional journalling. The
+  dashboard widget marks the day with one tap through a request that has no field for a note, so it
+  is structurally unable to erase what you wrote that morning; only the diary page's Save button
+  replaces an entry.
+- **AI assistant** — a streaming chat whose tools call the same API the buttons do, so it passes the
+  same ownership checks and validation. It can read your mood levels; it cannot read your journal.
+- **Theming & i18n as data** — two bases × five accent packs as design tokens, plus `en`/`pt`
+  resources, shared across both apps.
 - **Type-safe backend contract** — backend types are generated from the OpenAPI spec and guarded
   against drift in CI.
 
@@ -66,11 +70,11 @@ beyou-app/
 | Package | Responsibility |
 |---------|----------------|
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
-| `@beyou/theme` | The nine themes (beYou, beYouDark, Sunset, Amethyst, Midnight, Cyberpunk, Mocha, Polar, Late Latte) as colour tokens. |
+| `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, profile, celebrations…) and the shared root reducer. |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, mood, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics. |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
-| `@beyou/validation` | Zod schemas (auth, habit, goal, task, routine, profile, AI routine) reused by both web and mobile forms. |
+| `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/contracts` | TypeScript types generated from the backend's OpenAPI 3.1 spec, with a CI drift gate. |
 
 ## Tech stack
@@ -199,7 +203,7 @@ npm --workspace @beyou/mobile run test      # mobile only
 
 | Repo | Purpose |
 |------|---------|
-| `Beyou-backend-spring` | Spring Boot API (PostgreSQL, JWT + Google OAuth, AI routine generation) on port `8099`. |
+| `Beyou-backend-spring` | Spring Boot API (PostgreSQL, JWT + Google OAuth, the AI assistant) on port `8099`. |
 | `Beyou-e2e-tests` | Playwright end-to-end suite driving the full stack. |
 | `Beyou-dev-env` | Docker Compose orchestration for local development. |
 | `Beyou-arch-design` | OpenAPI specs and architecture / design documentation. |

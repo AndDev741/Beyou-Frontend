@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useRouter, usePathname } from 'expo-router';
 import {
+  BookHeart,
   CalendarDays,
   Ellipsis,
   Folder,
@@ -45,6 +46,7 @@ const SHEET: NavItemConfig[] = [
   { key: 'Tasks', route: '/tasks', Icon: ListChecks, targetId: 'nav-tasks' },
   { key: 'Goals', route: '/goals', Icon: Trophy, targetId: 'nav-goals' },
   { key: 'Categories', route: '/categories', Icon: Folder },
+  { key: 'Mood', route: '/mood', Icon: BookHeart },
   { key: 'Config', route: '/configuration', Icon: Settings, targetId: 'nav-config' },
   { key: 'FeedbackShortcutLabel', route: '/feedback', Icon: MessageSquare, targetId: 'nav-feedback' },
 ];

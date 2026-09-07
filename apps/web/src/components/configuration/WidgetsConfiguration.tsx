@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import { DragDropContext, Draggable, type DropResult } from "react-beautiful-dnd";
-import { GripVertical, X, Plus, Target, Flame, Award, ChartPie, ArrowUpRight, Gauge, Lightbulb, CalendarDays } from "lucide-react";
+import { GripVertical, X, Plus, Target, Flame, Award, ChartPie, ArrowUpRight, Gauge, Lightbulb, CalendarDays, Smile } from "lucide-react";
 import Droppable from "../../components/utils/StrictModeDroppable";
 import { widgetsIds } from "../widgets/utils/widgetsFabric";
 import { RootState } from "@beyou/state/rootReducer";
@@ -22,6 +22,7 @@ const WIDGET_META: Record<string, { labelKey: string; Icon: typeof Target }> = {
     betterArea: { labelKey: "Better Area", Icon: ArrowUpRight },
     worstArea: { labelKey: "Worst Area", Icon: Gauge },
     fastTips: { labelKey: "Fast Tips", Icon: Lightbulb },
+    moodWeek: { labelKey: "MoodWeek", Icon: Smile },
 };
 
 /**
