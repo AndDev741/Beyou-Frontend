@@ -3,7 +3,12 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "@beyou/state/rootReducer";
-import { getMoodEntries, saveMoodEntry, setMoodLevel } from "@beyou/api/mood/moodApi";
+import {
+    deleteMoodEntry,
+    getMoodEntries,
+    saveMoodEntry,
+    setMoodLevel,
+} from "@beyou/api/mood/moodApi";
 import type { MoodEntry, MoodLevel } from "@beyou/types/mood/mood";
 import { renderWithProviders } from "../../test/test-utils";
 import Mood from "./mood";
@@ -228,4 +233,114 @@ test("picking a face sends the level-only call", async () => {
         expect(setMoodLevel).toHaveBeenCalledWith("2026-09-06", 2, expect.anything()),
     );
     expect(saveMoodEntry).not.toHaveBeenCalled();
+});
+
+/**
+ * The scale is a set of toggles and `aria-pressed` says so, so un-pressing has to mean something.
+ * Without this a day could be changed but never taken back, and the only way out was the trash
+ * icon buried in the entry list.
+ */
+test("tapping the chosen face leaves the day unrecorded", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({ success: [entry("2026-09-06", 3)] });
+    vi.mocked(deleteMoodEntry).mockResolvedValue({ success: undefined });
+
+    renderPage();
+
+    const chosen = await screen.findByTestId("mood-scale-3");
+    await waitFor(() => expect(chosen).toHaveAttribute("aria-pressed", "true"));
+
+    await userEvent.click(chosen);
+
+    await waitFor(() =>
+        expect(deleteMoodEntry).toHaveBeenCalledWith("2026-09-06", expect.anything()),
+    );
+    await waitFor(() =>
+        expect(screen.getByTestId("mood-scale-3")).toHaveAttribute("aria-pressed", "false"),
+    );
+});
+
+/**
+ * The one guard on it. Removing the entry removes the note with it, and the note is the only
+ * thing here nobody can get back — so a day with writing asks before it goes.
+ */
+test("un-recording a day that carries writing asks first", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({
+        success: [entry("2026-09-06", 3, "something I would rather keep")],
+    });
+    vi.mocked(deleteMoodEntry).mockResolvedValue({ success: undefined });
+
+    renderPage();
+    const chosen = await screen.findByTestId("mood-scale-3");
+    await waitFor(() => expect(chosen).toHaveAttribute("aria-pressed", "true"));
+
+    await userEvent.click(chosen);
+
+    expect(await screen.findByTestId("mood-confirm-delete")).toBeInTheDocument();
+    expect(deleteMoodEntry).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByTestId("mood-confirm-delete"));
+
+    await waitFor(() =>
+        expect(deleteMoodEntry).toHaveBeenCalledWith("2026-09-06", expect.anything()),
+    );
+});
+
+test("cancelling that confirmation keeps the day and its writing", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({
+        success: [entry("2026-09-06", 3, "kept after all")],
+    });
+
+    renderPage();
+    // Waiting on the TEXT, not on aria-pressed: the attribute flips on the render where the entry
+    // arrives, one commit before the effect seeds the box, so a click there is a plain "pick
+    // level 3" rather than the un-press this test is about.
+    await waitFor(() => expect(screen.getByTestId("mood-note")).toHaveValue("kept after all"));
+
+    await userEvent.click(screen.getByTestId("mood-scale-3"));
+    await screen.findByTestId("mood-confirm-delete");
+
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => expect(screen.queryByTestId("mood-confirm-delete")).not.toBeInTheDocument());
+    expect(deleteMoodEntry).not.toHaveBeenCalled();
+    expect(screen.getByTestId("mood-note")).toHaveValue("kept after all");
+});
+
+/**
+ * The seeding effect protects typed text from an entry that arrives empty. An explicit removal
+ * is not that case, and leaving the deleted note in the box would offer it straight back to Save.
+ */
+test("un-recording clears the journal box", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({
+        success: [entry("2026-09-06", 3, "about to go")],
+    });
+    vi.mocked(deleteMoodEntry).mockResolvedValue({ success: undefined });
+
+    renderPage();
+    await waitFor(() => expect(screen.getByTestId("mood-note")).toHaveValue("about to go"));
+    await waitFor(() =>
+        expect(screen.getByTestId("mood-scale-3")).toHaveAttribute("aria-pressed", "true"),
+    );
+
+    await userEvent.click(screen.getByTestId("mood-scale-3"));
+    await userEvent.click(await screen.findByTestId("mood-confirm-delete"));
+
+    await waitFor(() => expect(screen.getByTestId("mood-note")).toHaveValue(""));
+});
+
+test("tapping a different face changes the day rather than removing it", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({ success: [entry("2026-09-06", 3)] });
+    vi.mocked(setMoodLevel).mockResolvedValue({ success: entry("2026-09-06", 5) });
+
+    renderPage();
+    await waitFor(() =>
+        expect(screen.getByTestId("mood-scale-3")).toHaveAttribute("aria-pressed", "true"),
+    );
+
+    await userEvent.click(screen.getByTestId("mood-scale-5"));
+
+    await waitFor(() =>
+        expect(setMoodLevel).toHaveBeenCalledWith("2026-09-06", 5, expect.anything()),
+    );
+    expect(deleteMoodEntry).not.toHaveBeenCalled();
 });

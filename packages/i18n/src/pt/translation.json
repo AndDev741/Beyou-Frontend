@@ -1339,5 +1339,7 @@
     "MoodRecentShowing": "Mostrando {{shown}} de {{total}}",
     "MoodRecentShowMore": "Mostrar mais",
     "MoodRecentAllHidden": "Nenhum humor selecionado — escolha um acima.",
-    "MoodRecentFilterLabel": "Filtrar os registos por como correu o dia"
+    "MoodRecentFilterLabel": "Filtrar os registos por como correu o dia",
+    "MoodUnsetHint": "Toque outra vez na carinha escolhida para deixar o dia sem registo.",
+    "MoodEntryRemoved": "Dia deixado sem registo"
 }

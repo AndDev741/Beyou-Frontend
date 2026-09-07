@@ -1339,5 +1339,7 @@
     "MoodRecentShowing": "Showing {{shown}} of {{total}}",
     "MoodRecentShowMore": "Show more",
     "MoodRecentAllHidden": "No mood selected — pick one above.",
-    "MoodRecentFilterLabel": "Filter the entries by how the day felt"
+    "MoodRecentFilterLabel": "Filter the entries by how the day felt",
+    "MoodUnsetHint": "Tap the chosen face again to leave the day unrecorded.",
+    "MoodEntryRemoved": "Day left unrecorded"
 }

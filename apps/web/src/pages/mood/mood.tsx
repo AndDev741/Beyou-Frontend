@@ -168,8 +168,50 @@ export default function Mood() {
         setShown(RECENT_PAGE);
     };
 
+    /** Removes a day's entry and keeps the screen honest about it. */
+    const removeDay = async (day: string) => {
+        const response = await deleteMoodEntry(day, t);
+        if (response.error) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return false;
+        }
+        dispatch(removeMoodEntry(day));
+        // The seeding effect deliberately protects typed text from an entry that arrives empty,
+        // which would otherwise keep the deleted note on screen. An explicit removal is not that
+        // case, so the box is cleared here.
+        if (day === selected) setDraft("");
+        refresh();
+        trailing.refresh();
+        return true;
+    };
+
+    /**
+     * A tap on the face that is already chosen leaves the day unrecorded.
+     *
+     * The scale is a set of toggles and `aria-pressed` already says so, so un-pressing has to
+     * mean something; the alternative was a day you could change but never take back, with the
+     * only way out buried in the entry list's trash icon.
+     *
+     * It asks first when the day carries writing, because removing the entry removes the note
+     * with it and that is the one thing here nobody can get back. A day with only a level is one
+     * tap from being re-recorded, so it goes straight through — a confirmation there would be a
+     * dialog about nothing.
+     */
     const pickLevel = async (mood: MoodLevel) => {
         if (savingLevel) return;
+
+        if (entry?.mood === mood) {
+            if (entry.note) {
+                setConfirmingDelete(selected);
+                return;
+            }
+            setSavingLevel(true);
+            const removed = await removeDay(selected);
+            setSavingLevel(false);
+            if (removed) toast.success(t("MoodEntryRemoved"));
+            return;
+        }
+
         setSavingLevel(true);
         const response = await setMoodLevel(selected, mood, t);
         setSavingLevel(false);
@@ -204,16 +246,8 @@ export default function Mood() {
     const confirmDelete = async () => {
         const day = confirmingDelete;
         if (!day) return;
-        const response = await deleteMoodEntry(day, t);
         setConfirmingDelete(null);
-        if (response.error) {
-            toast.error(getFriendlyErrorMessage(t, response.error));
-            return;
-        }
-        dispatch(removeMoodEntry(day));
-        toast.success(t("MoodEntryDeleted"));
-        refresh();
-        trailing.refresh();
+        if (await removeDay(day)) toast.success(t("MoodEntryDeleted"));
     };
 
     const allEntries = useMemo(
@@ -339,6 +373,12 @@ export default function Mood() {
                                 );
                             })}
                         </div>
+
+                        {entry && (
+                            <p className="mt-2.5 text-center text-[11.5px] text-text-3">
+                                {t("MoodUnsetHint")}
+                            </p>
+                        )}
 
                         {weekAverage !== null && (
                             <p className="mt-3 text-center text-[12.5px] text-text-2">

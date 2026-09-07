@@ -104,8 +104,45 @@ export default function MoodScreen() {
         [today],
     );
 
+    /** Removes a day's entry and keeps the screen honest about it. */
+    const removeDay = async (day: string) => {
+        const response = await deleteMoodEntry(day, t);
+        if (response.error) {
+            notify.error(getFriendlyErrorMessage(t, response.error));
+            return false;
+        }
+        dispatch(removeMoodEntry(day));
+        // The seeding effect deliberately protects typed text from an entry that arrives empty,
+        // which would otherwise keep the deleted note on screen. An explicit removal is not that
+        // case, so the box is cleared here.
+        if (day === selected) setDraft('');
+        refresh();
+        trailing.refresh();
+        return true;
+    };
+
+    /**
+     * A tap on the face that is already chosen leaves the day unrecorded. Mirror of the web page.
+     *
+     * It asks first when the day carries writing, because removing the entry removes the note
+     * with it and that is the one thing here nobody can get back. A day with only a level is one
+     * tap from being re-recorded, so it goes straight through.
+     */
     const pickLevel = async (mood: MoodLevel) => {
         if (savingLevel) return;
+
+        if (entry?.mood === mood) {
+            if (entry.note) {
+                setConfirmingDelete(selected);
+                return;
+            }
+            setSavingLevel(true);
+            const removed = await removeDay(selected);
+            setSavingLevel(false);
+            if (removed) notify.success(t('MoodEntryRemoved'));
+            return;
+        }
+
         setSavingLevel(true);
         const response = await setMoodLevel(selected, mood, t);
         setSavingLevel(false);
@@ -141,17 +178,10 @@ export default function MoodScreen() {
         const day = confirmingDelete;
         if (!day) return;
         setDeleting(true);
-        const response = await deleteMoodEntry(day, t);
+        const removed = await removeDay(day);
         setDeleting(false);
         setConfirmingDelete(null);
-        if (response.error) {
-            notify.error(getFriendlyErrorMessage(t, response.error));
-            return;
-        }
-        dispatch(removeMoodEntry(day));
-        notify.success(t('MoodEntryDeleted'));
-        refresh();
-        trailing.refresh();
+        if (removed) notify.success(t('MoodEntryDeleted'));
     };
 
     const allEntries = useMemo(
@@ -281,6 +311,12 @@ export default function MoodScreen() {
                             );
                         })}
                     </View>
+
+                    {entry ? (
+                        <Text className="mt-2.5 text-center text-[11.5px] text-text-3">
+                            {t('MoodUnsetHint')}
+                        </Text>
+                    ) : null}
 
                     {weekAverage !== null ? (
                         <Text className="mt-3 text-center text-[12.5px] text-text-2">
