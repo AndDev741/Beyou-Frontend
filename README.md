@@ -36,12 +36,11 @@ repository.
   an axios adapter and mobile a `fetch` adapter, so business logic never knows which client it runs in.
 - **Gamification built in** — XP, per-habit levels, streaks, level-up and streak-milestone
   celebrations, and floating `+XP` feedback on check-in.
-- **A diary that cannot lose your writing** — a five-point mood a day plus optional journalling. The
-  dashboard widget marks the day with one tap through a request that has no field for a note, so it
-  is structurally unable to erase what you wrote that morning; only the diary page's Save button
-  replaces an entry.
+- **A mood a day, and a diary** — a five-point scale plus optional journalling. The dashboard
+  widget marks the day with one tap, through a request that has no field for a note, so it cannot
+  erase what you wrote that morning. Only the diary page's Save button replaces an entry.
 - **AI assistant** — a streaming chat whose tools call the same API the buttons do, so it passes the
-  same ownership checks and validation. It can read your mood levels; it cannot read your journal.
+  same ownership checks and validation. It can read your mood levels. It cannot read your journal.
 - **Theming & i18n as data** — two bases × five accent packs as design tokens, plus `en`/`pt`
   resources, shared across both apps.
 - **Type-safe backend contract** — backend types are generated from the OpenAPI spec and guarded
