@@ -110,16 +110,23 @@ export default function MoodWeek() {
                             }
                             const entry = byDate[day];
                             const face = entry ? MOOD_FACES[entry.mood] : null;
+                            const FaceIcon = face?.Icon;
                             const isToday = day === today;
                             const label = entry
                                 ? `${dayLabel.format(new Date(`${day}T12:00:00`))}: ${t(moodLabelKey(entry.mood))}`
                                 : `${dayLabel.format(new Date(`${day}T12:00:00`))}: ${t("MoodNotRecorded")}`;
+                            // The day's own face, not just its colour — the same five icons the
+                            // scale and the month grid use. A day nobody recorded has no face to
+                            // show, so it keeps the muted circle, which is also what holds the
+                            // row's height steady across a week with gaps in it.
                             const dot = (
                                 <span
-                                    className={`block h-7 w-7 rounded-full ${
-                                        face ? face.fill : "bg-surface-2"
+                                    className={`flex h-7 w-7 items-center justify-center rounded-full ${
+                                        face ? face.text : "bg-surface-2"
                                     } ${isToday ? "ring-2 ring-accent ring-offset-2 ring-offset-surface" : ""}`}
-                                />
+                                >
+                                    {FaceIcon && <FaceIcon size={24} aria-hidden="true" />}
+                                </span>
                             );
                             return (
                                 <div key={day} className="flex flex-col items-center gap-1.5">

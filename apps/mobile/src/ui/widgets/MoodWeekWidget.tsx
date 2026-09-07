@@ -103,12 +103,18 @@ export default function MoodWeekWidget() {
                         const label = `${dayLabel.format(new Date(`${day}T12:00:00`))}: ${
                             entry ? t(moodLabelKey(entry.mood)) : t('MoodNotRecorded')
                         }`;
+                        // The day's own face, not just its colour — the same five icons the
+                        // scale and the month grid use. A day nobody recorded has no face to
+                        // show, so it keeps the muted circle, which is also what holds the
+                        // row's height steady across a week with gaps in it.
                         const dot = (
                             <View
-                                className={`h-7 w-7 rounded-full ${face ? face.fill : 'bg-surface-2'} ${
-                                    isToday ? 'border-2 border-accent' : ''
-                                }`}
-                            />
+                                className={`h-7 w-7 items-center justify-center rounded-full ${
+                                    face ? '' : 'bg-surface-2'
+                                } ${isToday ? 'border-2 border-accent' : ''}`}
+                            >
+                                {face ? <face.Icon size={22} color={face.color(theme)} /> : null}
+                            </View>
                         );
                         return (
                             <View key={day} className="items-center gap-1.5">
