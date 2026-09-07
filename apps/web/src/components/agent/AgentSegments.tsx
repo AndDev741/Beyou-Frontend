@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import {
+    BookHeart,
     CalendarDays,
     Check,
     ChevronRight,
@@ -37,6 +38,7 @@ const READ_TOOLS = new Set([
     // micro-tasks, re-pinned" is not a sentence anyone wants in a chat transcript.
     "getItemMicroTasks",
     "getFocusDay",
+    "getUserMoodHistory",
 ]);
 
 /** Where each write tool points: route + icon + link label. */
@@ -51,6 +53,7 @@ const DESTINATIONS: { match: RegExp; destination: Destination }[] = [
         match: /Routine|Schedule/,
         destination: { route: "/routines", Icon: CalendarDays, labelKey: "Routines" },
     },
+    { match: /Mood/, destination: { route: "/mood", Icon: BookHeart, labelKey: "Mood" } },
     {
         match: /Configuration/,
         destination: { route: "/configuration", Icon: Settings, labelKey: "Config" },
