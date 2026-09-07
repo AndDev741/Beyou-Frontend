@@ -125,6 +125,24 @@ test("tapping today's dot brings the faces back so a mood can be corrected", asy
     expect(await screen.findByTestId("mood-week-faces")).toBeInTheDocument();
 });
 
+/**
+ * The strip carries each day's FACE, not only its colour. Asserted by what renders — an icon
+ * inside the recorded day's dot and nothing inside an unrecorded one — rather than by a class
+ * name, since colour alone is what this replaced.
+ */
+test("a recorded day in the strip shows its face, an unrecorded one shows none", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({ success: [entry("2026-09-06", 5)] });
+
+    renderWithProviders(<MoodWeek />, { storeOverride: store() });
+    await loadedStrip();
+
+    const recorded = screen.getByLabelText(/MoodLevel5/);
+    expect(recorded.querySelector("svg")).toBeInTheDocument();
+
+    const unrecorded = screen.getAllByLabelText(/MoodNotRecorded/)[0];
+    expect(unrecorded.querySelector("svg")).not.toBeInTheDocument();
+});
+
 test("a day with no entry is labelled as not recorded rather than left blank", async () => {
     vi.mocked(getMoodEntries).mockResolvedValue({ success: [entry("2026-09-06", 4)] });
 
