@@ -1334,5 +1334,10 @@
     "MOOD_NOT_FOUND": "Esse dia não tem registo.",
     "MOOD_FUTURE_DATE": "Não dá para registar um dia que ainda não aconteceu.",
     "MOOD_SAVE_FAILED": "Não conseguimos salvar o seu registo. Tente de novo.",
-    "MOOD_DELETE_FAILED": "Não conseguimos apagar o seu registo. Tente de novo."
+    "MOOD_DELETE_FAILED": "Não conseguimos apagar o seu registo. Tente de novo.",
+    "MoodJournalToggle": "Mostrar ou esconder o diário",
+    "MoodRecentShowing": "Mostrando {{shown}} de {{total}}",
+    "MoodRecentShowMore": "Mostrar mais",
+    "MoodRecentAllHidden": "Nenhum humor selecionado — escolha um acima.",
+    "MoodRecentFilterLabel": "Filtrar os registos por como correu o dia"
 }

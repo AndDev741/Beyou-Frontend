@@ -1334,5 +1334,10 @@
     "MOOD_NOT_FOUND": "That day has no entry.",
     "MOOD_FUTURE_DATE": "You cannot record a day that has not happened yet.",
     "MOOD_SAVE_FAILED": "We could not save your entry. Try again.",
-    "MOOD_DELETE_FAILED": "We could not delete your entry. Try again."
+    "MOOD_DELETE_FAILED": "We could not delete your entry. Try again.",
+    "MoodJournalToggle": "Show or hide the journal",
+    "MoodRecentShowing": "Showing {{shown}} of {{total}}",
+    "MoodRecentShowMore": "Show more",
+    "MoodRecentAllHidden": "No mood selected — pick one above.",
+    "MoodRecentFilterLabel": "Filter the entries by how the day felt"
 }

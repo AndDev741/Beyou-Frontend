@@ -3,7 +3,7 @@ import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
-import { BookHeart, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react-native';
+import { BookHeart, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Trash2 } from 'lucide-react-native';
 import { deleteMoodEntry, saveMoodEntry, setMoodLevel } from '@beyou/api/mood/moodApi';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import {
@@ -31,8 +31,8 @@ import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
 
-/** How many past entries the list shows before it stops being a list and becomes a wall. */
-const RECENT_SHOWN = 14;
+/** How many entries one page of the list holds. "Show more" adds another page. */
+const RECENT_PAGE = 14;
 
 /**
  * The diary: how the day felt, what was written about it, and the month behind it.
@@ -67,6 +67,13 @@ export default function MoodScreen() {
     const [savingLevel, setSavingLevel] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    // Session-scoped rather than stored. Storage here is asynchronous, so a remembered choice
+    // would have to blink the journal open before collapsing it (see `useDismissed`), and the
+    // journal already sits BELOW the calendar on this screen — collapsing it is a convenience,
+    // not the way to reach anything.
+    const [journalOpen, setJournalOpen] = useState(true);
+    const [activeLevels, setActiveLevels] = useState<MoodLevel[]>([...MOOD_LEVELS]);
+    const [shown, setShown] = useState(RECENT_PAGE);
     /** Which day the box currently reflects. See the seeding effect below. */
     const dayShown = useRef<string | null>(null);
 
@@ -79,11 +86,13 @@ export default function MoodScreen() {
      */
     useEffect(() => {
         const stored = entry?.note ?? '';
-        setDraft((current) => {
-            if (dayShown.current === selected && current !== '' && stored === '') return current;
-            dayShown.current = selected;
-            return stored;
-        });
+        const sameDay = dayShown.current === selected;
+        dayShown.current = selected;
+        // The comparison happens HERE, not inside the updater. React may call an updater more
+        // than once for the same state, and while the ref was written inside it the second call
+        // saw the first call's mutation, concluded "same day", and returned the PREVIOUS day's
+        // text — so moving to another day kept the old entry on screen.
+        setDraft((current) => (sameDay && current !== '' && stored === '' ? current : stored));
     }, [selected, entry?.id, entry?.note]);
 
     const selectDay = useCallback(
@@ -152,6 +161,23 @@ export default function MoodScreen() {
                 .sort((a, b) => b.date.localeCompare(a.date)),
         [byDate, trailing.byDate, today],
     );
+    const countByLevel = useMemo(() => {
+        const counts = new Map<MoodLevel, number>();
+        for (const item of allEntries) counts.set(item.mood, (counts.get(item.mood) ?? 0) + 1);
+        return counts;
+    }, [allEntries]);
+    const filtered = useMemo(
+        () => allEntries.filter((item) => activeLevels.includes(item.mood)),
+        [allEntries, activeLevels],
+    );
+
+    const toggleLevel = (level: MoodLevel) => {
+        setActiveLevels((prev) =>
+            prev.includes(level) ? prev.filter((value) => value !== level) : [...prev, level],
+        );
+        setShown(RECENT_PAGE);
+    };
+
     const streak = useMemo(() => journalStreak(allEntries, today), [allEntries, today]);
     const weekAverage = useMemo(() => {
         const week = weekEnding(today);
@@ -266,12 +292,28 @@ export default function MoodScreen() {
                 </Card>
 
                 <Card className="px-[18px] py-4">
-                    <View className="flex-row items-center gap-2">
+                    <Pressable
+                        onPress={() => setJournalOpen((open) => !open)}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('MoodJournalToggle')}
+                        accessibilityState={{ expanded: journalOpen }}
+                        testID="mood-journal-toggle"
+                        className="flex-row items-center gap-2"
+                    >
                         <BookHeart size={14.5} color={theme.text3} />
                         <Text className="text-[12.5px] font-semibold text-text-2">
                             {t('MoodJournalTitle')}
                         </Text>
-                    </View>
+                        <View className="ml-auto">
+                            {journalOpen ? (
+                                <ChevronUp size={16} color={theme.text3} />
+                            ) : (
+                                <ChevronDown size={16} color={theme.text3} />
+                            )}
+                        </View>
+                    </Pressable>
+                    {journalOpen ? (
+                    <>
                     <TextInput
                         value={draft}
                         onChangeText={(text) => setDraft(text.slice(0, MAX_MOOD_NOTE_LENGTH))}
@@ -299,6 +341,8 @@ export default function MoodScreen() {
                             testID="mood-save-note"
                         />
                     </View>
+                    </>
+                    ) : null}
                 </Card>
 
                 <Card className="px-[18px] py-4">
@@ -361,18 +405,78 @@ export default function MoodScreen() {
                                     >
                                         {Number(day.slice(8))}
                                     </Text>
-                                    <View
-                                        className={`h-1.5 w-1.5 rounded-full ${face ? face.fill : ''}`}
-                                    />
+                                    {/* The day's own face rather than a coloured dot: the same
+                                        five icons the scale uses, so a month reads in the
+                                        language the rest of the screen already speaks. The
+                                        empty view keeps every cell the same height. */}
+                                    {face ? (
+                                        <face.Icon size={16} color={face.color(theme)} />
+                                    ) : (
+                                        <View className="h-4 w-4" />
+                                    )}
                                 </Pressable>
                             );
                         })}
                     </View>
                 </Card>
 
-                <Text className="mt-1 text-[12.5px] font-semibold text-text-2">
-                    {t('MoodRecentTitle')}
-                </Text>
+                <View className="mt-1 flex-row flex-wrap items-center gap-2">
+                    <Text className="text-[12.5px] font-semibold text-text-2">
+                        {t('MoodRecentTitle')}
+                    </Text>
+                    {/* The list is paged, so say where it ends rather than leaving the cut-off
+                        to be discovered by scrolling. */}
+                    {allEntries.length > 0 ? (
+                        <Text className="text-[11px] text-text-3">
+                            {t('MoodRecentShowing', {
+                                shown: Math.min(shown, filtered.length),
+                                total: allEntries.length,
+                            })}
+                        </Text>
+                    ) : null}
+                </View>
+
+                {allEntries.length > 0 ? (
+                    <View
+                        className="flex-row flex-wrap gap-1.5"
+                        accessibilityLabel={t('MoodRecentFilterLabel')}
+                        testID="mood-level-filter"
+                    >
+                        {MOOD_LEVELS.filter((level) => (countByLevel.get(level) ?? 0) > 0).map(
+                            (level) => {
+                                const isOn = activeLevels.includes(level);
+                                return (
+                                    <Pressable
+                                        key={level}
+                                        onPress={() => toggleLevel(level)}
+                                        accessibilityRole="button"
+                                        accessibilityLabel={t(moodLabelKey(level))}
+                                        accessibilityState={{ selected: isOn }}
+                                        testID={`mood-filter-${level}`}
+                                        className={`flex-row items-center gap-1.5 rounded-full border px-3 py-1 ${
+                                            isOn ? 'border-accent bg-surface-2' : 'border-border'
+                                        }`}
+                                    >
+                                        {isOn ? <Check size={12} color={theme.accent} /> : null}
+                                        <Text
+                                            className={`text-xs font-semibold ${
+                                                isOn ? 'text-accent' : 'text-text-3'
+                                            }`}
+                                        >
+                                            {t(moodLabelKey(level))}
+                                        </Text>
+                                        <Text
+                                            className={`text-[11px] ${isOn ? 'text-accent' : 'text-text-3'}`}
+                                        >
+                                            {countByLevel.get(level)}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            },
+                        )}
+                    </View>
+                ) : null}
+
                 {allEntries.length === 0 && !loading ? (
                     <EmptyState
                         icon={<BookHeart size={20} color={theme.accent} />}
@@ -380,8 +484,12 @@ export default function MoodScreen() {
                         description={t('MoodNoEntriesDescription')}
                         testID="mood-empty-state"
                     />
+                ) : filtered.length === 0 ? (
+                    <Text className="py-6 text-center text-sm text-text-3">
+                        {t('MoodRecentAllHidden')}
+                    </Text>
                 ) : (
-                    allEntries.slice(0, RECENT_SHOWN).map((item) => {
+                    filtered.slice(0, shown).map((item) => {
                         const { Icon, color } = MOOD_FACES[item.mood];
                         return (
                             <Card key={item.date} className="px-[18px] py-3.5">
@@ -418,6 +526,19 @@ export default function MoodScreen() {
                         );
                     })
                 )}
+
+                {filtered.length > shown ? (
+                    <Pressable
+                        onPress={() => setShown((count) => count + RECENT_PAGE)}
+                        accessibilityRole="button"
+                        testID="mood-show-more"
+                        className="rounded-control border border-border py-2.5"
+                    >
+                        <Text className="text-center text-[12.5px] text-text-2">
+                            {t('MoodRecentShowMore')}
+                        </Text>
+                    </Pressable>
+                ) : null}
             </ScrollView>
 
             <DeleteModal
