@@ -2,6 +2,10 @@
 
 Expo SDK 56 · React Native 0.85.3 · Android package `com.beyou.mobile`
 
+Published on Google Play: https://play.google.com/store/apps/details?id=com.beyou.mobile
+(the store build comes from the `Mobile AAB` workflow; everything below is for running
+the app locally).
+
 Navigation: **Expo Router** (file-based, entry `expo-router/entry` in `package.json`;
 routes live under `app/` — `app/_layout.tsx` is the root layout, `(auth)/` and `(app)/`
 are the route groups). Styling: **NativeWind v4** (Tailwind classes in RN, themed at
