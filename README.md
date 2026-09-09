@@ -15,6 +15,7 @@
   <img alt="Turborepo" src="https://img.shields.io/badge/monorepo-Turborepo-ef4444" />
   <img alt="Web" src="https://img.shields.io/badge/web-React%2018%20%2B%20Vite-646cff" />
   <img alt="Mobile" src="https://img.shields.io/badge/mobile-Expo%20SDK%2056-000020" />
+  <a href="https://play.google.com/store/apps/details?id=com.beyou.mobile"><img alt="Get it on Google Play" src="https://img.shields.io/badge/Google%20Play-com.beyou.mobile-34a853?logo=googleplay&logoColor=white" /></a>
 </p>
 
 ---
@@ -23,6 +24,9 @@ Beyou helps people build better days. You define **categories** of life, attach 
 **tasks**, and daily **routines**, then check them off — earning XP, leveling up, and keeping streaks
 alive. A **diary** records how each day actually felt, alongside what got done. The app is bilingual
 (English / Portuguese), themeable, and ships an AI assistant that can act on your account.
+
+Use it at [app.beyouweb.com](https://app.beyouweb.com) or install the Android app from
+[Google Play](https://play.google.com/store/apps/details?id=com.beyou.mobile). One account works on both.
 
 This repository is the **frontend monorepo**. It contains both user-facing clients and the shared
 TypeScript core they have in common. The Spring Boot API lives in a separate `Beyou-backend-spring`

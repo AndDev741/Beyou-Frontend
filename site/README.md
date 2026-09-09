@@ -35,6 +35,10 @@ site/
 | Landing | `/` | `/pt/` |
 | Privacy policy | `/privacy/` | `/pt/privacidade/` |
 
+The Android app is on Google Play at
+`https://play.google.com/store/apps/details?id=com.beyou.mobile`. The download
+section links it, and the home page JSON-LD carries it as `installUrl`.
+
 `/privacy/` is the URL the Google Play listing points at, and its
 `#data-deletion` anchor is what the Play Console data deletion field points at.
 Neither should move. `build.py --check` fails if that anchor disappears.

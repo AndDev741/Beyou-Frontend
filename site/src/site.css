@@ -1272,10 +1272,11 @@ section { padding-block: clamp(72px, 9vw, 132px); }
 .close > .wrap p { color: var(--text-2); max-width: 42ch; }
 
 /* ---- where to get it -----------------------------------------------------
-   One platform ships and two do not, so the grid is asymmetric on purpose:
-   the working one is the primary card, the other two are dashed and waiting.
-   The official store badges are brand assets that have to come from Google
-   and Apple, so these are device icons plus plain names until then. */
+   Two platforms ship and one does not, so the grid is asymmetric on purpose:
+   the two working ones are equal primary cards side by side, and the waiting
+   one is a dashed row underneath, spanning both. The official store badges
+   are brand assets with their own usage rules, so these are device icons
+   plus plain names until those are added. */
 .plats {
   width: 100%;
   max-width: 780px;
@@ -1284,7 +1285,7 @@ section { padding-block: clamp(72px, 9vw, 132px); }
   gap: 14px;
   text-align: left;
 }
-@media (min-width: 720px) { .plats { grid-template-columns: 1.25fr 1fr; } }
+@media (min-width: 720px) { .plats { grid-template-columns: 1fr 1fr; } .plats > .plat-wait { grid-column: 1 / -1; } }
 
 .plat {
   display: grid;
@@ -1308,7 +1309,6 @@ section { padding-block: clamp(72px, 9vw, 132px); }
 .plat-live { background: var(--surface); border-color: var(--border); box-shadow: var(--shadow); }
 .plat-live .btn { margin-top: 12px; justify-self: start; }
 
-.plat-soon { display: grid; gap: 14px; align-content: start; }
 .plat-wait {
   grid-template-columns: auto 1fr auto;
   align-items: center;
@@ -1327,7 +1327,7 @@ section { padding-block: clamp(72px, 9vw, 132px); }
   color: var(--accent);
   white-space: nowrap;
 }
-/* Further out than Play, and the copy says so rather than the contrast. */
+/* Still to come, and the copy says so rather than the contrast. */
 .plat-later .plat-name { color: var(--text-2); }
 .plat-later .plat-state { background: var(--surface-2); color: var(--text-3); }
 
@@ -1480,7 +1480,7 @@ section { padding-block: clamp(72px, 9vw, 132px); }
   .plats { gap: 10px; margin-top: 6px; }
   .plat { padding: 12px 14px; }
   /* The panel is centred, so a left-aligned block inside it read as misaligned.
-     Only the live card centres: the two waiting rows keep their label-then-badge
+     Only the live cards centre: the waiting row keeps its label-then-badge
      line, which is a row and not a block. */
   .plat-live { justify-items: center; text-align: center; }
   .plat-live .btn { justify-self: center; }

@@ -36,6 +36,7 @@ DIST = os.path.join(HERE, "dist")
 
 ORIGIN = "https://beyouweb.com"
 APP = "https://app.beyouweb.com/"
+PLAY = "https://play.google.com/store/apps/details?id=com.beyou.mobile"
 DOCS = "https://docs.beyouweb.com/"
 
 # The privacy policy names a controller, and under the GDPR that has to be a
@@ -183,6 +184,7 @@ def json_ld(page, code, loc, title, description):
         "name": "Beyou",
         "url": ORIGIN + "/",
         "logo": ORIGIN + "/a/icon.svg",
+        "sameAs": [APP, PLAY],
     }
     graph = [site, org]
 
@@ -193,6 +195,7 @@ def json_ld(page, code, loc, title, description):
             "applicationCategory": "ProductivityApplication",
             "operatingSystem": "Web, Android",
             "url": APP,
+            "installUrl": PLAY,
             "description": description,
             "inLanguage": ["en", "pt-BR"],
             "isAccessibleForFree": True,
@@ -498,7 +501,7 @@ def check():
 
             for host in re.findall(r'(?:src|href)="(https?://[^/"]+)', document):
                 if host not in (ORIGIN, APP.rstrip("/"), DOCS.rstrip("/"),
-                                "https://github.com"):
+                                "https://github.com", "https://play.google.com"):
                     problems.append("%s: unexpected external host %s" % (where, host))
 
             try:
