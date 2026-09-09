@@ -17,8 +17,24 @@ describe("fetchOnboardingSuggestions", () => {
 
     const result = await fetchOnboardingSuggestions({ step: "CATEGORIES", categoryNames: ["Health"] }, t);
 
-    expect(post).toHaveBeenCalledWith("/onboarding/suggestions", { step: "CATEGORIES", categoryNames: ["Health"] });
+    expect(post).toHaveBeenCalledWith(
+      "/onboarding/suggestions",
+      { step: "CATEGORIES", categoryNames: ["Health"] },
+      { timeout: 90_000 },
+    );
     expect(result.success?.categories?.[0].name).toBe("Health");
+  });
+
+  // Without the override this call inherits the mobile client's 20s abort, which is
+  // shorter than the LLM behind the endpoint takes: production answered in 31s and
+  // 60s, so every attempt aborted and the wizard reported the AI as unavailable.
+  test("asks for far more time than a plain REST call gets", async () => {
+    post.mockResolvedValue({ data: {} });
+
+    await fetchOnboardingSuggestions({ step: "HABITS_TASKS" }, t);
+
+    const config = post.mock.calls[0][2];
+    expect(config?.timeout).toBeGreaterThan(60_000);
   });
 
   test("returns error payload on failure", async () => {
