@@ -245,6 +245,35 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
                             />
                             {t("FocusLongBreakEveryUnit")}
                         </label>
+
+                        {/* The two alert channels, each with its own switch. Off means off: no
+                            beep and no card, however the browser permission stands. */}
+                        <div className="mt-3 flex flex-col gap-2">
+                            <label className="flex items-center gap-2 text-[12px] opacity-85">
+                                <input
+                                    type="checkbox"
+                                    checked={settings.soundEnabled}
+                                    onChange={(event) =>
+                                        changeSettings({ soundEnabled: event.target.checked })
+                                    }
+                                    className="h-4 w-4 accent-on-accent"
+                                    data-testid="focus-setting-soundEnabled"
+                                />
+                                {t("FocusSound")}
+                            </label>
+                            <label className="flex items-center gap-2 text-[12px] opacity-85">
+                                <input
+                                    type="checkbox"
+                                    checked={settings.notifyEnabled}
+                                    onChange={(event) =>
+                                        changeSettings({ notifyEnabled: event.target.checked })
+                                    }
+                                    className="h-4 w-4 accent-on-accent"
+                                    data-testid="focus-setting-notifyEnabled"
+                                />
+                                {t("FocusNotify")}
+                            </label>
+                        </div>
                     </div>
                 )}
             </div>

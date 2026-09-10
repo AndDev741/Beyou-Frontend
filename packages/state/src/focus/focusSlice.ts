@@ -263,7 +263,7 @@ const focusSlice = createSlice({
             return { ...state, selectedCycle: action.payload };
         },
 
-        /** Any of the four numbers, clamped. */
+        /** Any of the four numbers, clamped, and the two alert switches. */
         pomodoroSettingsChanged(state, action: PayloadAction<Partial<PomodoroSettings>>) {
             const patch = action.payload;
             return {
@@ -285,6 +285,10 @@ const focusSlice = createSlice({
                         patch.longBreakEvery !== undefined
                             ? clampLongBreakEvery(patch.longBreakEvery)
                             : state.settings.longBreakEvery,
+                    soundEnabled:
+                        typeof patch.soundEnabled === 'boolean' ? patch.soundEnabled : state.settings.soundEnabled,
+                    notifyEnabled:
+                        typeof patch.notifyEnabled === 'boolean' ? patch.notifyEnabled : state.settings.notifyEnabled,
                 },
             };
         },

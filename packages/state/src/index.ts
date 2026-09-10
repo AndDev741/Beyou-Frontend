@@ -195,11 +195,16 @@ export {
 export type { GoalChildrenSummary, GoalTreeNode } from './goal/goalTree';
 export {
   GOAL_VIEWER_SORT_KEYS,
+  GOAL_VIEWER_LAYOUTS,
+  DEFAULT_GOAL_VIEWER_LAYOUT,
   isGoalViewerSortKey,
+  isGoalViewerLayout,
+  goalViewerLayoutFrom,
   orderGoalsForViewer,
   viewerIndexFor,
+  viewerSlideFor,
 } from './goal/goalViewer';
-export type { GoalViewerSortKey, GoalViewerFilter } from './goal/goalViewer';
+export type { GoalViewerSortKey, GoalViewerFilter, GoalViewerLayout, GoalViewerSlide } from './goal/goalViewer';
 // editGoalSlice: editModeEnter, editDescriptionEnter, editIconIdEnter collide — import via deep path @beyou/state/goal/editGoalSlice
 export {
   editGoalIdEnter,

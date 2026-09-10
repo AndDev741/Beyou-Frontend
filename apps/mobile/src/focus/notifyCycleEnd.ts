@@ -112,6 +112,16 @@ async function ensureChannel(): Promise<void> {
     }
 }
 
+export type CycleEndNotificationContent = {
+    title: string;
+    message: string;
+    /**
+     * Whether the OS chimes with the card. Defaults to on. Off is the person's "sound when a cycle
+     * ends" switch: the card still shows, silently, because the two switches are independent.
+     */
+    sound?: boolean;
+};
+
 /**
  * Arm the alert for a cycle ending at `endsAt`.
  *
@@ -119,7 +129,7 @@ async function ensureChannel(): Promise<void> {
  */
 export async function armCycleEndNotification(
     endsAt: number,
-    body: { title: string; message: string },
+    body: CycleEndNotificationContent,
 ): Promise<void> {
     await cancelCycleEndNotification();
 
@@ -136,7 +146,7 @@ export async function armCycleEndNotification(
         await ensureChannel();
         try {
             const id = await Notifications.scheduleNotificationAsync({
-                content: { title: body.title, body: body.message, sound: true },
+                content: { title: body.title, body: body.message, sound: body.sound ?? true },
                 trigger: {
                     type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
                     seconds,

@@ -20,7 +20,7 @@
  * field.** Dropping the slice is usually the right migration: the reducer then supplies its own
  * initial state, which is by definition the current shape.
  */
-export const PERSIST_VERSION = 5;
+export const PERSIST_VERSION = 6;
 
 /**
  * Drop the focus slice by REMOVING the key, never by assigning `undefined`.
@@ -66,6 +66,23 @@ export const migrations = {
             ...state,
             ...(state.viewFilters ? { viewFilters: { goalsViewer: 'status', ...viewFilters } } : {}),
             ...(state.editGoal ? { editGoal: { parentId: null, ...editGoal } } : {}),
+        };
+    },
+    // v6: `viewFilters` gained `goalsViewerLayout` (grouped vs list deck) and the focus
+    // `settings` gained `soundEnabled` / `notifyEnabled` (the cycle-end alerts). Filled with
+    // the defaults rather than dropped: a running pomodoro and four tuned durations are
+    // exactly what a person expects to find after a deploy. `restoreFocusState` merges
+    // settings over the defaults too, so this is belt and braces, per the rule above.
+    6: (state: Record<string, unknown>) => {
+        const viewFilters = (state.viewFilters ?? {}) as Record<string, unknown>;
+        const focus = (state.focus ?? {}) as Record<string, unknown>;
+        const settings = (focus.settings ?? {}) as Record<string, unknown>;
+        return {
+            ...state,
+            ...(state.viewFilters ? { viewFilters: { goalsViewerLayout: 'grouped', ...viewFilters } } : {}),
+            ...(state.focus
+                ? { focus: { ...focus, settings: { soundEnabled: true, notifyEnabled: true, ...settings } } }
+                : {}),
         };
     },
 };

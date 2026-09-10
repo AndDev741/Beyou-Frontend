@@ -39,6 +39,17 @@ export type PomodoroSettings = {
      * forbidding.
      */
     longBreakEvery: number;
+    /**
+     * Play a short sound when a cycle runs out. Web synthesises it; mobile rides the
+     * notification's own sound. Default on: a timer nobody hears is a timer nobody trusts.
+     */
+    soundEnabled: boolean;
+    /**
+     * Raise a system notification when a cycle runs out (the browser's on web, the OS's on
+     * mobile). Permission is asked on the first start, never at boot, and a refusal degrades
+     * to silence rather than an error.
+     */
+    notifyEnabled: boolean;
 };
 
 /** The classic numbers, and what a fresh account starts with. */
@@ -47,6 +58,8 @@ export const DEFAULT_POMODORO_SETTINGS: PomodoroSettings = {
     shortBreak: 5,
     longBreak: 15,
     longBreakEvery: 4,
+    soundEnabled: true,
+    notifyEnabled: true,
 };
 
 /**

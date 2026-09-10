@@ -208,6 +208,84 @@ describe("GoalBox with sub-goals", () => {
     expect(screen.getByRole("button", { name: "Complete" })).toBeInTheDocument();
   });
 
+  const grandChild = child("gc1", { name: "Grandchild gc1", parentId: "c1", currentValue: 2, targetValue: 7, unit: "reps" });
+  const parentRow = { ...baseProps, name: baseProps.title, targetValue: 100, currentValue: 0, parentId: null };
+
+  it("the sub-goal counter opens the progress modal with that sub-goal's numbers and adds the typed amount", async () => {
+    const kids = [child("c1")];
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={100} currentValue={0} subGoals={kids} allGoals={[parentRow, ...kids] as never} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /SubGoals/ }));
+
+    fireEvent.click(screen.getByRole("button", { name: "UpdateProgress: Child c1" }));
+    // The modal reads the child, not the card: its unit shows up next to its numbers.
+    expect(screen.getByText("5/10 km")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "+5" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+
+    await waitFor(() =>
+      expect(increaseCurrentValue).toHaveBeenCalledWith("c1", expect.anything(), 5)
+    );
+    expect(increaseCurrentValue).not.toHaveBeenCalledWith("goal-1", expect.anything(), expect.anything());
+  });
+
+  it("the sub-goal progress modal also removes an amount", async () => {
+    const kids = [child("c1")];
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={100} currentValue={0} subGoals={kids} allGoals={[parentRow, ...kids] as never} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /SubGoals/ }));
+    fireEvent.click(screen.getByTestId("goal-subgoal-progress-c1"));
+    fireEvent.change(screen.getByLabelText("Amount"), { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+
+    await waitFor(() =>
+      expect(decreaseCurrentValue).toHaveBeenCalledWith("c1", expect.anything(), 3)
+    );
+  });
+
+  it("a read-only card keeps the sub-goal counter as plain text", () => {
+    const kids = [child("c1")];
+    renderWithProviders(
+      <GoalBox {...baseProps} readonly targetValue={100} currentValue={0} subGoals={kids} allGoals={[parentRow, ...kids] as never} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /SubGoals/ }));
+
+    expect(screen.getByText("5/10")).toBeInTheDocument();
+    expect(screen.queryByTestId("goal-subgoal-progress-c1")).toBeNull();
+    expect(screen.queryByRole("button", { name: "UpdateProgress: Child c1" })).toBeNull();
+  });
+
+  it("a completed sub-goal has nothing to press on its counter", () => {
+    const kids = [child("c2", { currentValue: 10, complete: true, status: "COMPLETED" })];
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={100} currentValue={0} subGoals={kids} allGoals={[parentRow, ...kids] as never} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /SubGoals/ }));
+
+    expect(screen.getByText("10/10")).toBeInTheDocument();
+    expect(screen.queryByTestId("goal-subgoal-progress-c2")).toBeNull();
+  });
+
+  it("a grandchild row opens the modal on its own numbers", async () => {
+    const kids = [child("c1")];
+    renderWithProviders(
+      <GoalBox {...baseProps} targetValue={100} currentValue={0} subGoals={kids} allGoals={[parentRow, ...kids, grandChild] as never} />
+    );
+    fireEvent.click(screen.getByRole("button", { name: /SubGoals/ }));
+    expect(screen.getByTestId("subgoal-row-gc1")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("goal-subgoal-progress-gc1"));
+    expect(screen.getByText("2/7 reps")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "+10" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+
+    await waitFor(() =>
+      expect(increaseCurrentValue).toHaveBeenCalledWith("gc1", expect.anything(), 10)
+    );
+  });
+
   it("offers Add sub-goal only while there is a level left", () => {
     const onAdd = vi.fn();
     const { unmount } = renderWithProviders(

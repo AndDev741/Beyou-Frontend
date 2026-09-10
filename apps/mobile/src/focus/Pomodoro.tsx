@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, TextInput } from 'react-native';
+import { View, Text, Pressable, TextInput, Switch } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Pause, Play, RotateCcw, Settings2, SkipForward, X } from 'lucide-react-native';
 import {
@@ -240,6 +240,39 @@ export default function Pomodoro({ item, date }: { item: FocusItem; date: string
               <Text className="text-[12px] text-on-accent opacity-85">
                 {t('FocusLongBreakEveryUnit')}
               </Text>
+            </View>
+
+            {/* The two alert channels, each with its own switch. Off means off, whatever the OS
+                permission says. */}
+            <View className="mt-3 flex-row items-center justify-between">
+              <Text className="flex-1 pr-3 text-[12px] text-on-accent opacity-85">
+                {t('FocusSound')}
+              </Text>
+              <Switch
+                value={settings.soundEnabled}
+                onValueChange={(next) => {
+                  changeSettings({ soundEnabled: next });
+                }}
+                accessibilityLabel={t('FocusSound')}
+                trackColor={{ true: theme.onAccent, false: theme.border }}
+                thumbColor={theme.accent}
+                testID="focus-setting-soundEnabled"
+              />
+            </View>
+            <View className="mt-2 flex-row items-center justify-between">
+              <Text className="flex-1 pr-3 text-[12px] text-on-accent opacity-85">
+                {t('FocusNotify')}
+              </Text>
+              <Switch
+                value={settings.notifyEnabled}
+                onValueChange={(next) => {
+                  changeSettings({ notifyEnabled: next });
+                }}
+                accessibilityLabel={t('FocusNotify')}
+                trackColor={{ true: theme.onAccent, false: theme.border }}
+                thumbColor={theme.accent}
+                testID="focus-setting-notifyEnabled"
+              />
             </View>
           </View>
         ) : null}

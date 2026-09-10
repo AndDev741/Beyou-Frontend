@@ -74,3 +74,32 @@ describe("persisted state migrations", () => {
         expect("editGoal" in migrated).toBe(false);
     });
 });
+
+describe("v6: goal viewer layout and cycle-end alerts", () => {
+    test("fills the new viewFilters key and the new focus settings, keeping a running timer", () => {
+        const stale = {
+            focus: { mode: "fullscreen", timer: { endsAt: 1 }, settings: { pomodoro: 30, shortBreak: 7, longBreak: 20, longBreakEvery: 3 } },
+            viewFilters: { goalsViewer: "status", goals: "name-asc" },
+        };
+
+        const migrated = migrations[6](stale as never) as Record<string, Record<string, unknown>>;
+
+        expect(migrated.viewFilters).toEqual({ goalsViewerLayout: "grouped", goalsViewer: "status", goals: "name-asc" });
+        expect(migrated.focus).toEqual({
+            mode: "fullscreen",
+            timer: { endsAt: 1 },
+            settings: { pomodoro: 30, shortBreak: 7, longBreak: 20, longBreakEvery: 3, soundEnabled: true, notifyEnabled: true },
+        });
+    });
+
+    test("does not override a value the person already chose, and invents no slices", () => {
+        const chosen = { viewFilters: { goalsViewerLayout: "list" }, focus: { settings: { soundEnabled: false } } };
+        const migrated = migrations[6](chosen as never) as Record<string, Record<string, Record<string, unknown>>>;
+        expect(migrated.viewFilters.goalsViewerLayout).toBe("list");
+        expect(migrated.focus.settings.soundEnabled).toBe(false);
+
+        const empty = migrations[6]({ habits: {} } as never) as Record<string, unknown>;
+        expect("viewFilters" in empty).toBe(false);
+        expect("focus" in empty).toBe(false);
+    });
+});

@@ -281,3 +281,108 @@ describe("coming back to a running timer", () => {
         expect(store.getState().focus.returnToGroupId).toBeNull();
     });
 });
+
+/**
+ * The XP has to come from the check response. The store never rewrites `xpGenerated` on a row
+ * it already holds, so reading it back from there showed nothing on the first check and a stale
+ * value on the next one.
+ */
+describe("Ultrafoco shows the XP a completion earned", () => {
+    const checkedResponse = (checked: boolean) => ({
+        success: {
+            refreshItemChecked: {
+                groupItemId: "hg2",
+                check: { id: "c1", checkDate: today, checkTime: "12:30", checked, xpGenerated: 12 },
+            },
+        },
+    });
+
+    test("a completion floats the amount and keeps it under the item", async () => {
+        atClock("12:30");
+        vi.mocked(checkRoutine).mockResolvedValue(checkedResponse(true) as never);
+        renderWithProviders(<Ultrafoco routine={dailyRoutine as never} />, { storeOverride: buildStore() });
+        await waitFor(() => expect(screen.getByText("Read")).toBeInTheDocument());
+
+        await userEvent.click(screen.getByTestId("focus-ultra-check"));
+
+        expect(await screen.findByTestId("focus-ultra-xp")).toHaveTextContent("+12 XP");
+        expect(screen.getByTestId("xp-float")).toHaveTextContent("+12 XP");
+
+        // The float is a moment; the chip stays for as long as the item is done.
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(1300);
+        });
+        expect(screen.queryByTestId("xp-float")).not.toBeInTheDocument();
+        expect(screen.getByTestId("focus-ultra-xp")).toHaveTextContent("+12 XP");
+    });
+
+    test("an undo takes the XP away with it", async () => {
+        atClock("12:30");
+        vi.mocked(checkRoutine).mockResolvedValue(checkedResponse(true) as never);
+        renderWithProviders(<Ultrafoco routine={dailyRoutine as never} />, { storeOverride: buildStore() });
+        await waitFor(() => expect(screen.getByText("Read")).toBeInTheDocument());
+
+        await userEvent.click(screen.getByTestId("focus-ultra-check"));
+        expect(await screen.findByTestId("focus-ultra-xp")).toBeInTheDocument();
+
+        vi.mocked(checkRoutine).mockResolvedValue(checkedResponse(false) as never);
+        await userEvent.click(screen.getByTestId("focus-ultra-check"));
+
+        await waitFor(() => expect(screen.queryByTestId("focus-ultra-xp")).not.toBeInTheDocument());
+        expect(screen.queryByTestId("xp-float")).not.toBeInTheDocument();
+    });
+
+    test("a skip shows no XP even when the response carries a number", async () => {
+        atClock("12:30");
+        vi.mocked(skipRoutine).mockResolvedValue({
+            success: {
+                refreshItemChecked: {
+                    groupItemId: "hg2",
+                    check: { id: "c1", checkDate: today, checkTime: "12:30", checked: false, skipped: true, xpGenerated: 12 },
+                },
+            },
+        } as never);
+        renderWithProviders(<Ultrafoco routine={dailyRoutine as never} />, { storeOverride: buildStore() });
+        await waitFor(() => expect(screen.getByText("Read")).toBeInTheDocument());
+
+        await userEvent.click(screen.getByTestId("focus-ultra-skip"));
+        await waitFor(() => expect(skipRoutine).toHaveBeenCalled());
+
+        expect(screen.queryByTestId("xp-float")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("focus-ultra-xp")).not.toBeInTheDocument();
+    });
+});
+
+describe("a skipped item does not offer the accent Done button", () => {
+    test("renders the neutral look instead of the primary one", async () => {
+        // Skipped, but not checked: the old binary ternary read "not checked" and painted the
+        // button in the accent colour, as if the item were still waiting.
+        const withSkip = {
+            ...dailyRoutine,
+            routineSections: dailyRoutine.routineSections.map((section) =>
+                section.id === "s2"
+                    ? {
+                          ...section,
+                          habitGroup: section.habitGroup.map((group) => ({
+                              ...group,
+                              habitGroupChecks: [{ id: "c", checkDate: today, checked: false, skipped: true, xpGenerated: 0 }],
+                          })),
+                      }
+                    : section
+            ),
+        };
+        atClock("12:30");
+        renderWithProviders(<Ultrafoco routine={withSkip as never} />, { storeOverride: buildStore() });
+        await waitFor(() => expect(screen.getByTestId("focus-ultra-picker-toggle")).toBeInTheDocument());
+
+        // Reach the skipped item by hand: the resolver may have moved past it.
+        await userEvent.click(screen.getByTestId("focus-ultra-picker-toggle"));
+        await userEvent.click(screen.getByTestId("focus-ultra-pick-hg2"));
+        expect(screen.getByText("Read")).toBeInTheDocument();
+        expect(screen.getByTestId("focus-ultra-skip")).toHaveTextContent("Undo");
+
+        const button = screen.getByTestId("focus-ultra-check");
+        expect(button).not.toHaveClass("bg-accent");
+        expect(button).toHaveClass("border-border");
+    });
+});

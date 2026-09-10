@@ -18,6 +18,7 @@ import {
     type CycleKind,
     type PomodoroSettings,
 } from "@beyou/state";
+import { primeCycleEndAlerts } from "../../components/focus/notifyCycleEnd";
 
 /**
  * The pomodoro, ticking.
@@ -94,10 +95,14 @@ export function usePomodoro(groupId: string | null, date: string) {
     const start = useCallback(
         (kind: CycleKind, minutes: number) => {
             if (!groupId) return;
+            // The click that starts a cycle is the only gesture the alert can borrow. Audio and
+            // the notification prompt both need one, and the cycle ending 25 minutes from now is
+            // not one. Fire-and-forget: a refusal leaves the timer exactly as it was.
+            void primeCycleEndAlerts(settings);
             dispatch(pomodoroStarted({ groupId, kind, minutes, now: Date.now(), date }));
             setNow(Date.now());
         },
-        [dispatch, groupId, date]
+        [dispatch, groupId, date, settings]
     );
 
     return {

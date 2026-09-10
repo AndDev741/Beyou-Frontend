@@ -324,9 +324,22 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
               ) : (
                 <ScrollView
                   ref={scrollRef}
+                  testID="agent-thread"
                   className="flex-1 px-3"
-                  contentContainerStyle={{ paddingVertical: 16, gap: 10 }}
-                  onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: !reduceMotion })}
+                  // The composer sits right under this list. With 16px at the bottom the
+                  // last tool card of a long reply ended up against its border, and any
+                  // scroll that landed short left it painted underneath. The extra room
+                  // is what keeps the final card readable when the scroll is off by a bit.
+                  contentContainerStyle={{ paddingTop: 16, paddingBottom: 28, gap: 10 }}
+                  // While a reply streams, the content grows in RAF-batched bursts and each
+                  // animated scrollToEnd supersedes the last one mid-flight. When the
+                  // streaming bubble (spinner included) is then swapped for the persisted
+                  // message the content shrinks and the interrupted animation lands short,
+                  // with the last cards cut off. Jump without animation until the reply
+                  // settles, then animate the final correction as before.
+                  onContentSizeChange={() =>
+                    scrollRef.current?.scrollToEnd({ animated: !isSending && !reduceMotion })
+                  }
                   // And on resize, not only on new content. The keyboard shortens this
                   // list without changing a word in it, so onContentSizeChange stays
                   // quiet and the message you were reading slides out of view exactly
@@ -374,6 +387,10 @@ export default function AgentChatModal({ visible, onClose, chat }: AgentChatModa
                       )}
                     </View>
                   )}
+                  {/* The thread's last node. It gives the list a real end to measure
+                      (the gap before it counts as clearance too) and gives tests a
+                      handle on where the content stops. */}
+                  <View testID="agent-thread-end" />
                 </ScrollView>
               )}
 
