@@ -257,9 +257,12 @@ function GoalBox({
 
   const isCompleted = status === "COMPLETED";
 
+  // Same read-side rule as the dashboard loader: a fetch that failed, or a mocked one that
+  // answered nothing, is not applied. Reading `.success` off an undefined answer was an
+  // unhandled rejection that only surfaced once the test had already passed.
   const refreshGoals = async () => {
     const goals = await getGoals(t);
-    if (Array.isArray(goals.success)) dispatch(enterGoals(goals.success));
+    if (Array.isArray(goals?.success)) dispatch(enterGoals(goals.success));
   };
 
   const moveChild = async (childId: string, amount: number, direction: "increase" | "decrease") => {
