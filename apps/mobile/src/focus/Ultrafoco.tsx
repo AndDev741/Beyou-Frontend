@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import { Ban, Check, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { itemGroupToCheck } from '@beyou/types/routine/itemGroupToCheck';
 import type { itemGroupToSkip } from '@beyou/types/routine/itemGroupToSkip';
+import type { RefreshUI } from '@beyou/types/refreshUi/refreshUi.type';
 import {
   FOCUS_REASON_LABEL_KEY,
   formatTimeRange,
@@ -25,8 +26,12 @@ import BeyouIcon from '../ui/BeyouIcon';
 import Button from '../ui/Button';
 import Chip from '../ui/Chip';
 import IconButton from '../ui/IconButton';
+import XpFloat from '../ui/dashboard/XpFloat';
 import type { RootState } from '../store';
 import useTodayInZone from '../ui/useTodayInZone';
+
+/** Same lifetime as the dashboard row's float, so the two screens feel like one system. */
+const XP_FLOAT_DURATION_MS = 1200;
 
 /**
  * One item at a time, on native.
@@ -49,6 +54,15 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
   const { check, skip } = useRoutineCheckin();
   const [pending, setPending] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  // The XP comes from the check RESPONSE, never from the store. `todayRoutineSlice` keeps the
+  // `xpGenerated` it already had on a row and does not patch a LIST routine's `items[]`, so
+  // reading it back from there showed nothing on the first check. Both pieces are keyed by
+  // group id: the person can step to another item while the float is still in the air.
+  const [xpFloat, setXpFloat] = useState<{ groupId: string; xp: number } | null>(null);
+  const [xpEarned, setXpEarned] = useState<Record<string, number>>({});
+  const floatTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (floatTimer.current) clearTimeout(floatTimer.current); }, []);
 
   const allHabits = useSelector((s: RootState) => s.habits.habits);
   const allTasks = useSelector((s: RootState) => s.tasks.tasks);
@@ -115,6 +129,34 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
       setPending(false);
     }
   };
+
+  /**
+   * A completion shows its XP twice: a float for the instant, and a chip that stays under the
+   * item for as long as it is done. An undo, or a skip that cleared a check, takes the chip
+   * away. A response with no item (a failed call returns null) changes nothing.
+   */
+  const showXp = (result: RefreshUI | null) => {
+    const itemChecked = result?.refreshItemChecked;
+    if (!itemChecked) return;
+    const { groupItemId, check: checkResult } = itemChecked;
+    if (checkResult.checked && checkResult.xpGenerated) {
+      setXpEarned((previous) => ({ ...previous, [groupItemId]: checkResult.xpGenerated }));
+      setXpFloat({ groupId: groupItemId, xp: checkResult.xpGenerated });
+      if (floatTimer.current) clearTimeout(floatTimer.current);
+      floatTimer.current = setTimeout(() => setXpFloat(null), XP_FLOAT_DURATION_MS);
+      return;
+    }
+    setXpEarned((previous) => {
+      if (!(groupItemId in previous)) return previous;
+      const { [groupItemId]: _gone, ...rest } = previous;
+      return rest;
+    });
+    // A quick undo lands while the float is still in the air, announcing XP that no longer
+    // exists. Down it comes.
+    setXpFloat((previous) => (previous?.groupId === groupItemId ? null : previous));
+  };
+
+  const earned = xpEarned[current.groupId];
 
   return (
     <View className="gap-2.5" testID="focus-ultra">
@@ -229,30 +271,53 @@ export default function Ultrafoco({ routine }: { routine: Routine }) {
           </Text>
         ) : null}
 
+        {earned !== undefined ? (
+          <View className="mt-2.5">
+            <Chip size="sm" variant="xp" testID="focus-ultra-xp">
+              {`+${earned} XP`}
+            </Chip>
+          </View>
+        ) : null}
+
         <View className="mt-4 w-full flex-row items-center justify-center gap-2.5">
-          <Button
-            text={checked ? t('Undo') : t('Done')}
-            mode={checked ? 'cancel' : 'primary'}
-            size="medium"
-            disabled={pending}
-            icon={<Check size={16} color={checked ? theme.text : theme.onAccent} />}
-            onPress={() => guard(() => check(groupDto<itemGroupToCheck>({}), {
-              wasChecked: checked,
-              name: found?.name,
-              motivationalPhrase:
-                found && 'motivationalPhrase' in found
-                  ? (found.motivationalPhrase as string | undefined)
-                  : undefined,
-            }))}
-            testID="focus-ultra-check"
-          />
+          {/* The wrapper is what the float is positioned against (it sits at top:-14). */}
+          <View>
+            {xpFloat && xpFloat.groupId === current.groupId ? <XpFloat xp={xpFloat.xp} /> : null}
+            {/* Three states, and `checked` wins when both are set, as on the dashboard row.
+                A skipped item used to fall into the accent branch because the ternary only
+                knew "checked or not", which read as an item still waiting to be done. */}
+            <Button
+              text={checked ? t('Undo') : t('Done')}
+              mode={checked ? 'cancel' : skipped ? 'default' : 'primary'}
+              size="medium"
+              disabled={pending}
+              icon={<Check size={16} color={checked || skipped ? theme.text : theme.onAccent} />}
+              onPress={() =>
+                guard(async () =>
+                  showXp(
+                    await check(groupDto<itemGroupToCheck>({}), {
+                      wasChecked: checked,
+                      name: found?.name,
+                      motivationalPhrase:
+                        found && 'motivationalPhrase' in found
+                          ? (found.motivationalPhrase as string | undefined)
+                          : undefined,
+                    }),
+                  ),
+                )
+              }
+              testID="focus-ultra-check"
+            />
+          </View>
           <Button
             text={skipped ? t('Undo') : t('Skip')}
             mode="default"
             size="medium"
             disabled={pending}
             icon={<Ban size={15} color={theme.text2} />}
-            onPress={() => guard(() => skip(groupDto<itemGroupToSkip>({ skip: !skipped })))}
+            onPress={() =>
+              guard(async () => showXp(await skip(groupDto<itemGroupToSkip>({ skip: !skipped }))))
+            }
             testID="focus-ultra-skip"
           />
         </View>

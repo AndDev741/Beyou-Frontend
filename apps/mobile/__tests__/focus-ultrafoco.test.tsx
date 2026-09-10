@@ -251,3 +251,118 @@ describe('coming back to a running timer', () => {
     expect(store.getState().focus.returnToGroupId).toBeNull();
   });
 });
+
+/**
+ * The XP has to come from the check response. The store never rewrites `xpGenerated` on a row
+ * it already holds, so reading it back from there showed nothing on the first check and a stale
+ * value on the next one.
+ */
+describe('ultrafoco shows the XP a completion earned', () => {
+  const checkedResponse = (checked: boolean) => ({
+    success: {
+      refreshItemChecked: {
+        groupItemId: 'hg2',
+        check: { id: 'c1', checkDate: '2026-08-28', checkTime: '12:30', checked, xpGenerated: 12 },
+      },
+    },
+  });
+
+  it('a completion floats the amount and keeps it under the item', async () => {
+    atClock('12:30');
+    (checkRoutine as jest.Mock).mockResolvedValue(checkedResponse(true));
+    await renderUltra(dailyRoutine);
+    expect(screen.getByText('Read')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('focus-ultra-check'));
+    });
+
+    expect(screen.getByTestId('xp-float')).toHaveTextContent('+12 XP');
+    expect(screen.getByTestId('focus-ultra-xp')).toHaveTextContent('+12 XP');
+
+    // The float is a moment; the chip stays for as long as the item is done.
+    await act(async () => {
+      jest.advanceTimersByTime(1300);
+    });
+    expect(screen.queryByTestId('xp-float')).toBeNull();
+    expect(screen.getByTestId('focus-ultra-xp')).toHaveTextContent('+12 XP');
+  });
+
+  it('an undo takes the XP away with it', async () => {
+    atClock('12:30');
+    (checkRoutine as jest.Mock).mockResolvedValue(checkedResponse(true));
+    await renderUltra(dailyRoutine);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('focus-ultra-check'));
+    });
+    expect(screen.getByTestId('focus-ultra-xp')).toBeTruthy();
+
+    (checkRoutine as jest.Mock).mockResolvedValue(checkedResponse(false));
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('focus-ultra-check'));
+    });
+
+    expect(screen.queryByTestId('focus-ultra-xp')).toBeNull();
+    expect(screen.queryByTestId('xp-float')).toBeNull();
+  });
+
+  it('a skip shows no XP even when the response carries a number', async () => {
+    atClock('12:30');
+    (skipRoutine as jest.Mock).mockResolvedValue({
+      success: {
+        refreshItemChecked: {
+          groupItemId: 'hg2',
+          check: { id: 'c1', checkDate: '2026-08-28', checkTime: '12:30', checked: false, skipped: true, xpGenerated: 12 },
+        },
+      },
+    });
+    await renderUltra(dailyRoutine);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('focus-ultra-skip'));
+    });
+
+    expect(screen.queryByTestId('xp-float')).toBeNull();
+    expect(screen.queryByTestId('focus-ultra-xp')).toBeNull();
+  });
+});
+
+describe('a skipped item does not offer the accent Done button', () => {
+  it('renders the neutral look instead of the primary one', async () => {
+    // Skipped, but not checked: the old binary ternary read "not checked" and painted the
+    // button blue, as if the item were still waiting.
+    const withSkip = {
+      ...dailyRoutine,
+      routineSections: dailyRoutine.routineSections.map((section) =>
+        section.id === 's2'
+          ? {
+              ...section,
+              habitGroup: section.habitGroup.map((group) => ({
+                ...group,
+                habitGroupChecks: [
+                  { id: 'c', checkDate: '2026-08-28', checked: false, skipped: true, xpGenerated: 0 },
+                ],
+              })),
+            }
+          : section,
+      ),
+    };
+    atClock('12:30');
+    await renderUltra(withSkip);
+
+    // Reach the skipped item by hand: the resolver may have moved past it.
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('focus-ultra-picker-toggle'));
+    });
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('focus-ultra-pick-hg2'));
+    });
+    expect(screen.getByText('Read')).toBeTruthy();
+    expect(screen.getByTestId('focus-ultra-skip')).toHaveTextContent('Undo');
+
+    const className: string = screen.getByTestId('focus-ultra-check').props.className;
+    expect(className).not.toContain('bg-accent');
+    expect(className).toContain('border-border');
+  });
+});
