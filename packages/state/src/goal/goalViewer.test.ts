@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { goal } from '@beyou/types/goals/goalType';
-import { orderGoalsForViewer, viewerIndexFor, isGoalViewerSortKey } from './goalViewer';
+import { orderGoalsForViewer, viewerIndexFor, viewerSlideFor, isGoalViewerSortKey, goalViewerLayoutFrom } from './goalViewer';
 
 const g = (id: string, over: Partial<goal> = {}): goal =>
   ({ id, name: id, iconId: '', targetValue: 10, unit: '', currentValue: 0, complete: false,
@@ -55,5 +55,45 @@ describe('isGoalViewerSortKey', () => {
   it('accepts the deck keys only', () => {
     expect(isGoalViewerSortKey('status')).toBe(true);
     expect(isGoalViewerSortKey('xp-desc')).toBe(false);
+  });
+});
+
+describe('grouped layout', () => {
+  const parent = g('parent', { status: 'IN_PROGRESS', endDate: new Date(3000) });
+  const child = g('child', { status: 'COMPLETED', complete: true, parentId: 'parent', endDate: new Date(100) });
+  const grandchild = g('grandchild', { status: 'NOT_STARTED', parentId: 'child' });
+  const other = g('other', { status: 'NOT_STARTED', endDate: new Date(4000) });
+  const all = [parent, child, grandchild, other];
+
+  it('walks the roots only, keeping every sub-goal off the deck', () => {
+    expect(orderGoalsForViewer(all, { sortBy: 'status', layout: 'grouped' }).map((x) => x.id))
+      .toEqual(['parent', 'other']);
+  });
+
+  it('keeps a root whose sub-goal matched the filter, so the match has a parent to open from', () => {
+    expect(orderGoalsForViewer(all, { sortBy: 'status', layout: 'grouped', status: 'COMPLETED' }).map((x) => x.id))
+      .toEqual(['parent']);
+  });
+
+  it('list is the default and shows every goal as its own slide', () => {
+    expect(orderGoalsForViewer(all, { sortBy: 'status' }).map((x) => x.id))
+      .toEqual(['parent', 'grandchild', 'other', 'child']);
+  });
+
+  it('viewerSlideFor opens a sub-goal on its nearest ancestor slide, and a slide goal on itself', () => {
+    const grouped = orderGoalsForViewer(all, { sortBy: 'status', layout: 'grouped' });
+    expect(viewerSlideFor(grouped, all, 'parent')).toEqual({ index: 0, openId: null });
+    expect(viewerSlideFor(grouped, all, 'child')).toEqual({ index: 0, openId: 'child' });
+    expect(viewerSlideFor(grouped, all, 'grandchild')).toEqual({ index: 0, openId: 'grandchild' });
+    expect(viewerSlideFor(grouped, all, 'missing')).toEqual({ index: 0, openId: null });
+    expect(viewerSlideFor(grouped, all, null)).toEqual({ index: 0, openId: null });
+    const list = orderGoalsForViewer(all, { sortBy: 'status', layout: 'list' });
+    expect(viewerSlideFor(list, all, 'child')).toEqual({ index: 3, openId: null });
+  });
+
+  it('goalViewerLayoutFrom tolerates a stored blob that predates the preference', () => {
+    expect(goalViewerLayoutFrom(undefined)).toBe('grouped');
+    expect(goalViewerLayoutFrom('nonsense')).toBe('grouped');
+    expect(goalViewerLayoutFrom('list')).toBe('list');
   });
 });

@@ -2,7 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // `goalsViewer` is the one-goal-at-a-time screen's ordering, kept apart from the goals
 // page's `goals` sort: someone who lists by name still wants the viewer to walk by status.
-export type ViewSortKey = "categories" | "goals" | "goalsViewer" | "habits" | "routines" | "tasks";
+// `goalsViewerLayout` is that screen's deck shape: "grouped" walks the main goals and opens
+// a sub-goal from inside its parent, "list" walks every goal as its own slide.
+export type ViewSortKey = "categories" | "goals" | "goalsViewer" | "goalsViewerLayout" | "habits" | "routines" | "tasks";
 
 type ViewFiltersState = Record<ViewSortKey, string>;
 
@@ -10,6 +12,7 @@ const initialState: ViewFiltersState = {
     categories: "default",
     goals: "default",
     goalsViewer: "status",
+    goalsViewerLayout: "grouped",
     habits: "default",
     routines: "default",
     tasks: "default"

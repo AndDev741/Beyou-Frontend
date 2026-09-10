@@ -254,6 +254,8 @@ describe('the three cycles and their settings', () => {
             shortBreak: 5,
             longBreak: 15,
             longBreakEvery: 4,
+            soundEnabled: true,
+            notifyEnabled: true,
         });
     });
 
@@ -389,7 +391,19 @@ describe('what survives storage', () => {
         const restored = restoreFocusState(stale);
 
         expect(restored.timer).toEqual(stale.timer);
-        expect(restored.settings).toEqual(stale.settings);
+        // The stored blob predates the alert switches; they come back as the defaults, on.
+        expect(restored.settings).toEqual({ ...stale.settings, soundEnabled: true, notifyEnabled: true });
+    });
+
+    it('a settings patch flips the alert switches and leaves the numbers alone', () => {
+        const entered = reducer(undefined, enter());
+        const muted = reducer(entered, pomodoroSettingsChanged({ soundEnabled: false }));
+        expect(muted.settings.soundEnabled).toBe(false);
+        expect(muted.settings.notifyEnabled).toBe(true);
+        expect(muted.settings.pomodoro).toBe(25);
+        // A non-boolean cannot sneak in from an older payload shape.
+        const junk = reducer(muted, pomodoroSettingsChanged({ notifyEnabled: 'no' as never }));
+        expect(junk.settings.notifyEnabled).toBe(true);
     });
 
     it('returns a COMPLETE state, whatever the stored shape was', () => {
