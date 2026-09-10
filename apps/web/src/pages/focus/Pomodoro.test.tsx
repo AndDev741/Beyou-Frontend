@@ -21,7 +21,16 @@ vi.mock("@beyou/api/focus/focusApi", () => ({
     getFocusDay: vi.fn(),
 }));
 
+// jsdom has no AudioContext and no Notification; what this suite checks is that the start click
+// primes them. The module's own behaviour is covered in notifyCycleEnd.test.ts.
+vi.mock("../../components/focus/notifyCycleEnd", () => ({
+    playCycleEndSound: vi.fn(),
+    notifyCycleEnd: vi.fn(),
+    primeCycleEndAlerts: vi.fn().mockResolvedValue(undefined),
+}));
+
 import { addFocusMicroTask, listFocusMicroTasks, recordFocusCycle } from "@beyou/api/focus/focusApi";
+import { primeCycleEndAlerts } from "../../components/focus/notifyCycleEnd";
 import Pomodoro from "./Pomodoro";
 import PomodoroOwner from "../../components/focus/PomodoroOwner";
 
@@ -224,9 +233,48 @@ describe("the settings", () => {
 
         expect(screen.getByTestId("focus-pomodoro-remaining")).toHaveTextContent("40:00");
     });
+
+    test("the sound and the notification each have their own switch, on by default", async () => {
+        const store = buildStore();
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+
+        const sound = screen.getByTestId("focus-setting-soundEnabled");
+        const notify = screen.getByTestId("focus-setting-notifyEnabled");
+        expect(sound).toBeChecked();
+        expect(notify).toBeChecked();
+        expect(screen.getByLabelText("FocusSound")).toBe(sound);
+        expect(screen.getByLabelText("FocusNotify")).toBe(notify);
+
+        await userEvent.click(sound);
+        expect(store.getState().focus.settings).toMatchObject({ soundEnabled: false, notifyEnabled: true });
+
+        await userEvent.click(notify);
+        expect(store.getState().focus.settings).toMatchObject({ soundEnabled: false, notifyEnabled: false });
+
+        await userEvent.click(sound);
+        expect(store.getState().focus.settings.soundEnabled).toBe(true);
+    });
 });
 
 describe("running a cycle", () => {
+    test("the start click primes the alert channels with the current switches", async () => {
+        // Autoplay and the notification prompt both need a gesture, and this click is the only
+        // one the cycle's ending can borrow. Primed on every start, never at mount.
+        const store = buildStore();
+        renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });
+        expect(primeCycleEndAlerts).not.toHaveBeenCalled();
+
+        await userEvent.click(screen.getByTestId("focus-pomodoro-settings-toggle"));
+        await userEvent.click(screen.getByTestId("focus-setting-notifyEnabled"));
+        await userEvent.click(screen.getByTestId("focus-pomodoro-start"));
+
+        expect(primeCycleEndAlerts).toHaveBeenCalledTimes(1);
+        expect(primeCycleEndAlerts).toHaveBeenCalledWith(
+            expect.objectContaining({ soundEnabled: true, notifyEnabled: false }),
+        );
+    });
+
     test("starts on an absolute end time and counts down from it", async () => {
         const store = buildStore();
         renderWithProviders(<Panel item={item()} date={DATE} />, { storeOverride: store });

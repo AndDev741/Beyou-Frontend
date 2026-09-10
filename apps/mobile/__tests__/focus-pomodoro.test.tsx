@@ -197,6 +197,26 @@ describe('the settings', () => {
 
     expect(store.getState().focus.settings.longBreakEvery).toBe(2);
   });
+
+  it('the sound and the notification each have their own switch, on by default', async () => {
+    const store = await renderPomodoro(item());
+    await press('focus-pomodoro-settings-toggle');
+
+    const sound = screen.getByTestId('focus-setting-soundEnabled');
+    const notify = screen.getByTestId('focus-setting-notifyEnabled');
+    expect(sound.props.value).toBe(true);
+    expect(notify.props.value).toBe(true);
+
+    await act(async () => {
+      fireEvent(sound, 'valueChange', false);
+    });
+    expect(store.getState().focus.settings).toMatchObject({ soundEnabled: false, notifyEnabled: true });
+
+    await act(async () => {
+      fireEvent(notify, 'valueChange', false);
+    });
+    expect(store.getState().focus.settings).toMatchObject({ soundEnabled: false, notifyEnabled: false });
+  });
 });
 
 describe('running a cycle', () => {

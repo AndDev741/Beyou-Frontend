@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { recordFocusCycle } from '@beyou/api/focus/focusApi';
-import { CYCLE_LABEL_KEY, pomodoroCycleCompleted, timerStatus, toServerCycleKind } from '@beyou/state';
+import {
+  CYCLE_LABEL_KEY,
+  DEFAULT_POMODORO_SETTINGS,
+  pomodoroCycleCompleted,
+  timerStatus,
+  toServerCycleKind,
+} from '@beyou/state';
 import { armCycleEndNotification, cancelCycleEndNotification } from './notifyCycleEnd';
 import type { RootState, AppDispatch } from '../store';
 
@@ -26,6 +32,10 @@ export default function PomodoroOwner() {
   const dispatch = useDispatch<AppDispatch>();
   const { t } = useTranslation();
   const timer = useSelector((s: RootState) => s.focus.timer);
+  // Falls back for the same reason `usePomodoro` does: a persisted slice from before these
+  // fields existed rehydrates them as undefined.
+  const settings = useSelector((s: RootState) => s.focus.settings) ?? DEFAULT_POMODORO_SETTINGS;
+  const { soundEnabled, notifyEnabled } = settings;
   const [now, setNow] = useState(() => Date.now());
 
   const status = timerStatus(timer, now);
@@ -58,16 +68,21 @@ export default function PomodoroOwner() {
   // Armed on the exact `endsAt` the reducer holds, taken back the moment the cycle stops being a
   // running one (pause, stop, skip, hand-over). Keyed on endsAt so a resume re-arms at the new
   // moment. There is no cleanup on unmount by design: this component unmounts only with the app.
+  //
+  // The switches are honoured live: turning notifications off mid-cycle takes the armed alert
+  // back, turning them on arms it for the rest of the cycle, and flipping the sound re-arms with
+  // the other chime. The OS holds the alert, so the only way to change it is to reschedule.
   useEffect(() => {
-    if (status !== 'running' || !timer) {
+    if (status !== 'running' || !timer || !notifyEnabled) {
       void cancelCycleEndNotification();
       return;
     }
     void armCycleEndNotification(timer.endsAt, {
       title: t(CYCLE_LABEL_KEY[timer.kind]),
-      message: t('FocusCycleDone'),
+      message: t(timer.kind === 'pomodoro' ? 'FocusPomodoroEnded' : 'FocusBreakEnded'),
+      sound: soundEnabled,
     });
-  }, [status, timer?.endsAt, timer?.kind, t]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [status, timer?.endsAt, timer?.kind, notifyEnabled, soundEnabled, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return null;
 }

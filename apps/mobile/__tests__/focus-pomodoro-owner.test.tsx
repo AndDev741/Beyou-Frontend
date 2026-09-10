@@ -42,7 +42,7 @@ jest.mock('expo-notifications', () => ({
 
 import { Provider } from 'react-redux';
 import { render, act } from '@testing-library/react-native';
-import { pomodoroAbandoned, pomodoroStarted } from '@beyou/state';
+import { pomodoroAbandoned, pomodoroSettingsChanged, pomodoroStarted } from '@beyou/state';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { recordFocusCycle } from '@beyou/api/focus/focusApi';
@@ -144,5 +144,68 @@ describe('PomodoroOwner (native)', () => {
     await flush();
 
     expect(mockCancelNotification).toHaveBeenCalledWith('notif-1');
+  });
+
+  it('arms nothing while the notify switch is off', async () => {
+    const store = await renderOwner();
+    await act(async () => {
+      store.dispatch(pomodoroSettingsChanged({ notifyEnabled: false }));
+    });
+    await startCycle(store);
+    await flush();
+
+    expect(mockScheduleNotification).not.toHaveBeenCalled();
+  });
+
+  it('turning the notify switch off mid-cycle takes the armed alert back', async () => {
+    const store = await renderOwner();
+    await startCycle(store);
+    await flush();
+    await act(async () => releaseSchedule?.());
+    expect(mockScheduleNotification).toHaveBeenCalledTimes(1);
+    mockCancelNotification.mockClear();
+
+    await act(async () => {
+      store.dispatch(pomodoroSettingsChanged({ notifyEnabled: false }));
+    });
+    await flush();
+
+    expect(mockCancelNotification).toHaveBeenCalledWith('notif-1');
+  });
+
+  it('forwards the sound switch into the scheduled content', async () => {
+    const store = await renderOwner();
+    await act(async () => {
+      store.dispatch(pomodoroSettingsChanged({ soundEnabled: false }));
+    });
+    await startCycle(store);
+    await flush();
+    await act(async () => releaseSchedule?.());
+
+    expect(mockScheduleNotification).toHaveBeenCalledTimes(1);
+    const [request] = mockScheduleNotification.mock.calls[0] as [
+      { content: { sound: boolean; body: string } },
+    ];
+    expect(request.content.sound).toBe(false);
+  });
+
+  it('words the card for what comes next: a break after a pomodoro, work after a break', async () => {
+    const store = await renderOwner();
+    await startCycle(store);
+    await flush();
+    await act(async () => releaseSchedule?.());
+    let [request] = mockScheduleNotification.mock.calls[0] as [{ content: { body: string } }];
+    expect(request.content.body).toBe('Pomodoro over. Time for a break.');
+
+    mockScheduleNotification.mockClear();
+    await act(async () => {
+      store.dispatch(
+        pomodoroStarted({ groupId: 'hg1', kind: 'shortBreak', minutes: 5, now: Date.now(), date: DATE }),
+      );
+    });
+    await flush();
+    await act(async () => releaseSchedule?.());
+    [request] = mockScheduleNotification.mock.calls[0] as [{ content: { body: string } }];
+    expect(request.content.body).toBe('Break over. Back to it.');
   });
 });
