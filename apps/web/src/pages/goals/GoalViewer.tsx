@@ -7,11 +7,13 @@ import type { RootState } from "@beyou/state/rootReducer";
 import type { goal as GoalType } from "@beyou/types/goals/goalType";
 import type { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import {
+    GOAL_VIEWER_LAYOUTS,
     childrenOf,
     formatGoalDeadline,
+    goalViewerLayoutFrom,
     orderGoalsForViewer,
     parseLocalDate,
-    viewerIndexFor,
+    viewerSlideFor,
 } from "@beyou/state";
 import { enterGoals, updateGoal } from "@beyou/state/goal/goalsSlice";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
@@ -40,6 +42,10 @@ const SORT_OPTIONS: { value: string; key: string }[] = [
     { value: "progress-desc", key: "SortByProgress" },
     { value: "name-asc", key: "SortByName" },
 ];
+const LAYOUT_KEY: Record<string, string> = {
+    grouped: "GoalViewerLayoutGrouped",
+    list: "GoalViewerLayoutList",
+};
 
 const STATUS_KEY: Record<string, string> = {
     NOT_STARTED: "Not Started",
@@ -94,6 +100,7 @@ export default function GoalViewer() {
 
     const goals = useSelector((state: RootState) => state.goals.goals) || [];
     const sortBy = useSelector((state: RootState) => state.viewFilters.goalsViewer) ?? "status";
+    const layout = goalViewerLayoutFrom(useSelector((state: RootState) => state.viewFilters.goalsViewerLayout));
     const [status, setStatus] = useState("all");
     const [categoryId, setCategoryId] = useState("all");
     const [progressOpen, setProgressOpen] = useState(false);
@@ -113,18 +120,22 @@ export default function GoalViewer() {
     useAutoRefresh(loadGoals);
 
     const deck = useMemo(
-        () => orderGoalsForViewer(goals, { sortBy, status, categoryId }),
-        [goals, sortBy, status, categoryId],
+        () => orderGoalsForViewer(goals, { sortBy, status, categoryId, layout }),
+        [goals, sortBy, status, categoryId, layout],
     );
 
-    // The URL is the position. `?goal=` names the slide, so the browser's own back button
-    // works the way a person expects after tapping into a sub-goal: back is the main goal,
-    // not the goals page. The arrows REPLACE the entry (walking the deck is one visit),
+    // The URL is the position. `?goal=` names the goal on screen, so the browser's own back
+    // button works the way a person expects after tapping into a sub-goal: back is the main
+    // goal, not the goals page. The arrows REPLACE the entry (walking the deck is one visit),
     // the jumps into a sub-goal or up to the parent PUSH one (that is a move worth
     // returning from). A filter that hides the named goal lands on the first slide.
+    //
+    // In the grouped layout a sub-goal has no slide of its own. `viewerSlideFor` finds the
+    // ancestor's slide and hands back the sub-goal as `openId`, so the deck position stays
+    // the parent's while the screen shows the sub-goal. The list layout never sets it.
     const requestedId = searchParams.get("goal");
-    const current = viewerIndexFor(deck, requestedId);
-    const goal: GoalType | undefined = deck[current];
+    const { index: current, openId } = viewerSlideFor(deck, goals, requestedId);
+    const goal: GoalType | undefined = openId ? goals.find((g) => g.id === openId) : deck[current];
     const next: GoalType | undefined = deck[current + 1];
 
     const categoryOptions = useMemo(() => {
@@ -162,8 +173,14 @@ export default function GoalViewer() {
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [leave, goNext, goPrev]);
 
+    // A goal can be opened when it is a slide or when it sits under one (a sub-goal, or a
+    // sub-goal's sub-goal, in the grouped layout). Anything else has been filtered out.
+    const canOpen = (goalId: string) => {
+        const slide = viewerSlideFor(deck, goals, goalId);
+        return deck[slide.index]?.id === goalId || slide.openId !== null;
+    };
     const jumpTo = (goalId: string) => {
-        if (deck.some((g) => g.id === goalId)) setSearchParams({ goal: goalId });
+        if (canOpen(goalId)) setSearchParams({ goal: goalId });
     };
 
     const applyProgress = async (amount: number, direction: "increase" | "decrease") => {
@@ -195,7 +212,7 @@ export default function GoalViewer() {
     const statusVariant: ChipVariant = isCompleted ? "ok" : goal?.status === "IN_PROGRESS" ? "accent" : "neutral";
     const subGoals = goal ? childrenOf(goals, goal.id) : [];
     const parent = goal?.parentId ? goals.find((g) => g.id === goal.parentId) : undefined;
-    const parentInDeck = parent ? deck.some((g) => g.id === parent.id) : false;
+    const parentOpenable = parent ? canOpen(parent.id) : false;
     const remaining = goal ? daysUntil(goal.endDate) : null;
     const deadlineLine = (() => {
         if (!goal) return "";
@@ -209,7 +226,8 @@ export default function GoalViewer() {
         if (remaining < 0) return t("DaysOverdue", { count: -remaining });
         return t("DaysLeft", { count: remaining });
     })();
-    const positionText = t("GoalViewerPosition", { index: deck.length ? current + 1 : 0, total: deck.length });
+    const positionIndex = deck.length ? current + 1 : 0;
+    const positionText = t("GoalViewerPosition", { index: positionIndex, total: deck.length });
 
     return (
         <div
@@ -236,6 +254,17 @@ export default function GoalViewer() {
                         >
                             {SORT_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>{t(option.key)}</option>
+                            ))}
+                        </select>
+                        <select
+                            aria-label={t("GoalViewerLayout")}
+                            value={layout}
+                            onChange={(event) => dispatch(setViewSort({ view: "goalsViewerLayout", sortBy: event.target.value }))}
+                            className={CONTROL_CLASS}
+                            data-testid="goal-viewer-layout"
+                        >
+                            {GOAL_VIEWER_LAYOUTS.map((option) => (
+                                <option key={option} value={option}>{t(LAYOUT_KEY[option])}</option>
                             ))}
                         </select>
                         <select
@@ -288,7 +317,7 @@ export default function GoalViewer() {
                             <button
                                 type="button"
                                 onClick={() => jumpTo(parent.id)}
-                                disabled={!parentInDeck}
+                                disabled={!parentOpenable}
                                 className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] text-text-3 transition-colors hover:bg-surface-2 hover:text-text disabled:cursor-default disabled:hover:bg-transparent"
                                 data-testid="goal-viewer-parent"
                             >
@@ -387,7 +416,7 @@ export default function GoalViewer() {
                                 </h3>
                                 <ul className="flex flex-col gap-1 rounded-card border border-border bg-surface p-1.5">
                                     {subGoals.map((child) => {
-                                        const inDeck = deck.some((g) => g.id === child.id);
+                                        const inDeck = canOpen(child.id);
                                         const done = child.status === "COMPLETED";
                                         return (
                                             <li key={child.id}>
@@ -424,7 +453,12 @@ export default function GoalViewer() {
                         <ChevronLeft size={18} aria-hidden="true" />
                     </IconButton>
                     <div className="min-w-0 flex-1 text-center">
-                        <span className="font-mono text-[12px] text-text-2" aria-live="polite" data-testid="goal-viewer-position">
+                        <span
+                            className="font-mono text-[12px] text-text-2"
+                            aria-live="polite"
+                            data-testid="goal-viewer-position"
+                            data-position={`${positionIndex}/${deck.length}`}
+                        >
                             {positionText}
                         </span>
                         {next && (

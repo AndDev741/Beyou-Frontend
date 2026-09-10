@@ -55,13 +55,25 @@ const goals = [
     makeGoal({ id: "active", name: "Active goal", status: "IN_PROGRESS", currentValue: 5 }),
 ];
 
-const buildStore = () => {
+const buildStore = (list: goal[] = goals, layout?: string) => {
     const initial = rootReducer(undefined, { type: "init" }) as RootState;
     return configureStore({
         reducer: rootReducer,
-        preloadedState: { ...initial, goals: { ...initial.goals, goals } },
+        preloadedState: {
+            ...initial,
+            goals: { ...initial.goals, goals: list },
+            viewFilters: { ...initial.viewFilters, ...(layout ? { goalsViewerLayout: layout } : {}) },
+        },
     });
 };
+
+// A main goal, its sub-goal, that one's own sub-goal, and an unrelated main goal.
+const tree = [
+    makeGoal({ id: "big", name: "Marathon", status: "IN_PROGRESS" }),
+    makeGoal({ id: "mid", name: "Run 10k", status: "IN_PROGRESS", currentValue: 3, parentId: "big" }),
+    makeGoal({ id: "leaf", name: "Run 5k", status: "NOT_STARTED", parentId: "mid" }),
+    makeGoal({ id: "other", name: "Other", status: "NOT_STARTED" }),
+];
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -117,16 +129,8 @@ describe("GoalViewer", () => {
         expect(screen.getByTestId("goal-viewer-next")).toBeDisabled();
     });
 
-    test("a sub-goal slide links back to its main goal", () => {
-        const initial = rootReducer(undefined, { type: "init" }) as RootState;
-        const tree = [
-            makeGoal({ id: "big", name: "Marathon", status: "IN_PROGRESS" }),
-            makeGoal({ id: "mid", name: "Run 10k", status: "IN_PROGRESS", parentId: "big" }),
-        ];
-        const store = configureStore({
-            reducer: rootReducer,
-            preloadedState: { ...initial, goals: { ...initial.goals, goals: tree } },
-        });
+    test("a sub-goal slide links back to its main goal (list layout)", () => {
+        const store = buildStore(tree.slice(0, 2), "list");
         renderWithProviders(<GoalViewer />, { storeOverride: store, route: "/goals/view?goal=mid" });
 
         expect(screen.getByTestId("goal-viewer-parent")).toHaveTextContent("Marathon");
@@ -141,16 +145,7 @@ describe("GoalViewer", () => {
         // The point: the browser's back button after opening a sub-goal returns to the main
         // goal, not to the goals page. That only holds if the jump is a PUSH and the arrows
         // are REPLACEs, otherwise back would either skip the parent or leave the viewer.
-        const initial = rootReducer(undefined, { type: "init" }) as RootState;
-        const tree = [
-            makeGoal({ id: "big", name: "Marathon", status: "IN_PROGRESS" }),
-            makeGoal({ id: "mid", name: "Run 10k", status: "IN_PROGRESS", parentId: "big" }),
-            makeGoal({ id: "other", name: "Other", status: "NOT_STARTED" }),
-        ];
-        const store = configureStore({
-            reducer: rootReducer,
-            preloadedState: { ...initial, goals: { ...initial.goals, goals: tree } },
-        });
+        const store = buildStore(tree, "list");
         renderWithProviders(
             <>
                 <GoalViewer />
@@ -164,7 +159,93 @@ describe("GoalViewer", () => {
         expect(screen.getByTestId("location-probe")).toHaveTextContent("PUSH ?goal=mid");
 
         fireEvent.click(screen.getByTestId("goal-viewer-next"));
-        expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "other");
-        expect(screen.getByTestId("location-probe")).toHaveTextContent("REPLACE ?goal=other");
+        expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "leaf");
+        expect(screen.getByTestId("location-probe")).toHaveTextContent("REPLACE ?goal=leaf");
+    });
+
+    describe("grouped layout (the default)", () => {
+        test("the deck holds the main goals only and the position counts them", () => {
+            renderWithProviders(<GoalViewer />, { storeOverride: buildStore(tree), route: "/goals/view" });
+
+            expect(screen.getByTestId("goal-viewer-layout")).toHaveValue("grouped");
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "big");
+            // Two roots: the position says 1 of 2, and Next lands on the other root, not the sub-goal.
+            expect(screen.getByTestId("goal-viewer-position")).toHaveAttribute("data-position", "1/2");
+            fireEvent.click(screen.getByTestId("goal-viewer-next"));
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "other");
+            expect(screen.getByTestId("goal-viewer-next")).toBeDisabled();
+        });
+
+        test("tapping a sub-goal opens its full slide on top of the parent's position", () => {
+            renderWithProviders(
+                <>
+                    <GoalViewer />
+                    <LocationProbe />
+                </>,
+                { storeOverride: buildStore(tree), route: "/goals/view?goal=big" },
+            );
+
+            fireEvent.click(screen.getByTestId("goal-viewer-subgoal-mid"));
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "mid");
+            expect(screen.getByRole("heading", { level: 2, name: "Run 10k" })).toBeInTheDocument();
+            expect(screen.getByTestId("goal-viewer-counter")).toHaveTextContent("3/10 km");
+            expect(screen.getByRole("button", { name: "Increase" })).toBeEnabled();
+            // The deck did not move: the sub-goal is shown, the parent's slide is still current.
+            expect(screen.getByTestId("goal-viewer-position")).toHaveAttribute("data-position", "1/2");
+            // Opening is a PUSH so the browser's back returns to the parent.
+            expect(screen.getByTestId("location-probe")).toHaveTextContent("PUSH ?goal=mid");
+            // The sub-goal's own sub-goal opens from here as well.
+            fireEvent.click(screen.getByTestId("goal-viewer-subgoal-leaf"));
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "leaf");
+            expect(screen.getByTestId("goal-viewer-position")).toHaveAttribute("data-position", "1/2");
+        });
+
+        test("the parent control returns to the parent slide", () => {
+            renderWithProviders(<GoalViewer />, { storeOverride: buildStore(tree), route: "/goals/view?goal=leaf" });
+
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "leaf");
+            const parent = screen.getByTestId("goal-viewer-parent");
+            expect(parent).toHaveTextContent("Run 10k");
+            expect(parent).toBeEnabled();
+            fireEvent.click(parent);
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "mid");
+            fireEvent.click(screen.getByTestId("goal-viewer-parent"));
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "big");
+            expect(screen.queryByTestId("goal-viewer-parent")).not.toBeInTheDocument();
+        });
+
+        test("Next from an opened sub-goal moves the deck and closes the drill-in", () => {
+            renderWithProviders(<GoalViewer />, { storeOverride: buildStore(tree), route: "/goals/view?goal=mid" });
+
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "mid");
+            fireEvent.click(screen.getByTestId("goal-viewer-next"));
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "other");
+            expect(screen.getByTestId("goal-viewer-position")).toHaveAttribute("data-position", "2/2");
+        });
+
+        test("switching to the list layout gives the sub-goal a slide of its own", () => {
+            const store = buildStore(tree);
+            renderWithProviders(<GoalViewer />, { storeOverride: store, route: "/goals/view?goal=mid" });
+            expect(screen.getByTestId("goal-viewer-position")).toHaveAttribute("data-position", "1/2");
+
+            fireEvent.change(screen.getByTestId("goal-viewer-layout"), { target: { value: "list" } });
+
+            expect(store.getState().viewFilters.goalsViewerLayout).toBe("list");
+            expect(screen.getByTestId("goal-viewer-slide")).toHaveAttribute("data-goal-id", "mid");
+            // In-progress first, then by deadline: big, mid, then the two not-started ones.
+            expect(screen.getByTestId("goal-viewer-position")).toHaveAttribute("data-position", "2/4");
+        });
+
+        test("the layout choice is the shared viewFilters preference", () => {
+            const store = buildStore(tree);
+            const dispatch = vi.spyOn(store, "dispatch");
+            renderWithProviders(<GoalViewer />, { storeOverride: store, route: "/goals/view" });
+
+            fireEvent.change(screen.getByTestId("goal-viewer-layout"), { target: { value: "list" } });
+            expect(dispatch).toHaveBeenCalledWith(
+                expect.objectContaining({ type: "viewFilters/setViewSort", payload: { view: "goalsViewerLayout", sortBy: "list" } }),
+            );
+            expect(screen.getByTestId("goal-viewer-layout")).toHaveValue("list");
+        });
     });
 });
