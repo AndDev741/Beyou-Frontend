@@ -69,6 +69,89 @@ describe('GoalCard with sub-goals', () => {
     );
   });
 
+  it('the sub-goal counter opens the progress modal on that sub-goal, adding and removing by the typed amount', async () => {
+    const onChanged = jest.fn();
+    await wrap(
+      <GoalCard goal={marathon} subGoals={[tenK]} allGoals={all} depth={1}
+        onEdit={jest.fn()} onDelete={jest.fn()} onChanged={onChanged} onAddSubGoal={jest.fn()} />,
+    );
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoals-toggle-marathon')); });
+
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-counter-tenk')); });
+    const modal = screen.getByTestId('goal-subgoal-progress-tenk');
+    expect(modal).toBeTruthy();
+    // The modal reads the sub-goal, not the card: its own name and numbers.
+    expect(screen.getAllByText('Run 10 km').length).toBeGreaterThan(1);
+    expect(screen.getByText('5/10 km')).toBeTruthy();
+
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-progress-tenk-quick-5')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-progress-tenk-add')); });
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/increase', { goalId: 'tenk', value: 5 }, expect.anything()),
+    );
+    await waitFor(() => expect(screen.queryByTestId('goal-subgoal-progress-tenk')).toBeNull());
+    // The parent was already running, so its chip cannot change: no refetch.
+    expect(onChanged).not.toHaveBeenCalled();
+
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-counter-tenk')); });
+    await act(async () => { fireEvent.changeText(screen.getByTestId('goal-subgoal-progress-tenk-amount'), '2'); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-progress-tenk-remove')); });
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/decrease', { goalId: 'tenk', value: 2 }, expect.anything()),
+    );
+  });
+
+  it('refetches after a sub-goal moves while the parent has not started, so the status chip follows', async () => {
+    const onChanged = jest.fn();
+    const fresh = g('fresh', { name: 'Fresh parent', status: 'NOT_STARTED' });
+    const step = g('step', { name: 'First step', parentId: 'fresh', currentValue: 1 });
+    await wrap(
+      <GoalCard goal={fresh} subGoals={[step]} allGoals={[fresh, step]} depth={1}
+        onEdit={jest.fn()} onDelete={jest.fn()} onChanged={onChanged} onAddSubGoal={jest.fn()} />,
+    );
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoals-toggle-fresh')); });
+
+    // The +1 hot path.
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-increase-step')); });
+    await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));
+
+    // The modal path.
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-counter-step')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-progress-step-add')); });
+    await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(2));
+  });
+
+  it('a read-only card and a completed sub-goal keep the counter as plain text', async () => {
+    await wrap(
+      <GoalCard goal={marathon} subGoals={[tenK]} allGoals={all} depth={1} readonly
+        onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} />,
+    );
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoals-toggle-marathon')); });
+
+    expect(screen.getByText('5/10')).toBeTruthy();
+    expect(screen.queryByTestId('goal-subgoal-counter-tenk')).toBeNull();
+    // `weekly` is COMPLETED: its row is rendered too, and stays inert.
+    expect(screen.getByText('10/10')).toBeTruthy();
+    expect(screen.queryByTestId('goal-subgoal-counter-weekly')).toBeNull();
+  });
+
+  it('a third-level row opens the modal on its own numbers', async () => {
+    const leaf = g('leaf', { name: 'Stretch daily', parentId: 'tenk', currentValue: 2, targetValue: 7, unit: 'reps' });
+    await wrap(
+      <GoalCard goal={marathon} subGoals={[tenK]} allGoals={[...all, leaf]} depth={1}
+        onEdit={jest.fn()} onDelete={jest.fn()} onChanged={jest.fn()} onAddSubGoal={jest.fn()} />,
+    );
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoals-toggle-marathon')); });
+
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-counter-leaf')); });
+    expect(screen.getByText('2/7 reps')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-progress-leaf-quick-10')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-subgoal-progress-leaf-add')); });
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/increase', { goalId: 'leaf', value: 10 }, expect.anything()),
+    );
+  });
+
   it('nudges the parent once every sub-goal is complete, and offers Add sub-goal only below the cap', async () => {
     const onAddSubGoal = jest.fn();
     await wrap(

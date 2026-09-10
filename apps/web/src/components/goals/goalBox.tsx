@@ -139,6 +139,9 @@ function GoalBox({
   const { t, i18n } = useTranslation();
   const [onDelete, setOnDelete] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
+  // The whole child, not its id: a grandchild is not in `subGoals`, and the modal
+  // needs its name, numbers and unit.
+  const [progressChild, setProgressChild] = useState<GoalType | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [childrenOpen, setChildrenOpen] = useState(initialChildrenOpen);
 
@@ -259,16 +262,28 @@ function GoalBox({
     if (Array.isArray(goals.success)) dispatch(enterGoals(goals.success));
   };
 
-  const increaseChild = async (childId: string) => {
-    const updated = await increaseCurrentValue(childId, t, 1);
+  const moveChild = async (childId: string, amount: number, direction: "increase" | "decrease") => {
+    const updated =
+      direction === "increase"
+        ? await increaseCurrentValue(childId, t, amount)
+        : await decreaseCurrentValue(childId, t, amount);
     if (updated?.id) {
       dispatch(updateGoal(updated));
     } else {
       await refreshGoals();
     }
-    // The first increment in a sub-goal starts its parent server-side; the card's own
-    // status chip only follows if the list is refreshed.
+    // The first move in a sub-goal starts its parent server-side; the card's own
+    // status chip only follows if the list is refreshed. Every other time the patched
+    // child is enough, the sub-goal bar is derived from the list on the client.
     if (status === "NOT_STARTED") await refreshGoals();
+  };
+
+  const increaseChild = (childId: string, amount = 1) => moveChild(childId, amount, "increase");
+  const decreaseChild = (childId: string, amount = 1) => moveChild(childId, amount, "decrease");
+
+  const applyChildProgress = async (amount: number, direction: "increase" | "decrease") => {
+    if (!progressChild) return;
+    await (direction === "increase" ? increaseChild : decreaseChild)(progressChild.id, amount);
   };
 
   const completeChild = async (childId: string) => {
@@ -308,9 +323,24 @@ function GoalBox({
             {child.name}
           </span>
           <XpBar className="hidden w-16 sm:block" current={child.currentValue} target={child.targetValue} compact />
-          <span className="shrink-0 font-mono text-[11px] text-text-3">
-            {child.currentValue}/{child.targetValue}
-          </span>
+          {/* The counter is the way into the modal, same as on the card itself. A done
+              row and the read-only carousel keep the plain number. */}
+          {!readonly && !childDone ? (
+            <button
+              type="button"
+              onClick={() => setProgressChild(child)}
+              title={t("UpdateProgress")}
+              aria-label={`${t("UpdateProgress")}: ${child.name}`}
+              data-testid={`goal-subgoal-progress-${child.id}`}
+              className="shrink-0 rounded-control px-1 font-mono text-[11px] text-text-3 underline-offset-4 transition-colors duration-200 hover:text-accent hover:underline focus:outline-none focus:ring-2 focus:ring-accent/40"
+            >
+              {child.currentValue}/{child.targetValue}
+            </button>
+          ) : (
+            <span className="shrink-0 font-mono text-[11px] text-text-3">
+              {child.currentValue}/{child.targetValue}
+            </span>
+          )}
           {!readonly && !childDone && (
             childReached ? (
               <Button
@@ -593,6 +623,18 @@ function GoalBox({
         targetValue={targetValue}
         unit={unit}
         onApply={applyProgress}
+      />
+
+      {/* One modal for whichever sub-goal row was pressed; `progressChild` is both the
+          open flag and the data. */}
+      <GoalProgressModal
+        isOpen={progressChild !== null}
+        onClose={() => setProgressChild(null)}
+        name={progressChild?.name ?? ""}
+        currentValue={progressChild?.currentValue ?? 0}
+        targetValue={progressChild?.targetValue ?? 0}
+        unit={progressChild?.unit ?? ""}
+        onApply={applyChildProgress}
       />
 
       <DeleteModal

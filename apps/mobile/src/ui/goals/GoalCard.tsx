@@ -397,6 +397,7 @@ export default function GoalCard({
                   allGoals={allGoals}
                   indent={0}
                   disabled={readonly}
+                  parentStatus={goal.status}
                   onChanged={onChanged}
                 />
               ))
@@ -454,6 +455,8 @@ interface SubGoalRowProps {
   allGoals: goal[];
   indent: number;
   disabled?: boolean;
+  /** The card's own status: while it is NOT_STARTED a move in any row below starts it. */
+  parentStatus?: string;
   onChanged: () => void;
 }
 
@@ -462,11 +465,16 @@ interface SubGoalRowProps {
  * third-level goal repeats the row indented once under its own parent. The actions are
  * the same hook the card uses, so XP and celebrations behave identically.
  */
-function SubGoalRow({ child, allGoals, indent, disabled, onChanged }: SubGoalRowProps) {
+function SubGoalRow({ child, allGoals, indent, disabled, parentStatus, onChanged }: SubGoalRowProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
-  const { increase, complete } = useGoalActions();
+  const { increase, decrease, complete } = useGoalActions();
   const [pending, setPending] = useState(false);
+  const [progressOpen, setProgressOpen] = useState(false);
+  // The server flips the card's status on the first move in a sub-goal but only returns
+  // the sub-goal, so the status chip up top needs the list again that one time. The bars
+  // do not: they are derived from the list the patched child lands in.
+  const parentMayStart = parentStatus === 'NOT_STARTED';
   const isDone = child.status === 'COMPLETED';
   const reached = child.targetValue > 0 && child.currentValue >= child.targetValue;
   const grandChildren = childrenOf(allGoals, child.id).sort(
@@ -493,7 +501,21 @@ function SubGoalRow({ child, allGoals, indent, disabled, onChanged }: SubGoalRow
           </Text>
           <XpBar current={child.currentValue} target={child.targetValue} compact />
         </View>
-        <Text className="font-mono text-[11px] text-text-3">{`${child.currentValue}/${child.targetValue}`}</Text>
+        {/* The counter opens the progress modal, as on the card. Read-only cards and
+            done rows keep the plain number. */}
+        {disabled || isDone ? (
+          <Text className="font-mono text-[11px] text-text-3">{`${child.currentValue}/${child.targetValue}`}</Text>
+        ) : (
+          <Pressable
+            onPress={() => setProgressOpen(true)}
+            accessibilityRole="button"
+            accessibilityLabel={`${t('UpdateProgress')}: ${child.name}`}
+            testID={`goal-subgoal-counter-${child.id}`}
+            className="shrink-0 rounded-control px-1 py-1 active:bg-surface-2"
+          >
+            <Text className="font-mono text-[11px] text-text-3">{`${child.currentValue}/${child.targetValue}`}</Text>
+          </Pressable>
+        )}
         {disabled ? null : isDone ? (
           <Chip size="sm" variant="ok">{t('Completed')}</Chip>
         ) : reached ? (
@@ -511,7 +533,7 @@ function SubGoalRow({ child, allGoals, indent, disabled, onChanged }: SubGoalRow
         ) : (
           <IconButton
             label={t('Increase')}
-            onPress={() => run(() => increase(child.id))}
+            onPress={() => run(() => increase(child.id), parentMayStart)}
             disabled={pending}
             className="h-7 w-7 border border-border"
             testID={`goal-subgoal-increase-${child.id}`}
@@ -520,9 +542,31 @@ function SubGoalRow({ child, allGoals, indent, disabled, onChanged }: SubGoalRow
           </IconButton>
         )}
       </View>
+      {disabled || isDone ? null : (
+        <GoalProgressModal
+          visible={progressOpen}
+          name={child.name}
+          currentValue={child.currentValue}
+          targetValue={child.targetValue}
+          unit={child.unit}
+          onClose={() => setProgressOpen(false)}
+          onApply={async (amount, direction) => {
+            await (direction === 'increase' ? increase(child.id, amount) : decrease(child.id, amount));
+            if (parentMayStart) onChanged();
+          }}
+          testID={`goal-subgoal-progress-${child.id}`}
+        />
+      )}
       {grandChildren.map((leaf) => (
         <View key={leaf.id} className="mt-2">
-          <SubGoalRow child={leaf} allGoals={allGoals} indent={indent + 1} disabled={disabled} onChanged={onChanged} />
+          <SubGoalRow
+            child={leaf}
+            allGoals={allGoals}
+            indent={indent + 1}
+            disabled={disabled}
+            parentStatus={parentStatus}
+            onChanged={onChanged}
+          />
         </View>
       ))}
     </View>
