@@ -30,6 +30,8 @@ import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import TutorialFinale from "../../components/tutorial/TutorialFinale";
 import { useDashboardTutorial } from "../../components/tutorial/hooks/useDashboardTutorial";
 import AiOnboardingWizard from "../../components/tutorial/aiOnboarding/AiOnboardingWizard";
+import DailyBriefingDialog from "../../components/dashboard/dailyBriefing/DailyBriefingDialog";
+import { useDailyBriefing } from "../../components/dashboard/dailyBriefing/useDailyBriefing";
 import { logger } from "../../utils/logger";
 import EmptyState from "../../components/EmptyState";
 import { LayoutGrid } from "lucide-react";
@@ -144,6 +146,24 @@ function Dashboard() {
         };
     }, [loadDashboardData, showAiOnboarding])
 
+    // The new-day dialog. Suppressed for the whole onboarding run: those flows own the
+    // screen with their own overlays, and an account new enough to be in one has no
+    // yesterday to report on anyway. A retroactive check from inside it reloads the
+    // dashboard, because the XP and streak it just moved are on this page too.
+    const tutorialActive =
+        showIntroModal || showAiOnboarding || showFinale ||
+        showDashboardSpotlight || showHabitsDashboardSpotlight ||
+        showRoutinesDashboardSpotlight || showRoutineSummarySpotlight ||
+        showConfigDashboardSpotlight;
+
+    const {
+        briefing,
+        open: briefingOpen,
+        close: closeBriefing,
+        resolve: resolveBriefingItem,
+        pendingId: briefingPendingId,
+    } = useDailyBriefing({ tutorialActive, onResolved: loadDashboardData });
+
     // Pick up what the phone did, and what the clock did. Held off while the wizard is
     // running, which creates entities of its own and reloads on its way out.
     useAutoRefresh(loadDashboardData, { enabled: !showAiOnboarding });
@@ -233,6 +253,19 @@ function Dashboard() {
                 />
             )}
             {showFinale && <TutorialFinale onDone={completeTutorial} />}
+            {/* Mounted only while it should be on screen. The gate already refuses a
+                briefing it cannot read, so an unexpected shape can never reach a render on
+                the dashboard itself. */}
+            {briefing && briefingOpen && (
+                <DailyBriefingDialog
+                    briefing={briefing}
+                    isOpen
+                    onClose={closeBriefing}
+                    onResolve={resolveBriefingItem}
+                    pendingId={briefingPendingId}
+                    locale={languageInUse === "pt" ? "pt-BR" : "en-US"}
+                />
+            )}
             {isDashboardLoading ? (
                 <div
                     className="flex min-h-[calc(100vh-5rem)] lg:min-h-[calc(100vh-6rem)] items-center justify-center"

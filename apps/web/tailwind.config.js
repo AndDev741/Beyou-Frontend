@@ -78,9 +78,19 @@ module.exports = {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        // The Daily Briefing's auto-advance countdown. A transform, so it runs on the
+        // compositor and never touches React — a 30s framer-motion tween on this would
+        // re-render the dialog for the whole time it is on screen.
+        briefingCountdown: {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
       },
       animation: {
         shimmer: "shimmer 1.6s infinite",
+        // Duration is set inline from BRIEFING_AUTO_ADVANCE_MS so the bar and the timer
+        // cannot drift apart.
+        "briefing-countdown": "briefingCountdown linear forwards",
       },
     },
   },

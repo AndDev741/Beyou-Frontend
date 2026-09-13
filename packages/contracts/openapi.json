@@ -2981,6 +2981,39 @@
           }
         }
       }
+    },
+    "/daily-briefing": {
+      "get": {
+        "tags": [
+          "daily-briefing-controller"
+        ],
+        "operationId": "getBriefing",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyBriefingResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/daily-briefing/seen": {
+      "post": {
+        "tags": [
+          "daily-briefing-controller"
+        ],
+        "operationId": "markSeen",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5785,6 +5818,228 @@
         "required": [
           "mood"
         ]
+      },
+      "BriefingOpenItemDTO": {
+        "type": "object",
+        "properties": {
+          "snapshotId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshotCheckId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "routineName": {
+            "type": "string"
+          },
+          "itemType": {
+            "type": "string",
+            "enum": [
+              "HABIT",
+              "TASK"
+            ]
+          },
+          "itemName": {
+            "type": "string"
+          },
+          "itemIconId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "xpIfCheckedNow": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "BriefingYesterdayRecapDTO": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "hadRoutine": {
+            "type": "boolean"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "doneCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skippedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xpEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "openItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingOpenItemDTO"
+            }
+          },
+          "focusCycles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "moodLevel": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BriefingGoalAheadDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "currentValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "targetValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "daysRemaining": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "percentComplete": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BriefingRecoveryWindowDTO": {
+        "type": "object",
+        "properties": {
+          "oldestOpenDay": {
+            "type": "string",
+            "format": "date"
+          },
+          "daysUntilExpiry": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "remainingXpPercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "openItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingOpenItemDTO"
+            }
+          }
+        }
+      },
+      "BriefingTodayAheadDTO": {
+        "type": "object",
+        "properties": {
+          "scheduledItemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "scheduledToday": {
+            "type": "boolean"
+          },
+          "currentStreak": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bestStreak": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "goalsApproaching": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingGoalAheadDTO"
+            }
+          },
+          "recovery": {
+            "$ref": "#/components/schemas/BriefingRecoveryWindowDTO"
+          }
+        }
+      },
+      "BriefingNarrativeDTO": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "READY",
+              "UNAVAILABLE"
+            ]
+          },
+          "todayLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "yesterdayLines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DailyBriefingResponseDTO": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "yesterday": {
+            "$ref": "#/components/schemas/BriefingYesterdayRecapDTO"
+          },
+          "today": {
+            "$ref": "#/components/schemas/BriefingTodayAheadDTO"
+          },
+          "narrative": {
+            "$ref": "#/components/schemas/BriefingNarrativeDTO"
+          },
+          "seenAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   }

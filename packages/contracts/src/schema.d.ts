@@ -1204,6 +1204,38 @@ export interface paths {
         patch: operations["setLevel"];
         trace?: never;
     };
+    "/daily-briefing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBriefing"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/daily-briefing/seen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["markSeen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2218,6 +2250,93 @@ export interface components {
             /** Format: int32 */
             mood: number;
             note?: string;
+        };
+        BriefingOpenItemDTO: {
+            /** Format: uuid */
+            snapshotId?: string;
+            /** Format: uuid */
+            snapshotCheckId?: string;
+            /** Format: date */
+            date?: string;
+            /** Format: uuid */
+            routineId?: string;
+            routineName?: string;
+            /** @enum {string} */
+            itemType?: "HABIT" | "TASK";
+            itemName?: string;
+            itemIconId?: string;
+            sectionName?: string;
+            /** Format: double */
+            xpIfCheckedNow?: number;
+        };
+        BriefingYesterdayRecapDTO: {
+            /** Format: date */
+            date?: string;
+            hadRoutine?: boolean;
+            complete?: boolean;
+            /** Format: int32 */
+            doneCount?: number;
+            /** Format: int32 */
+            skippedCount?: number;
+            /** Format: double */
+            xpEarned?: number;
+            openItems?: components["schemas"]["BriefingOpenItemDTO"][];
+            /** Format: int32 */
+            focusCycles?: number;
+            /** Format: int32 */
+            moodLevel?: number;
+        };
+        BriefingGoalAheadDTO: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            iconId?: string;
+            /** Format: double */
+            currentValue?: number;
+            /** Format: double */
+            targetValue?: number;
+            unit?: string;
+            /** Format: date */
+            endDate?: string;
+            /** Format: int64 */
+            daysRemaining?: number;
+            /** Format: int32 */
+            percentComplete?: number;
+        };
+        BriefingRecoveryWindowDTO: {
+            /** Format: date */
+            oldestOpenDay?: string;
+            /** Format: int64 */
+            daysUntilExpiry?: number;
+            /** Format: int32 */
+            remainingXpPercent?: number;
+            openItems?: components["schemas"]["BriefingOpenItemDTO"][];
+        };
+        BriefingTodayAheadDTO: {
+            /** Format: int32 */
+            scheduledItemCount?: number;
+            scheduledToday?: boolean;
+            /** Format: int32 */
+            currentStreak?: number;
+            /** Format: int32 */
+            bestStreak?: number;
+            goalsApproaching?: components["schemas"]["BriefingGoalAheadDTO"][];
+            recovery?: components["schemas"]["BriefingRecoveryWindowDTO"];
+        };
+        BriefingNarrativeDTO: {
+            /** @enum {string} */
+            status?: "PENDING" | "READY" | "UNAVAILABLE";
+            todayLines?: string[];
+            yesterdayLines?: string[];
+        };
+        DailyBriefingResponseDTO: {
+            /** Format: date */
+            date?: string;
+            yesterday?: components["schemas"]["BriefingYesterdayRecapDTO"];
+            today?: components["schemas"]["BriefingTodayAheadDTO"];
+            narrative?: components["schemas"]["BriefingNarrativeDTO"];
+            /** Format: date-time */
+            seenAt?: string;
         };
     };
     responses: never;
@@ -4486,6 +4605,44 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["MoodEntryResponseDTO"];
                 };
+            };
+        };
+    };
+    getBriefing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DailyBriefingResponseDTO"];
+                };
+            };
+        };
+    };
+    markSeen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

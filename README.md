@@ -40,6 +40,10 @@ repository.
   an axios adapter and mobile a `fetch` adapter, so business logic never knows which client it runs in.
 - **Gamification built in** — XP, per-habit levels, streaks, level-up and streak-milestone
   celebrations, and floating `+XP` feedback on check-in.
+- **A new day, briefed** — the first dashboard open of a day shows what is still open from
+  yesterday, checkable right there at whatever the late check-in is now worth, next to what
+  today holds. The figures are computed on the server; the LLM only phrases them, so a
+  provider being down costs a sentence and not the panel.
 - **A mood a day, and a diary** — a five-point scale plus optional journalling. The dashboard
   widget marks the day with one tap, through a request that has no field for a note, so it cannot
   erase what you wrote that morning. Only the diary page's Save button replaces an entry.
@@ -75,7 +79,7 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, mood, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics. |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, mood, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, and the Daily Briefing's open/resolve rules. |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/contracts` | TypeScript types generated from the backend's OpenAPI 3.1 spec, with a CI drift gate. |

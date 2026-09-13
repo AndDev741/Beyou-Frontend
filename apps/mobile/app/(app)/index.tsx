@@ -13,6 +13,8 @@ import DashboardWidgets from '../../src/ui/widgets/DashboardWidgets';
 import OnboardingTutorial from '../../src/ui/tutorial/OnboardingTutorial';
 import AiOnboardingWizard from '../../src/ui/aiOnboarding/AiOnboardingWizard';
 import TutorialFinale from '../../src/ui/tutorial/TutorialFinale';
+import DailyBriefingSheet from '../../src/ui/briefing/DailyBriefingSheet';
+import { useDailyBriefing } from '../../src/dashboard/useDailyBriefing';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
 import { setPhase } from '../../src/tutorial/tutorialSlice';
@@ -30,7 +32,7 @@ export default function AppHome() {
   const { theme } = useBeyouTheme();
   const firstFocus = useRef(true);
   const dispatch = useDispatch<AppDispatch>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const phase = useSelector((s: RootState) => s.tutorial.phase);
   const dash = useDashboardTutorial();
   // The spotlight is rendered by the (app) layout so it spans the window (the
@@ -38,6 +40,18 @@ export default function AppHome() {
   // Suppressed while the spinner is up: the targets are not mounted yet, and the
   // overlay would flash a full-screen scrim over the loading state.
   useSpotlightSlot({ ...dash, active: dash.active && !loading });
+
+  // The new-day dialog. Any tutorial phase at all suppresses it: every one of them owns
+  // the screen with its own overlay, and an account new enough to be in one has no
+  // yesterday to report. A retroactive check reloads the dashboard, because the XP and
+  // streak it just moved are on this screen too.
+  const {
+    briefing,
+    visible: briefingVisible,
+    close: closeBriefing,
+    resolve: resolveBriefingItem,
+    pendingId: briefingPendingId,
+  } = useDailyBriefing({ tutorialActive: phase !== null, onResolved: reload });
 
   // Refetch when returning to the dashboard (e.g. after editing a routine). The
   // screen stays mounted under the stack, so the mount-load goes stale otherwise.
@@ -101,6 +115,19 @@ export default function AppHome() {
         />
       ) : null}
       {phase === 'done' ? <TutorialFinale /> : null}
+      {/* Mounted only while it should be on screen. The gate already refuses a briefing it
+          cannot read, so keeping the sheet unmounted means a shape nobody expected can never
+          reach a render on the app's home screen. */}
+      {briefing && briefingVisible ? (
+        <DailyBriefingSheet
+          briefing={briefing}
+          visible
+          onClose={closeBriefing}
+          onResolve={resolveBriefingItem}
+          pendingId={briefingPendingId}
+          locale={i18n.language === 'pt' ? 'pt-BR' : 'en-US'}
+        />
+      ) : null}
     </View>
   );
 }

@@ -30,6 +30,9 @@ export * from './auth/oidc/types';
 export * from './agent/agentChats';
 export * from './agent/agentStream';
 
+// Daily Briefing
+export * from './briefing/dailyBriefing';
+
 // Check-day history
 export { default as getCheckHistory } from './checkHistory/getCheckHistory';
 
