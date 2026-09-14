@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useDashboardData } from '../../src/dashboard/useDashboardData';
@@ -45,13 +45,28 @@ export default function AppHome() {
   // the screen with its own overlay, and an account new enough to be in one has no
   // yesterday to report. A retroactive check reloads the dashboard, because the XP and
   // streak it just moved are on this screen too.
+  // `?briefing=1` is the configuration screen asking for today's sheet back, for somebody who
+  // dismissed it by accident. Consumed on close rather than left on the route, so returning to
+  // the dashboard later does not keep reopening it.
+  const params = useLocalSearchParams<{ briefing?: string }>();
+  const router = useRouter();
+  const briefingRequested = params.briefing === '1';
+  const dropBriefingRequest = useCallback(() => {
+    if (briefingRequested) router.replace('/');
+  }, [briefingRequested, router]);
+
   const {
     briefing,
     visible: briefingVisible,
     close: closeBriefing,
     resolve: resolveBriefingItem,
     pendingId: briefingPendingId,
-  } = useDailyBriefing({ tutorialActive: phase !== null, onResolved: reload });
+  } = useDailyBriefing({
+    tutorialActive: phase !== null,
+    forceOpen: briefingRequested,
+    onResolved: reload,
+    onClosed: dropBriefingRequest,
+  });
 
   // Refetch when returning to the dashboard (e.g. after editing a routine). The
   // screen stays mounted under the stack, so the mount-load goes stale otherwise.

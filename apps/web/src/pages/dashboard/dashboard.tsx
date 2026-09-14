@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import RoutineDay from "../../components/dashboard/dayRoutine/dayRoutine";
 import Perfil from "../../components/dashboard/perfil";
 import useAuthGuard from "../../components/useAuthGuard";
@@ -156,13 +157,33 @@ function Dashboard() {
         showRoutinesDashboardSpotlight || showRoutineSummarySpotlight ||
         showConfigDashboardSpotlight;
 
+    // `?briefing=1` is the configuration screen asking for today's dialog back, for somebody
+    // who closed it by accident. Consumed rather than left in the URL: a reload or a shared
+    // link should not keep reopening it.
+    const [searchParams, setSearchParams] = useSearchParams();
+    const briefingRequested = searchParams.get("briefing") === "1";
+    const dropBriefingRequest = useCallback(() => {
+        setSearchParams(
+            (params) => {
+                params.delete("briefing");
+                return params;
+            },
+            { replace: true },
+        );
+    }, [setSearchParams]);
+
     const {
         briefing,
         open: briefingOpen,
         close: closeBriefing,
         resolve: resolveBriefingItem,
         pendingId: briefingPendingId,
-    } = useDailyBriefing({ tutorialActive, onResolved: loadDashboardData });
+    } = useDailyBriefing({
+        tutorialActive,
+        forceOpen: briefingRequested,
+        onResolved: loadDashboardData,
+        onClosed: dropBriefingRequest,
+    });
 
     // Pick up what the phone did, and what the clock did. Held off while the wizard is
     // running, which creates entities of its own and reloads on its way out.

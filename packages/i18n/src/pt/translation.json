@@ -1395,5 +1395,8 @@
   "BriefingRecapMood": "Você marcou o seu humor em {{mood}} de 5.",
   "BriefingRecapNoMood": "Você não marcou humor.",
   "BriefingNarrativeLoading": "Escrevendo o seu resumo",
-  "BriefingNarrativeUnavailable": "O resumo escrito não está disponível agora. Tudo acima continua atual."
+  "BriefingNarrativeUnavailable": "O resumo escrito não está disponível agora. Tudo acima continua atual.",
+  "BriefingDayExpiring": "última chance",
+  "BriefingConfigDescription": "Fechou antes de acabar de ler? Abra o resumo de hoje outra vez, se houver um.",
+  "BriefingConfigShowAgain": "Ver o resumo de hoje"
 }

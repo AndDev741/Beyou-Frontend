@@ -11,7 +11,11 @@ import type { AppDispatch, RootState } from '../store';
 interface Options {
   /** True while the tutorial or the AI wizard owns the screen. */
   tutorialActive: boolean;
+  /** The user asked for it back from the configuration screen. */
+  forceOpen?: boolean;
   onResolved?: () => void;
+  /** Called when the user closes it, so a caller can drop a `forceOpen` request. */
+  onClosed?: () => void;
 }
 
 /**
@@ -25,7 +29,12 @@ interface Options {
  * The rules live in `@beyou/state` rather than being written twice. What is left here is the
  * wiring, which is the only part that genuinely differs between a browser and a phone.
  */
-export function useDailyBriefing({ tutorialActive, onResolved }: Options) {
+export function useDailyBriefing({
+  tutorialActive,
+  forceOpen = false,
+  onResolved,
+  onClosed,
+}: Options) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const store = useStore<RootState>();
@@ -55,12 +64,13 @@ export function useDailyBriefing({ tutorialActive, onResolved }: Options) {
 
   const visible =
     !loading &&
-    shouldOpenBriefing({ briefing, tutorialActive, dismissedThisSession: dismissed });
+    shouldOpenBriefing({ briefing, tutorialActive, dismissedThisSession: dismissed, forceOpen });
 
   const close = useCallback(() => {
     setDismissed(true);
+    onClosed?.();
     void markBriefingSeen(t);
-  }, [t]);
+  }, [t, onClosed]);
 
   const resolve = useCallback(
     async (item: BriefingOpenItem, outcome: 'checked' | 'skipped') => {

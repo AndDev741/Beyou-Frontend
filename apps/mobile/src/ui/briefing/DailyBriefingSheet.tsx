@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,8 +12,8 @@ import {
   Target,
 } from 'lucide-react-native';
 import {
-  BRIEFING_AUTO_ADVANCE_MS,
   BRIEFING_PAGES,
+  groupOpenItemsByDay,
   recoveryIsUrgent,
   type BriefingPage,
 } from '@beyou/state';
@@ -61,10 +61,11 @@ function trim(value: number, locale: string): string {
  * the native layout identical to the web's own sub-`lg` layout, which is the point — one
  * feature, two renderings, not two features.
  *
- * The auto-advance follows the shared rule from `@beyou/state`: once, thirty seconds, and
- * cancelled the moment the user touches the pager. There is no `prefers-reduced-motion` on
- * a phone the way there is in a browser, so the countdown here is a plain timer with no
- * animated fill to accompany it — the pager label changes and nothing slides.
+ * Nothing moves the right half on its own. A timed flip would compete with the one thing the
+ * panel is for: the prose arrives from an LLM whenever it arrives, so the reader most likely
+ * to be mid-sentence when a timer fires is exactly the one who just got something worth
+ * reading. The tabs are therefore labelled rather than dots — they are the only way through,
+ * and two words say so where two circles do not.
  */
 export default function DailyBriefingSheet({
   briefing,
@@ -77,27 +78,11 @@ export default function DailyBriefingSheet({
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const [page, setPage] = useState<BriefingPage>('today');
-  const [userDriving, setUserDriving] = useState(false);
   const [olderOpen, setOlderOpen] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { yesterday } = briefing;
   const recovery = briefing.today.recovery;
   const urgent = recoveryIsUrgent(briefing);
-  const armed = visible && !userDriving && page === 'today';
-
-  const select = useCallback((next: BriefingPage) => {
-    setUserDriving(true);
-    setPage(next);
-  }, []);
-
-  useEffect(() => {
-    if (!armed) return;
-    timer.current = setTimeout(() => setPage('yesterday'), BRIEFING_AUTO_ADVANCE_MS);
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, [armed]);
 
   const rows = (items: BriefingOpenItem[]) =>
     items.map((item) => (
@@ -189,11 +174,41 @@ export default function DailyBriefingSheet({
                   <ChevronDown size={15} color={theme.text3} />
                 </Pressable>
 
-                {olderOpen && (
-                  <View className="mt-2" style={{ gap: 8 }}>
-                    {rows(recovery.openItems)}
-                  </View>
-                )}
+                {/* Grouped by day, not a flat list with a date on every row. "Did I do
+                    this?" is a question about a DAY, and a week of a full routine is dozens
+                    of items — the same six dates repeated down the list is noise to read
+                    past rather than structure to scan. */}
+                {olderOpen &&
+                  groupOpenItemsByDay(recovery.openItems).map((group) => {
+                    const expiring = group.date === recovery.oldestOpenDay;
+                    return (
+                      <View key={group.date} className="mt-3">
+                        <View
+                          className="flex-row items-center gap-2"
+                          testID={`briefing-day-${group.date}`}
+                        >
+                          <Text
+                            className="text-xs font-semibold"
+                            style={{ color: expiring && urgent ? theme.flame : theme.text2 }}
+                          >
+                            {shortDate(group.date, locale)}
+                          </Text>
+                          <Text className="text-[11px] text-text-3">{group.items.length}</Text>
+                          {expiring && urgent ? (
+                            <Text
+                              className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                              style={{ color: theme.flame, backgroundColor: `${theme.flame}1A` }}
+                            >
+                              {t('BriefingDayExpiring')}
+                            </Text>
+                          ) : null}
+                        </View>
+                        <View className="mt-2" style={{ gap: 8 }}>
+                          {rows(group.items)}
+                        </View>
+                      </View>
+                    );
+                  })}
               </View>
             )}
           </View>
@@ -206,31 +221,27 @@ export default function DailyBriefingSheet({
               <RecapPage briefing={briefing} theme={theme} />
             )}
 
-            <View className="mt-4 flex-row items-center gap-2">
+            <View className="mt-4 flex-row items-center gap-1 border-t border-border pt-3">
               {BRIEFING_PAGES.map((key) => {
                 const active = key === page;
                 return (
                   <Pressable
                     key={key}
-                    onPress={() => select(key)}
+                    onPress={() => setPage(key)}
                     accessibilityRole="tab"
                     accessibilityState={{ selected: active }}
-                    accessibilityLabel={t(PAGE_LABEL[key])}
                     testID={`briefing-bullet-${key}`}
-                    className="py-2"
+                    className={`rounded-control px-3 py-1.5 ${active ? 'bg-accent-soft' : ''}`}
                   >
-                    <View
-                      style={{
-                        width: active ? 28 : 6,
-                        height: 6,
-                        borderRadius: 3,
-                        backgroundColor: active ? theme.accent : theme.border,
-                      }}
-                    />
+                    <Text
+                      className="text-xs font-semibold"
+                      style={{ color: active ? theme.accent : theme.text3 }}
+                    >
+                      {t(PAGE_LABEL[key])}
+                    </Text>
                   </Pressable>
                 );
               })}
-              <Text className="ml-1 text-xs font-medium text-text-3">{t(PAGE_LABEL[page])}</Text>
             </View>
           </View>
         </ScrollView>

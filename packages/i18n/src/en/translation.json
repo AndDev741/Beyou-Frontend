@@ -1395,5 +1395,8 @@
   "BriefingRecapMood": "You logged your mood at {{mood}} out of 5.",
   "BriefingRecapNoMood": "You did not log a mood.",
   "BriefingNarrativeLoading": "Writing your summary",
-  "BriefingNarrativeUnavailable": "The written summary is not available right now. Everything above is still current."
+  "BriefingNarrativeUnavailable": "The written summary is not available right now. Everything above is still current.",
+  "BriefingDayExpiring": "last chance",
+  "BriefingConfigDescription": "Closed it before you finished reading? Open today's briefing again, if there is one.",
+  "BriefingConfigShowAgain": "Show today's briefing"
 }

@@ -199,6 +199,62 @@ test("older recoverable days stay behind a disclosure", async () => {
     expect(screen.getByText("Journal")).toBeInTheDocument();
 });
 
+/**
+ * The reason the older list is grouped at all: a row there says only its section name and what
+ * it is worth, and neither answers "did I do this?". The day is what somebody remembers.
+ */
+test("the older list heads each day with its date", async () => {
+    render(
+        briefing({
+            today: {
+                ...briefing().today,
+                recovery: {
+                    oldestOpenDay: "2026-09-07",
+                    daysUntilExpiry: 3,
+                    remainingXpPercent: 40,
+                    openItems: [
+                        item({ snapshotCheckId: "old-1", itemName: "Journal", date: "2026-09-07" }),
+                        item({ snapshotCheckId: "old-2", itemName: "Walk", date: "2026-09-09" }),
+                    ],
+                },
+            },
+        }),
+    );
+
+    await userEvent.click(screen.getByTestId("briefing-older-toggle"));
+
+    // By testId, because the deadline line above the list names the oldest day too — that
+    // duplication is correct, so the assertion has to be precise rather than the UI quieter.
+    const oldest = screen.getByTestId("briefing-day-2026-09-07");
+    const later = screen.getByTestId("briefing-day-2026-09-09");
+    expect(oldest).toHaveTextContent(/Sep 7/);
+    expect(later).toHaveTextContent(/Sep 9/);
+});
+
+/** Only the day about to fall out of the window is flagged. */
+test("marks the expiring day and no other", async () => {
+    render(
+        briefing({
+            today: {
+                ...briefing().today,
+                recovery: {
+                    oldestOpenDay: "2026-09-07",
+                    daysUntilExpiry: 1,
+                    remainingXpPercent: 20,
+                    openItems: [
+                        item({ snapshotCheckId: "old-1", date: "2026-09-07" }),
+                        item({ snapshotCheckId: "old-2", date: "2026-09-09" }),
+                    ],
+                },
+            },
+        }),
+    );
+
+    await userEvent.click(screen.getByTestId("briefing-older-toggle"));
+
+    expect(screen.getAllByText("BriefingDayExpiring")).toHaveLength(1);
+});
+
 /** One day left is the only genuinely time-critical thing this dialog says. */
 test("the last night before a day expires reads as a last chance", () => {
     render(
@@ -242,7 +298,11 @@ test("a pending narrative shows a skeleton rather than nothing", () => {
     expect(screen.getByTestId("briefing-narrative-pending")).toBeInTheDocument();
 });
 
-test("the second page can be reached from the bullets", async () => {
+/**
+ * Nothing advances this on its own any more, so the tabs are the only way through. That makes
+ * this the case that matters most about the right panel.
+ */
+test("the recap page is reached from the tabs, and only from the tabs", async () => {
     render(briefing());
 
     expect(screen.getByTestId("briefing-today-page")).toBeInTheDocument();

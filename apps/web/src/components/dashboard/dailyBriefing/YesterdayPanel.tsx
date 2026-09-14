@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CalendarCheck, ChevronDown, Clock, Moon } from "lucide-react";
 import type { BriefingOpenItem, DailyBriefing } from "@beyou/types/briefing/briefing";
-import { recoveryIsUrgent } from "@beyou/state";
+import { groupOpenItemsByDay, recoveryIsUrgent } from "@beyou/state";
 import OpenItemRow from "./OpenItemRow";
 
 type Props = {
@@ -13,7 +13,7 @@ type Props = {
     locale: string;
 };
 
-/** `Mon 8 Sep` in the user's language, for the older-days deadline lines. */
+/** `Mon 8 Sep` in the user's language, for the older-days headings and deadline line. */
 function shortDate(iso: string, locale: string): string {
     const parsed = new Date(`${iso}T12:00:00Z`);
     if (Number.isNaN(parsed.getTime())) return iso;
@@ -150,22 +150,55 @@ export default function YesterdayPanel({ briefing, onResolve, pendingId, locale 
                         />
                     </button>
 
-                    {olderOpen && (
-                        <ul className="mt-2 flex flex-col gap-2">
-                            <AnimatePresence initial={false}>
-                                {recovery.openItems.map((item) => (
-                                    <motion.div key={item.snapshotCheckId} {...rowMotion}>
-                                        <OpenItemRow
-                                            item={item}
-                                            busy={pendingId === item.snapshotCheckId}
-                                            onCheck={() => onResolve(item, "checked")}
-                                            onSkip={() => onResolve(item, "skipped")}
-                                        />
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </ul>
-                    )}
+                    {/* Grouped by day, not a flat list with a date stamped on each row.
+                        "Did I do this?" is a question about a DAY — somebody remembers last
+                        Monday, not a habit floating free of one — and a week of a full routine
+                        is dozens of items, so repeating the same six dates down the list is
+                        noise to read past rather than structure to scan. */}
+                    {olderOpen &&
+                        groupOpenItemsByDay(recovery.openItems).map((group) => {
+                            const expiring = group.date === recovery.oldestOpenDay;
+                            return (
+                                <div key={group.date} className="mt-3">
+                                    <div
+                                        className="flex items-center gap-2"
+                                        data-testid={`briefing-day-${group.date}`}
+                                    >
+                                        <h4
+                                            className={`text-xs font-semibold ${
+                                                expiring && urgent ? "text-flame" : "text-text-2"
+                                            }`}
+                                        >
+                                            {shortDate(group.date, locale)}
+                                        </h4>
+                                        <span className="font-mono text-[11px] text-text-3">
+                                            {group.items.length}
+                                        </span>
+                                        {expiring && urgent && (
+                                            <span className="rounded-full bg-flame/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-flame">
+                                                {t("BriefingDayExpiring")}
+                                            </span>
+                                        )}
+                                        <span className="h-px flex-1 bg-border" />
+                                    </div>
+
+                                    <ul className="mt-2 flex flex-col gap-2">
+                                        <AnimatePresence initial={false}>
+                                            {group.items.map((item) => (
+                                                <motion.div key={item.snapshotCheckId} {...rowMotion}>
+                                                    <OpenItemRow
+                                                        item={item}
+                                                        busy={pendingId === item.snapshotCheckId}
+                                                        onCheck={() => onResolve(item, "checked")}
+                                                        onSkip={() => onResolve(item, "skipped")}
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
+                                    </ul>
+                                </div>
+                            );
+                        })}
                 </div>
             )}
         </div>

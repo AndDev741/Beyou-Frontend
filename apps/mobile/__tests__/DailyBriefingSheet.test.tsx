@@ -237,7 +237,68 @@ test('a missing narrative falls back to a line and keeps every fact', async () =
   expect(screen.getAllByTestId('briefing-open-item')).toHaveLength(1);
 });
 
-test('the recap page can be reached from the pager', async () => {
+/**
+ * The older list is grouped by day because a row there says only its section and its value,
+ * and neither answers "did I do this?".
+ */
+test('the older list heads each day with its date', async () => {
+  await renderSheet(
+    briefing({
+      today: {
+        ...briefing().today,
+        recovery: {
+          oldestOpenDay: '2026-09-07',
+          daysUntilExpiry: 3,
+          remainingXpPercent: 40,
+          openItems: [
+            item({ snapshotCheckId: 'old-1', itemName: 'Journal', date: '2026-09-07' }),
+            item({ snapshotCheckId: 'old-2', itemName: 'Walk', date: '2026-09-09' }),
+          ],
+        },
+      },
+    }),
+  );
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('briefing-older-toggle'));
+  });
+
+  // By testID, because the deadline line above the list names the oldest day too — that
+  // duplication is correct, so the assertion has to be precise rather than the UI quieter.
+  expect(screen.getByTestId('briefing-day-2026-09-07')).toBeTruthy();
+  expect(screen.getByTestId('briefing-day-2026-09-09')).toBeTruthy();
+});
+
+/** Only the day about to fall out of the window is flagged. */
+test('marks the expiring day and no other', async () => {
+  await renderSheet(
+    briefing({
+      today: {
+        ...briefing().today,
+        recovery: {
+          oldestOpenDay: '2026-09-07',
+          daysUntilExpiry: 1,
+          remainingXpPercent: 20,
+          openItems: [
+            item({ snapshotCheckId: 'old-1', date: '2026-09-07' }),
+            item({ snapshotCheckId: 'old-2', date: '2026-09-09' }),
+          ],
+        },
+      },
+    }),
+  );
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('briefing-older-toggle'));
+  });
+
+  expect(screen.getAllByText('last chance')).toHaveLength(1);
+});
+
+/**
+ * Nothing advances this on its own, so the tabs are the only way through.
+ */
+test('the recap page is reached from the tabs, and only from the tabs', async () => {
   await renderSheet(briefing());
 
   expect(screen.getByTestId('briefing-today-page')).toBeTruthy();

@@ -14,14 +14,14 @@ import type { DailyBriefing, BriefingOpenItem } from '@beyou/types/briefing/brie
 import { briefingWorthShowing } from '@beyou/types/briefing/briefing';
 
 /**
- * How long the right panel waits before turning itself to the recap page.
+ * The right panel's two pages.
  *
- * Thirty seconds is long enough to read the "what is coming" page without being moved off
- * it, and short enough that somebody who is not reading still gets shown the second half
- * before they close the dialog.
+ * There is no auto-advance, and that is a decision rather than an omission. A timed flip
+ * competes with the one thing the panel is for: the prose arrives from an LLM whenever it
+ * arrives, so a reader who has just started the page is exactly the person most likely to be
+ * moved off it. The pager below is the only thing that changes the page, and it only moves
+ * when somebody asks it to.
  */
-export const BRIEFING_AUTO_ADVANCE_MS = 30_000;
-
 export type BriefingPage = 'today' | 'yesterday';
 
 export const BRIEFING_PAGES: BriefingPage[] = ['today', 'yesterday'];
@@ -32,6 +32,15 @@ export type BriefingGateInput = {
     tutorialActive?: boolean;
     /** True once the user has closed it in this session, so it cannot reopen on a refetch. */
     dismissedThisSession?: boolean;
+    /**
+     * The user asked for it back, from the configuration screen.
+     *
+     * Overrides both "already seen" and "closed in this session", because those exist to stop
+     * the dialog appearing UNASKED and this is the opposite. It does NOT override
+     * {@link briefingWorthShowing}: asking to see a briefing that says nothing should show
+     * nothing, not an empty modal.
+     */
+    forceOpen?: boolean;
 };
 
 /**
@@ -56,16 +65,25 @@ export type BriefingGateInput = {
  * The user already closed it here. The dashboard refetches on focus and on the day turning,
  * and without this the dialog would reappear behind the user's own dismissal while the
  * `seen` write was still in flight.
+ *
+ * The tutorial is the only one of those that `forceOpen` cannot override. Someone who closed
+ * the dialog by accident and asked for it back from the configuration screen is owed it, so
+ * that request beats both "already seen" and "closed this session". It does not beat "there
+ * is nothing to say", because the answer to asking for an empty briefing is an empty screen
+ * and not an empty modal.
  */
 export function shouldOpenBriefing({
     briefing,
     tutorialActive = false,
     dismissedThisSession = false,
+    forceOpen = false,
 }: BriefingGateInput): boolean {
     if (!briefing) return false;
-    if (dismissedThisSession) return false;
     if (tutorialActive) return false;
-    if (briefing.seenAt) return false;
+    if (!forceOpen) {
+        if (dismissedThisSession) return false;
+        if (briefing.seenAt) return false;
+    }
     return briefingWorthShowing(briefing);
 }
 
@@ -140,6 +158,41 @@ export function allOpenItems(briefing: DailyBriefing): BriefingOpenItem[] {
         ...(briefing.yesterday?.openItems ?? []),
         ...(briefing.today?.recovery?.openItems ?? []),
     ];
+}
+
+/** One past day's worth of still-open items. */
+export type BriefingDayGroup = {
+    /** `yyyy-MM-dd`. */
+    date: string;
+    items: BriefingOpenItem[];
+};
+
+/**
+ * The older-days list, grouped by the day each item belongs to, oldest first.
+ *
+ * Yesterday's list needs none of this: every row in it is yesterday, and the panel heading
+ * already says so. The recovery list is the opposite — it can span the whole backfill window,
+ * and a row there reading only "Morning, worth 3 XP" cannot be answered. "Did I do this?" is a
+ * question about a DAY. Someone remembers last Monday, not an isolated habit floating free of
+ * one.
+ *
+ * Grouped rather than stamping the date on every row, because the list is long by nature (a
+ * week of a full routine is dozens of items) and thirty-five repetitions of the same six dates
+ * is noise you have to read past rather than structure you can scan.
+ *
+ * Oldest first, matching the order the server already sends and the deadline the panel is
+ * warning about: the day nearest to falling out of the window is the one worth acting on.
+ */
+export function groupOpenItemsByDay(items: BriefingOpenItem[]): BriefingDayGroup[] {
+    const byDate = new Map<string, BriefingOpenItem[]>();
+    for (const item of items ?? []) {
+        const existing = byDate.get(item.date);
+        if (existing) existing.push(item);
+        else byDate.set(item.date, [item]);
+    }
+    return [...byDate.entries()]
+        .map(([date, group]) => ({ date, items: group }))
+        .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 /**

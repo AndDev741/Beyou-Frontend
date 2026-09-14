@@ -12,8 +12,12 @@ import { logger } from "../../../utils/logger";
 type Options = {
     /** True while the tutorial or the AI wizard owns the dashboard. */
     tutorialActive: boolean;
+    /** The user asked for it back from the configuration screen. */
+    forceOpen?: boolean;
     /** Called after a retroactive check, so the dashboard picks up the new totals. */
     onResolved?: () => void;
+    /** Called when the user closes it, so a caller can drop a `forceOpen` request. */
+    onClosed?: () => void;
 };
 
 /**
@@ -30,7 +34,7 @@ type Options = {
  * request puts the row back, because a row that vanished without being recorded is the one
  * outcome the user cannot detect on their own.
  */
-export function useDailyBriefing({ tutorialActive, onResolved }: Options) {
+export function useDailyBriefing({ tutorialActive, forceOpen = false, onResolved, onClosed }: Options) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const store = useStore<RootState>();
@@ -61,15 +65,17 @@ export function useDailyBriefing({ tutorialActive, onResolved }: Options) {
         briefing,
         tutorialActive,
         dismissedThisSession: dismissed,
+        forceOpen,
     });
 
     const close = useCallback(() => {
         setDismissed(true);
+        onClosed?.();
         // Fire and forget. The dialog closes on the click, not on the round trip; a failure
         // means it may open once more on another device, which beats a close button that
         // spins.
         void markBriefingSeen(t);
-    }, [t]);
+    }, [t, onClosed]);
 
     const resolve = useCallback(
         async (item: BriefingOpenItem, outcome: "checked" | "skipped") => {

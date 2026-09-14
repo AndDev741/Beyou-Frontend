@@ -144,14 +144,14 @@ export {
 
 // Daily Briefing — the new-day dialog's rules, shared so the two clients cannot drift
 export {
-  BRIEFING_AUTO_ADVANCE_MS,
   BRIEFING_PAGES,
   shouldOpenBriefing,
   resolveOpenItem,
+  groupOpenItemsByDay,
   allOpenItems,
   recoveryIsUrgent,
 } from './briefing/briefingRules';
-export type { BriefingPage, BriefingGateInput } from './briefing/briefingRules';
+export type { BriefingPage, BriefingGateInput, BriefingDayGroup } from './briefing/briefingRules';
 
 // mood + journaling
 export {

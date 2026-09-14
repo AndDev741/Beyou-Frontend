@@ -4,6 +4,7 @@ import {
     shouldOpenBriefing,
     resolveOpenItem,
     allOpenItems,
+    groupOpenItemsByDay,
     recoveryIsUrgent,
 } from './briefingRules';
 
@@ -232,5 +233,84 @@ describe('malformed responses', () => {
         expect(allOpenItems(broken)).toEqual([]);
         expect(recoveryIsUrgent(broken)).toBe(false);
         expect(resolveOpenItem(broken, 'anything', 'checked')).toBe(broken);
+    });
+});
+
+/**
+ * The older-days list groups by day, and the reason is the whole point of the panel.
+ *
+ * A row reading "Morning, worth 3 XP" cannot be answered. "Did I do this?" is a question about
+ * a DAY: people remember last Monday, not a habit floating free of one.
+ */
+describe('groupOpenItemsByDay', () => {
+    it('groups by day, oldest first', () => {
+        const groups = groupOpenItemsByDay([
+            item('c', '2026-09-10'),
+            item('a', '2026-09-08'),
+            item('d', '2026-09-10'),
+            item('b', '2026-09-09'),
+        ]);
+
+        expect(groups.map((g) => g.date)).toEqual(['2026-09-08', '2026-09-09', '2026-09-10']);
+        expect(groups[2].items.map((i) => i.snapshotCheckId)).toEqual(['c', 'd']);
+    });
+
+    /** Within a day, the server's order is kept — it is already the routine's own order. */
+    it('preserves the incoming order inside a day', () => {
+        const groups = groupOpenItemsByDay([
+            item('second', '2026-09-08'),
+            item('first', '2026-09-08'),
+        ]);
+
+        expect(groups).toHaveLength(1);
+        expect(groups[0].items.map((i) => i.snapshotCheckId)).toEqual(['second', 'first']);
+    });
+
+    it('handles an empty list', () => {
+        expect(groupOpenItemsByDay([])).toEqual([]);
+    });
+});
+
+/**
+ * Asking for it back from the configuration screen.
+ *
+ * The suppressions exist to stop the dialog appearing UNASKED; this is the opposite, so it
+ * beats them. It does not beat "nothing to say", because the honest answer to asking for an
+ * empty briefing is nothing at all rather than an empty modal.
+ */
+describe('forceOpen', () => {
+    it('reopens a briefing the server already marked seen', () => {
+        const seen = briefing({ seenAt: '2026-09-13T07:00:00Z' });
+
+        expect(shouldOpenBriefing({ briefing: seen })).toBe(false);
+        expect(shouldOpenBriefing({ briefing: seen, forceOpen: true })).toBe(true);
+    });
+
+    it('reopens one closed earlier in this session', () => {
+        expect(
+            shouldOpenBriefing({ briefing: briefing(), dismissedThisSession: true, forceOpen: true }),
+        ).toBe(true);
+    });
+
+    it('still shows nothing when there is nothing to show', () => {
+        const empty = briefing({
+            yesterday: {
+                date: '2026-09-12', hadRoutine: false, complete: false, doneCount: 0,
+                skippedCount: 0, xpEarned: 0, openItems: [], focusCycles: 0, moodLevel: null,
+            },
+            today: {
+                scheduledItemCount: 0, scheduledToday: false, currentStreak: 0,
+                bestStreak: 0, goalsApproaching: [], recovery: null,
+            },
+        });
+
+        expect(shouldOpenBriefing({ briefing: empty, forceOpen: true })).toBe(false);
+    });
+
+    /** The tutorial still wins: it owns the screen with its own overlay. */
+    it('does not fight the tutorial', () => {
+        expect(
+            shouldOpenBriefing({ briefing: briefing(), tutorialActive: true, forceOpen: true }),
+        ).toBe(false);
     });
 });
