@@ -8,6 +8,7 @@ import ProfileConfiguration from "../../components/configuration/ProfileConfigur
 import RoutineSettings from "../../components/configuration/RoutineSettings";
 import ThemeSelector from "../../components/configuration/ThemeSelector";
 import TutorialConfiguration from "../../components/configuration/TutorialConfiguration";
+import BriefingConfiguration from "../../components/configuration/BriefingConfiguration";
 import WidgetsConfiguration from "../../components/configuration/WidgetsConfiguration";
 import ConfigSection from "../../components/configuration/ConfigSection";
 import AccountConfiguration from "../../components/configuration/AccountConfiguration";
@@ -117,6 +118,7 @@ export default function Configuration() {
                             <LanguageSelector />
                             <ConstanceConfiguration />
                             <RoutineSettings />
+                            <BriefingConfiguration />
                             <TutorialConfiguration />
                             <NotificationConfiguration />
                             <PrivacyPolicyLink />

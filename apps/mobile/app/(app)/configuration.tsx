@@ -16,6 +16,7 @@ import ConstanceSection from '../../src/ui/config/ConstanceSection';
 import NotificationSection from '../../src/ui/config/NotificationSection';
 import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import TutorialSection from '../../src/ui/config/TutorialSection';
+import BriefingSection from '../../src/ui/config/BriefingSection';
 import PrivacyPolicySection from '../../src/ui/config/PrivacyPolicySection';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useConfigTutorial } from '../../src/tutorial/hooks/useConfigTutorial';
@@ -118,6 +119,7 @@ export default function ConfigurationScreen() {
             <LanguageSection />
             <ConstanceSection />
             <RoutineSettingsSection />
+            <BriefingSection />
             <TutorialSection />
             <NotificationSection />
             <PrivacyPolicySection />

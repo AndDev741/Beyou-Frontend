@@ -142,6 +142,17 @@ export {
   MS_PER_DAY,
 } from './date/isoDay';
 
+// Daily Briefing — the new-day dialog's rules, shared so the two clients cannot drift
+export {
+  BRIEFING_PAGES,
+  shouldOpenBriefing,
+  resolveOpenItem,
+  groupOpenItemsByDay,
+  allOpenItems,
+  recoveryIsUrgent,
+} from './briefing/briefingRules';
+export type { BriefingPage, BriefingGateInput, BriefingDayGroup } from './briefing/briefingRules';
+
 // mood + journaling
 export {
   enterMoodEntries,

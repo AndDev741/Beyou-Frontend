@@ -15,6 +15,9 @@ let mockFocusCb: (() => void) | undefined;
 jest.mock('expo-router', () => ({
   useRouter: () => ({ push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: () => false }),
   useFocusEffect: (cb: () => void) => { mockFocusCb = cb; },
+  // The dashboard reads `?briefing=1` — the configuration screen asking for today's
+  // briefing back. No test here drives that, so an empty bag is the right default.
+  useLocalSearchParams: () => ({}),
 }));
 
 jest.mock('react-native-safe-area-context', () => ({
