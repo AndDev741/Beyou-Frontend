@@ -60,7 +60,18 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      # packages defaults to "tools platform-tools", and Google stopped serving
+      # the obsolete `tools` package on 2026-09-15, so sdkmanager now exits 1
+      # and the build never starts (android-actions/setup-android#537):
+      #   Warning: Failed to find package 'tools'
+      # `tools` is the legacy SDK Tools bundle, deprecated years ago in favour
+      # of cmdline-tools; installing it also pulled down the Android Emulator.
+      # Nothing here runs an emulator or adb — every step is ./gradlew — so
+      # naming platform-tools explicitly drops the dead package rather than
+      # waiting on an upstream release.
       - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
 
       # Restores ~/.gradle between runs. A cold runner re-downloads every Maven
       # dependency and recompiles every module: the last uncached build reported
