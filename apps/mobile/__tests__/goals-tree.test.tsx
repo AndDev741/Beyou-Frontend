@@ -234,6 +234,55 @@ describe('GoalForm parent picker', () => {
   }, 20000);
 });
 
+describe('GoalForm and a refetch while it is open', () => {
+  // The screen refetches goals when the app returns to the foreground and on a timer, and each
+  // refetch hands out NEW goal objects. The form used to re-seed itself whenever the parent
+  // object changed, so a half-filled sub-goal form went blank on every return to the app.
+  const renderForm = async (props: { visible: boolean; allGoals: goal[] }) => {
+    const store = makeStore();
+    const view = (p: { visible: boolean; allGoals: goal[] }) => (
+      <Provider store={store}>
+        <BeyouThemeProvider>
+          <GoalForm visible={p.visible} mode="create" categories={categories} allGoals={p.allGoals}
+            defaultParentId="marathon" onClose={jest.fn()} onSaved={jest.fn()} />
+        </BeyouThemeProvider>
+      </Provider>
+    );
+    let result!: Awaited<ReturnType<typeof render>>;
+    await act(async () => {
+      result = await render(view(props));
+    });
+    return async (next: { visible: boolean; allGoals: goal[] }) => {
+      await act(async () => {
+        await result.rerender(view(next));
+      });
+    };
+  };
+  const categories = [] as never[];
+  const copies = () => all.map((goalRow) => ({ ...goalRow }));
+
+  it('keeps what was typed when the same goals come back as new objects', async () => {
+    const update = await renderForm({ visible: true, allGoals: all });
+    await act(async () => { fireEvent.changeText(screen.getByTestId('goal-title'), 'Run 5 km'); });
+
+    await update({ visible: true, allGoals: copies() });
+
+    expect(screen.getByTestId('goal-title').props.value).toBe('Run 5 km');
+    expect(screen.getByTestId('goal-parent').props.accessibilityValue.text).toBe('Run a marathon');
+  });
+
+  it('still starts empty the next time it opens', async () => {
+    // The form stays mounted between openings, so "seed once" must mean once per opening.
+    const update = await renderForm({ visible: true, allGoals: all });
+    await act(async () => { fireEvent.changeText(screen.getByTestId('goal-title'), 'Run 5 km'); });
+
+    await update({ visible: false, allGoals: all });
+    await update({ visible: true, allGoals: all });
+
+    expect(screen.getByTestId('goal-title').props.value).toBe('');
+  });
+});
+
 describe('AddSubGoalModal', () => {
   it('explains the move, offers only goals that fit, and moves one through PUT /goal', async () => {
     const onMoved = jest.fn();

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { View, Text } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -108,8 +108,23 @@ export default function GoalForm({
   const watchedParentId = watch('parentId');
   const watchedEndDate = watch('endDate');
 
+  // Seeded once per opening, per goal being edited or parent being borrowed from, not every
+  // time one of those objects is re-created. The screen refetches goals when the app comes back
+  // to the foreground (and on a timer), each refetch hands out new objects, and keyed on them
+  // this reset wiped a half-filled sub-goal form on every return to the app. The form stays
+  // mounted between openings, so the first seed of an opening is a full reset (last time's
+  // values must go); a later one, the parent turning up after the form opened, keeps whatever
+  // was already typed.
+  const seededFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!visible) return;
+    if (!visible) {
+      seededFor.current = null;
+      return;
+    }
+    const key = `${mode}:${goal?.id ?? ''}:${defaultParent?.id ?? ''}`;
+    if (seededFor.current === key) return;
+    const firstThisOpening = seededFor.current === null;
+    seededFor.current = key;
     reset({
       title: goal?.name ?? '',
       iconId: goal?.iconId ?? '',
@@ -130,8 +145,8 @@ export default function GoalForm({
       status: goal?.status || 'NOT_STARTED',
       term: goal?.term || 'SHORT_TERM',
       parentId: goal?.parentId ?? defaultParent?.id ?? '',
-    });
-  }, [visible, goal, defaultParent, reset]);
+    }, firstThisOpening ? undefined : { keepDirtyValues: true });
+  }, [visible, mode, goal, defaultParent, reset]);
 
   // Which goals may be the parent: the same rule the server applies (not itself, not a
   // descendant, and the chain still fits in three levels), so the picker never offers
