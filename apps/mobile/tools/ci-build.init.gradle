@@ -1,4 +1,4 @@
-// CI-only Gradle tweaks, applied with --init-script by .github/workflows/mobile-apk.yml.
+// CI-only Gradle tweaks, applied with --init-script by .github/workflows/mobile-aab.yml.
 // A local `expo run:android` never loads this file.
 //
 // The app and most React Native modules take their NDK from rootProject.ext.ndkVersion,
