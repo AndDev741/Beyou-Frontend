@@ -116,3 +116,38 @@ test("status filter keeps completed goals reachable and hides them from the othe
     expect(screen.queryByText("Run 100 km")).not.toBeInTheDocument();
     expect(screen.getByText("Tidy the office")).toBeInTheDocument();
 });
+
+test("archived goals leave the page and come back under the Archived view", async () => {
+    const active = makeGoal({ id: "run", name: "Run 100 km" });
+    const archived = makeGoal({ id: "uke", name: "Learn the ukulele", archivedAt: "2026-09-20T08:00:00Z" });
+    vi.mocked(getGoals).mockResolvedValue({ success: [active, archived] });
+    await renderGoalsPage(buildStore([active, archived]));
+
+    expect(screen.getByText("Run 100 km")).toBeInTheDocument();
+    expect(screen.queryByText("Learn the ukulele")).not.toBeInTheDocument();
+
+    await act(async () => {
+        fireEvent.change(screen.getByLabelText("Status"), { target: { value: "ARCHIVED" } });
+    });
+
+    expect(screen.getByText("Learn the ukulele")).toBeInTheDocument();
+    expect(screen.queryByText("Run 100 km")).not.toBeInTheDocument();
+    expect(screen.getByTestId("restore-goal-inline-uke")).toBeInTheDocument();
+});
+
+test("the Archived view explains itself when nothing is archived yet", async () => {
+    // The option only appears once something is archived; reached with nothing left (the last
+    // one just restored), the page says what the archive is for instead of "no results".
+    const archived = makeGoal({ id: "uke", name: "Learn the ukulele", archivedAt: "2026-09-20T08:00:00Z" });
+    vi.mocked(getGoals).mockResolvedValue({ success: [archived] });
+    const store = buildStore([archived]);
+    await renderGoalsPage(store);
+    await act(async () => {
+        fireEvent.change(screen.getByLabelText("Status"), { target: { value: "ARCHIVED" } });
+    });
+    await act(async () => {
+        store.dispatch({ type: "goals/updateGoal", payload: { ...archived, archivedAt: null } });
+    });
+
+    expect(screen.getByText("ArchivedGoalsEmptyTitle")).toBeInTheDocument();
+});

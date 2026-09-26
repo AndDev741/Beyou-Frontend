@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import { editModeEnter } from "@beyou/state/goal/editGoalSlice";
 import { ancestorsOf, childrenOf, depthOf } from "@beyou/state";
 import EmptyState from "../EmptyState";
-import { Search, Trophy } from "lucide-react";
+import { Archive, Search, Trophy } from "lucide-react";
 
 export type GoalsViewMode = "tree" | "flat";
 
@@ -25,6 +25,8 @@ type RenderGoalsProps = {
   emptyTitle?: string;
   /** Clears search and filters from the empty state. */
   onClearFilters?: () => void;
+  /** The page is showing the archive: an empty list explains what archiving is for. */
+  archiveView?: boolean;
 };
 
 const byEndDate = (list: goal[]) =>
@@ -39,6 +41,7 @@ function RenderGoals({
   onOpenViewer,
   emptyTitle,
   onClearFilters,
+  archiveView = false,
 }: RenderGoalsProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -109,12 +112,20 @@ function RenderGoals({
               onOpenViewer={onOpenViewer}
               parentName={isTree ? undefined : parentNameOf(g)}
               initialChildrenOpen={Boolean(focusedId && focusedId !== g.id && focusedRootId === g.id)}
+              archivedAt={g.archivedAt ?? null}
             />
           </div>
           );
         })
       ) : (
-        emptyTitle ? (
+        archiveView && !emptyTitle ? (
+        <EmptyState
+          icon={<Archive size={20} aria-hidden="true" />}
+          title={t("ArchivedGoalsEmptyTitle")}
+          description={t("ArchivedGoalsEmptyText")}
+          variant="ghost"
+        />
+      ) : emptyTitle ? (
         <EmptyState
           icon={<Search size={20} aria-hidden="true" />}
           title={emptyTitle}

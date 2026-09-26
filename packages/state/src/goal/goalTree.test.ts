@@ -86,6 +86,16 @@ describe('goalTree', () => {
       expect(eligibleParents(all, 'medium').map((x) => x.id)).toEqual(['big', 'other', 'orphan']);
       expect(MAX_GOAL_DEPTH).toBe(3);
     });
+
+    it('never offers an archived goal as a NEW parent, but keeps it when it already is one', () => {
+      // The server refuses GOAL_PARENT_ARCHIVED for a new link and lets an existing one stand,
+      // because every edit sends the parent back.
+      const archivedBig = { ...big, archivedAt: '2026-09-20T08:00:00Z' };
+      const goals = [archivedBig, medium, small, other, orphan];
+      expect(eligibleParents(goals).map((x) => x.id)).not.toContain('big');
+      expect(eligibleParents(goals, 'other').map((x) => x.id)).not.toContain('big');
+      expect(eligibleParents(goals, 'medium').map((x) => x.id)).toContain('big');
+    });
   });
 
   it('buildGoalTree nests children under their roots', () => {

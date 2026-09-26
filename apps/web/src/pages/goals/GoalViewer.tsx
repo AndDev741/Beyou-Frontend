@@ -8,6 +8,7 @@ import type { goal as GoalType } from "@beyou/types/goals/goalType";
 import type { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import {
     GOAL_VIEWER_LAYOUTS,
+    activeGoals,
     childrenOf,
     formatGoalDeadline,
     goalViewerLayoutFrom,
@@ -98,7 +99,9 @@ export default function GoalViewer() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const goals = useSelector((state: RootState) => state.goals.goals) || [];
+    // The deck is for goals being worked on; archived ones live on the goals page's Archived view.
+    const everyGoal = useSelector((state: RootState) => state.goals.goals);
+    const goals = useMemo(() => activeGoals(everyGoal ?? []), [everyGoal]);
     const sortBy = useSelector((state: RootState) => state.viewFilters.goalsViewer) ?? "status";
     const layout = goalViewerLayoutFrom(useSelector((state: RootState) => state.viewFilters.goalsViewerLayout));
     const [status, setStatus] = useState("all");

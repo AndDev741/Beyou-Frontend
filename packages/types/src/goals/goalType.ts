@@ -24,4 +24,10 @@ export type goal = {
    * build the tree from this field, see `@beyou/state` goalTree.
    */
   parentId?: string | null;
+  /**
+   * When the goal was put away, or null/absent while it is active. Archiving is not an
+   * outcome: it moves no XP and leaves `status` alone. The pages filter on it, see
+   * `@beyou/state` goalArchive.
+   */
+  archivedAt?: string | null;
 };

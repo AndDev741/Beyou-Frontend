@@ -4,6 +4,8 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import increaseCurrentValue from "@beyou/api/goals/increaseCurrentValue";
 import decreaseCurrentValue from "@beyou/api/goals/decreaseCurrentValue";
+import archiveGoal from "@beyou/api/goals/archiveGoal";
+import { notify } from "../../lib/notify";
 
 // Mock services used by GoalBox
 vi.mock("@beyou/api/goals/getGoals", () => ({
@@ -28,6 +30,14 @@ vi.mock("@beyou/api/goals/decreaseCurrentValue", () => ({
 
 vi.mock("../../hooks/useUiRefresh", () => ({
   default: vi.fn(),
+}));
+
+vi.mock("@beyou/api/goals/archiveGoal", () => ({
+  default: vi.fn(),
+}));
+
+vi.mock("../../lib/notify", () => ({
+  notify: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
 }));
 
 const baseProps = {
@@ -299,5 +309,50 @@ describe("GoalBox with sub-goals", () => {
       <GoalBox {...baseProps} targetValue={10} currentValue={1} depth={3} onAddSubGoal={onAdd} />
     );
     expect(screen.queryByRole("button", { name: "AddSubGoal" })).toBeNull();
+  });
+
+  describe("archive", () => {
+    it("archives through the server and tells the person the sub-goals went too", async () => {
+      vi.mocked(archiveGoal).mockResolvedValue({
+        success: [
+          { id: "goal-1", archivedAt: "2026-09-26T10:00:00Z" },
+          { id: "child-1", archivedAt: "2026-09-26T10:00:00Z" },
+        ] as never,
+      });
+      renderWithProviders(<GoalBox {...baseProps} targetValue={10} currentValue={3} />);
+
+      fireEvent.click(screen.getByTestId("archive-goal-goal-1"));
+
+      await waitFor(() => expect(archiveGoal).toHaveBeenCalledWith("goal-1", true, expect.anything()));
+      await waitFor(() =>
+        expect(notify.success).toHaveBeenCalledWith(expect.stringContaining("GoalArchivedWithSubGoals")),
+      );
+    });
+
+    it("an archived card offers Restore instead of progress, and sends archived=false", async () => {
+      vi.mocked(archiveGoal).mockResolvedValue({ success: [{ id: "goal-1", archivedAt: null }] as never });
+      renderWithProviders(
+        <GoalBox {...baseProps} targetValue={10} currentValue={3} archivedAt="2026-09-20T08:00:00Z" />
+      );
+
+      expect(screen.getByText("ArchivedChip")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Increase" })).not.toBeInTheDocument();
+      expect(screen.queryByTestId("add-subgoal-goal-1")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId("restore-goal-inline-goal-1"));
+
+      await waitFor(() => expect(archiveGoal).toHaveBeenCalledWith("goal-1", false, expect.anything()));
+      await waitFor(() => expect(notify.success).toHaveBeenCalledWith("GoalRestored"));
+    });
+
+    it("a refused archive surfaces the server's reason", async () => {
+      vi.mocked(archiveGoal).mockResolvedValue({ error: { errorKey: "GOAL_NOT_OWNED", message: "no" } as never });
+      renderWithProviders(<GoalBox {...baseProps} targetValue={10} currentValue={3} />);
+
+      fireEvent.click(screen.getByTestId("archive-goal-goal-1"));
+
+      await waitFor(() => expect(notify.error).toHaveBeenCalled());
+      expect(notify.success).not.toHaveBeenCalled();
+    });
   });
 });

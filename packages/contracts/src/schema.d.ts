@@ -132,6 +132,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/goal/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setArchived"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/goal/complete": {
         parameters: {
             query?: never;
@@ -1510,6 +1526,8 @@ export interface components {
             completeDate?: string;
             /** Format: uuid */
             parentId?: string;
+            /** Format: date-time */
+            archivedAt?: string;
         };
         BaseCheck: {
             /** Format: uuid */
@@ -2131,6 +2149,11 @@ export interface components {
         };
         CreateFeedbackReplyRequest: {
             body: string;
+        };
+        ArchiveGoalRequestDTO: {
+            /** Format: uuid */
+            goalId: string;
+            archived: boolean;
         };
         UpdateGoalValueDTO: {
             /** Format: uuid */
@@ -2787,6 +2810,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["GoalResponseDTO"];
+                };
+            };
+        };
+    };
+    setArchived: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArchiveGoalRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GoalResponseDTO"][];
                 };
             };
         };

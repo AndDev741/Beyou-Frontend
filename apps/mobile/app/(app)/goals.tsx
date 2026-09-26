@@ -1,4 +1,4 @@
-import { ChevronLeft, Trophy, Plus, Search, Maximize2 } from 'lucide-react-native';
+import { Archive, ChevronLeft, Trophy, Plus, Search, Maximize2 } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAutoRefresh } from '../../src/hooks/useAutoRefresh';
 import { View, Text, Pressable, FlatList, ActivityIndicator } from 'react-native';
@@ -12,7 +12,7 @@ import deleteGoal from '@beyou/api/goals/deleteGoal';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterCategories } from '@beyou/state/category/categoriesSlice';
-import { childrenOf, depthOf, rootsForFilter, setViewSort, sortGoals } from '@beyou/state';
+import { activeGoals, archivedGoals, childrenOf, depthOf, rootsForFilter, setViewSort, sortGoals } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import GoalCard from '../../src/ui/goals/GoalCard';
 import GoalForm from '../../src/ui/goals/GoalForm';
@@ -33,7 +33,8 @@ const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
 /** Grouped folds sub-goals under their main goal; flat gives every goal its own card. */
 type ViewMode = 'tree' | 'flat';
 const ALL_CATEGORIES = 'all';
-type StatusFilter = 'all' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+/** ARCHIVED is not a status (archiving leaves status alone) but answers the same question. */
+type StatusFilter = 'all' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'ARCHIVED';
 
 /**
  * Goals section screen: self-fetches goals + categories, lists them as cards with
@@ -49,7 +50,7 @@ export default function GoalsScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
 
-  const goals = useSelector((s: RootState) => s.goals.goals);
+  const everyGoal = useSelector((s: RootState) => s.goals.goals);
   const categories = useSelector((s: RootState) => s.categories.categories);
   const sortBy = useSelector((s: RootState) => s.viewFilters.goals);
   const [loading, setLoading] = useState(true);
@@ -60,6 +61,14 @@ export default function GoalsScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('tree');
   // "Add sub-goal" opens an explanation first, not the form: see AddSubGoalModal.
   const [subGoalParent, setSubGoalParent] = useState<goal | null>(null);
+
+  // One side of the archive at a time: counts, the tree and each card's children all work on
+  // that side only. A sub-goal restored on its own under a parent still archived shows as a
+  // main goal, the way a deleted parent's children do.
+  const showingArchive = statusFilter === 'ARCHIVED';
+  const allActive = useMemo(() => activeGoals(everyGoal), [everyGoal]);
+  const allArchived = useMemo(() => archivedGoals(everyGoal), [everyGoal]);
+  const goals = showingArchive ? allArchived : allActive;
 
   const sortedGoals = useMemo(() => sortGoals(goals, sortBy), [goals, sortBy]);
   const hasAnyTree = useMemo(() => goals.some((g) => Boolean(g.parentId)), [goals]);
@@ -80,10 +89,10 @@ export default function GoalsScreen() {
         (item.description ?? '').toLowerCase().includes(term);
       const matchesCategory =
         categoryFilter === ALL_CATEGORIES || Object.keys(item.categories ?? {}).includes(categoryFilter);
-      const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || showingArchive || item.status === statusFilter;
       return matchesTerm && matchesCategory && matchesStatus;
     });
-  }, [sortedGoals, search, categoryFilter, statusFilter]);
+  }, [sortedGoals, search, categoryFilter, statusFilter, showingArchive]);
 
   // Grouped: the filter runs over every goal, and a main goal whose sub-goal matched
   // stays on the list (dimmed) so the match has somewhere to render. Sorting applies
@@ -108,8 +117,9 @@ export default function GoalsScreen() {
     return cursor?.id;
   }, [byId, expand]);
 
+  // Opening the archive is a view, not a filter: empty, it explains itself.
   const isFiltered =
-    search.trim() !== '' || categoryFilter !== ALL_CATEGORIES || statusFilter !== 'all';
+    search.trim() !== '' || categoryFilter !== ALL_CATEGORIES || (statusFilter !== 'all' && !showingArchive);
   const completedCount = useMemo(() => goals.filter((g) => g.status === 'COMPLETED').length, [goals]);
   const statusOptions = useMemo(
     () => [
@@ -117,8 +127,11 @@ export default function GoalsScreen() {
       { value: 'NOT_STARTED', label: t('Not Started') },
       { value: 'IN_PROGRESS', label: t('In Progress') },
       { value: 'COMPLETED', label: t('Completed') },
+      ...(allArchived.length > 0 || showingArchive
+        ? [{ value: 'ARCHIVED', label: `${t('ArchivedGoalsFilter')} (${allArchived.length})` }]
+        : []),
     ],
-    [t],
+    [allArchived.length, showingArchive, t],
   );
   const sortOptions = useMemo(
     () => GOAL_SORT_OPTIONS.map((option) => ({ value: option.value, label: t(option.key) })),
@@ -204,14 +217,18 @@ export default function GoalsScreen() {
               {t('YourGoals')}
             </Text>
             <Text className="text-[12.5px] text-text-3" numberOfLines={1}>
-              {completedCount > 0
-                ? `${goals.length} ${t('Goals')} · ${completedCount} ${t('Completed')}`
-                : `${goals.length} ${t('Goals')}`}
+              {[
+                `${allActive.length} ${t('Goals')}`,
+                completedCount > 0 && !showingArchive ? `${completedCount} ${t('Completed')}` : null,
+                allArchived.length > 0 ? `${allArchived.length} ${t('ArchivedGoalsFilter')}` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
             </Text>
           </View>
         </View>
         <View className="flex-row items-center gap-2">
-          {goals.length > 0 ? (
+          {allActive.length > 0 ? (
             <Pressable
               onPress={() => router.push('/goals-view')}
               accessibilityRole="button"
@@ -252,7 +269,8 @@ export default function GoalsScreen() {
           }}
           contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 40, gap: 12 }}
           ListHeaderComponent={
-            goals.length > 0 ? (
+            // Every goal, not the side on screen: an empty archive must still offer the way back.
+            everyGoal.length > 0 ? (
               <ListToolbar
                 search={search}
                 onSearchChange={setSearch}
@@ -328,7 +346,15 @@ export default function GoalsScreen() {
             );
           }}
           ListEmptyComponent={
-            isFiltered ? (
+            showingArchive && !isFiltered ? (
+              <EmptyState
+                icon={<Archive size={20} color={theme.accent} />}
+                title={t('ArchivedGoalsEmptyTitle')}
+                description={t('ArchivedGoalsEmptyText')}
+                variant="ghost"
+                testID="goals-archive-empty"
+              />
+            ) : isFiltered ? (
               <EmptyState
                 icon={<Search size={20} color={theme.accent} />}
                 title={t('NoResultsTitle')}
@@ -359,8 +385,8 @@ export default function GoalsScreen() {
       <DeleteModal
         visible={deleteTarget !== null}
         deletePhrase={
-          deleteTarget && childrenOf(goals, deleteTarget.id).length > 0
-            ? `${t('ConfirmDeleteOfGoalPhrase')} ${t('SubGoalsBecomeTopLevel', { count: childrenOf(goals, deleteTarget.id).length })}`
+          deleteTarget && childrenOf(everyGoal, deleteTarget.id).length > 0
+            ? `${t('ConfirmDeleteOfGoalPhrase')} ${t('SubGoalsBecomeTopLevel', { count: childrenOf(everyGoal, deleteTarget.id).length })}`
             : t('ConfirmDeleteOfGoalPhrase')
         }
         name={deleteTarget?.name ?? ''}
@@ -371,7 +397,7 @@ export default function GoalsScreen() {
 
       <AddSubGoalModal
         parent={subGoalParent}
-        allGoals={goals}
+        allGoals={allActive}
         onClose={() => setSubGoalParent(null)}
         onCreateNew={(parent) => {
           setSubGoalParent(null);
@@ -385,7 +411,7 @@ export default function GoalsScreen() {
         mode={form.mode}
         goal={form.goal}
         categories={categories}
-        allGoals={goals}
+        allGoals={everyGoal}
         defaultParentId={form.parentId}
         onClose={() => setForm(CLOSED)}
         onSaved={load}

@@ -110,15 +110,18 @@ export function allChildrenComplete(goals: goal[], goalId: string): boolean {
 /**
  * Goals the picker may offer as a parent for `goalId` (or for a new goal when undefined).
  *
- * Same list the server would accept: not the goal itself, not one of its descendants, and
- * shallow enough that the goal's own subtree still fits under MAX_GOAL_DEPTH. A mismatch
- * here is only a worse picker; the server refuses whatever slipped through.
+ * Same list the server would accept: not the goal itself, not one of its descendants, not an
+ * archived goal (unless it already IS the parent, since an edit sends the parent back and must
+ * keep working), and shallow enough that the goal's own subtree still fits under MAX_GOAL_DEPTH.
+ * A mismatch here is only a worse picker; the server refuses whatever slipped through.
  */
 export function eligibleParents(goals: goal[], goalId?: string): goal[] {
   const below = goalId ? subtreeHeight(goals, goalId) : 0;
   const excluded = new Set<string>(goalId ? [goalId, ...descendantsOf(goals, goalId).map((d) => d.id)] : []);
+  const currentParent = goalId ? goals.find((g) => g.id === goalId)?.parentId : undefined;
   return goals.filter((candidate) => {
     if (excluded.has(candidate.id)) return false;
+    if (candidate.archivedAt && candidate.id !== currentParent) return false;
     // depthOf(candidate) ancestors+self, +1 for the goal, +below for what hangs under it.
     return depthOf(goals, candidate.id) + 1 + below <= MAX_GOAL_DEPTH;
   });

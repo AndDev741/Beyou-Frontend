@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { Check, ChevronDown, ChevronUp, Trophy } from 'lucide-react-native';
-import { sortGoalsByTime, formatGoalDeadline, type DeadlineShape } from '@beyou/state';
+import { activeGoals, sortGoalsByTime, formatGoalDeadline, type DeadlineShape } from '@beyou/state';
 import type { goal } from '@beyou/types/goals/goalType';
 import BeyouIcon from '../BeyouIcon';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
@@ -62,7 +62,8 @@ export default function DashboardGoals() {
     };
   }, []);
 
-  const grouped = useMemo(() => sortGoalsByTime(goals ?? []), [goals]);
+  // Archived goals are put away, so the dashboard's timeline leaves them out.
+  const grouped = useMemo(() => sortGoalsByTime(activeGoals(goals ?? [])), [goals]);
   // A sub-goal that is due this week matters as much as a main goal, so it stays in
   // the horizon; the small line above its name says where it hangs.
   const nameById = useMemo(() => new Map((goals ?? []).map((g) => [g.id, g.name])), [goals]);

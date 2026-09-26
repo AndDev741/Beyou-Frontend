@@ -60,6 +60,7 @@ export { default as listFeedbackAdminItems } from './feedback/listFeedbackAdminI
 export { default as updateFeedbackStatus } from './feedback/updateFeedbackStatus';
 
 // Goals
+export { default as archiveGoal } from './goals/archiveGoal';
 export { default as createGoal } from './goals/createGoal';
 export { default as decreaseCurrentValue } from './goals/decreaseCurrentValue';
 export { default as deleteGoal } from './goals/deleteGoal';
