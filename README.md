@@ -190,7 +190,9 @@ is generated into `@beyou/contracts` from OpenAPI and verified by `npm --workspa
 - **Mobile** uses [Jest](https://jestjs.io/) via `jest-expo` and Testing Library for React Native.
 - **GitHub Actions** (`.github/workflows/`) run on every push and PR to `main`:
   typecheck → build → test → contract drift check → dependency audit, plus a weekly
-  **CodeQL** security scan.
+  **CodeQL** security scan. A merge that touches `apps/mobile` or a shared package also
+  builds the Android App Bundle and publishes it to the Google Play internal testing track
+  (`mobile-aab.yml`; other tracks by manual dispatch).
 
 ```bash
 npm test                                    # everything

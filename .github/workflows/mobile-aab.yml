@@ -1,34 +1,106 @@
-name: Mobile AAB
+name: Mobile Play release
 
-# Builds the signed release Android App Bundle for the Play Store and stores it
-# as a PRIVATE workflow artifact — never a public release: the .aab is what gets
-# uploaded to the Play Console, not something users install.
+# Builds the signed Android App Bundle and publishes it to Google Play.
 #
-# Reuses the exact secrets/vars the APK workflow (mobile-apk.yml) already has:
-#   EXPO_PUBLIC_API_URL, EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, EXPO_PUBLIC_SENTRY_DSN
-#   ANDROID_KEYSTORE_BASE64 / _PASSWORD, ANDROID_KEY_ALIAS / _PASSWORD
+#   push to main (mobile app or shared packages changed) → internal testing track
+#   workflow_dispatch                                     → the track you pick
 #
-# Two deliberate differences from the APK build:
-# - No -PreactNativeArchitectures narrowing. Play generates per-device splits
-#   from the bundle, so shipping all ABIs costs users nothing; narrowing here
-#   would cut real devices out of the listing.
-# - Artifact instead of a rolling release. The keystore is the Play UPLOAD key:
-#   Google re-signs what users get, so the bundle itself is not installable and
-#   has no business being public.
+# This replaced the rolling "mobile-latest" GitHub release that shipped a
+# sideloaded APK. Testers now get updates from the Play internal track, which
+# installs and updates like any store app, so there is no second distribution
+# channel with its own signing key and download link to keep alive.
+#
+# The file keeps its old name on purpose. github.run_number feeds the
+# versionCode (see "Set versionCode"), and it is counted per workflow FILE:
+# renaming it would restart the count at 1 and every upload would be refused
+# as lower than the codes already on Play.
+#
+# One-time setup (repo Settings → Secrets and variables → Actions):
+#   EXPO_PUBLIC_API_URL = https://<your-public-backend>/api/v1  (must be HTTPS)
+#     — may be a repo Variable or a Secret; the build reads either.
+#   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID = <web-oauth-client-id>.apps.googleusercontent.com
+#     — the Web OAuth client id; without it signIn() returns a null idToken and
+#       "Continue with Google" silently fails. Variable OR Secret.
+#   EXPO_PUBLIC_SENTRY_DSN = <DSN of the beyou-mobile GlitchTip project>
+#     — optional. Omit it and the bundle ships with error reporting off
+#       (telemetry.ts no-ops without a DSN). Must be PUBLICLY reachable: the app
+#       runs on real phones outside your network. Variable OR Secret.
+#   Secrets:  ANDROID_KEYSTORE_BASE64   (base64 of the Play UPLOAD keystore)
+#             ANDROID_KEYSTORE_PASSWORD
+#             ANDROID_KEY_ALIAS
+#             ANDROID_KEY_PASSWORD
+#             PLAY_SERVICE_ACCOUNT_JSON (see below)
+#
+# PLAY_SERVICE_ACCOUNT_JSON is the whole JSON key of a Google Cloud service
+# account that Play Console lets publish:
+#   1. Google Cloud console → IAM & Admin → Service accounts → create one
+#      (no project roles needed) → Keys → Add key → JSON. Paste the file's
+#      entire contents as the secret.
+#   2. Play Console → Users and permissions → Invite new users → the service
+#      account's e-mail → App permissions → Beyou → "Release apps to testing
+#      tracks" (add "Release to production…" only if you will dispatch
+#      production releases from here).
+#   3. Enable the "Google Play Android Developer API" in that Cloud project.
+# Until the secret exists, pushes to main skip this workflow entirely (a
+# 30-minute build nobody can publish is wasted runner time) and a manual run
+# still builds the bundle and keeps it as a private artifact for a manual
+# upload, which is how releases were done before this workflow existed.
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - ".github/workflows/mobile-aab.yml"
   workflow_dispatch:
     inputs:
+      track:
+        description: "Faixa do Play (internal, alpha = teste fechado, beta = teste aberto, production)"
+        type: choice
+        options: [internal, alpha, beta, production]
+        default: internal
+      status:
+        description: "completed publica já; draft deixa a release para concluir no Play Console"
+        type: choice
+        options: [completed, draft]
+        default: completed
       version_code:
         description: "Android versionCode (vazio = automático: nº da execução + 10)"
         required: false
 
+# Never cancel a run in flight: a cancelled upload can leave a half-made edit on
+# Play, and a manual production release must not be killed by the next merge.
+# GitHub keeps one run pending behind the running one, so a burst of merges
+# still collapses into a single follow-up build.
 concurrency:
-  group: mobile-aab
-  cancel-in-progress: true
+  group: mobile-play
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
+  # Secrets cannot be read in a job-level `if`, so this job turns "is Play
+  # publishing configured" into an output the build job can gate on.
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.check.outputs.publish }}
+    steps:
+      - id: check
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -n "$PLAY_JSON" ]; then echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::PLAY_SERVICE_ACCOUNT_JSON is not set. Nothing will be uploaded to Google Play; see the setup notes at the top of mobile-aab.yml."
+          fi
+
   build:
+    needs: gate
+    if: needs.gate.outputs.publish == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -56,6 +128,10 @@ jobs:
         with:
           packages: platform-tools
 
+      # Restores ~/.gradle between runs. A cold runner re-downloads every Maven
+      # dependency and recompiles every module: an uncached build reported
+      # "870 actionable tasks: 870 executed", nothing from cache. Saves the cache
+      # only on main (the action is read-only on other branches).
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Install dependencies
@@ -73,16 +149,19 @@ jobs:
         run: |
           VC="${{ inputs.version_code }}"
           if [ -z "$VC" ]; then VC=$(( ${{ github.run_number }} + 10 )); fi
-          python3 - "$VC" <<'EOF'
+          VN=$(python3 - "$VC" <<'EOF'
           import json, re, sys
           p = "apps/mobile/app.json"
           s = open(p, encoding="utf-8").read()
           out = re.sub(r'"versionCode": \d+', '"versionCode": %d' % int(sys.argv[1]), s, count=1)
           assert out != s or ('"versionCode": %s' % sys.argv[1]) in s, "versionCode not found in app.json"
           open(p, "w", encoding="utf-8").write(out)
+          print(json.loads(out)["expo"]["version"])
           EOF
+          )
           echo "code=$VC" >> "$GITHUB_OUTPUT"
-          echo "### AAB versionCode: $VC ($(git rev-parse --short HEAD))" >> "$GITHUB_STEP_SUMMARY"
+          echo "name=$VN ($VC)" >> "$GITHUB_OUTPUT"
+          echo "### AAB $VN, versionCode $VC ($(git rev-parse --short HEAD))" >> "$GITHUB_STEP_SUMMARY"
 
       # Regenerates android/ from app.json — this is what applies
       # android.blockedPermissions, so the store bundle carries none of the
@@ -97,19 +176,53 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > apps/mobile/android/app/release.keystore
 
-      # Same rationale as mobile-apk.yml for the lintVital skips, the jvm args
-      # and SENTRY_DISABLE_AUTO_UPLOAD — see the comments there.
       - name: Build release AAB
         working-directory: apps/mobile/android
         env:
+          # EXPO_PUBLIC_* is inlined into the JS bundle at build time — this is
+          # what points the installed app at your public backend. Accept it as a
+          # repo Variable OR a Secret (falls back to the secret if the var is unset).
           EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
           EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
           EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN || secrets.EXPO_PUBLIC_SENTRY_DSN }}
-          # Product analytics — same inlining contract as mobile-apk.yml. The
-          # Beyou PostHog project is EU-hosted, so key and host travel together.
+          # Product analytics — same inlining contract. Without the key the
+          # bundle ships with analytics off; the Beyou PostHog project is
+          # EU-hosted, so the host must be set alongside the key.
           EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY || secrets.PROD_POSTHOG_KEY }}
           EXPO_PUBLIC_POSTHOG_HOST: ${{ vars.PROD_POSTHOG_HOST || secrets.PROD_POSTHOG_HOST }}
+          # Skips the source-map upload task that the @sentry/react-native/expo
+          # config plugin adds to release builds (sentry.gradle.kts:50).
+          #
+          # It is not a workaround for a misconfiguration — the upload has
+          # nowhere to go. sentry-cli would need an auth token plus a reachable
+          # collector URL, and GlitchTip publishes to 127.0.0.1 only
+          # (MONITORING_BIND), which a GitHub runner cannot reach at all.
+          #
+          # Leaving it on is what broke the old APK build: with no
+          # android/sentry.properties the script does NOT fail loudly —
+          # flavorAware is false, so the missing file is only logged
+          # (sentry.gradle.kts:643) and sentry-cli then runs with a null token
+          # against sentry.io and exits 1.
+          #
+          # Cost is symbolication only: crashes still arrive, with minified
+          # frames. To turn it back on, put the collector behind a public HTTPS
+          # proxy, create android/sentry.properties (defaults.url/org/project)
+          # or set SENTRY_AUTH_TOKEN, and drop this line.
           SENTRY_DISABLE_AUTO_UPLOAD: "true"
+        # No -PreactNativeArchitectures narrowing: Play generates per-device
+        # splits from the bundle, so shipping every ABI costs users nothing,
+        # and narrowing would cut real devices out of the listing.
+        #
+        # -x lintVital* — AGP wires lint into the release build and it ran
+        #   across 20 modules for ~3.7 min, most of it linting third-party code
+        #   we do not own. ci.yml already typechecks and tests what we do own.
+        # --build-cache + setup-gradle — reuse of Kotlin/Java compilation and
+        #   resolved dependencies. CMake tasks are not cacheable by Gradle, so
+        #   this only touches the JVM half.
+        # jvmargs — the generated gradle.properties asks for 2 GB; the runner
+        #   has 16 GB and the default made Kotlin, dex and lint fight the GC.
+        # kotlin in-process — compiles inside the Gradle daemon instead of
+        #   starting a second JVM that lives for one build.
         run: |
           chmod +x ./gradlew
           ./gradlew bundleRelease \
@@ -123,10 +236,43 @@ jobs:
             -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
             -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
 
+      # R8 writes a mapping file only when minification is on. Play uses it to
+      # turn obfuscated crash stack traces back into readable ones, so it goes
+      # up with the bundle whenever it exists. The action reads an empty input
+      # as "no mapping", but a path that does not exist makes it throw, hence
+      # the check instead of a hardcoded path.
+      - name: Locate R8 mapping file
+        id: mapping
+        run: |
+          f=apps/mobile/android/app/build/outputs/mapping/release/mapping.txt
+          if [ -f "$f" ]; then echo "file=$f" >> "$GITHUB_OUTPUT"; fi
+
+      # Kept for every run, published or not: the .aab is what gets uploaded
+      # to the Play Console, not something people install, so it stays a
+      # PRIVATE artifact. The keystore is the Play UPLOAD key; Google re-signs
+      # what users get.
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v7
         with:
           name: beyou-aab-vc${{ steps.vc.outputs.code }}-${{ github.sha }}
-          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          path: |
+            apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+            ${{ steps.mapping.outputs.file }}
           retention-days: 14
           if-no-files-found: error
+
+      - name: Publish to Google Play
+        if: needs.gate.outputs.publish == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.beyou.mobile
+          releaseFiles: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          releaseName: ${{ steps.vc.outputs.name }}
+          track: ${{ inputs.track || 'internal' }}
+          status: ${{ inputs.status || 'completed' }}
+          mappingFile: ${{ steps.mapping.outputs.file }}
+
+      - name: Summarize publish
+        if: needs.gate.outputs.publish == 'true'
+        run: echo "Published versionCode ${{ steps.vc.outputs.code }} to the **${{ inputs.track || 'internal' }}** track (${{ inputs.status || 'completed' }})." >> "$GITHUB_STEP_SUMMARY"
