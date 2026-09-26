@@ -128,7 +128,10 @@ jest.mock('react-native-toast-message', () => {
   return { __esModule: true, default: ToastStub };
 });
 
-import { render } from '@testing-library/react-native';
+import { act, render } from '@testing-library/react-native';
+import * as SecureStore from 'expo-secure-store';
+import * as SplashScreen from 'expo-splash-screen';
+import { neutrals } from '@beyou/theme';
 import RootLayout from '../app/_layout';
 
 // Heavy integration smoke: full RootLayout + real Provider/store/i18n + the real
@@ -148,3 +151,51 @@ test('renders the login route when bootstrap finds no stored token', async () =>
   await findByTestId('login-email-input');
   await findByTestId('login-submit-button');
 }, 30000);
+
+// The cold-start flash (kanban: "Mobile ao carregar pela primeira vez tem um background color
+// diferente"). The account's theme only arrives with the profile, two network calls in; until
+// then the app painted the default. The device now remembers the last theme and the layout opens
+// in it, holding the splash until that one local read has answered.
+describe('cold start opens in the theme this device showed last', () => {
+  const getItem = SecureStore.getItemAsync as jest.Mock;
+  afterEach(() => {
+    getItem.mockReset();
+    getItem.mockResolvedValue(null);
+  });
+
+  const hasBackground = (node: unknown, colour: string): boolean => {
+    if (!node || typeof node !== 'object') return false;
+    if (Array.isArray(node)) return node.some((child) => hasBackground(child, colour));
+    const n = node as { props?: { style?: unknown }; children?: unknown };
+    const flat = ([] as unknown[]).concat(n.props?.style ?? []).flat(Infinity) as Array<{ backgroundColor?: string } | null>;
+    if (flat.some((style) => style?.backgroundColor === colour)) return true;
+    return hasBackground(n.children, colour);
+  };
+
+  test('a saved dark theme is the background from the first frame, on a light phone', async () => {
+    getItem.mockImplementation(async (key: string) => (key === 'beyou.theme' ? 'dark:beyou' : null));
+
+    const { findByTestId, toJSON } = await render(<RootLayout />);
+    await findByTestId('login-screen');
+
+    expect(hasBackground(toJSON(), neutrals.dark.bg)).toBe(true);
+    expect(hasBackground(toJSON(), neutrals.light.bg)).toBe(false);
+  }, 30000);
+
+  test('the splash waits for the saved theme to be read', async () => {
+    let answer: (value: string | null) => void = () => {};
+    getItem.mockImplementation((key: string) =>
+      key === 'beyou.theme' ? new Promise((resolve) => { answer = resolve; }) : Promise.resolve(null),
+    );
+    (SplashScreen.hideAsync as jest.Mock).mockClear();
+
+    const { findByTestId } = await render(<RootLayout />);
+    expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
+
+    await act(async () => {
+      answer('light:beyou');
+    });
+    await findByTestId('login-screen');
+    expect(SplashScreen.hideAsync).toHaveBeenCalled();
+  }, 30000);
+});
