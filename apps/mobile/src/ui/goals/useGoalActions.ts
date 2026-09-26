@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import increaseCurrentValue from '@beyou/api/goals/increaseCurrentValue';
 import decreaseCurrentValue from '@beyou/api/goals/decreaseCurrentValue';
 import markGoalAsComplete from '@beyou/api/goals/markGoalAsComplete';
+import archiveGoal from '@beyou/api/goals/archiveGoal';
+import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { updateGoal } from '@beyou/state/goal/goalsSlice';
 import { applyRefreshUi } from '@beyou/state/user/refreshUiThunk';
 import { notify } from '../../notify';
@@ -54,5 +56,24 @@ export function useGoalActions() {
     return true;
   }, [dispatch, store, t]);
 
-  return { increase, decrease, complete };
+  /**
+   * Archive or restore. The server answers with every goal that changed (the sub-goals archived
+   * along with it too); each is patched into the slice as it came back, so the screen is right
+   * without a refetch. The toast names the sub-goals, or they would seem to vanish.
+   */
+  const setArchived = useCallback(async (id: string, archived: boolean) => {
+    const res = await archiveGoal(id, archived, t);
+    if (res.error || !res.success) {
+      if (res.error) notify.error(getFriendlyErrorMessage(t, res.error));
+      return false;
+    }
+    res.success.forEach((changed) => dispatch(updateGoal(changed)));
+    const alongWith = res.success.length - 1;
+    if (!archived) notify.success(t('GoalRestored'));
+    else if (alongWith > 0) notify.success(t('GoalArchivedWithSubGoals', { count: alongWith }));
+    else notify.success(t('GoalArchived'));
+    return true;
+  }, [dispatch, t]);
+
+  return { increase, decrease, complete, setArchived };
 }

@@ -545,6 +545,39 @@
         }
       }
     },
+    "/goal/archive": {
+      "put": {
+        "tags": [
+          "goal-controller"
+        ],
+        "operationId": "setArchived",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArchiveGoalRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GoalResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/goal/complete": {
       "put": {
         "tags": [
@@ -3830,6 +3863,10 @@
           "parentId": {
             "type": "string",
             "format": "uuid"
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -5481,6 +5518,22 @@
             "type": "string"
           }
         }
+      },
+      "ArchiveGoalRequestDTO": {
+        "type": "object",
+        "properties": {
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "archived": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "archived",
+          "goalId"
+        ]
       },
       "UpdateGoalValueDTO": {
         "type": "object",

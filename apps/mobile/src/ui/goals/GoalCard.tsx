@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
+  Archive,
+  ArchiveRestore,
   CalendarDays,
   ChevronDown,
   ChevronRight,
@@ -116,7 +118,7 @@ export default function GoalCard({
 }: GoalCardProps) {
   const { t, i18n } = useTranslation();
   const { theme } = useBeyouTheme();
-  const { increase, decrease, complete } = useGoalActions();
+  const { increase, decrease, complete, setArchived } = useGoalActions();
   const [expanded, setExpanded] = useState(initialExpanded ?? false);
   const [childrenOpen, setChildrenOpen] = useState(initialChildrenOpen ?? false);
   const [pending, setPending] = useState(false);
@@ -127,9 +129,12 @@ export default function GoalCard({
   const hasSubGoals = subGoals.length > 0;
   const summary = childrenSummary(allGoals.length ? allGoals : subGoals.map((c) => ({ ...c, parentId: goal.id })), goal.id);
   const nudgeParent =
-    hasSubGoals && !readonly && goal.status !== 'COMPLETED' && allChildrenComplete(allGoals, goal.id);
+    hasSubGoals && !readonly && !goal.archivedAt && goal.status !== 'COMPLETED' && allChildrenComplete(allGoals, goal.id);
 
   const isCompleted = goal.status === 'COMPLETED';
+  // Put away: progress frozen where it was left, no new sub-goals (the server refuses them) and
+  // no viewer (its deck is active goals only). Restore is the action that fits.
+  const isArchived = Boolean(goal.archivedAt);
   // "Complete" is what pays the XP, so it only shows once the target is hit;
   // before that the card shows the stepper's +. A targetValue of 0 never
   // "reaches the target".
@@ -213,6 +218,11 @@ export default function GoalCard({
               {t('Completed')}
             </Chip>
           ) : null}
+          {isArchived ? (
+            <Chip size="sm" variant="neutral" testID={`goal-archived-${goal.id}`}>
+              {t('ArchivedChip')}
+            </Chip>
+          ) : null}
         </View>
 
         {/* Two icons and no more: the name is what the row is for, and five actions in
@@ -284,7 +294,7 @@ export default function GoalCard({
               person wondering why a form had opened. */}
           {!readonly ? (
             <View className="flex-row flex-wrap gap-1.5 pt-1">
-              {onOpenViewer ? (
+              {onOpenViewer && !isArchived ? (
                 <CardAction
                   label={t('OpenInViewer')}
                   icon={<Maximize2 size={13} color={theme.text2} />}
@@ -292,7 +302,7 @@ export default function GoalCard({
                   testID={`goal-open-viewer-${goal.id}`}
                 />
               ) : null}
-              {onAddSubGoal && depth < MAX_GOAL_DEPTH ? (
+              {onAddSubGoal && !isArchived && depth < MAX_GOAL_DEPTH ? (
                 <CardAction
                   label={t('AddSubGoal')}
                   icon={<GitBranch size={13} color={theme.text2} />}
@@ -300,6 +310,18 @@ export default function GoalCard({
                   testID={`goal-add-sub-${goal.id}`}
                 />
               ) : null}
+              <CardAction
+                label={isArchived ? t('RestoreGoal') : t('ArchiveGoal')}
+                icon={
+                  isArchived ? (
+                    <ArchiveRestore size={13} color={theme.text2} />
+                  ) : (
+                    <Archive size={13} color={theme.text2} />
+                  )
+                }
+                onPress={() => run(() => setArchived(goal.id, !isArchived))}
+                testID={`goal-${isArchived ? 'restore' : 'archive'}-${goal.id}`}
+              />
               <CardAction
                 label={t('Delete')}
                 icon={<Trash2 size={13} color={theme.danger} />}
@@ -312,7 +334,28 @@ export default function GoalCard({
         </View>
       ) : null}
 
-      {/* Stepper: -/+ around the bar, with the value in mono on the right. */}
+      {/* Archived: the numbers stay (how far it got is most of why anyone opens the archive),
+          the stepper gives way to Restore. */}
+      {isArchived ? (
+        <View className="flex-row items-center gap-2">
+          <XpBar className="min-w-0 flex-1" current={goal.currentValue} target={goal.targetValue} compact />
+          <Text className="shrink-0 font-mono-semibold text-xs text-text-2">{counterText}</Text>
+          {!readonly ? (
+            <Pressable
+              onPress={() => run(() => setArchived(goal.id, false))}
+              disabled={pending}
+              accessibilityRole="button"
+              testID={`goal-restore-inline-${goal.id}`}
+              className="shrink-0 rounded-control px-3 py-1.5 active:bg-surface-2"
+            >
+              <Text className="text-xs font-semibold" style={{ color: theme.accent }}>
+                {t('RestoreGoal')}
+              </Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : (
+      /* Stepper: -/+ around the bar, with the value in mono on the right. */
       <View className="flex-row items-center gap-2">
         <IconButton
           label={t('Decrease')}
@@ -363,6 +406,7 @@ export default function GoalCard({
           </>
         )}
       </View>
+      )}
 
       {/* The sub-goals live under the parent's own bar: a second, thinner bar for the mean
           of their progress, then the rows themselves behind a chevron. The parent's target
@@ -443,7 +487,9 @@ export default function GoalCard({
       <View className="flex-row items-center justify-between gap-2">
         <Text className="font-mono text-[11px] text-text-3">{termPhrase}</Text>
         <Text className="font-mono text-[11px] text-text-3">
-          {`${t('Until')} ${formatGoalDeadline(goal.endDate, i18n.language)}`}
+          {goal.archivedAt
+            ? t('ArchivedOn', { date: formatGoalDeadline(goal.archivedAt, i18n.language) })
+            : `${t('Until')} ${formatGoalDeadline(goal.endDate, i18n.language)}`}
         </Text>
       </View>
     </Card>

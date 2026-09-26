@@ -94,3 +94,45 @@ test('focuses the goal handed over by the dashboard', async () => {
   expect(screen.getByText('In Progress')).toBeTruthy();
   mockParams = {};
 });
+
+/**
+ * Archived goals are put away: off the screen by default, one tap away under the Status
+ * filter, and each archived card offers Restore instead of progress.
+ */
+describe('archived goals', () => {
+  const archived = { ...goal, id: 'g2', name: 'Learn the ukulele', archivedAt: '2026-09-20T08:00:00Z' };
+
+  it('are off the list until the Archived view is picked', async () => {
+    mockParams = {};
+    setHttp([goal, archived]);
+    await renderScreen();
+    await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
+    expect(screen.queryByText('Learn the ukulele')).toBeNull();
+
+    await act(async () => { fireEvent.press(screen.getByTestId('goals-status-filter')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goals-status-filter-option-ARCHIVED')); });
+
+    expect(screen.getByText('Learn the ukulele')).toBeTruthy();
+    expect(screen.queryByText('Read books')).toBeNull();
+    expect(screen.getByTestId('goal-restore-inline-g2')).toBeTruthy();
+    expect(screen.queryByTestId('goal-increase-g2')).toBeNull();
+  });
+
+  it('archives from the fold with the state wanted, not a toggle', async () => {
+    mockParams = {};
+    const put = jest.fn(async () => ({ data: [{ ...goal, archivedAt: '2026-09-26T10:00:00Z' }] }));
+    const get = async (url: string) => (url === '/goal' ? { data: [goal] } : { data: [] });
+    setHttpClient({ get, post: get, put, delete: get } as never);
+    await renderScreen();
+    await waitFor(() => expect(screen.getByTestId('goal-card-g1')).toBeTruthy());
+
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-card-g1')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('goal-archive-g1')); });
+
+    await waitFor(() =>
+      expect(put).toHaveBeenCalledWith('/goal/archive', { goalId: 'g1', archived: true }),
+    );
+    // Patched straight from the answer: the card leaves the active list without a refetch.
+    await waitFor(() => expect(screen.queryByText('Read books')).toBeNull());
+  });
+});

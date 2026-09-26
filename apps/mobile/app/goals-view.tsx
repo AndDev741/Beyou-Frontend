@@ -11,6 +11,7 @@ import {
   GOAL_VIEWER_LAYOUTS,
   goalViewerLayoutFrom,
   orderGoalsForViewer,
+  activeGoals,
   setViewSort,
   viewerSlideFor,
 } from '@beyou/state';
@@ -64,7 +65,9 @@ export default function GoalViewerScreen() {
   const { goal: requestedId } = useLocalSearchParams<{ goal?: string }>();
   const { width } = useWindowDimensions();
 
-  const goals = useSelector((s: RootState) => s.goals.goals);
+  // The deck is for goals being worked on; archived ones live on the goals screen's Archived view.
+  const everyGoal = useSelector((s: RootState) => s.goals.goals);
+  const goals = useMemo(() => activeGoals(everyGoal), [everyGoal]);
   const sortBy = useSelector((s: RootState) => s.viewFilters.goalsViewer ?? 'status');
   const layout = goalViewerLayoutFrom(useSelector((s: RootState) => s.viewFilters.goalsViewerLayout));
   const [status, setStatus] = useState(ALL);

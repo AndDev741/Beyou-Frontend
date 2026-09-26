@@ -7,7 +7,10 @@ import DeleteModal from "../DeleteModal";
 import GoalProgressModal from "./GoalProgressModal";
 import getGoals from "@beyou/api/goals/getGoals";
 import deleteGoal from "@beyou/api/goals/deleteGoal";
-import { CalendarDays, ChevronDown, ChevronRight, ChevronUp, GitBranch, Maximize2, Minus, Pencil, Plus, Trash2 } from "lucide-react";
+import { Archive, ArchiveRestore, CalendarDays, ChevronDown, ChevronRight, ChevronUp, GitBranch, Maximize2, Minus, Pencil, Plus, Trash2 } from "lucide-react";
+import archiveGoal from "@beyou/api/goals/archiveGoal";
+import { getFriendlyErrorMessage } from "@beyou/api/apiError";
+import { notify } from "../../lib/notify";
 import {
   editModeEnter,
   editGoalIdEnter,
@@ -78,6 +81,8 @@ type GoalBoxProps = {
   parentName?: string;
   /** Open the sub-goal list on mount (deep link into a child). */
   initialChildrenOpen?: boolean;
+  /** Set when the goal was archived: the card offers Restore instead of progress. */
+  archivedAt?: string | null;
 };
 
 /** A small labelled action for the card's fold on phones: icon, name, one tap. */
@@ -134,6 +139,7 @@ function GoalBox({
   onOpenViewer,
   parentName,
   initialChildrenOpen = false,
+  archivedAt = null,
 }: GoalBoxProps) {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
@@ -164,7 +170,11 @@ function GoalBox({
   // the viewer and the mobile card, which read the same helper.
   const summary = hasSubGoals ? childrenSummary(allGoals, id) : null;
   const childrenDone = hasSubGoals && allChildrenComplete(allGoals, id);
-  const canAddSubGoal = !readonly && Boolean(onAddSubGoal) && depth < MAX_GOAL_DEPTH;
+  const isArchived = Boolean(archivedAt);
+  // An archived goal takes no new sub-goals (the server refuses GOAL_PARENT_ARCHIVED) and
+  // is not in the viewer's deck, so neither action is offered on its card.
+  const canAddSubGoal = !readonly && !isArchived && Boolean(onAddSubGoal) && depth < MAX_GOAL_DEPTH;
+  const canOpenViewer = !isArchived && Boolean(onOpenViewer);
 
   function handleEditMode() {
     dispatch(editModeEnter(true));
@@ -256,6 +266,25 @@ function GoalBox({
   }
 
   const isCompleted = status === "COMPLETED";
+
+  /**
+   * Archive or restore. The server answers with every goal whose state changed (the sub-goals
+   * archived along with this one included), and each lands in the list as it came back, so the
+   * page is right without a refetch. The toast says the sub-goals went too: otherwise they seem
+   * to vanish from the page for no reason.
+   */
+  const toggleArchived = async () => {
+    const result = await archiveGoal(id, !isArchived, t);
+    if (result.error || !result.success) {
+      if (result.error) notify.error(getFriendlyErrorMessage(t, result.error));
+      return;
+    }
+    result.success.forEach((changed) => dispatch(updateGoal(changed)));
+    const alongWith = result.success.length - 1;
+    if (isArchived) notify.success(t("GoalRestored"));
+    else if (alongWith > 0) notify.success(t("GoalArchivedWithSubGoals", { count: alongWith }));
+    else notify.success(t("GoalArchived"));
+  };
 
   // Same read-side rule as the dashboard loader: a fetch that failed, or a mocked one that
   // answered nothing, is not applied. Reading `.success` off an undefined answer was an
@@ -431,6 +460,11 @@ function GoalBox({
           {isCompleted && (
             <Chip size="sm" variant="ok" className="shrink-0">{t("Completed")}</Chip>
           )}
+          {isArchived && (
+            <Chip size="sm" className="shrink-0" icon={<Archive size={11} aria-hidden="true" />}>
+              {t("ArchivedChip")}
+            </Chip>
+          )}
           {summary && (
             <Chip
               size="sm"
@@ -461,11 +495,18 @@ function GoalBox({
                     <GitBranch size={15} aria-hidden="true" />
                   </IconButton>
                 )}
-                {onOpenViewer && (
-                  <IconButton label={t('OpenInViewer')} onClick={() => onOpenViewer(id)} data-testid={`open-viewer-${id}`}>
+                {canOpenViewer && (
+                  <IconButton label={t('OpenInViewer')} onClick={() => onOpenViewer?.(id)} data-testid={`open-viewer-${id}`}>
                     <Maximize2 size={15} aria-hidden="true" />
                   </IconButton>
                 )}
+                <IconButton
+                  label={isArchived ? t('RestoreGoal') : t('ArchiveGoal')}
+                  onClick={() => void toggleArchived()}
+                  data-testid={`${isArchived ? "restore" : "archive"}-goal-${id}`}
+                >
+                  {isArchived ? <ArchiveRestore size={15} aria-hidden="true" /> : <Archive size={15} aria-hidden="true" />}
+                </IconButton>
                 <IconButton label={t('Delete')} tone="danger" onClick={() => setOnDelete(true)}>
                   <Trash2 size={15} aria-hidden="true" />
                 </IconButton>
@@ -516,12 +557,18 @@ function GoalBox({
           {/* Phone only: the actions the header gave up, as icon plus name. */}
           {!readonly && (
             <div className="flex flex-wrap gap-1.5 pt-1 md:hidden">
-              {onOpenViewer && (
-                <FoldAction label={t('OpenInViewer')} icon={<Maximize2 size={13} aria-hidden="true" />} onClick={() => onOpenViewer(id)} testId={`open-viewer-fold-${id}`} />
+              {canOpenViewer && (
+                <FoldAction label={t('OpenInViewer')} icon={<Maximize2 size={13} aria-hidden="true" />} onClick={() => onOpenViewer?.(id)} testId={`open-viewer-fold-${id}`} />
               )}
               {canAddSubGoal && (
                 <FoldAction label={t('AddSubGoal')} icon={<GitBranch size={13} aria-hidden="true" />} onClick={() => onAddSubGoal?.(id)} testId={`add-subgoal-fold-${id}`} />
               )}
+              <FoldAction
+                label={isArchived ? t('RestoreGoal') : t('ArchiveGoal')}
+                icon={isArchived ? <ArchiveRestore size={13} aria-hidden="true" /> : <Archive size={13} aria-hidden="true" />}
+                onClick={() => void toggleArchived()}
+                testId={`${isArchived ? "restore" : "archive"}-goal-fold-${id}`}
+              />
               <FoldAction label={t('Delete')} icon={<Trash2 size={13} aria-hidden="true" />} danger onClick={() => setOnDelete(true)} testId={`delete-fold-${id}`} />
             </div>
           )}
@@ -532,6 +579,24 @@ function GoalBox({
           target is met the + gives way to Complete (that is what pays the XP); once
           completed, the same button becomes Undo. The counter opens the modal for
           a jump the +/- would take twenty presses to reach. */}
+      {isArchived ? (
+        // Put away: progress is frozen where it was left, and the one action that fits is
+        // bringing it back. The numbers stay visible, because "how far did I get" is most of
+        // why anyone opens the archive.
+        <div className="mt-auto flex items-center gap-2 pt-1">
+          <XpBar className="min-w-0 flex-1" current={currentValue} target={targetValue} compact />
+          <span className="shrink-0 font-mono text-xs font-semibold text-text-2">{counterText}</span>
+          {!readonly && (
+            <Button
+              text={t("RestoreGoal")}
+              size="small"
+              mode="ghost"
+              onClick={() => void toggleArchived()}
+              testId={`restore-goal-inline-${id}`}
+            />
+          )}
+        </div>
+      ) : (
       <div className="mt-auto flex items-center gap-2 pt-1">
         <IconButton
           label={t("Decrease")}
@@ -568,6 +633,7 @@ function GoalBox({
           </>
         )}
       </div>
+      )}
 
       {/* The sub-goals: a thin second bar with the mean of their progress, and the list
           behind a chevron. The main bar above stays the goal's own numbers, because the
@@ -600,7 +666,7 @@ function GoalBox({
               {subGoals.map((child) => renderChildRow(child, 1))}
             </ul>
           )}
-          {childrenDone && !isCompleted && !readonly && (
+          {childrenDone && !isCompleted && !readonly && !isArchived && (
             <div
               className="flex items-center justify-between gap-2 rounded-control bg-success/10 px-2.5 py-1.5 text-[12px] text-success"
               data-testid={`subgoals-done-${id}`}
@@ -615,7 +681,11 @@ function GoalBox({
       {/* The at-a-glance footer: term on the left, deadline on the right. */}
       <div className="flex items-center justify-between gap-2 font-mono text-[11px] text-text-3">
         <span>{termPhrase}</span>
-        <span>{t("Until")} {formatDate(endDate.toString())}</span>
+        <span>
+          {isArchived && archivedAt
+            ? t("ArchivedOn", { date: formatDate(archivedAt) })
+            : `${t("Until")} ${formatDate(endDate.toString())}`}
+        </span>
       </div>
 
       <GoalProgressModal

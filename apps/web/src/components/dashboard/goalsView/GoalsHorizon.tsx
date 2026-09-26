@@ -6,7 +6,7 @@ import { Check, ChevronDown, Trophy } from "lucide-react";
 import { RootState } from "@beyou/state/rootReducer";
 import { goal } from "@beyou/types/goals/goalType";
 import { sortGoalsByTime } from "./sortGoalsByTime";
-import { formatGoalDeadline, type DeadlineShape } from "@beyou/state";
+import { activeGoals, formatGoalDeadline, type DeadlineShape } from "@beyou/state";
 import BeyouIcon from "../../../ui/BeyouIcon";
 
 type HorizonKey = "thisWeek" | "thisMonth" | "thisYear" | "beyond";
@@ -80,7 +80,8 @@ export default function GoalsHorizon() {
     // summarises the choice ("week · month") and opens the same horizon list.
     const [filterOpen, setFilterOpen] = useState(false);
 
-    const grouped = useMemo(() => sortGoalsByTime(goals || []), [goals]);
+    // Archived goals are put away, so the dashboard's timeline leaves them out.
+    const grouped = useMemo(() => sortGoalsByTime(activeGoals(goals || [])), [goals]);
 
     const toggle = (key: HorizonKey) => {
         setActive((prev) => {

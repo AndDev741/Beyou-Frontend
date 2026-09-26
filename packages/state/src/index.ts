@@ -204,6 +204,7 @@ export {
   rootsForFilter,
 } from './goal/goalTree';
 export type { GoalChildrenSummary, GoalTreeNode } from './goal/goalTree';
+export { isGoalArchived, activeGoals, archivedGoals, applyArchiveResult } from './goal/goalArchive';
 export {
   GOAL_VIEWER_SORT_KEYS,
   GOAL_VIEWER_LAYOUTS,

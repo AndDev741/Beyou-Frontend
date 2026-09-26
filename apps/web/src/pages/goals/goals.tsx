@@ -20,15 +20,19 @@ import {
 } from "../../components/utils/sortHelpers";
 import { goal } from "@beyou/types/goals/goalType";
 import { setViewSort } from "@beyou/state/viewFilters/viewFiltersSlice";
-import { rootsForFilter } from "@beyou/state";
+import { activeGoals, archivedGoals, rootsForFilter } from "@beyou/state";
 import PageHeader from "../../ui/PageHeader";
 import SegmentedControl from "../../ui/SegmentedControl";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
 import { Maximize2, Plus, Search, X } from "lucide-react";
 
-/** "all", or one value of the backend's status enum. */
-type StatusFilter = "all" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+/**
+ * "all", one value of the backend's status enum, or the archive. ARCHIVED is not a status
+ * (archiving leaves status alone), but it sits in the same select because it answers the same
+ * question: which goals am I looking at.
+ */
+type StatusFilter = "all" | "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "ARCHIVED";
 
 type SortOption = { value: string; label: string };
 
@@ -43,8 +47,7 @@ function Goals() {
   const { t } = useTranslation();
 
   const isEditMode = useSelector((state: RootState) => state.editGoal.editMode);
-  // const [goals, setGoals] = useState<goal[]>([]);
-  const goals = useSelector((state: RootState) => state.goals.goals) || [];
+  const everyGoal = useSelector((state: RootState) => state.goals.goals);
   const sortBy = useSelector((state: RootState) => state.viewFilters.goals);
 
   // The form left the side of the list: the grid takes the full width and
@@ -61,6 +64,15 @@ function Goals() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const isFormOpen = isCreateOpen || isEditMode;
+
+  // The page shows one side of the archive at a time, and everything below (counts, the tree,
+  // the category options, the cards' own children) works on that side only. A sub-goal
+  // restored on its own under a parent still archived therefore shows as a main goal, the same
+  // way a deleted parent's children do.
+  const showingArchive = statusFilter === "ARCHIVED";
+  const allActive = useMemo(() => activeGoals(everyGoal ?? []), [everyGoal]);
+  const allArchived = useMemo(() => archivedGoals(everyGoal ?? []), [everyGoal]);
+  const goals = showingArchive ? allArchived : allActive;
 
   const sortOptions: SortOption[] = [
     { value: "default", label: t("Default order") },
@@ -100,7 +112,7 @@ function Goals() {
   const filteredGoals = useMemo(() => {
     const term = search.trim().toLowerCase();
     return goals.filter((goalItem) => {
-      if (statusFilter !== "all" && goalItem.status !== statusFilter) return false;
+      if (statusFilter !== "all" && !showingArchive && goalItem.status !== statusFilter) return false;
       if (categoryFilter !== "all" && !(categoryFilter in (goalItem.categories ?? {}))) {
         return false;
       }
@@ -110,7 +122,7 @@ function Goals() {
         (goalItem.description ?? "").toLowerCase().includes(term)
       );
     });
-  }, [goals, search, statusFilter, categoryFilter]);
+  }, [goals, search, statusFilter, categoryFilter, showingArchive]);
 
   const sortList = useCallback((list: goal[]) => {
     switch (sortBy) {
@@ -174,7 +186,9 @@ function Goals() {
   const openViewer = (goalId?: string) =>
     navigate(goalId ? `/goals/view?goal=${goalId}` : "/goals/view");
 
-  const isFiltering = Boolean(search.trim()) || statusFilter !== "all" || categoryFilter !== "all";
+  // Opening the archive is a view, not a filter: an empty archive explains itself instead of
+  // offering to clear filters.
+  const isFiltering = Boolean(search.trim()) || (statusFilter !== "all" && !showingArchive) || categoryFilter !== "all";
 
   // No new i18n key: "filter" + "Goals" already exist in both languages.
   const searchLabel = t("GoalSearchPlaceholder");
@@ -198,13 +212,15 @@ function Goals() {
       <PageHeader
         title={t("YourGoals")}
         subtitle={
-          completedCount > 0
-            ? `${goals.length} ${t("Goals")} · ${completedCount} ${t("Completed")}`
-            : `${goals.length} ${t("Goals")}`
+          [
+            `${allActive.length} ${t("Goals")}`,
+            completedCount > 0 && !showingArchive ? `${completedCount} ${t("Completed")}` : null,
+            allArchived.length > 0 ? `${allArchived.length} ${t("ArchivedGoalsFilter")}` : null,
+          ].filter(Boolean).join(" · ")
         }
         action={
           <div className="flex items-center gap-2">
-            {goals.length > 0 && (
+            {allActive.length > 0 && (
               <Button
                 text={t("ViewOneByOne")}
                 mode="ghost"
@@ -257,6 +273,9 @@ function Goals() {
               <option value="NOT_STARTED">{t("Not Started")}</option>
               <option value="IN_PROGRESS">{t("In Progress")}</option>
               <option value="COMPLETED">{t("Completed")}</option>
+              {(allArchived.length > 0 || showingArchive) && (
+                <option value="ARCHIVED">{`${t("ArchivedGoalsFilter")} (${allArchived.length})`}</option>
+              )}
             </select>
             {categoryOptions.length > 0 && (
               <select
@@ -309,12 +328,13 @@ function Goals() {
           onOpenViewer={(goalId) => openViewer(goalId)}
           emptyTitle={isFiltering && goals.length > 0 ? t("NoResultsTitle") : undefined}
           onClearFilters={() => { setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); }}
+          archiveView={showingArchive}
         />
       </main>
 
       <AddSubGoalModal
         parent={subGoalParent}
-        allGoals={goals}
+        allGoals={allActive}
         onClose={() => setSubGoalParent(null)}
         onCreateNew={(parent) => {
           setSubGoalParent(null);
