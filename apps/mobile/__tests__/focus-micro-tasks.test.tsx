@@ -132,6 +132,40 @@ describe('mutations go to the server', () => {
     expect(await screen.findByText('Water')).toBeTruthy();
   });
 
+  it('Done followed by the blur behind it posts once', async () => {
+    // A single-line TextInput submits AND blurs on Done by default, and both handlers called
+    // submit() with the same draft: two POSTs for one task, the second a 409 in prod. The answer
+    // is held back so the blur lands while the first request is still on the wire.
+    let answer: (value: { success: FocusMicroTask }) => void = () => {};
+    (addFocusMicroTask as jest.Mock).mockImplementation(
+      () => new Promise((resolve) => { answer = resolve; }),
+    );
+    await renderTasks();
+
+    await press('focus-micro-task-add');
+    const input = screen.getByTestId('focus-micro-task-input');
+    await act(async () => {
+      fireEvent.changeText(input, 'Water');
+    });
+    await act(async () => {
+      fireEvent(input, 'submitEditing');
+      fireEvent(input, 'blur');
+    });
+    await act(async () => {
+      answer({ success: row({ id: '9', name: 'Water' }) });
+    });
+
+    expect(await screen.findByText('Water')).toBeTruthy();
+    expect(addFocusMicroTask).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the field focused on Done, so the next task can be typed straight away', async () => {
+    await renderTasks();
+    await press('focus-micro-task-add');
+
+    expect(screen.getByTestId('focus-micro-task-input').props.submitBehavior).toBe('submit');
+  });
+
   it('ticking, pinning and removing each call the server and reflect its answer', async () => {
     (listFocusMicroTasks as jest.Mock).mockResolvedValue({ success: [row()] });
     (toggleFocusMicroTask as jest.Mock).mockResolvedValue({ success: row({ doneAt: '2026-08-28T10:00:00Z' }) });

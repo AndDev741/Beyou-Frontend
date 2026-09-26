@@ -246,6 +246,7 @@
   "ITEM_END_OUT_OF_SECTION": "End time must be within the section time.",
   "SCHEDULE_NOT_FOUND": "Schedule not found.",
   "ITEM_GROUP_REQUIRED": "Select an item to update.",
+  "DATA_CONFLICT": "That clashes with something already saved. Refresh and try again.",
   "UNEXPECTED_ERROR": "An unexpected error occurred.",
   "edited successfully": "Edited Successfully",
   "created successfully": "Created successfully",

@@ -43,6 +43,8 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  // A ref, not `busy`: Done and the blur behind it arrive before React re-renders with busy=true.
+  const inFlight = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -56,15 +58,28 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
     };
   }, [itemGroupId, dispatch, t]);
 
+  /**
+   * Done submits, and so does leaving the field. A single-line TextInput defaults to
+   * submitBehavior 'blurAndSubmit', so every Done fired onSubmitEditing AND onBlur, two POSTs for
+   * one task. The input now keeps focus on Done (burst typing, like the web), and the guard covers
+   * the blur that can still land while the first request is on the wire.
+   */
   const submit = async () => {
+    if (inFlight.current) return;
     const name = normalizeMicroTaskName(draft);
     if (!name) {
       setAdding(false);
       return;
     }
+    inFlight.current = true;
     setBusy(true);
-    const result = await addFocusMicroTask({ itemGroupId, name, pinned: false }, t);
-    setBusy(false);
+    let result: Awaited<ReturnType<typeof addFocusMicroTask>>;
+    try {
+      result = await addFocusMicroTask({ itemGroupId, name, pinned: false }, t);
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
+    }
     if (result.success) {
       dispatch(microTaskUpserted(result.success));
       setDraft('');
@@ -212,6 +227,7 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
           editable={!busy}
           onSubmitEditing={() => void submit()}
           onBlur={() => void submit()}
+          submitBehavior="submit"
           autoFocus
           placeholder={t('FocusTaskPlaceholder')}
           placeholderTextColor={theme.text3}

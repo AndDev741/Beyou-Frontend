@@ -45,6 +45,9 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
     const [adding, setAdding] = useState(false);
     const [busy, setBusy] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
+    // A ref, not `busy`: a second submit can arrive before React has re-rendered with busy=true,
+    // and the state would still read false to it.
+    const inFlight = useRef(false);
 
     // Read whenever the item changes. This is the read that also materialises the pinned ones.
     useEffect(() => {
@@ -63,15 +66,28 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
         if (adding) inputRef.current?.focus();
     }, [adding]);
 
+    /**
+     * Enter submits, and so does leaving the field, so a half-typed task is not lost to a click
+     * elsewhere. The draft is only cleared once the server answers, so a blur that lands while
+     * the add is still out would post the same name again. The guard makes it a no-op. (The
+     * native twin hit this on every Done; see the mobile component.)
+     */
     const submit = async () => {
+        if (inFlight.current) return;
         const name = normalizeMicroTaskName(draft);
         if (!name) {
             setAdding(false);
             return;
         }
+        inFlight.current = true;
         setBusy(true);
-        const result = await addFocusMicroTask({ itemGroupId, name, pinned: false }, t);
-        setBusy(false);
+        let result: Awaited<ReturnType<typeof addFocusMicroTask>>;
+        try {
+            result = await addFocusMicroTask({ itemGroupId, name, pinned: false }, t);
+        } finally {
+            inFlight.current = false;
+            setBusy(false);
+        }
         if (result.success) {
             dispatch(microTaskUpserted(result.success));
             setDraft("");
@@ -226,7 +242,11 @@ export default function MicroTasks({ itemGroupId }: { itemGroupId: string }) {
                     ref={inputRef}
                     value={draft}
                     maxLength={MICRO_TASK_MAX_LENGTH}
-                    disabled={busy}
+                    // readOnly, not disabled: disabling the focused field drops its focus, and the
+                    // re-focus after a save then runs before React has re-enabled it, so every add
+                    // left the person clicking back in to type the next one.
+                    readOnly={busy}
+                    aria-busy={busy}
                     onChange={(event) => setDraft(event.target.value)}
                     onKeyDown={(event) => {
                         if (event.key === "Enter") void submit();

@@ -246,6 +246,7 @@
   "ITEM_END_OUT_OF_SECTION": "O horário de término precisa estar dentro da seção.",
   "SCHEDULE_NOT_FOUND": "Agendamento não encontrado.",
   "ITEM_GROUP_REQUIRED": "Selecione um item para atualizar.",
+  "DATA_CONFLICT": "Isso entra em conflito com algo que já está salvo. Atualize e tente de novo.",
   "UNEXPECTED_ERROR": "Ocorreu um erro inesperado.",
   "edited successfully": "Editado com sucesso",
   "created successfully": "Criado com sucesso",

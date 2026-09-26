@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -89,6 +89,40 @@ describe("mutations go to the server, and the response is what lands", () => {
             expect.anything()
         );
         expect(await screen.findByText("Water")).toBeInTheDocument();
+    });
+
+    test("leaving the field while the add is out does not post it again", async () => {
+        // Enter submits and so does blur, and the draft only clears on the answer, so a blur in
+        // that window posted the same name twice (prod logged such a pair 6 ms apart; on native
+        // it happened on every Done). The server now absorbs a repeat, but a second POST per add
+        // is still a second POST. Held open so the blur lands while the first is in flight.
+        let answer: (value: { success: FocusMicroTask }) => void = () => {};
+        vi.mocked(addFocusMicroTask).mockImplementation(
+            () => new Promise((resolve) => { answer = resolve; })
+        );
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
+
+        await userEvent.click(await screen.findByTestId("focus-micro-task-add"));
+        const input = screen.getByTestId("focus-micro-task-input");
+        await userEvent.type(input, "Water{Enter}");
+        fireEvent.blur(input);
+
+        answer({ success: row({ id: "9", name: "Water" }) });
+        expect(await screen.findByText("Water")).toBeInTheDocument();
+        expect(addFocusMicroTask).toHaveBeenCalledTimes(1);
+    });
+
+    test("the field stays focusable while the add is on the wire", async () => {
+        // `disabled` dropped the focus, so every add ended with the person clicking back in.
+        vi.mocked(addFocusMicroTask).mockImplementation(() => new Promise(() => {}));
+        renderWithProviders(<MicroTasks itemGroupId="item-a" />, { storeOverride: buildStore() });
+
+        await userEvent.click(await screen.findByTestId("focus-micro-task-add"));
+        const input = screen.getByTestId("focus-micro-task-input");
+        await userEvent.type(input, "Water{Enter}");
+
+        expect(input).not.toBeDisabled();
+        expect(input).toHaveAttribute("readonly");
     });
 
     test("an empty name posts nothing", async () => {
