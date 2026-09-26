@@ -167,6 +167,43 @@ USE_BIOMETRIC          USE_FINGERPRINT          (expo-secure-store)
 
 ---
 
+## R8 (release shrinking)
+
+Release builds run R8, the optimizer Google Play recommends: it strips the Java and
+Kotlin code nothing calls, obfuscates the rest, and drops unused resources. It is
+switched on in `app.json` through the `expo-build-properties` plugin
+(`enableMinifyInReleaseBuilds` and `enableShrinkResourcesInReleaseBuilds`), which
+writes the matching flags into `android/gradle.properties` at prebuild. Debug builds
+and Expo Go are not affected.
+
+What can go wrong is a class that only gets reached by reflection. R8 cannot see
+that call, removes the class, and the release build crashes at runtime with a
+`ClassNotFoundException` or `NoSuchMethodError` while debug keeps working. React
+Native, Expo modules and the libraries here ship their own keep rules, so this
+should stay rare. If it happens, add the rule under `extraProguardRules` in the
+same plugin block. Do not edit `android/app/proguard-rules.pro`: prebuild writes
+that file, and hand edits vanish.
+
+A local release build is the only way to check. Build it for the emulator's ABI and
+watch logcat for a crash:
+
+```bash
+cd apps/mobile && npx expo prebuild --platform android --no-install
+cd android
+SENTRY_DISABLE_AUTO_UPLOAD=true ./gradlew assembleRelease -PreactNativeArchitectures=x86_64
+adb install -r app/build/outputs/apk/release/app-release.apk
+adb logcat -b crash
+```
+
+A release build blocks cleartext HTTP, so point `EXPO_PUBLIC_API_URL` at an HTTPS
+backend if you need to get past the login screen.
+
+Each release build also writes `app/build/outputs/mapping/release/mapping.txt`. CI
+uploads it to Play along with the bundle, so crash stack traces in the Play Console
+come back readable.
+
+---
+
 ## Manual verification checklist
 
 Run this once with the backend up and a device/emulator connected via `npx expo start`.
