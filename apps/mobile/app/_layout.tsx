@@ -2,7 +2,7 @@
 // AI routine materialize flow) needs it, and React Native/Hermes doesn't provide it.
 import 'react-native-get-random-values';
 import '../global.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -20,7 +20,8 @@ import { refreshRequest } from '../src/auth/authApi';
 import * as secureStore from '../src/auth/secureStore';
 import { bootstrap, logout } from '../src/auth/authSlice';
 import { nextAuthRoute } from '../src/auth/authRedirect';
-import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
+import { BeyouThemeProvider, useBeyouTheme } from '../src/theme/ThemeProvider';
+import { loadSavedTheme } from '../src/lib/themeStore';
 import ThemeSync from '../src/theme/ThemeSync';
 import LanguageSync from '../src/i18n/LanguageSync';
 import ViewFiltersSync from '../src/viewFilters/ViewFiltersSync';
@@ -107,10 +108,16 @@ function Gate() {
     if (target) router.replace(target);
   }, [status, segments, router]);
 
+  // The spinner sits on the theme provider's background (it used to show Android's window colour
+  // for the whole refresh round-trip after the splash). The stack needs the colour of its own:
+  // without a navigation theme react-navigation paints a light grey card behind every screen,
+  // visible on a dark theme while one slides in.
+  const { theme } = useBeyouTheme();
+
   if (status === 'loading') {
     return (
       <View style={{ flex: 1, justifyContent: 'center' }}>
-        <ActivityIndicator />
+        <ActivityIndicator color={theme.accent} />
       </View>
     );
   }
@@ -120,7 +127,7 @@ function Gate() {
       {/* Finishes, reports and alerts for a running cycle wherever the person is — on the focus
           screen or off it. Renders nothing. */}
       <PomodoroOwner />
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }} />
     </>
   );
 }
@@ -145,16 +152,25 @@ export default function RootLayout() {
     GeistMonoSemiBold: require('../assets/fonts/GeistMono-SemiBold.ttf'),
   });
 
+  // The theme this device showed last time, so the first frame after the splash is already the
+  // account's theme and not the default one it used to be until the profile arrived. `undefined`
+  // is "not read yet"; null is "nothing saved", which falls back to the default like before.
+  const [savedTheme, setSavedTheme] = useState<string | null | undefined>(undefined);
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync().catch(() => {});
-  }, [fontsLoaded]);
+    loadSavedTheme().then(setSavedTheme);
+  }, []);
+  const ready = fontsLoaded && savedTheme !== undefined;
 
-  // While the font loads the screen is the SAME tone as the splash — the system
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
+
+  // While the font and the saved theme load, the screen is the SAME tone as the splash — the system
   // one, which is what the native splash used (the account theme only arrives
   // with the profile). Returning `null` here left a black frame between the mark
   // and the app. The colours come from the token source, not from a literal:
   // `app.json` still repeats them because a config file cannot import.
-  if (!fontsLoaded) {
+  if (!ready) {
     return (
       <View
         style={{
@@ -169,7 +185,7 @@ export default function RootLayout() {
     <Provider store={store}>
       <TutorialProvider>
         <SafeAreaProvider>
-          <BeyouThemeProvider>
+          <BeyouThemeProvider initialMode={savedTheme ?? undefined}>
             <ThemeSync />
             <LanguageSync />
             <ViewFiltersSync />

@@ -7,6 +7,7 @@ import { bootstrap } from '../src/auth/authSlice';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider, useBeyouTheme } from '../src/theme/ThemeProvider';
 import ThemeSync from '../src/theme/ThemeSync';
+import * as SecureStore from 'expo-secure-store';
 
 const target = themes.find((t) => t.mode !== themes[0].mode)!;
 
@@ -34,5 +35,25 @@ describe('ThemeSync', () => {
     });
 
     await waitFor(() => expect(screen.getByTestId('mode').props.children).toBe(target.mode));
+  });
+
+  it('remembers the theme on the device, so the next cold start can open in it', async () => {
+    const setItem = jest.spyOn(SecureStore, 'setItemAsync').mockResolvedValue(undefined);
+    const store = makeStore();
+    await render(
+      <Provider store={store}>
+        <BeyouThemeProvider>
+          <ThemeSync />
+          <CurrentMode />
+        </BeyouThemeProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      store.dispatch(bootstrap.fulfilled({ themeInUse: target.mode } as never, 'req', undefined));
+    });
+
+    await waitFor(() => expect(setItem).toHaveBeenLastCalledWith('beyou.theme', target.mode));
+    setItem.mockRestore();
   });
 });

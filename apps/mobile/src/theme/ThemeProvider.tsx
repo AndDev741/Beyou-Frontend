@@ -64,7 +64,11 @@ export function BeyouThemeProvider({
           on a light theme the clock, wifi and battery stayed white on #F5F7FA —
           invisible. It lives here because this is where the base is known. */}
       <StatusBar style={theme.base === 'dark' ? 'light' : 'dark'} />
-      <View style={[{ flex: 1 }, style]}>{children}</View>
+      {/* The theme's page colour under the whole tree. Without it any frame that is not a
+          screen with its own `bg-bg` (the sign-in check's spinner right after the splash, a
+          transition) showed Android's window colour instead, AppCompat's #FAFAFA or #303030,
+          neither of them a Beyou colour. */}
+      <View style={[{ flex: 1, backgroundColor: theme.bg }, style]}>{children}</View>
     </Ctx.Provider>
   );
 }

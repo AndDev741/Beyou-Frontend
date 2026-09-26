@@ -4,6 +4,7 @@ import { TutorialOverlayHost } from '../../src/tutorial/TutorialOverlaySlot';
 import AgentWidget from '../../src/ui/agent/AgentWidget';
 import BottomNav from '../../src/ui/dashboard/BottomNav';
 import RunningTimerHub from '../../src/focus/RunningTimerHub';
+import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 
 // Anchor the (app) group on the dashboard so deep-linking / reloading onto a
 // section screen (e.g. /goals) still has the dashboard beneath it — back returns
@@ -11,6 +12,9 @@ import RunningTimerHub from '../../src/focus/RunningTimerHub';
 export const unstable_settings = { initialRouteName: 'index' };
 
 export default function AppLayout() {
+  // Same reason as the root stack: react-navigation's default card colour is a light grey, and it
+  // shows behind a screen sliding in on a dark theme.
+  const { theme } = useBeyouTheme();
   return (
     <View style={{ flex: 1 }}>
       {/* The tutorial spotlight is hosted here, not inside the screens: its
@@ -27,7 +31,7 @@ export default function AppLayout() {
             spacer of its own. (The web app can't do this — its bar is `fixed` —
             so it mounts an explicit spacer next to the bar instead.) */}
         <View style={{ flex: 1 }} testID="app-screen-area">
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.bg } }} />
         </View>
         {/* Mounted here rather than on the dashboard so every authenticated
             screen can move sideways in one tap, instead of routing back through
