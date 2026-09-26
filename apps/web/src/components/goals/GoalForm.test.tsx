@@ -1,6 +1,6 @@
 import { renderWithProviders } from "../../test/test-utils";
 import GoalForm from "./GoalForm";
-import { screen, fireEvent } from "@testing-library/react";
+import { act, screen, fireEvent } from "@testing-library/react";
 import { vi } from "vitest";
 import store from "../../redux/store";
 import { editStatusEnter, editGoalIdEnter, editParentIdEnter } from "@beyou/state/goal/editGoalSlice";
@@ -79,4 +79,25 @@ test("Add sub-goal opens the create form with the parent chosen and its categori
 
     expect((screen.getByTestId("goal-parent") as HTMLSelectElement).value).toBe("big");
     expect(screen.getByText("ParentGoalHint")).toBeInTheDocument();
+});
+
+test("a refetch of the goals list does not wipe a half-filled sub-goal form", () => {
+    // The kanban bug: the page refetches goals whenever the tab regains focus, the refetch hands
+    // out NEW objects for the same goals, and the form re-seeded itself from the parent every
+    // time its object changed, throwing away everything typed so far.
+    const parent = () => ({
+        id: "big", name: "Marathon", iconId: "i", targetValue: 42, unit: "km", currentValue: 0, complete: false,
+        categories: { cat1: { name: "Health", iconId: "i" } }, startDate: new Date("2026-01-01"),
+        endDate: new Date("2026-12-31"), xpReward: 0, status: "NOT_STARTED", term: "LONG_TERM", parentId: null,
+    });
+    store.dispatch(enterGoals([parent()]));
+    renderWithProviders(<GoalForm mode="create" defaultParentId="big" />);
+
+    fireEvent.change(document.getElementById("goal-title") as HTMLInputElement, { target: { value: "Run 10k" } });
+    act(() => {
+        store.dispatch(enterGoals([parent()]));
+    });
+
+    expect((document.getElementById("goal-title") as HTMLInputElement).value).toBe("Run 10k");
+    expect((screen.getByTestId("goal-parent") as HTMLSelectElement).value).toBe("big");
 });

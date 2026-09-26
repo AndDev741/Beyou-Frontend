@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FormLabel from "../../ui/FormLabel";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -208,11 +208,19 @@ function GoalForm({ mode, onClose, defaultParentId }: GoalFormProps) {
         }
     }, [editDefaults, iconId, mode, reset]);
 
-    // The goals list may arrive after the modal opened; the borrowed values land then.
+    // The parent's categories and end date are borrowed ONCE per parent, not once per render
+    // of it. The page refetches goals whenever the tab regains focus, and every refetch hands out
+    // new goal objects, so `defaultParent` changes identity while meaning the same goal. Keyed on
+    // the object, this reset ran on every return to the tab and wiped everything typed so far.
+    // Keyed on the id it still covers the case it was written for, a goals list that arrives
+    // after the modal opened, and keepDirtyValues makes even that late seeding leave alone
+    // whatever the person already filled in.
+    const seededParentId = useRef<string | null>(null);
     useEffect(() => {
-        if (mode === "create" && defaultParent) {
-            reset(createDefaults);
-        }
+        if (mode !== "create" || !defaultParent) return;
+        if (seededParentId.current === defaultParent.id) return;
+        seededParentId.current = defaultParent.id;
+        reset(createDefaults, { keepDirtyValues: true });
     }, [createDefaults, defaultParent, mode, reset]);
 
     const handleCancel = () => {
