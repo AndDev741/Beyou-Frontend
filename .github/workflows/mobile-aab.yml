@@ -132,7 +132,7 @@ jobs:
       # dependency and recompiles every module: an uncached build reported
       # "870 actionable tasks: 870 executed", nothing from cache. Saves the cache
       # only on main (the action is read-only on other branches).
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Install dependencies
         run: npm ci
