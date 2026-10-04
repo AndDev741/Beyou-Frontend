@@ -2,13 +2,18 @@ name: Mobile Play release
 
 # Builds the signed Android App Bundle and publishes it to Google Play.
 #
-#   push to main (mobile app or shared packages changed) → internal testing track
+#   push to main (mobile app or shared packages changed) → open testing (beta)
 #   workflow_dispatch                                     → the track you pick
 #
 # This replaced the rolling "mobile-latest" GitHub release that shipped a
-# sideloaded APK. Testers now get updates from the Play internal track, which
-# installs and updates like any store app, so there is no second distribution
-# channel with its own signing key and download link to keep alive.
+# sideloaded APK. Testers now get updates from the Play open testing track,
+# which installs and updates like any store app, so there is no second
+# distribution channel with its own signing key and download link to keep
+# alive.
+#
+# Open testing is public: anyone can join from the store listing. Google still
+# reviews each release before it reaches them, so a merge is not live the
+# minute it lands. Production stays a manual dispatch.
 #
 # The file keeps its old name on purpose. github.run_number feeds the
 # versionCode (see "Set versionCode"), and it is counted per workflow FILE:
@@ -59,7 +64,7 @@ on:
         description: "Faixa do Play (internal, alpha = teste fechado, beta = teste aberto, production)"
         type: choice
         options: [internal, alpha, beta, production]
-        default: internal
+        default: beta
       status:
         description: "completed publica já; draft deixa a release para concluir no Play Console"
         type: choice
@@ -269,10 +274,12 @@ jobs:
           packageName: com.beyou.mobile
           releaseFiles: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
           releaseName: ${{ steps.vc.outputs.name }}
-          track: ${{ inputs.track || 'internal' }}
+          # `tracks`, not the deprecated `track`, which the action warns about and
+          # will drop. A single value here; it takes a comma-separated list.
+          tracks: ${{ inputs.track || 'beta' }}
           status: ${{ inputs.status || 'completed' }}
           mappingFile: ${{ steps.mapping.outputs.file }}
 
       - name: Summarize publish
         if: needs.gate.outputs.publish == 'true'
-        run: echo "Published versionCode ${{ steps.vc.outputs.code }} to the **${{ inputs.track || 'internal' }}** track (${{ inputs.status || 'completed' }})." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "Published versionCode ${{ steps.vc.outputs.code }} to the **${{ inputs.track || 'beta' }}** track (${{ inputs.status || 'completed' }})." >> "$GITHUB_STEP_SUMMARY"
