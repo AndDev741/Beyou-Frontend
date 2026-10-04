@@ -348,9 +348,20 @@ const focusSlice = createSlice({
                 minutes: number;
                 now: number;
                 date: string;
+                /** The notebook page a cycle started from a node runs on. See `FocusTimer`. */
+                notebookPageId?: string | null;
+                notebookTitle?: string | null;
             }>
         ) {
             const { groupId, kind, minutes, now, date } = action.payload;
+            // A pomodoro carries the page it was started on; a break that follows keeps it, so the
+            // next pomodoro after the break is still filed against the same node.
+            const notebookPageId = action.payload.notebookPageId !== undefined
+                ? action.payload.notebookPageId
+                : state.timer?.notebookPageId ?? null;
+            const notebookTitle = action.payload.notebookTitle !== undefined
+                ? action.payload.notebookTitle
+                : state.timer?.notebookTitle ?? null;
             const durationMinutes = clampCycleMinutes(minutes);
             // Cycles already finished on THIS item are kept; moving to another item starts the
             // count again, because the count is about the item and not about the sitting.
@@ -361,6 +372,8 @@ const focusSlice = createSlice({
                 selectedCycle: kind,
                 timer: {
                     groupId,
+                    notebookPageId,
+                    notebookTitle,
                     kind,
                     startedAt: now,
                     endsAt: now + durationMinutes * 60_000,

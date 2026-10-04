@@ -22,7 +22,8 @@
 
 Beyou helps people build better days. You define **categories** of life, attach **habits**, **goals**,
 **tasks**, and daily **routines**, then check them off — earning XP, leveling up, and keeping streaks
-alive. A **diary** records how each day actually felt, alongside what got done. The app is bilingual
+alive. A **diary** records how each day actually felt, alongside what got done, and a **study
+notebook** holds what you are learning, laid out as a roadmap of pages. The app is bilingual
 (English / Portuguese), themeable, and ships an AI assistant that can act on your account.
 
 Use it at [app.beyouweb.com](https://app.beyouweb.com) or install the Android app from
@@ -47,6 +48,10 @@ repository.
 - **A mood a day, and a diary** — a five-point scale plus optional journalling. The dashboard
   widget marks the day with one tap, through a request that has no field for a note, so it cannot
   erase what you wrote that morning. Only the diary page's Save button replaces an entry.
+- **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
+  page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
+  answers from your notes and sources (PDFs, links, pasted text) with citations you can open. In
+  v1 the phone reads the roadmap as a path and runs reviews, and writing stays on the web.
 - **AI assistant** — a streaming chat whose tools call the same API the buttons do, so it passes the
   same ownership checks and validation. It can read your mood levels. It cannot read your journal.
 - **Theming & i18n as data** — two bases × five accent packs as design tokens, plus `en`/`pt`
@@ -71,6 +76,7 @@ beyou-app/
     ├── state/      @beyou/state         Redux Toolkit slices + root reducer
     ├── api/        @beyou/api           Transport-agnostic HTTP client + API repositories
     ├── validation/ @beyou/validation    Zod schemas for every form
+    ├── icons/      @beyou/icons         Platform-neutral icon registry + bilingual search
     └── contracts/  @beyou/contracts     Backend types generated from OpenAPI (drift-gated)
 ```
 
@@ -79,9 +85,10 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, mood, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, and the Daily Briefing's open/resolve rules. |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, mood, notebook, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the Daily Briefing's open/resolve rules, and the notebook's status fan-out and roadmap-as-path levels. |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
+| `@beyou/icons` | The icon registry both pickers use, with bilingual search and recents. Each app supplies only the renderer. |
 | `@beyou/contracts` | TypeScript types generated from the backend's OpenAPI 3.1 spec, with a CI drift gate. |
 
 ## Tech stack
@@ -94,6 +101,8 @@ beyou-app/
 | State | Redux Toolkit + redux-persist | Redux Toolkit |
 | Forms | react-hook-form + Zod | react-hook-form + Zod |
 | HTTP | axios adapter | `fetch` adapter |
+| Notebook editor | BlockNote 0.55 on Mantine 8 (Mantine 9 needs React 19) | Read-only native block renderer, no WebView |
+| Notebook board | React Flow (`@xyflow/react`) + dagre for "Tidy up" | The board read as a path, level by level |
 | Tests | Vitest + Testing Library | Jest (`jest-expo`) + Testing Library |
 
 ## Prerequisites

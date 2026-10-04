@@ -326,6 +326,8 @@ describe("running a cycle", () => {
                 startedAt: new Date(startedAt).toISOString(),
                 endedAt: new Date(startedAt + 25 * 60_000).toISOString(),
                 minutes: 25,
+                // A cycle started from the focus screen runs on no notebook page.
+                notebookPageId: null,
             },
             expect.anything()
         );

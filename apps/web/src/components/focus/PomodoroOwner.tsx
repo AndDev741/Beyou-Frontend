@@ -102,6 +102,7 @@ export default function PomodoroOwner() {
                     startedAt: new Date(timer.startedAt).toISOString(),
                     endedAt: new Date(timer.endsAt).toISOString(),
                     minutes: timer.durationMinutes,
+                    notebookPageId: timer.notebookPageId ?? null,
                 },
                 t
             );

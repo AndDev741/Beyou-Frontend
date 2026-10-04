@@ -30,6 +30,10 @@ describe("persist blacklist", () => {
         expect(blacklist()).toContain("mood");
     });
 
+    it("keeps the notebook slice out of storage, because it holds study notes", () => {
+        expect(blacklist()).toContain("notebook");
+    });
+
     it("still keeps the slices that were already excluded", () => {
         // Regression guard: a careless edit that replaces the array instead of extending it.
         expect(blacklist()).toEqual(expect.arrayContaining(["snapshot", "perfil", "celebration"]));
