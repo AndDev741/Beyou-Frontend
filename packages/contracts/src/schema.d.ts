@@ -1252,6 +1252,614 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notebook/topics/{topicId}/links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setLinks"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["saveContent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/board/layout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["layout"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createTopic"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/topics/from-draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createFromDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/reviews/finish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["finish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/sources/text": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addText"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/sources/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addPdf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/sources/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list"];
+        put?: never;
+        post: operations["create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/board/nodes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addNode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/board/edges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["addEdge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/append": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["append"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/outputs/{outputId}/quiz-result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["grade"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/cards/{cardId}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["review"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/roadmap-draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["roadmapDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/pages/{pageId}/suggest-nodes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["suggestNodes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/pages/{pageId}/outputs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["generate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/pages/{pageId}/explain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["explain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/pages/{pageId}/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["chat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/pages/{pageId}/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cards"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/sources/{sourceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_1"];
+        options?: never;
+        head?: never;
+        patch: operations["update"];
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["page"];
+        put?: never;
+        post?: never;
+        delete: operations["delete_2"];
+        options?: never;
+        head?: never;
+        patch: operations["update_1"];
+        trace?: never;
+    };
+    "/notebook/cards/{cardId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete_3"];
+        options?: never;
+        head?: never;
+        patch: operations["update_2"];
+        trace?: never;
+    };
+    "/notebook/board/nodes/{nodeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteNode"];
+        options?: never;
+        head?: never;
+        patch: operations["updateNode"];
+        trace?: never;
+    };
+    "/notebook/topics/{topicId}/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["tree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/sources/{sourceId}/passages/{chunkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["passage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/study": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["study"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["list_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/board": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["board"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/outputs/{outputId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["output"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteOutput"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["home"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/cards/due": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["due"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/pages/{pageId}/study/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["clearChat"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/board/edges/{edgeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteEdge"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1556,6 +2164,12 @@ export interface components {
             actualLevelXp?: number;
             /** Format: double */
             nextLevelXp?: number;
+            /** Format: int32 */
+            currentStreak?: number;
+            /** Format: int32 */
+            bestStreak?: number;
+            /** Format: int32 */
+            totalCheckIns?: number;
         };
         RefreshUiDTO: {
             refreshUser?: components["schemas"]["RefreshUserDTO"];
@@ -2206,6 +2820,8 @@ export interface components {
             endedAt?: string;
             /** Format: int32 */
             minutes?: number;
+            /** Format: uuid */
+            notebookPageId?: string;
         };
         FocusMicroTaskResponseDTO: {
             /** Format: uuid */
@@ -2236,6 +2852,8 @@ export interface components {
             endedAt: string;
             /** Format: int32 */
             minutes: number;
+            /** Format: uuid */
+            notebookPageId?: string;
         };
         CreateMicroTaskRequestDTO: {
             /** Format: uuid */
@@ -2360,6 +2978,604 @@ export interface components {
             narrative?: components["schemas"]["BriefingNarrativeDTO"];
             /** Format: date-time */
             seenAt?: string;
+        };
+        AddLinkRequestDTO: {
+            url: string;
+        };
+        AddTextRequestDTO: {
+            title: string;
+            text: string;
+        };
+        AiCardsRequestDTO: {
+            text?: string;
+            /** Format: int32 */
+            count?: number;
+        };
+        AnswerDTO: {
+            markdown?: string;
+            citations?: components["schemas"]["CitationDTO"][];
+        };
+        AppendRequestDTO: {
+            markdown: string;
+        };
+        BoardChangeResponseDTO: {
+            node?: components["schemas"]["BoardNodeDTO"];
+            changed?: components["schemas"]["PageStatusDTO"][];
+            refreshUi?: components["schemas"]["RefreshUiDTO"];
+        };
+        BoardEdgeDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            source?: string;
+            /** Format: uuid */
+            target?: string;
+        };
+        BoardNodeDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            kind?: "PAGE" | "SECTION";
+            /** Format: uuid */
+            pageId?: string;
+            title?: string;
+            icon?: string;
+            /** @enum {string} */
+            status?: "TO_STUDY" | "STUDYING" | "DONE";
+            progress?: components["schemas"]["ProgressDTO"];
+            hasBoard?: boolean;
+            /** Format: double */
+            x?: number;
+            /** Format: double */
+            y?: number;
+            /** Format: double */
+            width?: number;
+            /** Format: double */
+            height?: number;
+            linked?: boolean;
+            homeTopicTitle?: string;
+        };
+        BoardResponseDTO: {
+            /** Format: uuid */
+            pageId?: string;
+            nodes?: components["schemas"]["BoardNodeDTO"][];
+            edges?: components["schemas"]["BoardEdgeDTO"][];
+        };
+        CardDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            pageId?: string;
+            front?: string;
+            back?: string;
+            sourceLabel?: string;
+            /** Format: date */
+            dueOn?: string;
+            /** Format: int32 */
+            intervalDays?: number;
+            /** Format: int32 */
+            reps?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        ChatMessageDTO: {
+            /** Format: uuid */
+            id?: string;
+            role?: string;
+            content?: string;
+            citations?: components["schemas"]["CitationDTO"][];
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        ChatRequestDTO: {
+            message: string;
+        };
+        ChatTurnDTO: {
+            question?: components["schemas"]["ChatMessageDTO"];
+            answer?: components["schemas"]["ChatMessageDTO"];
+        };
+        CitationDTO: {
+            /** Format: int32 */
+            n?: number;
+            kind?: string;
+            /** Format: uuid */
+            sourceId?: string;
+            /** Format: uuid */
+            chunkId?: string;
+            /** Format: uuid */
+            pageId?: string;
+            title?: string;
+            /** Format: int32 */
+            pageNumber?: number;
+            excerpt?: string;
+        };
+        ContentSavedDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        ContinueDTO: {
+            /** Format: uuid */
+            pageId?: string;
+            title?: string;
+            icon?: string;
+            /** Format: uuid */
+            topicId?: string;
+            topicTitle?: string;
+            studyingTitle?: string;
+            progress?: components["schemas"]["ProgressDTO"];
+            /** Format: date-time */
+            lastOpenedAt?: string;
+        };
+        CreateCardRequestDTO: {
+            front: string;
+            back: string;
+            sourceLabel?: string;
+        };
+        CreateEdgeRequestDTO: {
+            /** Format: uuid */
+            source: string;
+            /** Format: uuid */
+            target: string;
+        };
+        CreateFromDraftRequestDTO: {
+            title: string;
+            description?: string;
+            icon?: string;
+            /** Format: uuid */
+            goalId?: string;
+            /** Format: uuid */
+            categoryId?: string;
+            /** Format: uuid */
+            habitId?: string;
+            nodes: components["schemas"]["DraftNodeInputDTO"][];
+        };
+        CreateNodeRequestDTO: {
+            /** @enum {string} */
+            kind?: "PAGE" | "SECTION";
+            title?: string;
+            /** Format: uuid */
+            linkPageId?: string;
+            label?: string;
+            /** Format: double */
+            x: number;
+            /** Format: double */
+            y: number;
+            /** Format: double */
+            width?: number;
+            /** Format: double */
+            height?: number;
+        };
+        CreatePageRequestDTO: {
+            /** Format: uuid */
+            parentId: string;
+            title: string;
+            icon?: string;
+        };
+        CreateTopicRequestDTO: {
+            title: string;
+            description?: string;
+            icon?: string;
+            /** Format: uuid */
+            goalId?: string;
+            /** Format: uuid */
+            categoryId?: string;
+            /** Format: uuid */
+            habitId?: string;
+        };
+        DraftNodeDTO: {
+            title?: string;
+            why?: string;
+            subtopics?: string[];
+            /** Format: int32 */
+            estimatedHours?: number;
+            optional?: boolean;
+            /** Format: uuid */
+            existingPageId?: string;
+            existingTopicTitle?: string;
+            existingProgress?: components["schemas"]["ProgressDTO"];
+        };
+        DraftNodeInputDTO: {
+            title: string;
+            why?: string;
+            subtopics?: string[];
+            /** Format: int32 */
+            estimatedHours?: number;
+            /** Format: uuid */
+            linkPageId?: string;
+        };
+        DueCardDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            pageId?: string;
+            pageTitle?: string;
+            /** Format: uuid */
+            topicId?: string;
+            topicTitle?: string;
+            front?: string;
+            back?: string;
+            sourceLabel?: string;
+            intervals?: {
+                [key: string]: number;
+            };
+        };
+        DueCardsResponseDTO: {
+            cards?: components["schemas"]["DueCardDTO"][];
+            /** Format: int32 */
+            total?: number;
+            /** Format: int32 */
+            streak?: number;
+        };
+        ExplainRequestDTO: {
+            text: string;
+        };
+        FinishReviewResponseDTO: {
+            /** Format: int32 */
+            paidReviews?: number;
+            /** Format: double */
+            xpEarned?: number;
+            /** Format: int32 */
+            streak?: number;
+            refreshUi?: components["schemas"]["RefreshUiDTO"];
+        };
+        GenerateOutputRequestDTO: {
+            /** @enum {string} */
+            kind: "OVERVIEW" | "SUMMARY" | "STUDY_GUIDE" | "QUIZ";
+        };
+        HomeResponseDTO: {
+            topics?: components["schemas"]["TopicSummaryDTO"][];
+            continueStudying?: components["schemas"]["ContinueDTO"];
+            review?: components["schemas"]["ReviewSummaryDTO"];
+        };
+        LayoutRequestDTO: {
+            positions: components["schemas"]["NodePositionDTO"][];
+        };
+        LinkRefDTO: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+        };
+        MiniEdgeDTO: {
+            /** Format: uuid */
+            source?: string;
+            /** Format: uuid */
+            target?: string;
+        };
+        MiniNodeDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: double */
+            x?: number;
+            /** Format: double */
+            y?: number;
+            /** @enum {string} */
+            status?: "TO_STUDY" | "STUDYING" | "DONE";
+        };
+        NodePositionDTO: {
+            /** Format: uuid */
+            nodeId: string;
+            /** Format: double */
+            x: number;
+            /** Format: double */
+            y: number;
+        };
+        OverviewDTO: {
+            /** Format: uuid */
+            id?: string;
+            summary?: string;
+            questions?: string[];
+            citations?: components["schemas"]["CitationDTO"][];
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        PageRefDTO: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            icon?: string;
+        };
+        PageResponseDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            kind?: "TOPIC" | "PAGE";
+            /** Format: uuid */
+            topicId?: string;
+            /** Format: uuid */
+            parentId?: string;
+            title?: string;
+            icon?: string;
+            description?: string;
+            content?: string;
+            /** @enum {string} */
+            status?: "TO_STUDY" | "STUDYING" | "DONE";
+            statusManual?: boolean;
+            hasBoard?: boolean;
+            progress?: components["schemas"]["ProgressDTO"];
+            breadcrumb?: components["schemas"]["PageRefDTO"][];
+            goal?: components["schemas"]["LinkRefDTO"];
+            category?: components["schemas"]["LinkRefDTO"];
+            habit?: components["schemas"]["LinkRefDTO"];
+            /** Format: int32 */
+            focusMinutes?: number;
+            /** Format: int32 */
+            cardsTotal?: number;
+            /** Format: int32 */
+            cardsDue?: number;
+            /** Format: int32 */
+            sourcesCount?: number;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        PageSearchHitDTO: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            icon?: string;
+            /** @enum {string} */
+            kind?: "TOPIC" | "PAGE";
+            /** Format: uuid */
+            topicId?: string;
+            topicTitle?: string;
+        };
+        PageStatusDTO: {
+            /** Format: uuid */
+            pageId?: string;
+            /** @enum {string} */
+            status?: "TO_STUDY" | "STUDYING" | "DONE";
+        };
+        PassageDTO: {
+            /** Format: uuid */
+            sourceId?: string;
+            sourceTitle?: string;
+            /** @enum {string} */
+            kind?: "PDF" | "LINK" | "TEXT";
+            url?: string;
+            /** Format: uuid */
+            chunkId?: string;
+            /** Format: int32 */
+            pageNumber?: number;
+            text?: string;
+            before?: string;
+            after?: string;
+        };
+        ProgressDTO: {
+            /** Format: int32 */
+            done?: number;
+            /** Format: int32 */
+            total?: number;
+        };
+        QuizAnswerDTO: {
+            /** Format: int32 */
+            index?: number;
+            /** Format: int32 */
+            chosen?: number;
+            /** Format: int32 */
+            correct?: number;
+            right?: boolean;
+            explanation?: string;
+            citation?: components["schemas"]["CitationDTO"];
+        };
+        QuizAnswersRequestDTO: {
+            answers: number[];
+        };
+        QuizQuestionDTO: {
+            /** Format: int32 */
+            index?: number;
+            question?: string;
+            options?: string[];
+        };
+        QuizResultDTO: {
+            /** Format: int32 */
+            score?: number;
+            /** Format: int32 */
+            total?: number;
+            passed?: boolean;
+            answers?: components["schemas"]["QuizAnswerDTO"][];
+            /** Format: double */
+            xpEarned?: number;
+            refreshUi?: components["schemas"]["RefreshUiDTO"];
+        };
+        ReviewRequestDTO: {
+            /** @enum {string} */
+            rating: "AGAIN" | "HARD" | "GOOD" | "EASY";
+        };
+        ReviewResponseDTO: {
+            /** Format: uuid */
+            cardId?: string;
+            /** Format: date */
+            dueOn?: string;
+            /** Format: int32 */
+            intervalDays?: number;
+            dueAgainToday?: boolean;
+        };
+        ReviewSummaryDTO: {
+            /** Format: int32 */
+            due?: number;
+            byTopic?: components["schemas"]["TopicDueDTO"][];
+            /** Format: int32 */
+            streak?: number;
+        };
+        RoadmapDraftDTO: {
+            nodes?: components["schemas"]["DraftNodeDTO"][];
+            /** Format: int32 */
+            totalHours?: number;
+        };
+        RoadmapDraftRequestDTO: {
+            title: string;
+            why?: string;
+            /** @enum {string} */
+            level?: "NEW" | "SOME" | "SOLID";
+            /** Format: int32 */
+            hoursPerWeek?: number;
+            /** Format: uuid */
+            goalId?: string;
+            references?: string[];
+            changeRequest?: string;
+            previous?: components["schemas"]["DraftNodeInputDTO"][];
+        };
+        SetStatusRequestDTO: {
+            /** @enum {string} */
+            status: "TO_STUDY" | "STUDYING" | "DONE" | "AUTO";
+        };
+        SourceDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            pageId?: string;
+            pageTitle?: string;
+            inherited?: boolean;
+            /** @enum {string} */
+            kind?: "PDF" | "LINK" | "TEXT";
+            title?: string;
+            url?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "READING" | "READY" | "FAILED";
+            /** Format: int32 */
+            progress?: number;
+            errorKey?: string;
+            enabled?: boolean;
+            /** Format: int32 */
+            pageCount?: number;
+            /** Format: int32 */
+            charCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        StatusChangeResponseDTO: {
+            /** Format: uuid */
+            pageId?: string;
+            /** @enum {string} */
+            status?: "TO_STUDY" | "STUDYING" | "DONE";
+            statusManual?: boolean;
+            changed?: components["schemas"]["PageStatusDTO"][];
+            /** Format: double */
+            xpEarned?: number;
+            refreshUi?: components["schemas"]["RefreshUiDTO"];
+        };
+        StudyOutputDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            pageId?: string;
+            /** @enum {string} */
+            kind?: "OVERVIEW" | "SUMMARY" | "STUDY_GUIDE" | "QUIZ";
+            title?: string;
+            markdown?: string;
+            citations?: components["schemas"]["CitationDTO"][];
+            questions?: components["schemas"]["QuizQuestionDTO"][];
+            /** Format: int32 */
+            score?: number;
+            /** Format: int32 */
+            total?: number;
+            /** Format: date-time */
+            passedAt?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        StudyResponseDTO: {
+            page?: components["schemas"]["PageRefDTO"];
+            breadcrumb?: components["schemas"]["PageRefDTO"][];
+            overview?: components["schemas"]["OverviewDTO"];
+            messages?: components["schemas"]["ChatMessageDTO"][];
+            outputs?: components["schemas"]["StudyOutputDTO"][];
+            sources?: components["schemas"]["SourceDTO"][];
+            /** Format: int32 */
+            cardsTotal?: number;
+            /** Format: int32 */
+            cardsDue?: number;
+        };
+        SuggestNodesRequestDTO: {
+            fromSources?: boolean;
+        };
+        SuggestedNodeDTO: {
+            title?: string;
+            why?: string;
+        };
+        TopicDueDTO: {
+            /** Format: uuid */
+            topicId?: string;
+            title?: string;
+            /** Format: int32 */
+            due?: number;
+        };
+        TopicLinksRequestDTO: {
+            /** Format: uuid */
+            goalId?: string;
+            /** Format: uuid */
+            categoryId?: string;
+            /** Format: uuid */
+            habitId?: string;
+        };
+        TopicSummaryDTO: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            icon?: string;
+            description?: string;
+            progress?: components["schemas"]["ProgressDTO"];
+            /** Format: int32 */
+            cardsDue?: number;
+            /** Format: int32 */
+            sourcesCount?: number;
+            next?: components["schemas"]["PageRefDTO"];
+            goal?: components["schemas"]["LinkRefDTO"];
+            habit?: components["schemas"]["LinkRefDTO"];
+            preview?: components["schemas"]["MiniNodeDTO"][];
+            previewEdges?: components["schemas"]["MiniEdgeDTO"][];
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        TreeItemDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            parentId?: string;
+            title?: string;
+            icon?: string;
+            /** @enum {string} */
+            status?: "TO_STUDY" | "STUDYING" | "DONE";
+            onBoard?: boolean;
+            linked?: boolean;
+            progress?: components["schemas"]["ProgressDTO"];
+            /** Format: int32 */
+            position?: number;
+        };
+        TreeResponseDTO: {
+            topic?: components["schemas"]["PageRefDTO"];
+            items?: components["schemas"]["TreeItemDTO"][];
+            /** Format: int32 */
+            sourcesCount?: number;
+            /** Format: int32 */
+            cardsDue?: number;
+        };
+        UpdateCardRequestDTO: {
+            front?: string;
+            back?: string;
+        };
+        UpdateContentRequestDTO: {
+            content: string;
+        };
+        UpdateNodeRequestDTO: {
+            /** Format: double */
+            x?: number;
+            /** Format: double */
+            y?: number;
+            /** Format: double */
+            width?: number;
+            /** Format: double */
+            height?: number;
+            label?: string;
+        };
+        UpdatePageRequestDTO: {
+            title?: string;
+            icon?: string;
+            description?: string;
+        };
+        UpdateSourceRequestDTO: {
+            enabled: boolean;
         };
     };
     responses: never;
@@ -4686,6 +5902,1080 @@ export interface operations {
         responses: {
             /** @description No Content */
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    setLinks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TopicLinksRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    setStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStatusRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StatusChangeResponseDTO"];
+                };
+            };
+        };
+    };
+    saveContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateContentRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ContentSavedDTO"];
+                };
+            };
+        };
+    };
+    layout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LayoutRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    createTopic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTopicRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    createFromDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFromDraftRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    finish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FinishReviewResponseDTO"];
+                };
+            };
+        };
+    };
+    createPage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePageRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    addText: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddTextRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SourceDTO"];
+                };
+            };
+        };
+    };
+    addPdf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SourceDTO"];
+                };
+            };
+        };
+    };
+    addLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddLinkRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SourceDTO"];
+                };
+            };
+        };
+    };
+    list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CardDTO"][];
+                };
+            };
+        };
+    };
+    create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCardRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CardDTO"];
+                };
+            };
+        };
+    };
+    addNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateNodeRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoardChangeResponseDTO"];
+                };
+            };
+        };
+    };
+    addEdge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEdgeRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoardEdgeDTO"];
+                };
+            };
+        };
+    };
+    append: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppendRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    grade: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outputId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuizAnswersRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["QuizResultDTO"];
+                };
+            };
+        };
+    };
+    review: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cardId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReviewResponseDTO"];
+                };
+            };
+        };
+    };
+    roadmapDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoadmapDraftRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RoadmapDraftDTO"];
+                };
+            };
+        };
+    };
+    suggestNodes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuggestNodesRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SuggestedNodeDTO"][];
+                };
+            };
+        };
+    };
+    generate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateOutputRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StudyOutputDTO"];
+                };
+            };
+        };
+    };
+    explain: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExplainRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AnswerDTO"];
+                };
+            };
+        };
+    };
+    chat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ChatTurnDTO"];
+                };
+            };
+        };
+    };
+    cards: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiCardsRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CardDTO"][];
+                };
+            };
+        };
+    };
+    delete_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sourceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sourceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSourceRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SourceDTO"];
+                };
+            };
+        };
+    };
+    page: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    delete_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePageRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseDTO"];
+                };
+            };
+        };
+    };
+    delete_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cardId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cardId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCardRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CardDTO"];
+                };
+            };
+        };
+    };
+    deleteNode: {
+        parameters: {
+            query?: {
+                deletePage?: boolean;
+            };
+            header?: never;
+            path: {
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoardChangeResponseDTO"];
+                };
+            };
+        };
+    };
+    updateNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNodeRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoardChangeResponseDTO"];
+                };
+            };
+        };
+    };
+    tree: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TreeResponseDTO"];
+                };
+            };
+        };
+    };
+    passage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sourceId: string;
+                chunkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PassageDTO"];
+                };
+            };
+        };
+    };
+    study: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StudyResponseDTO"];
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SourceDTO"][];
+                };
+            };
+        };
+    };
+    board: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoardResponseDTO"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageSearchHitDTO"][];
+                };
+            };
+        };
+    };
+    output: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outputId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StudyOutputDTO"];
+                };
+            };
+        };
+    };
+    deleteOutput: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outputId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    home: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HomeResponseDTO"];
+                };
+            };
+        };
+    };
+    due: {
+        parameters: {
+            query?: {
+                scopePageId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DueCardsResponseDTO"];
+                };
+            };
+        };
+    };
+    clearChat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    deleteEdge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                edgeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

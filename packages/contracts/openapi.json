@@ -3047,6 +3047,1573 @@
           }
         }
       }
+    },
+    "/notebook/topics/{topicId}/links": {
+      "put": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "setLinks",
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicLinksRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/status": {
+      "put": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "setStatus",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStatusRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusChangeResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/content": {
+      "put": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "saveContent",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContentRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentSavedDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/board/layout": {
+      "put": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "layout",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LayoutRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notebook/topics": {
+      "post": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "createTopic",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTopicRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/topics/from-draft": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "createFromDraft",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFromDraftRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/reviews/finish": {
+      "post": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "finish",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinishReviewResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages": {
+      "post": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "createPage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePageRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/sources/text": {
+      "post": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "addText",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddTextRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/sources/pdf": {
+      "post": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "addPdf",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/sources/link": {
+      "post": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "addLink",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddLinkRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/cards": {
+      "get": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CardDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCardRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/board/nodes": {
+      "post": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "addNode",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateNodeRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardChangeResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/board/edges": {
+      "post": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "addEdge",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEdgeRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardEdgeDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/append": {
+      "post": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "append",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppendRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/outputs/{outputId}/quiz-result": {
+      "post": {
+        "tags": [
+          "notebook-study-controller"
+        ],
+        "operationId": "grade",
+        "parameters": [
+          {
+            "name": "outputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuizAnswersRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuizResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/cards/{cardId}/review": {
+      "post": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "review",
+        "parameters": [
+          {
+            "name": "cardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/roadmap-draft": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "roadmapDraft",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoadmapDraftRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoadmapDraftDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/pages/{pageId}/suggest-nodes": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "suggestNodes",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestNodesRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SuggestedNodeDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/pages/{pageId}/outputs": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "generate",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateOutputRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyOutputDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/pages/{pageId}/explain": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "explain",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/pages/{pageId}/chat": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "chat",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatTurnDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/pages/{pageId}/cards": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "cards",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiCardsRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CardDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/sources/{sourceId}": {
+      "delete": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSourceRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourceDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}": {
+      "get": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "page",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "delete_2",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePageRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/cards/{cardId}": {
+      "delete": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "delete_3",
+        "parameters": [
+          {
+            "name": "cardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "update_2",
+        "parameters": [
+          {
+            "name": "cardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCardRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CardDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/board/nodes/{nodeId}": {
+      "delete": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "deleteNode",
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "deletePage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardChangeResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "updateNode",
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNodeRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardChangeResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/topics/{topicId}/tree": {
+      "get": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "tree",
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreeResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/sources/{sourceId}/passages/{chunkId}": {
+      "get": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "passage",
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chunkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassageDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/study": {
+      "get": {
+        "tags": [
+          "notebook-study-controller"
+        ],
+        "operationId": "study",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/sources": {
+      "get": {
+        "tags": [
+          "notebook-source-controller"
+        ],
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SourceDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/board": {
+      "get": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "board",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/search": {
+      "get": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageSearchHitDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/outputs/{outputId}": {
+      "get": {
+        "tags": [
+          "notebook-study-controller"
+        ],
+        "operationId": "output",
+        "parameters": [
+          {
+            "name": "outputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudyOutputDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notebook-study-controller"
+        ],
+        "operationId": "deleteOutput",
+        "parameters": [
+          {
+            "name": "outputId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notebook/home": {
+      "get": {
+        "tags": [
+          "notebook-controller"
+        ],
+        "operationId": "home",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/cards/due": {
+      "get": {
+        "tags": [
+          "notebook-card-controller"
+        ],
+        "operationId": "due",
+        "parameters": [
+          {
+            "name": "scopePageId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DueCardsResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/pages/{pageId}/study/messages": {
+      "delete": {
+        "tags": [
+          "notebook-study-controller"
+        ],
+        "operationId": "clearChat",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notebook/board/edges/{edgeId}": {
+      "delete": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "deleteEdge",
+        "parameters": [
+          {
+            "name": "edgeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3930,6 +5497,18 @@
           "nextLevelXp": {
             "type": "number",
             "format": "double"
+          },
+          "currentStreak": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bestStreak": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCheckIns": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5669,6 +7248,10 @@
           "minutes": {
             "type": "integer",
             "format": "int32"
+          },
+          "notebookPageId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -5748,6 +7331,10 @@
             "format": "int32",
             "maximum": 180,
             "minimum": 1
+          },
+          "notebookPageId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -6093,6 +7680,1755 @@
             "format": "date-time"
           }
         }
+      },
+      "AddLinkRequestDTO": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "AddTextRequestDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 200000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "text",
+          "title"
+        ]
+      },
+      "AiCardsRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 0
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 12,
+            "minimum": 1
+          }
+        }
+      },
+      "AnswerDTO": {
+        "type": "object",
+        "properties": {
+          "markdown": {
+            "type": "string"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationDTO"
+            }
+          }
+        }
+      },
+      "AppendRequestDTO": {
+        "type": "object",
+        "properties": {
+          "markdown": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "markdown"
+        ]
+      },
+      "BoardChangeResponseDTO": {
+        "type": "object",
+        "properties": {
+          "node": {
+            "$ref": "#/components/schemas/BoardNodeDTO"
+          },
+          "changed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageStatusDTO"
+            }
+          },
+          "refreshUi": {
+            "$ref": "#/components/schemas/RefreshUiDTO"
+          }
+        }
+      },
+      "BoardEdgeDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "target": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BoardNodeDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "SECTION"
+            ]
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE"
+            ]
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          },
+          "hasBoard": {
+            "type": "boolean"
+          },
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          },
+          "width": {
+            "type": "number",
+            "format": "double"
+          },
+          "height": {
+            "type": "number",
+            "format": "double"
+          },
+          "linked": {
+            "type": "boolean"
+          },
+          "homeTopicTitle": {
+            "type": "string"
+          }
+        }
+      },
+      "BoardResponseDTO": {
+        "type": "object",
+        "properties": {
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardNodeDTO"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardEdgeDTO"
+            }
+          }
+        }
+      },
+      "CardDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "front": {
+            "type": "string"
+          },
+          "back": {
+            "type": "string"
+          },
+          "sourceLabel": {
+            "type": "string"
+          },
+          "dueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "intervalDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reps": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatMessageDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationDTO"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatRequestDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ChatTurnDTO": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/ChatMessageDTO"
+          },
+          "answer": {
+            "$ref": "#/components/schemas/ChatMessageDTO"
+          }
+        }
+      },
+      "CitationDTO": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chunkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "excerpt": {
+            "type": "string"
+          }
+        }
+      },
+      "ContentSavedDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContinueDTO": {
+        "type": "object",
+        "properties": {
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "topicId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "topicTitle": {
+            "type": "string"
+          },
+          "studyingTitle": {
+            "type": "string"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          },
+          "lastOpenedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateCardRequestDTO": {
+        "type": "object",
+        "properties": {
+          "front": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "back": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "sourceLabel": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "back",
+          "front"
+        ]
+      },
+      "CreateEdgeRequestDTO": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "target": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "source",
+          "target"
+        ]
+      },
+      "CreateFromDraftRequestDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 0
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftNodeInputDTO"
+            },
+            "maxItems": 20,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "nodes",
+          "title"
+        ]
+      },
+      "CreateNodeRequestDTO": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "SECTION"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "linkPageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          },
+          "width": {
+            "type": "number",
+            "format": "double"
+          },
+          "height": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
+      "CreatePageRequestDTO": {
+        "type": "object",
+        "properties": {
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "parentId",
+          "title"
+        ]
+      },
+      "CreateTopicRequestDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 0
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "DraftNodeDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          },
+          "subtopics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "estimatedHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "optional": {
+            "type": "boolean"
+          },
+          "existingPageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "existingTopicTitle": {
+            "type": "string"
+          },
+          "existingProgress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          }
+        }
+      },
+      "DraftNodeInputDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "why": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "subtopics": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 255,
+              "minLength": 0
+            },
+            "maxItems": 30,
+            "minItems": 0
+          },
+          "estimatedHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "linkPageId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "DueCardDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageTitle": {
+            "type": "string"
+          },
+          "topicId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "topicTitle": {
+            "type": "string"
+          },
+          "front": {
+            "type": "string"
+          },
+          "back": {
+            "type": "string"
+          },
+          "sourceLabel": {
+            "type": "string"
+          },
+          "intervals": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "DueCardsResponseDTO": {
+        "type": "object",
+        "properties": {
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DueCardDTO"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "streak": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ExplainRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "FinishReviewResponseDTO": {
+        "type": "object",
+        "properties": {
+          "paidReviews": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "xpEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "streak": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "refreshUi": {
+            "$ref": "#/components/schemas/RefreshUiDTO"
+          }
+        }
+      },
+      "GenerateOutputRequestDTO": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "OVERVIEW",
+              "SUMMARY",
+              "STUDY_GUIDE",
+              "QUIZ"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "HomeResponseDTO": {
+        "type": "object",
+        "properties": {
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicSummaryDTO"
+            }
+          },
+          "continueStudying": {
+            "$ref": "#/components/schemas/ContinueDTO"
+          },
+          "review": {
+            "$ref": "#/components/schemas/ReviewSummaryDTO"
+          }
+        }
+      },
+      "LayoutRequestDTO": {
+        "type": "object",
+        "properties": {
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NodePositionDTO"
+            },
+            "maxItems": 500,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "positions"
+        ]
+      },
+      "LinkRefDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "MiniEdgeDTO": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "target": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MiniNodeDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE"
+            ]
+          }
+        }
+      },
+      "NodePositionDTO": {
+        "type": "object",
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "nodeId",
+          "x",
+          "y"
+        ]
+      },
+      "OverviewDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationDTO"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageRefDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        }
+      },
+      "PageResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "TOPIC",
+              "PAGE"
+            ]
+          },
+          "topicId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE"
+            ]
+          },
+          "statusManual": {
+            "type": "boolean"
+          },
+          "hasBoard": {
+            "type": "boolean"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          },
+          "breadcrumb": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageRefDTO"
+            }
+          },
+          "goal": {
+            "$ref": "#/components/schemas/LinkRefDTO"
+          },
+          "category": {
+            "$ref": "#/components/schemas/LinkRefDTO"
+          },
+          "habit": {
+            "$ref": "#/components/schemas/LinkRefDTO"
+          },
+          "focusMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cardsTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cardsDue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sourcesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PageSearchHitDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "TOPIC",
+              "PAGE"
+            ]
+          },
+          "topicId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "topicTitle": {
+            "type": "string"
+          }
+        }
+      },
+      "PageStatusDTO": {
+        "type": "object",
+        "properties": {
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE"
+            ]
+          }
+        }
+      },
+      "PassageDTO": {
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceTitle": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PDF",
+              "LINK",
+              "TEXT"
+            ]
+          },
+          "url": {
+            "type": "string"
+          },
+          "chunkId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "text": {
+            "type": "string"
+          },
+          "before": {
+            "type": "string"
+          },
+          "after": {
+            "type": "string"
+          }
+        }
+      },
+      "ProgressDTO": {
+        "type": "object",
+        "properties": {
+          "done": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "QuizAnswerDTO": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "chosen": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "correct": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "right": {
+            "type": "boolean"
+          },
+          "explanation": {
+            "type": "string"
+          },
+          "citation": {
+            "$ref": "#/components/schemas/CitationDTO"
+          }
+        }
+      },
+      "QuizAnswersRequestDTO": {
+        "type": "object",
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "maxItems": 30,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "answers"
+        ]
+      },
+      "QuizQuestionDTO": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "QuizResultDTO": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuizAnswerDTO"
+            }
+          },
+          "xpEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "refreshUi": {
+            "$ref": "#/components/schemas/RefreshUiDTO"
+          }
+        }
+      },
+      "ReviewRequestDTO": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "string",
+            "enum": [
+              "AGAIN",
+              "HARD",
+              "GOOD",
+              "EASY"
+            ]
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "ReviewResponseDTO": {
+        "type": "object",
+        "properties": {
+          "cardId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "intervalDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dueAgainToday": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ReviewSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "due": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "byTopic": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicDueDTO"
+            }
+          },
+          "streak": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RoadmapDraftDTO": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftNodeDTO"
+            }
+          },
+          "totalHours": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "RoadmapDraftRequestDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          },
+          "why": {
+            "type": "string",
+            "maxLength": 600,
+            "minLength": 0
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "NEW",
+              "SOME",
+              "SOLID"
+            ]
+          },
+          "hoursPerWeek": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 80,
+            "minimum": 1
+          },
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 500,
+              "minLength": 0
+            },
+            "maxItems": 5,
+            "minItems": 0
+          },
+          "changeRequest": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "previous": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftNodeInputDTO"
+            },
+            "maxItems": 20,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "SetStatusRequestDTO": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE",
+              "AUTO"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "SourceDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageTitle": {
+            "type": "string"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PDF",
+              "LINK",
+              "TEXT"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "READING",
+              "READY",
+              "FAILED"
+            ]
+          },
+          "progress": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorKey": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "pageCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "charCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StatusChangeResponseDTO": {
+        "type": "object",
+        "properties": {
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE"
+            ]
+          },
+          "statusManual": {
+            "type": "boolean"
+          },
+          "changed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageStatusDTO"
+            }
+          },
+          "xpEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "refreshUi": {
+            "$ref": "#/components/schemas/RefreshUiDTO"
+          }
+        }
+      },
+      "StudyOutputDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "OVERVIEW",
+              "SUMMARY",
+              "STUDY_GUIDE",
+              "QUIZ"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "markdown": {
+            "type": "string"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationDTO"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuizQuestionDTO"
+            }
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StudyResponseDTO": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/PageRefDTO"
+          },
+          "breadcrumb": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageRefDTO"
+            }
+          },
+          "overview": {
+            "$ref": "#/components/schemas/OverviewDTO"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageDTO"
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudyOutputDTO"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceDTO"
+            }
+          },
+          "cardsTotal": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cardsDue": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SuggestNodesRequestDTO": {
+        "type": "object",
+        "properties": {
+          "fromSources": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SuggestedNodeDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "why": {
+            "type": "string"
+          }
+        }
+      },
+      "TopicDueDTO": {
+        "type": "object",
+        "properties": {
+          "topicId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "due": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TopicLinksRequestDTO": {
+        "type": "object",
+        "properties": {
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "habitId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TopicSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          },
+          "cardsDue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sourcesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "next": {
+            "$ref": "#/components/schemas/PageRefDTO"
+          },
+          "goal": {
+            "$ref": "#/components/schemas/LinkRefDTO"
+          },
+          "habit": {
+            "$ref": "#/components/schemas/LinkRefDTO"
+          },
+          "preview": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MiniNodeDTO"
+            }
+          },
+          "previewEdges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MiniEdgeDTO"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TreeItemDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "TO_STUDY",
+              "STUDYING",
+              "DONE"
+            ]
+          },
+          "onBoard": {
+            "type": "boolean"
+          },
+          "linked": {
+            "type": "boolean"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/ProgressDTO"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TreeResponseDTO": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "$ref": "#/components/schemas/PageRefDTO"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TreeItemDTO"
+            }
+          },
+          "sourcesCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cardsDue": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UpdateCardRequestDTO": {
+        "type": "object",
+        "properties": {
+          "front": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0,
+            "pattern": "(?s).*\\S.*"
+          },
+          "back": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0,
+            "pattern": "(?s).*\\S.*"
+          }
+        }
+      },
+      "UpdateContentRequestDTO": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "maxLength": 2000000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "UpdateNodeRequestDTO": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "format": "double"
+          },
+          "y": {
+            "type": "number",
+            "format": "double"
+          },
+          "width": {
+            "type": "number",
+            "format": "double"
+          },
+          "height": {
+            "type": "number",
+            "format": "double"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          }
+        }
+      },
+      "UpdatePageRequestDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0,
+            "pattern": ".*\\S.*"
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 512,
+            "minLength": 0
+          }
+        }
+      },
+      "UpdateSourceRequestDTO": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
       }
     }
   }
