@@ -42,7 +42,9 @@ export default function NotebookPageView() {
     const [title, setTitle] = useState("");
     const [explaining, setExplaining] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
-    const [confirmDelete, setConfirmDelete] = useState(false);
+    // The page the delete dialog was opened for, not "whatever page is on screen": the dialog
+    // must never be able to act on a page the person did not choose.
+    const [deleting, setDeleting] = useState<{ id: string; title: string; parentId: string | null } | null>(null);
     const [editorKey, setEditorKey] = useState(0);
     const changeStatus = useStatusChange();
     const { start, timer } = useNotebookFocus();
@@ -94,15 +96,26 @@ export default function NotebookPageView() {
         }
     };
 
+    // This screen stays mounted when the route moves to another page, so what belonged to the
+    // page that was here goes with it. Reported in local testing: after a delete the dialog was
+    // still open over the parent, now asking to delete the parent.
+    useEffect(() => {
+        setDeleting(null);
+        setMenuOpen(false);
+        setExplaining(null);
+    }, [pageId]);
+
     const remove = async () => {
-        if (!page) return;
-        const response = await deletePage(page.id, t);
+        if (!deleting) return;
+        const target = deleting;
+        setDeleting(null);
+        const response = await deletePage(target.id, t);
         if (response.error) {
             toast.error(getFriendlyErrorMessage(t, response.error));
             return;
         }
-        dispatch(removeNotebookPage(page.id));
-        navigate(page.parentId ? `/notebook/${page.parentId}` : "/notebook");
+        dispatch(removeNotebookPage(target.id));
+        navigate(target.parentId ? `/notebook/${target.parentId}` : "/notebook");
     };
 
     if (error) {
@@ -123,10 +136,14 @@ export default function NotebookPageView() {
 
     return (
         <div className="flex min-h-[calc(100vh-5rem)] flex-col bg-bg text-text lg:min-h-[calc(100vh-6rem)] lg:flex-row" data-testid="notebook-page">
-            <div className="border-b border-border px-4 py-3 lg:border-0 lg:p-0">
+            {/* The tree is exactly as tall as this page's minimum height, the screen less the shell's
+                bottom spacer. A full-screen tree made every page at least a screen tall, and the
+                spacer then sat under that, so short notes ended over 100px above the real bottom. The
+                divider lives here, on the wrapper, which stretches with the page. */}
+            <div className="border-b border-border px-4 py-3 lg:border-b-0 lg:border-r lg:p-0">
                 <PageTree topicId={topicId} currentPageId={page.id} />
             </div>
-            <main className="min-w-0 flex-1 px-4 pb-16 pt-5 lg:px-10">
+            <main className="min-w-0 flex-1 px-4 pb-6 pt-5 lg:px-10">
                 <div className="mx-auto max-w-[880px]">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <nav aria-label={t("NotebookBreadcrumb")} className="flex min-w-0 flex-wrap items-center gap-1.5 text-[13px] text-text-2">
@@ -162,7 +179,7 @@ export default function NotebookPageView() {
                                 </button>
                                 {menuOpen && (
                                     <div className="absolute right-0 top-10 z-20 w-56 rounded-card border border-border bg-surface p-1 shadow-surface">
-                                        <button type="button" onClick={() => { setMenuOpen(false); setConfirmDelete(true); }} data-testid="page-delete"
+                                        <button type="button" onClick={() => { setMenuOpen(false); setDeleting({ id: page.id, title: page.title, parentId: page.parentId }); }} data-testid="page-delete"
                                             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger/10">
                                             <Trash2 size={14} aria-hidden="true" />{page.kind === "TOPIC" ? t("NotebookDeleteTopic") : t("NotebookDeletePage")}
                                         </button>
@@ -262,13 +279,13 @@ export default function NotebookPageView() {
                 </div>
             </main>
 
-            <Modal isOpen={confirmDelete} onClose={() => setConfirmDelete(false)} labelledBy="delete-page-title">
+            <Modal isOpen={deleting !== null} onClose={() => setDeleting(null)} labelledBy="delete-page-title">
                 <div className="flex w-full flex-col gap-3">
-                    <h2 id="delete-page-title" className="text-lg font-semibold text-text">{t("NotebookDeleteTitle", { title: page.title })}</h2>
+                    <h2 id="delete-page-title" className="text-lg font-semibold text-text">{t("NotebookDeleteTitle", { title: deleting?.title ?? "" })}</h2>
                     <p className="text-sm text-text-2">{t("NotebookDeleteExplain")}</p>
                     <div className="flex justify-end gap-2">
-                        <button type="button" onClick={() => setConfirmDelete(false)} className="rounded-control px-4 py-2 text-sm font-semibold text-text-2 hover:bg-surface-2">{t("Cancel")}</button>
-                        <button type="button" onClick={remove} data-testid="page-delete-confirm" className="rounded-control bg-danger px-4 py-2 text-sm font-semibold text-on-accent">{t("Delete")}</button>
+                        <button type="button" onClick={() => setDeleting(null)} className="rounded-control px-4 py-2 text-sm font-semibold text-text-2 hover:bg-surface-2">{t("Cancel")}</button>
+                        <button type="button" onClick={() => void remove()} data-testid="page-delete-confirm" className="rounded-control bg-danger px-4 py-2 text-sm font-semibold text-on-accent">{t("Delete")}</button>
                     </div>
                 </div>
             </Modal>
