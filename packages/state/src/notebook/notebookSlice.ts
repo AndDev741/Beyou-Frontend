@@ -3,6 +3,7 @@ import type {
     Board, BoardEdge, BoardNode, NotebookHome, NotebookPage, NotebookTree, PageStatus,
 } from '@beyou/types/notebook/notebook';
 import { applyStatuses } from './notebookStatus';
+import { applyPageDetails, type PageDetails } from './notebookDetails';
 
 /**
  * What the app has loaded of the study notebook.
@@ -119,6 +120,10 @@ const notebookSlice = createSlice({
         notebookStatusesChanged(state, action: PayloadAction<PageStatus[]>) {
             return applyStatuses(state, action.payload);
         },
+        /** A page was renamed or given an icon, written everywhere it is shown. */
+        notebookPageDetailsChanged(state, action: PayloadAction<PageDetails>) {
+            return applyPageDetails(state, action.payload);
+        },
         /** Logout on web, where the store survives the navigation. */
         clearNotebook() {
             return initialState;
@@ -129,6 +134,6 @@ const notebookSlice = createSlice({
 export const {
     enterNotebookHome, enterNotebookPage, removeNotebookPage, enterNotebookTree, enterBoard,
     upsertBoardNode, removeBoardNode, moveBoardNodes, enterBoardEdge, removeBoardEdge,
-    notebookStatusesChanged, clearNotebook,
+    notebookStatusesChanged, notebookPageDetailsChanged, clearNotebook,
 } = notebookSlice.actions;
 export default notebookSlice.reducer;

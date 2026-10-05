@@ -2,17 +2,22 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import type { StudyRoom } from "@beyou/types/notebook/notebook";
+import type { NotebookSource, StudyRoom, StudySetup as Setup } from "@beyou/types/notebook/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { getStudyRoom } from "@beyou/api/notebook";
 import ErrorNotice from "../../components/ErrorNotice";
 import SourcesPanel from "../../components/notebook/study/SourcesPanel";
 import ChatPanel from "../../components/notebook/study/ChatPanel";
 import StudioPanel from "../../components/notebook/study/StudioPanel";
+import StudySetup, { StudySetupBar } from "../../components/notebook/study/StudySetup";
 
 /**
  * The study room for one page: its sources on the left, a conversation grounded in them in the
  * middle, and the studio on the right.
+ *
+ * Before the first question the middle column is the room's setup (StudySetup): a goal, which
+ * notes to read, and sources to add. It comes back with "Edit" on the line above the chat. The
+ * source list is held here, so the panel and the setup both see a source the other added.
  *
  * It covers the app shell like the focus screen does (`fixed inset-0`), because a study session
  * is one thing at a time and the sidebar is a way out of it. Escape leaves for the page, unless a
@@ -25,6 +30,9 @@ export default function NotebookStudyRoom() {
     const [room, setRoom] = useState<StudyRoom | null>(null);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
     const [cards, setCards] = useState({ total: 0, due: 0 });
+    const [sources, setSources] = useState<NotebookSource[]>([]);
+    const [setup, setSetup] = useState<Setup | null>(null);
+    const [editingSetup, setEditingSetup] = useState(false);
 
     const pagePath = `/notebook/${pageId ?? ""}`;
     const leave = useCallback(() => navigate(pagePath), [navigate, pagePath]);
@@ -38,6 +46,8 @@ export default function NotebookStudyRoom() {
             if (response.success) {
                 setRoom(response.success);
                 setCards({ total: response.success.cardsTotal, due: response.success.cardsDue });
+                setSources(response.success.sources);
+                setSetup(response.success.setup);
             } else {
                 setError(response.error ?? null);
             }
@@ -56,6 +66,8 @@ export default function NotebookStudyRoom() {
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [leave]);
+
+    const onSourceAdded = useCallback((source: NotebookSource) => setSources((current) => [...current, source]), []);
 
     // Cards made in the chat or the studio are new, so they are due today.
     const onCardsMade = useCallback(
@@ -116,18 +128,37 @@ export default function NotebookStudyRoom() {
                     </p>
                 )}
 
-                {room && pageId && (
+                {room && pageId && setup && (
                     <div className="flex flex-1 flex-wrap items-stretch gap-4 p-4">
                         <div className="flex min-w-0 flex-[1_1_280px] flex-col lg:max-w-[320px]">
-                            <SourcesPanel pageId={pageId} initialSources={room.sources} />
+                            <SourcesPanel pageId={pageId} initialSources={sources} onChange={setSources} discovery={room.discovery} />
                         </div>
                         <div className="flex min-w-0 flex-[999_1_460px] flex-col">
-                            <ChatPanel
-                                pageId={pageId}
-                                initialMessages={room.messages}
-                                initialOverview={room.overview}
-                                onCardsMade={onCardsMade}
-                            />
+                            {editingSetup || (!setup.configuredAt && room.messages.length === 0) ? (
+                                <StudySetup
+                                    pageId={pageId}
+                                    setup={setup}
+                                    scopes={room.scopes}
+                                    sources={sources}
+                                    discovery={room.discovery}
+                                    onSourceAdded={onSourceAdded}
+                                    onSaved={(saved) => {
+                                        setSetup(saved);
+                                        setEditingSetup(false);
+                                    }}
+                                    onCancel={setup.configuredAt ? () => setEditingSetup(false) : undefined}
+                                />
+                            ) : (
+                                <>
+                                    <StudySetupBar setup={setup} onEdit={() => setEditingSetup(true)} />
+                                    <ChatPanel
+                                        pageId={pageId}
+                                        initialMessages={room.messages}
+                                        initialOverview={room.overview}
+                                        onCardsMade={onCardsMade}
+                                    />
+                                </>
+                            )}
                         </div>
                         <div className="flex min-w-0 flex-[1_1_300px] flex-col lg:max-w-[340px]">
                             <StudioPanel

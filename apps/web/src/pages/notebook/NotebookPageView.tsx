@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { ChevronRight, Ellipsis, FileText, Layers, Sparkles, Timer, Trash2, Workflow } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
-import { enterNotebookPage, progressShare, removeNotebookPage } from "@beyou/state";
+import { enterNotebookPage, notebookPageDetailsChanged, progressShare, removeNotebookPage } from "@beyou/state";
 import { deletePage, getPage, savePageContent, updatePage } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage, type ApiErrorPayload } from "@beyou/api/apiError";
 import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
@@ -20,6 +20,8 @@ import { formatMinutes } from "../../components/notebook/board/NodeInspector";
 import Ring from "../../ui/Ring";
 import ErrorNotice from "../../components/ErrorNotice";
 import Modal from "../../components/modals/Modal";
+import NotebookIcon from "../../components/notebook/NotebookIcon";
+import PageIconPicker from "../../components/notebook/PageIconPicker";
 
 type SaveState = "idle" | "saving" | "saved" | "failed";
 
@@ -46,6 +48,7 @@ export default function NotebookPageView() {
     // must never be able to act on a page the person did not choose.
     const [deleting, setDeleting] = useState<{ id: string; title: string; parentId: string | null } | null>(null);
     const [editorKey, setEditorKey] = useState(0);
+    const [pickingIcon, setPickingIcon] = useState(false);
     const changeStatus = useStatusChange();
     const { start, timer } = useNotebookFocus();
 
@@ -82,7 +85,24 @@ export default function NotebookPageView() {
             return;
         }
         const response = await updatePage(page.id, { title: title.trim() }, t);
-        if (response.success) dispatch(enterNotebookPage(response.success));
+        if (response.success) {
+            dispatch(enterNotebookPage(response.success));
+            const { id, title: saved, icon } = response.success;
+            dispatch(notebookPageDetailsChanged({ pageId: id, title: saved, icon }));
+        }
+    };
+
+    /** A blank icon clears it on the server, and the default comes back. */
+    const changeIcon = async (icon: string | null) => {
+        if (!page) return;
+        setPickingIcon(false);
+        const response = await updatePage(page.id, { icon: icon ?? "" }, t);
+        if (!response.success) {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+            return;
+        }
+        dispatch(enterNotebookPage(response.success));
+        dispatch(notebookPageDetailsChanged({ pageId: response.success.id, title: response.success.title, icon: response.success.icon }));
     };
 
     /** The first-block chooser for an empty page writes the document and reloads the editor. */
@@ -103,6 +123,7 @@ export default function NotebookPageView() {
         setDeleting(null);
         setMenuOpen(false);
         setExplaining(null);
+        setPickingIcon(false);
     }, [pageId]);
 
     const remove = async () => {
@@ -190,9 +211,15 @@ export default function NotebookPageView() {
                     </div>
 
                     <div className="mt-8 flex flex-col gap-3.5">
-                        <span className="flex h-14 w-14 items-center justify-center rounded-card bg-accent-soft text-accent">
-                            {page.kind === "TOPIC" ? <Layers size={28} aria-hidden="true" /> : page.hasBoard ? <Workflow size={28} aria-hidden="true" /> : <FileText size={28} aria-hidden="true" />}
-                        </span>
+                        <button type="button" onClick={() => setPickingIcon(true)} aria-label={t("NotebookChangeIcon")} title={t("NotebookChangeIcon")}
+                            data-testid="page-icon"
+                            className="flex h-14 w-14 items-center justify-center rounded-card bg-accent-soft text-accent hover:ring-2 hover:ring-border">
+                            <NotebookIcon icon={page.icon} size={28} fallback={
+                                page.kind === "TOPIC" ? <Layers size={28} aria-hidden="true" />
+                                    : page.hasBoard ? <Workflow size={28} aria-hidden="true" /> : <FileText size={28} aria-hidden="true" />
+                            } />
+                        </button>
+                        <PageIconPicker isOpen={pickingIcon} current={page.icon} onPick={(icon) => void changeIcon(icon)} onClose={() => setPickingIcon(false)} />
                         <input
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}

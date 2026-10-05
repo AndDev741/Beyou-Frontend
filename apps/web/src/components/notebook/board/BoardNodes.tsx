@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { BoardNode } from "@beyou/types/notebook/notebook";
 import { progressShare } from "@beyou/state";
 import StatusIcon, { STATUS_LABEL_KEY } from "../StatusIcon";
+import NotebookIcon from "../NotebookIcon";
 import { NODE_HEIGHT, NODE_WIDTH } from "./boardLayout";
 
 export type PageNodeData = { node: BoardNode; onResizeEnd?: (nodeId: string, width: number, height: number) => void };
@@ -39,7 +40,10 @@ export const PageNodeView = memo(function PageNodeView({ data, selected }: NodeP
             <Handle type="target" position={Position.Left} className="!h-2.5 !w-2.5 !border-2 !border-accent !bg-surface" />
             <StatusIcon status={node.status} size={18} />
             <span className="min-w-0 flex-1 leading-[18px]">
-                <span className="block truncate text-sm font-semibold text-text">{node.title}</span>
+                <span className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-text">
+                    {node.icon && <NotebookIcon icon={node.icon} size={13} fallback={null} className="shrink-0" />}
+                    <span className="truncate">{node.title}</span>
+                </span>
                 <span className="flex items-center gap-1 truncate text-xs text-text-2">
                     {node.linked && <Link2 size={11} aria-label={t("NotebookNodeLinked")} />}
                     {node.linked && node.homeTopicTitle ? node.homeTopicTitle : sub}

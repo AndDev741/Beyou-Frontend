@@ -7,6 +7,7 @@ import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookHome, enterNotebookTree } from "@beyou/state";
 import { createPage, getNotebookHome, getTopicTree } from "@beyou/api/notebook";
 import type { TreeItem } from "@beyou/types/notebook/notebook";
+import NotebookIcon from "./NotebookIcon";
 import StatusIcon from "./StatusIcon";
 
 /**
@@ -80,7 +81,10 @@ export default function PageTree({ topicId, currentPageId }: { topicId: string; 
                             }`
                         }
                     >
-                        {item.onBoard ? <StatusIcon status={status} size={14} /> : <FileText size={14} className="shrink-0 text-text-3" aria-hidden="true" />}
+                        {item.onBoard ? <StatusIcon status={status} size={14} />
+                            : <NotebookIcon icon={item.icon} size={14} fallback={<FileText size={14} className="shrink-0 text-text-3" aria-hidden="true" />} />}
+                        {/* A node's status mark stays first; its own icon, when it has one, goes beside the title. */}
+                        {item.onBoard && item.icon && <NotebookIcon icon={item.icon} size={14} fallback={null} className="shrink-0" />}
                         <span className="truncate">{item.title}</span>
                         {item.linked && <Link2 size={12} className="shrink-0 text-text-3" aria-label={t("NotebookNodeLinked")} />}
                         {item.progress.total > 1 && (
@@ -98,7 +102,7 @@ export default function PageTree({ topicId, currentPageId }: { topicId: string; 
                 <button type="button" onClick={() => setSwitching((v) => !v)} aria-expanded={switching}
                     className="flex w-full items-center gap-2.5 rounded-control px-2 py-1.5 text-left text-sm font-semibold text-text hover:bg-surface-2">
                     <span className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-                        <Layers size={14} aria-hidden="true" />
+                        <NotebookIcon icon={tree?.topic.icon} size={14} fallback={<Layers size={14} aria-hidden="true" />} />
                     </span>
                     <span className="flex-1 truncate">{tree?.topic.title ?? ""}</span>
                     <ChevronDown size={14} className="text-text-3" aria-hidden="true" />

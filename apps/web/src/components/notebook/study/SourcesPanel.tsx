@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AlignLeft, Link2, Plus, Trash2, Upload } from "lucide-react";
+import { AlignLeft, Link2, Plus, Search, Trash2, Upload } from "lucide-react";
 import type { NotebookSource } from "@beyou/types/notebook/notebook";
 import { deleteSource, getSources, setSourceEnabled } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import { toast } from "react-toastify";
 import AddSourceDialog from "./AddSourceDialog";
+import DiscoverSources from "./DiscoverSources";
+import Modal from "../../modals/Modal";
 
 /** How often the list re-reads while a source is still being read. */
 export const SOURCE_POLL_MS = 2000;
@@ -15,6 +17,8 @@ type Props = {
     initialSources: NotebookSource[];
     /** Told whenever the list changes, so the room can show the count elsewhere. */
     onChange?: (sources: NotebookSource[]) => void;
+    /** Whether "find sources for me" has a web search configured. */
+    discovery?: boolean;
 };
 
 const isReading = (s: NotebookSource) => s.status === "PENDING" || s.status === "READING";
@@ -26,10 +30,11 @@ const isReading = (s: NotebookSource) => s.status === "PENDING" || s.status === 
  * READING and stops the moment none is. Switching a source off keeps it in the list but out of
  * every answer, which is the cheap way to ask "what does the book say without my notes?".
  */
-export default function SourcesPanel({ pageId, initialSources, onChange }: Props) {
+export default function SourcesPanel({ pageId, initialSources, onChange, discovery = false }: Props) {
     const { t } = useTranslation();
     const [sources, setSources] = useState<NotebookSource[]>(initialSources);
     const [adding, setAdding] = useState(false);
+    const [finding, setFinding] = useState(false);
 
     useEffect(() => setSources(initialSources), [initialSources]);
 
@@ -38,7 +43,13 @@ export default function SourcesPanel({ pageId, initialSources, onChange }: Props
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
 
+    // The latest list, for additions that arrive one after another in the same render: "find
+    // sources for me" adds each picked source in turn, and a stale list would drop the earlier ones.
+    const latest = useRef(sources);
+    latest.current = sources;
+
     const update = (next: NotebookSource[]) => {
+        latest.current = next;
         setSources(next);
         onChangeRef.current?.(next);
     };
@@ -144,6 +155,14 @@ export default function SourcesPanel({ pageId, initialSources, onChange }: Props
                 </ul>
             )}
 
+            {discovery && (
+                <button type="button" onClick={() => setFinding(true)} data-testid="study-find-sources"
+                    className="inline-flex h-8 items-center justify-center gap-1.5 rounded-[8px] border border-border px-3 text-[13px] font-semibold text-text hover:bg-surface-2">
+                    <Search size={14} aria-hidden="true" />
+                    {t("NotebookDiscoverTitle")}
+                </button>
+            )}
+
             <p className="mt-auto text-xs leading-5 text-text-2">
                 {sources.length === 0
                     ? t("NotebookStudySourcesNotesOnly")
@@ -156,6 +175,12 @@ export default function SourcesPanel({ pageId, initialSources, onChange }: Props
                 onClose={() => setAdding(false)}
                 onAdded={(source) => update([...sources, source])}
             />
+            <Modal isOpen={finding} onClose={() => setFinding(false)} labelledBy="discover-title" className="!max-w-2xl">
+                <div className="flex w-full flex-col gap-3">
+                    <h2 id="discover-title" className="text-lg font-semibold text-text">{t("NotebookDiscoverTitle")}</h2>
+                    <DiscoverSources pageId={pageId} autoFocus onAdded={(source) => update([...latest.current, source])} />
+                </div>
+            </Modal>
         </section>
     );
 }

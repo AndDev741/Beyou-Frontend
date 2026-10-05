@@ -1924,6 +1924,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notebook/pages/{pageId}/study/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["saveSetup"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/pages/{pageId}/discover-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["discoverSources"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3552,6 +3584,9 @@ export interface components {
             cardsTotal?: number;
             /** Format: int32 */
             cardsDue?: number;
+            setup?: components["schemas"]["StudySetupDTO"];
+            scopes?: components["schemas"]["StudyScopeOptionDTO"][];
+            discovery?: boolean;
         };
         SuggestNodesRequestDTO: {
             fromSources?: boolean;
@@ -3680,6 +3715,41 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
+        };
+        StudySetupRequestDTO: {
+            goal?: string;
+            /** @enum {string} */
+            scope: "PAGE" | "SUBTREE" | "TOPIC";
+        };
+        DiscoveredSourceDTO: {
+            title?: string;
+            url?: string;
+            domain?: string;
+            summary?: string;
+        };
+        StudySetupDTO: {
+            goal?: string;
+            /** @enum {string} */
+            scope?: "PAGE" | "SUBTREE" | "TOPIC";
+            /** Format: date-time */
+            configuredAt?: string;
+        };
+        DiscoverSourcesRequestDTO: {
+            description: string;
+        };
+        DiscoveryResultDTO: {
+            provider?: string;
+            sources?: components["schemas"]["DiscoveredSourceDTO"][];
+            /** Format: int32 */
+            skipped?: number;
+        };
+        StudyScopeOptionDTO: {
+            /** @enum {string} */
+            scope?: "PAGE" | "SUBTREE" | "TOPIC";
+            /** Format: int32 */
+            pages?: number;
+            /** Format: int32 */
+            words?: number;
         };
     };
     responses: never;
@@ -7198,6 +7268,58 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    saveSetup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudySetupRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StudySetupDTO"];
+                };
+            };
+        };
+    };
+    discoverSources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscoverSourcesRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DiscoveryResultDTO"];
+                };
             };
         };
     };

@@ -312,7 +312,27 @@ export type StudyRoom = {
     sources: NotebookSource[];
     cardsTotal: number;
     cardsDue: number;
+    /** The room's goal and notes scope. `configuredAt` null opens the setup screen. */
+    setup: StudySetup;
+    /** What each notes scope would read, for the setup screen. */
+    scopes: StudyScopeOption[];
+    /** Whether "find sources for me" has a web search configured. */
+    discovery: boolean;
 };
+
+/** Whose notes the study AI reads. Every scope keeps the pages above the page for context. */
+export type StudyScope = 'PAGE' | 'SUBTREE' | 'TOPIC';
+
+export type StudySetup = { goal: string | null; scope: StudyScope; configuredAt: string | null };
+
+/** `pages` that have notes in the scope, and the `words` across them. */
+export type StudyScopeOption = { scope: StudyScope; pages: number; words: number };
+
+/** A page the web search found and the server opened; `url` is where it really lands. */
+export type DiscoveredSource = { title: string; url: string; domain: string; summary: string };
+
+/** `skipped`: results dropped because they did not open, were private, or are already sources. */
+export type DiscoveryResult = { provider: string; sources: DiscoveredSource[]; skipped: number };
 
 // --------------------------------------------------------------------- AI
 

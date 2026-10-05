@@ -13,6 +13,8 @@ import Button from '../../../src/ui/Button';
 import Card from '../../../src/ui/Card';
 import Chip from '../../../src/ui/Chip';
 import Ring from '../../../src/ui/Ring';
+import IconTile from '../../../src/ui/IconTile';
+import BeyouIcon from '../../../src/ui/BeyouIcon';
 import SegmentedControl from '../../../src/ui/SegmentedControl';
 import BlockRenderer from '../../../src/notebook/BlockRenderer';
 import PathView from '../../../src/notebook/PathView';
@@ -136,9 +138,16 @@ export default function NotebookPageScreen() {
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 14 }}>
-        <Text accessibilityRole="header" className="text-[26px] font-bold leading-[32px] text-text" testID="notebook-page-title">
-          {page.title}
-        </Text>
+        <View className="flex-row items-center gap-3">
+          {page.icon ? (
+            <IconTile size={44}>
+              <BeyouIcon id={page.icon} size={22} color={theme.accent} />
+            </IconTile>
+          ) : null}
+          <Text accessibilityRole="header" className="flex-1 text-[26px] font-bold leading-[32px] text-text" testID="notebook-page-title">
+            {page.title}
+          </Text>
+        </View>
 
         <View className="flex-row items-center gap-3">
           <Ring size={44} state="progress" progress={progressShare(page.progress)} label={`${percent}%`} />

@@ -4772,6 +4772,88 @@
           }
         }
       }
+    },
+    "/notebook/pages/{pageId}/study/setup": {
+      "put": {
+        "tags": [
+          "notebook-study-controller"
+        ],
+        "operationId": "saveSetup",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudySetupRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudySetupDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/pages/{pageId}/discover-sources": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "discoverSources",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoverSourcesRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -9333,6 +9415,18 @@
           "cardsDue": {
             "type": "integer",
             "format": "int32"
+          },
+          "setup": {
+            "$ref": "#/components/schemas/StudySetupDTO"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudyScopeOptionDTO"
+            }
+          },
+          "discovery": {
+            "type": "boolean"
           }
         }
       },
@@ -9698,6 +9792,116 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "StudySetupRequestDTO": {
+        "type": "object",
+        "properties": {
+          "goal": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 0
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "SUBTREE",
+              "TOPIC"
+            ]
+          }
+        },
+        "required": [
+          "scope"
+        ]
+      },
+      "DiscoveredSourceDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
+      "StudySetupDTO": {
+        "type": "object",
+        "properties": {
+          "goal": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "SUBTREE",
+              "TOPIC"
+            ]
+          },
+          "configuredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DiscoverSourcesRequestDTO": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "description"
+        ]
+      },
+      "DiscoveryResultDTO": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiscoveredSourceDTO"
+            }
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "StudyScopeOptionDTO": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "PAGE",
+              "SUBTREE",
+              "TOPIC"
+            ]
+          },
+          "pages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "words": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }

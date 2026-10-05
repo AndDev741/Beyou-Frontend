@@ -1,8 +1,8 @@
 import { TFunction } from 'i18next';
 import type {
-    Answer, ChatTurn, CreateFromDraftRequest, DraftChoice, Flashcard, NotebookPage, QuizResult,
+    Answer, ChatTurn, CreateFromDraftRequest, DiscoveryResult, DraftChoice, Flashcard, NotebookPage, QuizResult,
     RoadmapDraftRecord, RoadmapDraftRequest, RoadmapDraftSummary, StudyOutput, StudyOutputKind, StudyRoom,
-    SuggestedNode,
+    StudyScope, StudySetup, SuggestedNode,
 } from '@beyou/types/notebook/notebook';
 import { call, http, Result } from './result';
 
@@ -13,6 +13,10 @@ import { call, http, Result } from './result';
 
 export const getStudyRoom = (pageId: string, t: TFunction): Promise<Result<StudyRoom>> =>
     call(() => http().get<StudyRoom>(`/notebook/pages/${pageId}/study`), t);
+
+/** The study room's setup: a goal and whose notes the AI reads. A blank goal clears it. */
+export const saveStudySetup = (pageId: string, setup: { goal: string; scope: StudyScope }, t: TFunction): Promise<Result<StudySetup>> =>
+    call(() => http().put<StudySetup>(`/notebook/pages/${pageId}/study/setup`, setup), t);
 
 export const clearStudyChat = (pageId: string, t: TFunction): Promise<Result<void>> =>
     call(() => http().delete<void>(`/notebook/pages/${pageId}/study/messages`), t);
@@ -70,6 +74,13 @@ export const deleteRoadmapDraft = (draftId: string, t: TFunction): Promise<Resul
 /** Creates the reviewed draft in one transaction. */
 export const createTopicFromDraft = (request: CreateFromDraftRequest, t: TFunction): Promise<Result<NotebookPage>> =>
     call(() => http().post<NotebookPage>('/notebook/topics/from-draft', request), t);
+
+/**
+ * "Find sources for me": a web search for what the person described, each result opened on the
+ * server. Nothing is stored; add the picked ones with addLinkSource.
+ */
+export const discoverSources = (pageId: string, description: string, t: TFunction): Promise<Result<DiscoveryResult>> =>
+    call(() => http().post<DiscoveryResult>(`/notebook/ai/pages/${pageId}/discover-sources`, { description }, { timeout: AI_TIMEOUT }), t);
 
 export const suggestNodes = (pageId: string, fromSources: boolean, t: TFunction): Promise<Result<SuggestedNode[]>> =>
     call(() => http().post<SuggestedNode[]>(`/notebook/ai/pages/${pageId}/suggest-nodes`, { fromSources },

@@ -303,8 +303,11 @@ export {
     enterBoardEdge,
     removeBoardEdge,
     notebookStatusesChanged,
+    notebookPageDetailsChanged,
     clearNotebook,
 } from './notebook/notebookSlice';
 export type { NotebookState } from './notebook/notebookSlice';
 export { applyStatuses } from './notebook/notebookStatus';
+export { applyPageDetails } from './notebook/notebookDetails';
+export type { PageDetails } from './notebook/notebookDetails';
 export { pathLevels, prerequisitesOf, progressShare } from './notebook/notebookPath';

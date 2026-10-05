@@ -15,6 +15,7 @@ import MiniRoadmap from "../../components/notebook/MiniRoadmap";
 import NewTopicModal from "../../components/notebook/NewTopicModal";
 import AiTopicDialog from "../../components/notebook/AiTopicDialog";
 import { AiWaitingLine } from "../../components/notebook/aiWaiting";
+import NotebookIcon from "../../components/notebook/NotebookIcon";
 import Modal from "../../components/modals/Modal";
 import { useNotebookFocus } from "../../components/notebook/useNotebookFocus";
 
@@ -117,7 +118,7 @@ export default function NotebookHome() {
                             <span className="text-xs font-semibold uppercase tracking-[0.06em] text-text-2">{t("NotebookContinue")}</span>
                             <div className="flex items-center gap-3">
                                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                                    <Workflow size={22} aria-hidden="true" />
+                                    <NotebookIcon icon={continuing.icon} size={22} fallback={<Workflow size={22} aria-hidden="true" />} />
                                 </span>
                                 <div className="min-w-0">
                                     <p className="text-lg font-semibold tracking-[-0.01em]">{continuing.title}</p>
@@ -240,7 +241,7 @@ function TopicCard({ topic }: { topic: TopicSummary }) {
             <MiniRoadmap nodes={topic.preview} edges={topic.previewEdges} />
             <div className="flex items-start gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent">
-                    <Layers size={18} aria-hidden="true" />
+                    <NotebookIcon icon={topic.icon} size={18} fallback={<Layers size={18} aria-hidden="true" />} />
                 </span>
                 <div className="min-w-0">
                     <p className="text-base font-semibold text-text">{topic.title}</p>

@@ -50,7 +50,8 @@ repository.
   erase what you wrote that morning. Only the diary page's Save button replaces an entry.
 - **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
   page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
-  answers from your notes and sources (PDFs, links, pasted text) with citations you can open. In
+  answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
+  asks what you are after before you start, and it can search the web for sources for you. In
   v1 the phone reads the roadmap as a path and runs reviews, and writing stays on the web.
 - **AI assistant** — a streaming chat whose tools call the same API the buttons do, so it passes the
   same ownership checks and validation. It can read your mood levels. It cannot read your journal.

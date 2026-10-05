@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Board, BoardNode, NotebookPage } from '@beyou/types/notebook/notebook';
-import reducer, { enterBoard, enterNotebookPage, notebookStatusesChanged, removeNotebookPage } from '../notebookSlice';
+import reducer, {
+    enterBoard, enterNotebookPage, enterNotebookTree, notebookPageDetailsChanged, notebookStatusesChanged, removeNotebookPage,
+} from '../notebookSlice';
 import { pathLevels, prerequisitesOf, progressShare } from '../notebookPath';
 
 const node = (id: string, pageId: string, x: number, y = 0): BoardNode => ({
@@ -37,6 +39,26 @@ describe('notebook slice', () => {
         expect(state.pages['p-ds'].status).toBe('DONE');
         expect(state.boards.t.nodes.find((n) => n.id === 'ds')?.status).toBe('DONE');
         expect(state.boards.t.nodes.find((n) => n.id === 'os')?.status).toBe('TO_STUDY');
+    });
+
+    /** An icon or a new title shows on the board, in the tree and in the crumbs below, at once. */
+    it('writes a page\'s title and icon everywhere the page is shown', () => {
+        let state = reducer(undefined, enterBoard(board()));
+        state = reducer(state, enterNotebookPage(page('p-ds')));
+        state = reducer(state, enterNotebookPage({ ...page('p-trees'), breadcrumb: [{ id: 'p-ds', title: 'p-ds', icon: null }] }));
+        state = reducer(state, enterNotebookTree({
+            topic: { id: 't', title: 'Software', icon: null }, sourcesCount: 0, cardsDue: 0,
+            items: [{ id: 'p-ds', parentId: 't', title: 'p-ds', icon: null, status: 'TO_STUDY', onBoard: true,
+                linked: false, progress: { done: 0, total: 1 }, position: 0 }],
+        }));
+
+        state = reducer(state, notebookPageDetailsChanged({ pageId: 'p-ds', title: 'Data Structures', icon: 'lucide:binary' }));
+
+        expect(state.pages['p-ds']).toMatchObject({ title: 'Data Structures', icon: 'lucide:binary' });
+        expect(state.pages['p-trees'].breadcrumb[0]).toMatchObject({ title: 'Data Structures', icon: 'lucide:binary' });
+        expect(state.boards.t.nodes.find((n) => n.id === 'ds')).toMatchObject({ title: 'Data Structures', icon: 'lucide:binary' });
+        expect(state.boards.t.nodes.find((n) => n.id === 'os')?.icon).toBeNull();
+        expect(state.trees.t.items[0]).toMatchObject({ title: 'Data Structures', icon: 'lucide:binary' });
     });
 
     it('removing a page takes its node and the edges touching it off every board', () => {
