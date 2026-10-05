@@ -124,7 +124,6 @@ export default defineConfig({
       '@blocknote/mantine',
       '@mantine/core',
       '@xyflow/react',
-      '@dagrejs/dagre',
     ],
   },
   build: {

@@ -58,7 +58,7 @@ export default function BoardBlock({ pageId }: { pageId: string }) {
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-text-2 hover:bg-surface-2">
                         <Plus size={14} aria-hidden="true" />{t("NotebookBoardNode")}
                     </button>
-                    <button type="button" onClick={() => void tidy()} disabled={nodes.length < 2}
+                    <button type="button" onClick={() => void tidy()} disabled={nodes.length < 2} data-testid="board-tidy"
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold text-text-2 hover:bg-surface-2 disabled:opacity-50">
                         <LayoutGrid size={14} aria-hidden="true" />{t("NotebookBoardTidy")}
                     </button>

@@ -102,7 +102,7 @@ beyou-app/
 | Forms | react-hook-form + Zod | react-hook-form + Zod |
 | HTTP | axios adapter | `fetch` adapter |
 | Notebook editor | BlockNote 0.55 on Mantine 8 (Mantine 9 needs React 19) | Read-only native block renderer, no WebView |
-| Notebook board | React Flow (`@xyflow/react`) + dagre for "Tidy up" | The board read as a path, level by level |
+| Notebook board | React Flow (`@xyflow/react`), with "Tidy up" laying nodes on a three-to-a-row grid | The board read as a path, level by level |
 | Tests | Vitest + Testing Library | Jest (`jest-expo`) + Testing Library |
 
 ## Prerequisites
