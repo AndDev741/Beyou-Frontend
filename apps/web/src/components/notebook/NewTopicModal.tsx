@@ -30,7 +30,7 @@ export default function NewTopicModal({ isOpen, onClose }: { isOpen: boolean; on
     return (
         <Modal isOpen={isOpen} onClose={onClose} labelledBy="new-topic-title">
             <form
-                className="flex w-[min(440px,85vw)] flex-col gap-4"
+                className="flex w-full flex-col gap-4"
                 onSubmit={(e) => {
                     e.preventDefault();
                     void submit();

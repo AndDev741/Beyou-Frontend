@@ -139,7 +139,7 @@ export default function NodeInspector({
             </button>
 
             <Modal isOpen={confirming} onClose={() => setConfirming(false)} labelledBy="remove-node-title">
-                <div className="flex max-w-sm flex-col gap-3 p-1">
+                <div className="flex w-full flex-col gap-3 p-1">
                     <h3 id="remove-node-title" className="text-lg font-semibold text-text">{t("NotebookRemoveTitle", { title: node.title })}</h3>
                     <p className="text-sm text-text-2">
                         {node.kind === "PAGE" && !node.linked ? t("NotebookRemoveExplain") : t("NotebookRemoveLinkedExplain")}

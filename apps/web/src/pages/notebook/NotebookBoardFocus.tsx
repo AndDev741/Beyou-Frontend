@@ -192,7 +192,7 @@ export default function NotebookBoardFocus() {
             </div>
 
             <Modal isOpen={tool === "link"} onClose={() => setTool(null)} labelledBy="link-page-title">
-                <div className="flex w-[min(420px,85vw)] flex-col gap-3">
+                <div className="flex w-full flex-col gap-3">
                     <h2 id="link-page-title" className="text-lg font-semibold text-text">{t("NotebookToolLinkPage")}</h2>
                     <p className="text-sm text-text-2">{t("NotebookLinkExplain")}</p>
                     <LinkPagePicker

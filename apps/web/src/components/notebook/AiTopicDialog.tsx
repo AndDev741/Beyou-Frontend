@@ -109,7 +109,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} labelledBy="ai-topic-title" className="!max-w-[1080px] !p-0">
-            <div className="flex max-h-[85vh] w-[min(1080px,92vw)] flex-wrap overflow-y-auto rounded-[24px] bg-surface" data-testid="ai-topic-dialog">
+            <div className="flex max-h-[85vh] w-full flex-wrap overflow-y-auto rounded-[24px] bg-surface" data-testid="ai-topic-dialog">
                 <form
                     className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 border-border p-6 md:max-w-[400px] md:border-r"
                     onSubmit={(e) => {

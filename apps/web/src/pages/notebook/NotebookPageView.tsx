@@ -263,7 +263,7 @@ export default function NotebookPageView() {
             </main>
 
             <Modal isOpen={confirmDelete} onClose={() => setConfirmDelete(false)} labelledBy="delete-page-title">
-                <div className="flex max-w-sm flex-col gap-3">
+                <div className="flex w-full flex-col gap-3">
                     <h2 id="delete-page-title" className="text-lg font-semibold text-text">{t("NotebookDeleteTitle", { title: page.title })}</h2>
                     <p className="text-sm text-text-2">{t("NotebookDeleteExplain")}</p>
                     <div className="flex justify-end gap-2">
