@@ -3724,36 +3724,6 @@
         }
       }
     },
-    "/notebook/ai/roadmap-draft": {
-      "post": {
-        "tags": [
-          "notebook-ai-controller"
-        ],
-        "operationId": "roadmapDraft",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RoadmapDraftRequestDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/RoadmapDraftDTO"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/notebook/ai/pages/{pageId}/suggest-nodes": {
       "post": {
         "tags": [
@@ -4600,6 +4570,194 @@
         "parameters": [
           {
             "name": "edgeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/notebook/drafts/{draftId}/choices": {
+      "put": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "saveDraftChoices",
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftChoicesRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoadmapDraftRecordDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/drafts": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "startDraft",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoadmapDraftRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoadmapDraftRecordDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/ai/drafts/{draftId}/redraft": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "redraft",
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoadmapDraftRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoadmapDraftRecordDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/drafts": {
+      "get": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "drafts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoadmapDraftSummaryDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notebook/drafts/{draftId}": {
+      "get": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "draft",
+        "parameters": [
+          {
+            "name": "draftId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoadmapDraftRecordDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "deleteDraft",
+        "parameters": [
+          {
+            "name": "draftId",
             "in": "path",
             "required": true,
             "schema": {
@@ -8117,6 +8275,10 @@
             },
             "maxItems": 20,
             "minItems": 0
+          },
+          "draftId": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
@@ -9429,6 +9591,115 @@
         "required": [
           "enabled"
         ]
+      },
+      "RoadmapDraftSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFTING",
+              "READY",
+              "FAILED"
+            ]
+          },
+          "nodeCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorKey": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DraftChoicesRequestDTO": {
+        "type": "object",
+        "properties": {
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftChoiceDTO"
+            },
+            "maxItems": 20,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "choices"
+        ]
+      },
+      "DraftChoiceDTO": {
+        "type": "object",
+        "properties": {
+          "keep": {
+            "type": "boolean"
+          },
+          "link": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RoadmapDraftRecordDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFTING",
+              "READY",
+              "FAILED"
+            ]
+          },
+          "request": {
+            "$ref": "#/components/schemas/RoadmapDraftRequestDTO"
+          },
+          "result": {
+            "$ref": "#/components/schemas/RoadmapDraftDTO"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DraftChoiceDTO"
+            }
+          },
+          "errorKey": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   }

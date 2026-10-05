@@ -358,6 +358,42 @@ export type CreateFromDraftRequest = {
     categoryId?: string | null;
     habitId?: string | null;
     nodes: DraftNodeInput[];
+    /** The stored draft this came from; the server deletes it once the topic exists. */
+    draftId?: string | null;
+};
+
+/** DRAFTING while the model writes it in the background; the client polls until it is not. */
+export type RoadmapDraftStatus = 'DRAFTING' | 'READY' | 'FAILED';
+
+/** What the person decided about one drafted node, in the order of the draft's nodes. */
+export type DraftChoice = { keep: boolean; link: boolean };
+
+/** A stored draft, enough to put the dialog back exactly where the person left it. */
+export type RoadmapDraftRecord = {
+    id: string;
+    title: string;
+    status: RoadmapDraftStatus;
+    request: RoadmapDraftRequest;
+    /** Null until the first call ends. During a redraft it is still the previous result. */
+    result: RoadmapDraft | null;
+    /** One per node of `result`, or null when the person has not changed any. */
+    choices: DraftChoice[] | null;
+    errorKey: string | null;
+    /** When the current or last model call began. */
+    startedAt: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+/** A draft as the notebook home lists it. */
+export type RoadmapDraftSummary = {
+    id: string;
+    title: string;
+    status: RoadmapDraftStatus;
+    nodeCount: number;
+    errorKey: string | null;
+    startedAt: string;
+    updatedAt: string;
 };
 
 export type SuggestedNode = { title: string; why: string };

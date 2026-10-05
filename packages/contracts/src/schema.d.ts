@@ -1524,22 +1524,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/notebook/ai/roadmap-draft": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["roadmapDraft"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/notebook/ai/pages/{pageId}/suggest-nodes": {
         parameters: {
             query?: never;
@@ -1855,6 +1839,86 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["deleteEdge"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/drafts/{draftId}/choices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["saveDraftChoices"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["startDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/ai/drafts/{draftId}/redraft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["redraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["drafts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notebook/drafts/{draftId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["draft"];
+        put?: never;
+        post?: never;
+        delete: operations["deleteDraft"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3130,6 +3194,8 @@ export interface components {
             /** Format: uuid */
             habitId?: string;
             nodes: components["schemas"]["DraftNodeInputDTO"][];
+            /** Format: uuid */
+            draftId?: string;
         };
         CreateNodeRequestDTO: {
             /** @enum {string} */
@@ -3576,6 +3642,44 @@ export interface components {
         };
         UpdateSourceRequestDTO: {
             enabled: boolean;
+        };
+        RoadmapDraftSummaryDTO: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            /** @enum {string} */
+            status?: "DRAFTING" | "READY" | "FAILED";
+            /** Format: int32 */
+            nodeCount?: number;
+            errorKey?: string;
+            /** Format: date-time */
+            startedAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        DraftChoicesRequestDTO: {
+            choices: components["schemas"]["DraftChoiceDTO"][];
+        };
+        DraftChoiceDTO: {
+            keep?: boolean;
+            link?: boolean;
+        };
+        RoadmapDraftRecordDTO: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            /** @enum {string} */
+            status?: "DRAFTING" | "READY" | "FAILED";
+            request?: components["schemas"]["RoadmapDraftRequestDTO"];
+            result?: components["schemas"]["RoadmapDraftDTO"];
+            choices?: components["schemas"]["DraftChoiceDTO"][];
+            errorKey?: string;
+            /** Format: date-time */
+            startedAt?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
     };
     responses: never;
@@ -6362,30 +6466,6 @@ export interface operations {
             };
         };
     };
-    roadmapDraft: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RoadmapDraftRequestDTO"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RoadmapDraftDTO"];
-                };
-            };
-        };
-    };
     suggestNodes: {
         parameters: {
             query?: never;
@@ -6969,6 +7049,144 @@ export interface operations {
             header?: never;
             path: {
                 edgeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    saveDraftChoices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftChoicesRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RoadmapDraftRecordDTO"];
+                };
+            };
+        };
+    };
+    startDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoadmapDraftRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RoadmapDraftRecordDTO"];
+                };
+            };
+        };
+    };
+    redraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoadmapDraftRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RoadmapDraftRecordDTO"];
+                };
+            };
+        };
+    };
+    drafts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RoadmapDraftSummaryDTO"][];
+                };
+            };
+        };
+    };
+    draft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RoadmapDraftRecordDTO"];
+                };
+            };
+        };
+    };
+    deleteDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                draftId: string;
             };
             cookie?: never;
         };

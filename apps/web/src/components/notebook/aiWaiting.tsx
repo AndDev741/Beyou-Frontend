@@ -12,14 +12,23 @@ import { useTranslation } from "react-i18next";
  */
 export const AI_SLOW_AFTER_SECONDS = 30;
 
-/** Seconds since the component mounted. Mount it when the wait starts. */
-export function useElapsedSeconds(): number {
-    const [seconds, setSeconds] = useState(0);
+/**
+ * Seconds since `since` (an ISO time from the server), or since the component mounted when there
+ * is none. A wait that began before this screen opened, like a draft reopened halfway through,
+ * shows how long it has really been running. Never below zero, whatever the two clocks say.
+ */
+export function useElapsedSeconds(since?: string | null): number {
+    const [mountedAt] = useState(() => Date.now());
+    const parsed = since ? Date.parse(since) : NaN;
+    const started = Number.isNaN(parsed) ? mountedAt : parsed;
+    const elapsed = () => Math.max(0, Math.floor((Date.now() - started) / 1000));
+    const [seconds, setSeconds] = useState(elapsed);
     useEffect(() => {
-        const started = Date.now();
-        const id = window.setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000);
+        const tick = () => setSeconds(Math.max(0, Math.floor((Date.now() - started) / 1000)));
+        tick();
+        const id = window.setInterval(tick, 1000);
         return () => window.clearInterval(id);
-    }, []);
+    }, [started]);
     return seconds;
 }
 
@@ -30,9 +39,11 @@ export const formatElapsed = (seconds: number) => `${Math.floor(seconds / 60)}:$
  * going. The timer is hidden from screen readers so it is not read out every second; the label
  * and the note are what a live region around this announces.
  */
-export function AiWaitingLine({ label, slowNote = true, className = "" }: { label: string; slowNote?: boolean; className?: string }) {
+export function AiWaitingLine({ label, slowNote = true, className = "", since }: {
+    label: string; slowNote?: boolean; className?: string; since?: string | null;
+}) {
     const { t } = useTranslation();
-    const seconds = useElapsedSeconds();
+    const seconds = useElapsedSeconds(since);
     return (
         <span className={`inline-flex flex-col gap-0.5 ${className}`} data-testid="ai-waiting">
             <span>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -6,9 +6,13 @@ import { RotateCcw, Sparkles, X } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { enterGoals } from "@beyou/state/goal/goalsSlice";
 import getGoals from "@beyou/api/goals/getGoals";
-import { createTopicFromDraft, draftRoadmap } from "@beyou/api/notebook";
+import {
+    createTopicFromDraft, getRoadmapDraft, redraftRoadmap, saveDraftChoices, startRoadmapDraft,
+} from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import type { DraftNode, DraftNodeInput, StudyLevel } from "@beyou/types/notebook/notebook";
+import type {
+    DraftChoice, DraftNode, DraftNodeInput, RoadmapDraftRecord, RoadmapDraftRequest, StudyLevel,
+} from "@beyou/types/notebook/notebook";
 import Modal from "../modals/Modal";
 import ErrorNotice from "../ErrorNotice";
 import { AI_SLOW_AFTER_SECONDS, formatElapsed, useElapsedSeconds } from "./aiWaiting";
@@ -22,14 +26,44 @@ const LEVELS: { value: StudyLevel; key: string }[] = [
     { value: "SOLID", key: "NotebookAiLevelSolid" },
 ];
 
+/** How often an open dialog reads back a draft the model is still writing. */
+export const DRAFT_POLL_MS = 2500;
+/** Ticks are saved this long after the last change, and at once when the dialog closes. */
+const CHOICES_SAVE_MS = 600;
+
+/** The drafted nodes with the person's ticks on them, or the defaults where there are none. */
+const rowsOf = (draft: RoadmapDraftRecord): Row[] | null =>
+    draft.result?.nodes.map((node, i) => {
+        const choices = draft.choices?.length === draft.result?.nodes.length ? draft.choices : null;
+        const choice = choices?.[i];
+        return {
+            ...node,
+            keep: choice ? choice.keep : !node.optional,
+            link: !!node.existingPageId && (choice ? choice.link : true),
+        };
+    }) ?? null;
+
 /**
  * "New topic with AI": describe what to learn, review the drafted roadmap, then create it.
  *
- * Nothing is stored until "Create". The draft can be revised in words ("split Discrete Math in
- * two"), nodes can be left out, and a node the person already has elsewhere is offered as a link
- * so one page and one progress serve both topics.
+ * "Draft" stores the draft on the server and the model writes it in the background, so the
+ * dialog can be closed at any point, on purpose or by a click outside it, and nothing is lost:
+ * the draft waits on the notebook home and opens back here with its form, its nodes and the
+ * person's ticks (`draftId`). While the model works the dialog reads the draft back every few
+ * seconds. Creating the topic deletes the draft.
+ *
+ * Nothing in the notebook changes until "Create". The draft can be revised in words ("split
+ * Discrete Math in two"), nodes can be left out, and a node the person already has elsewhere is
+ * offered as a link so one page and one progress serve both topics.
  */
-export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraftsChanged }: {
+    isOpen: boolean;
+    onClose: () => void;
+    /** Opens this stored draft instead of an empty form. */
+    draftId?: string | null;
+    /** Called when a draft was started, finished, or turned into a topic, so a list can refresh. */
+    onDraftsChanged?: () => void;
+}) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -40,13 +74,14 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
     const [hours, setHours] = useState(6);
     const [goalId, setGoalId] = useState("");
     const [reference, setReference] = useState("");
+    const [draft, setDraft] = useState<RoadmapDraftRecord | null>(null);
     const [rows, setRows] = useState<Row[] | null>(null);
     const [change, setChange] = useState("");
     const [busy, setBusy] = useState<"draft" | "create" | null>(null);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
-    // Bumped by Stop and by closing: an answer that comes back for an older run is dropped.
-    // The server cannot be told to stop, but nothing it drafts is stored until "Create".
-    const draftRun = useRef(0);
+    const pendingChoices = useRef<{ draftId: string; choices: DraftChoice[] } | null>(null);
+    const saveTimer = useRef<number | undefined>(undefined);
+    const drafting = draft?.status === "DRAFTING";
 
     useEffect(() => {
         if (isOpen && goals.length === 0) {
@@ -54,15 +89,73 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
         }
     }, [isOpen, goals.length, t, dispatch]);
 
-    const draft = async (revision?: string) => {
-        if (!title.trim()) return;
-        const run = ++draftRun.current;
+    /** Shows what the server has. `refill` also puts the request back into the form. */
+    const apply = useCallback((next: RoadmapDraftRecord, refill: boolean) => {
+        setDraft(next);
+        setRows(rowsOf(next));
+        setError(next.status === "FAILED" && next.errorKey ? { errorKey: next.errorKey } : null);
+        if (refill) {
+            setTitle(next.request.title);
+            setWhy(next.request.why ?? "");
+            setLevel(next.request.level ?? "SOME");
+            setHours(next.request.hoursPerWeek ?? 6);
+            setGoalId(next.request.goalId ?? "");
+            setReference(next.request.references?.[0] ?? "");
+        }
+    }, []);
+
+    // A stored draft opens where the person left it.
+    useEffect(() => {
+        if (!isOpen || !draftId) return;
+        let current = true;
+        void getRoadmapDraft(draftId, t).then((response) => {
+            if (!current) return;
+            if (response.success) apply(response.success, true);
+            else setError(response.error ?? null);
+        });
+        return () => { current = false; };
+    }, [isOpen, draftId, t, apply]);
+
+    // While the model writes, read the draft back until it is READY or FAILED.
+    useEffect(() => {
+        if (!isOpen || !draft || draft.status !== "DRAFTING") return;
+        const id = draft.id;
+        const timer = window.setInterval(() => {
+            void getRoadmapDraft(id, t).then((response) => {
+                if (response.success?.id !== id || response.success.status === "DRAFTING") return;
+                apply(response.success, false);
+                onDraftsChanged?.();
+            });
+        }, DRAFT_POLL_MS);
+        return () => window.clearInterval(timer);
+    }, [isOpen, draft, t, apply, onDraftsChanged]);
+
+    const flushChoices = useCallback(async () => {
+        window.clearTimeout(saveTimer.current);
+        const pending = pendingChoices.current;
+        pendingChoices.current = null;
+        if (pending) await saveDraftChoices(pending.draftId, pending.choices, t);
+    }, [t]);
+
+    /** Changes one row and saves the ticks shortly after, so a reopened draft has them. */
+    const updateRow = (index: number, patch: Partial<Row>) => {
+        if (!rows || !draft || drafting) return;
+        const next = rows.map((row, i) => (i === index ? { ...row, ...patch } : row));
+        setRows(next);
+        pendingChoices.current = { draftId: draft.id, choices: next.map((r) => ({ keep: r.keep, link: r.link })) };
+        window.clearTimeout(saveTimer.current);
+        saveTimer.current = window.setTimeout(() => void flushChoices(), CHOICES_SAVE_MS);
+    };
+
+    const runDraft = async (revision?: string) => {
+        if (!title.trim() || busy || drafting) return;
         setBusy("draft");
         setError(null);
+        await flushChoices();
         const previous: DraftNodeInput[] | undefined = revision && rows
             ? rows.filter((r) => r.keep).map((r) => ({ title: r.title, subtopics: r.subtopics }))
             : undefined;
-        const response = await draftRoadmap({
+        const request: RoadmapDraftRequest = {
             title: title.trim(),
             why: why.trim() || undefined,
             level,
@@ -71,24 +164,21 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
             references: reference.trim() ? [reference.trim()] : undefined,
             changeRequest: revision,
             previous,
-        }, t);
-        if (run !== draftRun.current) return;
+        };
+        const response = draft ? await redraftRoadmap(draft.id, request, t) : await startRoadmapDraft(request, t);
         setBusy(null);
         if (!response.success) {
             setError(response.error ?? null);
             return;
         }
-        setRows(response.success.nodes.map((n) => ({ ...n, keep: !n.optional, link: !!n.existingPageId })));
+        apply(response.success, false);
         setChange("");
+        onDraftsChanged?.();
     };
 
-    const stopDraft = () => {
-        draftRun.current++;
-        setBusy(null);
-    };
-
+    /** Closing never loses anything: the draft is on the server, and pending ticks go now. */
     const close = () => {
-        if (busy === "draft") stopDraft();
+        void flushChoices();
         onClose();
     };
 
@@ -98,6 +188,8 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
         if (kept.length === 0) return;
         setBusy("create");
         setError(null);
+        window.clearTimeout(saveTimer.current);
+        pendingChoices.current = null;
         const response = await createTopicFromDraft({
             title: title.trim(),
             description: why.trim() || null,
@@ -109,12 +201,14 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                 estimatedHours: r.estimatedHours,
                 linkPageId: r.link ? r.existingPageId : null,
             })),
+            draftId: draft?.id ?? null,
         }, t);
         setBusy(null);
         if (!response.success) {
             setError(response.error ?? null);
             return;
         }
+        onDraftsChanged?.();
         onClose();
         navigate(`/notebook/${response.success.id}`);
     };
@@ -130,7 +224,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                     className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 border-border p-6 md:max-w-[400px] md:border-r"
                     onSubmit={(e) => {
                         e.preventDefault();
-                        void draft();
+                        void runDraft();
                     }}
                 >
                     <div className="flex items-center gap-2.5">
@@ -189,10 +283,10 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                             placeholder={t("NotebookAiBasedOnPlaceholder")}
                             className="h-[42px] rounded-control border border-border bg-surface px-3 text-sm font-normal text-text outline-none focus:border-accent" />
                     </label>
-                    <button type="submit" disabled={!title.trim() || busy !== null} data-testid="ai-topic-draft"
+                    <button type="submit" disabled={!title.trim() || busy !== null || drafting} data-testid="ai-topic-draft"
                         className="mt-auto inline-flex h-[42px] items-center justify-center gap-2 rounded-control border border-border bg-surface text-sm font-semibold text-text hover:bg-surface-2 disabled:opacity-60">
                         {rows ? <RotateCcw size={15} aria-hidden="true" /> : <Sparkles size={15} aria-hidden="true" />}
-                        {busy === "draft" ? t("NotebookAiDrafting") : rows ? t("NotebookAiDraftAgain") : t("NotebookAiDraft")}
+                        {busy === "draft" || drafting ? t("NotebookAiDrafting") : rows ? t("NotebookAiDraftAgain") : t("NotebookAiDraft")}
                     </button>
                 </form>
 
@@ -206,23 +300,23 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                         )}
                     </div>
                     <ErrorNotice error={error} />
-                    {busy === "draft" && (
+                    {draft && drafting && (
                         <DraftWaiting
-                            label={rows ? t("NotebookAiWaitRevising") : t("NotebookAiWaitDrafting", { title: title.trim() })}
+                            label={rows ? t("NotebookAiWaitRevising") : t("NotebookAiWaitDrafting", { title: draft.title })}
                             skeleton={!rows}
-                            onStop={stopDraft}
+                            since={draft.startedAt}
                         />
                     )}
-                    {!rows && busy !== "draft" && (
+                    {!rows && !drafting && (
                         <p className="rounded-card border border-dashed border-border p-6 text-sm text-text-2">{t("NotebookAiDraftEmpty")}</p>
                     )}
                     {rows && (
-                        <ol className={`flex flex-col gap-2 ${busy === "draft" ? "pointer-events-none opacity-50" : ""}`}>
+                        <ol className={`flex flex-col gap-2 ${drafting ? "pointer-events-none opacity-50" : ""}`}>
                             {rows.map((row, i) => (
                                 <li key={`${row.title}-${i}`} data-testid="ai-draft-node"
                                     className={`flex items-start gap-3 rounded-[14px] border bg-surface px-3.5 py-3 ${row.keep ? "border-border" : "border-border opacity-60"}`}>
                                     <input type="checkbox" checked={row.keep} aria-label={t("NotebookAiKeepNode", { title: row.title })}
-                                        onChange={() => setRows((r) => r!.map((x, j) => (j === i ? { ...x, keep: !x.keep } : x)))}
+                                        onChange={() => updateRow(i, { keep: !row.keep })}
                                         className="mt-1 h-4 w-4 accent-[rgb(var(--accent-rgb))]" />
                                     <span className="mt-0.5 font-mono text-xs text-text-2">{String(i + 1).padStart(2, "0")}</span>
                                     <span className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -239,12 +333,12 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                                                 </span>
                                                 <span role="radiogroup" aria-label={t("NotebookAiLinkOrCopy")} className="inline-flex gap-0.5 rounded-lg bg-surface p-0.5">
                                                     <button type="button" role="radio" aria-checked={row.link}
-                                                        onClick={() => setRows((r) => r!.map((x, j) => (j === i ? { ...x, link: true } : x)))}
+                                                        onClick={() => updateRow(i, { link: true })}
                                                         className={`h-[26px] rounded-md px-2.5 text-xs font-semibold ${row.link ? "bg-accent text-on-accent" : "text-text-2"}`}>
                                                         {t("NotebookAiLinkIt")}
                                                     </button>
                                                     <button type="button" role="radio" aria-checked={!row.link}
-                                                        onClick={() => setRows((r) => r!.map((x, j) => (j === i ? { ...x, link: false } : x)))}
+                                                        onClick={() => updateRow(i, { link: false })}
                                                         className={`h-[26px] rounded-md px-2.5 text-xs font-semibold ${!row.link ? "bg-accent text-on-accent" : "text-text-2"}`}>
                                                         {t("NotebookAiNewCopy")}
                                                     </button>
@@ -271,26 +365,28 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                             className="flex items-center gap-2.5 rounded-xl border border-border bg-surface py-1.5 pl-3 pr-1.5"
                             onSubmit={(e) => {
                                 e.preventDefault();
-                                if (change.trim()) void draft(change.trim());
+                                if (change.trim()) void runDraft(change.trim());
                             }}
                         >
                             <Sparkles size={15} className="text-accent" aria-hidden="true" />
                             <input value={change} maxLength={500} onChange={(e) => setChange(e.target.value)}
                                 placeholder={t("NotebookAiChangePlaceholder")} aria-label={t("NotebookAiChangePlaceholder")}
                                 className="h-8 min-w-0 flex-1 bg-transparent text-sm text-text outline-none" />
-                            <button type="submit" disabled={!change.trim() || busy !== null}
+                            <button type="submit" disabled={!change.trim() || busy !== null || drafting}
                                 className="h-8 rounded-lg bg-surface-2 px-3 text-[13px] font-semibold text-text disabled:opacity-60">
                                 {t("NotebookAiApply")}
                             </button>
                         </form>
                     )}
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
-                        <span className="max-w-[360px] text-[13px] text-text-2">{t("NotebookAiNothingUntil")}</span>
+                        <span className="max-w-[360px] text-[13px] text-text-2" data-testid={draft ? "ai-draft-saved" : undefined}>
+                            {draft ? t("NotebookAiDraftSaved") : t("NotebookAiNothingUntil")}
+                        </span>
                         <div className="flex gap-2">
                             <button type="button" onClick={close} className="h-[42px] rounded-control border border-border bg-surface px-4 text-sm font-semibold text-text">
-                                {t("Cancel")}
+                                {draft ? t("Close") : t("Cancel")}
                             </button>
-                            <button type="button" onClick={create} disabled={!rows || kept.length === 0 || busy !== null} data-testid="ai-topic-create"
+                            <button type="button" onClick={create} disabled={!rows || kept.length === 0 || busy !== null || drafting} data-testid="ai-topic-create"
                                 className="h-[42px] rounded-control bg-accent px-[18px] text-sm font-semibold text-on-accent disabled:opacity-60">
                                 {busy === "create" ? t("NotebookAiCreating") : t("NotebookAiCreate", { count: kept.length })}
                             </button>
@@ -305,12 +401,12 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
 const SKELETON_WIDTHS = ["55%", "72%", "46%", "64%"];
 
 /**
- * The draft panel while the model works: what is being drafted, for how long, and a way out.
- * On a first draft, skeleton rows sit where the nodes will land.
+ * The draft panel while the model works: what is being drafted and for how long, counted from
+ * when the call began on the server. On a first draft, skeleton rows sit where the nodes will land.
  */
-function DraftWaiting({ label, skeleton, onStop }: { label: string; skeleton: boolean; onStop: () => void }) {
+function DraftWaiting({ label, skeleton, since }: { label: string; skeleton: boolean; since: string }) {
     const { t } = useTranslation();
-    const seconds = useElapsedSeconds();
+    const seconds = useElapsedSeconds(since);
     const pulse = "animate-pulse motion-reduce:animate-none";
     return (
         <div className="flex flex-col gap-2">
@@ -328,10 +424,6 @@ function DraftWaiting({ label, skeleton, onStop }: { label: string; skeleton: bo
                 <span aria-hidden="true" className="font-mono text-sm tabular-nums text-text-2" data-testid="ai-waiting-elapsed">
                     {formatElapsed(seconds)}
                 </span>
-                <button type="button" onClick={onStop} data-testid="ai-draft-stop"
-                    className="h-8 rounded-control border border-border bg-surface px-3 text-[13px] font-semibold text-text hover:bg-surface-2">
-                    {t("NotebookAiWaitStop")}
-                </button>
             </div>
             {skeleton && (
                 <ol aria-hidden="true" className="flex flex-col gap-2">

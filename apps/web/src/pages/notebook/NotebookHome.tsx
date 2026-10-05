@@ -1,24 +1,29 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { Flame, Layers, NotebookPen, Plus, Sparkles, Timer, Trophy, Workflow } from "lucide-react";
+import { Flame, Layers, NotebookPen, Plus, Sparkles, Timer, Trash2, Trophy, Workflow } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookHome, progressShare } from "@beyou/state";
-import { getNotebookHome } from "@beyou/api/notebook";
+import { deleteRoadmapDraft, getNotebookHome, listRoadmapDrafts } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import type { TopicSummary } from "@beyou/types/notebook/notebook";
+import type { RoadmapDraftSummary, TopicSummary } from "@beyou/types/notebook/notebook";
 import PageHeader from "../../ui/PageHeader";
 import EmptyState from "../../components/EmptyState";
 import ErrorNotice from "../../components/ErrorNotice";
 import MiniRoadmap from "../../components/notebook/MiniRoadmap";
 import NewTopicModal from "../../components/notebook/NewTopicModal";
 import AiTopicDialog from "../../components/notebook/AiTopicDialog";
+import { AiWaitingLine } from "../../components/notebook/aiWaiting";
+import Modal from "../../components/modals/Modal";
 import { useNotebookFocus } from "../../components/notebook/useNotebookFocus";
 
+/** How often the home re-reads its drafts while one is still being written. */
+const DRAFTS_POLL_MS = 4000;
+
 /**
- * The notebook's front page: what to continue, what to review, and every topic with its roadmap
- * in miniature.
+ * The notebook's front page: what to continue, what to review, the roadmap drafts waiting for a
+ * decision, and every topic with its roadmap in miniature.
  */
 export default function NotebookHome() {
     const { t } = useTranslation();
@@ -27,7 +32,48 @@ export default function NotebookHome() {
     const [error, setError] = useState<ApiErrorPayload | null>(null);
     const [creating, setCreating] = useState(false);
     const [aiOpen, setAiOpen] = useState(false);
+    const [aiDraftId, setAiDraftId] = useState<string | null>(null);
+    const [drafts, setDrafts] = useState<RoadmapDraftSummary[]>([]);
+    const [deleting, setDeleting] = useState<RoadmapDraftSummary | null>(null);
     const { start } = useNotebookFocus();
+
+    const loadDrafts = useCallback(() => {
+        void listRoadmapDrafts(t).then((response) => {
+            if (response.success) setDrafts(response.success);
+        });
+    }, [t]);
+
+    useEffect(() => {
+        loadDrafts();
+    }, [loadDrafts]);
+
+    // A draft the model is still writing turns into "Ready to review" on its own. The open dialog
+    // polls its own draft, so the home waits while it is open.
+    const anyDrafting = drafts.some((d) => d.status === "DRAFTING");
+    useEffect(() => {
+        if (!anyDrafting || aiOpen) return;
+        const timer = window.setInterval(loadDrafts, DRAFTS_POLL_MS);
+        return () => window.clearInterval(timer);
+    }, [anyDrafting, aiOpen, loadDrafts]);
+
+    const openAi = (draftId: string | null) => {
+        setAiDraftId(draftId);
+        setAiOpen(true);
+    };
+
+    const closeAi = () => {
+        setAiOpen(false);
+        setAiDraftId(null);
+        loadDrafts();
+    };
+
+    const deleteDraft = async () => {
+        if (!deleting) return;
+        const response = await deleteRoadmapDraft(deleting.id, t);
+        setDeleting(null);
+        if (response.error) setError(response.error);
+        loadDrafts();
+    };
 
     useEffect(() => {
         void getNotebookHome(t).then((response) => {
@@ -51,7 +97,7 @@ export default function NotebookHome() {
                 }) : undefined}
                 action={
                     <div className="flex flex-wrap gap-2">
-                        <button type="button" onClick={() => setAiOpen(true)} data-testid="notebook-create-ai"
+                        <button type="button" onClick={() => openAi(null)} data-testid="notebook-create-ai"
                             className="inline-flex h-10 items-center gap-2 rounded-control bg-accent-soft px-4 text-sm font-semibold text-accent">
                             <Sparkles size={16} aria-hidden="true" />{t("NotebookCreateWithAi")}
                         </button>
@@ -127,6 +173,18 @@ export default function NotebookHome() {
                 </section>
             )}
 
+            {drafts.length > 0 && (
+                <>
+                    <h2 className="mb-3 mt-8 text-base font-semibold">{t("NotebookDrafts")}</h2>
+                    <section aria-label={t("NotebookDrafts")} data-testid="notebook-drafts"
+                        className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-3">
+                        {drafts.map((draft) => (
+                            <DraftCard key={draft.id} draft={draft} onOpen={() => openAi(draft.id)} onDelete={() => setDeleting(draft)} />
+                        ))}
+                    </section>
+                </>
+            )}
+
             {home && home.topics.length === 0 ? (
                 <div className="mt-6">
                     <EmptyState
@@ -134,7 +192,7 @@ export default function NotebookHome() {
                         title={t("NotebookEmptyTitle")}
                         description={t("NotebookEmptyText")}
                         actionLabel={t("NotebookCreateWithAi")}
-                        onAction={() => setAiOpen(true)}
+                        onAction={() => openAi(null)}
                         secondaryLabel={t("NotebookNewTopic")}
                         onSecondary={() => setCreating(true)}
                     />
@@ -157,7 +215,19 @@ export default function NotebookHome() {
             )}
 
             <NewTopicModal isOpen={creating} onClose={() => setCreating(false)} />
-            {aiOpen && <AiTopicDialog isOpen={aiOpen} onClose={() => setAiOpen(false)} />}
+            {aiOpen && <AiTopicDialog isOpen={aiOpen} onClose={closeAi} draftId={aiDraftId} onDraftsChanged={loadDrafts} />}
+            <Modal isOpen={deleting !== null} onClose={() => setDeleting(null)} labelledBy="delete-draft-title">
+                <div className="flex w-full flex-col gap-3">
+                    <h2 id="delete-draft-title" className="text-lg font-semibold text-text">
+                        {t("NotebookDraftDeleteTitle", { title: deleting?.title ?? "" })}
+                    </h2>
+                    <p className="text-sm text-text-2">{t("NotebookDraftDeleteText")}</p>
+                    <div className="flex justify-end gap-2">
+                        <button type="button" onClick={() => setDeleting(null)} className="rounded-control px-4 py-2 text-sm font-semibold text-text-2 hover:bg-surface-2">{t("Cancel")}</button>
+                        <button type="button" onClick={() => void deleteDraft()} data-testid="draft-delete-confirm" className="rounded-control bg-danger px-4 py-2 text-sm font-semibold text-on-accent">{t("Delete")}</button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
@@ -206,5 +276,35 @@ function TopicCard({ topic }: { topic: TopicSummary }) {
                 )}
             </div>
         </Link>
+    );
+}
+
+/** A roadmap draft waiting for a decision: open it to review and create, or delete it. */
+function DraftCard({ draft, onOpen, onDelete }: { draft: RoadmapDraftSummary; onOpen: () => void; onDelete: () => void }) {
+    const { t } = useTranslation();
+    return (
+        <div className="flex items-center gap-2 rounded-card border border-border bg-surface p-3 transition-colors hover:border-text-3/60" data-testid="draft-card">
+            <button type="button" onClick={onOpen} data-testid="draft-open" className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent">
+                    <Sparkles size={18} aria-hidden="true" />
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-[15px] font-semibold text-text">{draft.title}</span>
+                    <span className="text-[13px] text-text-2" data-testid="draft-status">
+                        {draft.status === "DRAFTING" ? (
+                            <AiWaitingLine label={t("NotebookDraftDrafting")} since={draft.startedAt} slowNote={false} />
+                        ) : draft.status === "READY" ? (
+                            <span className="font-semibold text-accent">{t("NotebookDraftReady", { count: draft.nodeCount })}</span>
+                        ) : (
+                            t("NotebookDraftFailed")
+                        )}
+                    </span>
+                </span>
+            </button>
+            <button type="button" onClick={onDelete} aria-label={t("NotebookDraftDelete", { title: draft.title })} data-testid="draft-delete"
+                className="rounded-control p-2 text-text-2 hover:bg-surface-2 hover:text-danger">
+                <Trash2 size={16} aria-hidden="true" />
+            </button>
+        </div>
     );
 }

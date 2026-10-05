@@ -1,7 +1,8 @@
 import { TFunction } from 'i18next';
 import type {
-    Answer, ChatTurn, CreateFromDraftRequest, Flashcard, NotebookPage, QuizResult, RoadmapDraft,
-    RoadmapDraftRequest, StudyOutput, StudyOutputKind, StudyRoom, SuggestedNode,
+    Answer, ChatTurn, CreateFromDraftRequest, DraftChoice, Flashcard, NotebookPage, QuizResult,
+    RoadmapDraftRecord, RoadmapDraftRequest, RoadmapDraftSummary, StudyOutput, StudyOutputKind, StudyRoom,
+    SuggestedNode,
 } from '@beyou/types/notebook/notebook';
 import { call, http, Result } from './result';
 
@@ -41,9 +42,30 @@ export const gradeQuiz = (outputId: string, answers: number[], t: TFunction): Pr
 export const deleteStudyOutput = (outputId: string, t: TFunction): Promise<Result<void>> =>
     call(() => http().delete<void>(`/notebook/outputs/${outputId}`), t);
 
-/** "New topic with AI": a draft to review. Nothing is stored. */
-export const draftRoadmap = (request: RoadmapDraftRequest, t: TFunction): Promise<Result<RoadmapDraft>> =>
-    call(() => http().post<RoadmapDraft>('/notebook/ai/roadmap-draft', request, { timeout: AI_TIMEOUT }), t);
+/**
+ * "New topic with AI". Starting a draft stores it and answers at once, DRAFTING; the model writes
+ * it in the background, and the client reads it back with getRoadmapDraft until it is READY or
+ * FAILED. The draft stays until the topic is created from it or the person deletes it.
+ */
+export const startRoadmapDraft = (request: RoadmapDraftRequest, t: TFunction): Promise<Result<RoadmapDraftRecord>> =>
+    call(() => http().post<RoadmapDraftRecord>('/notebook/ai/drafts', request), t);
+
+/** Drafts again: from scratch, or applying `changeRequest` to `previous`. */
+export const redraftRoadmap = (draftId: string, request: RoadmapDraftRequest, t: TFunction): Promise<Result<RoadmapDraftRecord>> =>
+    call(() => http().post<RoadmapDraftRecord>(`/notebook/ai/drafts/${draftId}/redraft`, request), t);
+
+export const getRoadmapDraft = (draftId: string, t: TFunction): Promise<Result<RoadmapDraftRecord>> =>
+    call(() => http().get<RoadmapDraftRecord>(`/notebook/drafts/${draftId}`), t);
+
+export const listRoadmapDrafts = (t: TFunction): Promise<Result<RoadmapDraftSummary[]>> =>
+    call(() => http().get<RoadmapDraftSummary[]>('/notebook/drafts'), t);
+
+/** The review dialog's ticks, one per drafted node. */
+export const saveDraftChoices = (draftId: string, choices: DraftChoice[], t: TFunction): Promise<Result<RoadmapDraftRecord>> =>
+    call(() => http().put<RoadmapDraftRecord>(`/notebook/drafts/${draftId}/choices`, { choices }), t);
+
+export const deleteRoadmapDraft = (draftId: string, t: TFunction): Promise<Result<void>> =>
+    call(() => http().delete<void>(`/notebook/drafts/${draftId}`), t);
 
 /** Creates the reviewed draft in one transaction. */
 export const createTopicFromDraft = (request: CreateFromDraftRequest, t: TFunction): Promise<Result<NotebookPage>> =>
