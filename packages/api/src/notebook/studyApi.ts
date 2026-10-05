@@ -16,8 +16,15 @@ export const getStudyRoom = (pageId: string, t: TFunction): Promise<Result<Study
 export const clearStudyChat = (pageId: string, t: TFunction): Promise<Result<void>> =>
     call(() => http().delete<void>(`/notebook/pages/${pageId}/study/messages`), t);
 
-/** A model call can take a while; the default request timeout is for list reads. */
-const AI_TIMEOUT = 90_000;
+/**
+ * A model call can take a while; the default request timeout is for list reads.
+ *
+ * 100 seconds because that is when Cloudflare drops a request to the API anyway. The server
+ * gives every notebook AI call, retry included, 90 seconds (NotebookLlm.BUDGET) and answers
+ * AI_UNAVAILABLE when they run out, so it always answers before this fires. Lower this below
+ * the server's budget and the person sees an error for work the server goes on to finish.
+ */
+const AI_TIMEOUT = 100_000;
 
 export const askStudyQuestion = (pageId: string, message: string, t: TFunction): Promise<Result<ChatTurn>> =>
     call(() => http().post<ChatTurn>(`/notebook/ai/pages/${pageId}/chat`, { message }, { timeout: AI_TIMEOUT }), t);

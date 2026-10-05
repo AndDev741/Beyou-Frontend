@@ -8,6 +8,7 @@ import type { ApiErrorPayload } from "@beyou/api/apiError";
 import NotebookMarkdown from "./NotebookMarkdown";
 import CitationPanel from "./CitationPanel";
 import ErrorNotice from "../ErrorNotice";
+import { AiWaitingLine } from "./aiWaiting";
 
 /**
  * "Explain the block above": the AI's explanation of a passage of the person's notes, citing the
@@ -62,7 +63,7 @@ export default function ExplainPanel({
                 </button>
             </div>
             <blockquote className="mb-3 border-0 bg-surface-2 p-2 text-[13px] text-text-2 rounded-control line-clamp-3">{text}</blockquote>
-            {!answer && !error && <p className="text-sm text-text-2">{t("NotebookThinking")}</p>}
+            {!answer && !error && <p role="status" className="text-sm text-text-2"><AiWaitingLine label={t("NotebookThinking")} /></p>}
             <ErrorNotice error={error} />
             {answer && (
                 <>

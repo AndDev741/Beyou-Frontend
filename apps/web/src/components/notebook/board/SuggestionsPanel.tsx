@@ -5,6 +5,7 @@ import type { SuggestedNode } from "@beyou/types/notebook/notebook";
 import { suggestNodes } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import ErrorNotice from "../../ErrorNotice";
+import { AiWaitingLine } from "../aiWaiting";
 
 /**
  * "Suggest nodes": the AI proposes, the person keeps or dismisses each one. Nothing reaches the
@@ -54,7 +55,7 @@ export default function SuggestionsPanel({
                     {t("NotebookSuggestRun")}
                 </button>
             )}
-            {loading && <p className="text-sm text-text-2">{t("NotebookSuggestLoading")}</p>}
+            {loading && <p role="status" className="text-sm text-text-2"><AiWaitingLine label={t("NotebookSuggestLoading")} /></p>}
             <ErrorNotice error={error} />
             {suggestions && suggestions.length === 0 && <p className="text-sm text-text-2">{t("NotebookSuggestNone")}</p>}
             <ul className="flex flex-col gap-2">

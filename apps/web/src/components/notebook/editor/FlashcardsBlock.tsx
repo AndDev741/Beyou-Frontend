@@ -8,6 +8,7 @@ import { MAX_CARD_SIDE_LENGTH } from "@beyou/types/notebook/notebook";
 import { createCard, deleteCard, generateCards, getPageCards, updateCard } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import useTodayInZone from "../../../hooks/useTodayInZone";
+import { AiWaitingLine } from "../aiWaiting";
 
 /**
  * A page's flashcards as a block: the deck, a form to write one, and "Draft with AI", which reads
@@ -83,7 +84,7 @@ export default function FlashcardsBlock({ pageId }: { pageId: string }) {
                 )}
                 <button type="button" onClick={draft} disabled={drafting} data-testid="cards-draft-ai"
                     className="inline-flex items-center gap-1.5 rounded-control bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent disabled:opacity-60">
-                    <Sparkles size={13} aria-hidden="true" />{drafting ? t("NotebookCardsDrafting") : t("NotebookCardsDraftAi")}
+                    <Sparkles size={13} aria-hidden="true" />{drafting ? <AiWaitingLine label={t("NotebookCardsDrafting")} slowNote={false} /> : t("NotebookCardsDraftAi")}
                 </button>
                 <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
                     className="inline-flex items-center gap-1.5 rounded-control border border-border px-3 py-1.5 text-xs font-semibold text-text">

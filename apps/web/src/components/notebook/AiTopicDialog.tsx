@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ import type { ApiErrorPayload } from "@beyou/api/apiError";
 import type { DraftNode, DraftNodeInput, StudyLevel } from "@beyou/types/notebook/notebook";
 import Modal from "../modals/Modal";
 import ErrorNotice from "../ErrorNotice";
+import { AI_SLOW_AFTER_SECONDS, formatElapsed, useElapsedSeconds } from "./aiWaiting";
 
 type Row = DraftNode & { keep: boolean; link: boolean };
 
@@ -43,6 +44,9 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
     const [change, setChange] = useState("");
     const [busy, setBusy] = useState<"draft" | "create" | null>(null);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
+    // Bumped by Stop and by closing: an answer that comes back for an older run is dropped.
+    // The server cannot be told to stop, but nothing it drafts is stored until "Create".
+    const draftRun = useRef(0);
 
     useEffect(() => {
         if (isOpen && goals.length === 0) {
@@ -52,6 +56,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
 
     const draft = async (revision?: string) => {
         if (!title.trim()) return;
+        const run = ++draftRun.current;
         setBusy("draft");
         setError(null);
         const previous: DraftNodeInput[] | undefined = revision && rows
@@ -67,6 +72,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
             changeRequest: revision,
             previous,
         }, t);
+        if (run !== draftRun.current) return;
         setBusy(null);
         if (!response.success) {
             setError(response.error ?? null);
@@ -74,6 +80,16 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
         }
         setRows(response.success.nodes.map((n) => ({ ...n, keep: !n.optional, link: !!n.existingPageId })));
         setChange("");
+    };
+
+    const stopDraft = () => {
+        draftRun.current++;
+        setBusy(null);
+    };
+
+    const close = () => {
+        if (busy === "draft") stopDraft();
+        onClose();
     };
 
     const create = async () => {
@@ -108,7 +124,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
     const weeks = hours > 0 ? Math.ceil(weeklyHours / hours) : 0;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} labelledBy="ai-topic-title" className="!max-w-[1080px] !p-0">
+        <Modal isOpen={isOpen} onClose={close} labelledBy="ai-topic-title" className="!max-w-[1080px] !p-0">
             <div className="flex max-h-[85vh] w-full flex-wrap overflow-y-auto rounded-[24px] bg-surface" data-testid="ai-topic-dialog">
                 <form
                     className="flex min-w-0 flex-[1_1_320px] flex-col gap-4 border-border p-6 md:max-w-[400px] md:border-r"
@@ -122,7 +138,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                             <Sparkles size={18} aria-hidden="true" />
                         </span>
                         <h2 id="ai-topic-title" className="flex-1 text-xl font-semibold tracking-[-0.015em] text-text">{t("NotebookAiTitle")}</h2>
-                        <button type="button" onClick={onClose} aria-label={t("Close")} className="rounded-control p-1.5 text-text-2 hover:bg-surface-2">
+                        <button type="button" onClick={close} aria-label={t("Close")} className="rounded-control p-1.5 text-text-2 hover:bg-surface-2">
                             <X size={16} aria-hidden="true" />
                         </button>
                     </div>
@@ -190,11 +206,18 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                         )}
                     </div>
                     <ErrorNotice error={error} />
-                    {!rows && (
+                    {busy === "draft" && (
+                        <DraftWaiting
+                            label={rows ? t("NotebookAiWaitRevising") : t("NotebookAiWaitDrafting", { title: title.trim() })}
+                            skeleton={!rows}
+                            onStop={stopDraft}
+                        />
+                    )}
+                    {!rows && busy !== "draft" && (
                         <p className="rounded-card border border-dashed border-border p-6 text-sm text-text-2">{t("NotebookAiDraftEmpty")}</p>
                     )}
                     {rows && (
-                        <ol className="flex flex-col gap-2">
+                        <ol className={`flex flex-col gap-2 ${busy === "draft" ? "pointer-events-none opacity-50" : ""}`}>
                             {rows.map((row, i) => (
                                 <li key={`${row.title}-${i}`} data-testid="ai-draft-node"
                                     className={`flex items-start gap-3 rounded-[14px] border bg-surface px-3.5 py-3 ${row.keep ? "border-border" : "border-border opacity-60"}`}>
@@ -264,7 +287,7 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
                         <span className="max-w-[360px] text-[13px] text-text-2">{t("NotebookAiNothingUntil")}</span>
                         <div className="flex gap-2">
-                            <button type="button" onClick={onClose} className="h-[42px] rounded-control border border-border bg-surface px-4 text-sm font-semibold text-text">
+                            <button type="button" onClick={close} className="h-[42px] rounded-control border border-border bg-surface px-4 text-sm font-semibold text-text">
                                 {t("Cancel")}
                             </button>
                             <button type="button" onClick={create} disabled={!rows || kept.length === 0 || busy !== null} data-testid="ai-topic-create"
@@ -276,5 +299,54 @@ export default function AiTopicDialog({ isOpen, onClose }: { isOpen: boolean; on
                 </section>
             </div>
         </Modal>
+    );
+}
+
+const SKELETON_WIDTHS = ["55%", "72%", "46%", "64%"];
+
+/**
+ * The draft panel while the model works: what is being drafted, for how long, and a way out.
+ * On a first draft, skeleton rows sit where the nodes will land.
+ */
+function DraftWaiting({ label, skeleton, onStop }: { label: string; skeleton: boolean; onStop: () => void }) {
+    const { t } = useTranslation();
+    const seconds = useElapsedSeconds();
+    const pulse = "animate-pulse motion-reduce:animate-none";
+    return (
+        <div className="flex flex-col gap-2">
+            <div role="status" data-testid="ai-draft-waiting"
+                className="flex flex-wrap items-center gap-3 rounded-[14px] border border-border bg-surface px-3.5 py-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-accent-soft text-accent">
+                    <Sparkles size={18} aria-hidden="true" className={pulse} />
+                </span>
+                <span className="flex min-w-[180px] flex-1 flex-col gap-0.5">
+                    <span className="text-sm font-semibold text-text">{label}</span>
+                    <span className="text-[13px] text-text-2" data-testid={seconds >= AI_SLOW_AFTER_SECONDS ? "ai-waiting-slow" : undefined}>
+                        {seconds >= AI_SLOW_AFTER_SECONDS ? t("NotebookAiWaitSlow") : t("NotebookAiWaitUsual")}
+                    </span>
+                </span>
+                <span aria-hidden="true" className="font-mono text-sm tabular-nums text-text-2" data-testid="ai-waiting-elapsed">
+                    {formatElapsed(seconds)}
+                </span>
+                <button type="button" onClick={onStop} data-testid="ai-draft-stop"
+                    className="h-8 rounded-control border border-border bg-surface px-3 text-[13px] font-semibold text-text hover:bg-surface-2">
+                    {t("NotebookAiWaitStop")}
+                </button>
+            </div>
+            {skeleton && (
+                <ol aria-hidden="true" className="flex flex-col gap-2">
+                    {SKELETON_WIDTHS.map((width) => (
+                        <li key={width} className="flex items-start gap-3 rounded-[14px] border border-border bg-surface px-3.5 py-3">
+                            <span className={`mt-0.5 h-4 w-4 rounded bg-surface-2 ${pulse}`} />
+                            <span className="flex flex-1 flex-col gap-2">
+                                <span className={`h-3.5 rounded bg-surface-2 ${pulse}`} style={{ width }} />
+                                <span className={`h-3 w-4/5 rounded bg-surface-2 ${pulse}`} />
+                            </span>
+                            <span className={`h-3 w-14 rounded bg-surface-2 ${pulse}`} />
+                        </li>
+                    ))}
+                </ol>
+            )}
+        </div>
     );
 }

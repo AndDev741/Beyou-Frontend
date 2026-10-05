@@ -12,6 +12,7 @@ import ErrorNotice from "../../ErrorNotice";
 import OutputViewer from "./OutputViewer";
 import QuizRunner from "./QuizRunner";
 import { OUTPUT_KIND_KEY } from "./outputLabels";
+import { AiWaitingLine } from "../aiWaiting";
 
 type Props = {
     pageId: string;
@@ -136,7 +137,7 @@ export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTo
                     >
                         <Icon size={18} className="text-accent" aria-hidden="true" />
                         <span className="text-[13px] font-semibold">{label}</span>
-                        {busy === id && <span className="text-[11px] text-text-2">{t("NotebookStudyWorking")}</span>}
+                        {busy === id && <AiWaitingLine label={t("NotebookStudyWorking")} slowNote={false} className="text-[11px] text-text-2" />}
                     </button>
                 ))}
                 <button

@@ -17,6 +17,7 @@ import NotebookMarkdown from "../NotebookMarkdown";
 import CitationPanel from "../CitationPanel";
 import ErrorNotice from "../../ErrorNotice";
 import Modal from "../../modals/Modal";
+import { AiWaitingLine } from "../aiWaiting";
 
 type Props = {
     pageId: string;
@@ -246,7 +247,7 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-accent-soft text-accent">
                                 <Sparkles size={15} aria-hidden="true" />
                             </span>
-                            {t("NotebookStudyThinking")}
+                            <AiWaitingLine label={t("NotebookStudyThinking")} />
                         </div>
                     </>
                 )}
