@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Sparkles } from "lucide-react";
@@ -10,6 +11,8 @@ import SourcesPanel from "../../components/notebook/study/SourcesPanel";
 import ChatPanel from "../../components/notebook/study/ChatPanel";
 import StudioPanel from "../../components/notebook/study/StudioPanel";
 import StudySetup, { StudySetupBar } from "../../components/notebook/study/StudySetup";
+import { PanelRail, ResizeHandle } from "../../components/notebook/study/StudyColumns";
+import { RAIL_WIDTH, useStudyLayout } from "../../components/notebook/study/studyLayout";
 
 /**
  * The study room for one page: its sources on the left, a conversation grounded in them in the
@@ -18,6 +21,9 @@ import StudySetup, { StudySetupBar } from "../../components/notebook/study/Study
  * Before the first question the middle column is the room's setup (StudySetup): a goal, which
  * notes to read, and sources to add. It comes back with "Edit" on the line above the chat. The
  * source list is held here, so the panel and the setup both see a source the other added.
+ *
+ * On desktop the side panels can be resized by dragging the bars beside the chat, or folded into
+ * thin rails to give the chat the screen (useStudyLayout keeps the choice in this browser).
  *
  * It covers the app shell like the focus screen does (`fixed inset-0`), because a study session
  * is one thing at a time and the sidebar is a way out of it. Escape leaves for the page, unless a
@@ -33,6 +39,7 @@ export default function NotebookStudyRoom() {
     const [sources, setSources] = useState<NotebookSource[]>([]);
     const [setup, setSetup] = useState<Setup | null>(null);
     const [editingSetup, setEditingSetup] = useState(false);
+    const { layout, resize, toggle, reset } = useStudyLayout();
 
     const pagePath = `/notebook/${pageId ?? ""}`;
     const leave = useCallback(() => navigate(pagePath), [navigate, pagePath]);
@@ -129,11 +136,26 @@ export default function NotebookStudyRoom() {
                 )}
 
                 {room && pageId && setup && (
-                    <div className="flex flex-1 flex-wrap items-stretch gap-4 p-4">
-                        <div className="flex min-w-0 flex-[1_1_280px] flex-col lg:max-w-[320px]">
-                            <SourcesPanel pageId={pageId} initialSources={sources} onChange={setSources} discovery={room.discovery} />
+                    <div
+                        className="flex flex-1 flex-wrap items-stretch gap-4 p-4 lg:flex-nowrap lg:gap-0"
+                        style={{
+                            "--study-left": `${layout.leftCollapsed ? RAIL_WIDTH : layout.left}px`,
+                            "--study-right": `${layout.rightCollapsed ? RAIL_WIDTH : layout.right}px`,
+                        } as CSSProperties}
+                    >
+                        <div className="flex min-w-0 flex-[1_1_280px] flex-col lg:w-[var(--study-left)] lg:flex-none" data-testid="study-col-left">
+                            <div className={`flex min-w-0 flex-col ${layout.leftCollapsed ? "lg:hidden" : ""}`}>
+                                <SourcesPanel pageId={pageId} initialSources={sources} onChange={setSources} discovery={room.discovery}
+                                    onCollapse={() => toggle("left")} />
+                            </div>
+                            {layout.leftCollapsed && (
+                                <PanelRail side="left" label={t("NotebookStudySources")} expandLabel={t("NotebookStudyExpandSources")}
+                                    count={sources.length} onExpand={() => toggle("left")} />
+                            )}
                         </div>
-                        <div className="flex min-w-0 flex-[999_1_460px] flex-col">
+                        <ResizeHandle side="left" width={layout.left} label={t("NotebookStudyResizeSources")}
+                            onResize={(from, delta) => resize("left", from, delta)} onReset={() => reset("left")} onToggle={() => toggle("left")} />
+                        <div className="flex min-w-0 flex-[999_1_460px] flex-col lg:flex-1">
                             {editingSetup || (!setup.configuredAt && room.messages.length === 0) ? (
                                 <StudySetup
                                     pageId={pageId}
@@ -160,15 +182,24 @@ export default function NotebookStudyRoom() {
                                 </>
                             )}
                         </div>
-                        <div className="flex min-w-0 flex-[1_1_300px] flex-col lg:max-w-[340px]">
-                            <StudioPanel
-                                pageId={pageId}
-                                pageTitle={room.page.title}
-                                initialOutputs={room.outputs}
-                                cardsTotal={cards.total}
-                                cardsDue={cards.due}
-                                onCardsMade={onCardsMade}
-                            />
+                        <ResizeHandle side="right" width={layout.right} label={t("NotebookStudyResizeStudio")}
+                            onResize={(from, delta) => resize("right", from, delta)} onReset={() => reset("right")} onToggle={() => toggle("right")} />
+                        <div className="flex min-w-0 flex-[1_1_300px] flex-col lg:w-[var(--study-right)] lg:flex-none" data-testid="study-col-right">
+                            <div className={`flex min-w-0 flex-col ${layout.rightCollapsed ? "lg:hidden" : ""}`}>
+                                <StudioPanel
+                                    pageId={pageId}
+                                    pageTitle={room.page.title}
+                                    initialOutputs={room.outputs}
+                                    cardsTotal={cards.total}
+                                    cardsDue={cards.due}
+                                    onCardsMade={onCardsMade}
+                                    onCollapse={() => toggle("right")}
+                                />
+                            </div>
+                            {layout.rightCollapsed && (
+                                <PanelRail side="right" label={t("NotebookStudyStudio")} expandLabel={t("NotebookStudyExpandStudio")}
+                                    onExpand={() => toggle("right")} />
+                            )}
                         </div>
                     </div>
                 )}

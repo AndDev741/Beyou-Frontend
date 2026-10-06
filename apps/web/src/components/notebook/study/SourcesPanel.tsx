@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AlignLeft, Link2, Plus, Search, Trash2, Upload } from "lucide-react";
+import { AlignLeft, Link2, PanelLeftClose, Plus, Search, Trash2, Upload } from "lucide-react";
 import type { NotebookSource } from "@beyou/types/notebook/notebook";
 import { deleteSource, getSources, setSourceEnabled } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -19,6 +19,8 @@ type Props = {
     onChange?: (sources: NotebookSource[]) => void;
     /** Whether "find sources for me" has a web search configured. */
     discovery?: boolean;
+    /** Folds the panel into a rail (desktop). */
+    onCollapse?: () => void;
 };
 
 const isReading = (s: NotebookSource) => s.status === "PENDING" || s.status === "READING";
@@ -30,7 +32,7 @@ const isReading = (s: NotebookSource) => s.status === "PENDING" || s.status === 
  * READING and stops the moment none is. Switching a source off keeps it in the list but out of
  * every answer, which is the cheap way to ask "what does the book say without my notes?".
  */
-export default function SourcesPanel({ pageId, initialSources, onChange, discovery = false }: Props) {
+export default function SourcesPanel({ pageId, initialSources, onChange, discovery = false, onCollapse }: Props) {
     const { t } = useTranslation();
     const [sources, setSources] = useState<NotebookSource[]>(initialSources);
     const [adding, setAdding] = useState(false);
@@ -92,8 +94,8 @@ export default function SourcesPanel({ pageId, initialSources, onChange, discove
             aria-labelledby="study-sources-title"
             className="flex min-w-0 flex-col gap-3 rounded-card border border-border bg-surface p-4"
         >
-            <div className="flex items-center justify-between gap-2">
-                <h2 id="study-sources-title" className="text-[15px] font-semibold text-text">
+            <div className="flex items-center gap-2">
+                <h2 id="study-sources-title" className="flex-1 text-[15px] font-semibold text-text">
                     {t("NotebookStudySources")}
                 </h2>
                 <button
@@ -105,6 +107,13 @@ export default function SourcesPanel({ pageId, initialSources, onChange, discove
                     <Plus size={14} aria-hidden="true" />
                     {t("NotebookStudyAdd")}
                 </button>
+                {onCollapse && (
+                    <button type="button" onClick={onCollapse} aria-label={t("NotebookStudyCollapseSources")} title={t("NotebookStudyCollapseSources")}
+                        data-testid="study-collapse-left"
+                        className="hidden h-8 w-8 items-center justify-center rounded-[8px] text-text-2 hover:bg-surface-2 lg:inline-flex">
+                        <PanelLeftClose size={16} aria-hidden="true" />
+                    </button>
+                )}
             </div>
 
             {sources.length === 0 ? (

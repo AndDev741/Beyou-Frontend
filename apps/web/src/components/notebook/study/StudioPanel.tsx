@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AlignLeft, Check, GraduationCap, Headphones, HelpCircle, Layers, Workflow } from "lucide-react";
+import { AlignLeft, Check, GraduationCap, Headphones, HelpCircle, Layers, PanelRightClose, Workflow } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { StudyOutput, StudyOutputKind, SuggestedNode } from "@beyou/types/notebook/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
@@ -22,6 +22,8 @@ type Props = {
     cardsDue: number;
     /** Cards the studio made, so the room's counts stay true. */
     onCardsMade?: (count: number) => void;
+    /** Folds the panel into a rail (desktop). */
+    onCollapse?: () => void;
 };
 
 type Busy = "SUMMARY" | "STUDY_GUIDE" | "QUIZ" | "CARDS" | "BOARD" | null;
@@ -35,7 +37,7 @@ const NODE_Y = 80;
  * quiz, or nodes for the page's board. Everything made shows under "Made here", and summaries
  * and guides can be saved into the page as ordinary blocks.
  */
-export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTotal, cardsDue, onCardsMade }: Props) {
+export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTotal, cardsDue, onCardsMade, onCollapse }: Props) {
     const { t } = useTranslation();
     const [outputs, setOutputs] = useState<StudyOutput[]>(initialOutputs);
     const [busy, setBusy] = useState<Busy>(null);
@@ -118,9 +120,18 @@ export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTo
             aria-labelledby="study-studio-title"
             className="flex min-w-0 flex-col gap-3 rounded-card border border-border bg-surface p-4"
         >
-            <h2 id="study-studio-title" className="text-[15px] font-semibold text-text">
-                {t("NotebookStudyStudio")}
-            </h2>
+            <div className="flex items-center gap-2">
+                <h2 id="study-studio-title" className="flex-1 text-[15px] font-semibold text-text">
+                    {t("NotebookStudyStudio")}
+                </h2>
+                {onCollapse && (
+                    <button type="button" onClick={onCollapse} aria-label={t("NotebookStudyCollapseStudio")} title={t("NotebookStudyCollapseStudio")}
+                        data-testid="study-collapse-right"
+                        className="hidden h-8 w-8 items-center justify-center rounded-[8px] text-text-2 hover:bg-surface-2 lg:inline-flex">
+                        <PanelRightClose size={16} aria-hidden="true" />
+                    </button>
+                )}
+            </div>
 
             <div className="grid grid-cols-2 gap-2">
                 {tiles.map(({ id, label, Icon, onClick, testId }) => (
