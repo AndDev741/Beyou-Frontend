@@ -12,6 +12,7 @@ import categories from '@beyou/state/category/categoriesSlice';
 import celebration from '@beyou/state/celebration/celebrationSlice';
 import focus from '@beyou/state/focus/focusSlice';
 import mood from '@beyou/state/mood/moodSlice';
+import notebook from '@beyou/state/notebook/notebookSlice';
 import viewFilters from '@beyou/state/viewFilters/viewFiltersSlice';
 import tutorial from './tutorial/tutorialSlice';
 
@@ -35,6 +36,7 @@ const combinedReducer = combineReducers({
   celebration,
   focus,
   mood,
+  notebook,
   viewFilters,
   tutorial,
 });

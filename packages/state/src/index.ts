@@ -289,3 +289,25 @@ export {
 export { suggestSlots } from './routine/suggestSlots';
 export type { RoutineStats, SectionStats } from './routine/routineMetrics';
 export { seriesFor as xpSeriesFor } from './xp/xpSeries';
+
+// study notebook
+export {
+    enterNotebookHome,
+    enterNotebookPage,
+    removeNotebookPage,
+    enterNotebookTree,
+    enterBoard,
+    upsertBoardNode,
+    removeBoardNode,
+    moveBoardNodes,
+    enterBoardEdge,
+    removeBoardEdge,
+    notebookStatusesChanged,
+    notebookPageDetailsChanged,
+    clearNotebook,
+} from './notebook/notebookSlice';
+export type { NotebookState } from './notebook/notebookSlice';
+export { applyStatuses } from './notebook/notebookStatus';
+export { applyPageDetails } from './notebook/notebookDetails';
+export type { PageDetails } from './notebook/notebookDetails';
+export { pathLevels, prerequisitesOf, progressShare } from './notebook/notebookPath';

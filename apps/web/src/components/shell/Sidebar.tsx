@@ -12,6 +12,7 @@ import {
     Settings,
     MessageSquare,
     BookHeart,
+    NotebookPen,
     PanelLeft,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -33,6 +34,8 @@ const MAIN: Item[] = [
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Routines", to: "/routines", Icon: CalendarDays, tutorial: "shortcut-routines" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
+    // After goals: a topic is often studied FOR a goal, and the topic page links back to it.
+    { key: "Notebook", to: "/notebook", Icon: NotebookPen },
     // Last in the list: the diary is about the day that happened, not the day being planned.
     { key: "Mood", to: "/mood", Icon: BookHeart },
 ];

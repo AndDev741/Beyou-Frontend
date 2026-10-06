@@ -76,8 +76,16 @@ export const MIN_LONG_BREAK_EVERY = 1;
 export const MAX_LONG_BREAK_EVERY = 12;
 
 export type FocusTimer = {
-    /** The item group this cycle was started on. */
+    /** The item group this cycle was started on. Empty when the cycle runs on no routine item. */
     groupId: string;
+    /**
+     * The study notebook page the cycle was started from, when it was ("Focus 25 min" on a node).
+     * Reported with the cycle so the node can show how long was spent on it. Optional: timers
+     * started from the focus screen, and timers saved before this existed, have none.
+     */
+    notebookPageId?: string | null;
+    /** That page's title, for the running-timer hub. */
+    notebookTitle?: string | null;
     kind: CycleKind;
     /**
      * Epoch milliseconds when this cycle was started. Frozen across pause and resume, unlike

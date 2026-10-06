@@ -17,6 +17,8 @@ import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
 import { getMoodEntries } from "@beyou/api/mood/moodApi";
+import { getBoard, getNotebookHome } from "@beyou/api/notebook";
+import { enterBoard, enterNotebookHome } from "@beyou/state/notebook/notebookSlice";
 import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
 import { selectedFocusGroupId, addDays, enterMoodEntries, todayInZone } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
@@ -78,6 +80,20 @@ export function useAgentRefresh() {
                     const today = todayInZone(state.perfil.timezone);
                     const r = await getMoodEntries({ from: addDays(today, -6), to: today }, t);
                     if (r.success) dispatch(enterMoodEntries(r.success));
+                },
+                notebook: async () => {
+                    // addStudyNode puts a node on a board by title. The home's counts move, and so
+                    // does whichever board is loaded, since the agent may have written to it.
+                    const state = store.getState() as RootState;
+                    const loaded = Object.keys(state.notebook.boards);
+                    const [home, ...boards] = await Promise.all([
+                        getNotebookHome(t),
+                        ...loaded.map((pageId) => getBoard(pageId, t)),
+                    ]);
+                    if (home.success) dispatch(enterNotebookHome(home.success));
+                    for (const board of boards) {
+                        if (board.success) dispatch(enterBoard(board.success));
+                    }
                 },
                 focus: async () => {
                     // Micro-tasks are stored per routine entry and there is no "fetch them all".

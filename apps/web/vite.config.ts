@@ -117,6 +117,13 @@ export default defineConfig({
       'date-fns',
       'lucide-react',
       'lucide-react/dynamic',
+      // The study notebook's editor and board. Listed so the dev server bundles them up front
+      // instead of re-optimizing (and reloading the tab) the first time someone opens a page.
+      '@blocknote/core',
+      '@blocknote/react',
+      '@blocknote/mantine',
+      '@mantine/core',
+      '@xyflow/react',
     ],
   },
   build: {
@@ -155,6 +162,10 @@ export default defineConfig({
           ) {
             return 'forms';
           }
+          // The study notebook's editor (BlockNote, Mantine, ProseMirror) and board (React Flow)
+          // are deliberately NOT named here. A named chunk becomes the home of whatever shared
+          // helper Rollup meets first in it, and the entry then preloads the whole editor at
+          // boot to get two tiny functions. Left alone, they split with the lazy notebook routes.
           if (
             id.includes('node_modules/react-dom') ||
             id.includes('node_modules/react/') ||

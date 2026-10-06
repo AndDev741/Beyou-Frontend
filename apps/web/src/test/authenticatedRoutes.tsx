@@ -17,6 +17,7 @@ export const AUTHENTICATED_ROUTES = [
     "/tasks",
     "/routines",
     "/mood",
+    "/notebook",
     "/configuration",
     "/feedback",
 ] as const;

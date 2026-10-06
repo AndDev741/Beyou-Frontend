@@ -18,6 +18,7 @@ import snapshot from "./routine/snapshotSlice";
 import celebration from "./celebration/celebrationSlice";
 import focus from "./focus/focusSlice";
 import mood from "./mood/moodSlice";
+import notebook from "./notebook/notebookSlice";
 
 
 const rootReducer = combineReducers({
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
     celebration: celebration,
     focus: focus,
     mood: mood,
+    notebook: notebook,
 
 });
 

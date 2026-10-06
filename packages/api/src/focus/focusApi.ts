@@ -23,7 +23,15 @@ const fail = <T>(e: unknown, t: TFunction): Result<T> => {
 
 /** Report one completed cycle. Sent the moment it runs out; never for an abandoned one. */
 export async function recordFocusCycle(
-    input: { itemGroupId: string | null; kind: ServerCycleKind; startedAt: string; endedAt: string; minutes: number },
+    input: {
+        itemGroupId: string | null;
+        kind: ServerCycleKind;
+        startedAt: string;
+        endedAt: string;
+        minutes: number;
+        /** The study notebook page the cycle ran on, when it was started from one. */
+        notebookPageId?: string | null;
+    },
     t: TFunction,
 ): Promise<Result<FocusCycle>> {
     try {

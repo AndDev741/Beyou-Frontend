@@ -43,7 +43,8 @@ const persistConfig = {
     // `mood` carries journal text — the most personal thing the app stores. It is here so
     // that nothing anyone writes about their day is left sitting in localStorage after they
     // close the tab. Refetched on mount like `snapshot`, so nothing is lost by not keeping it.
-    blacklist: ['snapshot', 'perfil', 'celebration', 'mood'],
+    // `notebook` holds study notes, page by page, for the same reason.
+    blacklist: ['snapshot', 'perfil', 'celebration', 'mood', 'notebook'],
     transforms: [focusVisitTransform],
     // `debug: false` keeps a failed migration quiet in production; it still falls back to the
     // reducer's initial state rather than rehydrating something broken.

@@ -1,0 +1,44 @@
+/*
+ * React Flow, in Beyou's colours. Every value is a theme variable, so the board follows the
+ * light and dark bases and the five accent packs without a branch in the code.
+ */
+.beyou-board .react-flow {
+    --xy-background-color: transparent;
+    --xy-background-pattern-dots-color-default: rgb(var(--text-3-rgb) / 0.35);
+    --xy-edge-stroke-default: rgb(var(--text-3-rgb) / 0.55);
+    --xy-edge-stroke-selected-default: rgb(var(--accent-rgb));
+    --xy-connectionline-stroke-default: rgb(var(--accent-rgb));
+    --xy-minimap-background-color-default: rgb(var(--surface-rgb));
+    --xy-minimap-mask-background-color-default: rgb(var(--bg-rgb) / 0.6);
+    --xy-minimap-node-background-color-default: rgb(var(--accent-rgb) / 0.55);
+    --xy-controls-button-background-color-default: rgb(var(--surface-rgb));
+    --xy-controls-button-background-color-hover-default: rgb(var(--surface-2-rgb));
+    --xy-controls-button-color-default: rgb(var(--text-2-rgb));
+    --xy-controls-button-border-color-default: rgb(var(--border-rgb));
+    --xy-node-boxshadow-selected-default: none;
+    --xy-selection-background-color-default: rgb(var(--accent-rgb) / 0.08);
+    --xy-selection-border-default: 1px dashed rgb(var(--accent-rgb));
+}
+
+.beyou-board .react-flow__controls {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgb(var(--border-rgb));
+    box-shadow: none;
+}
+
+.beyou-board .react-flow__minimap {
+    border-radius: 12px;
+    border: 1px solid rgb(var(--border-rgb));
+    overflow: hidden;
+}
+
+/* Node chrome is drawn by the node components themselves. */
+.beyou-board .react-flow__node-page,
+.beyou-board .react-flow__node-section {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}

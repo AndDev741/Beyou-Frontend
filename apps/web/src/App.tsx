@@ -29,6 +29,11 @@ const Routine = lazy(() => import("./pages/routines/routine"));
 const Configuration = lazy(() => import("./pages/configuration/Configuration"));
 const Focus = lazy(() => import("./pages/focus/Focus"));
 const Mood = lazy(() => import("./pages/mood/mood"));
+const NotebookHome = lazy(() => import("./pages/notebook/NotebookHome"));
+const NotebookReview = lazy(() => import("./pages/notebook/NotebookReview"));
+const NotebookPageView = lazy(() => import("./pages/notebook/NotebookPageView"));
+const NotebookBoardFocus = lazy(() => import("./pages/notebook/NotebookBoardFocus"));
+const NotebookStudyRoom = lazy(() => import("./pages/notebook/NotebookStudyRoom"));
 const Feedback = lazy(() => import("./pages/feedback/Feedback"));
 // Admin console (KD7): both the gate and the page are lazy, so no ordinary
 // user ever downloads the triage interface or its admin API client.
@@ -79,6 +84,12 @@ function AppContent() {
                 inside it. See Focus.tsx. */}
             <Route path="/focus" element={<Focus />} />
             <Route path="/mood" element={<Mood />} />
+            <Route path="/notebook" element={<NotebookHome />} />
+            <Route path="/notebook/review" element={<NotebookReview />} />
+            <Route path="/notebook/:pageId" element={<NotebookPageView />} />
+            {/* These two cover the shell, like /focus: a board to pan, a room to study in. */}
+            <Route path="/notebook/:pageId/board" element={<NotebookBoardFocus />} />
+            <Route path="/notebook/:pageId/study" element={<NotebookStudyRoom />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route element={<AdminRoute />}>
