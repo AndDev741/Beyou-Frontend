@@ -17,7 +17,7 @@ import { enterRoutines } from '@beyou/state/routine/routinesSlice';
 import { enterTodayRoutine } from '@beyou/state/routine/todayRoutineSlice';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
 import { microTasksLoaded } from '@beyou/state/focus/focusSlice';
-import { selectedFocusGroupId } from '@beyou/state';
+import { refreshNotebook, selectedFocusGroupId } from '@beyou/state';
 import type { RootState } from '@beyou/state/rootReducer';
 import { hydratePerfil } from '@beyou/state/user/perfilSlice';
 import type { AppDispatch } from '../../store';
@@ -35,7 +35,8 @@ export function useAgentRefresh() {
   const { t } = useTranslation();
 
   return useCallback(
-    async (domains: string[]) => {
+    /** currentPage: the route the person is on when the turn ends; the notebook re-reads the page it shows. */
+    async (domains: string[], currentPage?: string) => {
       const refreshers: Record<string, () => Promise<void>> = {
         habits: async () => {
           const r = await getHabits(t);
@@ -64,6 +65,12 @@ export function useAgentRefresh() {
         perfil: async () => {
           const profile = await getProfile();
           if (profile.data) dispatch(hydratePerfil(profile.data));
+        },
+        notebook: async () => {
+          // The board tools rename, link, reorder and add notes. The chat floats over the
+          // screen, so the page under it does not re-read on focus when the chat closes.
+          const state = store.getState() as RootState;
+          await refreshNotebook(dispatch, state.notebook, currentPage, t);
         },
         focus: async () => {
           // Micro-tasks are stored per routine entry and there is no "fetch them all". What the

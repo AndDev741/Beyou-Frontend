@@ -280,7 +280,7 @@ export function useAgentChat() {
               }
               bumpChat();
               const domains = segments.flatMap((s) => (s.type === 'tool' ? s.domains ?? [] : []));
-              if (domains.length) refreshDomains(domains);
+              if (domains.length) refreshDomains(domains, currentPageRef.current);
             },
             onError: (errorKey) => {
               if (!onThisChat()) return;

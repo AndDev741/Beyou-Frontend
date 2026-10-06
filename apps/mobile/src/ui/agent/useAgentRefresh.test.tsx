@@ -15,11 +15,18 @@ jest.mock('@beyou/api/routine/getRoutines', () => ({ __esModule: true, default: 
 jest.mock('@beyou/api/routine/getTodayRoutine', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('@beyou/api', () => ({ getLogger: () => ({ error: jest.fn() }) }));
 jest.mock('@beyou/api/focus/focusApi', () => ({ listFocusMicroTasks: jest.fn() }));
+jest.mock('@beyou/api/notebook', () => ({
+  getNotebookHome: jest.fn(),
+  getPage: jest.fn(),
+  getBoard: jest.fn(),
+  getTopicTree: jest.fn(),
+}));
 
 import getHabits from '@beyou/api/habits/getHabits';
 import getRoutines from '@beyou/api/routine/getRoutines';
 import getTodayRoutine from '@beyou/api/routine/getTodayRoutine';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
+import { getNotebookHome, getPage } from '@beyou/api/notebook';
 
 const dispatch = jest.fn();
 const typesOf = () => dispatch.mock.calls.map((c) => c[0]?.type);
@@ -42,10 +49,10 @@ const routineWithEntries = {
 /** What the store holds at the moment the turn ends. */
 let storeState: unknown = { todayRoutine: { routine: null }, focus: { selectedIndex: -1 } };
 
-function run(domains: string[]) {
+function run(domains: string[], currentPage?: string) {
   function Harness() {
     const refresh = useAgentRefresh();
-    refresh(domains);
+    refresh(domains, currentPage);
     return null;
   }
   render(<Harness />);
@@ -106,5 +113,19 @@ describe('useAgentRefresh (mobile)', () => {
 
     await waitFor(() => expect(listFocusMicroTasks).not.toHaveBeenCalled());
     expect(typesOf()).not.toContain('focus/microTasksLoaded');
+  });
+
+  // Before this the phone had no notebook refresher at all: every notebook tool logged an
+  // unknown domain and the page under the chat kept showing what was there before.
+  test('notebook re-reads the page under the chat', async () => {
+    const id = '3f1a6f1e-0000-4000-8000-000000000001';
+    storeState = { notebook: { home: null, pages: { [id]: { id } }, trees: {}, boards: {} } };
+    (getNotebookHome as jest.Mock).mockResolvedValue({ success: { topics: [] } });
+    (getPage as jest.Mock).mockResolvedValue({ success: { id } });
+
+    run(['notebook'], `/notebook/${id}`);
+
+    await waitFor(() => expect(getPage).toHaveBeenCalledWith(id, expect.anything()));
+    await waitFor(() => expect(typesOf()).toContain('notebook/enterNotebookPage'));
   });
 });

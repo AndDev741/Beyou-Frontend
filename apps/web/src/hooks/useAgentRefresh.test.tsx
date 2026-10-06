@@ -16,11 +16,18 @@ vi.mock("@beyou/api/routine/getTodayRoutine", () => ({ default: vi.fn() }));
 // Keep the logger quiet + assertable for the unknown-domain path.
 vi.mock("@beyou/api", () => ({ getLogger: () => ({ error: vi.fn() }) }));
 vi.mock("@beyou/api/focus/focusApi", () => ({ listFocusMicroTasks: vi.fn() }));
+vi.mock("@beyou/api/notebook", () => ({
+  getNotebookHome: vi.fn(),
+  getPage: vi.fn(),
+  getBoard: vi.fn(),
+  getTopicTree: vi.fn(),
+}));
 
 import getHabits from "@beyou/api/habits/getHabits";
 import getRoutines from "@beyou/api/routine/getRoutines";
 import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
+import { getNotebookHome, getPage } from "@beyou/api/notebook";
 
 const dispatch = vi.fn();
 const typesOf = () => dispatch.mock.calls.map((c) => c[0]?.type);
@@ -43,10 +50,10 @@ const routineWithEntries = {
 /** What the store holds at the moment the turn ends. */
 let storeState: unknown = { todayRoutine: { routine: null }, focus: { selectedIndex: -1 } };
 
-function run(domains: string[]) {
+function run(domains: string[], currentPage?: string) {
   function Harness() {
     const refresh = useAgentRefresh();
-    refresh(domains);
+    refresh(domains, currentPage);
     return null;
   }
   render(<Harness />);
@@ -63,6 +70,18 @@ beforeEach(() => {
 });
 
 describe("useAgentRefresh", () => {
+  test("notebook re-reads the page on screen, so an open page shows the assistant's change", async () => {
+    const id = "3f1a6f1e-0000-4000-8000-000000000001";
+    storeState = { notebook: { home: null, pages: { [id]: { id } }, trees: {}, boards: {} } };
+    (getNotebookHome as unknown as Mock).mockResolvedValue({ success: { topics: [] } });
+    (getPage as unknown as Mock).mockResolvedValue({ success: { id } });
+
+    run(["notebook"], `/notebook/${id}`);
+
+    await waitFor(() => expect(getPage).toHaveBeenCalledWith(id, expect.anything()));
+    await waitFor(() => expect(typesOf()).toContain("notebook/enterNotebookPage"));
+  });
+
   test("maps a domain to its slice refetch", async () => {
     run(["habits"]);
     await waitFor(() => expect(getHabits).toHaveBeenCalled());

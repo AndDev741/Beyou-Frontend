@@ -1108,7 +1108,15 @@
     "getUserMoodHistory": "Histórico de humor consultado",
     "listStudyTopics": "Tópicos de estudo consultados",
     "addStudyNode": "Nó adicionado ao roteiro",
-    "getStudyPlanForToday": "Plano de estudo consultado"
+    "getStudyPlanForToday": "Plano de estudo consultado",
+    "getStudyBoard": "Roteiro consultado",
+    "editStudyNode": "Nó atualizado",
+    "setStudyNodeStatus": "Status de estudo alterado",
+    "connectStudyNodes": "Nós ligados",
+    "disconnectStudyNodes": "Ligação removida",
+    "removeStudyNode": "Nó tirado do roteiro",
+    "reorderStudyBoard": "Roteiro reordenado",
+    "addStudyNotes": "Notas adicionadas à página"
   },
   "ThemeMode": "Modo",
   "ThemeModeSystem": "Sistema",
