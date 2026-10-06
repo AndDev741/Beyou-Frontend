@@ -97,7 +97,7 @@ export default function PageTree({ topicId, currentPageId }: { topicId: string; 
         });
 
     return (
-        <nav aria-label={t("NotebookTreeLabel")} className="flex flex-col gap-3 lg:sticky lg:top-0 lg:h-[calc(100vh-6rem)] lg:w-[248px] lg:shrink-0 lg:overflow-y-auto lg:px-2.5 lg:py-4">
+        <nav aria-label={t("NotebookTreeLabel")} className="flex flex-col gap-3 lg:sticky lg:top-0 lg:h-screen lg:w-[248px] lg:shrink-0 lg:overflow-y-auto lg:px-2.5 lg:py-4">
             <div className="relative">
                 <button type="button" onClick={() => setSwitching((v) => !v)} aria-expanded={switching}
                     className="flex w-full items-center gap-2.5 rounded-control px-2 py-1.5 text-left text-sm font-semibold text-text hover:bg-surface-2">

@@ -22,6 +22,7 @@ import ErrorNotice from "../../components/ErrorNotice";
 import Modal from "../../components/modals/Modal";
 import NotebookIcon from "../../components/notebook/NotebookIcon";
 import PageIconPicker from "../../components/notebook/PageIconPicker";
+import { useNoDesktopSpacer } from "../../components/shell/desktopSpacer";
 
 type SaveState = "idle" | "saving" | "saved" | "failed";
 
@@ -51,6 +52,8 @@ export default function NotebookPageView() {
     const [pickingIcon, setPickingIcon] = useState(false);
     const changeStatus = useStatusChange();
     const { start, timer } = useNotebookFocus();
+    // The page reserves its own bottom space (see the main element), so the shell's spacer goes.
+    useNoDesktopSpacer();
 
     const load = useCallback(async () => {
         if (!pageId) return;
@@ -153,18 +156,20 @@ export default function NotebookPageView() {
 
     const topicId = page.kind === "TOPIC" ? page.id : page.topicId!;
     const timerHere = timer && !timer.finished && timer.notebookPageId === page.id;
+    // The timer pill floats over the bottom of the screen while any cycle runs.
+    const timerRunning = Boolean(timer && !timer.finished);
     const blank = !page.content || page.content === "[]";
 
     return (
-        <div className="flex min-h-[calc(100vh-5rem)] flex-col bg-bg text-text lg:min-h-[calc(100vh-6rem)] lg:flex-row" data-testid="notebook-page">
-            {/* The tree is exactly as tall as this page's minimum height, the screen less the shell's
-                bottom spacer. A full-screen tree made every page at least a screen tall, and the
-                spacer then sat under that, so short notes ended over 100px above the real bottom. The
-                divider lives here, on the wrapper, which stretches with the page. */}
+        <div className="flex min-h-[calc(100vh-5rem)] flex-col bg-bg text-text lg:min-h-screen lg:flex-row" data-testid="notebook-page">
+            {/* On desktop the shell's bottom spacer is off for this page and the page keeps its own
+                space: the content column ends with the editor's empty trailing line and 40px, more
+                while the timer pill floats over the bottom. The tree is a full screen tall and sticky,
+                and the divider lives on its wrapper, which stretches with the page. */}
             <div className="border-b border-border px-4 py-3 lg:border-b-0 lg:border-r lg:p-0">
                 <PageTree topicId={topicId} currentPageId={page.id} />
             </div>
-            <main className="min-w-0 flex-1 px-4 pb-6 pt-5 lg:px-10">
+            <main className={`min-w-0 flex-1 px-4 pb-6 pt-5 lg:px-10 ${timerRunning ? "lg:pb-28" : "lg:pb-10"}`}>
                 <div className="mx-auto max-w-[880px]">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <nav aria-label={t("NotebookBreadcrumb")} className="flex min-w-0 flex-wrap items-center gap-1.5 text-[13px] text-text-2">
