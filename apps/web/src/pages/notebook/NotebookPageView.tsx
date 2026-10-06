@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -48,6 +48,11 @@ export default function NotebookPageView() {
     // must never be able to act on a page the person did not choose.
     const [deleting, setDeleting] = useState<{ id: string; title: string; parentId: string | null } | null>(null);
     const [editorKey, setEditorKey] = useState(0);
+    // The document the editor was built from or last saved. Anything else arriving in the store
+    // for this page was written somewhere else while it was open (the assistant adding notes, or
+    // a board block), and the editor has to be rebuilt from it: BlockNote reads its content once,
+    // and its next autosave would otherwise write the page back without what was added.
+    const editorContent = useRef<{ pageId: string; content: string | null } | null>(null);
     const [pickingIcon, setPickingIcon] = useState(false);
     const changeStatus = useStatusChange();
     const { start, timer } = useNotebookFocus();
@@ -74,6 +79,7 @@ export default function NotebookPageView() {
             if (!pageId) return;
             setSave("saving");
             const response = await savePageContent(pageId, json, t);
+            if (response.success) editorContent.current = { pageId, content: json };
             setSave(response.success ? "saved" : "failed");
         },
         [pageId, t]
@@ -111,10 +117,23 @@ export default function NotebookPageView() {
         const content = JSON.stringify(type === "paragraph" ? [{ type: "paragraph" }] : [{ type }, { type: "paragraph" }]);
         const response = await savePageContent(page.id, content, t);
         if (response.success) {
+            editorContent.current = { pageId: page.id, content };
             dispatch(enterNotebookPage({ ...page, content }));
             setEditorKey((k) => k + 1);
         }
     };
+
+    useEffect(() => {
+        if (!page) return;
+        const known = editorContent.current;
+        editorContent.current = { pageId: page.id, content: page.content };
+        if (known?.pageId === page.id && known.content !== page.content) setEditorKey((k) => k + 1);
+    }, [page?.id, page?.content]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // A rename from somewhere else (the assistant) reaches the title field too.
+    useEffect(() => {
+        if (page) setTitle(page.title);
+    }, [page?.title]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // This screen stays mounted when the route moves to another page, so what belonged to the
     // page that was here goes with it. Reported in local testing: after a delete the dialog was
@@ -299,7 +318,9 @@ export default function NotebookPageView() {
                             onClose={() => setExplaining(null)}
                             onAppended={() => {
                                 setExplaining(null);
-                                void load().then(() => setEditorKey((k) => k + 1));
+                                // The reload brings the appended blocks, and the content effect above
+                                // rebuilds the editor from them.
+                                void load();
                             }}
                         />
                     )}

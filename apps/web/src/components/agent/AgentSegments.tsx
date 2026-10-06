@@ -42,6 +42,7 @@ const READ_TOOLS = new Set([
     "getUserMoodHistory",
     "listStudyTopics",
     "getStudyPlanForToday",
+    "getStudyBoard",
 ]);
 
 /** Where each write tool points: route + icon + link label. */

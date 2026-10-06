@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Folder,
   ListChecks,
+  NotebookPen,
   Repeat,
   Settings,
   Target,
@@ -41,6 +42,9 @@ const READ_TOOLS = new Set([
   'getItemMicroTasks',
   'getFocusDay',
   'getUserMoodHistory',
+  'listStudyTopics',
+  'getStudyPlanForToday',
+  'getStudyBoard',
 ]);
 
 /** Where each write tool points: route + icon + link label. */
@@ -56,6 +60,7 @@ const DESTINATIONS: { match: RegExp; destination: Destination }[] = [
     destination: { route: '/routines', Icon: CalendarDays, labelKey: 'Routines' },
   },
   { match: /Mood/, destination: { route: '/mood', Icon: BookHeart, labelKey: 'Mood' } },
+  { match: /Study/, destination: { route: '/notebook', Icon: NotebookPen, labelKey: 'Notebook' } },
   {
     match: /Configuration/,
     destination: { route: '/configuration', Icon: Settings, labelKey: 'Config' },

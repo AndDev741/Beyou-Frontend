@@ -17,10 +17,8 @@ import { enterRoutines } from "@beyou/state/routine/routinesSlice";
 import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
 import { getMoodEntries } from "@beyou/api/mood/moodApi";
-import { getBoard, getNotebookHome } from "@beyou/api/notebook";
-import { enterBoard, enterNotebookHome } from "@beyou/state/notebook/notebookSlice";
 import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
-import { selectedFocusGroupId, addDays, enterMoodEntries, todayInZone } from "@beyou/state";
+import { selectedFocusGroupId, addDays, enterMoodEntries, refreshNotebook, todayInZone } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
@@ -41,7 +39,8 @@ export function useAgentRefresh() {
     const { t } = useTranslation();
 
     return useCallback(
-        async (domains: string[]) => {
+        /** currentPage: the route the person is on when the turn ends; the notebook re-reads the page it shows. */
+        async (domains: string[], currentPage?: string) => {
             const refreshers: Record<string, () => Promise<void>> = {
                 habits: async () => {
                     const r = await getHabits(t);
@@ -82,18 +81,10 @@ export function useAgentRefresh() {
                     if (r.success) dispatch(enterMoodEntries(r.success));
                 },
                 notebook: async () => {
-                    // addStudyNode puts a node on a board by title. The home's counts move, and so
-                    // does whichever board is loaded, since the agent may have written to it.
+                    // The board tools rename, link, reorder and add notes, so the boards, the
+                    // sidebar trees and the page on screen all may have moved.
                     const state = store.getState() as RootState;
-                    const loaded = Object.keys(state.notebook.boards);
-                    const [home, ...boards] = await Promise.all([
-                        getNotebookHome(t),
-                        ...loaded.map((pageId) => getBoard(pageId, t)),
-                    ]);
-                    if (home.success) dispatch(enterNotebookHome(home.success));
-                    for (const board of boards) {
-                        if (board.success) dispatch(enterBoard(board.success));
-                    }
+                    await refreshNotebook(dispatch, state.notebook, currentPage, t);
                 },
                 focus: async () => {
                     // Micro-tasks are stored per routine entry and there is no "fetch them all".

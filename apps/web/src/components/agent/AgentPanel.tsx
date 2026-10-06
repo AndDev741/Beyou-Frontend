@@ -378,7 +378,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                     // Refetch exactly the slices the agent's write tools touched,
                     // once, from the union of domains across the whole turn.
                     const domains = segments.flatMap((s) => (s.type === "tool" ? s.domains ?? [] : []));
-                    if (domains.length) refreshDomains(domains);
+                    if (domains.length) refreshDomains(domains, currentPageRef.current);
                 },
                 onError: (errorKey) => {
                     if (!onThisChat()) return;

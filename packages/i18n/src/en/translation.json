@@ -1108,7 +1108,15 @@
     "getUserMoodHistory": "Mood history checked",
     "listStudyTopics": "Study topics checked",
     "addStudyNode": "Node added to the roadmap",
-    "getStudyPlanForToday": "Study plan checked"
+    "getStudyPlanForToday": "Study plan checked",
+    "getStudyBoard": "Roadmap read",
+    "editStudyNode": "Node updated",
+    "setStudyNodeStatus": "Study status changed",
+    "connectStudyNodes": "Nodes linked",
+    "disconnectStudyNodes": "Link removed",
+    "removeStudyNode": "Node removed from the roadmap",
+    "reorderStudyBoard": "Roadmap reordered",
+    "addStudyNotes": "Notes added to the page"
   },
   "ThemeMode": "Mode",
   "ThemeModeSystem": "System",

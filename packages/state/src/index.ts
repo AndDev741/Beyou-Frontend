@@ -311,3 +311,4 @@ export { applyStatuses } from './notebook/notebookStatus';
 export { applyPageDetails } from './notebook/notebookDetails';
 export type { PageDetails } from './notebook/notebookDetails';
 export { pathLevels, prerequisitesOf, progressShare } from './notebook/notebookPath';
+export { notebookPageIdFromPath, refreshNotebook } from './notebook/refreshNotebook';
