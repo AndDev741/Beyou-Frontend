@@ -14,6 +14,8 @@ import { Layers, Sparkles, Workflow } from "lucide-react";
 import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
 import { notebookSchema, type NotebookBlock, type NotebookEditor as Editor } from "./schema";
 import { NotebookPageContext } from "./NotebookPageContext";
+import { isEmptyDocument } from "./emptyDocument";
+import { hasUnknownLanguage, normalizeCodeLanguage, withKnownLanguages } from "./codeLanguages";
 import type { Theme as EditorTheme } from "@blocknote/mantine";
 
 type Props = {
@@ -78,6 +80,21 @@ export default function NotebookEditor({ pageId, pageTitle, cardsTotal, content,
     };
 
     const hasBoard = useBoardPresence(editor);
+    const empty = useEmptiness(editor);
+    useKnownCodeLanguages(editor);
+
+    /**
+     * The starters put their block in front of what the editor holds, never in place of it. They
+     * used to write a new document to the server, and the page decided they could show from a copy
+     * of the page that autosave does not update: on a page that started empty they stayed up while
+     * the person wrote, and "Add cards" replaced everything written with one cards block.
+     */
+    const start = (type: typeof BOARD_BLOCK_TYPE | "flashcards") => {
+        editor.insertBlocks([{ type }], editor.document[0], "before");
+        const blocks = editor.document;
+        editor.setTextCursorPosition(blocks[blocks.length - 1], "end");
+        editor.focus();
+    };
 
     const getItems = async (query: string) =>
         filterSuggestionItems(
@@ -87,6 +104,18 @@ export default function NotebookEditor({ pageId, pageTitle, cardsTotal, content,
 
     return (
         <NotebookPageContext.Provider value={{ pageId, pageTitle, cardsTotal }}>
+            {empty && (
+                <div className="mb-4 flex flex-wrap gap-2" data-testid="page-starters">
+                    <button type="button" onClick={() => start(BOARD_BLOCK_TYPE)} data-testid="start-board"
+                        className="inline-flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm font-semibold text-text hover:bg-surface-2">
+                        <Workflow size={15} className="text-accent" aria-hidden="true" />{t("NotebookStartBoard")}
+                    </button>
+                    <button type="button" onClick={() => start("flashcards")} data-testid="start-cards"
+                        className="inline-flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm font-semibold text-text hover:bg-surface-2">
+                        <Layers size={15} className="text-xp" aria-hidden="true" />{t("NotebookStartCards")}
+                    </button>
+                </div>
+            )}
             <div className="beyou-editor -mx-[54px]" data-testid="notebook-editor">
                 <BlockNoteView
                     editor={editor}
@@ -188,6 +217,39 @@ function useBoardPresence(editor: Editor): boolean {
     return present;
 }
 
+/**
+ * A code block typed with a language the picker does not list ("```cs ") is moved to the id it
+ * stands for, or to "text". Deferred a tick: a block cannot be updated from inside the change
+ * that created it.
+ */
+function useKnownCodeLanguages(editor: Editor) {
+    useEffect(
+        () => editor.onChange(() => {
+            if (!hasUnknownLanguage(editor.document)) return;
+            setTimeout(() => {
+                const visit = (blocks: NotebookBlock[]) => {
+                    for (const block of blocks) {
+                        const language = (block.props as { language?: unknown }).language;
+                        if (block.type === "codeBlock" && normalizeCodeLanguage(language) !== language) {
+                            editor.updateBlock(block, { props: { language: normalizeCodeLanguage(language) } });
+                        }
+                        visit(block.children as NotebookBlock[]);
+                    }
+                };
+                visit(editor.document as NotebookBlock[]);
+            }, 0);
+        }),
+        [editor]
+    );
+}
+
+/** Whether the document has nothing in it yet, read from the editor as it changes. */
+function useEmptiness(editor: Editor): boolean {
+    const [empty, setEmpty] = useState(() => isEmptyDocument(editor.document as NotebookBlock[]));
+    useEffect(() => editor.onChange(() => setEmpty(isEmptyDocument(editor.document as NotebookBlock[]))), [editor]);
+    return empty;
+}
+
 function hasBoardBlock(blocks: NotebookBlock[]): boolean {
     return blocks.some((b) => b.type === BOARD_BLOCK_TYPE);
 }
@@ -197,7 +259,7 @@ function parse(content: string | null) {
     if (!content) return undefined;
     try {
         const blocks = JSON.parse(content);
-        return Array.isArray(blocks) && blocks.length > 0 ? blocks : undefined;
+        return Array.isArray(blocks) && blocks.length > 0 ? withKnownLanguages(blocks) : undefined;
     } catch {
         return undefined;
     }

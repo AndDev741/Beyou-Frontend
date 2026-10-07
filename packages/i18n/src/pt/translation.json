@@ -1116,7 +1116,8 @@
     "disconnectStudyNodes": "Ligação removida",
     "removeStudyNode": "Nó tirado do roteiro",
     "reorderStudyBoard": "Roteiro reordenado",
-    "addStudyNotes": "Notas adicionadas à página"
+    "addStudyNotes": "Notas adicionadas à página",
+    "generateStudyCards": "Cartões criados"
   },
   "ThemeMode": "Modo",
   "ThemeModeSystem": "Sistema",
@@ -1558,6 +1559,8 @@
   "NotebookCardsDrafted_other": "{{count}} cartões adicionados",
   "NotebookCardsWrite": "Escrever um",
   "NotebookCardsAdd": "Adicionar cartão",
+  "NotebookCardsShowAll_other": "Ver os {{count}} cartões",
+  "NotebookCardsShowLess": "Mostrar menos",
   "NotebookCardsEmpty": "Nenhum cartão nesta página ainda. Escreva um, ou deixe a IA rascunhar alguns a partir das suas notas.",
   "NotebookCardFront": "Pergunta",
   "NotebookCardBack": "Resposta",
