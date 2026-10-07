@@ -1116,7 +1116,8 @@
     "disconnectStudyNodes": "Link removed",
     "removeStudyNode": "Node removed from the roadmap",
     "reorderStudyBoard": "Roadmap reordered",
-    "addStudyNotes": "Notes added to the page"
+    "addStudyNotes": "Notes added to the page",
+    "generateStudyCards": "Flashcards drafted"
   },
   "ThemeMode": "Mode",
   "ThemeModeSystem": "System",
@@ -1558,6 +1559,8 @@
   "NotebookCardsDrafted_other": "{{count}} cards added",
   "NotebookCardsWrite": "Write one",
   "NotebookCardsAdd": "Add card",
+  "NotebookCardsShowAll_other": "Show all {{count}} cards",
+  "NotebookCardsShowLess": "Show fewer",
   "NotebookCardsEmpty": "No cards on this page yet. Write one, or let AI draft a few from your notes.",
   "NotebookCardFront": "Question",
   "NotebookCardBack": "Answer",

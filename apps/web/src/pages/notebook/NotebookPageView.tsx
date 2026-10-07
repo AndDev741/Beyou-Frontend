@@ -8,7 +8,6 @@ import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookPage, notebookPageDetailsChanged, progressShare, removeNotebookPage } from "@beyou/state";
 import { deletePage, getPage, savePageContent, updatePage } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage, type ApiErrorPayload } from "@beyou/api/apiError";
-import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
 import PageTree from "../../components/notebook/PageTree";
 import NotebookEditor from "../../components/notebook/editor/NotebookEditor";
 import TopicLinks from "../../components/notebook/TopicLinks";
@@ -30,9 +29,9 @@ type SaveState = "idle" | "saving" | "saved" | "failed";
  * One page of the notebook: the tree beside it, its place and numbers above, and the document,
  * where the roadmap board and the flashcards are blocks among the notes.
  *
- * A topic shows its links (goal, category, habit) where a node shows its status. A page that has
- * never been written in starts with a choice of what to add first, because an empty editor gives
- * no hint that a board can live in it.
+ * A topic shows its links (goal, category, habit) where a node shows its status. While a page has
+ * nothing in it, the editor offers a choice of what to add first, because an empty editor gives no
+ * hint that a board can live in it.
  */
 export default function NotebookPageView() {
     const { pageId } = useParams<{ pageId: string }>();
@@ -77,11 +76,18 @@ export default function NotebookPageView() {
         void load();
     }, [load]);
 
+    // The page on screen right now. A save can belong to the page that was here before: leaving a
+    // page sends its last edit as the editor goes, and that answer lands after the next page is up.
+    const shownPage = useRef(pageId);
+    shownPage.current = pageId;
+
     const onSave = useCallback(
         async (json: string) => {
             if (!pageId) return;
-            setSave("saving");
+            const shown = () => shownPage.current === pageId;
+            if (shown()) setSave("saving");
             const response = await savePageContent(pageId, json, t);
+            if (!shown()) return;
             if (response.success) editorContent.current = { pageId, content: json };
             setSave(response.success ? "saved" : "failed");
         },
@@ -114,18 +120,6 @@ export default function NotebookPageView() {
         dispatch(notebookPageDetailsChanged({ pageId: response.success.id, title: response.success.title, icon: response.success.icon }));
     };
 
-    /** The first-block chooser for an empty page writes the document and reloads the editor. */
-    const startWith = async (type: typeof BOARD_BLOCK_TYPE | "flashcards" | "paragraph") => {
-        if (!page) return;
-        const content = JSON.stringify(type === "paragraph" ? [{ type: "paragraph" }] : [{ type }, { type: "paragraph" }]);
-        const response = await savePageContent(page.id, content, t);
-        if (response.success) {
-            editorContent.current = { pageId: page.id, content };
-            dispatch(enterNotebookPage({ ...page, content }));
-            setEditorKey((k) => k + 1);
-        }
-    };
-
     useEffect(() => {
         if (!page) return;
         const known = editorContent.current;
@@ -146,6 +140,9 @@ export default function NotebookPageView() {
         setMenuOpen(false);
         setExplaining(null);
         setPickingIcon(false);
+        // "Saved" was about the page that was here. Carried over, it tells the person the new page is
+        // saved before anything on it has been.
+        setSave("idle");
     }, [pageId]);
 
     const remove = async () => {
@@ -177,7 +174,6 @@ export default function NotebookPageView() {
     const timerHere = timer && !timer.finished && timer.notebookPageId === page.id;
     // The timer pill floats over the bottom of the screen while any cycle runs.
     const timerRunning = Boolean(timer && !timer.finished);
-    const blank = !page.content || page.content === "[]";
 
     return (
         <div className="flex min-h-[calc(100vh-5rem)] flex-col bg-bg text-text lg:min-h-screen lg:flex-row" data-testid="notebook-page">
@@ -291,19 +287,6 @@ export default function NotebookPageView() {
                             </Link>
                         </dd>
                     </dl>
-
-                    {blank && (
-                        <div className="mt-6 flex flex-wrap gap-2" data-testid="page-starters">
-                            <button type="button" onClick={() => void startWith(BOARD_BLOCK_TYPE)} data-testid="start-board"
-                                className="inline-flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm font-semibold text-text hover:bg-surface-2">
-                                <Workflow size={15} className="text-accent" aria-hidden="true" />{t("NotebookStartBoard")}
-                            </button>
-                            <button type="button" onClick={() => void startWith("flashcards")}
-                                className="inline-flex items-center gap-2 rounded-control border border-border bg-surface px-3 py-2 text-sm font-semibold text-text hover:bg-surface-2">
-                                <Layers size={15} className="text-xp" aria-hidden="true" />{t("NotebookStartCards")}
-                            </button>
-                        </div>
-                    )}
 
                     <div className="mt-6">
                         <NotebookEditor

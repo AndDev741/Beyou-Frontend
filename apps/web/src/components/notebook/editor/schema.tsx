@@ -1,9 +1,10 @@
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { BlockNoteSchema, createCodeBlockSpec, defaultBlockSpecs } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
 import BoardBlock from "../board/BoardBlock";
 import FlashcardsBlock from "./FlashcardsBlock";
 import { useNotebookPageContext } from "./NotebookPageContext";
+import { CODE_LANGUAGES } from "./codeLanguages";
 
 /** Renders the page's board where the block sits. The board itself belongs to the page. */
 const RoadmapBoardSpec = createReactBlockSpec(
@@ -21,8 +22,8 @@ const FlashcardsSpec = createReactBlockSpec(
     { type: "flashcards", propSchema: {}, content: "none" },
     {
         render: function FlashcardsRender() {
-            const { pageId } = useNotebookPageContext();
-            return <FlashcardsBlock pageId={pageId} />;
+            const { pageId, cardsTotal } = useNotebookPageContext();
+            return <FlashcardsBlock pageId={pageId} cardsTotal={cardsTotal} />;
         },
     }
 );
@@ -36,6 +37,8 @@ const { audio, video, file, ...kept } = defaultBlockSpecs;
 export const notebookSchema = BlockNoteSchema.create({
     blockSpecs: {
         ...kept,
+        // A language picker on every code block, over the list in codeLanguages.ts.
+        codeBlock: createCodeBlockSpec({ supportedLanguages: CODE_LANGUAGES, defaultLanguage: "text" }),
         [BOARD_BLOCK_TYPE]: RoadmapBoardSpec(),
         flashcards: FlashcardsSpec(),
     },
