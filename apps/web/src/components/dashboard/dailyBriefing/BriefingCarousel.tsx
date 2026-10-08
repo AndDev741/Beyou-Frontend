@@ -5,6 +5,7 @@ import { BRIEFING_PAGES, type BriefingPage } from "@beyou/state";
 import type { DailyBriefing } from "@beyou/types/briefing/briefing";
 import TodayPage from "./TodayPage";
 import RecapPage from "./RecapPage";
+import useMoodRange from "../../../hooks/useMoodRange";
 
 type Props = {
     briefing: DailyBriefing;
@@ -34,6 +35,10 @@ export default function BriefingCarousel({ briefing, locale }: Props) {
     const { t } = useTranslation();
     const reduceMotion = useReducedMotion();
     const [page, setPage] = useState<BriefingPage>("today");
+    // One read for both pages: yesterday's journal on the recap, today's face on the other.
+    // Through the shared slice, so the dashboard's mood widget agrees with whatever is
+    // picked in here.
+    const { byDate, loading: moodLoading } = useMoodRange(briefing.yesterday.date, briefing.date);
 
     return (
         <div className="flex min-w-0 flex-col" data-testid="briefing-carousel">
@@ -47,9 +52,14 @@ export default function BriefingCarousel({ briefing, locale }: Props) {
                         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     >
                         {page === "today" ? (
-                            <TodayPage briefing={briefing} locale={locale} />
+                            <TodayPage
+                                briefing={briefing}
+                                locale={locale}
+                                moodToday={byDate[briefing.date]}
+                                moodLoading={moodLoading}
+                            />
                         ) : (
-                            <RecapPage briefing={briefing} />
+                            <RecapPage briefing={briefing} moodYesterday={byDate[briefing.yesterday.date]} />
                         )}
                     </motion.div>
                 </AnimatePresence>

@@ -150,8 +150,21 @@ export {
   groupOpenItemsByDay,
   allOpenItems,
   recoveryIsUrgent,
+  briefingGoals,
+  NARRATIVE_POLL_DELAYS_MS,
+  NARRATIVE_GAVE_UP,
+  withNarrative,
+  pollNarrative,
+  goalPaceMessage,
+  showsExpectedPace,
 } from './briefing/briefingRules';
-export type { BriefingPage, BriefingGateInput, BriefingDayGroup } from './briefing/briefingRules';
+export type {
+  BriefingPage,
+  BriefingGateInput,
+  BriefingDayGroup,
+  GoalPaceMessage,
+  GoalPaceTone,
+} from './briefing/briefingRules';
 
 // mood + journaling
 export {

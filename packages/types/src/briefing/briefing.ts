@@ -78,7 +78,24 @@ export type BriefingGoal = {
     /** Whole days from today. Negative means overdue, which is worth saying out loud. */
     daysRemaining: number;
     percentComplete: number;
+    /** How far the current value is from the target, never negative. */
+    remainingValue: number;
+    /**
+     * What each day from today through the end date has to add, today included. Null once
+     * the goal is overdue or the target is met, since neither has a daily rate to ask for.
+     */
+    requiredPerDay: number | null;
+    /** Where a straight line from start to end says the goal should be by today, 0-100. */
+    expectedPercent: number;
+    /** The server's verdict, so the two apps never disagree about whether a goal is behind. */
+    pace: BriefingGoalPace;
 };
+
+/**
+ * Where a goal stands against its straight line. `REACHED` is a met target the user has
+ * not marked done yet: the goal's XP is paid on completion, so that one is a reward waiting.
+ */
+export type BriefingGoalPace = 'ON_TRACK' | 'BEHIND' | 'OVERDUE' | 'REACHED';
 
 /**
  * Days older than yesterday that a retroactive check would still be accepted for.
@@ -106,8 +123,17 @@ export type BriefingToday = {
     scheduledToday: boolean;
     currentStreak: number;
     bestStreak: number;
+    /**
+     * Goals ending within two weeks. Kept on the wire for app builds already installed;
+     * current screens read `goalsAhead`, through `briefingGoals` in @beyou/state.
+     */
     goalsApproaching: BriefingGoal[];
     recovery: BriefingRecoveryWindow | null;
+    /**
+     * Up to three open goals, closest to their end date on either side, with their pace. No
+     * horizon: a goal months out is still where the user is heading.
+     */
+    goalsAhead: BriefingGoal[];
 };
 
 export type BriefingNarrative = {
@@ -155,6 +181,7 @@ export function briefingWorthShowing(briefing: DailyBriefing | null): boolean {
     const aboutToday =
         (today?.scheduledItemCount ?? 0) > 0 ||
         (today?.goalsApproaching?.length ?? 0) > 0 ||
+        (today?.goalsAhead?.length ?? 0) > 0 ||
         (today?.recovery ?? null) !== null;
     return aboutYesterday || aboutToday;
 }

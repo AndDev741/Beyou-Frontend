@@ -10,7 +10,12 @@
  * judgement calls that sit between the response and the screen.
  */
 
-import type { DailyBriefing, BriefingOpenItem } from '@beyou/types/briefing/briefing';
+import type {
+    DailyBriefing,
+    BriefingGoal,
+    BriefingNarrative,
+    BriefingOpenItem,
+} from '@beyou/types/briefing/briefing';
 import { briefingWorthShowing } from '@beyou/types/briefing/briefing';
 
 /**
@@ -205,4 +210,145 @@ export function groupOpenItemsByDay(items: BriefingOpenItem[]): BriefingDayGroup
 export function recoveryIsUrgent(briefing: DailyBriefing): boolean {
     const recovery = briefing.today?.recovery ?? null;
     return recovery !== null && recovery.daysUntilExpiry <= 1;
+}
+
+/**
+ * The goals the dialog shows: `goalsAhead`, or the older two-week list from a server that
+ * predates it.
+ *
+ * The fallback is for the gap between deploys, not for a design that keeps both. Mobile
+ * builds ship on their own schedule, so for a while a new app can meet an old server.
+ */
+export function briefingGoals(briefing: DailyBriefing): BriefingGoal[] {
+    return briefing.today?.goalsAhead ?? briefing.today?.goalsApproaching ?? [];
+}
+
+/**
+ * How long to wait before each ask for the prose, in milliseconds.
+ *
+ * About seventy seconds in ten requests. The server stops holding the first request at eight
+ * seconds and lets the call finish on its own, and in production that call lands somewhere
+ * after that, almost always inside a minute. Spaced out rather than every two seconds because
+ * every ask spends the same read budget the dashboard's lists use, and the panel reads fine
+ * while it waits.
+ */
+export const NARRATIVE_POLL_DELAYS_MS: readonly number[] = [
+    2000, 3000, 4000, 5000, 6000, 8000, 10000, 10000, 12000, 12000,
+];
+
+/** What the panel falls back to when the prose never came. */
+export const NARRATIVE_GAVE_UP: BriefingNarrative = {
+    status: 'UNAVAILABLE',
+    todayLines: [],
+    yesterdayLines: [],
+};
+
+/** The briefing with its prose replaced, everything the user changed meanwhile kept. */
+export function withNarrative(briefing: DailyBriefing, narrative: BriefingNarrative): DailyBriefing {
+    return { ...briefing, narrative };
+}
+
+/**
+ * Asks for the prose until it is settled, then reports it once.
+ *
+ * This is what was missing. The first `GET /daily-briefing` answers PENDING when the model
+ * takes longer than eight seconds, the server keeps the call running and stores the result,
+ * and nothing ever asked again: every narration in production landed READY in its row and
+ * none reached a screen. The dialog opens once a day, so "the next open" that was meant to
+ * find it does not exist.
+ *
+ * A failed ask (network, a 429) counts as still pending and the schedule carries on. When the
+ * schedule runs out the panel is told the prose is unavailable, so the skeleton always ends.
+ * Returns a cancel function for the caller's effect cleanup; nothing is reported after it is
+ * called.
+ */
+export function pollNarrative(
+    fetchNarrative: () => Promise<BriefingNarrative | null>,
+    onSettled: (narrative: BriefingNarrative) => void,
+    delays: readonly number[] = NARRATIVE_POLL_DELAYS_MS,
+): () => void {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const step = (index: number) => {
+        if (cancelled) return;
+        if (index >= delays.length) {
+            onSettled(NARRATIVE_GAVE_UP);
+            return;
+        }
+        timer = setTimeout(async () => {
+            if (cancelled) return;
+            const narrative = await fetchNarrative().catch(() => null);
+            if (cancelled) return;
+            if (narrative && narrative.status !== 'PENDING') {
+                onSettled(narrative);
+                return;
+            }
+            step(index + 1);
+        }, delays[index]);
+    };
+
+    step(0);
+    return () => {
+        cancelled = true;
+        if (timer !== undefined) clearTimeout(timer);
+    };
+}
+
+/** How loud a goal's pace line should be. Each app maps it to its own theme tokens. */
+export type GoalPaceTone = 'success' | 'danger' | 'flame' | 'muted';
+
+export type GoalPaceMessage = {
+    key: string;
+    params?: Record<string, string | number>;
+    tone: GoalPaceTone;
+};
+
+/**
+ * The line under a goal's bar: which translation key, with what, in which tone.
+ *
+ * Shared because it is a judgement two apps would word differently within a month. The
+ * verdict itself comes from the server; this only picks the sentence. Null when there is
+ * nothing honest to say: a goal from a server older than the pace fields, or one "behind"
+ * on a zero target, which has no daily amount to ask for.
+ *
+ * @param formatNumber the app's locale formatter for the per-day amount
+ */
+export function goalPaceMessage(
+    goal: BriefingGoal,
+    formatNumber: (value: number) => string,
+): GoalPaceMessage | null {
+    const perDay = goal.requiredPerDay;
+    switch (goal.pace) {
+        case 'REACHED':
+            return { key: 'BriefingGoalPaceReached', tone: 'success' };
+        case 'OVERDUE':
+            return { key: 'BriefingGoalPaceOverdue', tone: 'danger' };
+        case 'BEHIND':
+            return perDay != null
+                ? {
+                      key: 'BriefingGoalPaceBehind',
+                      params: { perDay: formatNumber(perDay), unit: goal.unit },
+                      tone: 'flame',
+                  }
+                : null;
+        case 'ON_TRACK':
+            return perDay != null
+                ? {
+                      key: 'BriefingGoalPaceOnTrack',
+                      params: { perDay: formatNumber(perDay), unit: goal.unit },
+                      tone: 'muted',
+                  }
+                : { key: 'BriefingGoalPaceOnTrackPlain', tone: 'muted' };
+        default:
+            return null;
+    }
+}
+
+/**
+ * Whether the bar should carry a tick at `expectedPercent`. Only while there is still time
+ * to be on or off the line: a met or lapsed goal has no pace left to compare.
+ */
+export function showsExpectedPace(goal: BriefingGoal): boolean {
+    return (goal.pace === 'BEHIND' || goal.pace === 'ON_TRACK') && typeof goal.expectedPercent === 'number';
 }

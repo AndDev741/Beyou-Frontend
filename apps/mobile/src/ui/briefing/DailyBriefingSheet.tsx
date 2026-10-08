@@ -13,16 +13,24 @@ import {
 } from 'lucide-react-native';
 import {
   BRIEFING_PAGES,
+  briefingGoals,
+  goalPaceMessage,
   groupOpenItemsByDay,
   recoveryIsUrgent,
+  showsExpectedPace,
   type BriefingPage,
+  type GoalPaceTone,
 } from '@beyou/state';
 import type { BriefingOpenItem, DailyBriefing } from '@beyou/types/briefing/briefing';
+import type { MoodEntry } from '@beyou/types/mood/mood';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import BottomSheet from '../BottomSheet';
 import Button from '../Button';
 import BeyouIcon from '../BeyouIcon';
+import useMoodRange from '../useMoodRange';
 import BriefingOpenItemRow from './BriefingOpenItemRow';
+import BriefingMoodCheckIn from './BriefingMoodCheckIn';
+import BriefingYesterdayMood from './BriefingYesterdayMood';
 
 interface Props {
   briefing: DailyBriefing;
@@ -79,6 +87,9 @@ export default function DailyBriefingSheet({
   const { theme } = useBeyouTheme();
   const [page, setPage] = useState<BriefingPage>('today');
   const [olderOpen, setOlderOpen] = useState(false);
+  // One read for both pages: yesterday's journal on the recap, today's face on the other,
+  // through the shared slice so the dashboard widget agrees with whatever is picked here.
+  const { byDate, loading: moodLoading } = useMoodRange(briefing.yesterday.date, briefing.date);
 
   const { yesterday } = briefing;
   const recovery = briefing.today.recovery;
@@ -216,9 +227,19 @@ export default function DailyBriefingSheet({
           {/* --- the half you read --- */}
           <View className="border-t border-border pt-5" testID="briefing-carousel">
             {page === 'today' ? (
-              <TodayPage briefing={briefing} locale={locale} theme={theme} />
+              <TodayPage
+                briefing={briefing}
+                locale={locale}
+                theme={theme}
+                moodToday={byDate[briefing.date]}
+                moodLoading={moodLoading}
+              />
             ) : (
-              <RecapPage briefing={briefing} theme={theme} />
+              <RecapPage
+                briefing={briefing}
+                theme={theme}
+                moodYesterday={byDate[briefing.yesterday.date]}
+              />
             )}
 
             <View className="mt-4 flex-row items-center gap-1 border-t border-border pt-3">
@@ -262,18 +283,37 @@ export default function DailyBriefingSheet({
 
 type ThemeShape = ReturnType<typeof useBeyouTheme>['theme'];
 
+/** The shared pace tone, in this app's theme colours. */
+function paceColor(tone: GoalPaceTone, theme: ThemeShape): string {
+  switch (tone) {
+    case 'success':
+      return theme.success;
+    case 'danger':
+      return theme.danger;
+    case 'flame':
+      return theme.flame;
+    default:
+      return theme.text3;
+  }
+}
+
 function TodayPage({
   briefing,
   locale,
   theme,
+  moodToday,
+  moodLoading,
 }: {
   briefing: DailyBriefing;
   locale: string;
   theme: ThemeShape;
+  moodToday: MoodEntry | undefined;
+  moodLoading: boolean;
 }) {
   const { t } = useTranslation();
   const { today } = briefing;
   const atBest = today.currentStreak > 0 && today.currentStreak >= today.bestStreak;
+  const goals = briefingGoals(briefing);
 
   return (
     <View testID="briefing-today-page">
@@ -304,16 +344,20 @@ function TodayPage({
 
       <NarrativeLines briefing={briefing} lines={briefing.narrative.todayLines} />
 
-      {today.goalsApproaching.length > 0 && (
+      {goals.length > 0 && (
         <View className="mt-4">
           <View className="flex-row items-center gap-2">
             <Target size={14} color={theme.text3} />
-            <Text className="text-xs font-semibold text-text-2">{t('BriefingGoalsHeading')}</Text>
+            <Text className="text-xs font-semibold text-text-2">
+              {t('BriefingGoalsAheadHeading')}
+            </Text>
           </View>
 
           <View className="mt-2.5" style={{ gap: 8 }}>
-            {today.goalsApproaching.map((goal) => {
+            {goals.map((goal) => {
               const overdue = goal.daysRemaining < 0;
+              const pace = goalPaceMessage(goal, (value) => trim(value, locale));
+              const showExpected = showsExpectedPace(goal);
               return (
                 <View
                   key={goal.id}
@@ -338,7 +382,7 @@ function TodayPage({
                   </View>
 
                   <View className="mt-2 flex-row items-center gap-2">
-                    <View className="h-1 flex-1 overflow-hidden rounded-full bg-surface-2">
+                    <View className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
                       <View
                         style={{
                           width: `${goal.percentComplete}%`,
@@ -347,6 +391,20 @@ function TodayPage({
                           backgroundColor: overdue ? theme.danger : theme.accent,
                         }}
                       />
+                      {showExpected ? (
+                        <View
+                          testID="briefing-goal-expected"
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: `${goal.expectedPercent}%`,
+                            width: 2,
+                            marginLeft: -1,
+                            backgroundColor: theme.text2,
+                          }}
+                        />
+                      ) : null}
                     </View>
                     <Text className="text-[11px] text-text-3">
                       {t('BriefingGoalProgress', {
@@ -356,17 +414,37 @@ function TodayPage({
                       })}
                     </Text>
                   </View>
+
+                  {pace ? (
+                    <Text
+                      testID="briefing-goal-pace"
+                      className="mt-1.5 text-[11.5px]"
+                      style={{ color: paceColor(pace.tone, theme) }}
+                    >
+                      {t(pace.key, pace.params)}
+                    </Text>
+                  ) : null}
                 </View>
               );
             })}
           </View>
         </View>
       )}
+
+      <BriefingMoodCheckIn date={briefing.date} entry={moodToday} loading={moodLoading} />
     </View>
   );
 }
 
-function RecapPage({ briefing, theme }: { briefing: DailyBriefing; theme: ThemeShape }) {
+function RecapPage({
+  briefing,
+  theme,
+  moodYesterday,
+}: {
+  briefing: DailyBriefing;
+  theme: ThemeShape;
+  moodYesterday: MoodEntry | undefined;
+}) {
   const { t } = useTranslation();
   const { yesterday } = briefing;
 
@@ -382,9 +460,6 @@ function RecapPage({ briefing, theme }: { briefing: DailyBriefing; theme: ThemeS
   }
   if (yesterday.focusCycles > 0) {
     lines.push(t('BriefingRecapFocus', { count: yesterday.focusCycles }));
-  }
-  if (yesterday.moodLevel !== null) {
-    lines.push(t('BriefingRecapMood', { mood: yesterday.moodLevel }));
   }
 
   return (
@@ -407,6 +482,8 @@ function RecapPage({ briefing, theme }: { briefing: DailyBriefing; theme: ThemeS
       )}
 
       <NarrativeLines briefing={briefing} lines={briefing.narrative.yesterdayLines} />
+
+      <BriefingYesterdayMood entry={moodYesterday} />
     </View>
   );
 }

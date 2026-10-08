@@ -43,8 +43,9 @@ export default function AppHome() {
 
   // The new-day dialog. Any tutorial phase at all suppresses it: every one of them owns
   // the screen with its own overlay, and an account new enough to be in one has no
-  // yesterday to report. A retroactive check reloads the dashboard, because the XP and
-  // streak it just moved are on this screen too.
+  // yesterday to report. Closing it after a retroactive check reloads the dashboard once,
+  // because the XP and streak it moved are on this screen too. Once on close, not per check:
+  // a reload is six reads, and a run of checks used to drain the read budget.
   // `?briefing=1` is the configuration screen asking for today's sheet back, for somebody who
   // dismissed it by accident. Consumed on close rather than left on the route, so returning to
   // the dashboard later does not keep reopening it.

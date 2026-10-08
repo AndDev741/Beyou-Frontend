@@ -1,8 +1,38 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { DailyBriefing, BriefingOpenItem } from "@beyou/types/briefing/briefing";
+import type { DailyBriefing, BriefingGoal, BriefingOpenItem } from "@beyou/types/briefing/briefing";
+import type { MoodEntry } from "@beyou/types/mood/mood";
+import { getMoodEntries, saveMoodEntry, setMoodLevel } from "@beyou/api/mood/moodApi";
+import { clearMoodEntries } from "@beyou/state";
+import store from "../../../redux/store";
 import { renderWithProviders } from "../../../test/test-utils";
 import DailyBriefingDialog from "./DailyBriefingDialog";
+
+// The carousel reads yesterday's and today's mood itself. Mocked at the module so each case
+// says which days exist, and so a write can be asserted by the day it lands on.
+vi.mock("@beyou/api/mood/moodApi", () => ({
+    getMoodEntries: vi.fn(),
+    setMoodLevel: vi.fn(),
+    saveMoodEntry: vi.fn(),
+}));
+
+const mood = (over: Partial<MoodEntry> = {}): MoodEntry => ({
+    id: "mood-1",
+    date: "2026-09-12",
+    mood: 4,
+    note: null,
+    updatedAt: "2026-09-12T21:00:00Z",
+    ...over,
+});
+
+beforeEach(() => {
+    // renderWithProviders shares the app's store, so a day picked in one case would
+    // otherwise already be "today's entry" in the next.
+    store.dispatch(clearMoodEntries());
+    vi.mocked(getMoodEntries).mockReset().mockResolvedValue({ success: [] });
+    vi.mocked(setMoodLevel).mockReset();
+    vi.mocked(saveMoodEntry).mockReset();
+});
 
 /**
  * The dialog's rendering rules.
@@ -51,6 +81,7 @@ const briefing = (over: Partial<DailyBriefing> = {}): DailyBriefing => ({
         bestStreak: 9,
         goalsApproaching: [],
         recovery: null,
+        goalsAhead: [],
     },
     narrative: { status: "READY", todayLines: ["Two things need you before noon."], yesterdayLines: [] },
     seenAt: null,
@@ -168,6 +199,7 @@ test("says nothing is at risk when no routine covers today", () => {
                 bestStreak: 9,
                 goalsApproaching: [],
                 recovery: null,
+                goalsAhead: [],
             },
         }),
     );
@@ -310,4 +342,108 @@ test("the recap page is reached from the tabs, and only from the tabs", async ()
     await userEvent.click(screen.getByTestId("briefing-bullet-yesterday"));
 
     expect(await screen.findByTestId("briefing-recap-page")).toBeInTheDocument();
+});
+
+const goal = (over: Partial<BriefingGoal> = {}): BriefingGoal => ({
+    id: "goal-1",
+    name: "Read 12 books",
+    iconId: "lucide:book",
+    currentValue: 3,
+    targetValue: 12,
+    unit: "books",
+    endDate: "2026-10-01",
+    daysRemaining: 18,
+    percentComplete: 25,
+    remainingValue: 9,
+    requiredPerDay: 0.5,
+    expectedPercent: 70,
+    pace: "BEHIND",
+    ...over,
+});
+
+/** The future half: goals from goalsAhead, each with the pace the server decided. */
+test("shows the goals ahead with their pace and where a steady pace would be", () => {
+    const value = briefing();
+    value.today = { ...value.today, goalsAhead: [goal()] };
+    render(value);
+
+    expect(screen.getByText("BriefingGoalsAheadHeading")).toBeInTheDocument();
+    expect(screen.getByText("Read 12 books")).toBeInTheDocument();
+    expect(screen.getByTestId("briefing-goal-pace")).toHaveTextContent("BriefingGoalPaceBehind");
+    expect(screen.getByTestId("briefing-goal-expected")).toHaveStyle({ left: "70%" });
+});
+
+/** A goal reached but not marked done is XP waiting; a lapsed one has no pace to tick. */
+test("a met target points at completion and draws no pace tick", () => {
+    const value = briefing();
+    value.today = {
+        ...value.today,
+        goalsAhead: [goal({ pace: "REACHED", requiredPerDay: null, percentComplete: 100 })],
+    };
+    render(value);
+
+    expect(screen.getByTestId("briefing-goal-pace")).toHaveTextContent("BriefingGoalPaceReached");
+    expect(screen.queryByTestId("briefing-goal-expected")).not.toBeInTheDocument();
+});
+
+/** Yesterday's journal comes from the mood API, with the privacy line under it. */
+test("the recap page shows yesterday's mood and journal", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({
+        success: [mood({ note: "Long day, good talk with my sister." })],
+    });
+    render(briefing());
+
+    await userEvent.click(screen.getByTestId("briefing-bullet-yesterday"));
+
+    expect(await screen.findByTestId("briefing-mood-yesterday")).toBeInTheDocument();
+    expect(screen.getByText("Long day, good talk with my sister.")).toBeInTheDocument();
+    expect(screen.getByText("BriefingJournalPrivate")).toBeInTheDocument();
+    expect(getMoodEntries).toHaveBeenCalledWith({ from: "2026-09-12", to: "2026-09-13" }, expect.anything());
+});
+
+/** A face lands on the briefing's own day, through the PATCH that cannot touch a note. */
+test("picking a face records today's mood without touching the journal", async () => {
+    vi.mocked(setMoodLevel).mockResolvedValue({ success: mood({ date: "2026-09-13", mood: 5 }) });
+    render(briefing());
+
+    const face = await screen.findByTestId("briefing-mood-face-5");
+    await vi.waitFor(() => expect(face).toBeEnabled());
+    await userEvent.click(face);
+
+    expect(setMoodLevel).toHaveBeenCalledWith("2026-09-13", 5, expect.anything());
+    expect(saveMoodEntry).not.toHaveBeenCalled();
+});
+
+/**
+ * The note editor only exists once today's entry has been read, and it opens on the text
+ * already there. Otherwise a quick line here would PUT over a longer entry written elsewhere.
+ */
+test("the note opens on what is already written and saves it with the mood", async () => {
+    vi.mocked(getMoodEntries).mockResolvedValue({
+        success: [mood({ id: "today", date: "2026-09-13", mood: 3, note: "Written on the phone" })],
+    });
+    vi.mocked(saveMoodEntry).mockResolvedValue({
+        success: mood({ id: "today", date: "2026-09-13", mood: 3, note: "Written on the phone, and more" }),
+    });
+    render(briefing());
+
+    await userEvent.click(await screen.findByTestId("briefing-mood-note-toggle"));
+    const note = screen.getByTestId("briefing-mood-note");
+    expect(note).toHaveValue("Written on the phone");
+
+    await userEvent.type(note, ", and more");
+    await userEvent.click(screen.getByTestId("briefing-mood-note-save"));
+
+    expect(saveMoodEntry).toHaveBeenCalledWith(
+        "2026-09-13",
+        { mood: 3, note: "Written on the phone, and more" },
+        expect.anything(),
+    );
+});
+
+test("there is no note to write before a mood exists for today", async () => {
+    render(briefing());
+
+    expect(await screen.findByTestId("briefing-mood-face-1")).toBeInTheDocument();
+    expect(screen.queryByTestId("briefing-mood-note-toggle")).not.toBeInTheDocument();
 });

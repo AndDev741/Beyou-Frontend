@@ -1236,6 +1236,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/daily-briefing/narrative": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getNarrative"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/daily-briefing/seen": {
         parameters: {
             query?: never;
@@ -3039,6 +3055,14 @@ export interface components {
             daysRemaining?: number;
             /** Format: int32 */
             percentComplete?: number;
+            /** Format: double */
+            remainingValue?: number;
+            /** Format: double */
+            requiredPerDay?: number;
+            /** Format: int32 */
+            expectedPercent?: number;
+            /** @enum {string} */
+            pace?: "ON_TRACK" | "BEHIND" | "OVERDUE" | "REACHED";
         };
         BriefingRecoveryWindowDTO: {
             /** Format: date */
@@ -3059,6 +3083,7 @@ export interface components {
             bestStreak?: number;
             goalsApproaching?: components["schemas"]["BriefingGoalAheadDTO"][];
             recovery?: components["schemas"]["BriefingRecoveryWindowDTO"];
+            goalsAhead?: components["schemas"]["BriefingGoalAheadDTO"][];
         };
         BriefingNarrativeDTO: {
             /** @enum {string} */
@@ -6061,6 +6086,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DailyBriefingResponseDTO"];
+                };
+            };
+        };
+    };
+    getNarrative: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BriefingNarrativeDTO"];
                 };
             };
         };

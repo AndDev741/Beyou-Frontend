@@ -153,6 +153,16 @@ export function forgetToast() {
   live = null;
 }
 
+/** Whether this exact toast is on screen right now and has time left to run. */
+export function isToastShowing(type: ToastTone, message: string): boolean {
+  return (
+    live !== null &&
+    live.params.type === type &&
+    live.params.text1 === message &&
+    live.expiresAt > Date.now()
+  );
+}
+
 /**
  * Hands a still-running toast to whichever host is active NOW.
  *
