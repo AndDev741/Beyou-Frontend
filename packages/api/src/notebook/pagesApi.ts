@@ -43,13 +43,18 @@ export const updatePage = (
     t: TFunction,
 ): Promise<Result<NotebookPage>> => call(() => http().patch<NotebookPage>(`/notebook/pages/${pageId}`, patch), t);
 
-/** The editor's autosave: the whole BlockNote document as JSON. */
+/**
+ * The editor's autosave: the whole BlockNote document as JSON, written only if the page is still
+ * at `baseRevision`. A stale one answers NOTEBOOK_CONTENT_CONFLICT; read the page and merge.
+ */
 export const savePageContent = (
     pageId: string,
     content: string,
+    baseRevision: number,
     t: TFunction,
-): Promise<Result<{ id: string; updatedAt: string }>> =>
-    call(() => http().put<{ id: string; updatedAt: string }>(`/notebook/pages/${pageId}/content`, { content }), t);
+): Promise<Result<{ id: string; updatedAt: string; contentRevision: number }>> =>
+    call(() => http().put<{ id: string; updatedAt: string; contentRevision: number }>(
+        `/notebook/pages/${pageId}/content`, { content, baseRevision }), t);
 
 export const setPageStatus = (pageId: string, status: StatusChoice, t: TFunction): Promise<Result<StatusChange>> =>
     call(() => http().put<StatusChange>(`/notebook/pages/${pageId}/status`, { status }), t);

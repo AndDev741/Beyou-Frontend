@@ -3215,6 +3215,8 @@ export interface components {
             id?: string;
             /** Format: date-time */
             updatedAt?: string;
+            /** Format: int64 */
+            contentRevision?: number;
         };
         ContinueDTO: {
             /** Format: uuid */
@@ -3431,6 +3433,8 @@ export interface components {
             sourcesCount?: number;
             /** Format: date-time */
             updatedAt?: string;
+            /** Format: int64 */
+            contentRevision?: number;
         };
         PageSearchHitDTO: {
             /** Format: uuid */
@@ -3683,6 +3687,8 @@ export interface components {
         };
         UpdateContentRequestDTO: {
             content: string;
+            /** Format: int64 */
+            baseRevision?: number;
         };
         UpdateNodeRequestDTO: {
             /** Format: double */
