@@ -6,6 +6,9 @@ import reportRefreshFailure from './authentication/reportRefreshFailure';
 
 // Backend serves all endpoints under /api/v1 (see Beyou-backend-spring application.yaml).
 // VITE_API_URL should already include the /api/v1 suffix in deployed environments.
+/** Exported for the test that pins the dedupe; nothing else should need it. */
+export const RATE_LIMIT_TOAST_ID = 'rate-limit-exceeded';
+
 const instance = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8099/api/v1',
     withCredentials: true
@@ -44,7 +47,11 @@ instance.interceptors.response.use(
         }
 
         if (error.response.status === 429) {
-            toast.error(i18next.t('RATE_LIMIT_EXCEEDED'));
+            // One toast however many requests were turned away. A screen that loads in
+            // parallel gets every one of its calls refused together once the bucket is dry,
+            // and six identical toasts stacked up the corner say nothing the first did not.
+            // A fixed id makes react-toastify drop the repeats while the first is showing.
+            toast.error(i18next.t('RATE_LIMIT_EXCEEDED'), { toastId: RATE_LIMIT_TOAST_ID });
             return Promise.reject(error);
         }
 

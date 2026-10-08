@@ -149,8 +149,10 @@ function Dashboard() {
 
     // The new-day dialog. Suppressed for the whole onboarding run: those flows own the
     // screen with their own overlays, and an account new enough to be in one has no
-    // yesterday to report on anyway. A retroactive check from inside it reloads the
-    // dashboard, because the XP and streak it just moved are on this page too.
+    // yesterday to report on anyway. Closing it after a retroactive check reloads the
+    // dashboard once, because the XP and streak it moved are on this page too. Once on close
+    // and not per check: each reload is six reads, and a run of checks used to drain the
+    // read budget and stack rate-limit toasts.
     const tutorialActive =
         showIntroModal || showAiOnboarding || showFinale ||
         showDashboardSpotlight || showHabitsDashboardSpotlight ||

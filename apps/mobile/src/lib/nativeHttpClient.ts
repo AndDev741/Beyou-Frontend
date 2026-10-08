@@ -95,7 +95,8 @@ async function request<T>(method: string, path: string, body?: unknown, config?:
     throw new ApiError(401, data, 'Unauthorized');
   }
   if (res.status === 429) {
-    notify.error(i18next.t('RATE_LIMIT_EXCEEDED'));
+    // Once per burst. Screens load in parallel, so a dry bucket refuses several calls at once.
+    notify.error(i18next.t('RATE_LIMIT_EXCEEDED'), { skipIfShowing: true });
     throw new ApiError(res.status, data, `HTTP ${res.status}`);
   }
   if (!res.ok) {

@@ -1,10 +1,38 @@
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
-import type { DailyBriefing, BriefingOpenItem } from '@beyou/types/briefing/briefing';
+import type { DailyBriefing, BriefingGoal, BriefingOpenItem } from '@beyou/types/briefing/briefing';
+import type { MoodEntry } from '@beyou/types/mood/mood';
+import { getMoodEntries, saveMoodEntry, setMoodLevel } from '@beyou/api/mood/moodApi';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import DailyBriefingSheet from '../src/ui/briefing/DailyBriefingSheet';
+
+// The sheet reads yesterday's and today's mood itself. Mocked at the module so each case
+// says which days exist, and so a write can be asserted by the day it lands on.
+jest.mock('@beyou/api/mood/moodApi', () => ({
+  getMoodEntries: jest.fn(),
+  setMoodLevel: jest.fn(),
+  saveMoodEntry: jest.fn(),
+}));
+const mockGetMoodEntries = getMoodEntries as jest.Mock;
+const mockSetMoodLevel = setMoodLevel as jest.Mock;
+const mockSaveMoodEntry = saveMoodEntry as jest.Mock;
+
+const mood = (over: Partial<MoodEntry> = {}): MoodEntry => ({
+  id: 'mood-1',
+  date: '2026-09-12',
+  mood: 4,
+  note: null,
+  updatedAt: '2026-09-12T21:00:00Z',
+  ...over,
+});
+
+beforeEach(() => {
+  mockGetMoodEntries.mockReset().mockResolvedValue({ success: [] });
+  mockSetMoodLevel.mockReset();
+  mockSaveMoodEntry.mockReset();
+});
 
 /**
  * The native sheet's rendering rules, mirroring the web suite case for case.
@@ -52,6 +80,7 @@ const briefing = (over: Partial<DailyBriefing> = {}): DailyBriefing => ({
     bestStreak: 9,
     goalsApproaching: [],
     recovery: null,
+    goalsAhead: [],
   },
   narrative: { status: 'READY', todayLines: ['Two things need you before noon.'], yesterdayLines: [] },
   seenAt: null,
@@ -177,6 +206,7 @@ test('says nothing is at risk when no routine covers today', async () => {
         bestStreak: 9,
         goalsApproaching: [],
         recovery: null,
+        goalsAhead: [],
       },
     }),
   );
@@ -308,4 +338,117 @@ test('the recap page is reached from the tabs, and only from the tabs', async ()
   });
 
   expect(screen.getByTestId('briefing-recap-page')).toBeTruthy();
+});
+
+const goal = (over: Partial<BriefingGoal> = {}): BriefingGoal => ({
+  id: 'goal-1',
+  name: 'Read 12 books',
+  iconId: 'lucide:book',
+  currentValue: 3,
+  targetValue: 12,
+  unit: 'books',
+  endDate: '2026-10-01',
+  daysRemaining: 18,
+  percentComplete: 25,
+  remainingValue: 9,
+  requiredPerDay: 0.5,
+  expectedPercent: 70,
+  pace: 'BEHIND',
+  ...over,
+});
+
+/** The future half: goals from goalsAhead, each with the pace the server decided. */
+test('shows the goals ahead with their pace', async () => {
+  const value = briefing();
+  value.today = { ...value.today, goalsAhead: [goal()] };
+  await renderSheet(value);
+
+  expect(screen.getByText("Where you're heading")).toBeTruthy();
+  expect(screen.getByText('Read 12 books')).toBeTruthy();
+  expect(screen.getByText('Behind pace. 0.5 books a day still gets you there.')).toBeTruthy();
+  expect(screen.getByTestId('briefing-goal-expected')).toBeTruthy();
+});
+
+test('a met target is pointed at completion, with no pace tick', async () => {
+  const value = briefing();
+  value.today = {
+    ...value.today,
+    goalsAhead: [goal({ pace: 'REACHED', requiredPerDay: null, percentComplete: 100 })],
+  };
+  await renderSheet(value);
+
+  expect(screen.getByText('Target reached. Mark it done to collect the XP.')).toBeTruthy();
+  expect(screen.queryByTestId('briefing-goal-expected')).toBeNull();
+});
+
+/** Yesterday's journal, read from the mood API and shown with the privacy line under it. */
+test('the recap page shows yesterday\'s mood and journal', async () => {
+  mockGetMoodEntries.mockResolvedValue({
+    success: [mood({ note: 'Long day, good talk with my sister.' })],
+  });
+  await renderSheet(briefing());
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('briefing-bullet-yesterday'));
+  });
+
+  expect(screen.getByText("Yesterday's mood: Good")).toBeTruthy();
+  expect(screen.getByText('Long day, good talk with my sister.')).toBeTruthy();
+  expect(screen.getByText(/never sees your journal/)).toBeTruthy();
+  expect(mockGetMoodEntries).toHaveBeenCalledWith(
+    { from: '2026-09-12', to: '2026-09-13' },
+    expect.anything(),
+  );
+});
+
+/** A face lands on the briefing's own day, through the PATCH that cannot touch a note. */
+test('picking a face records today\'s mood without touching the journal', async () => {
+  mockSetMoodLevel.mockResolvedValue({ success: mood({ date: '2026-09-13', mood: 5 }) });
+  await renderSheet(briefing());
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('briefing-mood-face-5'));
+  });
+
+  expect(mockSetMoodLevel).toHaveBeenCalledWith('2026-09-13', 5, expect.anything());
+  expect(mockSaveMoodEntry).not.toHaveBeenCalled();
+});
+
+/**
+ * The note editor only exists once today's entry has been read, and it opens on the text
+ * already there. Otherwise a quick line here would PUT over a longer entry written elsewhere.
+ */
+test('the note opens on what is already written and saves it with the mood', async () => {
+  mockGetMoodEntries.mockResolvedValue({
+    success: [mood({ id: 'today', date: '2026-09-13', mood: 3, note: 'Written on the web' })],
+  });
+  mockSaveMoodEntry.mockResolvedValue({
+    success: mood({ id: 'today', date: '2026-09-13', mood: 3, note: 'Written on the web, and more' }),
+  });
+  await renderSheet(briefing());
+
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('briefing-mood-note-toggle'));
+  });
+  expect(screen.getByTestId('briefing-mood-note').props.value).toBe('Written on the web');
+
+  await act(async () => {
+    fireEvent.changeText(screen.getByTestId('briefing-mood-note'), 'Written on the web, and more');
+  });
+  await act(async () => {
+    fireEvent.press(screen.getByTestId('briefing-mood-note-save'));
+  });
+
+  expect(mockSaveMoodEntry).toHaveBeenCalledWith(
+    '2026-09-13',
+    { mood: 3, note: 'Written on the web, and more' },
+    expect.anything(),
+  );
+});
+
+test('there is no note to write before a mood exists for today', async () => {
+  await renderSheet(briefing());
+
+  expect(screen.getByTestId('briefing-mood-face-1')).toBeTruthy();
+  expect(screen.queryByTestId('briefing-mood-note-toggle')).toBeNull();
 });

@@ -1,9 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { History } from "lucide-react";
 import type { DailyBriefing } from "@beyou/types/briefing/briefing";
+import type { MoodEntry } from "@beyou/types/mood/mood";
 import NarrativeLines from "./NarrativeLines";
+import YesterdayMood from "./YesterdayMood";
 
-type Props = { briefing: DailyBriefing };
+type Props = {
+    briefing: DailyBriefing;
+    /** Yesterday's mood entry, journal included, read by the carousel from the mood API. */
+    moodYesterday: MoodEntry | undefined;
+};
 
 /**
  * How yesterday actually went.
@@ -14,7 +20,7 @@ type Props = { briefing: DailyBriefing };
  *
  * A finished day says so and stops. Nothing about a good day needs three supporting metrics.
  */
-export default function RecapPage({ briefing }: Props) {
+export default function RecapPage({ briefing, moodYesterday }: Props) {
     const { t } = useTranslation();
     const { yesterday } = briefing;
 
@@ -32,9 +38,6 @@ export default function RecapPage({ briefing }: Props) {
     }
     if (yesterday.focusCycles > 0) {
         lines.push(t("BriefingRecapFocus", { count: yesterday.focusCycles }));
-    }
-    if (yesterday.moodLevel !== null) {
-        lines.push(t("BriefingRecapMood", { mood: yesterday.moodLevel }));
     }
 
     return (
@@ -62,6 +65,10 @@ export default function RecapPage({ briefing }: Props) {
                 narrative={briefing.narrative}
                 lines={briefing.narrative.yesterdayLines}
             />
+
+            {/* After the prose on purpose: the summary is about the week, and this is the
+                user's own account of one day of it. */}
+            <YesterdayMood entry={moodYesterday} />
         </div>
     );
 }

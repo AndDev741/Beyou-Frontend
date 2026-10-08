@@ -1,12 +1,24 @@
 import type { ReactNode } from 'react';
 import Toast from 'react-native-toast-message';
-import { TOAST_DURATION_MS, forgetToast, rememberToast, type ToastTone } from './ui/BeyouToast';
+import {
+  TOAST_DURATION_MS,
+  forgetToast,
+  isToastShowing,
+  rememberToast,
+  type ToastTone,
+} from './ui/BeyouToast';
 
 type NotifyOptions = {
   /** Segunda linha: o detalhe, a frase motivacional. */
   subtitle?: string;
   /** The entity's icon — the habit checked, the goal completed. */
   icon?: ReactNode;
+  /**
+   * Do nothing when the same message is already on screen. For messages that arrive in
+   * bursts: a dashboard reload is six parallel calls, and when the rate limit refuses them
+   * all, six shows of one toast read as the app stuttering.
+   */
+  skipIfShowing?: boolean;
 };
 
 /**
@@ -19,6 +31,7 @@ type NotifyOptions = {
  * modal's window. See `ModalToastHost`.
  */
 const show = (type: ToastTone, message: string, options?: NotifyOptions) => {
+  if (options?.skipIfShowing && isToastShowing(type, message)) return;
   const params = {
     type,
     text1: message,

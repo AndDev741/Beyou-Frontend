@@ -3035,6 +3035,26 @@
         }
       }
     },
+    "/daily-briefing/narrative": {
+      "get": {
+        "tags": [
+          "daily-briefing-controller"
+        ],
+        "operationId": "getNarrative",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefingNarrativeDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/daily-briefing/seen": {
       "post": {
         "tags": [
@@ -7819,6 +7839,27 @@
           "percentComplete": {
             "type": "integer",
             "format": "int32"
+          },
+          "remainingValue": {
+            "type": "number",
+            "format": "double"
+          },
+          "requiredPerDay": {
+            "type": "number",
+            "format": "double"
+          },
+          "expectedPercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pace": {
+            "type": "string",
+            "enum": [
+              "ON_TRACK",
+              "BEHIND",
+              "OVERDUE",
+              "REACHED"
+            ]
           }
         }
       },
@@ -7871,6 +7912,12 @@
           },
           "recovery": {
             "$ref": "#/components/schemas/BriefingRecoveryWindowDTO"
+          },
+          "goalsAhead": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingGoalAheadDTO"
+            }
           }
         }
       },

@@ -45,7 +45,8 @@ vi.mock("../lib/telemetry", () => ({
 vi.mock("react-toastify", () => ({ toast: { error: vi.fn() } }));
 vi.mock("i18next", () => ({ default: { t: (key: string) => key } }));
 
-import "./axiosConfig";
+import { RATE_LIMIT_TOAST_ID } from "./axiosConfig";
+import { toast } from "react-toastify";
 
 /** The 401 the user's own request came back with. */
 const unauthorized = () => ({
@@ -135,5 +136,27 @@ describe("axios response interceptor — refresh failures", () => {
 
         expect(mockRefreshTokenRequest).not.toHaveBeenCalled();
         expect(mockReportHandledFailure).not.toHaveBeenCalled();
+    });
+});
+
+/**
+ * A screen that loads in parallel gets all of its calls refused together once the read
+ * bucket is dry. Each refusal used to open its own toast, so one dashboard reload stacked six
+ * identical "too many requests" messages. The fixed id is what lets react-toastify drop the
+ * repeats; the assertion is on the id because the dedupe itself is the library's job.
+ */
+describe("axios response interceptor — rate limit", () => {
+    test("every 429 shares one toast id", async () => {
+        const throttled = (url: string) => ({ config: { url, headers: {} }, response: { status: 429 } });
+        const toastError = vi.mocked(toast.error);
+        toastError.mockClear();
+
+        await runInterceptor(throttled("/habit")).catch(() => undefined);
+        await runInterceptor(throttled("/goal")).catch(() => undefined);
+
+        expect(toastError).toHaveBeenCalledTimes(2);
+        for (const call of toastError.mock.calls) {
+            expect(call[1]).toEqual({ toastId: RATE_LIMIT_TOAST_ID });
+        }
     });
 });

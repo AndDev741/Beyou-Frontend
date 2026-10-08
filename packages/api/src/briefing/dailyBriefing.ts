@@ -2,7 +2,7 @@ import { TFunction } from 'i18next';
 import { getHttpClient, ApiError } from '../httpClient';
 import { ApiErrorPayload, parseApiError } from '../apiError';
 import { getLogger } from '../logger';
-import type { DailyBriefing } from '@beyou/types/briefing/briefing';
+import type { BriefingNarrative, DailyBriefing } from '@beyou/types/briefing/briefing';
 
 type Result<T> = { success?: T; error?: ApiErrorPayload };
 
@@ -30,6 +30,22 @@ const fail = <T>(e: unknown, t: TFunction): Result<T> => {
 export async function getDailyBriefing(t: TFunction): Promise<Result<DailyBriefing>> {
     try {
         const response = await getHttpClient().get<DailyBriefing>('/daily-briefing');
+        return { success: response.data };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
+/**
+ * Today's prose on its own, for a dialog that got PENDING and is waiting for it.
+ *
+ * A primary-key read on the server that never starts a model call, which is why it can be
+ * polled: `GET /daily-briefing` recomputes every fact and sits in a ten-an-hour bucket.
+ * Drive it through `pollNarrative` in @beyou/state rather than a hand-rolled loop.
+ */
+export async function getBriefingNarrative(t: TFunction): Promise<Result<BriefingNarrative>> {
+    try {
+        const response = await getHttpClient().get<BriefingNarrative>('/daily-briefing/narrative');
         return { success: response.data };
     } catch (e) {
         return fail(e, t);
