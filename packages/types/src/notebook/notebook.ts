@@ -152,10 +152,13 @@ export type CreateNodeInput = {
     title?: string;
     linkPageId?: string;
     label?: string;
-    x: number;
-    y: number;
+    /** Both or neither: without them the server puts the node on the next free grid cell. */
+    x?: number;
+    y?: number;
     width?: number;
     height?: number;
+    /** A page node on the same board to link to the new one, so it comes after it on the path. */
+    after?: string;
 };
 
 // ------------------------------------------------------------------ cards
