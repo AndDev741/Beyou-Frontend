@@ -244,11 +244,8 @@ export default function NotebookEditorScreen() {
             if (!next) settled.current?.();
           }}
           onFormat={async (next) => setFormat(next)}
-          openBoard={async () => goBack()}
-          openCards={async () => {
-            if (page.cardsDue > 0) router.push({ pathname: '/notebook-review', params: { scope: page.id } });
-            else notify.info(t('NotebookMobileEditorCardsLater'));
-          }}
+          openBoard={async () => router.dismissTo({ pathname: '/notebook/[id]', params: { id: page.id, tab: 'path' } })}
+          openCards={async () => router.dismissTo({ pathname: '/notebook/[id]', params: { id: page.id, tab: 'cards' } })}
           openLink={async (url) => {
             if (/^(https?:|mailto:)/i.test(url)) void Linking.openURL(url);
           }}
