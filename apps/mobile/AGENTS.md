@@ -32,6 +32,12 @@ so the bundler always resolves React 19 from `apps/mobile/node_modules`, not the
 > Metro unable to resolve them. Hierarchical lookup must stay ENABLED; the `extraNodeModules`
 > pin above is what guarantees the single React, not the lookup flag.
 
+The notebook editor is a DOM component (`src/notebook/editor/NotebookEditorDom.tsx`, `'use dom'`),
+which Metro bundles for the web platform. Its BlockNote and Mantine are hoisted to the root next to
+React 18, and `extraNodeModules` is only a fallback, so `react` and `react-dom` are also in the
+`SINGLETONS` redirect in `metro.config.js`. Without it the web view runs react-dom 19 with
+BlockNote's hooks on React 18. A production export should hold only `"19.2.3"` in `www.bundle`.
+
 Running `npm dedupe` would collapse the two React installs into one and break the mobile
 bundler at runtime. Do not run it. If you must tidy the lock file, run
 `npm install --prefer-dedupe` and immediately verify with:

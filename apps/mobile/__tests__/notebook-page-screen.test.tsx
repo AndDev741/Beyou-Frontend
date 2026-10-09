@@ -38,13 +38,23 @@ const node = (id: string, status: string, x: number) => ({
 
 const board = { pageId: 'ds', nodes: [node('Arrays', 'DONE', 0), node('Trees', 'STUDYING', 240)], edges: [] };
 
+const treeItem = (id: string, title: string, onBoard: boolean) => ({
+  id, parentId: 'ds', title, icon: null, status: 'TO_STUDY', onBoard, linked: false, progress: { done: 0, total: 1 }, position: 0,
+});
+const tree = {
+  topic: { id: 'se', title: 'Software Engineering', icon: null },
+  items: [treeItem('p-Trees', 'Trees', true), treeItem('cheat', 'Cheat sheet', false)],
+  sourcesCount: 0,
+  cardsDue: 0,
+};
+
 let puts: { url: string; body: unknown }[] = [];
 
 beforeEach(() => {
   puts = [];
   setLogger({ error: () => {} });
   setHttpClient({
-    get: async (url: string) => ({ data: url.endsWith('/board') ? board : page, headers: {} }),
+    get: async (url: string) => ({ data: url.endsWith('/board') ? board : url.endsWith('/tree') ? tree : page, headers: {} }),
     post: async () => ({ data: {}, headers: {} }),
     put: async (url: string, body: unknown) => {
       puts.push({ url, body });
@@ -99,6 +109,18 @@ describe('NotebookPageScreen', () => {
     expect(store.getState().notebook.pages.ds.status).toBe('DONE');
     expect(store.getState().notebook.pages.ds.statusManual).toBe(true);
     expect(notify.success).toHaveBeenCalled();
+  });
+
+  it('lists the pages under this one that are not on its board, and opens one', async () => {
+    await renderPage();
+    await waitFor(() => expect(screen.getByTestId('notebook-page-subpages')).toBeTruthy());
+
+    // Trees is on the board, so the path shows it; only the page off the board is listed.
+    expect(screen.getAllByTestId('notebook-subpage')).toHaveLength(1);
+    await act(async () => {
+      fireEvent.press(screen.getByText('Cheat sheet'));
+    });
+    expect(mockPush).toHaveBeenCalledWith('/notebook/cheat');
   });
 
   it('the notes tab draws the document', async () => {

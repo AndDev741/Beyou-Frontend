@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Layers, NotebookPen } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Layers, NotebookPen, Plus } from 'lucide-react-native';
 import { getNotebookHome } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterNotebookHome, progressShare } from '@beyou/state';
@@ -15,6 +15,7 @@ import EmptyState from '../../../src/ui/EmptyState';
 import IconTile from '../../../src/ui/IconTile';
 import BeyouIcon from '../../../src/ui/BeyouIcon';
 import ProgressBar from '../../../src/notebook/ProgressBar';
+import NewTopicSheet from '../../../src/notebook/NewTopicSheet';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
@@ -22,9 +23,8 @@ import type { AppDispatch, RootState } from '../../../src/store';
 /**
  * The study notebook's home on a phone: the page to pick up, the cards due, and the topics.
  *
- * Read and review only in this version. Topics, pages and boards are written on the web, and this
- * screen says so when there is nothing yet, rather than offering a create button that would lead
- * to a page nobody can write in here.
+ * "New topic" starts a blank one here; its notes are written in the phone's editor. Drafting a
+ * roadmap with AI is still a web thing.
  */
 export default function NotebookHomeScreen() {
   const { t } = useTranslation();
@@ -33,6 +33,7 @@ export default function NotebookHomeScreen() {
   const { theme } = useBeyouTheme();
   const home = useSelector((s: RootState) => s.notebook.home);
   const [loading, setLoading] = useState(!home);
+  const [creating, setCreating] = useState(false);
 
   const load = useCallback(async () => {
     const response = await getNotebookHome(t);
@@ -80,6 +81,14 @@ export default function NotebookHomeScreen() {
             </Text>
           ) : null}
         </View>
+        <Button
+          text={t('NotebookNewTopic')}
+          mode="primary"
+          size="auto"
+          icon={<Plus size={16} color={theme.onAccent} />}
+          onPress={() => setCreating(true)}
+          testID="notebook-new-topic"
+        />
       </View>
 
       {loading ? (
@@ -173,6 +182,7 @@ export default function NotebookHomeScreen() {
           )}
         </ScrollView>
       )}
+      <NewTopicSheet visible={creating} onClose={() => setCreating(false)} />
     </View>
   );
 }

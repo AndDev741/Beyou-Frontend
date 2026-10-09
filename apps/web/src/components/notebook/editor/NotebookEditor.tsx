@@ -12,11 +12,17 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { Layers, Sparkles, Workflow } from "lucide-react";
 import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
-import { sameBlock, type DocBlock } from "@beyou/state";
+import {
+    documentPatch,
+    hasBlockWithoutId,
+    hasUnknownLanguage,
+    initialBlocks,
+    isEmptyDocument,
+    normalizeCodeLanguage,
+    type DocBlock,
+} from "@beyou/state";
 import { notebookSchema, type NotebookBlock, type NotebookEditor as Editor } from "./schema";
 import { NotebookPageContext } from "./NotebookPageContext";
-import { isEmptyDocument } from "./emptyDocument";
-import { hasUnknownLanguage, normalizeCodeLanguage, withKnownLanguages } from "./codeLanguages";
 import type { Theme as EditorTheme } from "@blocknote/mantine";
 
 type Props = {
@@ -61,7 +67,7 @@ const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function Notebook
     ref
 ) {
     const { t, i18n } = useTranslation();
-    const initialContent = useMemo(() => parse(content), [pageId]); // eslint-disable-line react-hooks/exhaustive-deps
+    const initialContent = useMemo(() => initialBlocks(content) as NotebookBlock[] | undefined, [pageId]); // eslint-disable-line react-hooks/exhaustive-deps
     const editor = useCreateBlockNote(
         {
             schema: notebookSchema,
@@ -102,14 +108,11 @@ const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function Notebook
             silent.current = !save;
             try {
                 const current = editor.document as DocBlock[];
-                let start = 0;
-                while (start < current.length && start < blocks.length && sameBlock(current[start], blocks[start])) start++;
-                let end = 0;
-                while (end < current.length - start && end < blocks.length - start
-                    && sameBlock(current[current.length - 1 - end], blocks[blocks.length - 1 - end])) end++;
+                const patch = documentPatch(current, blocks);
+                const { start } = patch;
                 type Partial = Parameters<typeof editor.insertBlocks>[0];
-                const removed = current.slice(start, current.length - end) as typeof editor.document;
-                const added = blocks.slice(start, blocks.length - end) as Partial;
+                const removed = patch.removed as typeof editor.document;
+                const added = patch.added as Partial;
                 if (removed.length > 0 && added.length > 0) editor.replaceBlocks(removed, added);
                 else if (added.length > 0 && start > 0) editor.insertBlocks(added, current[start - 1].id!, "after");
                 else if (added.length > 0) editor.insertBlocks(added, current[0].id!, "before");
@@ -186,12 +189,6 @@ const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function Notebook
 });
 
 export default NotebookEditor;
-
-/** Whether any block, at any depth, came without an id. */
-function hasBlockWithoutId(blocks: { id?: unknown; children?: unknown }[]): boolean {
-    return blocks.some((block) =>
-        !block.id || (Array.isArray(block.children) && hasBlockWithoutId(block.children as { id?: unknown }[])));
-}
 
 /**
  * The editor in Beyou's colours. Every value is a theme variable, so it follows the light and dark
@@ -315,15 +312,4 @@ function useEmptiness(editor: Editor): boolean {
 
 function hasBoardBlock(blocks: NotebookBlock[]): boolean {
     return blocks.some((b) => b.type === BOARD_BLOCK_TYPE);
-}
-
-/** The stored JSON as initial content; anything unreadable starts the page empty. */
-function parse(content: string | null) {
-    if (!content) return undefined;
-    try {
-        const blocks = JSON.parse(content);
-        return Array.isArray(blocks) && blocks.length > 0 ? withKnownLanguages(blocks) : undefined;
-    } catch {
-        return undefined;
-    }
 }

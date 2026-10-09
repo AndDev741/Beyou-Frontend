@@ -1,0 +1,118 @@
+/*
+ * The notebook editor inside the phone's web view. The colours come in as --nb-* variables set
+ * from the app theme (NotebookEditorDom.paletteVars); the rules follow the web editor's
+ * .beyou-editor ones in apps/web/src/index.css, so a page reads the same on both.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--nb-bg, transparent);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Expo's root for a DOM component is a flex row, and a flex item is as wide as its content: an
+   empty page left the editor 184px wide, its placeholder wrapped and taps beside it missed. */
+.nb-root {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--nb-bg);
+  color: var(--nb-text);
+  padding: 4px 0 120px;
+  box-sizing: border-box;
+}
+
+/* No side menu on a phone, so none of the room BlockNote keeps for it. */
+.nb-root .bn-editor {
+  padding-inline: 20px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.nb-root .bn-inline-content a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--nb-text-faint);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+}
+
+.nb-root .bn-block-content[data-content-type="codeBlock"] {
+  color: var(--nb-text);
+  background-color: var(--nb-surface-2);
+  border: 1px solid var(--nb-border);
+  border-radius: 12px;
+}
+.nb-root .bn-block-content[data-content-type="codeBlock"] > pre {
+  padding: 34px 14px 12px;
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.nb-root .bn-block-content[data-content-type="codeBlock"] > div > select {
+  opacity: 1;
+  top: 7px;
+  left: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: var(--nb-text-2);
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 11px;
+  background-color: transparent;
+}
+
+/* The board and cards blocks are cards that open elsewhere; no selection outline around them. */
+.nb-root .ProseMirror-selectednode > .bn-block-content > *::after,
+.nb-root .bn-block-content.ProseMirror-selectednode > *::after {
+  content: none;
+}
+
+.nb-embed {
+  width: 100%;
+  min-height: 52px;
+  margin: 2px 0;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--nb-border);
+  border-radius: 14px;
+  background: var(--nb-surface);
+  color: var(--nb-text-3);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.nb-embed-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nb-embed-board .nb-embed-icon {
+  background: var(--nb-accent-soft);
+  color: var(--nb-accent);
+}
+.nb-embed-cards .nb-embed-icon {
+  background: var(--nb-xp-soft);
+  color: var(--nb-xp);
+}
+.nb-embed-text {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.nb-embed-title {
+  color: var(--nb-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.nb-embed-hint {
+  color: var(--nb-text-2);
+  font-size: 12.5px;
+}
