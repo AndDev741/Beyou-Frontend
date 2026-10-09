@@ -14,7 +14,7 @@ const page = (id: string): NotebookPage => ({
     id, kind: 'PAGE', topicId: 't', parentId: 't', title: id, icon: null, description: null, content: null,
     status: 'TO_STUDY', statusManual: false, hasBoard: false, progress: { done: 0, total: 1 }, breadcrumb: [],
     goal: null, category: null, habit: null, focusMinutes: 0, cardsTotal: 0, cardsDue: 0, sourcesCount: 0,
-    updatedAt: '2026-10-04T00:00:00Z',
+    updatedAt: '2026-10-04T00:00:00Z', contentRevision: 0,
 });
 
 const board = (): Board => ({

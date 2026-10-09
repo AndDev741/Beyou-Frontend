@@ -325,3 +325,7 @@ export { applyPageDetails } from './notebook/notebookDetails';
 export type { PageDetails } from './notebook/notebookDetails';
 export { pathLevels, prerequisitesOf, progressShare } from './notebook/notebookPath';
 export { notebookPageIdFromPath, refreshNotebook } from './notebook/refreshNotebook';
+export { blockPlainText, mergeDocuments, resolveMerge, sameBlock, sameDocument } from './notebook/mergeDocuments';
+export { DocumentSync, parseDocument } from './notebook/documentSync';
+export type { DocumentSyncDeps, SaveAnswer, ServerPage, SyncEditor, SyncStatus } from './notebook/documentSync';
+export type { ConflictChoice, DocBlock, MergeConflict, MergeResult } from './notebook/mergeDocuments';

@@ -6,10 +6,12 @@ import { toast } from "react-toastify";
 import { ChevronRight, Ellipsis, FileText, Layers, Sparkles, Timer, Trash2, Workflow } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookPage, notebookPageDetailsChanged, progressShare, removeNotebookPage } from "@beyou/state";
-import { deletePage, getPage, savePageContent, updatePage } from "@beyou/api/notebook";
+import { deletePage, getPage, updatePage } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage, type ApiErrorPayload } from "@beyou/api/apiError";
 import PageTree from "../../components/notebook/PageTree";
-import NotebookEditor from "../../components/notebook/editor/NotebookEditor";
+import NotebookEditor, { type NotebookEditorHandle } from "../../components/notebook/editor/NotebookEditor";
+import ConflictDialog from "../../components/notebook/editor/ConflictDialog";
+import { useDocumentSync } from "../../components/notebook/editor/useDocumentSync";
 import TopicLinks from "../../components/notebook/TopicLinks";
 import ExplainPanel from "../../components/notebook/ExplainPanel";
 import StatusPicker from "../../components/notebook/StatusPicker";
@@ -22,8 +24,6 @@ import Modal from "../../components/modals/Modal";
 import NotebookIcon from "../../components/notebook/NotebookIcon";
 import PageIconPicker from "../../components/notebook/PageIconPicker";
 import { useNoDesktopSpacer } from "../../components/shell/desktopSpacer";
-
-type SaveState = "idle" | "saving" | "saved" | "failed";
 
 /**
  * One page of the notebook: the tree beside it, its place and numbers above, and the document,
@@ -40,19 +40,17 @@ export default function NotebookPageView() {
     const navigate = useNavigate();
     const page = useSelector((state: RootState) => (pageId ? state.notebook.pages[pageId] : undefined));
     const [error, setError] = useState<ApiErrorPayload | null>(null);
-    const [save, setSave] = useState<SaveState>("idle");
     const [title, setTitle] = useState("");
     const [explaining, setExplaining] = useState<string | null>(null);
     const [menuOpen, setMenuOpen] = useState(false);
     // The page the delete dialog was opened for, not "whatever page is on screen": the dialog
     // must never be able to act on a page the person did not choose.
     const [deleting, setDeleting] = useState<{ id: string; title: string; parentId: string | null } | null>(null);
-    const [editorKey, setEditorKey] = useState(0);
-    // The document the editor was built from or last saved. Anything else arriving in the store
-    // for this page was written somewhere else while it was open (the assistant adding notes, or
-    // a board block), and the editor has to be rebuilt from it: BlockNote reads its content once,
-    // and its next autosave would otherwise write the page back without what was added.
-    const editorContent = useRef<{ pageId: string; content: string | null } | null>(null);
+    // The document's sync with the server: saves from the revision it read, merges what was saved
+    // elsewhere meanwhile (another device, the assistant), and asks only about blocks changed on
+    // both sides. See DocumentSync in @beyou/state.
+    const editorRef = useRef<NotebookEditorHandle>(null);
+    const { status: save, conflict, onReady, onSave, serverChanged, resolve } = useDocumentSync(pageId, editorRef);
     const [pickingIcon, setPickingIcon] = useState(false);
     const changeStatus = useStatusChange();
     const { start, timer } = useNotebookFocus();
@@ -75,24 +73,6 @@ export default function NotebookPageView() {
         setExplaining(null);
         void load();
     }, [load]);
-
-    // The page on screen right now. A save can belong to the page that was here before: leaving a
-    // page sends its last edit as the editor goes, and that answer lands after the next page is up.
-    const shownPage = useRef(pageId);
-    shownPage.current = pageId;
-
-    const onSave = useCallback(
-        async (json: string) => {
-            if (!pageId) return;
-            const shown = () => shownPage.current === pageId;
-            if (shown()) setSave("saving");
-            const response = await savePageContent(pageId, json, t);
-            if (!shown()) return;
-            if (response.success) editorContent.current = { pageId, content: json };
-            setSave(response.success ? "saved" : "failed");
-        },
-        [pageId, t]
-    );
 
     const saveTitle = async () => {
         if (!page || !title.trim() || title.trim() === page.title) {
@@ -120,12 +100,12 @@ export default function NotebookPageView() {
         dispatch(notebookPageDetailsChanged({ pageId: response.success.id, title: response.success.title, icon: response.success.icon }));
     };
 
+    // A newer revision of the page arriving from anywhere (a reload, an assistant turn) is merged
+    // into the open editor instead of rebuilding it: BlockNote reads its content once, and
+    // whatever is typed here meanwhile has to survive.
     useEffect(() => {
-        if (!page) return;
-        const known = editorContent.current;
-        editorContent.current = { pageId: page.id, content: page.content };
-        if (known?.pageId === page.id && known.content !== page.content) setEditorKey((k) => k + 1);
-    }, [page?.id, page?.content]); // eslint-disable-line react-hooks/exhaustive-deps
+        if (page) void serverChanged(page);
+    }, [page?.id, page?.contentRevision]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // A rename from somewhere else (the assistant) reaches the title field too.
     useEffect(() => {
@@ -140,9 +120,6 @@ export default function NotebookPageView() {
         setMenuOpen(false);
         setExplaining(null);
         setPickingIcon(false);
-        // "Saved" was about the page that was here. Carried over, it tells the person the new page is
-        // saved before anything on it has been.
-        setSave("idle");
     }, [pageId]);
 
     const remove = async () => {
@@ -290,7 +267,9 @@ export default function NotebookPageView() {
 
                     <div className="mt-6">
                         <NotebookEditor
-                            key={`${page.id}-${editorKey}`}
+                            key={page.id}
+                            ref={editorRef}
+                            onReady={(document, hadBlocksWithoutIds) => onReady(document, page.contentRevision, hadBlocksWithoutIds)}
                             pageId={page.id}
                             pageTitle={page.title}
                             cardsTotal={page.cardsTotal}
@@ -306,8 +285,8 @@ export default function NotebookPageView() {
                             onClose={() => setExplaining(null)}
                             onAppended={() => {
                                 setExplaining(null);
-                                // The reload brings the appended blocks, and the content effect above
-                                // rebuilds the editor from them.
+                                // The reload brings a newer revision with the appended blocks, and the
+                                // effect above merges them into the open editor.
                                 void load();
                             }}
                         />
@@ -315,6 +294,7 @@ export default function NotebookPageView() {
                 </div>
             </main>
 
+            <ConflictDialog conflict={conflict} onResolve={(choices) => void resolve(choices)} />
             <Modal isOpen={deleting !== null} onClose={() => setDeleting(null)} labelledBy="delete-page-title">
                 <div className="flex w-full flex-col gap-3">
                     <h2 id="delete-page-title" className="text-lg font-semibold text-text">{t("NotebookDeleteTitle", { title: deleting?.title ?? "" })}</h2>

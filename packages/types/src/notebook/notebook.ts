@@ -42,6 +42,8 @@ export type NotebookPage = {
     cardsDue: number;
     sourcesCount: number;
     updatedAt: string;
+    /** Goes up on every write of `content`. The editor saves from it and is refused when it is stale. */
+    contentRevision: number;
 };
 
 export type TreeItem = {

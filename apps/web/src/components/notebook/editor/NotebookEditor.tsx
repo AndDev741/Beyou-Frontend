@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { filterSuggestionItems, insertOrUpdateBlockForSlashMenu } from "@blocknote/core";
 import { en as bnEn, pt as bnPt } from "@blocknote/core/locales";
@@ -12,6 +12,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { Layers, Sparkles, Workflow } from "lucide-react";
 import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
+import { sameBlock, type DocBlock } from "@beyou/state";
 import { notebookSchema, type NotebookBlock, type NotebookEditor as Editor } from "./schema";
 import { NotebookPageContext } from "./NotebookPageContext";
 import { isEmptyDocument } from "./emptyDocument";
@@ -27,6 +28,22 @@ type Props = {
     onSave: (json: string) => Promise<void>;
     /** "Explain the block above": the text of the block before the cursor. */
     onExplain: (text: string) => void;
+    /**
+     * Once, when the editor holds the page: the document as the editor has it (ids given, defaults
+     * filled in), and whether the stored one had blocks without ids, which only content written
+     * before revisions has. The page screen keeps the first as the base it merges against.
+     */
+    onReady?: (document: string, hadBlocksWithoutIds: boolean) => void;
+};
+
+/** What the page screen can do to the editor it holds. */
+export type NotebookEditorHandle = {
+    getDocument: () => DocBlock[];
+    /**
+     * Swaps the whole document, as a merge does. `save: false` when the new document is what the
+     * server already holds, so the swap does not come straight back as a save.
+     */
+    replaceDocument: (blocks: DocBlock[], options: { save: boolean }) => void;
 };
 
 /** Debounce for the autosave. Long enough to batch a typed sentence, short enough to lose nothing. */
@@ -39,7 +56,10 @@ const SAVE_DELAY_MS = 900;
  * per page, so it leaves the menu once the page shows one), flashcards, and "Explain the block
  * above", which asks the study AI about the text the cursor follows.
  */
-export default function NotebookEditor({ pageId, pageTitle, cardsTotal, content, onSave, onExplain }: Props) {
+const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function NotebookEditor(
+    { pageId, pageTitle, cardsTotal, content, onSave, onExplain, onReady },
+    ref
+) {
     const { t, i18n } = useTranslation();
     const initialContent = useMemo(() => parse(content), [pageId]); // eslint-disable-line react-hooks/exhaustive-deps
     const editor = useCreateBlockNote(
@@ -70,8 +90,43 @@ export default function NotebookEditor({ pageId, pageTitle, cardsTotal, content,
         };
     }, [pageId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // True only while replaceDocument swaps in what the server already has.
+    const silent = useRef(false);
+
+    useImperativeHandle(ref, () => ({
+        getDocument: () => editor.document as DocBlock[],
+        // Only the stretch that differs is swapped: the blocks before and after it that read the
+        // same stay as they are, so the board and the cards are not rebuilt and the cursor in a
+        // paragraph nobody else touched stays put.
+        replaceDocument: (blocks, { save }) => {
+            silent.current = !save;
+            try {
+                const current = editor.document as DocBlock[];
+                let start = 0;
+                while (start < current.length && start < blocks.length && sameBlock(current[start], blocks[start])) start++;
+                let end = 0;
+                while (end < current.length - start && end < blocks.length - start
+                    && sameBlock(current[current.length - 1 - end], blocks[blocks.length - 1 - end])) end++;
+                type Partial = Parameters<typeof editor.insertBlocks>[0];
+                const removed = current.slice(start, current.length - end) as typeof editor.document;
+                const added = blocks.slice(start, blocks.length - end) as Partial;
+                if (removed.length > 0 && added.length > 0) editor.replaceBlocks(removed, added);
+                else if (added.length > 0 && start > 0) editor.insertBlocks(added, current[start - 1].id!, "after");
+                else if (added.length > 0) editor.insertBlocks(added, current[0].id!, "before");
+                else if (removed.length > 0) editor.removeBlocks(removed);
+            } finally {
+                silent.current = false;
+            }
+        },
+    }), [editor]);
+
+    useEffect(() => {
+        onReady?.(JSON.stringify(editor.document), hasBlockWithoutId(initialContent ?? []));
+    }, [editor]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const onChange = () => {
         latest.current = JSON.stringify(editor.document);
+        if (silent.current) return;
         if (pending.current) clearTimeout(pending.current);
         pending.current = setTimeout(() => {
             pending.current = null;
@@ -128,6 +183,14 @@ export default function NotebookEditor({ pageId, pageTitle, cardsTotal, content,
             </div>
         </NotebookPageContext.Provider>
     );
+});
+
+export default NotebookEditor;
+
+/** Whether any block, at any depth, came without an id. */
+function hasBlockWithoutId(blocks: { id?: unknown; children?: unknown }[]): boolean {
+    return blocks.some((block) =>
+        !block.id || (Array.isArray(block.children) && hasBlockWithoutId(block.children as { id?: unknown }[])));
 }
 
 /**

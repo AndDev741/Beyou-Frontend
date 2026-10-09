@@ -8291,6 +8291,10 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "contentRevision": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -8930,6 +8934,10 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "contentRevision": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -9669,6 +9677,11 @@
             "type": "string",
             "maxLength": 2000000,
             "minLength": 0
+          },
+          "baseRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
           }
         },
         "required": [
