@@ -327,5 +327,8 @@ export { pathLevels, prerequisitesOf, progressShare } from './notebook/notebookP
 export { notebookPageIdFromPath, refreshNotebook } from './notebook/refreshNotebook';
 export { blockPlainText, mergeDocuments, resolveMerge, sameBlock, sameDocument } from './notebook/mergeDocuments';
 export { DocumentSync, parseDocument } from './notebook/documentSync';
+export { documentPatch, hasBlockWithoutId, initialBlocks, isEmptyDocument } from './notebook/editorDocument';
+export type { DocumentPatch } from './notebook/editorDocument';
+export { CODE_LANGUAGES, hasUnknownLanguage, normalizeCodeLanguage, withKnownLanguages } from './notebook/codeLanguages';
 export type { DocumentSyncDeps, SaveAnswer, ServerPage, SyncEditor, SyncStatus } from './notebook/documentSync';
 export type { ConflictChoice, DocBlock, MergeConflict, MergeResult } from './notebook/mergeDocuments';

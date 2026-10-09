@@ -3,10 +3,10 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch, useSelector, useStore } from 'react-redux';
-import { ChevronLeft, Timer } from 'lucide-react-native';
-import { getBoard, getPage, setPageStatus } from '@beyou/api/notebook';
+import { ChevronLeft, ChevronRight, Ellipsis, FileText, PenLine, Timer } from 'lucide-react-native';
+import { getBoard, getPage, getTopicTree, setPageStatus } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { enterBoard, enterNotebookPage, notebookStatusesChanged, progressShare } from '@beyou/state';
+import { enterBoard, enterNotebookPage, enterNotebookTree, notebookStatusesChanged, progressShare } from '@beyou/state';
 import { applyRefreshUi } from '@beyou/state/user/refreshUiThunk';
 import type { NotebookStatus, StatusChoice } from '@beyou/types/notebook/notebook';
 import Button from '../../../src/ui/Button';
@@ -18,6 +18,7 @@ import BeyouIcon from '../../../src/ui/BeyouIcon';
 import SegmentedControl from '../../../src/ui/SegmentedControl';
 import BlockRenderer from '../../../src/notebook/BlockRenderer';
 import PathView from '../../../src/notebook/PathView';
+import PageActions from '../../../src/notebook/PageActions';
 import { STATUS_LABEL_KEY } from '../../../src/notebook/StatusMark';
 import { useNotebookFocus } from '../../../src/notebook/useNotebookFocus';
 import { notify } from '../../../src/notify';
@@ -43,10 +44,15 @@ export default function NotebookPageScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const page = useSelector((s: RootState) => (id ? s.notebook.pages[id] : undefined));
   const board = useSelector((s: RootState) => (id ? s.notebook.boards[id] : undefined));
+  const tree = useSelector((s: RootState) => {
+    const topicId = page?.topicId ?? page?.id;
+    return topicId ? s.notebook.trees[topicId] : undefined;
+  });
   const [loading, setLoading] = useState(!page);
   const [failed, setFailed] = useState(false);
   const [chosenTab, setChosenTab] = useState<Tab | null>(null);
   const [savingStatus, setSavingStatus] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const startFocus = useNotebookFocus();
 
   const load = useCallback(async () => {
@@ -55,6 +61,13 @@ export default function NotebookPageScreen() {
     setLoading(false);
     if (pageResponse.success) dispatch(enterNotebookPage(pageResponse.success));
     if (boardResponse.success) dispatch(enterBoard(boardResponse.success));
+    // The tree, for the pages under this one that are not on its board: the phone has no sidebar,
+    // so a page added with "Add a page" would have no way back to it otherwise.
+    const topicId = pageResponse.success ? pageResponse.success.topicId ?? pageResponse.success.id : null;
+    if (topicId) {
+      const treeResponse = await getTopicTree(topicId, t);
+      if (treeResponse.success) dispatch(enterNotebookTree(treeResponse.success));
+    }
     if (pageResponse.error) {
       setFailed(true);
       notify.error(getFriendlyErrorMessage(t, pageResponse.error));
@@ -68,6 +81,9 @@ export default function NotebookPageScreen() {
   );
 
   const hasPath = !!board && board.nodes.some((node) => node.kind === 'PAGE');
+  const offBoard = (tree?.items ?? [])
+    .filter((item) => item.parentId === id && !item.onBoard)
+    .sort((a, b) => a.position - b.position);
   const tab: Tab = chosenTab ?? (hasPath ? 'path' : 'notes');
 
   const changeStatus = async (choice: StatusChoice) => {
@@ -101,6 +117,9 @@ export default function NotebookPageScreen() {
   };
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/notebook'));
+  const openEditor = () => {
+    if (page) router.push({ pathname: '/notebook-editor', params: { id: page.id } });
+  };
 
   if (loading || !page) {
     return (
@@ -135,6 +154,15 @@ export default function NotebookPageScreen() {
         <Text className="flex-1 text-[13px] text-text-2" numberOfLines={1}>
           {topicTitle ?? t('Notebook')}
         </Text>
+        <Pressable
+          onPress={() => setActionsOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t('NotebookMoreActions')}
+          className="h-11 w-11 items-center justify-center"
+          testID="page-actions-open"
+        >
+          <Ellipsis size={22} color={theme.text} />
+        </Pressable>
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 14 }}>
@@ -219,11 +247,42 @@ export default function NotebookPageScreen() {
         {tab === 'path' && board ? (
           <PathView board={board} onOpen={(node) => node.pageId && router.push(`/notebook/${node.pageId}`)} />
         ) : (
-          <Card testID="notebook-page-notes">
-            <BlockRenderer content={page.content} cardsTotal={page.cardsTotal} />
-          </Card>
+          <View className="gap-3">
+            <Button
+              text={t('NotebookMobileEditNotes')}
+              mode="tonal"
+              size="block"
+              icon={<PenLine size={16} color={theme.accent} />}
+              onPress={openEditor}
+              testID="notebook-page-edit"
+            />
+            <Pressable onPress={openEditor} accessibilityRole="button" accessibilityLabel={t('NotebookMobileEditNotes')}>
+              <Card testID="notebook-page-notes">
+                <BlockRenderer content={page.content} cardsTotal={page.cardsTotal} />
+              </Card>
+            </Pressable>
+          </View>
         )}
+        {offBoard.length > 0 ? (
+          <View className="gap-2" testID="notebook-page-subpages">
+            <Text className="mt-2 text-[15px] font-semibold text-text">{t('NotebookMobileSubpages')}</Text>
+            {offBoard.map((item) => (
+              <Card key={item.id} onPress={() => router.push(`/notebook/${item.id}`)} interactive testID="notebook-subpage">
+                <View className="flex-row items-center gap-3">
+                  <IconTile size={36}>
+                    {item.icon ? <BeyouIcon id={item.icon} size={18} color={theme.accent} /> : <FileText size={18} color={theme.accent} />}
+                  </IconTile>
+                  <Text className="flex-1 text-[15px] font-semibold text-text" numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                  <ChevronRight size={18} color={theme.text3} />
+                </View>
+              </Card>
+            ))}
+          </View>
+        ) : null}
       </ScrollView>
+      <PageActions page={page} open={actionsOpen} onClose={() => setActionsOpen(false)} />
     </View>
   );
 }

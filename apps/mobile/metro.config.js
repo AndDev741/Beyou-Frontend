@@ -41,7 +41,15 @@ config.resolver.extraNodeModules = {
 // physical copy is found. So we redirect resolution explicitly. Targets must match
 // Expo SDK 56's bundledNativeModules (reanimated 4.3.1, worklets 0.8.3) and the root
 // package.json `overrides` (which apply on a clean lockfile regen).
+//
+// `react` and `react-dom` join the list for the notebook editor, a DOM component
+// (`'use dom'`) Metro bundles for the web platform. BlockNote and Mantine are hoisted to
+// the root next to the web app's React 18, so their `import React` finds that copy first,
+// and Expo's own dedupe only covers the native platforms. Without the redirect the web
+// view would run react-dom 19 with BlockNote's hooks on React 18 ("Invalid hook call").
 const SINGLETONS = {
+  react: path.resolve(projectRoot, 'node_modules/react'),
+  'react-dom': path.resolve(projectRoot, 'node_modules/react-dom'),
   'react-native-reanimated': path.resolve(projectRoot, 'node_modules/react-native-reanimated'),
   'react-native-worklets': path.resolve(projectRoot, 'node_modules/react-native-worklets'),
   'react-native-css-interop': path.resolve(projectRoot, 'node_modules/react-native-css-interop'),

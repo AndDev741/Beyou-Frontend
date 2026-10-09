@@ -9,6 +9,8 @@ interface DeleteModalProps {
   deletePhrase: string;
   /** The item's name, quoted in the body. */
   name: string;
+  /** What else goes with it, when that is more than the item: a line under the body. */
+  detail?: string;
   onCancel: () => void;
   onConfirm: () => void;
   /** While the call is in flight. */
@@ -28,6 +30,7 @@ export default function DeleteModal({
   visible,
   deletePhrase,
   name,
+  detail,
   onCancel,
   onConfirm,
   pending = false,
@@ -59,6 +62,7 @@ export default function DeleteModal({
           <Text className="mt-1.5 text-[12.5px] leading-snug text-text-2">
             {t('DeleteWillRemove', { name })}
           </Text>
+          {detail ? <Text className="mt-1.5 text-[12.5px] leading-snug text-text-2">{detail}</Text> : null}
 
           <View className="mt-4 flex-row justify-end gap-2">
             <Button
