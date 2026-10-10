@@ -4,6 +4,7 @@ import { fetchOidcProviders, OidcProvider } from "@beyou/api";
 import { beginOidcLogin } from "../../services/authentication/oidcPkce";
 import omelhorsiteIcon from '../../assets/authentication/omelhorsiteIcon.png';
 import { toast } from "react-toastify";
+import { logger } from "../../utils/logger";
 
 /**
  * Provider marks, bundled rather than hot-linked.
@@ -51,7 +52,7 @@ function OidcButtons() {
         try {
             await beginOidcLogin({ slug, issuer, clientId, redirectUri: appUrl + '/' });
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             toast.error(t('OidcLoginError'));
         }
     };

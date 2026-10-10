@@ -7,7 +7,8 @@ import type { RoutineSection } from "@beyou/types/routine/routineSection";
 export const routineSectionSchema = (t: TFunction) =>
     z.object({
         id: z.string().optional(),
-        name: z.string().trim().min(1, t("RoutineSectionNameRequired")),
+        // routine_sections.name is varchar(255), and the server now says so too (@Size).
+        name: z.string().trim().min(1, t("RoutineSectionNameRequired")).max(255, t("YupMaxName", { max: 255 })),
         startTime: z.string().min(1, t("RoutineSectionStartRequired")),
         endTime: z.string().optional(),
         iconId: z.string().optional(),

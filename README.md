@@ -45,6 +45,12 @@ repository.
   yesterday, checkable right there at whatever the late check-in is now worth, next to what
   today holds. The figures are computed on the server; the LLM only phrases them, so a
   provider being down costs a sentence and not the panel.
+- **Focus Mode** — a pomodoro timer on today's routine items, with micro-tasks per item that can be
+  pinned to follow you from item to item. Completed cycles are kept per day and show up, with the
+  micro-tasks, on that item's row of the day's routine snapshot.
+- **Goals as a tree** — a goal can sit under another, three levels deep, and a viewer page walks
+  the tree with each goal's progress. Finished or abandoned goals can be archived with their
+  sub-goals and brought back the same way.
 - **A mood a day, and a diary** — a five-point scale plus optional journalling. The dashboard
   widget marks the day with one tap, through a request that has no field for a note, so it cannot
   erase what you wrote that morning. Only the diary page's Save button replaces an entry.
@@ -53,6 +59,9 @@ repository.
   answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
   asks what you are after before you start, and it can search the web for sources for you. In
   v1 the phone reads the roadmap as a path and runs reviews, and writing stays on the web.
+- **Sign in your way** — e-mail and password, Google, or any configured OpenID Connect provider
+  (web only for now). A federated identity is matched by its issuer and subject, never by e-mail,
+  so a new provider reaches an existing account only through a link made from inside it.
 - **AI assistant** — a streaming chat whose tools call the same API the buttons do, so it passes the
   same ownership checks and validation. It can read your mood levels. It cannot read your journal.
 - **Theming & i18n as data** — two bases × five accent packs as design tokens, plus `en`/`pt`
@@ -72,7 +81,7 @@ beyou-app/
 │   └── mobile/     @beyou/mobile   Expo SDK 56 + React Native 0.85 + Expo Router + NativeWind
 └── packages/
     ├── types/      @beyou/types        Shared domain types (habit, goal, routine, task, …)
-    ├── theme/      @beyou/theme         9 themes as design tokens
+    ├── theme/      @beyou/theme         2 bases × 5 accent packs as design tokens
     ├── i18n/       @beyou/i18n          English + Portuguese translation resources
     ├── state/      @beyou/state         Redux Toolkit slices + root reducer
     ├── api/        @beyou/api           Transport-agnostic HTTP client + API repositories
@@ -86,7 +95,7 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, mood, notebook, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`). |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`). |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/icons` | The icon registry both pickers use, with bilingual search and recents. Each app supplies only the renderer. |

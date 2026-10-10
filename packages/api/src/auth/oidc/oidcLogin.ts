@@ -41,12 +41,24 @@ export default async function oidcLogin(
     } catch (e) {
         getLogger().error(e);
         if (e instanceof ApiError && e.status === 403) {
-            const data = e.data as { error?: string; reason?: string; provider?: string } | undefined;
-            if (data?.error === 'FEDERATED_LINK_REQUIRED') {
+            // The standard error envelope, with the reason and the provider in details. The
+            // flat {error, reason, provider} body is what the server sent before it, read here
+            // so a web build that lands first does not break against the older backend.
+            const data = e.data as
+                | {
+                      errorKey?: string;
+                      details?: { reason?: string; provider?: string };
+                      error?: string;
+                      reason?: string;
+                      provider?: string;
+                  }
+                | undefined;
+            if (data?.errorKey === 'FEDERATED_LINK_REQUIRED' || data?.error === 'FEDERATED_LINK_REQUIRED') {
+                const reason = data.details?.reason ?? data.reason;
                 return {
                     kind: 'linkRequired',
-                    reason: (data.reason as OidcLinkRequiredReason) ?? 'EMAIL_NOT_TRUSTED',
-                    provider: data.provider ?? slug,
+                    reason: (reason as OidcLinkRequiredReason) ?? 'EMAIL_NOT_TRUSTED',
+                    provider: data.details?.provider ?? data.provider ?? slug,
                 };
             }
         }

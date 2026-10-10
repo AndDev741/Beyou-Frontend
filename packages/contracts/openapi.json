@@ -2798,6 +2798,16 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "403": {
+            "description": "FEDERATED_LINK_REQUIRED: the identity verified but may not enter on its own. details.reason is EMAIL_NOT_TRUSTED or ACCOUNT_EXISTS, details.provider the slug.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -2832,6 +2842,16 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "403": {
+            "description": "FEDERATED_LINK_REQUIRED: the identity verified but may not enter on its own. details.reason is EMAIL_NOT_TRUSTED or ACCOUNT_EXISTS, details.provider the slug.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5185,10 +5205,12 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 255
           },
           "iconId": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 255
           },
           "type": {
             "type": "string",
@@ -5201,13 +5223,15 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RoutineSectionRequestDTO"
-            }
+            },
+            "maxItems": 50
           },
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RoutineItemRequestDTO"
-            }
+            },
+            "maxItems": 500
           }
         }
       },
@@ -5270,10 +5294,12 @@
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 255
           },
           "iconId": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 255
           },
           "startTime": {
             "type": "string"
@@ -5285,13 +5311,15 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TaskGroupDTO"
-            }
+            },
+            "maxItems": 500
           },
           "habitGroup": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/HabitGroupDTO"
-            }
+            },
+            "maxItems": 500
           },
           "favorite": {
             "type": "boolean"
