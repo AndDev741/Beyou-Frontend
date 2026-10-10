@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AI_SLOW_AFTER_SECONDS, formatElapsed } from "@beyou/state";
 
 /**
  * What a notebook AI call shows while the person waits.
@@ -8,9 +9,9 @@ import { useTranslation } from "react-i18next";
  * the same at second 3 and at second 70, when it might as well be frozen. So every wait shows
  * how long it has been, and past {@link AI_SLOW_AFTER_SECONDS} it says what is true: the
  * server asks the model once more on its own before giving up (NotebookLlm on the backend,
- * inside a 90 second budget).
+ * inside a 90 second budget). The phone shows the same.
  */
-export const AI_SLOW_AFTER_SECONDS = 30;
+export { AI_SLOW_AFTER_SECONDS, formatElapsed };
 
 /**
  * Seconds since `since` (an ISO time from the server), or since the component mounted when there
@@ -31,8 +32,6 @@ export function useElapsedSeconds(since?: string | null): number {
     }, [started]);
     return seconds;
 }
-
-export const formatElapsed = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
 /**
  * One line: the label, the elapsed time and, once the call runs long, the note that it is still

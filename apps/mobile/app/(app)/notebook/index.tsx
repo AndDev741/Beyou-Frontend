@@ -3,28 +3,31 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Layers, NotebookPen, Plus } from 'lucide-react-native';
-import { getNotebookHome } from '@beyou/api/notebook';
+import { ChevronLeft, ChevronRight, Layers, NotebookPen, Plus, Sparkles, Trash2 } from 'lucide-react-native';
+import { deleteRoadmapDraft, getNotebookHome, listRoadmapDrafts } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { enterNotebookHome, progressShare } from '@beyou/state';
-import type { TopicSummary } from '@beyou/types/notebook/notebook';
+import { DRAFTS_POLL_MS, enterNotebookHome, progressShare } from '@beyou/state';
+import type { RoadmapDraftSummary, TopicSummary } from '@beyou/types/notebook/notebook';
 import Button from '../../../src/ui/Button';
 import Card from '../../../src/ui/Card';
 import Chip from '../../../src/ui/Chip';
+import DeleteModal from '../../../src/ui/DeleteModal';
 import EmptyState from '../../../src/ui/EmptyState';
 import IconTile from '../../../src/ui/IconTile';
 import BeyouIcon from '../../../src/ui/BeyouIcon';
 import ProgressBar from '../../../src/notebook/ProgressBar';
 import NewTopicSheet from '../../../src/notebook/NewTopicSheet';
+import { AiWaitingLine } from '../../../src/notebook/AiWaiting';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
 
 /**
- * The study notebook's home on a phone: the page to pick up, the cards due, and the topics.
+ * The study notebook's home on a phone: the page to pick up, the cards due, the roadmap drafts
+ * waiting for a decision, and the topics.
  *
- * "New topic" starts a blank one here; its notes are written in the phone's editor. Drafting a
- * roadmap with AI is still a web thing.
+ * "New topic" starts a blank one or drafts a roadmap with AI. A draft the model is still writing
+ * turns into "Ready to review" on its own while the home is on screen.
  */
 export default function NotebookHomeScreen() {
   const { t } = useTranslation();
@@ -34,6 +37,14 @@ export default function NotebookHomeScreen() {
   const home = useSelector((s: RootState) => s.notebook.home);
   const [loading, setLoading] = useState(!home);
   const [creating, setCreating] = useState(false);
+  const [drafts, setDrafts] = useState<RoadmapDraftSummary[]>([]);
+  const [deleting, setDeleting] = useState<RoadmapDraftSummary | null>(null);
+  const [deletingBusy, setDeletingBusy] = useState(false);
+
+  const loadDrafts = useCallback(async () => {
+    const response = await listRoadmapDrafts(t);
+    if (response.success) setDrafts(response.success);
+  }, [t]);
 
   const load = useCallback(async () => {
     const response = await getNotebookHome(t);
@@ -50,8 +61,31 @@ export default function NotebookHomeScreen() {
   useFocusEffect(
     useCallback(() => {
       void load();
-    }, [load]),
+      void loadDrafts();
+    }, [load, loadDrafts]),
   );
+
+  const anyDrafting = drafts.some((draft) => draft.status === 'DRAFTING');
+  useFocusEffect(
+    useCallback(() => {
+      if (!anyDrafting) return;
+      const timer = setInterval(() => void loadDrafts(), DRAFTS_POLL_MS);
+      return () => clearInterval(timer);
+    }, [anyDrafting, loadDrafts]),
+  );
+
+  const deleteDraft = async () => {
+    if (!deleting) return;
+    setDeletingBusy(true);
+    const response = await deleteRoadmapDraft(deleting.id, t);
+    setDeletingBusy(false);
+    if (response.error) {
+      notify.error(getFriendlyErrorMessage(t, response.error));
+      return;
+    }
+    setDeleting(null);
+    void loadDrafts();
+  };
 
   const topics = home?.topics ?? [];
   const totals = topics.reduce(
@@ -167,6 +201,20 @@ export default function NotebookHomeScreen() {
             </Card>
           ) : null}
 
+          {drafts.length > 0 ? (
+            <View className="gap-2" testID="notebook-drafts">
+              <Text className="mt-2 text-[15px] font-semibold text-text">{t('NotebookDrafts')}</Text>
+              {drafts.map((draft) => (
+                <DraftCard
+                  key={draft.id}
+                  draft={draft}
+                  onOpen={() => router.push({ pathname: '/notebook-draft', params: { id: draft.id } })}
+                  onDelete={() => setDeleting(draft)}
+                />
+              ))}
+            </View>
+          ) : null}
+
           <Text className="mt-2 text-[15px] font-semibold text-text">{t('NotebookMobileTopics')}</Text>
           {topics.length === 0 ? (
             <EmptyState
@@ -183,6 +231,52 @@ export default function NotebookHomeScreen() {
         </ScrollView>
       )}
       <NewTopicSheet visible={creating} onClose={() => setCreating(false)} />
+      <DeleteModal
+        visible={deleting !== null}
+        deletePhrase={t('NotebookDraftDeleteTitle', { title: deleting?.title ?? '' })}
+        name={deleting?.title ?? ''}
+        detail={t('NotebookDraftDeleteText')}
+        pending={deletingBusy}
+        onCancel={() => setDeleting(null)}
+        onConfirm={() => void deleteDraft()}
+        testID="draft-delete-modal"
+      />
+    </View>
+  );
+}
+
+/** A roadmap draft waiting for a decision: open it to review and create, or delete it. */
+function DraftCard({ draft, onOpen, onDelete }: { draft: RoadmapDraftSummary; onOpen: () => void; onDelete: () => void }) {
+  const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
+  return (
+    <View className="flex-row items-center gap-2 rounded-2xl border border-border bg-surface p-3" testID="draft-card">
+      <Pressable onPress={onOpen} accessibilityRole="button" className="min-w-0 flex-1 flex-row items-center gap-3" testID="draft-open">
+        <IconTile size={40}>
+          <Sparkles size={20} color={theme.accent} />
+        </IconTile>
+        <View className="min-w-0 flex-1 gap-0.5">
+          <Text className="text-[15px] font-semibold text-text" numberOfLines={1}>{draft.title}</Text>
+          <View testID="draft-status">
+            {draft.status === 'DRAFTING' ? (
+              <AiWaitingLine label={t('NotebookDraftDrafting')} since={draft.startedAt} slowNote={false} />
+            ) : draft.status === 'READY' ? (
+              <Text className="text-[13px] font-semibold text-accent">{t('NotebookDraftReady', { count: draft.nodeCount })}</Text>
+            ) : (
+              <Text className="text-[13px] text-text-2">{t('NotebookDraftFailed')}</Text>
+            )}
+          </View>
+        </View>
+      </Pressable>
+      <Pressable
+        onPress={onDelete}
+        accessibilityRole="button"
+        accessibilityLabel={t('NotebookDraftDelete', { title: draft.title })}
+        className="h-11 w-11 items-center justify-center"
+        testID="draft-delete"
+      >
+        <Trash2 size={18} color={theme.text2} />
+      </Pressable>
     </View>
   );
 }

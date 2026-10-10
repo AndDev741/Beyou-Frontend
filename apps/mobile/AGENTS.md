@@ -122,6 +122,19 @@ timers that never settle under jest + React 19 async `act()`, and a host now mou
 the UI. Tests that need to observe a notification mock `src/notify`; a test that needs to SEE a
 host overrides the global stub with one that renders a marker.
 
+## …but taps still follow the React tree
+
+The opposite holds for touches. A `BottomSheet` is its own native window, yet the JS responder
+walks React's component tree, so a sheet rendered inside a `ScrollView` answers to that
+ScrollView's `keyboardShouldPersistTaps`. The default, `"never"`, spends the first tap on a
+sheet's button closing the keyboard, and the person has to tap Save twice. Give any ScrollView
+that renders a sheet with inputs `keyboardShouldPersistTaps="handled"` (the notebook page screen
+and the study room's Sources tab do), or render the sheet outside it. Jest cannot catch this:
+`fireEvent.press` skips the responder, so check it on a device with the keyboard open.
+
+On the emulator, `adb shell input text` inside a sheet sends hardware key events, and two `r`s
+within 200ms trigger the dev client's reload. Type text with an `r` in it in pieces.
+
 ## Dashboard (Phase 3)
 
 The dashboard reuses the shared `@beyou/*` data layer end-to-end: slices wired in `src/store.ts`,

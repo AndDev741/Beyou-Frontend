@@ -10,38 +10,22 @@ import {
     createTopicFromDraft, getRoadmapDraft, redraftRoadmap, saveDraftChoices, startRoadmapDraft,
 } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import type {
-    DraftChoice, DraftNode, DraftNodeInput, RoadmapDraftRecord, RoadmapDraftRequest, StudyLevel,
-} from "@beyou/types/notebook/notebook";
+import type { DraftChoice, RoadmapDraftRecord, StudyLevel } from "@beyou/types/notebook/notebook";
+import {
+    AI_SLOW_AFTER_SECONDS, DRAFT_CHOICES_SAVE_MS, DRAFT_HOURS, DRAFT_POLL_MS, draftChoices, draftForm, draftPlan, draftRequest,
+    draftRows, formatElapsed, topicFromDraft, type DraftRow,
+} from "@beyou/state";
 import Modal from "../modals/Modal";
 import ErrorNotice from "../ErrorNotice";
-import { AI_SLOW_AFTER_SECONDS, formatElapsed, useElapsedSeconds } from "./aiWaiting";
+import { useElapsedSeconds } from "./aiWaiting";
 
-type Row = DraftNode & { keep: boolean; link: boolean };
-
-const HOURS = [3, 6, 10];
 const LEVELS: { value: StudyLevel; key: string }[] = [
     { value: "NEW", key: "NotebookAiLevelNew" },
     { value: "SOME", key: "NotebookAiLevelSome" },
     { value: "SOLID", key: "NotebookAiLevelSolid" },
 ];
 
-/** How often an open dialog reads back a draft the model is still writing. */
-export const DRAFT_POLL_MS = 2500;
-/** Ticks are saved this long after the last change, and at once when the dialog closes. */
-const CHOICES_SAVE_MS = 600;
-
-/** The drafted nodes with the person's ticks on them, or the defaults where there are none. */
-const rowsOf = (draft: RoadmapDraftRecord): Row[] | null =>
-    draft.result?.nodes.map((node, i) => {
-        const choices = draft.choices?.length === draft.result?.nodes.length ? draft.choices : null;
-        const choice = choices?.[i];
-        return {
-            ...node,
-            keep: choice ? choice.keep : !node.optional,
-            link: !!node.existingPageId && (choice ? choice.link : true),
-        };
-    }) ?? null;
+export { DRAFT_POLL_MS };
 
 /**
  * "New topic with AI": describe what to learn, review the drafted roadmap, then create it.
@@ -75,7 +59,7 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
     const [goalId, setGoalId] = useState("");
     const [reference, setReference] = useState("");
     const [draft, setDraft] = useState<RoadmapDraftRecord | null>(null);
-    const [rows, setRows] = useState<Row[] | null>(null);
+    const [rows, setRows] = useState<DraftRow[] | null>(null);
     const [change, setChange] = useState("");
     const [busy, setBusy] = useState<"draft" | "create" | null>(null);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
@@ -92,15 +76,16 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
     /** Shows what the server has. `refill` also puts the request back into the form. */
     const apply = useCallback((next: RoadmapDraftRecord, refill: boolean) => {
         setDraft(next);
-        setRows(rowsOf(next));
+        setRows(draftRows(next));
         setError(next.status === "FAILED" && next.errorKey ? { errorKey: next.errorKey } : null);
         if (refill) {
-            setTitle(next.request.title);
-            setWhy(next.request.why ?? "");
-            setLevel(next.request.level ?? "SOME");
-            setHours(next.request.hoursPerWeek ?? 6);
-            setGoalId(next.request.goalId ?? "");
-            setReference(next.request.references?.[0] ?? "");
+            const form = draftForm(next.request);
+            setTitle(form.title);
+            setWhy(form.why);
+            setLevel(form.level);
+            setHours(form.hours);
+            setGoalId(form.goalId);
+            setReference(form.reference);
         }
     }, []);
 
@@ -138,33 +123,23 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
     }, [t]);
 
     /** Changes one row and saves the ticks shortly after, so a reopened draft has them. */
-    const updateRow = (index: number, patch: Partial<Row>) => {
+    const updateRow = (index: number, patch: Partial<DraftRow>) => {
         if (!rows || !draft || drafting) return;
         const next = rows.map((row, i) => (i === index ? { ...row, ...patch } : row));
         setRows(next);
-        pendingChoices.current = { draftId: draft.id, choices: next.map((r) => ({ keep: r.keep, link: r.link })) };
+        pendingChoices.current = { draftId: draft.id, choices: draftChoices(next) };
         window.clearTimeout(saveTimer.current);
-        saveTimer.current = window.setTimeout(() => void flushChoices(), CHOICES_SAVE_MS);
+        saveTimer.current = window.setTimeout(() => void flushChoices(), DRAFT_CHOICES_SAVE_MS);
     };
+
+    const form = { title, why, level, hours, goalId, reference };
 
     const runDraft = async (revision?: string) => {
         if (!title.trim() || busy || drafting) return;
         setBusy("draft");
         setError(null);
         await flushChoices();
-        const previous: DraftNodeInput[] | undefined = revision && rows
-            ? rows.filter((r) => r.keep).map((r) => ({ title: r.title, subtopics: r.subtopics }))
-            : undefined;
-        const request: RoadmapDraftRequest = {
-            title: title.trim(),
-            why: why.trim() || undefined,
-            level,
-            hoursPerWeek: hours,
-            goalId: goalId || null,
-            references: reference.trim() ? [reference.trim()] : undefined,
-            changeRequest: revision,
-            previous,
-        };
+        const request = draftRequest(form, revision, rows);
         const response = draft ? await redraftRoadmap(draft.id, request, t) : await startRoadmapDraft(request, t);
         setBusy(null);
         if (!response.success) {
@@ -183,26 +158,12 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
     };
 
     const create = async () => {
-        if (!rows) return;
-        const kept = rows.filter((r) => r.keep);
-        if (kept.length === 0) return;
+        if (!rows || !rows.some((r) => r.keep)) return;
         setBusy("create");
         setError(null);
         window.clearTimeout(saveTimer.current);
         pendingChoices.current = null;
-        const response = await createTopicFromDraft({
-            title: title.trim(),
-            description: why.trim() || null,
-            goalId: goalId || null,
-            nodes: kept.map((r) => ({
-                title: r.title,
-                why: r.why,
-                subtopics: r.link ? [] : r.subtopics,
-                estimatedHours: r.estimatedHours,
-                linkPageId: r.link ? r.existingPageId : null,
-            })),
-            draftId: draft?.id ?? null,
-        }, t);
+        const response = await createTopicFromDraft(topicFromDraft(form, rows, draft?.id ?? null), t);
         setBusy(null);
         if (!response.success) {
             setError(response.error ?? null);
@@ -213,9 +174,7 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
         navigate(`/notebook/${response.success.id}`);
     };
 
-    const kept = rows?.filter((r) => r.keep) ?? [];
-    const weeklyHours = kept.filter((r) => !r.link).reduce((sum, r) => sum + r.estimatedHours, 0);
-    const weeks = hours > 0 ? Math.ceil(weeklyHours / hours) : 0;
+    const { kept, weeks } = draftPlan(rows, hours);
 
     return (
         <Modal isOpen={isOpen} onClose={close} labelledBy="ai-topic-title" className="!max-w-[1080px] !p-0">
@@ -261,7 +220,7 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
                     <fieldset>
                         <legend className="mb-1.5 text-[13px] font-semibold text-text">{t("NotebookAiHours")}</legend>
                         <div className="flex gap-1.5">
-                            {HOURS.map((h) => (
+                            {DRAFT_HOURS.map((h) => (
                                 <button key={h} type="button" aria-pressed={hours === h} onClick={() => setHours(h)}
                                     className={`h-8 rounded-full border px-3.5 font-mono text-[13px] font-semibold ${hours === h ? "border-accent bg-accent-soft text-accent" : "border-border bg-surface text-text-2"}`}>
                                     {t("NotebookAiHoursValue", { hours: h })}
@@ -295,7 +254,7 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
                         <h3 className="text-base font-semibold text-text">{t("NotebookAiDraftTitle")}</h3>
                         {rows && (
                             <span className="text-[13px] text-text-2">
-                                {t("NotebookAiDraftSummary", { kept: kept.length, total: rows.length, weeks, hours })}
+                                {t("NotebookAiDraftSummary", { kept, total: rows.length, weeks, hours })}
                             </span>
                         )}
                     </div>
@@ -386,9 +345,9 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
                             <button type="button" onClick={close} className="h-[42px] rounded-control border border-border bg-surface px-4 text-sm font-semibold text-text">
                                 {draft ? t("Close") : t("Cancel")}
                             </button>
-                            <button type="button" onClick={create} disabled={!rows || kept.length === 0 || busy !== null || drafting} data-testid="ai-topic-create"
+                            <button type="button" onClick={create} disabled={!rows || kept === 0 || busy !== null || drafting} data-testid="ai-topic-create"
                                 className="h-[42px] rounded-control bg-accent px-[18px] text-sm font-semibold text-on-accent disabled:opacity-60">
-                                {busy === "create" ? t("NotebookAiCreating") : t("NotebookAiCreate", { count: kept.length })}
+                                {busy === "create" ? t("NotebookAiCreating") : t("NotebookAiCreate", { count: kept })}
                             </button>
                         </div>
                     </div>

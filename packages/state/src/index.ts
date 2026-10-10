@@ -330,5 +330,21 @@ export { DocumentSync, parseDocument } from './notebook/documentSync';
 export { documentPatch, hasBlockWithoutId, initialBlocks, isEmptyDocument } from './notebook/editorDocument';
 export type { DocumentPatch } from './notebook/editorDocument';
 export { CODE_LANGUAGES, hasUnknownLanguage, normalizeCodeLanguage, withKnownLanguages } from './notebook/codeLanguages';
+export {
+    AI_SLOW_AFTER_SECONDS,
+    DRAFT_CHOICES_SAVE_MS,
+    DRAFT_HOURS,
+    DRAFT_POLL_MS,
+    DRAFTS_POLL_MS,
+    EMPTY_DRAFT_FORM,
+    draftChoices,
+    draftForm,
+    draftPlan,
+    draftRequest,
+    draftRows,
+    formatElapsed,
+    topicFromDraft,
+} from './notebook/roadmapDraft';
+export type { DraftForm, DraftRow } from './notebook/roadmapDraft';
 export type { DocumentSyncDeps, SaveAnswer, ServerPage, SyncEditor, SyncStatus } from './notebook/documentSync';
 export type { ConflictChoice, DocBlock, MergeConflict, MergeResult } from './notebook/mergeDocuments';
