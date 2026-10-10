@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
+import { Sparkles } from 'lucide-react-native';
 import { createTopic } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterNotebookPage } from '@beyou/state';
@@ -10,16 +11,18 @@ import BottomSheet from '../ui/BottomSheet';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { notify } from '../notify';
+import { useBeyouTheme } from '../theme/ThemeProvider';
 import type { AppDispatch } from '../store';
 
 /**
- * A blank topic from the phone: a title, then its page. Drafting a roadmap with AI stays on the
- * web for now.
+ * A new topic from the phone: a blank one from its title, or a roadmap drafted with AI, which
+ * opens the draft screen with the title already in.
  */
 export default function NewTopicSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const { theme } = useBeyouTheme();
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -67,6 +70,18 @@ export default function NewTopicSheet({ visible, onClose }: { visible: boolean; 
           disabled={!title.trim()}
           onPress={() => void create()}
           testID="new-topic-submit"
+        />
+        <Button
+          text={t('NotebookCreateWithAi')}
+          mode="tonal"
+          size="block"
+          icon={<Sparkles size={16} color={theme.accent} />}
+          disabled={busy}
+          onPress={() => {
+            onClose();
+            router.push({ pathname: '/notebook-draft', params: title.trim() ? { title: title.trim() } : {} });
+          }}
+          testID="new-topic-ai"
         />
       </View>
     </BottomSheet>
