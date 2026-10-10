@@ -164,7 +164,13 @@ export default function NotebookPageScreen() {
         </Pressable>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 14 }}>
+      {/* The Cards tab's sheet renders inside this ScrollView, and the responder walks the React
+          tree: without "handled" the first tap on its Save only closes the keyboard. */}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 14 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="flex-row items-center gap-3">
           {page.icon ? (
             <IconTile size={44}>
