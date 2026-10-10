@@ -79,7 +79,7 @@ function Register() {
 
     return (
         <AuthShell
-            title={`${t("Welcome")} ${t("To")} beyou`}
+            title={t("WelcomeToBeyou")}
             subtitle={t("RegisterSubtitle")}
             footer={
                 <>

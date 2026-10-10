@@ -8,6 +8,8 @@ import { UserType } from "@beyou/types/user/UserType";
 import axios from "../axiosConfig";
 import { hydratePerfil } from "../user/hydratePerfil";
 import { completeOidcLogin } from "./oidcPkce";
+import i18next from "i18next";
+import { shownLanguage } from "@beyou/api/user/appLanguage";
 import { detectTimezone } from "../user/reconcileTimezone";
 import { logger } from "../../utils/logger";
 
@@ -45,7 +47,10 @@ function useOidcLogin(
             .then(async (callback) => {
                 if (!callback) return;
 
-                const result = await oidcLogin(callback.slug, callback.idToken, detectTimezone() ?? undefined);
+                const result = await oidcLogin(callback.slug, callback.idToken, {
+                    timezone: detectTimezone() ?? undefined,
+                    language: shownLanguage(i18next) ?? undefined,
+                });
 
                 if (result.kind === 'success') {
                     // The JWT lives only in-memory, so the login response is the one

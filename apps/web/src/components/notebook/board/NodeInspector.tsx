@@ -118,7 +118,7 @@ export default function NodeInspector({
                         <p id="inspector-focus-busy" className="-mt-2 text-xs text-text-2">{t("NotebookFocusBusyHint")}</p>
                     )}
                     <dl className="grid grid-cols-3 gap-2">
-                        <Stat value={formatMinutes(page?.focusMinutes ?? 0)} label={t("NotebookStatFocused")} />
+                        <Stat value={formatMinutes(page?.focusMinutes ?? 0, t)} label={t("NotebookStatFocused")} />
                         <Stat value={`${page?.cardsTotal ?? 0}`} extra={page?.cardsDue ? t("NotebookStatDue", { n: page.cardsDue }) : undefined} label={t("NotebookStatCards")} />
                         <Stat value={`${page?.sourcesCount ?? 0}`} label={t("NotebookStatSources")} />
                     </dl>
@@ -186,9 +186,12 @@ function Stat({ value, label, extra }: { value: string; label: string; extra?: s
     );
 }
 
-export function formatMinutes(minutes: number): string {
-    if (minutes < 60) return `${minutes}m`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return m ? `${h}h ${m}m` : `${h}h`;
+/** Minutes of focus as the reader's language writes a duration. */
+export function formatMinutes(minutes: number, t: (key: string, options?: Record<string, unknown>) => string): string {
+    if (minutes < 60) return t("NotebookDurationMinutes", { minutes });
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return rest
+        ? t("NotebookDurationHoursMinutes", { hours, minutes: rest })
+        : t("NotebookDurationHours", { hours });
 }

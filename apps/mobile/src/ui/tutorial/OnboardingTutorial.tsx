@@ -65,6 +65,24 @@ const STEPS: Step[] = [
     itemKeys: ['TutorialGoalsItem1', 'TutorialGoalsItem2', 'TutorialGoalsItem3'],
     tipKey: 'TutorialGoalsTip',
   },
+  {
+    id: 'mood',
+    titleKey: 'TutorialMoodTitle',
+    descKey: 'TutorialMoodDescription',
+    icon: 'lucide:book-heart',
+    exampleTitleKey: 'TutorialMoodExampleTitle',
+    itemKeys: ['TutorialMoodItem1', 'TutorialMoodItem2', 'TutorialMoodItem3'],
+    tipKey: 'TutorialMoodTip',
+  },
+  {
+    id: 'notebook',
+    titleKey: 'TutorialNotebookTitle',
+    descKey: 'TutorialNotebookDescription',
+    icon: 'lucide:notebook-pen',
+    exampleTitleKey: 'TutorialNotebookExampleTitle',
+    itemKeys: ['TutorialNotebookItem1', 'TutorialNotebookItem2', 'TutorialNotebookItem3'],
+    tipKey: 'TutorialNotebookTip',
+  },
 ];
 
 export default function OnboardingTutorial({

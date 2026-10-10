@@ -24,11 +24,12 @@ describe('oidcLogin', () => {
       headers: { 'x-access-token': 'jwt' },
     });
 
-    const result = await oidcLogin('omelhorsite', 'id-token', 'Europe/Lisbon');
+    const result = await oidcLogin('omelhorsite', 'id-token', { timezone: 'Europe/Lisbon', language: 'pt' });
 
     expect(post).toHaveBeenCalledWith('/auth/oidc/omelhorsite', {
       idToken: 'id-token',
       timezone: 'Europe/Lisbon',
+      language: 'pt',
     });
     expect(result).toEqual({ kind: 'success', user: { name: 'Ana' }, accessToken: 'jwt', refreshToken: undefined });
   });

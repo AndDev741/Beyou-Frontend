@@ -12,8 +12,8 @@ __NAV__
       <ul>
         <li>O Beyou é grátis. Não carrega anúncio nem rastreador, e nada sobre você é vendido.</li>
         <li>Sua conta precisa de um nome, um e-mail e uma senha. Nada além disso é obrigatório.</li>
-        <li>Todo o resto guardado sobre você é o que você mesmo digitou no app: hábitos, tarefas, rotinas, metas, categorias e o histórico do que você marcou.</li>
-        <li>Se você usar o assistente de IA, o que você escreve e os hábitos e metas que ele lê são enviados a um provedor de IA externo para gerar a resposta. O assistente é opcional e você pode apagar todo o histórico dele.</li>
+        <li>Todo o resto guardado sobre você é o que você mesmo colocou no app: hábitos, tarefas, rotinas, metas, categorias, o histórico do que você marcou, seu diário, seu caderno de estudos e suas sessões de foco.</li>
+        <li>Alguns recursos enviam texto a um provedor de IA externo: o assistente, a configuração guiada, as ferramentas de estudo do caderno e o texto curto do resumo do dia. A seção 3 lista o que cada um envia. O que você escreve no diário nunca é enviado.</li>
         <li>Você apaga sua conta de dentro do app, e ela é excluída na hora. Não existe prazo de espera nem como desfazer.</li>
       </ul>
     </div>
@@ -70,6 +70,44 @@ __NAV__
       algo que você não queira armazenado num servidor.
     </p>
 
+    <h3>Seu diário</h3>
+    <p>
+      Para cada dia que você registra, um humor de 1 a 5 e a nota que você
+      escreveu junto, se escreveu. Dias que você não registra não têm linha
+      nenhuma.
+    </p>
+    <p>
+      Como você se sente pode dizer algo sobre a sua saúde, então o diário é
+      tratado com mais cuidado do que o resto do app. Ele não rende XP nem conta
+      para sequência. Fica fora da cópia dos seus dados que o app web guarda no
+      navegador, e nunca chega às métricas de uso. As palavras da sua nota nunca
+      vão para um provedor de IA. O humor em si, como número, é lido pelo
+      assistente quando você pergunta sobre a sua semana e pelo resumo do dia, os
+      dois descritos na seção 3. Você pode limpar qualquer dia, ou apagar o
+      registro com a nota, na tela do diário.
+    </p>
+
+    <h3>Seu caderno de estudos</h3>
+    <p>
+      Os tópicos e páginas que você cria e as notas que escreve neles, o roteiro
+      que você monta, seus cartões e como foi cada revisão, o objetivo de estudo
+      que você definiu, as conversas na sala de estudo, e os quizzes e resumos que
+      ela montou para você. Para cada fonte que você adiciona, o título, o
+      endereço web quando houver, e o texto lido dela. Uma página web que você
+      adiciona é buscada pelo servidor do Beyou, então o site vê esse servidor e
+      não você. Um PDF é lido para extrair o texto, e o arquivo em si não fica
+      guardado.
+    </p>
+
+    <h3>Sessões de foco e o resumo do dia</h3>
+    <p>
+      Para cada sessão de foco, quando começou e terminou, que tipo de sessão
+      foi, o item da rotina ou a página do caderno a que ela se referia, e os
+      pequenos passos que você anotou para ela. Para cada dia em que você abre o
+      app, o texto curto que o resumo do dia escreveu para você, guardado por 30
+      dias.
+    </p>
+
     <h3>Feedback e relatos de erro</h3>
     <p>
       Quando você envia feedback de dentro do app, o Beyou guarda sua mensagem, as
@@ -103,17 +141,28 @@ __NAV__
       identificador de publicidade, nenhum identificador de dispositivo, nenhum
       contato, nenhuma agenda, nenhum microfone e nenhuma câmera. Nenhum dado de
       pagamento ou cartão, porque não há nada a pagar. O Beyou não tem SDK de
-      analytics, SDK de publicidade nem rastreador de terceiros, na web ou no
-      Android.
+      publicidade nem rastreador de terceiros, na web ou no Android. A única
+      ferramenta de métricas que ele usa, o PostHog, está descrita na seção 5,
+      junto com tudo o que ela recebe.
     </p>
 
-    <h2 id="ai">3. O assistente de IA</h2>
+    <h2 id="ai">3. Os recursos de IA</h2>
     <p>
-      O assistente é a única parte do Beyou em que o que você escreve sai dos
-      servidores do próprio Beyou. O Beyou não roda um modelo de IA próprio. Quando
-      você manda uma mensagem, o pedido vai para o servidor do Beyou, que repassa
-      para um provedor de IA externo e devolve a resposta em tempo real. O Beyou
-      repassa:
+      O Beyou não roda um modelo de IA próprio. Quatro recursos pedem texto a um
+      provedor de IA externo: o assistente, a configuração guiada, as ferramentas
+      de estudo do caderno e o resumo do dia. Cada pedido passa pelo servidor do
+      Beyou, que envia ao provedor o que aquele recurso precisa e nada além. Eles
+      estão descritos um por um abaixo, porque não enviam as mesmas coisas.
+    </p>
+    <p>
+      Nenhum deles envia seu e-mail, o hash da sua senha, os tokens da sua sessão
+      ou as palavras que você escreveu no diário.
+    </p>
+
+    <h3>O assistente</h3>
+    <p>
+      Quando você manda uma mensagem, o pedido vai para o servidor do Beyou, que
+      repassa para o provedor e devolve a resposta em tempo real. O Beyou repassa:
     </p>
     <ul>
       <li>A mensagem que você escreveu, exatamente como você escreveu.</li>
@@ -121,12 +170,8 @@ __NAV__
       <li>As anotações que o assistente fez sobre você, descritas abaixo.</li>
       <li>Seu nome de exibição, seu idioma, seu fuso horário e suas configurações do app.</li>
       <li>A tela do app em que você estava e a data de hoje.</li>
-      <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, então os nomes e descrições desses itens chegam ao provedor como parte da resposta.</li>
+      <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
     </ul>
-    <p>
-      Seu e-mail, o hash da sua senha e os tokens da sua sessão nunca são enviados
-      a um provedor de IA.
-    </p>
     <p>
       O provedor é a Mistral AI ou o Google Gemini. O Beyou tenta a Mistral
       primeiro e recorre ao Gemini quando ela está indisponível, ou seja, cada
@@ -146,10 +191,60 @@ __NAV__
       que apaga todas as conversas e limpa as anotações que ele guardou sobre você.
       As duas opções estão no app.
     </p>
+
+    <h3>A configuração guiada</h3>
     <p>
-      O mesmo vale para a configuração guiada que se oferece para montar seus
-      primeiros hábitos e categorias. Ela envia o que você digita ali, e os nomes
-      de categoria que você escolheu, para os mesmos provedores.
+      A configuração guiada que se oferece para montar seus primeiros hábitos e
+      categorias envia o que você digita ali, e os nomes de categoria que você
+      escolheu, para os mesmos provedores. Ela só roda se você escolher usá-la.
+    </p>
+
+    <h3>As ferramentas de estudo do caderno</h3>
+    <p>
+      O chat da sala de estudo, os quizzes e resumos que ela monta, os cartões
+      rascunhados a partir de uma página, o roteiro rascunhado a partir de um
+      assunto que você descreve e a explicação de um trecho vão todos para os
+      mesmos provedores. Cada um envia o que precisa para responder: os títulos do
+      tópico e da página, as notas que você escreveu nas páginas que ele cobre,
+      trechos das fontes que você adicionou, o objetivo de estudo que você
+      definiu, e no chat, sua pergunta e as mensagens anteriores daquela conversa.
+      Nada dos seus hábitos, rotinas ou diário vai junto. Eles só rodam quando
+      você usa.
+    </p>
+    <p>
+      Mais dois serviços participam. Quando você adiciona uma fonte, o texto dela
+      é enviado em pedaços à Mistral AI para virar as listas de números que deixam
+      a sala de estudo buscar pelo sentido, e cada pergunta que você faz na sala de
+      estudo vai para lá pelo mesmo motivo. A Mistral devolve os números e o Beyou
+      guarda junto do texto. E quando você pede ao caderno para encontrar fontes,
+      os títulos do tópico e da página e a descrição que você digitou vão para um
+      serviço de busca na web, o Tavily, ou para o Google Gemini quando o Tavily
+      não está configurado. As páginas encontradas são abertas pelo servidor do
+      Beyou antes de você vê-las.
+    </p>
+
+    <h3>O resumo do dia</h3>
+    <p>
+      Na primeira vez que você abre o app num dia novo, uma janela mostra como foi
+      ontem e o que hoje pede de você. Os números dela vêm do banco de dados do
+      próprio Beyou. Os dois parágrafos curtos acima deles são escritos pelos
+      mesmos provedores, uma vez por dia. Para escrevê-los, o Beyou envia:
+    </p>
+    <ul>
+      <li>Os nomes dos hábitos e tarefas que se mantiveram firmes ou escorregaram nesta semana, com quantos dias cada um apareceu.</li>
+      <li>Quanto do que suas rotinas pediram você marcou nesta semana e na semana anterior.</li>
+      <li>Sua sequência atual e o recorde, e quantas sessões de foco você fez ontem.</li>
+      <li>Seus níveis de humor como números de 1 a 5: o de ontem, e as médias desta semana e da anterior.</li>
+      <li>O nome, o progresso, a unidade e o prazo de cada meta em andamento.</li>
+      <li>Seu idioma e a data.</li>
+    </ul>
+    <p>
+      Ele não envia nome de exibição nem e-mail. Diferente dos outros três, este
+      não é algo que você abre: ele roda para toda conta na primeira visita do
+      dia, e ainda não existe uma chave para desligá-lo no app. Se você preferir
+      que ele não rode na sua conta, escreva para
+      <a href="mailto:__CONTACT__">__CONTACT__</a>. Os parágrafos ficam guardados
+      por 30 dias e depois são apagados.
     </p>
 
     <h2 id="why">4. Por que é guardado, e com qual base legal</h2>
@@ -162,6 +257,7 @@ __NAV__
           <tr><td>Manter sua conta funcionando e mostrar seus próprios hábitos, rotinas, metas e histórico</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Enviar e-mails da conta: confirmação, redefinição de senha, código de exclusão</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Responder você pelo assistente de IA, um recurso opcional que você escolhe abrir</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
+          <tr><td>Responder você nas ferramentas de estudo do caderno, e escrever o texto do resumo do dia</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Manter a conta segura: hash de senha, controle de sessão, limite de requisições, prevenção de abuso</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
           <tr><td>Encontrar e corrigir falhas por meio de relatórios de erro</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
           <tr><td>Tratar o feedback que você escolheu enviar</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
@@ -186,7 +282,8 @@ __NAV__
           <tr><th>Quem</th><th>O que chega até eles</th><th>Por quê</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI e Google Gemini</td><td>Suas mensagens ao assistente e os hábitos, metas, tarefas, rotinas e configurações que ele lê para responder, mais seu nome de exibição</td><td>Somente se você usar o assistente de IA ou a configuração guiada. Veja a seção 3</td></tr>
+          <tr><td>Mistral AI e Google Gemini</td><td>Suas mensagens ao assistente e o que ele lê para responder, mais seu nome de exibição; aquilo com que as ferramentas de estudo do caderno trabalham, ou seja, suas notas e trechos das suas fontes; e os fatos por trás do resumo do dia, que são nomes de itens e metas, taxas de conclusão, sequências e níveis de humor como números. A Mistral AI também recebe o texto das fontes que você adiciona ao caderno e suas perguntas na sala de estudo, para indexá-los para busca</td><td>Quando você usa o assistente, a configuração guiada ou as ferramentas de estudo do caderno, e uma vez por dia para o resumo do dia. Veja a seção 3</td></tr>
+          <tr><td>Tavily</td><td>Os títulos de um tópico e de uma página do caderno e a descrição que você digitou</td><td>Somente quando você pede ao caderno para encontrar fontes. Veja a seção 3</td></tr>
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
           <tr><td>Qualquer provedor de login adicional ativado no Beyou</td><td>O fato de você ter entrado, se usar esse provedor. Ele também vê seu endereço IP enquanto você está na página de login dele</td><td>Login, apenas para contas que o conectaram</td></tr>
           <tr><td>O provedor de e-mail configurado para o Beyou</td><td>Seu e-mail e o conteúdo de todo e-mail que o Beyou te envia: os e-mails da conta, incluindo confirmações de feedback que citam sua mensagem, e os e-mails sobre a rotina descritos na seção 4</td><td>Entrega de e-mail</td></tr>
@@ -217,8 +314,8 @@ __NAV__
     </p>
     <p>
       O que nunca chega até eles: os nomes dos seus hábitos, tarefas, metas, rotinas
-      ou categorias, nada do que você escreveu para o assistente, e o texto de
-      qualquer feedback que você enviou. As métricas registram que algo aconteceu e
+      ou categorias, nada do que você escreveu para o assistente, no diário ou no
+      caderno, e o texto de qualquer feedback que você enviou. As métricas registram que algo aconteceu e
       de que tipo era, nunca as palavras que você escolheu.
     </p>
     <p>
@@ -231,7 +328,10 @@ __NAV__
       Seus dados ficam no servidor e no banco de dados do próprio Beyou. Dos dois
       provedores de IA, a Mistral AI fica na França, dentro da União Europeia. O
       Google Gemini fica nos Estados Unidos, país coberto pela decisão de adequação
-      da Comissão Europeia para o EU-US Data Privacy Framework.
+      da Comissão Europeia para o EU-US Data Privacy Framework. A busca que indexa
+      as fontes do seu caderno também roda na Mistral AI. O Tavily, a busca na web
+      por trás de encontrar fontes, também fica nos Estados Unidos, e só recebe a
+      busca em si.
     </p>
     <p>
       As métricas de uso são processadas pelo PostHog em servidores dentro da
@@ -239,8 +339,9 @@ __NAV__
       próprio domínio.
     </p>
     <p>
-      Então, se você usar o assistente, o que você escreve pode ser processado nos
-      Estados Unidos sob esse quadro. Não vai para um provedor em país sobre o qual
+      Então, se você usar o assistente ou as ferramentas de estudo do caderno, o
+      que você escreve pode ser processado nos Estados Unidos sob esse quadro, e o
+      mesmo vale para os fatos por trás do resumo do dia. Não vai para um provedor em país sobre o qual
       a Comissão Europeia não tenha decidido. Se algum dia entrar um terceiro
       provedor, será um com rota legal para a transferência, e esta página vai dizer
       isso antes de a mudança valer.
@@ -269,10 +370,11 @@ __NAV__
       quando você fecha a aba.
     </p>
     <p>
-      O app web também guarda o identificador de métricas descrito acima, e mantém
-      uma cópia dos seus hábitos, tarefas, rotinas, metas e
-      categorias no armazenamento local do navegador, para a interface aparecer na
-      hora na próxima visita. Seu perfil fica fora dessa cópia. O armazenamento
+      O app web também guarda o identificador de métricas descrito acima, uma
+      cópia dos seus hábitos, tarefas, rotinas, metas e categorias, e o estado de
+      um timer de foco que esteja rodando, no armazenamento local do navegador,
+      para a interface aparecer na hora na próxima visita. Seu perfil, seu diário
+      e seu caderno ficam fora dessa cópia. O armazenamento
       local não é criptografado, então em computador compartilhado saia da conta ao
       terminar. Sair da conta limpa tudo.
     </p>
@@ -289,6 +391,8 @@ __NAV__
       <li>Sua conta e tudo dentro dela: até você apagar a conta.</li>
       <li>Seu histórico de checks: por todo o tempo em que a conta existir, de propósito. Uma sequência e um gráfico do último ano são o ponto do app, e os dois precisam do histórico atrás deles.</li>
       <li>Conversas com o assistente e as anotações que ele escreveu sobre você: até você apagar, ou apagar a conta. Elas não expiram por conta própria.</li>
+      <li>Seu diário, seu caderno de estudos e suas sessões de foco: até você apagar, ou apagar a conta.</li>
+      <li>Os textos do resumo do dia: 30 dias, depois uma rotina noturna apaga.</li>
       <li>Feedback que você enviou: até você apagar a conta.</li>
       <li>Relatórios de erro: ficam no coletor pelo tempo em que forem úteis para depuração, e não identificam você.</li>
       <li>Logs do servidor: retidos pela infraestrutura de hospedagem, que não é objeto desta política. Não são usados para nada além de diagnosticar problemas.</li>
@@ -313,8 +417,11 @@ __NAV__
       O que é apagado: o registro da sua conta, seu nome, seu e-mail, o hash da sua
       senha, sua frase de perfil, seu XP, níveis e sequências, cada categoria,
       hábito, tarefa, rotina e meta, todo o seu histórico de checks e de XP, suas
-      fotos diárias de rotina, todas as conversas com o assistente, as anotações
-      que o assistente guardou sobre você, seus feedbacks e os anexos deles, e cada
+      fotos diárias de rotina, seu diário com todas as notas, todo o seu caderno
+      de estudos com as fontes, os cartões e as conversas de estudo, suas sessões
+      de foco e os passos delas, seus resumos do dia, qualquer provedor de login
+      que você conectou, todas as conversas com o assistente, as anotações que o
+      assistente guardou sobre você, seus feedbacks e os anexos deles, e cada
       sessão ativa e token pendente. Não existe prazo de carência, e nada fica
       arquivado nem pode ser recuperado.
     </p>
@@ -341,7 +448,7 @@ __NAV__
       <li>Acesso ao que está guardado sobre você.</li>
       <li>Correção do que estiver errado. A maior parte você mesmo edita no app.</li>
       <li>Exclusão, como descrito na seção 9.</li>
-      <li>Uma cópia dos seus dados para levar embora. O app web e o app Android têm exportação na tela de configuração, no mesmo lugar do botão de apagar a conta. Ela devolve um arquivo com seu perfil, categorias, hábitos, tarefas, metas, rotinas, histórico de checks, feedbacks, e suas conversas com o assistente junto com as anotações que ele escreveu sobre você. O que fica de fora: as fotos diárias das suas rotinas, tudo que tem forma de credencial como o hash da sua senha e suas sessões abertas, e os arquivos de imagem que você enviou. Conversas anteriores ao armazenamento atual de mensagens saem como texto puro da janela de memória do assistente, e não completas. Peça por e-mail o que o arquivo não cobrir.</li>
+      <li>Uma cópia dos seus dados para levar embora. O app web e o app Android têm exportação na tela de configuração, no mesmo lugar do botão de apagar a conta. Ela devolve um arquivo com seu perfil, os provedores de login que você conectou, categorias, hábitos, tarefas, metas e como elas se aninham, rotinas e o tipo de cada uma, histórico de checks, sessões de foco e os passos que você anotou para elas, seu diário, seu caderno de estudos (páginas, roteiro, cartões e como foi cada revisão, as fontes que você adicionou, conversas de estudo, quizzes e resumos, rascunhos de roteiro), os resumos do dia ainda guardados, feedbacks, e suas conversas com o assistente junto com as anotações que ele escreveu sobre você. O que fica de fora: as fotos diárias das suas rotinas, o texto lido das fontes do seu caderno (as fontes em si estão listadas), tudo que tem forma de credencial como o hash da sua senha e suas sessões abertas, e os arquivos de imagem que você enviou. Conversas anteriores ao armazenamento atual de mensagens saem como texto puro da janela de memória do assistente, e não completas. Peça por e-mail o que o arquivo não cobrir.</li>
       <li>Limitação do tratamento, e oposição ao tratamento baseado em interesse legítimo. Para os e-mails sobre a rotina, isso é a chave nas configurações do app, ou o link de cancelamento no rodapé de qualquer um deles. Sem precisar entrar na conta, e valendo na hora.</li>
       <li>Retirada de qualquer consentimento que você tenha dado, sem afetar o que já aconteceu antes.</li>
     </ul>

@@ -15,6 +15,7 @@ import {
 } from "@beyou/api/notebook";
 import NotebookMarkdown from "../NotebookMarkdown";
 import CitationPanel from "../CitationPanel";
+import AiPrivacyNotice from "../../agent/AiPrivacyNotice";
 import ErrorNotice from "../../ErrorNotice";
 import Modal from "../../modals/Modal";
 import { AiWaitingLine } from "../aiWaiting";
@@ -179,7 +180,10 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                 </div>
 
                 {messages.length === 0 && !pending && (
-                    <p className="text-sm text-text-2">{t("NotebookStudyChatEmpty")}</p>
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm text-text-2">{t("NotebookStudyChatEmpty")}</p>
+                        <AiPrivacyNotice messageKey="NotebookStudyPrivacyNotice" testId="study-privacy-notice" />
+                    </div>
                 )}
 
                 {messages.map((message) =>

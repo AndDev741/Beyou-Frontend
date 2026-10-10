@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable } from 'react-native';
 import Toast, { type ToastConfig, type ToastConfigParams } from 'react-native-toast-message';
 import Animated, {
@@ -73,6 +74,7 @@ function ToneIcon({ tone, color }: { tone: ToastTone; color: string }) {
  */
 function BeyouToast({ tone, params }: { tone: ToastTone; params: ToastConfigParams<BeyouToastProps> }) {
   const { theme } = useBeyouTheme();
+  const { t } = useTranslation();
   const { text1, text2, props } = params;
   const color = toneColor(tone, theme);
   const duration = props?.duration ?? TOAST_DURATION_MS;
@@ -113,7 +115,7 @@ function BeyouToast({ tone, params }: { tone: ToastTone; params: ToastConfigPara
         <Pressable
           onPress={() => Toast.hide()}
           accessibilityRole="button"
-          accessibilityLabel="Close"
+          accessibilityLabel={t('Close')}
           testID="toast-close"
           className="rounded-md p-1 active:bg-surface-2"
         >

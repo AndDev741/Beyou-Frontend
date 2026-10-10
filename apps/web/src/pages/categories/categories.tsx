@@ -184,7 +184,7 @@ function Categories(){
             )}
             <PageHeader
                 title={t("YourCategories")}
-                subtitle={`${categories.length} ${t("Categories")}`}
+                subtitle={t("CategoriesCount", { count: categories.length })}
                 action={
                     <Button
                         text={t("CreateCategory")}

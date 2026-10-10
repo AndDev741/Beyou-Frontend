@@ -1,6 +1,7 @@
 /**
  * OnboardingTutorial (Phase 8 — Task 5; fork panel — AI onboarding Task 2) —
- * 5-step carousel intro modal. Steps: Categories, Habits, Tasks, Routines, Goals.
+ * 7-step carousel intro modal. Steps: Categories, Habits, Tasks, Routines, Goals, Diary,
+ * Notebook.
  * Final next now shows a path fork (AI vs manual): manual → onComplete,
  * AI → onChooseAi. Also verifies skip → onSkip.
  */
@@ -12,7 +13,7 @@ import OnboardingTutorial from '../src/ui/tutorial/OnboardingTutorial';
 const wrap = (n: React.ReactElement) => render(<BeyouThemeProvider>{n}</BeyouThemeProvider>);
 
 const walkToFork = async () => {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 7; i++) {
     await act(async () => {
       fireEvent.press(screen.getByTestId('onboarding-next'));
     });
@@ -20,17 +21,22 @@ const walkToFork = async () => {
 };
 
 describe('OnboardingTutorial', () => {
-  it('walking all 5 steps shows the path fork', async () => {
+  it('walking all 7 steps shows the path fork', async () => {
     const onComplete = jest.fn();
     const onChooseAi = jest.fn();
     await wrap(
       <OnboardingTutorial onComplete={onComplete} onSkip={jest.fn()} onChooseAi={onChooseAi} />
     );
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       await act(async () => {
         fireEvent.press(screen.getByTestId('onboarding-next'));
       });
     }
+    expect(screen.getByText('Keep a Diary')).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('onboarding-next'));
+    });
+    expect(screen.getByText('Study in the Notebook')).toBeTruthy();
     expect(screen.queryByText('How do you want to start?')).toBeNull();
     await act(async () => {
       fireEvent.press(screen.getByTestId('onboarding-next'));

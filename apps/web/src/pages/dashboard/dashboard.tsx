@@ -45,7 +45,7 @@ function Dashboard() {
     // closes it and it stays closed — configuration is still one click away.
     const [widgetsInviteDismissed, dismissWidgetsInvite] = useDismissed("widgets-invite");
     const dispatch = useDispatch();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [isDashboardLoading, setIsDashboardLoading] = useState(true);
     const [xpHistory, setXpHistory] = useState<XpHistory | null>(null);
 
@@ -286,7 +286,9 @@ function Dashboard() {
                     onClose={closeBriefing}
                     onResolve={resolveBriefingItem}
                     pendingId={briefingPendingId}
-                    locale={languageInUse === "pt" ? "pt-BR" : "en-US"}
+                    // The language on screen, not the saved one: an account that never
+                    // saved a language would otherwise get en-US dates in a pt dialog.
+                    locale={i18n.language?.startsWith("pt") ? "pt-BR" : "en-US"}
                 />
             )}
             {isDashboardLoading ? (
