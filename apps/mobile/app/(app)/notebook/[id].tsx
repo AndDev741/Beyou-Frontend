@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,6 +21,7 @@ import PageActions from '../../../src/notebook/PageActions';
 import NodeSheet from '../../../src/notebook/trail/NodeSheet';
 import { AddNodeSheet, ReorderSheet } from '../../../src/notebook/trail/TrailSheets';
 import EmptyState from '../../../src/ui/EmptyState';
+import CardsTab from '../../../src/notebook/cards/CardsTab';
 import { STATUS_LABEL_KEY } from '../../../src/notebook/StatusMark';
 import { useNotebookFocus } from '../../../src/notebook/useNotebookFocus';
 import { useStatusChange } from '../../../src/notebook/useStatusChange';
@@ -28,7 +29,8 @@ import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
 
-type Tab = 'path' | 'notes';
+type Tab = 'path' | 'notes' | 'cards';
+const TABS: Tab[] = ['path', 'notes', 'cards'];
 
 /**
  * One topic or page on a phone: its roadmap read as a path, its notes, and its status.
@@ -43,7 +45,8 @@ export default function NotebookPageScreen() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  // `tab` opens the screen on that tab: the editor's board and cards blocks come back with it.
+  const { id, tab: askedTab } = useLocalSearchParams<{ id: string; tab?: string }>();
   const page = useSelector((s: RootState) => (id ? s.notebook.pages[id] : undefined));
   const board = useSelector((s: RootState) => (id ? s.notebook.boards[id] : undefined));
   const tree = useSelector((s: RootState) => {
@@ -53,6 +56,9 @@ export default function NotebookPageScreen() {
   const [loading, setLoading] = useState(!page);
   const [failed, setFailed] = useState(false);
   const [chosenTab, setChosenTab] = useState<Tab | null>(null);
+  useEffect(() => {
+    if (askedTab && (TABS as string[]).includes(askedTab)) setChosenTab(askedTab as Tab);
+  }, [askedTab]);
   const [savingStatus, setSavingStatus] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   // The trail's sheets: a node's actions (by id, so it follows the board as it changes), a new
@@ -158,7 +164,13 @@ export default function NotebookPageScreen() {
         </Pressable>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 14 }}>
+      {/* The Cards tab's sheet renders inside this ScrollView, and the responder walks the React
+          tree: without "handled" the first tap on its Save only closes the keyboard. */}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40, gap: 14 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <View className="flex-row items-center gap-3">
           {page.icon ? (
             <IconTile size={44}>
@@ -231,6 +243,10 @@ export default function NotebookPageScreen() {
           options={[
             { value: 'path', label: t('NotebookMobilePath') },
             { value: 'notes', label: t('NotebookMobileNotes') },
+            {
+              value: 'cards',
+              label: page.cardsTotal > 0 ? `${t('NotebookMobileCards')} · ${page.cardsTotal}` : t('NotebookMobileCards'),
+            },
           ]}
           value={tab}
           onChange={setChosenTab}
@@ -245,6 +261,8 @@ export default function NotebookPageScreen() {
             onAdd={(last) => setAdding({ after: last })}
             onReorder={() => setReordering(true)}
           />
+        ) : tab === 'cards' ? (
+          <CardsTab pageId={page.id} cardsTotal={page.cardsTotal} onChanged={() => void load()} />
         ) : tab === 'path' ? (
           <EmptyState
             icon={<Workflow size={22} color={theme.accent} />}
