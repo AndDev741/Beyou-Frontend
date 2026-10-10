@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Ellipsis, FileText, PenLine, Timer, Workflow } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Ellipsis, FileText, PenLine, Sparkles, Timer, Workflow } from 'lucide-react-native';
 import { getBoard, getPage, getTopicTree } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterBoard, enterNotebookPage, enterNotebookTree, progressShare } from '@beyou/state';
@@ -229,14 +229,28 @@ export default function NotebookPageScreen() {
           ) : null}
         </View>
 
-        <Button
-          text={t('NotebookMobileFocus')}
-          mode="default"
-          size="block"
-          icon={<Timer size={16} color={theme.text} />}
-          onPress={focus}
-          testID="notebook-page-focus"
-        />
+        <View className="flex-row gap-2">
+          <View className="flex-1">
+            <Button
+              text={t('NotebookMobileFocus')}
+              mode="default"
+              size="block"
+              icon={<Timer size={16} color={theme.text} />}
+              onPress={focus}
+              testID="notebook-page-focus"
+            />
+          </View>
+          <View className="flex-1">
+            <Button
+              text={t('NotebookStudyRoom')}
+              mode="tonal"
+              size="block"
+              icon={<Sparkles size={16} color={theme.accent} />}
+              onPress={() => router.push({ pathname: '/notebook-study', params: { id: page.id } })}
+              testID="notebook-page-study"
+            />
+          </View>
+        </View>
 
         <SegmentedControl<Tab>
           label={t('NotebookMobileView')}
