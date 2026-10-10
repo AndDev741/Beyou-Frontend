@@ -13,7 +13,9 @@ import {
   X,
   Check,
   Flag,
-  Compass
+  Compass,
+  BookHeart,
+  NotebookPen
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import clsx, { ClassValue } from "clsx";
@@ -104,6 +106,34 @@ const steps: OnboardingStep[] = [
       "TutorialGoalsItem3",
     ],
     tipKey: "TutorialGoalsTip",
+  },
+  {
+    id: "mood",
+    titleKey: "TutorialMoodTitle",
+    descriptionKey: "TutorialMoodDescription",
+    icon: BookHeart,
+    gradient: "linear-gradient(135deg, var(--primary), var(--icon))",
+    exampleTitleKey: "TutorialMoodExampleTitle",
+    exampleItemKeys: [
+      "TutorialMoodItem1",
+      "TutorialMoodItem2",
+      "TutorialMoodItem3",
+    ],
+    tipKey: "TutorialMoodTip",
+  },
+  {
+    id: "notebook",
+    titleKey: "TutorialNotebookTitle",
+    descriptionKey: "TutorialNotebookDescription",
+    icon: NotebookPen,
+    gradient: "linear-gradient(135deg, var(--primary), var(--success))",
+    exampleTitleKey: "TutorialNotebookExampleTitle",
+    exampleItemKeys: [
+      "TutorialNotebookItem1",
+      "TutorialNotebookItem2",
+      "TutorialNotebookItem3",
+    ],
+    tipKey: "TutorialNotebookTip",
   },
 ];
 

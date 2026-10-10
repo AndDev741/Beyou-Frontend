@@ -38,7 +38,7 @@ const NODE_Y = 80;
  * and guides can be saved into the page as ordinary blocks.
  */
 export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTotal, cardsDue, onCardsMade, onCollapse }: Props) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [outputs, setOutputs] = useState<StudyOutput[]>(initialOutputs);
     const [busy, setBusy] = useState<Busy>(null);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
@@ -234,7 +234,7 @@ export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTo
                                 <span className="truncate text-[13px] font-semibold text-text">
                                     {t(OUTPUT_KIND_KEY[output.kind])} · {output.title}
                                 </span>
-                                <span className="text-xs text-text-2">{outputMeta(output, t)}</span>
+                                <span className="text-xs text-text-2">{outputMeta(output, t, i18n.language)}</span>
                             </span>
                             {output.kind === "QUIZ" && output.passedAt && (
                                 <span className="rounded-full bg-xp-soft px-2 py-0.5 font-mono text-[11px] font-semibold text-xp">+XP</span>
@@ -276,7 +276,11 @@ export default function StudioPanel({ pageId, pageTitle, initialOutputs, cardsTo
     );
 }
 
-function outputMeta(output: StudyOutput, t: (key: string, options?: Record<string, unknown>) => string): string {
+function outputMeta(
+    output: StudyOutput,
+    t: (key: string, options?: Record<string, unknown>) => string,
+    language: string,
+): string {
     if (output.kind === "QUIZ") {
         if (output.score !== null && output.total !== null) {
             return t(output.passedAt ? "NotebookStudyQuizMetaPassed" : "NotebookStudyQuizMetaTaken", {
@@ -286,5 +290,5 @@ function outputMeta(output: StudyOutput, t: (key: string, options?: Record<strin
         }
         return t("NotebookStudyQuizMetaNew", { count: output.questions?.length ?? 0 });
     }
-    return new Date(output.createdAt).toLocaleDateString();
+    return new Date(output.createdAt).toLocaleDateString(language);
 }

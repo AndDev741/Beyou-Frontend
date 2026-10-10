@@ -25,12 +25,18 @@ export type OidcLoginResult =
 export default async function oidcLogin(
     slug: string,
     idToken: string,
-    timezone?: string,
+    claims: { timezone?: string; language?: string } = {},
     mobile = false,
 ): Promise<OidcLoginResult> {
     try {
         const path = mobile ? `/auth/oidc/${slug}/mobile` : `/auth/oidc/${slug}`;
-        const response = await getHttpClient().post<Record<string, unknown>>(path, { idToken, timezone });
+        // The device's zone and language ride along because no ID token carries them.
+        // The server applies both only when it creates the account.
+        const response = await getHttpClient().post<Record<string, unknown>>(path, {
+            idToken,
+            timezone: claims.timezone,
+            language: claims.language,
+        });
 
         return {
             kind: 'success',

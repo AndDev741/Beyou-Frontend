@@ -2471,6 +2471,7 @@ export interface components {
             email: string;
             password: string;
             timezone?: string;
+            language?: string;
         };
         UserLoginDTO: {
             email: string;
@@ -2999,6 +3000,8 @@ export interface components {
             idToken: string;
             /** @description Claimed by the client, never by the issuer, and applied only when an account is created. */
             timezone?: string;
+            /** @description The language the client is showing (en, pt or a regional tag like pt-BR). Claimed by the client and applied only when an account is created. */
+            language?: string;
         };
         MoodEntryResponseDTO: {
             /** Format: uuid */
@@ -5164,6 +5167,8 @@ export interface operations {
         parameters: {
             query: {
                 code: string;
+                timezone?: string;
+                language?: string;
             };
             header?: never;
             path?: never;

@@ -6,6 +6,7 @@ import { MAX_SOURCE_PDF_BYTES } from "@beyou/types/notebook/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { addLinkSource, addPdfSource, addTextSource } from "@beyou/api/notebook";
 import Modal from "../../modals/Modal";
+import AiPrivacyNotice from "../../agent/AiPrivacyNotice";
 import ErrorNotice from "../../ErrorNotice";
 
 type Tab = "pdf" | "link" | "text";
@@ -99,6 +100,7 @@ export default function AddSourceDialog({ pageId, isOpen, onClose, onAdded }: Pr
                 <h2 id={titleId} className="text-lg font-semibold text-text">
                     {t("NotebookStudyAddSourceTitle")}
                 </h2>
+                <AiPrivacyNotice messageKey="NotebookSourcePrivacyNotice" testId="study-source-privacy-notice" />
                 <div role="tablist" aria-label={t("NotebookStudyAddSourceTitle")} className="flex gap-1 rounded-control bg-surface-2 p-1">
                     {tabs.map(({ id, label, Icon }) => (
                         <button

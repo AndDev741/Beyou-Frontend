@@ -10,6 +10,7 @@ import getGoals from '@beyou/api/goals/getGoals';
 import getCategories from '@beyou/api/categories/getCategories';
 import { hydratePerfil } from '@beyou/state/user/perfilSlice';
 import { reconcileTimezone } from '../lib/reconcileTimezone';
+import { reconcileLanguage } from '@beyou/state/user/reconcileLanguage';
 import { enterTodayRoutine } from '@beyou/state/routine/todayRoutineSlice';
 import { enterHabits } from '@beyou/state/habit/habitsSlice';
 import { enterTasks } from '@beyou/state/task/tasksSlice';
@@ -31,7 +32,7 @@ export interface DashboardData {
  */
 export function useDashboardData(): DashboardData {
   const dispatch = useDispatch<AppDispatch>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +53,12 @@ export function useDashboardData(): DashboardData {
         // Fire-and-forget: it must not gate `loading` or populate `error`. The dashboard
         // is the app's home, so this reaches every returning session, and it no-ops
         // unless the account has never had a timezone.
-        void reconcileTimezone(dispatch, profileRes.data);
+        // The language reconcile does the same for an account that never had a language
+        // saved, and waits for the timezone one: PUT /user saves the whole row it loaded,
+        // so two in flight at once let the second write back the first one's stale value.
+        const profile = profileRes.data;
+        void reconcileTimezone(dispatch, profile).then(() =>
+          reconcileLanguage(dispatch, profile, i18n.language));
       }
       if (routineRes.success) dispatch(enterTodayRoutine(routineRes.success));
       if (habitsRes.success) dispatch(enterHabits(habitsRes.success));
@@ -64,7 +70,7 @@ export function useDashboardData(): DashboardData {
     } finally {
       setLoading(false);
     }
-  }, [dispatch, t]);
+  }, [dispatch, t, i18n]);
 
   useEffect(() => {
     load();

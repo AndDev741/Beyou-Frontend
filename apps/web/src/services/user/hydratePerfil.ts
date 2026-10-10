@@ -24,6 +24,8 @@ import {
     timezoneSourceEnter,
     xpDecayStrategyEnter
 } from "@beyou/state/user/perfilSlice";
+import i18next from "i18next";
+import { reconcileLanguage } from "@beyou/state/user/reconcileLanguage";
 import { reconcileTimezone } from "./reconcileTimezone";
 import { getAnalytics, personPropertiesFromProfile } from "@beyou/api";
 
@@ -83,5 +85,12 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     // path added later silently reopens the bug this exists to close. It no-ops unless
     // the account has never had a timezone, so the cost on every other boot is one
     // comparison.
-    void reconcileTimezone(dispatch, data);
+    //
+    // The language reconcile does the same for an account that never had a language
+    // saved, reading the language the screen is showing. It waits for the timezone one
+    // on purpose: PUT /user saves the whole row it loaded, so two of them in flight on an
+    // account that needs both fixes let the second write back the first one's stale
+    // value, and the language came back empty.
+    void reconcileTimezone(dispatch, data).then(() =>
+        reconcileLanguage(dispatch, data, i18next.resolvedLanguage || i18next.language));
 }

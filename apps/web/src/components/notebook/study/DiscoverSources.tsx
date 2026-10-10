@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { addLinkSource, discoverSources } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import type { DiscoveryResult, NotebookSource } from "@beyou/types/notebook/notebook";
+import AiPrivacyNotice from "../../agent/AiPrivacyNotice";
 import ErrorNotice from "../../ErrorNotice";
 import { AiWaitingLine } from "../aiWaiting";
 
@@ -106,6 +107,7 @@ export default function DiscoverSources({ pageId, onAdded, autoFocus }: {
                     <Search size={14} aria-hidden="true" />
                     {result ? t("NotebookDiscoverAgain") : t("NotebookDiscoverFind")}
                 </button>
+                <AiPrivacyNotice messageKey="NotebookDiscoverPrivacyNotice" testId="discover-privacy-notice" />
             </form>
 
             {searching && (

@@ -16,6 +16,7 @@ import {
     draftRows, formatElapsed, topicFromDraft, type DraftRow,
 } from "@beyou/state";
 import Modal from "../modals/Modal";
+import AiPrivacyNotice from "../agent/AiPrivacyNotice";
 import ErrorNotice from "../ErrorNotice";
 import { useElapsedSeconds } from "./aiWaiting";
 
@@ -247,6 +248,7 @@ export default function AiTopicDialog({ isOpen, onClose, draftId = null, onDraft
                         {rows ? <RotateCcw size={15} aria-hidden="true" /> : <Sparkles size={15} aria-hidden="true" />}
                         {busy === "draft" || drafting ? t("NotebookAiDrafting") : rows ? t("NotebookAiDraftAgain") : t("NotebookAiDraft")}
                     </button>
+                    <AiPrivacyNotice messageKey="NotebookAiDraftPrivacyNotice" testId="ai-topic-privacy-notice" />
                 </form>
 
                 <section aria-label={t("NotebookAiDraftTitle")} className="flex min-w-0 flex-[999_1_460px] flex-col gap-3.5 bg-bg p-6">

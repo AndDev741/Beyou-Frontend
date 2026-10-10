@@ -8,6 +8,7 @@ import { MAX_CARD_SIDE_LENGTH } from "@beyou/types/notebook/notebook";
 import { createCard, deleteCard, generateCards, getPageCards, updateCard } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import useTodayInZone from "../../../hooks/useTodayInZone";
+import AiPrivacyNotice from "../../agent/AiPrivacyNotice";
 import { AiWaitingLine } from "../aiWaiting";
 
 /** Cards listed before "Show all": enough to see what the deck is about without burying the notes. */
@@ -148,6 +149,14 @@ export default function FlashcardsBlock({ pageId, cardsTotal }: {
                             className="h-8 rounded-control px-3 text-xs font-semibold text-text-2 hover:text-text">{t("Cancel")}</button>
                     </div>
                 </form>
+            )}
+
+            {cards.length === 0 && (
+                <AiPrivacyNotice
+                    messageKey="NotebookCardsPrivacyNotice"
+                    testId="cards-privacy-notice"
+                    className="border-t border-border px-3 py-2"
+                />
             )}
 
             {cards.length > 0 && (

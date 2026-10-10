@@ -1771,6 +1771,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "timezone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -6379,6 +6395,9 @@
           },
           "timezone": {
             "type": "string"
+          },
+          "language": {
+            "type": "string"
           }
         },
         "required": [
@@ -7728,6 +7747,10 @@
           "timezone": {
             "type": "string",
             "description": "Claimed by the client, never by the issuer, and applied only when an account is created."
+          },
+          "language": {
+            "type": "string",
+            "description": "The language the client is showing (en, pt or a regional tag like pt-BR). Claimed by the client and applied only when an account is created."
           }
         }
       },

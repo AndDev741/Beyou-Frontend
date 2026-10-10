@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { BriefingNarrative } from "@beyou/types/briefing/briefing";
+import AiPrivacyNotice from "../../agent/AiPrivacyNotice";
 
 type Props = {
     narrative: BriefingNarrative;
@@ -29,6 +30,7 @@ export default function NarrativeLines({ narrative, lines }: Props) {
                         {line}
                     </p>
                 ))}
+                <AiPrivacyNotice messageKey="BriefingAiNotice" testId="briefing-ai-notice" />
             </div>
         );
     }

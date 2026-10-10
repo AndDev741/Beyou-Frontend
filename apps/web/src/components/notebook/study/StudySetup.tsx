@@ -33,7 +33,7 @@ export default function StudySetup({ pageId, setup, scopes, sources, discovery, 
     /** Present when the room was set up before, so the person can back out of an edit. */
     onCancel?: () => void;
 }) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [goal, setGoal] = useState(setup.goal ?? "");
     const [scope, setScope] = useState<StudyScope>(setup.scope);
     const [adding, setAdding] = useState(false);
@@ -85,7 +85,7 @@ export default function StudySetup({ pageId, setup, scopes, sources, discovery, 
                             <span className="text-sm font-semibold text-text">{t(SCOPE_KEYS[option.scope].title)}</span>
                             <span className="text-xs text-text-2">{t(SCOPE_KEYS[option.scope].detail)}</span>
                             <span className="font-mono text-[11px] text-text-2">
-                                {t("NotebookSetupScopeCount", { count: option.pages, words: option.words.toLocaleString() })}
+                                {t("NotebookSetupScopeCount", { count: option.pages, words: option.words.toLocaleString(i18n.language) })}
                             </span>
                         </span>
                     </label>

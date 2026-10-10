@@ -73,9 +73,16 @@ export const getErrorDetailsText = (error?: ApiErrorPayload): string => {
     return "";
 };
 
+/**
+ * The sentence to show for a failed request.
+ *
+ * A key the locale files do not carry falls back to the generic message instead of
+ * reaching the screen as `OIDC_TOKEN_INVALID`: the backend adds error keys faster than
+ * anyone remembers to translate them, and a raw enum name tells the reader nothing.
+ */
 export const getFriendlyErrorMessage = (t: TFunction, error?: ApiErrorPayload): string => {
     if (!error) return t("UnexpectedError");
-    if (error.errorKey) return t(error.errorKey);
+    if (error.errorKey) return t(error.errorKey, { defaultValue: t("UnexpectedError") });
     if (error.message) return error.message;
     if (error.details) return Object.values(error.details).join(", ");
     return t("UnexpectedError");

@@ -31,6 +31,7 @@ import useMoodRange from '../useMoodRange';
 import BriefingOpenItemRow from './BriefingOpenItemRow';
 import BriefingMoodCheckIn from './BriefingMoodCheckIn';
 import BriefingYesterdayMood from './BriefingYesterdayMood';
+import AiPrivacyNotice from '../agent/AiPrivacyNotice';
 
 interface Props {
   briefing: DailyBriefing;
@@ -506,6 +507,7 @@ function NarrativeLines({ briefing, lines }: { briefing: DailyBriefing; lines: s
             {line}
           </Text>
         ))}
+        <AiPrivacyNotice messageKey="BriefingAiNotice" testID="briefing-ai-notice" />
       </View>
     );
   }

@@ -12,8 +12,8 @@ __NAV__
       <ul>
         <li>Beyou is free. It carries no ads and no trackers, and nothing about you is sold.</li>
         <li>Your account needs a name, an email address and a password. Nothing else is required.</li>
-        <li>Everything else stored about you is what you typed into the app: habits, tasks, routines, goals, categories and the history of what you checked off.</li>
-        <li>If you use the AI assistant, what you write and the habits and goals it reads are sent to an external AI provider so it can answer. The assistant is optional and you can wipe its history.</li>
+        <li>Everything else stored about you is what you put into the app: habits, tasks, routines, goals, categories, the history of what you checked off, your diary, your study notebook and your focus sessions.</li>
+        <li>A few features send text to an external AI provider: the assistant, the guided setup, the notebook's study tools and the short summary in the daily briefing. Section 3 lists what each one sends. What you write in your diary is never sent.</li>
         <li>You can delete your account from inside the app, and it is erased immediately. There is no waiting period and no way to undo it.</li>
       </ul>
     </div>
@@ -72,6 +72,41 @@ __NAV__
       avoid putting anything in there you would not want stored on a server.
     </p>
 
+    <h3>Your diary</h3>
+    <p>
+      For each day you record, a mood from 1 to 5 and the note you wrote with it,
+      if you wrote one. Days you do not record have no row at all.
+    </p>
+    <p>
+      How you feel can say something about your health, so the diary gets
+      tighter handling than the rest of the app. It earns no XP and feeds no
+      streak. It is left out of the copy of your data the web app keeps in your
+      browser, and it never reaches the usage analytics. The words of your note
+      never go to an AI provider. The mood itself, as a number, is read by the
+      assistant when you ask it about your week and by the daily briefing, both
+      described in section 3. You can clear any day, or delete its entry with
+      the note, from the diary screen.
+    </p>
+
+    <h3>Your study notebook</h3>
+    <p>
+      The topics and pages you create and the notes you write on them, the
+      roadmap you lay out, your flashcards and how each review went, the study
+      goal you set, the conversations in the study room, and the quizzes and
+      summaries it built for you. For each source you add, its title, its web
+      address if it has one, and the text read out of it. A web page you add is
+      fetched by Beyou's server, so the site sees that server and not you. A PDF
+      is read for its text and the file itself is not kept.
+    </p>
+
+    <h3>Focus sessions and the daily briefing</h3>
+    <p>
+      For each focus session, when it started and ended, what kind of session it
+      was, the routine item or notebook page it was for, and the small steps you
+      wrote down for it. For each day you open the app, the short summary the
+      daily briefing wrote for you, kept for 30 days.
+    </p>
+
     <h3>Feedback and bug reports</h3>
     <p>
       When you send feedback from inside the app, Beyou stores your message, any
@@ -103,16 +138,28 @@ __NAV__
       identity or tax number. No location of any kind. No advertising identifier,
       no device identifier, no contacts, no calendar, no microphone and no camera.
       No payment or card data, because there is nothing to pay for. Beyou contains
-      no analytics SDK, no advertising SDK and no third-party tracker, on the web
-      or on Android.
+      no advertising SDK and no third-party tracker, on the web or on Android.
+      The one analytics tool it does use, PostHog, is described in section 5,
+      along with everything it receives.
     </p>
 
-    <h2 id="ai">3. The AI assistant</h2>
+    <h2 id="ai">3. The AI features</h2>
     <p>
-      The assistant is the one part of Beyou where what you write leaves Beyou's
-      own servers. Beyou does not run its own AI model. When you send a message,
-      the request goes to Beyou's server, which passes it to an external AI
-      provider and streams the answer back. Beyou forwards:
+      Beyou does not run its own AI model. Four features ask an external AI
+      provider for words: the assistant, the guided setup, the notebook's study
+      tools and the daily briefing. Each request goes through Beyou's server,
+      which sends the provider what that feature needs and nothing else. They are
+      described one by one below, because they do not send the same things.
+    </p>
+    <p>
+      None of them sends your email address, your password hash, your session
+      tokens or the words you wrote in your diary.
+    </p>
+
+    <h3>The assistant</h3>
+    <p>
+      When you send a message, the request goes to Beyou's server, which passes it
+      to the provider and streams the answer back. Beyou forwards:
     </p>
     <ul>
       <li>The message you wrote, exactly as you wrote it.</li>
@@ -120,12 +167,8 @@ __NAV__
       <li>Notes the assistant has written about you, described below.</li>
       <li>Your display name, your language, your time zone and your app settings.</li>
       <li>The screen of the app you were on, and today's date.</li>
-      <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, so the names and descriptions of those items reach the provider as part of answering.</li>
+      <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, your focus sessions and their steps, and your study notebook, so the names, descriptions and notes in them reach the provider as part of answering. It can read your mood as a number and whether you wrote a note that day, never the note itself.</li>
     </ul>
-    <p>
-      Your email address, your password hash and your session tokens are never
-      sent to an AI provider.
-    </p>
     <p>
       The provider is either Mistral AI or Google Gemini. Beyou tries Mistral
       first and falls back to Gemini when it is unavailable, so a given message is
@@ -145,10 +188,58 @@ __NAV__
       entirely, which deletes every conversation and erases the notes it kept
       about you. Both are in the app.
     </p>
+
+    <h3>The guided setup</h3>
     <p>
-      The same applies to the guided setup that offers to build your first
-      habits and categories for you. It sends what you type there, and the
-      category names you picked, to the same providers.
+      The guided setup that offers to build your first habits and categories
+      sends what you type there, and the category names you picked, to the same
+      providers. It only runs if you choose it.
+    </p>
+
+    <h3>The notebook's study tools</h3>
+    <p>
+      The study room's chat, the quizzes and summaries it builds, flashcards
+      drafted from a page, a roadmap drafted from a subject you describe, and the
+      explanation of a passage all go to the same providers. Each one sends what
+      it needs to answer: the titles of the topic and the page, the notes you wrote
+      on the pages it covers, passages from the sources you added, the study goal
+      you set, and for the chat, your question and the earlier messages of that
+      conversation. Nothing from your habits, routines or diary goes with it. These
+      only run when you use them.
+    </p>
+    <p>
+      Two more services take part. When you add a source, its text is sent to
+      Mistral AI in chunks to be turned into the lists of numbers that let the
+      study room search by meaning, and each question you ask in the study room is
+      sent there for the same reason. Mistral returns the numbers and Beyou keeps
+      them next to the text. And when you ask the notebook to find sources, the
+      titles of the topic and the page and the description you typed are sent to a
+      web search service, Tavily, or to Google Gemini when Tavily is not set up.
+      The pages it finds are opened by Beyou's server before you see them.
+    </p>
+
+    <h3>The daily briefing</h3>
+    <p>
+      The first time you open the app on a new day, a dialog shows how yesterday
+      went and what today asks of you. The numbers in it come from Beyou's own
+      database. The two short paragraphs above them are written by the same
+      providers, once a day. To write them, Beyou sends:
+    </p>
+    <ul>
+      <li>The names of the habits and tasks that held steady or slipped this week, with how many days each came up.</li>
+      <li>How much of what your routines asked you checked this week, and the week before.</li>
+      <li>Your current and best streak, and how many focus sessions you ran yesterday.</li>
+      <li>Your mood levels as numbers from 1 to 5: yesterday's, and this week's and last week's averages.</li>
+      <li>The name, progress, unit and deadline of each goal you have running.</li>
+      <li>Your language and the date.</li>
+    </ul>
+    <p>
+      It sends no display name and no email address. Unlike the other three, this
+      one is not something you open: it runs for every account on the first visit
+      of the day, and there is no switch for it in the app yet. If you would rather
+      it did not run for your account, write to
+      <a href="mailto:__CONTACT__">__CONTACT__</a>. The paragraphs are kept for 30
+      days and then deleted.
     </p>
 
     <h2 id="why">4. Why it is stored, and on what legal basis</h2>
@@ -161,6 +252,7 @@ __NAV__
           <tr><td>Running your account and showing you your own habits, routines, goals and history</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Sending account emails: confirmation, password reset, deletion code</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Answering you through the AI assistant, an optional feature you choose to open</td><td>Performance of a contract, article 6(1)(b)</td></tr>
+          <tr><td>Answering you in the notebook's study tools, and writing the daily briefing's summary</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Keeping the account safe: password hashing, session handling, rate limits, abuse prevention</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Finding and fixing crashes through error reports</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Handling the feedback you chose to send</td><td>Legitimate interests, article 6(1)(f)</td></tr>
@@ -185,7 +277,8 @@ __NAV__
           <tr><th>Who</th><th>What reaches them</th><th>Why</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and the habits, goals, tasks, routines and settings the assistant reads to answer, plus your display name</td><td>Only if you use the AI assistant or the guided setup. See section 3</td></tr>
+          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup or the notebook's study tools, and once a day for the daily briefing. See section 3</td></tr>
+          <tr><td>Tavily</td><td>The titles of a notebook topic and page and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
           <tr><td>Any additional sign-in provider switched on for Beyou</td><td>The fact that you signed in, if you use it. It also sees your IP address while you are on its own sign-in page</td><td>Sign-in, only for accounts that connected it</td></tr>
           <tr><td>The email provider configured for Beyou</td><td>Your email address and the contents of every email Beyou sends you: the account emails, including feedback confirmations that quote your message, and the routine emails described in section 4</td><td>Delivering email</td></tr>
@@ -216,8 +309,8 @@ __NAV__
     </p>
     <p>
       What never reaches them: the names of your habits, tasks, goals, routines or
-      categories, anything you wrote to the assistant, and the text of any feedback
-      you sent. The analytics record that something happened and what kind of thing
+      categories, anything you wrote to the assistant, in your diary or in your
+      notebook, and the text of any feedback you sent. The analytics record that something happened and what kind of thing
       it was, never the words you chose.
     </p>
     <p>
@@ -230,15 +323,19 @@ __NAV__
       Your data lives on Beyou's own server and database. Of the two AI providers,
       Mistral AI is in France, inside the European Economic Area. Google Gemini is
       in the United States, which the European Commission has covered by its
-      adequacy decision for the EU-US Data Privacy Framework.
+      adequacy decision for the EU-US Data Privacy Framework. The search that
+      indexes your notebook sources also runs at Mistral AI. Tavily, the web
+      search behind finding sources, is in the United States too, and it only
+      ever receives the search itself.
     </p>
     <p>
       Usage analytics are processed by PostHog on servers inside the European
       Union, and reach it through a relay Beyou operates on its own domain.
     </p>
     <p>
-      So if you use the assistant, what you write may be processed in the United
-      States under that framework. It is not sent to a provider in a country the
+      So if you use the assistant or the notebook's study tools, what you write
+      may be processed in the United States under that framework, and so may the
+      facts behind the daily briefing. It is not sent to a provider in a country the
       European Commission has not ruled on. Should a third provider ever be added,
       it will be one with a lawful route for the transfer, and this page will say
       so before the change takes effect.
@@ -267,10 +364,11 @@ __NAV__
       disappears when you close the tab.
     </p>
     <p>
-      The web app also keeps the analytics identifier described above, and a
-      copy of your habits, tasks, routines, goals and
-      categories in your browser's local storage, so the interface can draw
-      immediately on your next visit. Your profile is kept out of that copy. Local
+      The web app also keeps the analytics identifier described above, a copy of
+      your habits, tasks, routines, goals and categories, and the state of a
+      focus timer you have running, in your browser's local storage, so the
+      interface can draw immediately on your next visit. Your profile, your diary
+      and your notebook are kept out of that copy. Local
       storage is not encrypted, so on a shared computer, sign out when you are
       done. Signing out clears it.
     </p>
@@ -287,6 +385,8 @@ __NAV__
       <li>Your account and everything in it: until you delete your account.</li>
       <li>Your check-in history: for as long as the account exists, on purpose. A streak and a chart of last year are the point of the app, and both need the history behind them.</li>
       <li>Assistant conversations and the notes it wrote about you: until you delete them or delete your account. They do not expire on their own.</li>
+      <li>Your diary, your study notebook and your focus sessions: until you delete them or delete your account.</li>
+      <li>The daily briefing's summaries: 30 days, after which a nightly job deletes them.</li>
       <li>Feedback you sent: until you delete your account.</li>
       <li>Error reports: kept on the collector for as long as they are useful for debugging, and they do not identify you.</li>
       <li>Server logs: retained by the hosting infrastructure, which is not the subject of this policy. They are not used for anything other than diagnosing problems.</li>
@@ -311,7 +411,10 @@ __NAV__
       What is erased: your account record, your name, your email address, your
       password hash, your profile quote, your XP, levels and streaks, every
       category, habit, task, routine and goal, your entire check-in and XP
-      history, your routine snapshots, every assistant conversation, the notes the
+      history, your routine snapshots, your diary with every note in it, your
+      whole study notebook with its sources, flashcards and study conversations,
+      your focus sessions and their steps, your daily briefings, any sign-in
+      provider you connected, every assistant conversation, the notes the
       assistant kept about you, your feedback and its attachments, and every
       active session and pending token. There is no grace period, and nothing is
       archived or recoverable.
@@ -339,7 +442,7 @@ __NAV__
       <li>Access to what is stored about you.</li>
       <li>Correction of anything wrong. Most of it you can edit yourself in the app.</li>
       <li>Deletion, as described in section 9.</li>
-      <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, categories, habits, tasks, goals, routines, check-in history, feedback, and your assistant conversations along with the notes the assistant wrote about you. What it leaves out: the daily snapshots of your routines, anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
+      <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, the sign-in providers you connected, categories, habits, tasks, goals and how they nest, routines and their type, check-in history, focus sessions and the steps you wrote for them, your diary, your study notebook (pages, roadmap, flashcards and how each review went, the sources you added, study conversations, quizzes and summaries, roadmap drafts), the daily briefings still kept, feedback, and your assistant conversations along with the notes the assistant wrote about you. What it leaves out: the daily snapshots of your routines, the text read out of your notebook sources (the sources themselves are listed), anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
       <li>Restriction of processing, and objection to processing based on legitimate interests. For the routine emails that means the switch in the app's settings, or the unsubscribe link at the bottom of any one of them. No sign-in needed, and it takes effect immediately.</li>
       <li>Withdrawal of any consent you gave, without affecting what happened before.</li>
     </ul>

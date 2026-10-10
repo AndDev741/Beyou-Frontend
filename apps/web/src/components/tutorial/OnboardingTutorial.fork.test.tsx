@@ -7,12 +7,28 @@ import OnboardingTutorial from "./OnboardingTutorial";
 // SpotlightTutorial.test.tsx.
 
 function walkToFork() {
-  // 5 intro cards: click Next 4 times, then the final button reveals the fork.
-  for (let i = 0; i < 4; i++) {
+  // 7 intro cards: click Next 6 times, then the final button reveals the fork.
+  for (let i = 0; i < 6; i++) {
     fireEvent.click(screen.getByRole("button", { name: /TutorialNext/i }));
   }
   fireEvent.click(screen.getByRole("button", { name: /TutorialGetStarted/i }));
 }
+
+describe("OnboardingTutorial intro cards", () => {
+  test("the diary and the notebook get a card before the fork", async () => {
+    render(
+      <OnboardingTutorial onComplete={vi.fn()} onSkip={vi.fn()} onChooseAi={vi.fn()} />
+    );
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(screen.getByRole("button", { name: /TutorialNext/i }));
+    }
+    // The cards swap through an exit animation, so the next title lands a tick later.
+    expect(await screen.findByRole("heading", { name: "TutorialMoodTitle" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /TutorialNext/i }));
+    expect(await screen.findByRole("heading", { name: "TutorialNotebookTitle" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /TutorialGetStarted/i })).toBeInTheDocument();
+  });
+});
 
 describe("OnboardingTutorial path fork", () => {
   test("last card leads to fork with two path cards", () => {

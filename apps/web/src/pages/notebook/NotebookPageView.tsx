@@ -256,7 +256,7 @@ export default function NotebookPageView() {
                         <dt className="text-text-2">{t("NotebookStudyLine")}</dt>
                         <dd className="m-0 flex flex-wrap gap-1.5">
                             <span className="inline-flex h-[26px] items-center gap-1.5 rounded-full bg-surface-2 px-2.5 text-[13px] font-semibold text-text-2">
-                                <Timer size={13} aria-hidden="true" /><span className="font-mono">{formatMinutes(page.focusMinutes)}</span> {t("NotebookFocused")}
+                                <Timer size={13} aria-hidden="true" /><span className="font-mono">{formatMinutes(page.focusMinutes, t)}</span> {t("NotebookFocused")}
                             </span>
                             {page.cardsDue > 0 && (
                                 <Link to={`/notebook/review?page=${page.id}`} className="inline-flex h-[26px] items-center rounded-full bg-flame-soft px-2.5 text-[13px] font-semibold text-flame">
