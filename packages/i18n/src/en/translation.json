@@ -1467,6 +1467,7 @@
   "NotebookOpenPage": "Open page",
   "NotebookFocus25": "Focus 25 min",
   "NotebookFocusRunning": "Focusing",
+  "NotebookFocusBusyHint": "A focus cycle is already running. Finish or stop it first.",
   "NotebookFocused": "focused",
   "NotebookReview": "Review",
   "NotebookReviewStreak_one": "{{count}}-day review streak",

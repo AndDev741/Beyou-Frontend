@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { resources } from '@beyou/i18n';
-import { KNOWN_TOOLS } from "../components/agent/AgentSegments";
+import { KNOWN_TOOLS } from "@beyou/state/agent/toolRegistry";
 
 const en = resources.en.translation;
 const pt = resources.pt.translation;
@@ -87,7 +87,8 @@ test("EN and PT translation files declare the same keys, nested ones included", 
  * languages, which is exactly the failure the note above predicted.
  *
  * KNOWN_TOOLS is not the whole registry — that lives on the backend — but it is every
- * name this app states an opinion about, which is where a new tool gets added first.
+ * name the two apps state an opinion about (the shared list in @beyou/state), which is where a
+ * new tool gets added first.
  */
 test("every agent tool the app knows about has a label in both languages", () => {
     const labelled = (locale: typeof en) => Object.keys(locale.AgentTool ?? {});

@@ -6,6 +6,7 @@ import { FileText, Timer, Trash2, X } from "lucide-react";
 import type { Board, BoardNode, NotebookPage } from "@beyou/types/notebook/notebook";
 import { getPage } from "@beyou/api/notebook";
 import { enterNotebookPage, prerequisitesOf } from "@beyou/state";
+import { canStartNotebookFocus } from "@beyou/state/focus/notebookFocus";
 import StatusPicker from "../StatusPicker";
 import { useStatusChange } from "../useStatusChange";
 import { useNotebookFocus } from "../useNotebookFocus";
@@ -33,7 +34,9 @@ export default function NodeInspector({
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const changeStatus = useStatusChange();
-    const { start } = useNotebookFocus();
+    const { start, timer } = useNotebookFocus();
+    // One pomodoro in the app: a cycle running or paused anywhere keeps this one from starting.
+    const focusBusy = !canStartNotebookFocus(timer, Date.now());
     const [page, setPage] = useState<NotebookPage | null>(null);
     const [confirming, setConfirming] = useState(false);
     const [label, setLabel] = useState(node.title);
@@ -106,10 +109,14 @@ export default function NodeInspector({
                             <FileText size={15} aria-hidden="true" />{t("NotebookOpenPage")}
                         </Link>
                         <button type="button" onClick={() => node.pageId && start({ id: node.pageId, title: node.title }, habitId)}
-                            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-control border border-border text-sm font-semibold text-text hover:bg-surface-2">
+                            disabled={focusBusy} aria-describedby={focusBusy ? "inspector-focus-busy" : undefined} data-testid="inspector-focus"
+                            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-control border border-border text-sm font-semibold text-text hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent">
                             <Timer size={15} aria-hidden="true" />{t("NotebookFocus25")}
                         </button>
                     </div>
+                    {focusBusy && (
+                        <p id="inspector-focus-busy" className="-mt-2 text-xs text-text-2">{t("NotebookFocusBusyHint")}</p>
+                    )}
                     <dl className="grid grid-cols-3 gap-2">
                         <Stat value={formatMinutes(page?.focusMinutes ?? 0)} label={t("NotebookStatFocused")} />
                         <Stat value={`${page?.cardsTotal ?? 0}`} extra={page?.cardsDue ? t("NotebookStatDue", { n: page.cardsDue }) : undefined} label={t("NotebookStatCards")} />

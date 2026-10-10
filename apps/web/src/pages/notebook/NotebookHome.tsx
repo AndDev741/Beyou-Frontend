@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Flame, Layers, NotebookPen, Plus, Sparkles, Timer, Trash2, Trophy, Workflow } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookHome, progressShare } from "@beyou/state";
+import { canStartNotebookFocus } from "@beyou/state/focus/notebookFocus";
 import { deleteRoadmapDraft, getNotebookHome, listRoadmapDrafts } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import type { RoadmapDraftSummary, TopicSummary } from "@beyou/types/notebook/notebook";
@@ -36,7 +37,9 @@ export default function NotebookHome() {
     const [aiDraftId, setAiDraftId] = useState<string | null>(null);
     const [drafts, setDrafts] = useState<RoadmapDraftSummary[]>([]);
     const [deleting, setDeleting] = useState<RoadmapDraftSummary | null>(null);
-    const { start } = useNotebookFocus();
+    const { start, timer } = useNotebookFocus();
+    // One pomodoro in the app: a cycle running or paused anywhere keeps this one from starting.
+    const focusBusy = !canStartNotebookFocus(timer, Date.now());
 
     const loadDrafts = useCallback(() => {
         void listRoadmapDrafts(t).then((response) => {
@@ -137,7 +140,8 @@ export default function NotebookHome() {
                                     {t("NotebookOpenPage")}
                                 </Link>
                                 <button type="button" onClick={() => start({ id: continuing.pageId, title: continuing.title })}
-                                    className="inline-flex h-10 items-center gap-2 rounded-control border border-border bg-surface px-3.5 text-sm font-semibold text-text">
+                                    disabled={focusBusy} title={focusBusy ? t("NotebookFocusBusyHint") : undefined}
+                                    className="inline-flex h-10 items-center gap-2 rounded-control border border-border bg-surface px-3.5 text-sm font-semibold text-text disabled:cursor-not-allowed disabled:opacity-60">
                                     <Timer size={16} aria-hidden="true" />{t("NotebookFocus25")}
                                 </button>
                             </div>

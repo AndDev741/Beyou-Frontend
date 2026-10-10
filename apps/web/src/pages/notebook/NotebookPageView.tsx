@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { ChevronRight, Ellipsis, FileText, Layers, Sparkles, Timer, Trash2, Workflow } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookPage, notebookPageDetailsChanged, progressShare, removeNotebookPage } from "@beyou/state";
+import { canStartNotebookFocus } from "@beyou/state/focus/notebookFocus";
 import { deletePage, getPage, updatePage } from "@beyou/api/notebook";
 import { getFriendlyErrorMessage, type ApiErrorPayload } from "@beyou/api/apiError";
 import PageTree from "../../components/notebook/PageTree";
@@ -149,6 +150,8 @@ export default function NotebookPageView() {
 
     const topicId = page.kind === "TOPIC" ? page.id : page.topicId!;
     const timerHere = timer && !timer.finished && timer.notebookPageId === page.id;
+    // One pomodoro in the app: a cycle running or paused anywhere keeps this one from starting.
+    const focusBusy = !canStartNotebookFocus(timer, Date.now());
     // The timer pill floats over the bottom of the screen while any cycle runs.
     const timerRunning = Boolean(timer && !timer.finished);
 
@@ -186,7 +189,8 @@ export default function NotebookPageView() {
                                 <Sparkles size={14} aria-hidden="true" />{t("NotebookStudyRoom")}
                             </Link>
                             <button type="button" onClick={() => start({ id: page.id, title: page.title }, page.habit?.id)}
-                                disabled={!!timerHere} data-testid="page-focus"
+                                disabled={!!timerHere || focusBusy} data-testid="page-focus"
+                                title={focusBusy && !timerHere ? t("NotebookFocusBusyHint") : undefined}
                                 className="inline-flex h-[34px] items-center gap-1.5 rounded-control bg-accent px-3 text-[13px] font-semibold text-on-accent disabled:opacity-70">
                                 <Timer size={14} aria-hidden="true" />{timerHere ? t("NotebookFocusRunning") : t("NotebookFocus25")}
                             </button>

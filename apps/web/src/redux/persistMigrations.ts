@@ -20,7 +20,7 @@
  * field.** Dropping the slice is usually the right migration: the reducer then supplies its own
  * initial state, which is by definition the current shape.
  */
-export const PERSIST_VERSION = 6;
+export const PERSIST_VERSION = 7;
 
 /**
  * Drop the focus slice by REMOVING the key, never by assigning `undefined`.
@@ -84,5 +84,18 @@ export const migrations = {
                 ? { focus: { ...focus, settings: { soundEnabled: true, notifyEnabled: true, ...settings } } }
                 : {}),
         };
+    },
+    // v7: the focus timer no longer carries `notebookTitle`. The first notebook builds wrote the
+    // page's title next to its id when "Focus 25" started a cycle, which put a study note's title
+    // in localStorage while the `notebook` slice is blacklisted to keep exactly that out, and
+    // nothing ever displayed it. A field REMOVED rather than added, so the timer is kept (a
+    // running pomodoro survives the deploy) and only the title goes. `restoreFocusState` drops it
+    // too, in both directions of the transform.
+    7: (state: Record<string, unknown>) => {
+        const focus = state.focus as Record<string, unknown> | undefined;
+        const timer = focus?.timer as Record<string, unknown> | null | undefined;
+        if (!focus || !timer || !("notebookTitle" in timer)) return state;
+        const { notebookTitle: _dropped, ...kept } = timer;
+        return { ...state, focus: { ...focus, timer: kept } };
     },
 };

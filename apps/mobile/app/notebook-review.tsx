@@ -12,7 +12,7 @@ import type { CardRating, FinishReview } from '@beyou/types/notebook/notebook';
 import Button from '../src/ui/Button';
 import Chip from '../src/ui/Chip';
 import ProgressBar from '../src/notebook/ProgressBar';
-import { afterAnswer, position, startSession, type ReviewSession } from '../src/notebook/reviewQueue';
+import { afterAnswer, position, startSession, type ReviewSession } from '@beyou/state/notebook/reviewQueue';
 import { notify } from '../src/notify';
 import { useBeyouTheme } from '../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../src/store';

@@ -8,6 +8,10 @@ import { getPassage } from "@beyou/api/notebook";
 /**
  * What a citation points at. A page citation links to the page; a source citation shows the
  * excerpt at once and loads the passage with the text either side of it on request.
+ *
+ * An inline panel, not a dialog: nothing behind it is blocked, so it is a labelled region. It is
+ * still the innermost layer while open, so Escape closes it first. `data-escape-layer` tells the
+ * study room, which leaves on Escape, that this press belongs to the panel.
  */
 export default function CitationPanel({ citation, onClose }: { citation: Citation; onClose: () => void }) {
     const { t } = useTranslation();
@@ -15,6 +19,14 @@ export default function CitationPanel({ citation, onClose }: { citation: Citatio
     const [loading, setLoading] = useState(false);
 
     useEffect(() => setPassage(null), [citation]);
+
+    useEffect(() => {
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [onClose]);
 
     const openPassage = async () => {
         if (!citation.sourceId || !citation.chunkId) return;
@@ -26,8 +38,9 @@ export default function CitationPanel({ citation, onClose }: { citation: Citatio
 
     return (
         <div
-            role="dialog"
+            role="region"
             aria-label={t("NotebookCitationTitle", { n: citation.n })}
+            data-escape-layer=""
             data-testid="citation-panel"
             className="rounded-card border border-border bg-surface p-4 shadow-surface"
         >

@@ -103,3 +103,26 @@ describe("v6: goal viewer layout and cycle-end alerts", () => {
         expect("focus" in empty).toBe(false);
     });
 });
+
+describe("v7: no notebook page title in a stored timer", () => {
+    test("drops the title and keeps the running timer, page id included", () => {
+        const stale = {
+            focus: {
+                timer: { endsAt: 1, notebookPageId: "page-1", notebookTitle: "Private study note" },
+                settings: { pomodoro: 25 },
+            },
+        };
+
+        const migrated = migrations[7](stale as never) as Record<string, Record<string, Record<string, unknown>>>;
+
+        expect(migrated.focus.timer).toEqual({ endsAt: 1, notebookPageId: "page-1" });
+        expect(migrated.focus.settings).toEqual({ pomodoro: 25 });
+    });
+
+    test("leaves state with no focus slice or no timer as it was", () => {
+        const noFocus = { habits: {} };
+        const noTimer = { focus: { timer: null } };
+        expect(migrations[7](noFocus as never)).toBe(noFocus);
+        expect(migrations[7](noTimer as never)).toBe(noTimer);
+    });
+});

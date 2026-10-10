@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Flame, Layers, X } from "lucide-react";
 import { finishReview, getDueCards, reviewCard } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import type { CardRating, DueCard, FinishReview } from "@beyou/types/notebook/notebook";
+import type { CardRating, FinishReview } from "@beyou/types/notebook/notebook";
+import { afterAnswer, position, startSession, type ReviewSession } from "@beyou/state/notebook/reviewQueue";
 import type { RefreshUI } from "@beyou/types/refreshUi/refreshUi.type";
 import useUiRefresh from "../../hooks/useUiRefresh";
 import ErrorNotice from "../../components/ErrorNotice";
@@ -30,9 +31,9 @@ export default function NotebookReview() {
     const { t } = useTranslation();
     const [params] = useSearchParams();
     const scope = params.get("page");
-    const [queue, setQueue] = useState<DueCard[] | null>(null);
-    const [total, setTotal] = useState(0);
-    const [reviewed, setReviewed] = useState(0);
+    // The queue's rules (AGAIN goes to the back, the header never counts a card twice) live in
+    // @beyou/state, shared with the mobile review screen.
+    const [session, setSession] = useState<ReviewSession | null>(null);
     const [shown, setShown] = useState(false);
     const [busy, setBusy] = useState(false);
     const [summary, setSummary] = useState<FinishReview | null>(null);
@@ -43,8 +44,7 @@ export default function NotebookReview() {
     useEffect(() => {
         void getDueCards(scope, t).then((response) => {
             if (response.success) {
-                setQueue(response.success.cards);
-                setTotal(response.success.cards.length);
+                setSession(startSession(response.success.cards));
             } else {
                 setError(response.error ?? null);
             }
@@ -61,8 +61,8 @@ export default function NotebookReview() {
 
     const rate = useCallback(
         async (rating: CardRating) => {
-            if (!queue || queue.length === 0 || busy) return;
-            const [card, ...rest] = queue;
+            if (!session || session.queue.length === 0 || busy) return;
+            const card = session.queue[0];
             setBusy(true);
             const response = await reviewCard(card.id, rating, t);
             setBusy(false);
@@ -70,22 +70,17 @@ export default function NotebookReview() {
                 setError(response.error ?? null);
                 return;
             }
-            setReviewed((n) => n + 1);
             setShown(false);
-            // A forgotten card comes back at the end with the labels of a card starting over, the
-            // same numbers SpacedRepetition gives a reset card on the server.
-            const next = response.success.dueAgainToday
-                ? [...rest, { ...card, intervals: { AGAIN: 0, HARD: 1, GOOD: 1, EASY: 4 } }]
-                : rest;
-            setQueue(next);
-            if (next.length === 0) void finish();
+            const next = afterAnswer(session, response.success);
+            setSession(next);
+            if (next.queue.length === 0) void finish();
         },
-        [queue, busy, t, finish]
+        [session, busy, t, finish]
     );
 
     useEffect(() => {
         const onKey = (event: KeyboardEvent) => {
-            if (summary || !queue?.length) return;
+            if (summary || !session?.queue.length) return;
             if (event.key === " " && !shown) {
                 event.preventDefault();
                 setShown(true);
@@ -95,10 +90,12 @@ export default function NotebookReview() {
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [shown, queue, summary, rate]);
+    }, [shown, session, summary, rate]);
 
+    const queue = session?.queue;
     const card = queue?.[0];
-    const done = total - (queue?.length ?? 0);
+    const total = session?.total ?? 0;
+    const done = session?.answered ?? 0;
 
     return (
         <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-2xl flex-col gap-5 bg-bg px-4 py-6 text-text" data-testid="notebook-review">
@@ -108,7 +105,7 @@ export default function NotebookReview() {
                     <X size={20} aria-hidden="true" />
                 </Link>
                 <h1 className="flex-1 text-lg font-semibold">{t("NotebookReview")}</h1>
-                {queue && <span className="font-mono text-sm text-text-2">{Math.min(done + 1, total)} / {total}</span>}
+                {session && <span className="font-mono text-sm text-text-2">{position(session)} / {total}</span>}
             </header>
             <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
                 <div className="h-full bg-accent transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
@@ -119,7 +116,7 @@ export default function NotebookReview() {
                 <section className="flex flex-col items-center gap-3 rounded-[24px] border border-border bg-surface p-8 text-center" data-testid="review-summary">
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-xp-soft text-xp"><Layers size={24} aria-hidden="true" /></span>
                     <h2 className="text-xl font-semibold">{t("NotebookReviewDoneTitle")}</h2>
-                    <p className="text-sm text-text-2">{t("NotebookReviewDoneText", { count: reviewed })}</p>
+                    <p className="text-sm text-text-2">{t("NotebookReviewDoneText", { count: session?.reviewed ?? 0 })}</p>
                     <div className="flex flex-wrap justify-center gap-2">
                         {summary.xpEarned > 0 && (
                             <span className="inline-flex h-7 items-center rounded-full bg-xp-soft px-3 font-mono text-sm font-semibold text-xp">+{summary.xpEarned} XP</span>

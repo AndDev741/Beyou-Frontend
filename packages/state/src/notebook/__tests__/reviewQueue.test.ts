@@ -1,5 +1,6 @@
+import { describe, expect, it } from 'vitest';
 import type { DueCard } from '@beyou/types/notebook/notebook';
-import { AFTER_AGAIN_INTERVALS, afterAnswer, position, startSession } from '../src/notebook/reviewQueue';
+import { AFTER_AGAIN_INTERVALS, afterAnswer, position, startSession } from '../reviewQueue';
 
 const card = (id: string): DueCard => ({
   id, pageId: 'p', pageTitle: 'Trees', topicId: 't', topicTitle: 'DS', front: `${id}?`, back: `${id}!`,

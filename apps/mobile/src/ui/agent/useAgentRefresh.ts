@@ -16,8 +16,9 @@ import { enterGoals } from '@beyou/state/goal/goalsSlice';
 import { enterRoutines } from '@beyou/state/routine/routinesSlice';
 import { enterTodayRoutine } from '@beyou/state/routine/todayRoutineSlice';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
+import { getMoodEntries } from '@beyou/api/mood/moodApi';
 import { microTasksLoaded } from '@beyou/state/focus/focusSlice';
-import { refreshNotebook, selectedFocusGroupId } from '@beyou/state';
+import { addDays, enterMoodEntries, refreshNotebook, selectedFocusGroupId, todayInZone } from '@beyou/state';
 import type { RootState } from '@beyou/state/rootReducer';
 import { hydratePerfil } from '@beyou/state/user/perfilSlice';
 import type { AppDispatch } from '../../store';
@@ -65,6 +66,15 @@ export function useAgentRefresh() {
         perfil: async () => {
           const profile = await getProfile();
           if (profile.data) dispatch(hydratePerfil(profile.data));
+        },
+        mood: async () => {
+          // The agent only ever writes today (logUserMood defaults to it and the server refuses
+          // the future), so re-reading the week the widget draws covers what any screen shows.
+          // The diary and the widget both read this slice, so both update together.
+          const state = store.getState() as RootState;
+          const today = todayInZone(state.perfil.timezone);
+          const r = await getMoodEntries({ from: addDays(today, -6), to: today }, t);
+          if (r.success) dispatch(enterMoodEntries(r.success));
         },
         notebook: async () => {
           // The board tools rename, link, reorder and add notes. The chat floats over the
