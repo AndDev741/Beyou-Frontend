@@ -1316,6 +1316,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notebook/pages/{pageId}/board/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["order"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notebook/pages/{pageId}/board/layout": {
         parameters: {
             query?: never;
@@ -3264,13 +3280,15 @@ export interface components {
             linkPageId?: string;
             label?: string;
             /** Format: double */
-            x: number;
+            x?: number;
             /** Format: double */
-            y: number;
+            y?: number;
             /** Format: double */
             width?: number;
             /** Format: double */
             height?: number;
+            /** Format: uuid */
+            after?: string;
         };
         CreatePageRequestDTO: {
             /** Format: uuid */
@@ -3353,6 +3371,9 @@ export interface components {
             topics?: components["schemas"]["TopicSummaryDTO"][];
             continueStudying?: components["schemas"]["ContinueDTO"];
             review?: components["schemas"]["ReviewSummaryDTO"];
+        };
+        BoardOrderRequestDTO: {
+            order: string[];
         };
         LayoutRequestDTO: {
             positions: components["schemas"]["NodePositionDTO"][];
@@ -6208,6 +6229,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ContentSavedDTO"];
+                };
+            };
+        };
+    };
+    order: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BoardOrderRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BoardResponseDTO"];
                 };
             };
         };

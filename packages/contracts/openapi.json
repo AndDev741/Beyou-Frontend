@@ -3191,6 +3191,47 @@
         }
       }
     },
+    "/notebook/pages/{pageId}/board/order": {
+      "put": {
+        "tags": [
+          "notebook-board-controller"
+        ],
+        "operationId": "order",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BoardOrderRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoardResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/notebook/pages/{pageId}/board/layout": {
       "put": {
         "tags": [
@@ -8458,12 +8499,12 @@
           "height": {
             "type": "number",
             "format": "double"
+          },
+          "after": {
+            "type": "string",
+            "format": "uuid"
           }
-        },
-        "required": [
-          "x",
-          "y"
-        ]
+        }
       },
       "CreatePageRequestDTO": {
         "type": "object",
@@ -8717,6 +8758,23 @@
             "$ref": "#/components/schemas/ReviewSummaryDTO"
           }
         }
+      },
+      "BoardOrderRequestDTO": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 500,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "order"
+        ]
       },
       "LayoutRequestDTO": {
         "type": "object",

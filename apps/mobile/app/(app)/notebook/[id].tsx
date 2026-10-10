@@ -2,13 +2,12 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useDispatch, useSelector, useStore } from 'react-redux';
-import { ChevronLeft, ChevronRight, Ellipsis, FileText, PenLine, Timer } from 'lucide-react-native';
-import { getBoard, getPage, getTopicTree, setPageStatus } from '@beyou/api/notebook';
+import { useDispatch, useSelector } from 'react-redux';
+import { ChevronLeft, ChevronRight, Ellipsis, FileText, PenLine, Timer, Workflow } from 'lucide-react-native';
+import { getBoard, getPage, getTopicTree } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { enterBoard, enterNotebookPage, enterNotebookTree, notebookStatusesChanged, progressShare } from '@beyou/state';
-import { applyRefreshUi } from '@beyou/state/user/refreshUiThunk';
-import type { NotebookStatus, StatusChoice } from '@beyou/types/notebook/notebook';
+import { enterBoard, enterNotebookPage, enterNotebookTree, progressShare } from '@beyou/state';
+import type { BoardNode, NotebookStatus, StatusChoice } from '@beyou/types/notebook/notebook';
 import Button from '../../../src/ui/Button';
 import Card from '../../../src/ui/Card';
 import Chip from '../../../src/ui/Chip';
@@ -19,8 +18,12 @@ import SegmentedControl from '../../../src/ui/SegmentedControl';
 import BlockRenderer from '../../../src/notebook/BlockRenderer';
 import PathView from '../../../src/notebook/PathView';
 import PageActions from '../../../src/notebook/PageActions';
+import NodeSheet from '../../../src/notebook/trail/NodeSheet';
+import { AddNodeSheet, ReorderSheet } from '../../../src/notebook/trail/TrailSheets';
+import EmptyState from '../../../src/ui/EmptyState';
 import { STATUS_LABEL_KEY } from '../../../src/notebook/StatusMark';
 import { useNotebookFocus } from '../../../src/notebook/useNotebookFocus';
+import { useStatusChange } from '../../../src/notebook/useStatusChange';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
@@ -39,7 +42,6 @@ export default function NotebookPageScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const store = useStore<RootState>();
   const { theme } = useBeyouTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const page = useSelector((s: RootState) => (id ? s.notebook.pages[id] : undefined));
@@ -53,7 +55,13 @@ export default function NotebookPageScreen() {
   const [chosenTab, setChosenTab] = useState<Tab | null>(null);
   const [savingStatus, setSavingStatus] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
+  // The trail's sheets: a node's actions (by id, so it follows the board as it changes), a new
+  // node and where it goes, the reorder.
+  const [actingOn, setActingOn] = useState<string | null>(null);
+  const [adding, setAdding] = useState<{ after: BoardNode | null } | null>(null);
+  const [reordering, setReordering] = useState(false);
   const startFocus = useNotebookFocus();
+  const setStatus = useStatusChange();
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -89,24 +97,9 @@ export default function NotebookPageScreen() {
   const changeStatus = async (choice: StatusChoice) => {
     if (!page || savingStatus) return;
     setSavingStatus(true);
-    const response = await setPageStatus(page.id, choice, t);
+    const change = await setStatus(page.id, choice);
     setSavingStatus(false);
-    if (!response.success) {
-      notify.error(getFriendlyErrorMessage(t, response.error));
-      return;
-    }
-    const change = response.success;
-    dispatch(notebookStatusesChanged(change.changed));
-    dispatch(enterNotebookPage({ ...page, status: change.status, statusManual: change.statusManual }));
-    if (change.refreshUi) {
-      const prev = store.getState().perfil;
-      applyRefreshUi(change.refreshUi, dispatch, { level: prev.level, constance: prev.constance });
-    }
-    if (change.xpEarned > 0) {
-      notify.success(t('NotebookMobilePageDone'), {
-        subtitle: t('NotebookMobileXpEarned', { xp: Math.round(change.xpEarned) }),
-      });
-    }
+    if (change) dispatch(enterNotebookPage({ ...page, status: change.status, statusManual: change.statusManual }));
   };
 
   const focus = () => {
@@ -236,7 +229,7 @@ export default function NotebookPageScreen() {
         <SegmentedControl<Tab>
           label={t('NotebookMobileView')}
           options={[
-            { value: 'path', label: t('NotebookMobilePath'), disabled: !hasPath },
+            { value: 'path', label: t('NotebookMobilePath') },
             { value: 'notes', label: t('NotebookMobileNotes') },
           ]}
           value={tab}
@@ -244,8 +237,23 @@ export default function NotebookPageScreen() {
           testID="notebook-page-tab"
         />
 
-        {tab === 'path' && board ? (
-          <PathView board={board} onOpen={(node) => node.pageId && router.push(`/notebook/${node.pageId}`)} />
+        {tab === 'path' && board && hasPath ? (
+          <PathView
+            board={board}
+            onOpen={(node) => node.pageId && router.push(`/notebook/${node.pageId}`)}
+            onActions={(node) => setActingOn(node.id)}
+            onAdd={(last) => setAdding({ after: last })}
+            onReorder={() => setReordering(true)}
+          />
+        ) : tab === 'path' ? (
+          <EmptyState
+            icon={<Workflow size={22} color={theme.accent} />}
+            title={t('NotebookMobilePathEmptyTitle')}
+            description={t('NotebookMobilePathEmptyBody')}
+            actionLabel={t('NotebookMobileAddNode')}
+            onAction={() => setAdding({ after: null })}
+            testID="notebook-path-empty"
+          />
         ) : (
           <View className="gap-3">
             <Button
@@ -283,6 +291,29 @@ export default function NotebookPageScreen() {
         ) : null}
       </ScrollView>
       <PageActions page={page} open={actionsOpen} onClose={() => setActionsOpen(false)} />
+      {board ? (
+        <>
+          <NodeSheet
+            board={board}
+            node={board.nodes.find((node) => node.id === actingOn) ?? null}
+            onClose={() => setActingOn(null)}
+            onChanged={() => void load()}
+            onOpen={(node) => node.pageId && router.push(`/notebook/${node.pageId}`)}
+            onAddAfter={(node) => setAdding({ after: node })}
+          />
+          <ReorderSheet board={board} visible={reordering} onClose={() => setReordering(false)} />
+        </>
+      ) : null}
+      <AddNodeSheet
+        boardPageId={page.id}
+        after={adding?.after ?? null}
+        visible={adding !== null}
+        onClose={() => setAdding(null)}
+        onAdded={() => {
+          setChosenTab('path');
+          void load();
+        }}
+      />
     </View>
   );
 }
