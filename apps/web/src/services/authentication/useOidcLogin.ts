@@ -9,6 +9,7 @@ import axios from "../axiosConfig";
 import { hydratePerfil } from "../user/hydratePerfil";
 import { completeOidcLogin } from "./oidcPkce";
 import { detectTimezone } from "../user/reconcileTimezone";
+import { logger } from "../../utils/logger";
 
 const issuer = import.meta.env.VITE_OIDC_ISSUER;
 const clientId = import.meta.env.VITE_OIDC_CLIENT_ID;
@@ -68,7 +69,7 @@ function useOidcLogin(
                 }
             })
             .catch((e) => {
-                console.error(e);
+                logger.error(e);
                 toast.error(t('OidcLoginError'));
             });
         // No .finally() cleaning the URL here: completeOidcLogin does it up front,

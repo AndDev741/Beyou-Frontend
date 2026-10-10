@@ -123,6 +123,7 @@ export default function SectionSheet({ visible, section, onSave, onClose }: Sect
             onChangeText={setName}
             placeholder={t('Cozy Morning')}
             accessibilityLabel={t('name')}
+            maxLength={255}
             compact
             testID="section-name"
           />

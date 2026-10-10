@@ -5952,6 +5952,15 @@ export interface operations {
                 };
                 content?: never;
             };
+            /** @description FEDERATED_LINK_REQUIRED: the identity verified but may not enter on its own. details.reason is EMAIL_NOT_TRUSTED or ACCOUNT_EXISTS, details.provider the slug. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
+            };
         };
     };
     oidcLoginMobile: {
@@ -5975,6 +5984,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description FEDERATED_LINK_REQUIRED: the identity verified but may not enter on its own. details.reason is EMAIL_NOT_TRUSTED or ACCOUNT_EXISTS, details.provider the slug. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiErrorResponse"];
+                };
             };
         };
     };

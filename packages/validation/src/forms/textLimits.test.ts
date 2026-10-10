@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import type { TFunction } from "i18next";
 import { taskFormSchema } from "./taskSchemas";
 import { goalFormSchema } from "./goalSchemas";
-import { routineFormSchema } from "./routineSchemas";
+import { routineFormSchema, routineSectionSchema } from "./routineSchemas";
 import { profileSchema } from "./profileSchemas";
 import { habitCreateSchema } from "./habitSchemas";
 import { categoryCreateSchema } from "./categorySchemas";
@@ -66,6 +66,15 @@ describe("varchar(255) tables reject 256 characters in the form", () => {
         expect(issuesAt(schema, { routineName: text(255) }, "routineName")).toEqual([]);
         expect(
             issuesAt(schema, { routineName: text(256) }, "routineName").map((i: any) => i.message)
+        ).toContain("YupMaxName:255");
+    });
+
+    it("routine section name caps at 255", () => {
+        const schema = routineSectionSchema(t);
+        const section = { startTime: "08:00" };
+        expect(issuesAt(schema, { ...section, name: text(255) }, "name")).toEqual([]);
+        expect(
+            issuesAt(schema, { ...section, name: text(256) }, "name").map((i: any) => i.message)
         ).toContain("YupMaxName:255");
     });
 
