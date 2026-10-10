@@ -67,7 +67,8 @@ export default function NotebookStudyRoom() {
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key !== "Escape") return;
-            if (document.querySelector('[role="dialog"]')) return;
+            // A modal, or an inline layer such as an open citation, takes this press for itself.
+            if (document.querySelector('[role="dialog"], [data-escape-layer]')) return;
             leave();
         };
         window.addEventListener("keydown", onKeyDown);

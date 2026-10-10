@@ -25,7 +25,7 @@ import {
  */
 export type FocusMode = "off" | "fullscreen" | "ultrafoco" | "descanso";
 
-type focusState = {
+export type focusState = {
     mode: FocusMode;
     /**
      * Index into `getFocusItems(routine)`. -1 means nothing is selected, which is both the
@@ -132,11 +132,22 @@ export function restoreFocusState(stored: unknown): focusState {
     const saved = (stored ?? {}) as Partial<focusState>;
     return {
         ...initialState,
-        timer: saved.timer ?? null,
+        timer: saved.timer ? withoutPageTitle(saved.timer) : null,
         // Merged over the defaults, not taken whole: a build that shipped fewer settings than
         // today's would otherwise hand a component `undefined` where a number belongs.
         settings: { ...initialState.settings, ...(saved.settings ?? {}) },
     };
+}
+
+/**
+ * A stored timer minus the notebook page title that the first notebook builds wrote next to the
+ * page id. Nothing ever displayed it, and it put a study note's title in localStorage while the
+ * `notebook` slice itself is blacklisted for exactly that reason. Runs in both directions of the
+ * persist transform, so a title already in storage is dropped on the next write.
+ */
+function withoutPageTitle(timer: FocusTimer): FocusTimer {
+    const { notebookTitle: _dropped, ...rest } = timer as FocusTimer & { notebookTitle?: unknown };
+    return rest;
 }
 
 /**
@@ -350,7 +361,6 @@ const focusSlice = createSlice({
                 date: string;
                 /** The notebook page a cycle started from a node runs on. See `FocusTimer`. */
                 notebookPageId?: string | null;
-                notebookTitle?: string | null;
             }>
         ) {
             const { groupId, kind, minutes, now, date } = action.payload;
@@ -359,9 +369,6 @@ const focusSlice = createSlice({
             const notebookPageId = action.payload.notebookPageId !== undefined
                 ? action.payload.notebookPageId
                 : state.timer?.notebookPageId ?? null;
-            const notebookTitle = action.payload.notebookTitle !== undefined
-                ? action.payload.notebookTitle
-                : state.timer?.notebookTitle ?? null;
             const durationMinutes = clampCycleMinutes(minutes);
             // Cycles already finished on THIS item are kept; moving to another item starts the
             // count again, because the count is about the item and not about the sitting.
@@ -373,7 +380,6 @@ const focusSlice = createSlice({
                 timer: {
                     groupId,
                     notebookPageId,
-                    notebookTitle,
                     kind,
                     startedAt: now,
                     endsAt: now + durationMinutes * 60_000,

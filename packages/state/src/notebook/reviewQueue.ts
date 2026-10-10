@@ -1,7 +1,8 @@
 import type { CardRating, DueCard, ReviewResult } from '@beyou/types/notebook/notebook';
 
 /**
- * A review session's queue, as pure functions so the session's rules are unit tests.
+ * A review session's queue, as pure functions so the session's rules are unit tests. Web and
+ * mobile both run their review screens on these; the web page used to carry its own copy.
  *
  * - An answer the server schedules for a later day takes the card out of today's queue.
  * - AGAIN (or any answer the server keeps due today) puts the card back at the END, so the

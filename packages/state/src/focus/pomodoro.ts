@@ -84,8 +84,6 @@ export type FocusTimer = {
      * started from the focus screen, and timers saved before this existed, have none.
      */
     notebookPageId?: string | null;
-    /** That page's title, for the running-timer hub. */
-    notebookTitle?: string | null;
     kind: CycleKind;
     /**
      * Epoch milliseconds when this cycle was started. Frozen across pause and resume, unlike
