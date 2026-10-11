@@ -6,6 +6,7 @@ import type { MoodEntry } from "@beyou/types/mood/mood";
 import BeyouIcon from "../../../ui/BeyouIcon";
 import NarrativeLines from "./NarrativeLines";
 import MoodCheckIn from "./MoodCheckIn";
+import BriefingStudy from "./BriefingStudy";
 
 type Props = {
     briefing: DailyBriefing;
@@ -74,6 +75,8 @@ export default function TodayPage({ briefing, locale, moodToday, moodLoading }: 
             </p>
 
             <NarrativeLines narrative={briefing.narrative} lines={briefing.narrative.todayLines} />
+
+            <BriefingStudy briefing={briefing} locale={locale} />
 
             {goals.length > 0 && (
                 <div className="mt-4">

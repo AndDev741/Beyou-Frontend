@@ -447,3 +447,35 @@ test("there is no note to write before a mood exists for today", async () => {
     expect(await screen.findByTestId("briefing-mood-face-1")).toBeInTheDocument();
     expect(screen.queryByTestId("briefing-mood-note-toggle")).not.toBeInTheDocument();
 });
+
+/** The study cycles' slice of the day, from the fields a newer server adds. */
+test("the today page lists the study cycles, with yesterday's study beside the heading", () => {
+    const base = briefing();
+    render(
+        briefing({
+            yesterday: { ...base.yesterday, studyMinutes: 190, conceptsUnderstood: 1 },
+            today: {
+                ...base.today,
+                study: [
+                    { cycleName: "Faculdade", startTime: "14:00", minutes: 60, entries: [{ title: "Cálculo II", mode: "TIME", minutesToday: 60 }] },
+                    {
+                        cycleName: "Concurso TRT", startTime: "19:00", minutes: 180,
+                        entries: [{ title: "Understand Crase", mode: "GOAL", minutesToday: 70 }],
+                    },
+                ],
+            },
+        }),
+    );
+
+    const section = screen.getByTestId("briefing-study");
+    expect(within(section).getByText("BriefingStudyHeading")).toBeInTheDocument();
+    expect(within(section).getAllByTestId("briefing-study-cycle")).toHaveLength(2);
+    expect(within(section).getByText("14:00")).toBeInTheDocument();
+    expect(within(section).getByTestId("briefing-study-yesterday")).toHaveTextContent("BriefingStudyYesterday");
+});
+
+test("a server from before the study cycle shows no study section", () => {
+    render(briefing());
+
+    expect(screen.queryByTestId("briefing-study")).not.toBeInTheDocument();
+});
