@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type { BlockTarget, StudyBlock, StudyCycle } from '@beyou/types/notebook/studyCycle';
+import type { BlockTarget, StudyBlock, StudyCycle, StudyHistory, TodayEntry } from '@beyou/types/notebook/studyCycle';
 import {
-    blockFigure, blockTitle, creditTarget, formatStudyMinutes, nextBlockOfTopic, orderedDays, weekMinutes,
+    blockDetail, blockFigure, blockPage, blockTitle, conceptComesBackAt, conceptUndecided, creditTarget, currentEntry, detailText,
+    entryConceptUndecided,
+    factsOfBlock, factsOfEntry, formatStudyMinutes, historyTotals, mondayOf, moveBlock, nextBlockOfTopic, orderedDays, previewCredit,
+    topicWeight, weekdayOf, weekFrom, weekMinutes,
     type BlockFacts,
 } from '../studyCycleView';
 
@@ -100,4 +103,152 @@ describe('study cycle view', () => {
         expect(nextBlockOfTopic(blocks, blocks[0])?.id).toBe('c');
         expect(nextBlockOfTopic(blocks, blocks[3])).toBeNull();
     });
+
+    it('reads a Today entry with the minutes its block already holds', () => {
+        const entry = todayEntry('b1', 'const', 7, { credited: 30, mode: 'GOAL', target: target() });
+        const read = factsOfEntry(entry);
+        expect(read.minutes).toBe(30);
+        expect(blockFigure(read, { minutesToday: 40, current: true }).label.key).toBe('StudyCycleFigureSubpages');
+    });
+
+    it('opens the concept, else the chosen page, else the topic', () => {
+        const page = { id: 'pg', title: 'Integrais', icon: null };
+        expect(blockPage({ target: target(), page, topic })).toEqual({ id: 'p1', title: 'Controle de constitucionalidade' });
+        expect(blockPage({ target: null, page, topic })).toEqual({ id: 'pg', title: 'Integrais' });
+        expect(blockPage({ target: null, page: null, topic })).toEqual({ id: 'const', title: 'Dir. Constitucional' });
+    });
+
+    it('says why a concept was picked and what a time block is about', () => {
+        const t = (key: string, values?: Record<string, unknown>) => (values?.count !== undefined ? `${key}:${values.count}` : key);
+        const base = { topic, goalSource: null, target: null, targetPreview: false, page: null, note: null, requireQuiz: false };
+        expect(detailText(blockDetail({ ...base, mode: 'GOAL', goalSource: 'NEXT', target: target(), cardsDue: 12 }), t))
+            .toBe('Dir. Constitucional · StudyCycleDetailNextOnRoadmap · StudyCycleDetailCardsDue:12');
+        expect(detailText(blockDetail({ ...base, mode: 'GOAL', goalSource: 'PAGE', target: target(), requireQuiz: true }), t))
+            .toBe('Dir. Constitucional · StudyCycleDetailChosenPage · StudyCycleDetailQuizRequired');
+        expect(detailText(blockDetail({ ...base, mode: 'GOAL', goalSource: 'NEXT', target: target(), targetPreview: true }), t))
+            .toBe('Dir. Constitucional · StudyCycleDetailNextIfNothingChanges');
+        expect(detailText(blockDetail({ ...base, mode: 'TIME', note: 'Lista de questões FCC' }), t)).toBe('Lista de questões FCC');
+        expect(detailText(blockDetail({ ...base, mode: 'TIME', page: { id: 'pg', title: 'Integrais', icon: null } }), t)).toBe('Integrais');
+        // The topic itself as the page adds nothing the title does not already say.
+        expect(blockDetail({ ...base, mode: 'TIME', page: { id: 'const', title: 'Dir. Constitucional', icon: null } })).toEqual([]);
+    });
+
+    it('finds the block the day is on and where its concept comes back', () => {
+        const entries = [
+            todayEntry('a', 'port', 6, { doneToday: true, state: 'DONE' }),
+            todayEntry('b', 'const', 7),
+            todayEntry('c', 'port', 8),
+            todayEntry('d', 'const', 1, { nextLap: true }),
+        ];
+        const day = { entries } as unknown as Parameters<typeof currentEntry>[0];
+        expect(currentEntry(day)?.blockId).toBe('b');
+        expect(currentEntry({ entries: [entries[0]] } as unknown as Parameters<typeof currentEntry>[0])).toBeNull();
+        // From the slice: the next lap's blocks do not count as this lap's comeback.
+        expect(conceptComesBackAt(entries[1], entries)).toBeNull();
+        // From the whole cycle when it is loaded.
+        const cycle = { blocks: [block('b', 'const', 7), block('x', 'const', 12)] } as unknown as StudyCycle;
+        expect(conceptComesBackAt(entries[1], entries, cycle)).toBe(12);
+    });
+
+    it('previews a session the way the server credits it: fill, spill, leftover on the last', () => {
+        const withMinutes = (b: StudyBlock, minutes: number, planned = 60): StudyBlock =>
+            ({ ...b, plannedMinutes: planned, progress: { ...b.progress, minutes } });
+        const blocks = [
+            withMinutes(block('a', 'port', 1, 'DONE'), 60),
+            withMinutes(block('b', 'port', 3), 40),
+            withMinutes(block('c', 'const', 4), 0),
+            withMinutes(block('d', 'port', 6), 0, 30),
+        ];
+        const cycle = { blocks } as unknown as StudyCycle;
+        expect(previewCredit(cycle, 'port', 10).map((s) => [s.block.id, s.before, s.after])).toEqual([['b', 40, 50]]);
+        expect(previewCredit(cycle, 'port', 45).map((s) => [s.block.id, s.before, s.after])).toEqual([['b', 40, 60], ['d', 0, 25]]);
+        // Past every open block, the rest lands on the topic's last block ("80 of 70 min").
+        expect(previewCredit(cycle, 'port', 70).map((s) => [s.block.id, s.before, s.after])).toEqual([['b', 40, 60], ['d', 0, 50]]);
+        expect(previewCredit(cycle, 'nobody', 30)).toEqual([]);
+        expect(previewCredit(cycle, 'port', 0)).toEqual([]);
+    });
+
+    it('moves a block one step and refuses to leave the list', () => {
+        const blocks = [block('a', 'port', 1), block('b', 'const', 2), block('c', 'port', 3)];
+        expect(moveBlock(blocks, 'b', -1)?.map((b) => b.id)).toEqual(['b', 'a', 'c']);
+        expect(moveBlock(blocks, 'b', 1)?.map((b) => b.id)).toEqual(['a', 'c', 'b']);
+        expect(moveBlock(blocks, 'a', -1)).toBeNull();
+        expect(moveBlock(blocks, 'c', 1)).toBeNull();
+        expect(moveBlock(blocks, 'b', 1)?.[0]).toEqual({
+            id: 'a', topicId: 'port', mode: 'TIME', plannedMinutes: 60, goalSource: null, pageId: null, requireQuiz: false, note: null,
+        });
+    });
+
+    it('weighs a topic by importance and what is left to learn', () => {
+        expect(topicWeight(5, 2)).toBe(20);
+        expect(topicWeight(2, 4)).toBe(4);
+    });
+
+    it('walks weeks from Monday', () => {
+        expect(weekdayOf('2026-10-14')).toBe('WEDNESDAY');
+        expect(weekdayOf('2026-10-11')).toBe('SUNDAY');
+        expect(mondayOf('2026-10-14')).toBe('2026-10-12');
+        expect(mondayOf('2026-10-11')).toBe('2026-10-05');
+        expect(weekFrom('2026-10-12')).toEqual([
+            '2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18',
+        ]);
+    });
+
+    it('sums a history window', () => {
+        const history = {
+            days: [
+                { date: '2026-10-10', plannedMinutes: 240, minutes: 270, byTopic: [], entries: [
+                    { kind: 'UNDERSTOOD', at: '', topic, page: null, minutes: 75 },
+                    { kind: 'LAP_CLOSED', at: '', lapNumber: 3 },
+                ] },
+                { date: '2026-10-11', plannedMinutes: 0, minutes: 30, byTopic: [], entries: [] },
+            ],
+        } as unknown as StudyHistory;
+        expect(historyTotals(history)).toEqual({ minutes: 300, planned: 240, understood: 1 });
+    });
 });
+
+describe('a roadmap block with no concept yet', () => {
+    const goal = (id: string, topicId: string, position: number, state: StudyBlock['progress']['state'] = 'OPEN', withTarget = false): StudyBlock => {
+        const base = block(id, topicId, position, state);
+        return { ...base, mode: 'GOAL', goalSource: 'NEXT', progress: { ...base.progress, target: withTarget ? target() : null } };
+    };
+
+    it('waits for its turn behind an open concept of the same topic', () => {
+        const blocks = [goal('a', 'const', 1, 'OPEN', true), block('b', 'port', 2), goal('c', 'const', 3)];
+        expect(conceptUndecided(blocks, blocks[2])).toBe(true);
+        // The first open one with none: the roadmap really has nothing left.
+        expect(conceptUndecided([goal('x', 'const', 1)], goal('x', 'const', 1))).toBe(false);
+        // Behind a closed one it is the first open one again.
+        const afterClosed = [goal('a', 'const', 1, 'UNDERSTOOD', true), goal('c', 'const', 3)];
+        expect(conceptUndecided(afterClosed, afterClosed[1])).toBe(false);
+    });
+
+    it('reads as an estimate, not as a finished roadmap', () => {
+        const facts = factsOfBlock(goal('c', 'const', 3));
+        expect(blockFigure(facts, { undecided: true })).toEqual({
+            label: { key: 'StudyCycleCaptionEstimate', values: { planned: '1h' } }, caption: null, share: 0, tone: 'idle',
+        });
+        expect(blockFigure(facts).caption).toEqual({ key: 'StudyCycleCaptionRoadmapDone' });
+        const base = { topic, mode: 'GOAL' as const, goalSource: 'NEXT' as const, target: null, targetPreview: false, page: null, note: null, requireQuiz: false };
+        expect(blockDetail({ ...base, undecided: true })).toEqual([{ key: 'StudyCycleDetailDecidedLater' }]);
+        expect(blockDetail(base)).toEqual([]);
+    });
+
+    it('works the same on the day\'s slice, and a next-lap roadmap block is always undecided', () => {
+        const first = todayEntry('a', 'const', 7, { mode: 'GOAL', goalSource: 'NEXT', target: target() });
+        const later = todayEntry('c', 'const', 12, { mode: 'GOAL', goalSource: 'NEXT' });
+        const nextLap = todayEntry('n', 'const', 1, { mode: 'GOAL', goalSource: 'NEXT', nextLap: true });
+        expect(entryConceptUndecided([first, later, nextLap], later)).toBe(true);
+        expect(entryConceptUndecided([first, later, nextLap], nextLap)).toBe(true);
+        expect(entryConceptUndecided([later], later)).toBe(false);
+    });
+});
+
+function todayEntry(blockId: string, topicId: string, position: number, over: Partial<TodayEntry> = {}): TodayEntry {
+    return {
+        blockId, position, topic: { id: topicId, title: topicId, icon: null }, mode: 'TIME', goalSource: null, page: null,
+        note: null, requireQuiz: false, plannedMinutes: 60, credited: 0, minutesToday: 60, state: 'OPEN', doneToday: false,
+        nextLap: false, start: null, end: null, target: null, targetPreview: false, quizPassed: null, cardsDue: 0, ...over,
+    };
+}

@@ -3057,6 +3057,10 @@ export interface components {
             focusCycles?: number;
             /** Format: int32 */
             moodLevel?: number;
+            /** Format: int32 */
+            studyMinutes?: number;
+            /** Format: int32 */
+            conceptsUnderstood?: number;
         };
         BriefingGoalAheadDTO: {
             /** Format: uuid */
@@ -3103,6 +3107,7 @@ export interface components {
             goalsApproaching?: components["schemas"]["BriefingGoalAheadDTO"][];
             recovery?: components["schemas"]["BriefingRecoveryWindowDTO"];
             goalsAhead?: components["schemas"]["BriefingGoalAheadDTO"][];
+            study?: components["schemas"]["BriefingStudyAheadDTO"][];
         };
         BriefingNarrativeDTO: {
             /** @enum {string} */
@@ -3805,6 +3810,20 @@ export interface components {
             pages?: number;
             /** Format: int32 */
             words?: number;
+        };
+        BriefingStudyAheadDTO: {
+            cycleName?: string;
+            startTime?: string;
+            /** Format: int32 */
+            minutes?: number;
+            entries?: components["schemas"]["BriefingStudyEntryDTO"][];
+        };
+        BriefingStudyEntryDTO: {
+            title?: string;
+            /** @enum {string} */
+            mode?: "TIME" | "GOAL";
+            /** Format: int32 */
+            minutesToday?: number;
         };
     };
     responses: never;

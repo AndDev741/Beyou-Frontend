@@ -4,6 +4,8 @@ import type {
     BriefingNarrative,
     BriefingOpenItem,
     BriefingRecoveryWindow,
+    BriefingStudyAhead,
+    BriefingStudyEntry,
     BriefingToday,
     BriefingYesterday,
     DailyBriefing,
@@ -82,6 +84,8 @@ export type ContractChecks = [
     Matches<FieldsMissingFromWire<BriefingGoal, Schemas["BriefingGoalAheadDTO"]>>,
     Matches<FieldsMissingFromWire<BriefingRecoveryWindow, Schemas["BriefingRecoveryWindowDTO"]>>,
     Matches<FieldsMissingFromWire<BriefingNarrative, Schemas["BriefingNarrativeDTO"]>>,
+    Matches<FieldsMissingFromWire<BriefingStudyAhead, Schemas["BriefingStudyAheadDTO"]>>,
+    Matches<FieldsMissingFromWire<BriefingStudyEntry, Schemas["BriefingStudyEntryDTO"]>>,
     // Mood
     Matches<FieldsMissingFromWire<MoodEntry, Schemas["MoodEntryResponseDTO"]>>,
     // Focus

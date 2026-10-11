@@ -108,6 +108,8 @@ export default function DashboardWidgets() {
     categoryBalance: () => <CategoryBalanceWidget categories={categories} />,
     // Self-fetching, like the heatmap: nothing to pass from here.
     moodWeek: () => <MoodWeekWidget />,
+    // Wired to the real widget when the mobile study cycle branch merges.
+    studyToday: () => <></>,
   };
 
   if (!widgetsIdsInUse || widgetsIdsInUse.length === 0) {
