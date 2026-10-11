@@ -57,8 +57,9 @@ repository.
 - **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
   page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
   answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
-  asks what you are after before you start, and it can search the web for sources for you. In
-  v1 the phone reads the roadmap as a path and runs reviews, and writing stays on the web.
+  asks what you are after before you start, and it can search the web for sources for you. On
+  a desktop your notes can sit beside the chat while you ask. The phone has the whole notebook
+  too: the editor, the roadmap as a path, cards, the study room and AI roadmap drafts.
 - **Sign in your way** — e-mail and password, Google, or any configured OpenID Connect provider
   (web only for now). A federated identity is matched by its issuer and subject, never by e-mail,
   so a new provider reaches an existing account only through a link made from inside it.

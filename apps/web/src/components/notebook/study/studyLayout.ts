@@ -62,6 +62,39 @@ function read(): StudyLayout {
     }
 }
 
+/**
+ * What the room shows: the room itself (sources, chat, studio), the page's notes beside the chat,
+ * or the notes alone. A per-browser preference like the layout, under its own key, so a stored
+ * layout from before this existed still parses.
+ */
+export type StudyView = "room" | "split" | "notes";
+export const STUDY_VIEWS: StudyView[] = ["room", "split", "notes"];
+const VIEW_KEY = "beyou.notebook.studyView";
+
+export function parsedView(raw: string | null): StudyView {
+    return STUDY_VIEWS.includes(raw as StudyView) ? (raw as StudyView) : "room";
+}
+
+export function useStudyView() {
+    const [view, setView] = useState<StudyView>(() => {
+        try {
+            return parsedView(window.localStorage.getItem(VIEW_KEY));
+        } catch {
+            return "room";
+        }
+    });
+
+    useEffect(() => {
+        try {
+            window.localStorage.setItem(VIEW_KEY, view);
+        } catch {
+            // Storage blocked: the choice lasts as long as the page.
+        }
+    }, [view]);
+
+    return { view, setView };
+}
+
 export function useStudyLayout() {
     const [layout, setLayout] = useState<StudyLayout>(read);
 

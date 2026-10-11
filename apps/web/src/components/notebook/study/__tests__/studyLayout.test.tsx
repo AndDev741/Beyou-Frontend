@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
-import { DEFAULT_LAYOUT, PANEL_MAX, PANEL_MIN, parsed, resized, toggled } from "../studyLayout";
+import { DEFAULT_LAYOUT, PANEL_MAX, PANEL_MIN, parsed, parsedView, resized, toggled } from "../studyLayout";
 import { ResizeHandle } from "../StudyColumns";
 
 describe("study room layout", () => {
@@ -49,5 +49,13 @@ describe("study room layout", () => {
         expect(onToggle).toHaveBeenCalledTimes(1);
         expect(onReset).toHaveBeenCalledTimes(1);
         expect(bar).toHaveAttribute("aria-valuenow", "300");
+    });
+
+    /** A stored view that is not one of the three (old builds, a hand edit) opens the room. */
+    test("the stored view falls back to the room", () => {
+        expect(parsedView("split")).toBe("split");
+        expect(parsedView("notes")).toBe("notes");
+        expect(parsedView(null)).toBe("room");
+        expect(parsedView("sidebar")).toBe("room");
     });
 });

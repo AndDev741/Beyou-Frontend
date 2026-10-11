@@ -1,8 +1,9 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Copy, FileText, Layers, Send, Sparkles, Trash2 } from "lucide-react";
-import type { ChatMessage, Citation, Overview } from "@beyou/types/notebook/notebook";
+import type { ChatMessage, Citation, NotebookPage, Overview } from "@beyou/types/notebook/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import {
@@ -26,7 +27,15 @@ type Props = {
     initialOverview: Overview | null;
     /** Cards made from an answer are due today; the studio's count has to hear about them. */
     onCardsMade?: (count: number) => void;
+    /**
+     * The page as it stands after "Save to page". The room puts it in the store, so notes open
+     * beside the chat merge the new blocks in instead of saving over them.
+     */
+    onSavedToPage?: (page: NotebookPage) => void;
 };
+
+/** The question box grows with what is typed, up to this height, then scrolls. */
+const INPUT_MAX_HEIGHT = 200;
 
 /**
  * The study room's conversation: questions about this page, answered only from its notes and
@@ -35,7 +44,7 @@ type Props = {
  * A [n] chip opens the passage right under the answer that cited it, so the reader never loses
  * their place in the conversation to check a source.
  */
-export default function ChatPanel({ pageId, initialMessages, initialOverview, onCardsMade }: Props) {
+export default function ChatPanel({ pageId, initialMessages, initialOverview, onCardsMade, onSavedToPage }: Props) {
     const { t } = useTranslation();
     const inputId = useId();
     const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -49,6 +58,7 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
     const [confirmClear, setConfirmClear] = useState(false);
     const [busyAction, setBusyAction] = useState<string | null>(null);
     const endRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => setMessages(initialMessages), [initialMessages]);
     useEffect(() => setOverview(initialOverview), [initialOverview]);
@@ -56,6 +66,14 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
     useEffect(() => {
         endRef.current?.scrollIntoView?.({ block: "end" });
     }, [messages.length, pending]);
+
+    // Fit the box to its text: shrink to one line first so deleting lines shrinks it too.
+    useLayoutEffect(() => {
+        const box = inputRef.current;
+        if (!box) return;
+        box.style.height = "auto";
+        box.style.height = `${Math.min(box.scrollHeight, INPUT_MAX_HEIGHT)}px`;
+    }, [input]);
 
     const ask = async (question: string) => {
         const text = question.trim();
@@ -71,6 +89,14 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
             setError(response.error ?? null);
             setInput(text);
         }
+    };
+
+    // Enter sends and Shift+Enter starts a new line, the way chat boxes work. A key that ends an
+    // IME composition (accents on some layouts, CJK input) is the composition's, never a send.
+    const onInputKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+        event.preventDefault();
+        void ask(input);
     };
 
     const makeOverview = async () => {
@@ -93,8 +119,12 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
         setBusyAction(`save-${message.id}`);
         const response = await appendToPage(pageId, message.content, t);
         setBusyAction(null);
-        if (response.success) toast.success(t("NotebookStudySavedToPage"));
-        else toast.error(getFriendlyErrorMessage(t, response.error));
+        if (response.success) {
+            toast.success(t("NotebookStudySavedToPage"));
+            onSavedToPage?.(response.success);
+        } else {
+            toast.error(getFriendlyErrorMessage(t, response.error));
+        }
     };
 
     const makeCards = async (message: ChatMessage) => {
@@ -260,25 +290,30 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                 <div ref={endRef} />
             </div>
 
-            <div className="flex flex-col gap-2 border-t border-border px-4 pb-4 pt-3">
+            {/* Stays in view while a long conversation scrolls past it. */}
+            <div className="sticky bottom-0 z-10 flex flex-col gap-2 rounded-b-card border-t border-border bg-surface px-4 pb-4 pt-3">
                 <form
                     onSubmit={(event) => {
                         event.preventDefault();
                         ask(input);
                     }}
-                    className="flex items-center gap-2.5 rounded-[14px] border border-border bg-bg py-1.5 pl-3.5 pr-1.5"
+                    className="flex items-end gap-2.5 rounded-[14px] border border-border bg-bg py-1.5 pl-3.5 pr-1.5"
                 >
                     <label htmlFor={inputId} className="sr-only">
                         {t("NotebookStudyAskPlaceholder")}
                     </label>
-                    <input
+                    <textarea
+                        ref={inputRef}
                         id={inputId}
                         value={input}
+                        rows={1}
                         maxLength={2000}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={onInputKeyDown}
                         placeholder={t("NotebookStudyAskPlaceholder")}
+                        aria-describedby={`${inputId}-hint`}
                         data-testid="study-chat-input"
-                        className="h-[34px] min-w-0 flex-1 bg-transparent text-sm text-text outline-none placeholder:text-text-3"
+                        className="min-h-[34px] min-w-0 flex-1 resize-none bg-transparent py-[7px] text-sm leading-5 text-text outline-none placeholder:text-text-3"
                     />
                     <button
                         type="submit"
@@ -290,6 +325,7 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                         <Send size={16} aria-hidden="true" />
                     </button>
                 </form>
+                <p id={`${inputId}-hint`} className="sr-only">{t("NotebookStudyAskHint")}</p>
                 {messages.length > 0 && (
                     <button
                         type="button"
