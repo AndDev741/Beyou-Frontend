@@ -1988,5 +1988,20 @@
   "NotebookMobileView": "Ver",
   "NotebookMobileXpAtEnd_one": "O XP chega quando você terminar este cartão",
   "NotebookMobileXpAtEnd_other": "O XP chega quando você terminar os {{count}}",
-  "NotebookMobileXpEarned": "+{{xp}} XP"
+  "NotebookMobileXpEarned": "+{{xp}} XP",
+  "StudyCycleUnderstand": "Entender {{title}}",
+  "StudyCycleFigureTimeDone": "{{minutes}} de {{planned}} min · feito",
+  "StudyCycleFigureTimeLeft": "faltam {{left}} de {{planned}} min",
+  "StudyCycleFigureTimePlanned": "{{planned}} min",
+  "StudyCycleFigureTimeToday": "{{today}} de {{planned}} min hoje",
+  "StudyCycleFigureSubpages": "{{done}} de {{total}} subpáginas feitas",
+  "StudyCycleFigurePagePending": "Página ainda não feita",
+  "StudyCycleFigurePageQuizPending": "Página e quiz pendentes",
+  "StudyCycleFigureQuizPending": "Página feita, falta o quiz",
+  "StudyCycleFigureUnderstood": "Entendido em {{minutes}}",
+  "StudyCycleFigureTurnUsed": "Vez usada · volta no bloco {{position}}",
+  "StudyCycleFigureTurnUsedNextLap": "Vez usada · volta na próxima volta",
+  "StudyCycleCaptionInvested": "{{minutes}} investidos · previsto {{planned}}",
+  "StudyCycleCaptionEstimate": "previsto {{planned}}",
+  "StudyCycleCaptionRoadmapDone": "Roadmap concluído · revisão"
 }

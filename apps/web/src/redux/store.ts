@@ -44,7 +44,7 @@ const persistConfig = {
     // that nothing anyone writes about their day is left sitting in localStorage after they
     // close the tab. Refetched on mount like `snapshot`, so nothing is lost by not keeping it.
     // `notebook` holds study notes, page by page, for the same reason.
-    blacklist: ['snapshot', 'perfil', 'celebration', 'mood', 'notebook'],
+    blacklist: ['snapshot', 'perfil', 'celebration', 'mood', 'notebook', 'studyCycles'],
     transforms: [focusVisitTransform],
     // `debug: false` keeps a failed migration quiet in production; it still falls back to the
     // reducer's initial state rather than rehydrating something broken.
