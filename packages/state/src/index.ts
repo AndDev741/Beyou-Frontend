@@ -188,6 +188,27 @@ export {
   monthGrid,
 } from './mood/moodStats';
 
+// calendar: day grids, week ranges and keeping a fetched overview in step with local writes
+export {
+  monthOfIso,
+  shiftMonth,
+  firstOfMonth,
+  weekStartOf,
+  weekDaysOf,
+  monthGridDays,
+  rangeForView,
+  isInMonth,
+  hourOf,
+  sortCalendarTasks,
+  splitTasksByTime,
+  advanceLabelKey,
+  emptyCalendarDay,
+  dayFromOverview,
+  upsertTaskInOverview,
+  removeTaskFromOverview,
+} from './calendar/calendarDates';
+export type { CalendarView, MonthCursor } from './calendar/calendarDates';
+
 // dashboard widgets (ids shared by web + mobile)
 export { WIDGET_IDS, BIG_WIDGETS } from './dashboard/widgets';
 export type { WidgetId } from './dashboard/widgets';

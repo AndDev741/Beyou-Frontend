@@ -10,6 +10,15 @@ import type {
     BriefingYesterday,
     DailyBriefing,
 } from "@beyou/types/briefing/briefing";
+import type {
+    CalendarDay,
+    CalendarGoalDue,
+    CalendarMood,
+    CalendarOverview,
+    CalendarRoutineDay,
+    CalendarTask,
+    CalendarTaskInput,
+} from "@beyou/types/calendar/calendar";
 import type { FocusCycle, FocusDay, FocusMicroTask } from "@beyou/types/focus/focus";
 import type { MoodEntry } from "@beyou/types/mood/mood";
 import type {
@@ -63,7 +72,7 @@ import type {
 /**
  * Compile-time checks that the hand-written client types still match the API contract.
  *
- * The briefing, focus, mood and notebook types in @beyou/types are written by hand for readable
+ * The briefing, calendar, focus, mood and notebook types in @beyou/types are written by hand for readable
  * names and narrow unions, and nothing tied them to the generated contract: a backend rename
  * passed every typecheck and turned into `undefined` on screen. Each line below says "every field
  * the client reads exists on the DTO the server sends". It checks names, not optionality, because
@@ -86,6 +95,14 @@ export type ContractChecks = [
     Matches<FieldsMissingFromWire<BriefingNarrative, Schemas["BriefingNarrativeDTO"]>>,
     Matches<FieldsMissingFromWire<BriefingStudyAhead, Schemas["BriefingStudyAheadDTO"]>>,
     Matches<FieldsMissingFromWire<BriefingStudyEntry, Schemas["BriefingStudyEntryDTO"]>>,
+    // Calendar
+    Matches<FieldsMissingFromWire<CalendarTask, Schemas["CalendarTaskResponseDTO"]>>,
+    Matches<FieldsMissingFromWire<CalendarTaskInput, Schemas["CalendarTaskRequestDTO"]>>,
+    Matches<FieldsMissingFromWire<CalendarOverview, Schemas["CalendarOverviewDTO"]>>,
+    Matches<FieldsMissingFromWire<CalendarDay, Schemas["CalendarDayDTO"]>>,
+    Matches<FieldsMissingFromWire<CalendarRoutineDay, Schemas["CalendarRoutineDTO"]>>,
+    Matches<FieldsMissingFromWire<CalendarGoalDue, Schemas["CalendarGoalDTO"]>>,
+    Matches<FieldsMissingFromWire<CalendarMood, Schemas["CalendarMoodDTO"]>>,
     // Mood
     Matches<FieldsMissingFromWire<MoodEntry, Schemas["MoodEntryResponseDTO"]>>,
     // Focus

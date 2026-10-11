@@ -1988,6 +1988,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["create_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/tasks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["update_3"];
+        post?: never;
+        delete: operations["delete_4"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/tasks/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["toggleComplete"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/tasks/{id}/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["acknowledge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/tasks/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["upcoming"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2906,9 +3002,15 @@ export interface components {
         };
         NotificationPreferencesResponseDTO: {
             engagementEmail?: boolean;
+            reminderEmail?: boolean;
+            reminderWeb?: boolean;
+            reminderDefaultTime?: string;
         };
         UpdateNotificationPreferencesDTO: {
-            engagementEmail: boolean;
+            engagementEmail?: boolean;
+            reminderEmail?: boolean;
+            reminderWeb?: boolean;
+            reminderDefaultTime?: string;
         };
         UnsubscribeRequestDTO: {
             token: string;
@@ -3824,6 +3926,79 @@ export interface components {
             mode?: "TIME" | "GOAL";
             /** Format: int32 */
             minutesToday?: number;
+        };
+        CalendarTaskRequestDTO: {
+            title: string;
+            note?: string;
+            /** Format: date */
+            date: string;
+            time?: string;
+            /** Format: int32 */
+            advanceMinutes?: number;
+        };
+        CalendarTaskResponseDTO: {
+            /** Format: uuid */
+            id?: string;
+            title?: string;
+            note?: string;
+            /** Format: date */
+            date?: string;
+            time?: string;
+            /** Format: int32 */
+            advanceMinutes?: number;
+            completed?: boolean;
+            /** Format: date-time */
+            completedAt?: string;
+            /** Format: double */
+            xpAwarded?: number;
+            /** Format: date-time */
+            notifyAt?: string;
+        };
+        CalendarTaskCompletionDTO: {
+            task?: components["schemas"]["CalendarTaskResponseDTO"];
+            refreshUi?: components["schemas"]["RefreshUiDTO"];
+        };
+        CalendarMoodDTO: {
+            /** Format: int32 */
+            level?: number;
+            hasNote?: boolean;
+        };
+        CalendarDayDTO: {
+            /** Format: date */
+            date?: string;
+            tasks?: components["schemas"]["CalendarTaskResponseDTO"][];
+            routines?: components["schemas"]["CalendarRoutineDTO"][];
+            goals?: components["schemas"]["CalendarGoalDTO"][];
+            mood?: components["schemas"]["CalendarMoodDTO"];
+        };
+        CalendarOverviewDTO: {
+            /** Format: date */
+            from?: string;
+            /** Format: date */
+            to?: string;
+            /** Format: date */
+            today?: string;
+            days?: components["schemas"]["CalendarDayDTO"][];
+        };
+        CalendarRoutineDTO: {
+            /** Format: uuid */
+            routineId?: string;
+            name?: string;
+            iconId?: string;
+            /** @enum {string} */
+            source?: "SNAPSHOT" | "SCHEDULE";
+            /** Format: int32 */
+            totalItems?: number;
+            /** Format: int32 */
+            checkedItems?: number;
+            completed?: boolean;
+        };
+        CalendarGoalDTO: {
+            /** Format: uuid */
+            goalId?: string;
+            name?: string;
+            iconId?: string;
+            complete?: boolean;
         };
     };
     responses: never;
@@ -7459,6 +7634,161 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DiscoveryResultDTO"];
+                };
+            };
+        };
+    };
+    getOverview: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarOverviewDTO"];
+                };
+            };
+        };
+    };
+    create_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CalendarTaskRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarTaskResponseDTO"];
+                };
+            };
+        };
+    };
+    update_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CalendarTaskRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarTaskResponseDTO"];
+                };
+            };
+        };
+    };
+    delete_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    toggleComplete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarTaskCompletionDTO"];
+                };
+            };
+        };
+    };
+    acknowledge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    upcoming: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarTaskResponseDTO"][];
                 };
             };
         };

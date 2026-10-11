@@ -4951,6 +4951,217 @@
           }
         }
       }
+    },
+    "/calendar": {
+      "get": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "getOverview",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarOverviewDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar/tasks": {
+      "post": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarTaskRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTaskResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar/tasks/{id}": {
+      "put": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "update_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarTaskRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTaskResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "delete_4",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/calendar/tasks/{id}/complete": {
+      "put": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "toggleComplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarTaskCompletionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calendar/tasks/{id}/ack": {
+      "post": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "acknowledge",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/calendar/tasks/upcoming": {
+      "get": {
+        "tags": [
+          "calendar-controller"
+        ],
+        "operationId": "upcoming",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarTaskResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -7484,6 +7695,15 @@
         "properties": {
           "engagementEmail": {
             "type": "boolean"
+          },
+          "reminderEmail": {
+            "type": "boolean"
+          },
+          "reminderWeb": {
+            "type": "boolean"
+          },
+          "reminderDefaultTime": {
+            "type": "string"
           }
         }
       },
@@ -7492,11 +7712,17 @@
         "properties": {
           "engagementEmail": {
             "type": "boolean"
+          },
+          "reminderEmail": {
+            "type": "boolean"
+          },
+          "reminderWeb": {
+            "type": "boolean"
+          },
+          "reminderDefaultTime": {
+            "type": "string"
           }
-        },
-        "required": [
-          "engagementEmail"
-        ]
+        }
       },
       "UnsubscribeRequestDTO": {
         "type": "object",
@@ -10125,6 +10351,206 @@
           "minutesToday": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CalendarTaskRequestDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 2
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "time": {
+            "type": "string"
+          },
+          "advanceMinutes": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 10080,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "date",
+          "title"
+        ]
+      },
+      "CalendarTaskResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "time": {
+            "type": "string"
+          },
+          "advanceMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "xpAwarded": {
+            "type": "number",
+            "format": "double"
+          },
+          "notifyAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CalendarTaskCompletionDTO": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "$ref": "#/components/schemas/CalendarTaskResponseDTO"
+          },
+          "refreshUi": {
+            "$ref": "#/components/schemas/RefreshUiDTO"
+          }
+        }
+      },
+      "CalendarMoodDTO": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasNote": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CalendarDayDTO": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarTaskResponseDTO"
+            }
+          },
+          "routines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarRoutineDTO"
+            }
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarGoalDTO"
+            }
+          },
+          "mood": {
+            "$ref": "#/components/schemas/CalendarMoodDTO"
+          }
+        }
+      },
+      "CalendarOverviewDTO": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": "string",
+            "format": "date"
+          },
+          "today": {
+            "type": "string",
+            "format": "date"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarDayDTO"
+            }
+          }
+        }
+      },
+      "CalendarRoutineDTO": {
+        "type": "object",
+        "properties": {
+          "routineId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "SNAPSHOT",
+              "SCHEDULE"
+            ]
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "checkedItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CalendarGoalDTO": {
+        "type": "object",
+        "properties": {
+          "goalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "complete": {
+            "type": "boolean"
           }
         }
       }
