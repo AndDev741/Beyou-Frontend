@@ -22,8 +22,9 @@
 
 Beyou helps people build better days. You define **categories** of life, attach **habits**, **goals**,
 **tasks**, and daily **routines**, then check them off — earning XP, leveling up, and keeping streaks
-alive. A **diary** records how each day actually felt, alongside what got done, and a **study
-notebook** holds what you are learning, laid out as a roadmap of pages. The app is bilingual
+alive. A **diary** records how each day actually felt, alongside what got done, a **calendar**
+holds the one-off things that belong to a date and reminds you of them, and a **study notebook**
+holds what you are learning, laid out as a roadmap of pages. The app is bilingual
 (English / Portuguese), themeable, and ships an AI assistant that can act on your account.
 
 Use it at [app.beyouweb.com](https://app.beyouweb.com) or install the Android app from
@@ -54,6 +55,12 @@ repository.
 - **A mood a day, and a diary** — a five-point scale plus optional journalling. The dashboard
   widget marks the day with one tap, through a request that has no field for a note, so it cannot
   erase what you wrote that morning. Only the diary page's Save button replaces an entry.
+- **A calendar with reminders**: one-off tasks on a date, with an optional time and advance
+  notice, next to each day's routine (and how it went), goal deadlines and mood, in a month or a
+  week view. The web app shows a browser notification at the reminder time while a Beyou tab is
+  open, and the server mails a reminder nobody reacted to within the hour. Completing a task pays
+  XP. An opt-in dashboard widget lists today's tasks. The phone has the calendar and the widget,
+  with reminders by mail only for now.
 - **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
   page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
   answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
@@ -102,7 +109,7 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), the rule that "Focus 25" never replaces a running pomodoro, and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), the rule that "Focus 25" never replaces a running pomodoro, and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/icons` | The icon registry both pickers use, with bilingual search and recents. Each app supplies only the renderer. |
