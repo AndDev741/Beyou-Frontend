@@ -23,10 +23,13 @@ interface DateFieldProps {
   value: string;
   onChange: (ymd: string) => void;
   error?: string;
+  /** "YYYY-MM-DD" bounds the picker will not go past. */
+  min?: string;
+  max?: string;
   testID?: string;
 }
 
-export default function DateField({ label, required, optional, value, onChange, error, testID }: DateFieldProps) {
+export default function DateField({ label, required, optional, value, onChange, error, min, max, testID }: DateFieldProps) {
   const [show, setShow] = useState(false);
 
   const handle = (e: DateTimePickerEvent, date?: Date) => {
@@ -57,6 +60,8 @@ export default function DateField({ label, required, optional, value, onChange, 
           value={ymdToDate(value)}
           mode="date"
           display="default"
+          minimumDate={min ? ymdToDate(min) : undefined}
+          maximumDate={max ? ymdToDate(max) : undefined}
           onChange={handle}
           testID={testID ? `${testID}-picker` : undefined}
         />

@@ -26,6 +26,9 @@ jest.mock('@beyou/api/notebook', () => ({
   getPage: jest.fn(),
   getBoard: jest.fn(),
   getTopicTree: jest.fn(),
+  getStudyToday: jest.fn(),
+  getStudyCycles: jest.fn(),
+  getStudyCycle: jest.fn(),
 }));
 
 import type { ReactNode } from 'react';
@@ -41,7 +44,7 @@ import getRoutines from '@beyou/api/routine/getRoutines';
 import getTodayRoutine from '@beyou/api/routine/getTodayRoutine';
 import getProfile from '@beyou/api/user/getProfile';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
-import { getBoard, getNotebookHome, getPage, getTopicTree } from '@beyou/api/notebook';
+import { getBoard, getNotebookHome, getPage, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree } from '@beyou/api/notebook';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { useAgentRefresh } from '../src/ui/agent/useAgentRefresh';
@@ -57,6 +60,7 @@ const BACKEND_DOMAINS = [
   'focus',
   'notebook',
   'mood',
+  'studyCycles',
 ];
 
 const mockedMood = getMoodEntries as jest.Mock;
@@ -75,6 +79,7 @@ async function runRefresh(domains: string[]) {
 const FETCHERS = [
   getHabits, getCategories, getTasks, getGoals, getRoutines, getTodayRoutine, getProfile,
   listFocusMicroTasks, getNotebookHome, getPage, getBoard, getTopicTree,
+  getStudyToday, getStudyCycles, getStudyCycle,
 ] as unknown as jest.Mock[];
 
 beforeEach(() => {
@@ -103,6 +108,20 @@ test('re-reads the week the widget draws, ending today', async () => {
   expect(range.to >= range.from).toBe(true);
   const days = (Date.parse(range.to) - Date.parse(range.from)) / 86_400_000;
   expect(days).toBe(6);
+});
+
+test('a cycle or a session the assistant wrote reaches the study cycles slice', async () => {
+  const today = {
+    date: '2026-10-11', weekday: 'SUNDAY', plannedMinutes: 60, studiedMinutes: 25, blocksDone: 0, blocksTotal: 1,
+    cycles: [], restingCycles: [],
+  };
+  (getStudyToday as jest.Mock).mockResolvedValue({ success: today });
+  (getStudyCycles as jest.Mock).mockResolvedValue({ success: [] });
+
+  const store = await runRefresh(['studyCycles']);
+
+  expect(store.getState().studyCycles.today).toEqual(today);
+  expect(mockLogger.error).not.toHaveBeenCalled();
 });
 
 test.each(BACKEND_DOMAINS)('knows the "%s" domain', async (domain) => {
