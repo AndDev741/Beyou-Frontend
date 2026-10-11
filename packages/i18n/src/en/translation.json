@@ -1148,7 +1148,11 @@
     "reorderStudyBoard": "Roadmap reordered",
     "addStudyNotes": "Notes added to the page",
     "generateStudyCards": "Flashcards drafted",
-    "submitUserFeedback": "Feedback sent"
+    "submitUserFeedback": "Feedback sent",
+    "getStudyToday": "Today's study checked",
+    "listStudyCycles": "Study cycles checked",
+    "createStudyCycle": "Study cycle created",
+    "logStudySession": "Study session logged"
   },
   "ThemeMode": "Mode",
   "ThemeModeSystem": "System",

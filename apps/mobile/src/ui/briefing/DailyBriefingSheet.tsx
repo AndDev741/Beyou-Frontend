@@ -31,6 +31,7 @@ import useMoodRange from '../useMoodRange';
 import BriefingOpenItemRow from './BriefingOpenItemRow';
 import BriefingMoodCheckIn from './BriefingMoodCheckIn';
 import BriefingYesterdayMood from './BriefingYesterdayMood';
+import BriefingStudy from './BriefingStudy';
 import AiPrivacyNotice from '../agent/AiPrivacyNotice';
 
 interface Props {
@@ -431,6 +432,8 @@ function TodayPage({
           </View>
         </View>
       )}
+
+      <BriefingStudy briefing={briefing} />
 
       <BriefingMoodCheckIn date={briefing.date} entry={moodToday} loading={moodLoading} />
     </View>

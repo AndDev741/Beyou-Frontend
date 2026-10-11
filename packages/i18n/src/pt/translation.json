@@ -1148,7 +1148,11 @@
     "reorderStudyBoard": "Roteiro reordenado",
     "addStudyNotes": "Notas adicionadas à página",
     "generateStudyCards": "Cartões criados",
-    "submitUserFeedback": "Feedback enviado"
+    "submitUserFeedback": "Feedback enviado",
+    "getStudyToday": "Estudos de hoje consultados",
+    "listStudyCycles": "Ciclos de estudo consultados",
+    "createStudyCycle": "Ciclo de estudo criado",
+    "logStudySession": "Sessão de estudo lançada"
   },
   "ThemeMode": "Modo",
   "ThemeModeSystem": "Sistema",
