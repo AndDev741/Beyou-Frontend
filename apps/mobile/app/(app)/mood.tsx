@@ -25,6 +25,7 @@ import Card from '../../src/ui/Card';
 import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import { MOOD_FACES } from '../../src/ui/mood/moodScale';
+import MoodMonthGrid from '../../src/ui/mood/MoodMonthGrid';
 import useMoodRange from '../../src/ui/useMoodRange';
 import useTodayInZone from '../../src/ui/useTodayInZone';
 import { notify } from '../../src/notify';
@@ -215,6 +216,8 @@ export default function MoodScreen() {
     }, [allEntries, today]);
 
     const cells = useMemo(() => monthGrid(year, monthIndex), [year, monthIndex]);
+    // Formatted from local noon: a UTC midnight is the evening before west of Greenwich, which
+    // titled October "September" on a phone in Sao Paulo.
     const monthLabel = new Intl.DateTimeFormat(i18n.language, { month: 'long', year: 'numeric' });
     const longDate = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long' });
     const shortDate = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'short' });
@@ -391,7 +394,7 @@ export default function MoodScreen() {
                             <ChevronLeft size={18} color={theme.text2} />
                         </Pressable>
                         <Text className="text-sm font-semibold text-text">
-                            {monthLabel.format(new Date(Date.UTC(year, monthIndex, 1)))}
+                            {monthLabel.format(new Date(year, monthIndex, 1, 12))}
                         </Text>
                         <Pressable
                             onPress={() => shiftMonth(1)}
@@ -406,54 +409,14 @@ export default function MoodScreen() {
                         </Pressable>
                     </View>
 
-                    <View className="mt-3 flex-row flex-wrap" testID="mood-month">
-                        {cells.map((day, index) => {
-                            if (!day) {
-                                return (
-                                    <View
-                                        key={`pad-${index}`}
-                                        style={{ width: `${100 / 7}%`, aspectRatio: 1 }}
-                                    />
-                                );
-                            }
-                            const dayEntry = byDate[day];
-                            const face = dayEntry ? MOOD_FACES[dayEntry.mood] : null;
-                            const future = day > today;
-                            const label = `${shortDate.format(new Date(`${day}T12:00:00`))}: ${
-                                dayEntry ? t(moodLabelKey(dayEntry.mood)) : t('MoodNotRecorded')
-                            }`;
-                            return (
-                                <Pressable
-                                    key={day}
-                                    onPress={() => selectDay(day)}
-                                    disabled={future}
-                                    accessibilityRole="button"
-                                    accessibilityLabel={label}
-                                    accessibilityState={{ selected: day === selected, disabled: future }}
-                                    testID={`mood-day-${day}`}
-                                    style={{ width: `${100 / 7}%`, aspectRatio: 1 }}
-                                    className={`items-center justify-center gap-1 rounded-control border ${
-                                        day === selected ? 'border-accent bg-surface-2' : 'border-transparent'
-                                    }`}
-                                >
-                                    <Text
-                                        className={`text-[11px] ${future ? 'text-text-3' : 'text-text-2'}`}
-                                    >
-                                        {Number(day.slice(8))}
-                                    </Text>
-                                    {/* The day's own face rather than a coloured dot: the same
-                                        five icons the scale uses, so a month reads in the
-                                        language the rest of the screen already speaks. The
-                                        empty view keeps every cell the same height. */}
-                                    {face ? (
-                                        <face.Icon size={16} color={face.color(theme)} />
-                                    ) : (
-                                        <View className="h-4 w-4" />
-                                    )}
-                                </Pressable>
-                            );
-                        })}
-                    </View>
+                    <MoodMonthGrid
+                        cells={cells}
+                        byDate={byDate}
+                        today={today}
+                        selected={selected}
+                        onSelect={selectDay}
+                        formatDay={(day) => shortDate.format(new Date(`${day}T12:00:00`))}
+                    />
                 </Card>
 
                 <View className="mt-1 flex-row flex-wrap items-center gap-2">
