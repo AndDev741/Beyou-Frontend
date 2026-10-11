@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { useRouter, usePathname } from 'expo-router';
 import {
   BookHeart,
+  CalendarCheck,
   CalendarDays,
   Ellipsis,
   Folder,
@@ -46,6 +47,7 @@ const RIGHT: NavItemConfig[] = [
 const SHEET: NavItemConfig[] = [
   { key: 'Tasks', route: '/tasks', Icon: ListChecks, targetId: 'nav-tasks' },
   { key: 'Goals', route: '/goals', Icon: Trophy, targetId: 'nav-goals' },
+  { key: 'Calendar', route: '/calendar', Icon: CalendarCheck },
   { key: 'Categories', route: '/categories', Icon: Folder },
   { key: 'Notebook', route: '/notebook', Icon: NotebookPen },
   { key: 'Mood', route: '/mood', Icon: BookHeart },

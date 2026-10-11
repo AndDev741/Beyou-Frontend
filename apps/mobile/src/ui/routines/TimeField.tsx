@@ -25,10 +25,12 @@ interface TimeFieldProps {
   optional?: boolean;
   value: string;
   onChange: (hhmm: string) => void;
+  /** No picker while true, e.g. while the value is being saved. */
+  disabled?: boolean;
   testID?: string;
 }
 
-export default function TimeField({ label, required, optional, value, onChange, testID }: TimeFieldProps) {
+export default function TimeField({ label, required, optional, value, onChange, disabled = false, testID }: TimeFieldProps) {
   const [show, setShow] = useState(false);
 
   const handle = (e: DateTimePickerEvent, date?: Date) => {
@@ -45,9 +47,13 @@ export default function TimeField({ label, required, optional, value, onChange, 
       ) : null}
       <Pressable
         onPress={() => setShow(true)}
+        disabled={disabled}
         accessibilityRole="button"
+        accessibilityState={{ disabled }}
         testID={testID}
-        className="min-h-[42px] justify-center rounded-control border border-border bg-surface px-3"
+        className={`min-h-[42px] justify-center rounded-control border border-border bg-surface px-3 ${
+          disabled ? 'opacity-60' : ''
+        }`}
       >
         {/* The time in mono, like every time in the system. */}
         <Text className={`font-mono text-[13.5px] ${value ? 'text-text' : 'text-text-3'}`}>

@@ -52,7 +52,7 @@ import { onAgentPanelOpen } from '../src/ui/agent/agentPanelBus';
 /** The four labelled destinations in the bar, in bar order. */
 const BAR_KEYS = ['navdashboard', 'routines', 'habits', 'more'] as const;
 /** What moved into the sheet — same i18n keys as before the redesign. */
-const SHEET_KEYS = ['tasks', 'goals', 'categories', 'config', 'feedbackshortcutlabel'] as const;
+const SHEET_KEYS = ['tasks', 'goals', 'calendar', 'categories', 'config', 'feedbackshortcutlabel'] as const;
 
 const renderNav = async (pathname = '/', { isTutorialCompleted = true } = {}) => {
   mockPathname = pathname;
@@ -187,6 +187,16 @@ describe('BottomNav "More" sheet', () => {
 
     expect(mockPush).toHaveBeenCalledWith('/categories');
     expect(screen.queryByTestId('nav-categories')).toBeNull();
+  });
+
+  it('takes the calendar tile to the calendar screen', async () => {
+    await renderNav();
+    await openSheet();
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-calendar'));
+    });
+
+    expect(mockPush).toHaveBeenCalledWith('/calendar');
   });
 
   /**

@@ -15,6 +15,7 @@ import DailyProgressWidget from './DailyProgressWidget';
 import CategoryBalanceWidget from './CategoryBalanceWidget';
 import MoodWeekWidget from './MoodWeekWidget';
 import StudyTodayWidget from './StudyTodayWidget';
+import CalendarTodayWidget from './CalendarTodayWidget';
 import WidgetCarousel from './WidgetCarousel';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import EmptyState from '../EmptyState';
@@ -111,6 +112,8 @@ export default function DashboardWidgets() {
     moodWeek: () => <MoodWeekWidget />,
     // Self-fetching too: today's slice of the study cycles.
     studyToday: () => <StudyTodayWidget />,
+    // Self-fetching too; off unless the person adds it (calendar tasks stay on the calendar).
+    calendarToday: () => <CalendarTodayWidget />,
   };
 
   if (!widgetsIdsInUse || widgetsIdsInUse.length === 0) {
