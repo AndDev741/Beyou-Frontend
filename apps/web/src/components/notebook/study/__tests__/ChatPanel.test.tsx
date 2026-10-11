@@ -93,4 +93,48 @@ describe("ChatPanel", () => {
         // The buttons come back once the save settles; waiting for that keeps the update inside act.
         await waitFor(() => expect(screen.getByTestId("study-save-to-page")).not.toBeDisabled());
     });
+
+    /** Reported in prod: Shift+Enter sent a half-written question instead of starting a line. */
+    test("Enter sends, Shift+Enter starts a new line", async () => {
+        vi.mocked(askStudyQuestion).mockResolvedValue({ success: turn });
+        renderWithProviders(<ChatPanel pageId="p1" initialMessages={[]} initialOverview={null} />);
+        const box = screen.getByTestId("study-chat-input");
+        expect(box.tagName).toBe("TEXTAREA");
+
+        fireEvent.change(box, { target: { value: "First line" } });
+        fireEvent.keyDown(box, { key: "Enter", shiftKey: true });
+        expect(askStudyQuestion).not.toHaveBeenCalled();
+
+        fireEvent.change(box, { target: { value: "First line\nSecond line" } });
+        fireEvent.keyDown(box, { key: "Enter" });
+
+        await screen.findByTestId("study-answer");
+        expect(askStudyQuestion).toHaveBeenCalledWith("p1", "First line\nSecond line", expect.any(Function));
+    });
+
+    /** The Enter that ends an IME composition belongs to the composition. */
+    test("Enter while composing does not send", () => {
+        renderWithProviders(<ChatPanel pageId="p1" initialMessages={[]} initialOverview={null} />);
+        const box = screen.getByTestId("study-chat-input");
+
+        fireEvent.change(box, { target: { value: "Pergunta" } });
+        fireEvent.keyDown(box, { key: "Enter", isComposing: true });
+
+        expect(askStudyQuestion).not.toHaveBeenCalled();
+    });
+
+    /** The room puts the returned page in the store, so notes open beside the chat merge it in. */
+    test("hands the saved page to the room", async () => {
+        const saved = { id: "p1", contentRevision: 8 } as never;
+        vi.mocked(appendToPage).mockResolvedValue({ success: saved });
+        const onSavedToPage = vi.fn();
+        renderWithProviders(
+            <ChatPanel pageId="p1" initialMessages={[turn.question, turn.answer]} initialOverview={null} onSavedToPage={onSavedToPage} />
+        );
+
+        fireEvent.click(screen.getByTestId("study-save-to-page"));
+
+        await waitFor(() => expect(onSavedToPage).toHaveBeenCalledWith(saved));
+        await waitFor(() => expect(screen.getByTestId("study-save-to-page")).not.toBeDisabled());
+    });
 });

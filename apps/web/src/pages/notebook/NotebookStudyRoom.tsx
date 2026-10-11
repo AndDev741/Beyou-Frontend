@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Sparkles } from "lucide-react";
-import type { NotebookSource, StudyRoom, StudySetup as Setup } from "@beyou/types/notebook/notebook";
+import { ArrowLeft, Columns2, MessagesSquare, NotebookPen, Sparkles } from "lucide-react";
+import type { NotebookPage, NotebookSource, StudyRoom, StudySetup as Setup } from "@beyou/types/notebook/notebook";
+import { enterNotebookPage } from "@beyou/state";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { getStudyRoom } from "@beyou/api/notebook";
 import ErrorNotice from "../../components/ErrorNotice";
@@ -12,7 +14,15 @@ import ChatPanel from "../../components/notebook/study/ChatPanel";
 import StudioPanel from "../../components/notebook/study/StudioPanel";
 import StudySetup, { StudySetupBar } from "../../components/notebook/study/StudySetup";
 import { PanelRail, ResizeHandle } from "../../components/notebook/study/StudyColumns";
-import { RAIL_WIDTH, useStudyLayout } from "../../components/notebook/study/studyLayout";
+import StudyNotes from "../../components/notebook/study/StudyNotes";
+import { RAIL_WIDTH, STUDY_VIEWS, useStudyLayout, useStudyView, type StudyView } from "../../components/notebook/study/studyLayout";
+
+const VIEW_ICONS: Record<StudyView, typeof Columns2> = { room: MessagesSquare, split: Columns2, notes: NotebookPen };
+const VIEW_LABELS: Record<StudyView, string> = {
+    room: "NotebookStudyViewRoom",
+    split: "NotebookStudyViewSplit",
+    notes: "NotebookStudyViewNotes",
+};
 
 /**
  * The study room for one page: its sources on the left, a conversation grounded in them in the
@@ -24,6 +34,12 @@ import { RAIL_WIDTH, useStudyLayout } from "../../components/notebook/study/stud
  *
  * On desktop the side panels can be resized by dragging the bars beside the chat, or folded into
  * thin rails to give the chat the screen (useStudyLayout keeps the choice in this browser).
+ *
+ * The header switches what the room shows: the room, the page's notes beside the chat, or the
+ * notes alone (useStudyView, kept per browser too). Every panel stays mounted across a switch and
+ * is only hidden, because each holds what happened since the room opened (the conversation, the
+ * studio's outputs); remounting would bring back the room as it was loaded. The notes are the
+ * exception: they mount when shown and read the page fresh.
  *
  * It covers the app shell like the focus screen does (`fixed inset-0`), because a study session
  * is one thing at a time and the sidebar is a way out of it. Escape leaves for the page, unless a
@@ -40,6 +56,8 @@ export default function NotebookStudyRoom() {
     const [setup, setSetup] = useState<Setup | null>(null);
     const [editingSetup, setEditingSetup] = useState(false);
     const { layout, resize, toggle, reset } = useStudyLayout();
+    const { view, setView } = useStudyView();
+    const dispatch = useDispatch();
 
     const pagePath = `/notebook/${pageId ?? ""}`;
     const leave = useCallback(() => navigate(pagePath), [navigate, pagePath]);
@@ -69,11 +87,16 @@ export default function NotebookStudyRoom() {
             if (event.key !== "Escape") return;
             // A modal, or an inline layer such as an open citation, takes this press for itself.
             if (document.querySelector('[role="dialog"], [data-escape-layer]')) return;
+            // So does the notes editor: Escape closes its menus, and nobody writing means "leave".
+            if ((event.target as Element | null)?.closest?.(".bn-container")) return;
             leave();
         };
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [leave]);
+
+    // The page after "Save to page", into the store: open notes merge it in from there.
+    const onSavedToPage = useCallback((saved: NotebookPage) => dispatch(enterNotebookPage(saved)), [dispatch]);
 
     const onSourceAdded = useCallback((source: NotebookSource) => setSources((current) => [...current, source]), []);
 
@@ -90,7 +113,7 @@ export default function NotebookStudyRoom() {
             aria-label={t("NotebookStudyRoom")}
             data-testid="study-room"
         >
-            <div className="flex min-h-full flex-col">
+            <div className={`flex min-h-full flex-col ${view === "split" ? "lg:h-full" : ""}`}>
                 <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2">
                     <div className="flex min-w-0 items-center gap-2.5">
                         <Link
@@ -115,6 +138,24 @@ export default function NotebookStudyRoom() {
                             )}
                         </div>
                     </div>
+                    <div className="flex items-center gap-2">
+                    <div role="group" aria-label={t("NotebookStudyView")} data-testid="study-view-switch"
+                        className="flex gap-0.5 rounded-control bg-surface-2 p-[3px]">
+                        {STUDY_VIEWS.map((option) => {
+                            const Icon = VIEW_ICONS[option];
+                            const active = view === option;
+                            return (
+                                <button key={option} type="button" aria-pressed={active} onClick={() => setView(option)}
+                                    aria-label={t(VIEW_LABELS[option])} title={t(VIEW_LABELS[option])}
+                                    data-testid={`study-view-${option}`}
+                                    className={`inline-flex h-[30px] items-center gap-1.5 rounded-[8px] px-2.5 text-[13px] font-semibold ${
+                                        active ? "bg-surface text-text shadow-surface" : "text-text-2 hover:text-text"}`}>
+                                    <Icon size={14} aria-hidden="true" />
+                                    <span className="hidden sm:inline">{t(VIEW_LABELS[option])}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                     <Link
                         to={pagePath}
                         className="inline-flex h-9 items-center gap-2 rounded-control border border-border px-3 text-[13px] font-semibold text-text hover:bg-surface-2"
@@ -122,6 +163,7 @@ export default function NotebookStudyRoom() {
                         {t("Close")}
                         <kbd className="rounded-[5px] border border-border px-1.5 font-mono text-[11px] text-text-2">Esc</kbd>
                     </Link>
+                    </div>
                 </header>
 
                 {error && (
@@ -138,13 +180,23 @@ export default function NotebookStudyRoom() {
 
                 {room && pageId && setup && (
                     <div
-                        className="flex flex-1 flex-wrap items-stretch gap-4 p-4 lg:flex-nowrap lg:gap-0"
+                        className={`flex flex-1 flex-wrap items-stretch gap-4 p-4 lg:flex-nowrap ${view === "room" ? "lg:gap-0" : view === "split" ? "lg:min-h-0" : ""}`}
                         style={{
                             "--study-left": `${layout.leftCollapsed ? RAIL_WIDTH : layout.left}px`,
                             "--study-right": `${layout.rightCollapsed ? RAIL_WIDTH : layout.right}px`,
                         } as CSSProperties}
+                        data-view={view}
                     >
-                        <div className="flex min-w-0 flex-[1_1_280px] flex-col lg:w-[var(--study-left)] lg:flex-none" data-testid="study-col-left">
+                        {view !== "room" && (
+                            <div data-testid="study-col-notes"
+                                className={view === "split"
+                                    ? "flex min-w-0 flex-[999_1_460px] flex-col lg:min-h-0 lg:flex-[1.25_1_0%] lg:overflow-y-auto"
+                                    : "mx-auto flex w-full min-w-0 max-w-[920px] flex-1 flex-col"}>
+                                <StudyNotes pageId={pageId} />
+                            </div>
+                        )}
+                        <div className={`flex min-w-0 flex-[1_1_280px] flex-col lg:w-[var(--study-left)] lg:flex-none ${view === "room" ? "" : "hidden"}`}
+                            data-testid="study-col-left">
                             <div className={`flex min-w-0 flex-col ${layout.leftCollapsed ? "lg:hidden" : ""}`}>
                                 <SourcesPanel pageId={pageId} initialSources={sources} onChange={setSources} discovery={room.discovery}
                                     onCollapse={() => toggle("left")} />
@@ -154,9 +206,14 @@ export default function NotebookStudyRoom() {
                                     count={sources.length} onExpand={() => toggle("left")} />
                             )}
                         </div>
-                        <ResizeHandle side="left" width={layout.left} label={t("NotebookStudyResizeSources")}
-                            onResize={(from, delta) => resize("left", from, delta)} onReset={() => reset("left")} onToggle={() => toggle("left")} />
-                        <div className="flex min-w-0 flex-[999_1_460px] flex-col lg:flex-1">
+                        {view === "room" && (
+                            <ResizeHandle side="left" width={layout.left} label={t("NotebookStudyResizeSources")}
+                                onResize={(from, delta) => resize("left", from, delta)} onReset={() => reset("left")} onToggle={() => toggle("left")} />
+                        )}
+                        <div data-testid="study-col-chat"
+                            className={view === "notes" ? "hidden"
+                                : view === "split" ? "flex min-w-0 flex-[999_1_460px] flex-col lg:min-h-0 lg:flex-[1_1_0%] lg:overflow-y-auto"
+                                : "flex min-w-0 flex-[999_1_460px] flex-col lg:flex-1"}>
                             {editingSetup || (!setup.configuredAt && room.messages.length === 0) ? (
                                 <StudySetup
                                     pageId={pageId}
@@ -179,13 +236,17 @@ export default function NotebookStudyRoom() {
                                         initialMessages={room.messages}
                                         initialOverview={room.overview}
                                         onCardsMade={onCardsMade}
+                                        onSavedToPage={onSavedToPage}
                                     />
                                 </>
                             )}
                         </div>
-                        <ResizeHandle side="right" width={layout.right} label={t("NotebookStudyResizeStudio")}
-                            onResize={(from, delta) => resize("right", from, delta)} onReset={() => reset("right")} onToggle={() => toggle("right")} />
-                        <div className="flex min-w-0 flex-[1_1_300px] flex-col lg:w-[var(--study-right)] lg:flex-none" data-testid="study-col-right">
+                        {view === "room" && (
+                            <ResizeHandle side="right" width={layout.right} label={t("NotebookStudyResizeStudio")}
+                                onResize={(from, delta) => resize("right", from, delta)} onReset={() => reset("right")} onToggle={() => toggle("right")} />
+                        )}
+                        <div className={`flex min-w-0 flex-[1_1_300px] flex-col lg:w-[var(--study-right)] lg:flex-none ${view === "room" ? "" : "hidden"}`}
+                            data-testid="study-col-right">
                             <div className={`flex min-w-0 flex-col ${layout.rightCollapsed ? "lg:hidden" : ""}`}>
                                 <StudioPanel
                                     pageId={pageId}
