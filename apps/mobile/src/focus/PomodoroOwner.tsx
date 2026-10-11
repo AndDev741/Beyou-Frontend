@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { recordFocusCycle } from '@beyou/api/focus/focusApi';
 import {
   CYCLE_LABEL_KEY,
   DEFAULT_POMODORO_SETTINGS,
   pomodoroCycleCompleted,
+  refreshStudyCycles,
   timerStatus,
   toServerCycleKind,
 } from '@beyou/state';
@@ -30,6 +31,7 @@ import type { RootState, AppDispatch } from '../store';
  */
 export default function PomodoroOwner() {
   const dispatch = useDispatch<AppDispatch>();
+  const store = useStore<RootState>();
   const { t } = useTranslation();
   const timer = useSelector((s: RootState) => s.focus.timer);
   // Falls back for the same reason `usePomodoro` does: a persisted slice from before these
@@ -49,22 +51,31 @@ export default function PomodoroOwner() {
   // Reported from the timer's own fields BEFORE the reducer hands over — after the dispatch,
   // `kind` is already the break. Fire-and-forget. Never runs for a skipped or abandoned cycle:
   // `finished` is already set by then, or the timer is gone.
+  //
+  // A pomodoro filed against a notebook page is study time: the server credits it to the page's
+  // study cycle, so once it is recorded the cycles are read again (today's card, the widget, a
+  // cycle screen left open) instead of showing the block as it was before the 25 minutes.
   useEffect(() => {
     if (status === 'elapsed' && timer && !timer.finished) {
-      void recordFocusCycle(
-        {
-          itemGroupId: timer.groupId || null,
-          kind: toServerCycleKind(timer.kind),
-          startedAt: new Date(timer.startedAt).toISOString(),
-          endedAt: new Date(timer.endsAt).toISOString(),
-          minutes: timer.durationMinutes,
-          notebookPageId: timer.notebookPageId ?? null,
-        },
-        t,
-      );
+      const studied = timer.kind === 'pomodoro' && !!timer.notebookPageId;
+      const report = async () => {
+        const response = await recordFocusCycle(
+          {
+            itemGroupId: timer.groupId || null,
+            kind: toServerCycleKind(timer.kind),
+            startedAt: new Date(timer.startedAt).toISOString(),
+            endedAt: new Date(timer.endsAt).toISOString(),
+            minutes: timer.durationMinutes,
+            notebookPageId: timer.notebookPageId ?? null,
+          },
+          t,
+        );
+        if (studied && response?.success) await refreshStudyCycles(dispatch, store.getState().studyCycles, t);
+      };
+      void report();
       dispatch(pomodoroCycleCompleted());
     }
-  }, [status, timer, dispatch, t]);
+  }, [status, timer, dispatch, store, t]);
 
   // Armed on the exact `endsAt` the reducer holds, taken back the moment the cycle stops being a
   // running one (pause, stop, skip, hand-over). Keyed on endsAt so a resume re-arms at the new

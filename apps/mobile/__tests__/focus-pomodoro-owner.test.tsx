@@ -21,6 +21,13 @@ jest.mock('@beyou/api/focus/focusApi', () => ({
   recordFocusCycle: jest.fn(() => Promise.resolve({ success: {} })),
 }));
 
+// A pomodoro on a notebook page is study time: once recorded, the study cycles are read again.
+jest.mock('@beyou/api/notebook', () => ({
+  getStudyToday: jest.fn(() => Promise.resolve({ success: null })),
+  getStudyCycles: jest.fn(() => Promise.resolve({ success: [] })),
+  getStudyCycle: jest.fn(() => Promise.resolve({})),
+}));
+
 // A schedule call whose answer WE release, so the arm/cancel race can be driven by hand.
 let releaseSchedule: (() => void) | null = null;
 const mockScheduleNotification = jest.fn(
@@ -46,6 +53,7 @@ import { pomodoroAbandoned, pomodoroSettingsChanged, pomodoroStarted } from '@be
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { recordFocusCycle } from '@beyou/api/focus/focusApi';
+import { getStudyCycles, getStudyToday } from '@beyou/api/notebook';
 import PomodoroOwner from '../src/focus/PomodoroOwner';
 
 const DATE = '2026-08-28';
@@ -207,5 +215,36 @@ describe('PomodoroOwner (native)', () => {
     await act(async () => releaseSchedule?.());
     [request] = mockScheduleNotification.mock.calls[0] as [{ content: { body: string } }];
     expect(request.content.body).toBe('Break over. Back to it.');
+  });
+
+  it('reads the study cycles again once a pomodoro on a notebook page is recorded', async () => {
+    const store = await renderOwner();
+    await act(async () => {
+      store.dispatch(
+        pomodoroStarted({ groupId: '', kind: 'pomodoro', minutes: 25, now: Date.now(), date: DATE, notebookPageId: 'page-1' }),
+      );
+    });
+    await flush();
+    await act(async () => releaseSchedule?.());
+
+    await jump(25 * 60_000);
+    await flush();
+
+    expect(recordFocusCycle).toHaveBeenCalledWith(expect.objectContaining({ notebookPageId: 'page-1' }), expect.anything());
+    expect(getStudyToday).toHaveBeenCalledTimes(1);
+    expect(getStudyCycles).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the study cycles alone for a pomodoro on a routine item', async () => {
+    const store = await renderOwner();
+    await startCycle(store);
+    await flush();
+    await act(async () => releaseSchedule?.());
+
+    await jump(25 * 60_000);
+    await flush();
+
+    expect(recordFocusCycle).toHaveBeenCalledTimes(1);
+    expect(getStudyToday).not.toHaveBeenCalled();
   });
 });
