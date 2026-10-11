@@ -18,7 +18,7 @@ import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
 import { getMoodEntries } from "@beyou/api/mood/moodApi";
 import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
-import { selectedFocusGroupId, addDays, enterMoodEntries, refreshNotebook, todayInZone } from "@beyou/state";
+import { selectedFocusGroupId, addDays, enterMoodEntries, refreshNotebook, refreshStudyCycles, todayInZone } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
@@ -85,6 +85,12 @@ export function useAgentRefresh() {
                     // sidebar trees and the page on screen all may have moved.
                     const state = store.getState() as RootState;
                     await refreshNotebook(dispatch, state.notebook, currentPage, t);
+                },
+                studyCycles: async () => {
+                    // A cycle created or a session logged moves today's slice and the list, and
+                    // any cycle open in full may have a block that took the minutes.
+                    const state = store.getState() as RootState;
+                    await refreshStudyCycles(dispatch, state.studyCycles, t);
                 },
                 focus: async () => {
                     // Micro-tasks are stored per routine entry and there is no "fetch them all".

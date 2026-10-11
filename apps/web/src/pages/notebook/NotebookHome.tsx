@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { Flame, Layers, NotebookPen, Plus, Sparkles, Timer, Trash2, Trophy, Workflow } from "lucide-react";
+import { Flame, Layers, NotebookPen, Plus, Repeat, Sparkles, Timer, Trash2, Trophy, Workflow } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { enterNotebookHome, progressShare } from "@beyou/state";
 import { canStartNotebookFocus } from "@beyou/state/focus/notebookFocus";
@@ -19,13 +19,14 @@ import { AiWaitingLine } from "../../components/notebook/aiWaiting";
 import NotebookIcon from "../../components/notebook/NotebookIcon";
 import Modal from "../../components/modals/Modal";
 import { useNotebookFocus } from "../../components/notebook/useNotebookFocus";
+import StudyTodayCard from "../../components/notebook/cycles/StudyTodayCard";
 
 /** How often the home re-reads its drafts while one is still being written. */
 const DRAFTS_POLL_MS = 4000;
 
 /**
- * The notebook's front page: what to continue, what to review, the roadmap drafts waiting for a
- * decision, and every topic with its roadmap in miniature.
+ * The notebook's front page: today's study cycle slice, what to continue, what to review, the
+ * roadmap drafts waiting for a decision, and every topic with its roadmap in miniature.
  */
 export default function NotebookHome() {
     const { t } = useTranslation();
@@ -101,6 +102,10 @@ export default function NotebookHome() {
                 }) : undefined}
                 action={
                     <div className="flex flex-wrap gap-2">
+                        <Link to="/notebook/cycles" data-testid="notebook-cycles"
+                            className="inline-flex h-10 items-center gap-2 rounded-control border border-border bg-surface px-3.5 text-sm font-semibold text-text hover:bg-surface-2">
+                            <Repeat size={16} aria-hidden="true" />{t("StudyCyclesLink")}
+                        </Link>
                         <button type="button" onClick={() => openAi(null)} data-testid="notebook-create-ai"
                             className="inline-flex h-10 items-center gap-2 rounded-control bg-accent-soft px-4 text-sm font-semibold text-accent">
                             <Sparkles size={16} aria-hidden="true" />{t("NotebookCreateWithAi")}
@@ -113,6 +118,9 @@ export default function NotebookHome() {
                 }
             />
             <ErrorNotice error={error} />
+
+            {/* The study cycle's slice of the day leads the page: it is what to do now. */}
+            <StudyTodayCard topics={home?.topics ?? []} showInvite={(home?.topics.length ?? 0) > 0} />
 
             {home && (continuing || home.review.due > 0) && (
                 <section aria-label={t("NotebookPickUp")} className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] gap-4">

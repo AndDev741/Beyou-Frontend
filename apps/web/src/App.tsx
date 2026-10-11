@@ -34,6 +34,9 @@ const NotebookReview = lazy(() => import("./pages/notebook/NotebookReview"));
 const NotebookPageView = lazy(() => import("./pages/notebook/NotebookPageView"));
 const NotebookBoardFocus = lazy(() => import("./pages/notebook/NotebookBoardFocus"));
 const NotebookStudyRoom = lazy(() => import("./pages/notebook/NotebookStudyRoom"));
+const StudyCycles = lazy(() => import("./pages/notebook/StudyCycles"));
+const StudyCycleEditor = lazy(() => import("./pages/notebook/StudyCycleEditor"));
+const StudyCycleHistory = lazy(() => import("./pages/notebook/StudyCycleHistory"));
 const Feedback = lazy(() => import("./pages/feedback/Feedback"));
 // Admin console (KD7): both the gate and the page are lazy, so no ordinary
 // user ever downloads the triage interface or its admin API client.
@@ -86,6 +89,11 @@ function AppContent() {
             <Route path="/mood" element={<Mood />} />
             <Route path="/notebook" element={<NotebookHome />} />
             <Route path="/notebook/review" element={<NotebookReview />} />
+            {/* The study cycle. Static segments, so they win over /notebook/:pageId. */}
+            <Route path="/notebook/cycles" element={<StudyCycles />} />
+            <Route path="/notebook/cycles/new" element={<StudyCycleEditor key="new" />} />
+            <Route path="/notebook/cycles/:cycleId/edit" element={<StudyCycleEditor key="edit" />} />
+            <Route path="/notebook/cycles/:cycleId/history" element={<StudyCycleHistory />} />
             <Route path="/notebook/:pageId" element={<NotebookPageView />} />
             {/* These two cover the shell, like /focus: a board to pan, a room to study in. */}
             <Route path="/notebook/:pageId/board" element={<NotebookBoardFocus />} />

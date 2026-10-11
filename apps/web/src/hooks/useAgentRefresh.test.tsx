@@ -21,13 +21,16 @@ vi.mock("@beyou/api/notebook", () => ({
   getPage: vi.fn(),
   getBoard: vi.fn(),
   getTopicTree: vi.fn(),
+  getStudyToday: vi.fn(),
+  getStudyCycles: vi.fn(),
+  getStudyCycle: vi.fn(),
 }));
 
 import getHabits from "@beyou/api/habits/getHabits";
 import getRoutines from "@beyou/api/routine/getRoutines";
 import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
-import { getNotebookHome, getPage } from "@beyou/api/notebook";
+import { getNotebookHome, getPage, getStudyCycle, getStudyCycles, getStudyToday } from "@beyou/api/notebook";
 
 const dispatch = vi.fn();
 const typesOf = () => dispatch.mock.calls.map((c) => c[0]?.type);
@@ -80,6 +83,22 @@ describe("useAgentRefresh", () => {
 
     await waitFor(() => expect(getPage).toHaveBeenCalledWith(id, expect.anything()));
     await waitFor(() => expect(typesOf()).toContain("notebook/enterNotebookPage"));
+  });
+
+  test("studyCycles re-reads today's slice, the list and every cycle open in full", async () => {
+    storeState = { studyCycles: { today: null, list: [], byId: { c1: { id: "c1" } } } };
+    (getStudyToday as unknown as Mock).mockResolvedValue({ success: { date: "2026-10-14", cycles: [] } });
+    (getStudyCycles as unknown as Mock).mockResolvedValue({ success: [] });
+    (getStudyCycle as unknown as Mock).mockResolvedValue({ success: { id: "c1" } });
+
+    run(["studyCycles"]);
+
+    await waitFor(() =>
+      expect(typesOf()).toEqual(expect.arrayContaining([
+        "studyCycles/enterStudyToday", "studyCycles/enterStudyCycles", "studyCycles/enterStudyCycle",
+      ]))
+    );
+    expect(getStudyCycle).toHaveBeenCalledWith("c1", expect.any(Function));
   });
 
   test("maps a domain to its slice refetch", async () => {

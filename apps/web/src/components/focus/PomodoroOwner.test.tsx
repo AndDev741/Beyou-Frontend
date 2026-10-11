@@ -13,6 +13,11 @@ import { renderWithProviders } from "../../test/test-utils";
 vi.mock("@beyou/api/focus/focusApi", () => ({
     recordFocusCycle: vi.fn(),
 }));
+vi.mock("@beyou/api/notebook", () => ({
+    getStudyToday: vi.fn(),
+    getStudyCycles: vi.fn(),
+    getStudyCycle: vi.fn(),
+}));
 
 // The alert channels are mocked wholesale: jsdom has no AudioContext and no Notification, and what
 // this suite checks is WHEN the owner calls them, not what they do (see notifyCycleEnd.test.ts).
@@ -23,6 +28,8 @@ vi.mock("./notifyCycleEnd", () => ({
 }));
 
 import { recordFocusCycle } from "@beyou/api/focus/focusApi";
+import { getStudyCycles, getStudyToday } from "@beyou/api/notebook";
+import { enterStudyCycles } from "@beyou/state";
 import { notifyCycleEnd, playCycleEndSound } from "./notifyCycleEnd";
 import PomodoroOwner from "./PomodoroOwner";
 
@@ -117,6 +124,60 @@ describe("PomodoroOwner", () => {
         await jump(60_000);
 
         expect(recordFocusCycle).toHaveBeenCalledTimes(1);
+    });
+
+    describe("study cycles", () => {
+        const startOnPage = (store: ReturnType<typeof buildStore>) =>
+            store.dispatch(pomodoroStarted({ groupId: "", kind: "pomodoro", minutes: 25, now: Date.now(), date: DATE, notebookPageId: "page-1" }));
+
+        beforeEach(() => {
+            vi.mocked(getStudyToday).mockResolvedValue({ success: undefined });
+            vi.mocked(getStudyCycles).mockResolvedValue({ success: [] });
+        });
+
+        test("a pomodoro on a notebook page re-reads the cycles it was credited to", async () => {
+            const store = buildStore();
+            // Something already showed the cycles, so there is a screen to bring up to date.
+            store.dispatch(enterStudyCycles([]));
+            store.dispatch({ type: "studyCycles/enterStudyToday", payload: { date: DATE, cycles: [], restingCycles: [] } });
+            renderWithProviders(<PomodoroOwner />, { storeOverride: store });
+            act(() => {
+                startOnPage(store);
+            });
+
+            await jump(25 * 60_000);
+
+            expect(recordFocusCycle).toHaveBeenCalledWith(expect.objectContaining({ notebookPageId: "page-1" }), expect.anything());
+            expect(getStudyToday).toHaveBeenCalledTimes(1);
+            expect(getStudyCycles).toHaveBeenCalledTimes(1);
+        });
+
+        test("an account that never opened the cycles is not asked about them", async () => {
+            const store = buildStore();
+            renderWithProviders(<PomodoroOwner />, { storeOverride: store });
+            act(() => {
+                startOnPage(store);
+            });
+
+            await jump(25 * 60_000);
+
+            expect(recordFocusCycle).toHaveBeenCalledTimes(1);
+            expect(getStudyToday).not.toHaveBeenCalled();
+        });
+
+        test("a pomodoro off the notebook leaves the cycles alone", async () => {
+            const store = buildStore();
+            store.dispatch({ type: "studyCycles/enterStudyToday", payload: { date: DATE, cycles: [], restingCycles: [] } });
+            renderWithProviders(<PomodoroOwner />, { storeOverride: store });
+            act(() => {
+                startCycle(store);
+            });
+
+            await jump(25 * 60_000);
+
+            expect(recordFocusCycle).toHaveBeenCalledTimes(1);
+            expect(getStudyToday).not.toHaveBeenCalled();
+        });
     });
 
     describe("the alert when a cycle runs out", () => {
