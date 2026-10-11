@@ -11,6 +11,7 @@ vi.mock("./dashboard/BottomNav", () => ({ default: () => null }));
 vi.mock("./agent/AgentWidget", () => ({ default: () => <div data-testid="shell-agent" /> }));
 vi.mock("./focus/RunningTimerHub", () => ({ default: () => null }));
 vi.mock("./focus/PomodoroOwner", () => ({ default: () => null }));
+vi.mock("./calendar/CalendarReminderHub", () => ({ default: () => null }));
 vi.mock("../services/axiosConfig", () => ({
     default: { defaults: { headers: { common: { Authorization: "Bearer test" } } } }
 }));

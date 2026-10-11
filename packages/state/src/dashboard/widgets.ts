@@ -12,6 +12,8 @@ export const WIDGET_IDS = [
   'moodWeek',
   // Today's slice of the study cycles. Self-fetching like moodWeek; rail-sized.
   'studyToday',
+  // Off until the user picks it: calendar tasks stay on the Calendar page unless they ask.
+  'calendarToday',
 ] as const;
 
 export type WidgetId = (typeof WIDGET_IDS)[number];

@@ -29,6 +29,7 @@ const Routine = lazy(() => import("./pages/routines/routine"));
 const Configuration = lazy(() => import("./pages/configuration/Configuration"));
 const Focus = lazy(() => import("./pages/focus/Focus"));
 const Mood = lazy(() => import("./pages/mood/mood"));
+const Calendar = lazy(() => import("./pages/calendar/Calendar"));
 const NotebookHome = lazy(() => import("./pages/notebook/NotebookHome"));
 const NotebookReview = lazy(() => import("./pages/notebook/NotebookReview"));
 const NotebookPageView = lazy(() => import("./pages/notebook/NotebookPageView"));
@@ -87,6 +88,7 @@ function AppContent() {
                 inside it. See Focus.tsx. */}
             <Route path="/focus" element={<Focus />} />
             <Route path="/mood" element={<Mood />} />
+            <Route path="/calendar" element={<Calendar />} />
             <Route path="/notebook" element={<NotebookHome />} />
             <Route path="/notebook/review" element={<NotebookReview />} />
             {/* The study cycle. Static segments, so they win over /notebook/:pageId. */}

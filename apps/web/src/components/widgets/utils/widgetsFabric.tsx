@@ -8,6 +8,7 @@ import WorstArea, { worstAreaProps } from "../worstArea";
 import LevelProgress, { levelProgressProps } from "../levelProgress";
 import MoodWeek from "../moodWeek";
 import StudyToday from "../studyToday";
+import CalendarToday from "../calendarToday";
 import { WIDGET_IDS } from "@beyou/state";
 
 export const widgetsIds: string[] = [...WIDGET_IDS];
@@ -25,6 +26,8 @@ export type WidgetProps = {
     moodWeek: {};
     /** Self-fetching too: today's slice of the study cycles. */
     studyToday: {};
+    /** Self-fetching too, and never on by default (R18). */
+    calendarToday: {};
 }
 
 const widgetMap = {
@@ -38,6 +41,7 @@ const widgetMap = {
     levelProgress: LevelProgress,
     moodWeek: MoodWeek,
     studyToday: StudyToday,
+    calendarToday: CalendarToday,
 }
 
 export default function WidgetsFabric<K extends keyof WidgetProps>({
