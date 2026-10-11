@@ -96,5 +96,7 @@ describe("daysBetweenIso / isIsoDay", () => {
         expect(isIsoDay("2026-08-14")).toBe(true);
         expect(isIsoDay("2026-08-14T10:00:00")).toBe(false);
         expect(isIsoDay(undefined)).toBe(false);
+        expect(isIsoDay("2026-02-31")).toBe(false);
+        expect(isIsoDay("2028-02-29")).toBe(true);
     });
 });

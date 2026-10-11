@@ -7,6 +7,7 @@ import BottomNav from "./dashboard/BottomNav";
 import Sidebar from "./shell/Sidebar";
 import RunningTimerHub from "./focus/RunningTimerHub";
 import PomodoroOwner from "./focus/PomodoroOwner";
+import CalendarReminderHub from "./calendar/CalendarReminderHub";
 import { DesktopSpacerProvider } from "./shell/desktopSpacer";
 
 type Props = {
@@ -86,6 +87,9 @@ function ProtectedRoute({ authState }: Props) {
             <RunningTimerHub />
             {/* Finishes and reports a cycle wherever the person is. Renders nothing. */}
             <PomodoroOwner />
+            {/* Calendar reminders as browser notifications, on every authenticated page. Renders
+                nothing, and does nothing until the browser and the account both allow it. */}
+            <CalendarReminderHub />
         </div>
     );
 }

@@ -35,7 +35,7 @@ describe("Bottom nav", () => {
         renderAt("/dashboard");
         fireEvent.click(screen.getByText("More"));
         const sheet = screen.getByRole("dialog", { name: "More" });
-        for (const label of ["Tasks", "Goals", "Categories", "Mood", "Config", "FeedbackShortcutLabel"]) {
+        for (const label of ["Tasks", "Goals", "Calendar", "Categories", "Mood", "Config", "FeedbackShortcutLabel"]) {
             expect(within(sheet).getByRole("link", { name: label })).toBeInTheDocument();
         }
     });

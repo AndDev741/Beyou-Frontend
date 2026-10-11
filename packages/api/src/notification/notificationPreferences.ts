@@ -4,7 +4,7 @@ import { ApiErrorPayload, parseApiError } from "../apiError";
 import { getLogger } from "../logger";
 
 /**
- * The engagement-mail switch, as the settings screen sees it.
+ * The engagement-mail switch and the calendar reminder settings, as the settings screen sees them.
  *
  * Typed from the generated contract rather than a hand-written shape, so a backend field
  * rename fails the typecheck here instead of turning into an `undefined` toggle at
@@ -35,14 +35,30 @@ export async function getNotificationPreferences(): Promise<PreferencesResponse>
     }
 }
 
-/** Flips the switch for the signed-in account. */
+/**
+ * The fields a PUT may carry. Every one is optional and an absent field stays as it is, so the
+ * engagement switch and the reminder settings can each save without reading the other first.
+ */
+export type NotificationPreferencesPatch = {
+    engagementEmail?: boolean;
+    reminderEmail?: boolean;
+    reminderWeb?: boolean;
+    /** `HH:mm`, when a task with no time gets reminded. */
+    reminderDefaultTime?: string;
+};
+
+/**
+ * Saves preferences for the signed-in account. A bare boolean is the engagement-mail switch, the
+ * shape the settings screens used before the reminder fields existed.
+ */
 export async function updateNotificationPreferences(
-    engagementEmail: boolean,
+    patch: boolean | NotificationPreferencesPatch,
 ): Promise<PreferencesResponse> {
     try {
+        const body = typeof patch === "boolean" ? { engagementEmail: patch } : patch;
         const response = await getHttpClient().put<NotificationPreferences>(
             "/notification/preferences",
-            { engagementEmail },
+            body,
         );
         return { data: response.data };
     } catch (e) {

@@ -216,4 +216,29 @@ describe('MoodScreen', () => {
     await waitFor(() => expect(mockedPatch).toHaveBeenCalledWith(TODAY, 1, expect.anything()));
     expect(mockedPatch).not.toHaveBeenCalledWith(addDays(TODAY, 1), expect.anything(), expect.anything());
   });
+
+  /**
+   * West of Greenwich a UTC midnight is the evening before, so formatting the month's first day
+   * from `Date.UTC(year, month, 1)` titled the month with the previous one on a phone in Sao
+   * Paulo. Every formatter the screen builds is put in that zone, which is what such a phone does.
+   */
+  it('titles the month correctly in a zone behind UTC', async () => {
+    const RealDateTimeFormat = Intl.DateTimeFormat;
+    const inSaoPaulo = jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (
+      locale?: string | string[],
+      options?: Intl.DateTimeFormatOptions,
+    ) {
+      return new RealDateTimeFormat(locale, { timeZone: 'America/Sao_Paulo', ...options });
+    } as unknown as typeof Intl.DateTimeFormat);
+    try {
+      await renderScreen();
+
+      const expected = new RealDateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+        new Date(`${TODAY.slice(0, 7)}-15T12:00:00Z`),
+      );
+      expect(screen.getByText(expected)).toBeTruthy();
+    } finally {
+      inSaoPaulo.mockRestore();
+    }
+  });
 });

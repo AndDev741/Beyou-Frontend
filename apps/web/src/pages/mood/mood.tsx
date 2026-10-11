@@ -278,9 +278,11 @@ export default function Mood() {
     const longDate = new Intl.DateTimeFormat(i18n.language, { dateStyle: "full" });
     const shortDate = new Intl.DateTimeFormat(i18n.language, { day: "numeric", month: "short" });
     const weekdayNarrow = new Intl.DateTimeFormat(i18n.language, { weekday: "narrow" });
-    // A fixed week starting on Sunday, to label the grid's columns.
+    // A fixed week starting on Sunday, to label the grid's columns. Built at local noon, like
+    // every other date this page formats: a UTC midnight is the previous evening west of
+    // Greenwich, which labelled Sunday's column "S" for Saturday in Sao Paulo.
     const weekdayHeads = Array.from({ length: 7 }, (_, index) =>
-        weekdayNarrow.format(new Date(Date.UTC(2026, 1, 1 + index))),
+        weekdayNarrow.format(new Date(2026, 1, 1 + index, 12)),
     );
 
     const shiftMonth = (delta: number) => {
@@ -403,7 +405,7 @@ export default function Mood() {
                                 <ChevronLeft size={16} aria-hidden="true" />
                             </button>
                             <h2 id="mood-month-heading" className="text-sm font-semibold text-text">
-                                {monthLabel.format(new Date(Date.UTC(year, monthIndex, 1)))}
+                                {monthLabel.format(new Date(year, monthIndex, 1, 12))}
                             </h2>
                             <button
                                 type="button"
@@ -420,6 +422,7 @@ export default function Mood() {
                             {weekdayHeads.map((head, index) => (
                                 <span
                                     key={`head-${index}`}
+                                    data-testid={`mood-weekday-head-${index}`}
                                     aria-hidden="true"
                                     className="pb-1 text-center text-[10.5px] text-text-3"
                                 >

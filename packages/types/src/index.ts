@@ -6,6 +6,9 @@ export * from './agent/chatType';
 // Onboarding types
 export * from './onboarding/suggestions';
 
+// Calendar types
+export * from './calendar/calendar';
+
 // Daily Briefing types
 export * from './briefing/briefing';
 

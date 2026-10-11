@@ -8,6 +8,7 @@ import {
     Repeat,
     ListChecks,
     CalendarDays,
+    CalendarClock,
     Trophy,
     Settings,
     MessageSquare,
@@ -34,6 +35,8 @@ const MAIN: Item[] = [
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Routines", to: "/routines", Icon: CalendarDays, tutorial: "shortcut-routines" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
+    // After goals: the calendar is where the dated things land, goal deadlines among them.
+    { key: "Calendar", to: "/calendar", Icon: CalendarClock },
     // After goals: a topic is often studied FOR a goal, and the topic page links back to it.
     { key: "Notebook", to: "/notebook", Icon: NotebookPen },
     // Last in the list: the diary is about the day that happened, not the day being planned.

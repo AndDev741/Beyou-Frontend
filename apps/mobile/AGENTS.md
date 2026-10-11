@@ -161,7 +161,7 @@ char map).
 
 Settings live at `app/(app)/configuration.tsx` as `ConfigSection`s (`src/ui/config/`): Profile
 (rhf + shared `profileSchema`, photo via URL modal), Appearance (`ThemeSelector` + persist),
-Preferences (Language/`RoutineSettings`/`Constance`), and Dashboard (`WidgetsSection` picker). Every
+Preferences (Language, `Constance`, `RoutineSettings`, Briefing, Tutorial, the engagement-mail `NotificationSection`, the calendar's `ReminderSection` with the reminder-mail switch and default time, and the privacy policy), and Dashboard (`WidgetsSection` picker). Every
 control persists via `editUser` (`@beyou/api/user/editUser`) + a `perfilSlice` action + `notify`;
 `constanceConfiguration` is editUser-only (no slice field). Saved theme/language apply on boot via
 `src/theme/ThemeSync.tsx` / `src/i18n/LanguageSync.tsx` (in `_layout`, keyed on the saved value so a
@@ -169,8 +169,9 @@ live pick isn't overridden). NativeWind `mt-*` didn't reliably apply to the conf
 use an inline `style` margin there.
 
 Dashboard widgets (`src/ui/widgets/`): `WIDGET_IDS`/`BIG_WIDGETS` come from `@beyou/state`.
-`DashboardWidgets` renders `perfil.widgetsIdsInUse` (full-width stack; empty → CTA to config). The 7
-widgets mirror web; charts are hand-drawn with `react-native-svg` (`CategoryBalanceWidget` radar,
+`DashboardWidgets` renders `perfil.widgetsIdsInUse` (full-width stack; empty → CTA to config). Every id
+in `WIDGET_IDS` (ten, `calendarToday` the newest) has a mobile widget, enforced by the exhaustive
+`Record<WidgetId, …>` map; charts are hand-drawn with `react-native-svg` (`CategoryBalanceWidget` radar,
 `DailyProgressWidget` ring; the area widgets and `CategoryCard` draw the week of XP with the View-based `src/ui/XpSparkline.tsx`, fed by `src/ui/useXpHistory.ts`) — NOT chart.js. The picker (`config/WidgetsSection`) is
 add/remove + ↑↓ reorder (no drag-drop) → `editUser({widgetsId})`.
 

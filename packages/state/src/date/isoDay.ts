@@ -106,5 +106,9 @@ export function msUntilNextMidnight(timeZone?: string | null, now: Date = new Da
 
 /** True for a `yyyy-MM-dd` string. */
 export function isIsoDay(value: unknown): value is string {
-    return typeof value === "string" && DATE_ONLY.test(value);
+    if (typeof value !== "string" || !DATE_ONLY.test(value)) return false;
+    // The round trip turns away "2026-02-31", which `Date` would quietly roll into March. Days
+    // reach the clients in links (the reminder email carries one), so shape alone is not enough.
+    const anchor = new Date(`${value}T12:00:00Z`);
+    return !Number.isNaN(anchor.getTime()) && anchor.toISOString().slice(0, 10) === value;
 }

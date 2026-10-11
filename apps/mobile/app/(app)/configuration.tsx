@@ -14,6 +14,7 @@ import LanguageSection from '../../src/ui/config/LanguageSection';
 import RoutineSettingsSection from '../../src/ui/config/RoutineSettingsSection';
 import ConstanceSection from '../../src/ui/config/ConstanceSection';
 import NotificationSection from '../../src/ui/config/NotificationSection';
+import ReminderSection from '../../src/ui/config/ReminderSection';
 import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import TutorialSection from '../../src/ui/config/TutorialSection';
 import BriefingSection from '../../src/ui/config/BriefingSection';
@@ -122,6 +123,7 @@ export default function ConfigurationScreen() {
             <BriefingSection />
             <TutorialSection />
             <NotificationSection />
+            <ReminderSection />
             <PrivacyPolicySection />
           </View>
         </ConfigSection>

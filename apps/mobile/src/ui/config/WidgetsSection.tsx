@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowUpRight,
   Award,
+  CalendarCheck,
   CalendarDays,
   ChartPie,
   ChevronDown,
@@ -39,6 +40,7 @@ const WIDGET_META: Record<WidgetId, { labelKey: string; Icon: typeof Target }> =
   fastTips: { labelKey: 'Fast Tips', Icon: Lightbulb },
   moodWeek: { labelKey: 'MoodWeek', Icon: Smile },
   studyToday: { labelKey: 'StudyTodayWidget', Icon: Repeat },
+  calendarToday: { labelKey: 'CalendarTodayWidget', Icon: CalendarCheck },
 };
 
 const isKnownWidget = (id: string): id is WidgetId => (WIDGET_IDS as readonly string[]).includes(id);

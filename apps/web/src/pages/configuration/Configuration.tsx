@@ -4,6 +4,7 @@ import { Palette, Settings, LayoutGrid } from "lucide-react";
 import ConstanceConfiguration from "../../components/configuration/ConstanceConfiguration";
 import LanguageSelector from "../../components/configuration/LanguageSelector";
 import NotificationConfiguration from "../../components/configuration/NotificationConfiguration";
+import ReminderConfiguration from "../../components/configuration/ReminderConfiguration";
 import ProfileConfiguration from "../../components/configuration/ProfileConfiguration";
 import RoutineSettings from "../../components/configuration/RoutineSettings";
 import ThemeSelector from "../../components/configuration/ThemeSelector";
@@ -121,6 +122,7 @@ export default function Configuration() {
                             <BriefingConfiguration />
                             <TutorialConfiguration />
                             <NotificationConfiguration />
+                            <ReminderConfiguration />
                             <PrivacyPolicyLink />
                         </div>
                     </ConfigSection>

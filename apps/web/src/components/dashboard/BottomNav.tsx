@@ -6,6 +6,7 @@ import {
     NotebookPen,
     House,
     CalendarDays,
+    CalendarClock,
     Repeat,
     Sparkles,
     Ellipsis,
@@ -36,6 +37,8 @@ const RIGHT: NavItem[] = [
 const SHEET: NavItem[] = [
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
+    // Same place as in the desktop sidebar, right after goals.
+    { key: "Calendar", to: "/calendar", Icon: CalendarClock },
     { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
     { key: "Notebook", to: "/notebook", Icon: NotebookPen },
     // Last of the domain destinations, matching the desktop sidebar's order: the diary is about

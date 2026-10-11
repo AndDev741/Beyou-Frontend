@@ -59,6 +59,9 @@ export { default as getFeedbackAdminItem } from './feedback/getFeedbackAdminItem
 export { default as listFeedbackAdminItems } from './feedback/listFeedbackAdminItems';
 export { default as updateFeedbackStatus } from './feedback/updateFeedbackStatus';
 
+// Calendar: dated tasks, reminders and the per-day overview
+export * from './calendar/calendarApi';
+
 // Goals
 export { default as archiveGoal } from './goals/archiveGoal';
 export { default as createGoal } from './goals/createGoal';
@@ -75,7 +78,7 @@ export { default as deleteHabit } from './habits/deleteHabit';
 export { default as editHabit } from './habits/editHabit';
 export { default as getHabits } from './habits/getHabits';
 
-// Notifications — the engagement-mail switch and the unsubscribe link's endpoint
+// Notifications — the engagement-mail switch, reminder settings and the unsubscribe link's endpoint
 export * from './notification/notificationPreferences';
 export { default as unsubscribe } from './notification/unsubscribe';
 

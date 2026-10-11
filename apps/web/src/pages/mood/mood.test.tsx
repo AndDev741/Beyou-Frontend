@@ -344,3 +344,27 @@ test("tapping a different face changes the day rather than removing it", async (
     );
     expect(deleteMoodEntry).not.toHaveBeenCalled();
 });
+
+/**
+ * West of Greenwich a UTC midnight is the evening before, so formatting the month's first day
+ * as `Date.UTC(year, month, 1)` titled September 2026 "August 2026" in Sao Paulo and shifted
+ * every weekday column by one. The browser formats in the device zone; the test puts every
+ * formatter the page builds in Sao Paulo, which is what a device there does.
+ */
+test("the month title and weekday columns read right in a zone behind UTC", async () => {
+    const RealDateTimeFormat = Intl.DateTimeFormat;
+    const inSaoPaulo = vi
+        .spyOn(Intl, "DateTimeFormat")
+        .mockImplementation(function (locale?: string | string[], options?: Intl.DateTimeFormatOptions) {
+            return new RealDateTimeFormat(locale, { timeZone: "America/Sao_Paulo", ...options });
+        } as unknown as typeof Intl.DateTimeFormat);
+    try {
+        renderPage();
+
+        expect(await screen.findByRole("heading", { name: /September 2026/ })).toBeInTheDocument();
+        const heads = screen.getAllByTestId(/^mood-weekday-head-/).map((head) => head.textContent);
+        expect(heads).toEqual(["S", "M", "T", "W", "T", "F", "S"]);
+    } finally {
+        inSaoPaulo.mockRestore();
+    }
+});
