@@ -57,6 +57,13 @@ beforeEach(() => {
       if (url === '/notebook/drafts') return { data: drafts, headers: {} };
       if (url.startsWith('/notebook/drafts/')) return { data: stored, headers: {} };
       if (url === '/notebook/home') return { data: { continueStudying: null, review: { due: 0, streak: 0, byTopic: [] }, topics: [] }, headers: {} };
+      // The home's study card: no cycle yet.
+      if (url === '/notebook/cycles/today') {
+        return {
+          data: { date: '2026-10-11', weekday: 'SUNDAY', plannedMinutes: 0, studiedMinutes: 0, blocksDone: 0, blocksTotal: 0, cycles: [], restingCycles: [] },
+          headers: {},
+        };
+      }
       return { data: [], headers: {} };
     },
     post: async (url: string, body: any) => {

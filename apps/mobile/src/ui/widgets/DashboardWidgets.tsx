@@ -14,6 +14,7 @@ import FastTipsWidget from './FastTipsWidget';
 import DailyProgressWidget from './DailyProgressWidget';
 import CategoryBalanceWidget from './CategoryBalanceWidget';
 import MoodWeekWidget from './MoodWeekWidget';
+import StudyTodayWidget from './StudyTodayWidget';
 import WidgetCarousel from './WidgetCarousel';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import EmptyState from '../EmptyState';
@@ -108,6 +109,8 @@ export default function DashboardWidgets() {
     categoryBalance: () => <CategoryBalanceWidget categories={categories} />,
     // Self-fetching, like the heatmap: nothing to pass from here.
     moodWeek: () => <MoodWeekWidget />,
+    // Self-fetching too: today's slice of the study cycles.
+    studyToday: () => <StudyTodayWidget />,
   };
 
   if (!widgetsIdsInUse || widgetsIdsInUse.length === 0) {

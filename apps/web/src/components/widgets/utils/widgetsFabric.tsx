@@ -7,6 +7,7 @@ import FastTips from "../fastTips";
 import WorstArea, { worstAreaProps } from "../worstArea";
 import LevelProgress, { levelProgressProps } from "../levelProgress";
 import MoodWeek from "../moodWeek";
+import StudyToday from "../studyToday";
 import { WIDGET_IDS } from "@beyou/state";
 
 export const widgetsIds: string[] = [...WIDGET_IDS];
@@ -22,6 +23,8 @@ export type WidgetProps = {
     levelProgress: levelProgressProps;
     /** Self-fetching, like constanceHeatmap: the dashboard passes it nothing. */
     moodWeek: {};
+    /** Self-fetching too: today's slice of the study cycles. */
+    studyToday: {};
 }
 
 const widgetMap = {
@@ -34,6 +37,7 @@ const widgetMap = {
     worstArea: WorstArea,
     levelProgress: LevelProgress,
     moodWeek: MoodWeek,
+    studyToday: StudyToday,
 }
 
 export default function WidgetsFabric<K extends keyof WidgetProps>({

@@ -65,6 +65,13 @@ export type BriefingYesterday = {
     focusCycles: number;
     /** 1-5, or null if no mood was logged that day. */
     moodLevel: number | null;
+    /**
+     * Minutes studied on the study cycles' topics that day, pomodoros and logged sessions
+     * together. Optional: a server from before the study cycle leaves it out.
+     */
+    studyMinutes?: number;
+    /** Cycle blocks closed as understood that day. Optional for the same reason. */
+    conceptsUnderstood?: number;
 };
 
 export type BriefingGoal = {
@@ -134,6 +141,30 @@ export type BriefingToday = {
      * horizon: a goal months out is still where the user is heading.
      */
     goalsAhead: BriefingGoal[];
+    /**
+     * The study cycles with minutes today, in the order the notebook's "Today" card lists them.
+     * Optional: a server from before the study cycle leaves it out; read it through
+     * `briefingStudy` in @beyou/state.
+     */
+    study?: BriefingStudyAhead[];
+};
+
+/** One block of today's study, as the briefing lists it. */
+export type BriefingStudyEntry = {
+    /** Already worded by the server: "Understand X" for a concept, the topic's name otherwise. */
+    title: string;
+    mode: 'TIME' | 'GOAL';
+    /** This block's share of today's minutes. */
+    minutesToday: number;
+};
+
+/** A study cycle with minutes today: when it starts, how long, and its first blocks (at most three). */
+export type BriefingStudyAhead = {
+    cycleName: string;
+    /** "HH:mm", or null when the day has no start time. */
+    startTime: string | null;
+    minutes: number;
+    entries: BriefingStudyEntry[];
 };
 
 export type BriefingNarrative = {
@@ -177,11 +208,17 @@ export function briefingWorthShowing(briefing: DailyBriefing | null): boolean {
     // a briefing not worth showing, which is a far better answer than a blank home screen.
     const yesterday = briefing.yesterday;
     const today = briefing.today;
-    const aboutYesterday = Boolean(yesterday?.hadRoutine) || (yesterday?.moodLevel ?? null) !== null;
+    // Study counts like a routine does: minutes studied yesterday happened, a cycle with minutes
+    // today is scheduled. Both read absent-safe, since an older server sends neither.
+    const aboutYesterday =
+        Boolean(yesterday?.hadRoutine) ||
+        (yesterday?.moodLevel ?? null) !== null ||
+        (yesterday?.studyMinutes ?? 0) > 0;
     const aboutToday =
         (today?.scheduledItemCount ?? 0) > 0 ||
         (today?.goalsApproaching?.length ?? 0) > 0 ||
         (today?.goalsAhead?.length ?? 0) > 0 ||
-        (today?.recovery ?? null) !== null;
+        (today?.recovery ?? null) !== null ||
+        (today?.study?.length ?? 0) > 0;
     return aboutYesterday || aboutToday;
 }

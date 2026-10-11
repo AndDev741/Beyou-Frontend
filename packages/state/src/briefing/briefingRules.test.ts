@@ -12,6 +12,8 @@ import {
     groupOpenItemsByDay,
     recoveryIsUrgent,
     briefingGoals,
+    briefingStudy,
+    briefingStudyRecap,
     pollNarrative,
     withNarrative,
     NARRATIVE_GAVE_UP,
@@ -124,6 +126,29 @@ describe('shouldOpenBriefing', () => {
             },
         });
         expect(shouldOpenBriefing({ briefing: onlyAGoal })).toBe(true);
+    });
+
+    /** Mirrors the server's worthShowing: study counts like a routine, on either side of the night. */
+    it('opens on study alone, today or yesterday', () => {
+        const quiet = {
+            yesterday: {
+                date: '2026-09-12', hadRoutine: false, complete: false, doneCount: 0,
+                skippedCount: 0, xpEarned: 0, openItems: [], focusCycles: 0, moodLevel: null,
+            },
+            today: {
+                scheduledItemCount: 0, scheduledToday: false, currentStreak: 0,
+                bestStreak: 0, goalsApproaching: [], recovery: null, goalsAhead: [],
+            },
+        };
+        const studyToday = briefing({
+            ...quiet,
+            today: { ...quiet.today, study: [{ cycleName: 'Concurso', startTime: null, minutes: 60, entries: [] }] },
+        });
+        const studiedYesterday = briefing({ ...quiet, yesterday: { ...quiet.yesterday, studyMinutes: 45, conceptsUnderstood: 0 } });
+        const restAndNothing = briefing({ ...quiet, today: { ...quiet.today, study: [] } });
+        expect(shouldOpenBriefing({ briefing: studyToday })).toBe(true);
+        expect(shouldOpenBriefing({ briefing: studiedYesterday })).toBe(true);
+        expect(shouldOpenBriefing({ briefing: restAndNothing })).toBe(false);
     });
 
     /** Finishing a day is the good outcome and it earns the dialog. */
@@ -506,5 +531,33 @@ describe('goalPaceMessage', () => {
         expect(showsExpectedPace({ ...goal('g'), pace: 'ON_TRACK' })).toBe(true);
         expect(showsExpectedPace({ ...goal('g'), pace: 'OVERDUE' })).toBe(false);
         expect(showsExpectedPace({ ...goal('g'), pace: 'REACHED' })).toBe(false);
+    });
+});
+
+describe('briefingStudy', () => {
+    const cycle = (cycleName: string, minutes: number) => ({
+        cycleName, startTime: '19:00', minutes,
+        entries: [{ title: 'Understand Crase', mode: 'GOAL' as const, minutesToday: 70 }],
+    });
+
+    it('lists the cycles with minutes today', () => {
+        const b = briefing();
+        b.today = { ...b.today, study: [cycle('Concurso', 180), cycle('Faculdade', 0)] };
+        expect(briefingStudy(b).map((c) => c.cycleName)).toEqual(['Concurso']);
+    });
+
+    /** A server from before the study cycle sends none of these fields. */
+    it('reads an older server as no study at all', () => {
+        const b = briefing();
+        expect(briefingStudy(b)).toEqual([]);
+        expect(briefingStudyRecap(b)).toBeNull();
+    });
+
+    it("recaps yesterday's study only when there is something to say", () => {
+        const b = briefing();
+        b.yesterday = { ...b.yesterday, studyMinutes: 190, conceptsUnderstood: 1 };
+        expect(briefingStudyRecap(b)).toEqual({ minutes: 190, understood: 1 });
+        b.yesterday = { ...b.yesterday, studyMinutes: 0, conceptsUnderstood: 0 };
+        expect(briefingStudyRecap(b)).toBeNull();
     });
 });

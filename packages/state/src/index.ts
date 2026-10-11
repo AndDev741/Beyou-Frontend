@@ -151,6 +151,8 @@ export {
   allOpenItems,
   recoveryIsUrgent,
   briefingGoals,
+  briefingStudy,
+  briefingStudyRecap,
   NARRATIVE_POLL_DELAYS_MS,
   NARRATIVE_GAVE_UP,
   withNarrative,
@@ -325,6 +327,48 @@ export { applyPageDetails } from './notebook/notebookDetails';
 export type { PageDetails } from './notebook/notebookDetails';
 export { pathLevels, prerequisitesOf, progressShare } from './notebook/notebookPath';
 export { notebookPageIdFromPath, refreshNotebook } from './notebook/refreshNotebook';
+// study cycles
+export {
+    enterStudyToday,
+    enterStudyCycles,
+    enterStudyCycle,
+    removeStudyCycle,
+    clearStudyCycles,
+} from './notebook/studyCycleSlice';
+export type { StudyCyclesState } from './notebook/studyCycleSlice';
+export { refreshStudyCycles } from './notebook/refreshStudyCycles';
+export {
+    WEEKDAYS,
+    formatStudyMinutes,
+    weekMinutes,
+    orderedDays,
+    factsOfBlock,
+    isConceptBlock,
+    blockTitle,
+    blockFigure,
+    isClosed,
+    nextBlockOfTopic,
+    creditTarget,
+    lapShare,
+    factsOfEntry,
+    lapBlockStateLabelKey,
+    blockPage,
+    blockDetail,
+    detailText,
+    currentEntry,
+    conceptComesBackAt,
+    previewCredit,
+    blockRequestOf,
+    moveBlock,
+    topicWeight,
+    weekdayOf,
+    mondayOf,
+    weekFrom,
+    historyTotals,
+    conceptUndecided,
+    entryConceptUndecided,
+} from './notebook/studyCycleView';
+export type { BlockFacts, BlockFigure, CreditStep, DetailPart } from './notebook/studyCycleView';
 export { blockPlainText, mergeDocuments, resolveMerge, sameBlock, sameDocument } from './notebook/mergeDocuments';
 export { DocumentSync, parseDocument } from './notebook/documentSync';
 export { documentPatch, hasBlockWithoutId, initialBlocks, isEmptyDocument } from './notebook/editorDocument';

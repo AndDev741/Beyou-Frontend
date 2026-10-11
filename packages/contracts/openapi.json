@@ -7893,6 +7893,14 @@
           "moodLevel": {
             "type": "integer",
             "format": "int32"
+          },
+          "studyMinutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "conceptsUnderstood": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -8009,6 +8017,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BriefingGoalAheadDTO"
+            }
+          },
+          "study": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingStudyAheadDTO"
             }
           }
         }
@@ -10069,6 +10083,46 @@
             "format": "int32"
           },
           "words": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BriefingStudyAheadDTO": {
+        "type": "object",
+        "properties": {
+          "cycleName": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "minutes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingStudyEntryDTO"
+            }
+          }
+        }
+      },
+      "BriefingStudyEntryDTO": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "TIME",
+              "GOAL"
+            ]
+          },
+          "minutesToday": {
             "type": "integer",
             "format": "int32"
           }

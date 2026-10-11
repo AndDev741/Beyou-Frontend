@@ -15,6 +15,7 @@ import type {
     BriefingGoal,
     BriefingNarrative,
     BriefingOpenItem,
+    BriefingStudyAhead,
 } from '@beyou/types/briefing/briefing';
 import { briefingWorthShowing } from '@beyou/types/briefing/briefing';
 
@@ -221,6 +222,25 @@ export function recoveryIsUrgent(briefing: DailyBriefing): boolean {
  */
 export function briefingGoals(briefing: DailyBriefing): BriefingGoal[] {
     return briefing.today?.goalsAhead ?? briefing.today?.goalsApproaching ?? [];
+}
+
+/**
+ * Today's study, cycle by cycle. Empty from a server that predates the study cycle, the same
+ * deploy gap `briefingGoals` covers, so the section simply does not render.
+ */
+export function briefingStudy(briefing: DailyBriefing): BriefingStudyAhead[] {
+    return (briefing.today?.study ?? []).filter((cycle) => cycle.minutes > 0);
+}
+
+/**
+ * Yesterday's study in two numbers, or null when there is nothing to say: no minutes and no
+ * concept, or a server that does not send them. A zero is left out rather than shown, because
+ * "0 min studied yesterday" on a rest day reads as a reproach.
+ */
+export function briefingStudyRecap(briefing: DailyBriefing): { minutes: number; understood: number } | null {
+    const minutes = briefing.yesterday?.studyMinutes ?? 0;
+    const understood = briefing.yesterday?.conceptsUnderstood ?? 0;
+    return minutes > 0 || understood > 0 ? { minutes, understood } : null;
 }
 
 /**

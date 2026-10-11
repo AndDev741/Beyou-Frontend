@@ -381,6 +381,37 @@ test('a met target is pointed at completion, with no pace tick', async () => {
   expect(screen.queryByTestId('briefing-goal-expected')).toBeNull();
 });
 
+/** Today's study cycles, and yesterday's study beside the heading. */
+test('shows today\'s study cycles with yesterday\'s study', async () => {
+  const value = briefing();
+  value.today = {
+    ...value.today,
+    study: [
+      {
+        cycleName: 'Concurso TRT',
+        startTime: '19:00',
+        minutes: 180,
+        entries: [
+          { title: 'Understand Judicial review', mode: 'GOAL', minutesToday: 40 },
+          { title: 'Portuguese', mode: 'TIME', minutesToday: 70 },
+        ],
+      },
+    ],
+  };
+  value.yesterday = { ...value.yesterday, studyMinutes: 190, conceptsUnderstood: 1 };
+  await renderSheet(value);
+
+  expect(screen.getByText('Study · 3h today')).toBeTruthy();
+  expect(screen.getByText('Yesterday: 1 concept understood · 3h10')).toBeTruthy();
+  expect(screen.getByText('Concurso TRT, 3h: Understand Judicial review, 1h10 of Portuguese')).toBeTruthy();
+});
+
+/** An older server sends no study, and a day without study shows nothing about it. */
+test('no study section without study today', async () => {
+  await renderSheet(briefing());
+  expect(screen.queryByTestId('briefing-study')).toBeNull();
+});
+
 /** Yesterday's journal, read from the mood API and shown with the privacy line under it. */
 test('the recap page shows yesterday\'s mood and journal', async () => {
   mockGetMoodEntries.mockResolvedValue({

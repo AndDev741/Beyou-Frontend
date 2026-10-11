@@ -325,3 +325,29 @@ FOR REAL at each step via the shared helpers in `@beyou/state/onboarding/createF
 (step + created refs) persists to SecureStore key `beyou.aiOnboarding.progress` (`src/lib/aiOnboardingStore.ts`)
 so a restart resumes instead of duplicating; every exit (finish/tour/fallback) clears it and calls `onClosed`
 so the dashboard reloads. The agent FAB (`src/ui/agent/AgentWidget.tsx`) hides until `perfil.isTutorialCompleted`.
+
+## Study cycle (ciclo de estudos)
+
+Contract: `docs/superpowers/plans/2026-10-11-study-cycle.md` in the workspace root. The shapes, API
+calls, the `studyCycles` slice, `refreshStudyCycles` and the block wording (`blockTitle`,
+`blockFigure`, `creditTarget`, `formatStudyMinutes`…) are shared in `@beyou/*`; the phone only adds
+screens and a few local helpers in `src/notebook/cycles/cycleText.ts` (the line under a block, the
+page a block studies on, a topic's page picker, calendar arithmetic).
+
+- **Notebook home**: `StudyTodayCard` on top (today's slice per cycle, clock times, "Focus 25" and
+  "Open" on each cycle's first open block, the no-cycle invitation, the resting line) and the
+  `LogSessionSheet`. "Focus 25" goes through `useStudyFocus` → the notebook's own `useNotebookFocus`
+  on the concept, else the block's page, else the topic, with the topic's habit when the notebook
+  knows it.
+- **Full screens outside `(app)`**: `app/notebook-cycles.tsx` (tabs, lap, blocks, week, laps;
+  `BlockSheet` PATCHes one block, "Reorder" PUTs the whole order, archive behind `Alert.alert`),
+  `app/notebook-cycle-edit.tsx` (the calculator: `POST /cycles/plan` 300 ms after the last change, an
+  answer older than the latest request is dropped) and `app/notebook-cycle-history.tsx`.
+- **Refresh**: `PomodoroOwner` re-reads the cycles after recording a pomodoro filed against a page;
+  `useAgentRefresh` maps the assistant's `studyCycles` domain to `refreshStudyCycles`; every write on
+  these screens does the same.
+- **Widget**: `src/ui/widgets/StudyTodayWidget.tsx` (self-fetching). It joins `DashboardWidgets`'
+  map and `config/WidgetsSection` (label `StudyCycleMobileWidgetTitle`) under the id `studyToday`
+  once that id is in `@beyou/state` `WIDGET_IDS`.
+- **Tests** share sample data and a recording fake server in `__tests__/fixtures/studyCycle.ts`;
+  jest skips that folder (`testPathIgnorePatterns`).

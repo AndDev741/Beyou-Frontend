@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Layers, NotebookPen, Plus, Sparkles, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Layers, NotebookPen, Plus, Repeat, Sparkles, Trash2 } from 'lucide-react-native';
 import { deleteRoadmapDraft, getNotebookHome, listRoadmapDrafts } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { DRAFTS_POLL_MS, enterNotebookHome, progressShare } from '@beyou/state';
@@ -17,14 +17,18 @@ import IconTile from '../../../src/ui/IconTile';
 import BeyouIcon from '../../../src/ui/BeyouIcon';
 import ProgressBar from '../../../src/notebook/ProgressBar';
 import NewTopicSheet from '../../../src/notebook/NewTopicSheet';
+import StudyTodayCard, { firstOpenEntry } from '../../../src/notebook/cycles/StudyTodayCard';
+import LogSessionSheet from '../../../src/notebook/cycles/LogSessionSheet';
+import { useStudyToday } from '../../../src/notebook/cycles/useStudyToday';
+import HeaderIconButton from '../../../src/notebook/cycles/HeaderIconButton';
 import { AiWaitingLine } from '../../../src/notebook/AiWaiting';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
 
 /**
- * The study notebook's home on a phone: the page to pick up, the cards due, the roadmap drafts
- * waiting for a decision, and the topics.
+ * The study notebook's home on a phone: today's study blocks, the page to pick up, the cards
+ * due, the roadmap drafts waiting for a decision, and the topics.
  *
  * "New topic" starts a blank one or drafts a roadmap with AI. A draft the model is still writing
  * turns into "Ready to review" on its own while the home is on screen.
@@ -40,6 +44,8 @@ export default function NotebookHomeScreen() {
   const [drafts, setDrafts] = useState<RoadmapDraftSummary[]>([]);
   const [deleting, setDeleting] = useState<RoadmapDraftSummary | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
+  const [logging, setLogging] = useState(false);
+  const { today, load: loadToday } = useStudyToday();
 
   const loadDrafts = useCallback(async () => {
     const response = await listRoadmapDrafts(t);
@@ -62,7 +68,8 @@ export default function NotebookHomeScreen() {
     useCallback(() => {
       void load();
       void loadDrafts();
-    }, [load, loadDrafts]),
+      void loadToday();
+    }, [load, loadDrafts, loadToday]),
   );
 
   const anyDrafting = drafts.some((draft) => draft.status === 'DRAFTING');
@@ -115,6 +122,14 @@ export default function NotebookHomeScreen() {
             </Text>
           ) : null}
         </View>
+        <HeaderIconButton
+          label={t('StudyCycleMobileCycles')}
+          framed
+          onPress={() => router.push('/notebook-cycles')}
+          testID="notebook-cycles"
+        >
+          <Repeat size={18} color={theme.text} />
+        </HeaderIconButton>
         <Button
           text={t('NotebookNewTopic')}
           mode="primary"
@@ -131,6 +146,14 @@ export default function NotebookHomeScreen() {
         </View>
       ) : (
         <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 12 }}>
+          <StudyTodayCard
+            today={today}
+            onLogSession={() => setLogging(true)}
+            onOpenCycles={() => router.push('/notebook-cycles')}
+            onCreateCycle={() => router.push('/notebook-cycle-edit')}
+            onOpenPage={(pageId) => router.push(`/notebook/${pageId}`)}
+          />
+
           {home?.continueStudying ? (
             <Card className="gap-3" testID="notebook-continue">
               <Text className="text-[11.5px] font-semibold uppercase tracking-[1px] text-text-3">
@@ -231,6 +254,11 @@ export default function NotebookHomeScreen() {
         </ScrollView>
       )}
       <NewTopicSheet visible={creating} onClose={() => setCreating(false)} />
+      <LogSessionSheet
+        visible={logging}
+        onClose={() => setLogging(false)}
+        topicId={today?.cycles.map(firstOpenEntry).find(Boolean)?.topic.id ?? null}
+      />
       <DeleteModal
         visible={deleting !== null}
         deletePhrase={t('NotebookDraftDeleteTitle', { title: deleting?.title ?? '' })}

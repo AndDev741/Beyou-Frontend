@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
 import { useTranslation } from "react-i18next";
 import type { RootState } from "@beyou/state/rootReducer";
 import { recordFocusCycle } from "@beyou/api/focus/focusApi";
@@ -7,6 +7,7 @@ import {
     CYCLE_LABEL_KEY,
     DEFAULT_POMODORO_SETTINGS,
     pomodoroCycleCompleted,
+    refreshStudyCycles,
     timerStatus,
     toServerCycleKind,
     type FocusTimer,
@@ -41,6 +42,7 @@ const STALE_ALERT_MS = 5 * 60_000;
 
 export default function PomodoroOwner() {
     const dispatch = useDispatch();
+    const store = useStore();
     const { t } = useTranslation();
     const timer = useSelector((state: RootState) => state.focus.timer);
     // Falls back for the same reason `usePomodoro` does: a persisted slice from before these
@@ -95,20 +97,32 @@ export default function PomodoroOwner() {
     useEffect(() => {
         if (status === "elapsed" && timer && !timer.finished) {
             alertCycleEnd(timer);
+            const kind = toServerCycleKind(timer.kind);
+            const notebookPageId = timer.notebookPageId ?? null;
             void recordFocusCycle(
                 {
                     itemGroupId: timer.groupId || null,
-                    kind: toServerCycleKind(timer.kind),
+                    kind,
                     startedAt: new Date(timer.startedAt).toISOString(),
                     endedAt: new Date(timer.endsAt).toISOString(),
                     minutes: timer.durationMinutes,
-                    notebookPageId: timer.notebookPageId ?? null,
+                    notebookPageId,
                 },
                 t
-            );
+            ).then((response) => {
+                // A pomodoro on a notebook page is study time: the server credited it to the
+                // topic's block in its cycle when it recorded it, so the "Today" card and the
+                // widget re-read. Only once something has loaded the cycles; an account that never
+                // opened them has nothing on screen to bring up to date.
+                const cycles = (store.getState() as RootState).studyCycles;
+                const shown = cycles.today !== null || cycles.list.length > 0 || Object.keys(cycles.byId).length > 0;
+                if (response.success && kind === "POMODORO" && notebookPageId && shown) {
+                    void refreshStudyCycles(dispatch, cycles, t);
+                }
+            });
             dispatch(pomodoroCycleCompleted());
         }
-    }, [status, timer, dispatch, t, alertCycleEnd]);
+    }, [status, timer, dispatch, store, t, alertCycleEnd]);
 
     /**
      * A timeout to `endsAt`, for the ALERT only.
