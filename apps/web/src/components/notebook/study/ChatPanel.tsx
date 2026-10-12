@@ -2,7 +2,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { Copy, FileText, Layers, Send, Sparkles, Trash2 } from "lucide-react";
+import { Copy, FileText, Layers, Lightbulb, Send, Sparkles, Trash2 } from "lucide-react";
 import type { ChatMessage, Citation, NotebookPage, Overview } from "@beyou/types/notebook/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
@@ -237,6 +237,14 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                                 />
                                 {open?.messageId === message.id && (
                                     <CitationPanel citation={open.citation} onClose={() => setOpen(null)} />
+                                )}
+                                {/* No citation means nothing here came from the person's notes or sources: the
+                                    tutor answered from its own knowledge, and the reader should know that. */}
+                                {message.citations.length === 0 && (
+                                    <span data-testid="study-answer-general"
+                                        className="inline-flex items-center gap-1.5 self-start rounded-full bg-surface-2 px-2.5 py-1 text-[11.5px] font-semibold text-text-2">
+                                        <Lightbulb size={12} aria-hidden="true" />{t("NotebookStudyGeneralKnowledge")}
+                                    </span>
                                 )}
                                 <div className="flex flex-wrap gap-1.5">
                                     <button

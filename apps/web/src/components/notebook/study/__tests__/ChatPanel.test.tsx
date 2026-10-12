@@ -137,4 +137,17 @@ describe("ChatPanel", () => {
         await waitFor(() => expect(onSavedToPage).toHaveBeenCalledWith(saved));
         await waitFor(() => expect(screen.getByTestId("study-save-to-page")).not.toBeDisabled());
     });
+
+    /** No citation means the tutor answered from its own knowledge; the reader is told so. */
+    test("tags an answer with no citations, and only that one", () => {
+        const general = { ...turn.answer, id: "a2", content: "Here is a short level test.", citations: [] };
+        renderWithProviders(
+            <ChatPanel pageId="p1" initialMessages={[turn.question, turn.answer, general]} initialOverview={null} />
+        );
+
+        const answers = screen.getAllByTestId("study-answer");
+        expect(answers).toHaveLength(2);
+        expect(answers[0].querySelector('[data-testid="study-answer-general"]')).toBeNull();
+        expect(answers[1].querySelector('[data-testid="study-answer-general"]')).not.toBeNull();
+    });
 });

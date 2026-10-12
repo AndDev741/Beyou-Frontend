@@ -39,6 +39,8 @@ const source = (id: string, enabled = true) => ({
 });
 
 let configured = true;
+/** Whether the next chat answer cites the notes; false is an answer from the tutor's own knowledge. */
+let cited = true;
 let sources = [source('a')];
 let calls: { method: string; url: string; body?: any }[] = [];
 
@@ -62,6 +64,7 @@ const room = () => ({
 
 beforeEach(() => {
   configured = true;
+  cited = true;
   sources = [source('a')];
   calls = [];
   jest.clearAllMocks();
@@ -71,7 +74,8 @@ beforeEach(() => {
     post: async (url: string, body: any) => {
       calls.push({ method: 'POST', url, body });
       if (url.endsWith('/chat')) {
-        return { data: { question: message('q', 'USER', body.message), answer: message('a', 'ASSISTANT', 'A heap keeps the **smallest** key on top.') }, headers: {} };
+        const answer = message('a', 'ASSISTANT', 'A heap keeps the **smallest** key on top.');
+        return { data: { question: message('q', 'USER', body.message), answer: cited ? answer : { ...answer, citations: [] } }, headers: {} };
       }
       if (url.endsWith('/outputs')) {
         return {
@@ -154,6 +158,7 @@ describe('NotebookStudyScreen', () => {
     expect(calls[0]).toEqual({ method: 'POST', url: '/notebook/ai/pages/ds/chat', body: { message: 'What does a heap keep on top?' } });
     expect(screen.getByText('smallest')).toBeTruthy();
     expect(screen.getByTestId('study-citations')).toBeTruthy();
+    expect(screen.queryByTestId('study-answer-general')).toBeNull();
 
     await press('study-save-to-page');
     expect(calls[1]).toEqual({ method: 'POST', url: '/notebook/pages/ds/append', body: { markdown: 'A heap keeps the **smallest** key on top.' } });
@@ -161,6 +166,18 @@ describe('NotebookStudyScreen', () => {
     await press('study-make-cards');
     expect(calls[2]).toEqual({ method: 'POST', url: '/notebook/ai/pages/ds/cards', body: { text: 'A heap keeps the **smallest** key on top.', count: 3 } });
     expect(notify.success).toHaveBeenCalledWith('3 cards added to this page');
+  });
+
+  /** Nothing cited: the tutor answered from what it knows, and the answer says so. */
+  it('tags an answer with no citations as the AI\'s own knowledge', async () => {
+    cited = false;
+    await renderRoom();
+
+    await type('study-input', 'Give me a level test');
+    await press('study-send');
+
+    expect(screen.getByTestId('study-answer-general')).toBeTruthy();
+    expect(screen.queryByTestId('study-citations')).toBeNull();
   });
 
   it('adds a link and some text as sources, and switches one off', async () => {
