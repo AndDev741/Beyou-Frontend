@@ -8,7 +8,8 @@ import { call, http, Result } from './result';
 
 /**
  * The study room and every AI call. The AI routes answer `AI_UNAVAILABLE` when the model chain
- * is exhausted and `NOTEBOOK_NOTHING_TO_STUDY` when a page has no notes and no sources.
+ * is exhausted and `NOTEBOOK_NOTHING_TO_STUDY` when a page has no notes and no sources, except
+ * the chat, which answers from the model's own knowledge then.
  */
 
 export const getStudyRoom = (pageId: string, t: TFunction): Promise<Result<StudyRoom>> =>
