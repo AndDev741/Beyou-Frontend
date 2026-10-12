@@ -6,9 +6,9 @@ import { Archive, ChevronDown, ChevronLeft, ChevronUp, History, Pencil, Plus, Re
 import { archiveStudyCycle, getStudyCycle, getStudyCycles, replaceStudyBlocks } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import {
-    blockDetail, blockFigure, blockTitle, conceptUndecided, currentEntry, detailText, enterStudyCycle, enterStudyCycles, factsOfBlock,
+    blockDetail, blockFigure, blockTitle, blockTitleRoot, conceptUndecided, currentEntry, detailText, enterStudyCycle, enterStudyCycles, factsOfBlock,
     formatStudyMinutes, lapBlockStateLabelKey, lapShare, moveBlock, nextBlockOfTopic, orderedDays, removeStudyCycle,
-    weekMinutes,
+    subjectLabel, weekMinutes,
 } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import type { LapSummary, StudyBlock, StudyCycle, TodayEntry, Weekday } from "@beyou/types/notebook/studyCycle";
@@ -18,7 +18,7 @@ import ErrorNotice from "../../components/ErrorNotice";
 import Modal from "../../components/modals/Modal";
 import BlockDialog from "../../components/notebook/cycles/BlockDialog";
 import LogSessionDialog from "../../components/notebook/cycles/LogSessionDialog";
-import { BlockFigureView, BlockMarker, ModeChip } from "../../components/notebook/cycles/BlockParts";
+import { BlockFigureView, BlockMarker, ModeChip, RootPrefix } from "../../components/notebook/cycles/BlockParts";
 import { useRefreshStudyCycles, useStudyToday } from "../../components/notebook/cycles/useStudyToday";
 import { sentenceCase, weekdayNames } from "../../components/notebook/cycles/cycleFormat";
 
@@ -283,17 +283,18 @@ function BlockRow({ cycle, block, today, first, last, moving, onOpen, onMove }: 
     const badge = todayBadge(block, entry, isNow);
     const detail = detailText(blockDetail({ ...block, target: block.progress.target, targetPreview: block.progress.targetPreview, undecided }), t);
     const title = blockTitle(facts, t);
+    const root = blockTitleRoot(facts);
 
     return (
         <div data-testid="cycle-block" data-state={block.progress.state}
             className={`flex items-center gap-2 rounded-[12px] border pr-2 ${isNow ? "border-accent/40 bg-accent/5" : "border-border bg-surface"} ${closed ? "opacity-75" : ""}`}>
             <button type="button" onClick={onOpen} data-testid="cycle-block-open"
-                aria-label={t("StudyCycleBlockOpenLabel", { position: block.position, title, state: t(lapBlockStateLabelKey(block.progress.state)) })}
+                aria-label={t("StudyCycleBlockOpenLabel", { position: block.position, title: subjectLabel({ title, rootTitle: root }), state: t(lapBlockStateLabelKey(block.progress.state)) })}
                 className="flex min-w-0 flex-1 flex-wrap items-center gap-3.5 rounded-[12px] px-3.5 py-3 text-left hover:bg-surface-2/60">
                 <BlockMarker position={block.position} state={block.progress.state} current={isNow} />
                 <span className="flex min-w-[180px] flex-[1_1_240px] flex-col gap-[3px]">
                     <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-[15px] font-semibold text-text">{title}</span>
+                        <span className="text-[15px] font-semibold text-text"><RootPrefix root={root} className="text-[13px]" />{title}</span>
                         <ModeChip mode={block.mode} />
                         {badge && (
                             <span className={`inline-flex h-5 items-center rounded-full px-2 text-[11px] font-semibold ${

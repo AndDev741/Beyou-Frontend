@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Repeat, Timer } from "lucide-react";
-import { blockPage, blockTitle, currentEntry, factsOfEntry, formatStudyMinutes } from "@beyou/state";
+import { blockPage, blockTitle, blockTitleRoot, currentEntry, factsOfEntry, formatStudyMinutes } from "@beyou/state";
 import { canStartNotebookFocus } from "@beyou/state/focus/notebookFocus";
 import type { TodayEntry } from "@beyou/types/notebook/studyCycle";
 import BaseDiv from "./baseDiv";
 import { useStudyToday } from "../notebook/cycles/useStudyToday";
+import { RootPrefix } from "../notebook/cycles/BlockParts";
 import { useNotebookFocus } from "../notebook/useNotebookFocus";
 
 /** Ring geometry: a 64px ring with a 7px stroke. */
@@ -83,7 +84,9 @@ export default function StudyToday() {
                             <div className="flex flex-col gap-2.5 rounded-control border border-accent/30 bg-accent/5 p-3">
                                 <div className="flex items-baseline justify-between gap-2">
                                     <span className="text-sm font-semibold text-text">
-                                        {[now.start, blockTitle(factsOfEntry(now), t)].filter(Boolean).join(" · ")}
+                                        {now.start && `${now.start} · `}
+                                        <RootPrefix root={blockTitleRoot(factsOfEntry(now))} className="text-xs" />
+                                        {blockTitle(factsOfEntry(now), t)}
                                     </span>
                                     <span className="shrink-0 font-mono text-[11px] font-semibold text-accent">{nowFigure(now)}</span>
                                 </div>
@@ -103,6 +106,7 @@ export default function StudyToday() {
                                     <li key={`${entry.blockId}-${entry.nextLap}`} className="flex items-center justify-between gap-2 border-b border-border py-1.5 text-[13px] last:border-b-0">
                                         <span className="min-w-0 truncate text-text">
                                             {entry.start && <span className="mr-1.5 font-mono text-[11px] text-text-2">{entry.start}</span>}
+                                            <RootPrefix root={blockTitleRoot(factsOfEntry(entry))} className="text-[11px]" />
                                             {blockTitle(factsOfEntry(entry), t)}
                                         </span>
                                         <span className="shrink-0 font-mono text-[11px] font-semibold text-text-2">{formatStudyMinutes(entry.minutesToday)}</span>

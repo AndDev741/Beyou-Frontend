@@ -4,10 +4,13 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { NotebookHome, TopicSummary } from "@beyou/types/notebook/notebook";
 import type { PlanResponse } from "@beyou/types/notebook/studyCycle";
 import { renderWithProviders } from "../../../test/test-utils";
-import { cycle, lap, makeStore, today, topic } from "../../../components/notebook/cycles/__tests__/fixtures";
+import {
+    cycle, lap, makeStore, notebookHome, softwareEngineer, today, topic, tree, treesById,
+} from "../../../components/notebook/cycles/__tests__/fixtures";
 
 vi.mock("@beyou/api/notebook", () => ({
     getNotebookHome: vi.fn(),
+    getTopicTree: vi.fn(),
     getStudyCycles: vi.fn(),
     getStudyCycle: vi.fn(),
     getStudyToday: vi.fn(),
@@ -17,7 +20,7 @@ vi.mock("@beyou/api/notebook", () => ({
 }));
 
 import {
-    createStudyCycle, getNotebookHome, getStudyCycle, getStudyCycles, getStudyToday, planStudyCycle, updateStudyCycle,
+    createStudyCycle, getNotebookHome, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree, planStudyCycle, updateStudyCycle,
 } from "@beyou/api/notebook";
 import StudyCycleEditor from "../StudyCycleEditor";
 
@@ -64,6 +67,9 @@ function renderEditor(route: string) {
 beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getNotebookHome).mockResolvedValue({ success: home });
+    vi.mocked(getTopicTree).mockImplementation(treesById(
+        tree("const", "Dir. Constitucional"), tree("port", "Português"), tree("info", "Informática"),
+    ));
     vi.mocked(getStudyCycles).mockResolvedValue({ success: [{ id: "fac", name: "Faculdade", position: 0, lap: lap(), today: { minutes: 60, startTime: null } }] });
     vi.mocked(getStudyCycle).mockResolvedValue({ success: faculdade });
     vi.mocked(getStudyToday).mockResolvedValue({ success: today() });
@@ -142,6 +148,53 @@ describe("StudyCycleEditor", () => {
 
         expect(await screen.findByText(/STUDY_CYCLE_TOPIC_TAKEN/)).toBeInTheDocument();
         expect(screen.queryByTestId("cycles-page")).not.toBeInTheDocument();
+    });
+
+    test("offers the pages inside each topic and closes whatever overlaps a subject", async () => {
+        vi.mocked(getNotebookHome).mockResolvedValue({
+            success: notebookHome([{ id: "se", title: "Software Engineer" }, { id: "es", title: "Espanhol C1" }]),
+        });
+        vi.mocked(getTopicTree).mockImplementation(treesById(softwareEngineer, tree("es", "Espanhol C1")));
+        // Another cycle holds Testes, a page inside Implementação 2.0.
+        vi.mocked(getStudyCycle).mockResolvedValue({
+            success: cycle({
+                id: "fac", name: "Faculdade",
+                topics: [{ topicId: "testes", importance: 3, mastery: 3, minutesOverride: null, topic: topic("testes", "Testes", "Software Engineer") }],
+            }),
+        });
+        vi.mocked(planStudyCycle).mockResolvedValue({ success: plan([{ topicId: "fund", plannedMinutes: 90 }]) });
+        vi.mocked(createStudyCycle).mockResolvedValue({ success: cycle({ id: "new1" }) });
+        renderEditor("/notebook/cycles/new");
+
+        const select = () => screen.getByTestId("cycle-add-topic");
+        const option = (id: string) => select().querySelector<HTMLOptionElement>(`option[value="${id}"]`)!;
+        // Depth first in sidebar order, each root followed by its pages.
+        await waitFor(() => expect(option("testes")).toBeDisabled());
+        expect([...select().querySelectorAll("option")].map((o) => o.value)).toEqual(["", "se", "fund", "redes", "impl", "testes", "es"]);
+        // A root keeps its plain title; a page is indented under it and named with its root.
+        expect(option("es").label).toBe("Espanhol C1");
+        expect(option("fund").textContent).toBe("\u00a0\u00a0\u00a0Fundamentos da Computação");
+        expect(screen.getByRole("option", { name: "Software Engineer › Fundamentos da Computação" })).toBe(option("fund"));
+        // The held page, the page above it and the root above both are closed, with the reason.
+        expect(option("testes")).toHaveTextContent("StudyCycleTopicTakenOption");
+        expect(option("impl")).toHaveTextContent("StudyCycleSubjectNearTakenOption");
+        expect(option("se")).toBeDisabled();
+        expect(option("fund")).not.toBeDisabled();
+
+        fireEvent.change(screen.getByTestId("cycle-name"), { target: { value: "Carreira" } });
+        fireEvent.change(select(), { target: { value: "fund" } });
+
+        const row = await screen.findByTestId("cycle-topic-row");
+        expect(row).toHaveTextContent("Software Engineer › Fundamentos da Computação");
+        expect(option("fund")).toBeDisabled();
+        expect(option("fund")).toHaveTextContent("StudyCycleSubjectPickedOption");
+        expect(option("redes")).toHaveTextContent("StudyCycleSubjectOverlapOption");
+        expect(option("es")).not.toBeDisabled();
+
+        await screen.findAllByTestId("cycle-plan-block");
+        fireEvent.click(screen.getByTestId("cycle-save"));
+        await screen.findByTestId("cycles-page");
+        expect(vi.mocked(createStudyCycle).mock.calls[0][0].topics.map((topic) => topic.topicId)).toEqual(["fund"]);
     });
 
     test("edits a saved cycle from what it holds, an override sent as typed and clamped", async () => {

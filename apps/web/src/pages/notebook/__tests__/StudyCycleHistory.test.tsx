@@ -101,4 +101,19 @@ describe("StudyCycleHistory", () => {
         );
         expect(screen.getByTestId("history-next")).not.toBeDisabled();
     });
+
+    test("names a nested subject with its root in the legend and on its sessions", async () => {
+        const implementacao = topic("impl", "Implementação 2.0", "Software Engineer");
+        const week = history();
+        week.topics = [implementacao, portugues];
+        week.days[0].entries = [{ kind: "FOCUS", at: `${monday}T09:02:00Z`, topic: implementacao, page: null, minutes: 50 }];
+        vi.mocked(getStudyHistory).mockResolvedValue({ success: week });
+        renderHistory();
+
+        const legend = await screen.findByTestId("history-legend");
+        expect(legend).toHaveTextContent("Software Engineer › Implementação 2.0");
+        expect(within(legend).getAllByTestId("subject-root")).toHaveLength(1);
+        fireEvent.click(screen.getAllByTestId("history-day")[0]);
+        expect(await screen.findByTestId("history-session")).toHaveTextContent("Software Engineer › Implementação 2.0");
+    });
 });

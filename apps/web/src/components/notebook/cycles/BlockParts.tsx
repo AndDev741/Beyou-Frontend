@@ -78,6 +78,16 @@ export function BlockMarker({ position, state, current }: { position: number; st
     );
 }
 
+/**
+ * The root topic, small and muted, in front of a subject that is a page inside a topic:
+ * "Software Engineer ›" before "Implementação 2.0". Nothing for a root subject, or when an older
+ * server sends no root.
+ */
+export function RootPrefix({ root, className = "" }: { root: string | null | undefined; className?: string }) {
+    if (!root) return null;
+    return <span className={`font-normal text-text-2 ${className}`} data-testid="subject-root">{root} › </span>;
+}
+
 /** "Goal" or "Time", the block's kind at a glance. */
 export function ModeChip({ mode }: { mode: BlockMode }) {
     const { t } = useTranslation();

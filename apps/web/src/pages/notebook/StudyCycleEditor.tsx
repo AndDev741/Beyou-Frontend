@@ -4,10 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, Layers, Minus, Plus, Target, X } from "lucide-react";
 import {
-    createStudyCycle, getNotebookHome, getStudyCycle, getStudyCycles, planStudyCycle, updateStudyCycle,
+    createStudyCycle, getStudyCycle, getStudyCycles, planStudyCycle, updateStudyCycle,
 } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import { enterNotebookHome, enterStudyCycle, formatStudyMinutes, orderedDays, topicWeight, WEEKDAYS, weekMinutes } from "@beyou/state";
+import {
+    enterStudyCycle, formatStudyMinutes, orderedDays, subjectLabel, subjectOptions, topicWeight, WEEKDAYS, weekMinutes,
+    type SubjectOption,
+} from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import type {
     BlockMode, CycleConfigRequest, CycleDay, CycleTopic, PlanResponse, StudyCycle,
@@ -16,6 +19,8 @@ import ErrorNotice from "../../components/ErrorNotice";
 import NotebookIcon from "../../components/notebook/NotebookIcon";
 import { useRefreshStudyCycles } from "../../components/notebook/cycles/useStudyToday";
 import { sentenceCase, weekdayNames } from "../../components/notebook/cycles/cycleFormat";
+import { indent, useNotebookTrees } from "../../components/notebook/cycles/useSubjectPages";
+import { RootPrefix } from "../../components/notebook/cycles/BlockParts";
 
 /** How long the editor waits after the last change before asking for a new plan. */
 const PLAN_DEBOUNCE_MS = 300;
@@ -31,7 +36,8 @@ const DEFAULT_DAYS: CycleDay[] = WEEKDAYS.map((weekday) => ({
     startTime: null,
 }));
 
-type TopicRow = CycleTopic & { title: string; icon: string | null };
+/** A subject of the cycle being edited. `rootTitle` is null for a root topic. */
+type TopicRow = CycleTopic & { title: string; icon: string | null; rootTitle: string | null };
 
 /** A typed minute count inside what the server takes. While the field is mid-edit ("1" on the way
  * to "120") the plan is asked with the clamped value, never with a number it would refuse. */
@@ -57,7 +63,7 @@ export default function StudyCycleEditor() {
     const { cycleId } = useParams();
     const editing = Boolean(cycleId);
     const existing = useSelector((state: RootState) => (cycleId ? state.studyCycles.byId[cycleId] : undefined));
-    const home = useSelector((state: RootState) => state.notebook.home);
+    const { roots, trees } = useNotebookTrees();
 
     const [ready, setReady] = useState(!editing);
     const [name, setName] = useState("");
@@ -72,11 +78,6 @@ export default function StudyCycleEditor() {
     const [saving, setSaving] = useState(false);
     const initialized = useRef(false);
     const latestPlan = useRef(0);
-
-    useEffect(() => {
-        if (home) return;
-        void getNotebookHome(t).then((response) => response.success && dispatch(enterNotebookHome(response.success)));
-    }, [home, t, dispatch]);
 
     useEffect(() => {
         if (!cycleId) return;
@@ -97,13 +98,14 @@ export default function StudyCycleEditor() {
         setTopics(existing.topics.map((topic) => ({
             topicId: topic.topicId, importance: topic.importance, mastery: topic.mastery,
             minutesOverride: topic.minutesOverride, title: topic.topic.title, icon: topic.topic.icon,
+            rootTitle: topic.topic.rootTitle ?? null,
         })));
         setReady(true);
     }, [existing]);
 
-    // Topics another active cycle holds. The server refuses them (STUDY_CYCLE_TOPIC_TAKEN); saying
-    // so in the picker saves the round trip. Read into this screen only, so opening the editor does
-    // not make every later refresh re-read every cycle.
+    // Subjects another active cycle holds. The server refuses them and every page above or below
+    // them (STUDY_CYCLE_TOPIC_TAKEN); saying so in the picker saves the round trip. Read into this
+    // screen only, so opening the editor does not make every later refresh re-read every cycle.
     useEffect(() => {
         let cancelled = false;
         void (async () => {
@@ -159,10 +161,42 @@ export default function StudyCycleEditor() {
     const setDay = (index: number, patch: Partial<CycleDay>) =>
         setDays((list) => list.map((day, i) => (i === index ? { ...day, ...patch } : day)));
 
+    // Every root topic and the pages under it, each with the reason it cannot join (already here,
+    // overlapping a subject picked here, or overlapping one another cycle holds).
+    const options = useMemo(
+        () => subjectOptions({ roots, trees, picked: topics.map((row) => row.topicId), taken }),
+        [roots, trees, topics, taken]
+    );
+    const optionOf = (topicId: string) => options.find((option) => option.id === topicId);
+    // An older server sends no rootTitle; the loaded trees can still say it.
+    const rootOf = (row: TopicRow) => row.rootTitle ?? optionOf(row.topicId)?.rootTitle ?? null;
+    const labelOf = (row: TopicRow) => subjectLabel({ title: row.title, rootTitle: rootOf(row) });
+    const labelOfId = (topicId: string) => {
+        const row = topics.find((candidate) => candidate.topicId === topicId);
+        return row ? labelOf(row) : "";
+    };
+
     const addTopic = (topicId: string) => {
-        const topic = home?.topics.find((candidate) => candidate.id === topicId);
-        if (!topic || topics.length >= MAX_TOPICS) return;
-        setTopics((rows) => [...rows, { topicId, importance: 3, mastery: 3, minutesOverride: null, title: topic.title, icon: topic.icon }]);
+        const option = optionOf(topicId);
+        if (!option || option.disabledReason !== null || topics.length >= MAX_TOPICS) return;
+        setTopics((rows) => [...rows, {
+            topicId, importance: 3, mastery: 3, minutesOverride: null, title: option.title, icon: option.icon, rootTitle: option.rootTitle,
+        }]);
+    };
+
+    /** The option's line: indented by depth, with why it is closed when it is. */
+    const optionText = (option: SubjectOption): string => {
+        const reason = option.disabledReason;
+        const text = reason === null
+            ? option.title
+            : reason === "picked"
+              ? t("StudyCycleSubjectPickedOption", { subject: option.title })
+              : reason === "overlapsPicked"
+                ? t("StudyCycleSubjectOverlapOption", { subject: option.title })
+                : taken[option.id]
+                  ? t("StudyCycleTopicTakenOption", { topic: option.title, cycle: reason.takenBy })
+                  : t("StudyCycleSubjectNearTakenOption", { subject: option.title, cycle: reason.takenBy });
+        return `${indent(option.depth)}${text}`;
     };
 
     const trimmed = name.trim();
@@ -186,7 +220,6 @@ export default function StudyCycleEditor() {
     };
 
     const names = weekdayNames(i18n.language);
-    const available = (home?.topics ?? []).filter((topic) => !topics.some((row) => row.topicId === topic.id));
     const week = weekMinutes(days);
     const totalWeight = topics.reduce((sum, row) => sum + topicWeight(row.importance, row.mastery), 0);
     const occurrences = new Map<string, number>();
@@ -231,6 +264,8 @@ export default function StudyCycleEditor() {
                             </div>
 
                             {topics.map((row) => {
+                                const label = labelOf(row);
+                                const root = rootOf(row);
                                 const planned = planOf(row.topicId);
                                 const weight = topicWeight(row.importance, row.mastery);
                                 // The server's formula (contract 2.6), here so it moves with the stepper.
@@ -242,7 +277,9 @@ export default function StudyCycleEditor() {
                                         <div className="flex items-center gap-3">
                                             <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-semibold text-text">
                                                 <NotebookIcon icon={row.icon} size={16} fallback={<Layers size={16} className="text-text-3" aria-hidden="true" />} />
-                                                <span className="min-w-0 break-words">{row.title}</span>
+                                                <span className="min-w-0 break-words" data-testid="cycle-topic-label">
+                                                    <RootPrefix root={root} />{row.title}
+                                                </span>
                                             </span>
                                             <span className="shrink-0 text-[13px] text-text-2" data-testid="topic-weight">
                                                 {t("StudyCycleWeightShare", { weight, share: Math.round(share * 100) })}
@@ -251,24 +288,24 @@ export default function StudyCycleEditor() {
                                                 {planned ? t("StudyCycleBlockCount", { count: planned.blocks }) : "–"}
                                             </span>
                                             <button type="button" onClick={() => setTopics((rows) => rows.filter((r) => r.topicId !== row.topicId))}
-                                                aria-label={t("StudyCycleRemoveTopic", { topic: row.title })}
+                                                aria-label={t("StudyCycleRemoveTopic", { topic: label })}
                                                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-3 hover:bg-surface-2 hover:text-danger">
                                                 <X size={15} aria-hidden="true" />
                                             </button>
                                         </div>
                                         <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
                                             <Stepper value={row.importance} label={t("StudyCycleColImportance")}
-                                                downLabel={t("StudyCycleImportanceDown", { topic: row.title })} upLabel={t("StudyCycleImportanceUp", { topic: row.title })}
+                                                downLabel={t("StudyCycleImportanceDown", { topic: label })} upLabel={t("StudyCycleImportanceUp", { topic: label })}
                                                 onChange={(value) => setTopic(row.topicId, { importance: value })} testId="topic-importance" />
                                             <Stepper value={row.mastery} label={t("StudyCycleColMastery")}
-                                                downLabel={t("StudyCycleMasteryDown", { topic: row.title })} upLabel={t("StudyCycleMasteryUp", { topic: row.title })}
+                                                downLabel={t("StudyCycleMasteryDown", { topic: label })} upLabel={t("StudyCycleMasteryUp", { topic: label })}
                                                 onChange={(value) => setTopic(row.topicId, { mastery: value })} testId="topic-mastery" />
                                             {/* A div, not a label: the reset button below may not sit inside one. */}
                                             <div className="flex flex-col gap-1 text-xs font-semibold text-text-2">
                                                 <span aria-hidden="true">{t("StudyCycleColMinutes")}</span>
                                                 <input type="number" inputMode="numeric" min={5} max={600} step={5}
                                                     value={minutes ?? ""} placeholder={planned ? String(planned.suggestedMinutes) : ""}
-                                                    aria-label={t("StudyCycleTopicMinutesLabel", { topic: row.title })} data-testid="topic-minutes"
+                                                    aria-label={t("StudyCycleTopicMinutesLabel", { topic: label })} data-testid="topic-minutes"
                                                     onChange={(e) => setTopic(row.topicId, {
                                                         minutesOverride: e.target.value === "" ? null : Math.round(Number(e.target.value)),
                                                     })}
@@ -302,14 +339,19 @@ export default function StudyCycleEditor() {
                                         aria-label={t("StudyCycleAddTopic")}
                                         className="h-10 max-w-[280px] rounded-control border border-border bg-surface px-3 text-sm font-semibold text-text outline-none focus:border-accent">
                                         <option value="">{t("StudyCycleAddTopic")}</option>
-                                        {available.map((topic) => (
-                                            <option key={topic.id} value={topic.id} disabled={Boolean(taken[topic.id])}>
-                                                {taken[topic.id] ? t("StudyCycleTopicTakenOption", { topic: topic.title, cycle: taken[topic.id] }) : topic.title}
+                                        {/* One flat list, each root followed by its pages indented: a root stays
+                                            selectable by its plain title. A nested option's accessible name carries
+                                            its root, which the indent only shows to sighted readers. */}
+                                        {options.map((option) => (
+                                            <option key={option.id} value={option.id} disabled={option.disabledReason !== null}
+                                                aria-label={option.rootTitle ? `${option.rootTitle} › ${optionText(option).trim()}` : undefined}>
+                                                {optionText(option)}
                                             </option>
                                         ))}
                                     </select>
                                 )}
                             </div>
+                            <p className="text-xs text-text-3">{t("StudyCycleSubjectHint")}</p>
                             {editing && <p className="text-xs text-text-3">{t("StudyCycleEditMergeNote")}</p>}
                         </section>
 
@@ -334,7 +376,7 @@ export default function StudyCycleEditor() {
                                             <li key={block.position} data-testid="cycle-plan-block"
                                                 className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 text-[13px] text-text">
                                                 <span className="font-mono text-[11px] text-text-3">{block.position}</span>
-                                                <span className="max-w-[160px] truncate font-semibold">{titleOf(block.topicId)}</span>
+                                                <span className="max-w-[160px] truncate font-semibold" title={labelOfId(block.topicId)}>{titleOf(block.topicId)}</span>
                                                 {goal && <Target size={13} className="text-accent" aria-label={t("StudyCycleModeGoal")} />}
                                                 <span className="font-mono text-[11px] text-text-2">{block.plannedMinutes}′</span>
                                             </li>
