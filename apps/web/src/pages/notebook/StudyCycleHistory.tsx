@@ -5,12 +5,12 @@ import { useTranslation } from "react-i18next";
 import { Check, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { deleteStudySession, getStudyCycle, getStudyHistory } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
-import { addDaysIso, enterStudyCycle, formatStudyMinutes, historyTotals, mondayOf, weekFrom } from "@beyou/state";
+import { addDaysIso, enterStudyCycle, formatStudyMinutes, historyTotals, mondayOf, subjectLabel, weekFrom } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import type { HistoryEntry, StudyHistory, StudyHistoryDay } from "@beyou/types/notebook/studyCycle";
 import ErrorNotice from "../../components/ErrorNotice";
 import Modal from "../../components/modals/Modal";
-import { topicTone } from "../../components/notebook/cycles/BlockParts";
+import { RootPrefix, topicTone } from "../../components/notebook/cycles/BlockParts";
 import { noonOf, sentenceCase } from "../../components/notebook/cycles/cycleFormat";
 import { useRefreshStudyCycles } from "../../components/notebook/cycles/useStudyToday";
 import useTodayInZone from "../../hooks/useTodayInZone";
@@ -161,7 +161,8 @@ export default function StudyCycleHistory() {
                         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-border pt-3 text-xs text-text-2" data-testid="history-legend">
                             {history.topics.map((topic, index) => (
                                 <span key={topic.id} className="inline-flex items-center gap-1.5">
-                                    <span className={`h-2.5 w-2.5 rounded-full ${topicTone(index)}`} aria-hidden="true" />{topic.title}
+                                    <span className={`h-2.5 w-2.5 rounded-full ${topicTone(index)}`} aria-hidden="true" />
+                                    <span><RootPrefix root={topic.rootTitle} className="text-text-3" />{topic.title}</span>
                                 </span>
                             ))}
                             <span className="inline-flex items-center gap-1.5">
@@ -192,7 +193,7 @@ export default function StudyCycleHistory() {
             <Modal isOpen={deleting !== null} onClose={() => setDeleting(null)} labelledBy="delete-session-title">
                 <div className="flex w-full flex-col gap-3">
                     <h2 id="delete-session-title" className="text-lg font-semibold text-text">
-                        {t("StudyHistoryDeleteTitle", { minutes: formatStudyMinutes(deleting?.minutes ?? 0), topic: deleting?.topic.title ?? "" })}
+                        {t("StudyHistoryDeleteTitle", { minutes: formatStudyMinutes(deleting?.minutes ?? 0), topic: deleting ? subjectLabel(deleting.topic) : "" })}
                     </h2>
                     <p className="text-sm text-text-2">{t("StudyHistoryDeleteText")}</p>
                     <div className="flex justify-end gap-2">
@@ -232,7 +233,9 @@ function EntryLine({ entry, time, tone, onDelete }: { entry: HistoryEntry; time:
             <span className="w-11 font-mono text-xs text-text-2">{time}</span>
             <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${tone}`} aria-hidden="true" />
             <span className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-sm font-semibold text-text">{entry.topic.title}</span>
+                <span className="truncate text-sm font-semibold text-text">
+                    <RootPrefix root={entry.topic.rootTitle} className="text-xs" />{entry.topic.title}
+                </span>
                 {detail && <span className="truncate text-xs text-text-2">{detail}</span>}
             </span>
             <span className={`inline-flex h-5 items-center rounded-full px-2 text-[11px] font-semibold ${manual ? "bg-flame-soft text-flame" : "bg-accent-soft text-accent"}`}>
@@ -241,7 +244,7 @@ function EntryLine({ entry, time, tone, onDelete }: { entry: HistoryEntry; time:
             <span className="w-14 text-right font-mono text-[13px] font-semibold text-text">{formatStudyMinutes(entry.minutes)}</span>
             {onDelete ? (
                 <button type="button" onClick={onDelete} data-testid="session-delete"
-                    aria-label={t("StudyHistoryDeleteLabel", { topic: entry.topic.title, time })}
+                    aria-label={t("StudyHistoryDeleteLabel", { topic: subjectLabel(entry.topic), time })}
                     className="rounded-md p-1.5 text-text-3 hover:bg-surface-2 hover:text-danger">
                     <Trash2 size={15} aria-hidden="true" />
                 </button>

@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Repeat, Timer } from 'lucide-react-native';
-import { blockFigure, blockTitle, formatStudyMinutes } from '@beyou/state';
+import { blockFigure, blockTitle, blockTitleRoot, formatStudyMinutes } from '@beyou/state';
 import type { TodayEntry } from '@beyou/types/notebook/studyCycle';
 import WidgetCard from './WidgetCard';
 import Button from '../Button';
@@ -13,6 +13,7 @@ import { useStudyToday } from '../../notebook/cycles/useStudyToday';
 import { useStudyFocus } from '../../notebook/cycles/useStudyFocus';
 import { factsOfEntry } from '../../notebook/cycles/StudyTodayCard';
 import { figureText } from '../../notebook/cycles/cycleText';
+import RootPrefix from '../../notebook/cycles/RootPrefix';
 
 /** How many of the blocks after the current one the widget lists. */
 const AHEAD = 2;
@@ -110,7 +111,9 @@ export default function StudyTodayWidget() {
         <View className="gap-2.5 rounded-xl border border-accent/30 bg-accent/5 p-3" testID="study-widget-current">
           <View className="flex-row items-baseline justify-between gap-2">
             <Text className="min-w-0 flex-1 text-[14.5px] font-semibold text-text" numberOfLines={2}>
-              {[current.start, blockTitle(current, t)].filter(Boolean).join(' · ')}
+              {current.start ? `${current.start} · ` : null}
+              <RootPrefix root={blockTitleRoot(current)} className="text-[12.5px]" />
+              {blockTitle(current, t)}
             </Text>
             <Text className="text-[12px] font-semibold text-accent">{shortFigure(current, t)}</Text>
           </View>
@@ -139,6 +142,7 @@ export default function StudyTodayWidget() {
             >
               <Text className="min-w-0 flex-1 text-[13.5px] text-text" numberOfLines={1}>
                 {entry.start ? <Text className="font-mono text-[12px] text-text-2">{`${entry.start}  `}</Text> : null}
+                <RootPrefix root={blockTitleRoot(entry)} className="text-[12px]" />
                 {blockTitle(entry, t)}
               </Text>
               <Text className="font-mono-semibold text-[12px] text-text-2">{formatStudyMinutes(entry.minutesToday)}</Text>

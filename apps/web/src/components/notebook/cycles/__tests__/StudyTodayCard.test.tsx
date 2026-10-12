@@ -2,7 +2,7 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { pomodoroStarted } from "@beyou/state";
 import { renderWithProviders } from "../../../../test/test-utils";
-import { entry, makeStore, target, today, todayCycle } from "./fixtures";
+import { entry, makeStore, target, today, todayCycle, topic } from "./fixtures";
 
 vi.mock("@beyou/api/notebook", () => ({
     getStudyToday: vi.fn(),
@@ -112,5 +112,27 @@ describe("StudyTodayCard", () => {
 
         expect(await screen.findByTestId("study-today-footer")).toHaveTextContent("StudyTodayAllDone");
         expect(screen.queryByTestId("study-today-focus")).not.toBeInTheDocument();
+    });
+
+    test("puts the root in front of a nested subject's time block and under a concept", async () => {
+        const impl = topic("impl", "Implementação 2.0", "Software Engineer");
+        vi.mocked(getStudyToday).mockResolvedValue({
+            success: today({
+                cycles: [todayCycle({
+                    entries: [
+                        entry({ blockId: "c1", position: 1, topic: impl }),
+                        entry({ blockId: "c2", position: 2, topic: impl, mode: "GOAL", goalSource: "NEXT", target: target() }),
+                    ],
+                })],
+            }),
+        });
+        renderWithProviders(<StudyTodayCard topics={[]} showInvite />, { storeOverride: makeStore() });
+
+        const [time, concept] = await screen.findAllByTestId("study-today-entry");
+        expect(within(time).getByTestId("subject-root")).toHaveTextContent("Software Engineer ›");
+        expect(time).toHaveTextContent("Implementação 2.0");
+        // A concept's title is its page; the subject, root and all, goes on the line below.
+        expect(within(concept).queryByTestId("subject-root")).not.toBeInTheDocument();
+        expect(concept).toHaveTextContent("Software Engineer › Implementação 2.0");
     });
 });

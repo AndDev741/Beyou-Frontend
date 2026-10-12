@@ -1,31 +1,32 @@
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { renderWithProviders } from "../../../../test/test-utils";
-import { block, cycle, makeStore } from "./fixtures";
+import { block, cycle, makeStore, notebookHome, softwareEngineer, topic, tree, treeItem, treesById } from "./fixtures";
 
 vi.mock("@beyou/api/notebook", () => ({
+    getNotebookHome: vi.fn(),
     getTopicTree: vi.fn(),
     updateStudyBlock: vi.fn(),
 }));
 
-import { getTopicTree, updateStudyBlock } from "@beyou/api/notebook";
+import { getNotebookHome, getTopicTree, updateStudyBlock } from "@beyou/api/notebook";
 import BlockDialog from "../BlockDialog";
 
 const trt = cycle();
 const crase = block("b8", "port", 8, { plannedMinutes: 70, note: "Lista antiga" });
 
+const portugues = tree("port", "Português", [
+    treeItem("crase", "port", 0, { title: "Crase" }),
+    // Linked in from another topic: a block may not point at it, so it is not offered.
+    treeItem("elsewhere", "port", 1, { title: "Linked page", linked: true }),
+]);
+
 beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getTopicTree).mockResolvedValue({
-        success: {
-            topic: { id: "port", title: "Português", icon: null }, sourcesCount: 0, cardsDue: 0,
-            items: [
-                { id: "crase", parentId: "port", title: "Crase", icon: null, status: "TO_STUDY", onBoard: true, linked: false, progress: { done: 0, total: 1 }, position: 0 },
-                // Linked in from another topic: a block may not point at it, so it is not offered.
-                { id: "elsewhere", parentId: "port", title: "Linked page", icon: null, status: "TO_STUDY", onBoard: true, linked: true, progress: { done: 0, total: 1 }, position: 1 },
-            ],
-        },
+    vi.mocked(getNotebookHome).mockResolvedValue({
+        success: notebookHome([{ id: "port", title: "Português" }, { id: "se", title: "Software Engineer" }]),
     });
+    vi.mocked(getTopicTree).mockImplementation(treesById(portugues, softwareEngineer));
 });
 
 describe("BlockDialog", () => {
@@ -70,6 +71,19 @@ describe("BlockDialog", () => {
 
         await waitFor(() => expect(onSaved).toHaveBeenCalled());
         expect(vi.mocked(updateStudyBlock).mock.calls[0][2]).toMatchObject({ goalSource: "NEXT", pageId: null, requireQuiz: true });
+    });
+
+    test("offers only the pages inside a nested subject, the subject first", async () => {
+        const fundamentos = block("b3", "fund", 3, { topic: topic("fund", "Fundamentos da Computação", "Software Engineer") });
+        renderWithProviders(<BlockDialog cycle={trt} block={fundamentos} onClose={() => {}} onSaved={() => {}} />, { storeOverride: makeStore() });
+
+        fireEvent.click(screen.getByTestId("block-mode-GOAL"));
+        fireEvent.click(screen.getByTestId("block-source-PAGE"));
+
+        await screen.findByRole("option", { name: /Redes/ });
+        const offered = [...screen.getByTestId("block-page").querySelectorAll("option")].map((option) => option.value);
+        // The subject, then its own page; its siblings and the root stay out.
+        expect(offered).toEqual(["", "fund", "redes"]);
     });
 
     test("refuses minutes outside 5 to 600", () => {

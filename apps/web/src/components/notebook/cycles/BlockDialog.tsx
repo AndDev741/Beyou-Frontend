@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { updateStudyBlock } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
+import { subjectLabel } from "@beyou/state";
 import type { BlockMode, BlockPatch, GoalSource, StudyBlock, StudyCycle } from "@beyou/types/notebook/studyCycle";
 import Modal from "../../modals/Modal";
 import ErrorNotice from "../../ErrorNotice";
-import { useTopicPages } from "./useTopicPages";
+import { indent, useSubjectPages } from "./useSubjectPages";
 
 type Props = {
     cycle: StudyCycle;
@@ -43,7 +44,8 @@ function Segmented<T extends string>({ label, value, options, onChange, testId }
 
 /**
  * One block's own settings: what it is after (time or a concept), which concept (the roadmap's
- * next, or a page picked here), its minutes, whether the quiz has to be passed too, and a note.
+ * next, or a page picked here among the subject's own pages), its minutes, whether the quiz has
+ * to be passed too, and a note.
  *
  * Sent as a PATCH of every field the dialog shows. The lap progress is the server's: a block that
  * already closed keeps its state whatever changes here.
@@ -63,7 +65,7 @@ function BlockForm({ cycle, block, onClose, onSaved }: Props & { block: StudyBlo
     const [note, setNote] = useState(block.note ?? "");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
-    const { pages, loading } = useTopicPages(block.topic.id);
+    const { pages, loading } = useSubjectPages(block.topic);
 
     const goal = mode === "GOAL";
     const needsPage = goal && source === "PAGE";
@@ -102,7 +104,7 @@ function BlockForm({ cycle, block, onClose, onSaved }: Props & { block: StudyBlo
                 }}>
                 <div>
                     <h2 id="block-dialog-title" className="text-lg font-semibold text-text">
-                        {t("StudyBlockDialogTitle", { position: block.position, topic: block.topic.title })}
+                        {t("StudyBlockDialogTitle", { position: block.position, topic: subjectLabel(block.topic) })}
                     </h2>
                     <p className="mt-1 text-[13px] text-text-2">{t("StudyBlockDialogIntro")}</p>
                 </div>
@@ -122,7 +124,7 @@ function BlockForm({ cycle, block, onClose, onSaved }: Props & { block: StudyBlo
                             className="h-11 rounded-control border border-border bg-surface px-3 text-sm font-normal text-text outline-none focus:border-accent disabled:opacity-60">
                             <option value="">{goal ? t("StudyBlockPickPage") : t("StudySessionNoPage")}</option>
                             {pages.map((page) => (
-                                <option key={page.id} value={page.id}>{`${"  ".repeat(page.depth)}${page.title}`}</option>
+                                <option key={page.id} value={page.id}>{`${indent(page.depth)}${page.title}`}</option>
                             ))}
                         </select>
                     </label>

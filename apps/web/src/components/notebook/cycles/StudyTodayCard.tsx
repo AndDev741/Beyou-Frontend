@@ -5,14 +5,14 @@ import { useTranslation } from "react-i18next";
 import { ChevronRight, Coffee, Plus, Repeat, Timer } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import {
-    blockDetail, blockFigure, blockPage, blockTitle, conceptComesBackAt, currentEntry, detailText, entryConceptUndecided,
+    blockDetail, blockFigure, blockPage, blockTitle, blockTitleRoot, conceptComesBackAt, currentEntry, detailText, entryConceptUndecided,
     factsOfEntry, formatStudyMinutes, isConceptBlock,
 } from "@beyou/state";
 import { canStartNotebookFocus } from "@beyou/state/focus/notebookFocus";
 import type { TopicSummary } from "@beyou/types/notebook/notebook";
 import type { StudyTodayCycle, TodayEntry } from "@beyou/types/notebook/studyCycle";
 import { useNotebookFocus } from "../useNotebookFocus";
-import { BlockFigureView, BlockIcon, ModeChip } from "./BlockParts";
+import { BlockFigureView, BlockIcon, ModeChip, RootPrefix } from "./BlockParts";
 import LogSessionDialog from "./LogSessionDialog";
 import { useStudyToday } from "./useStudyToday";
 
@@ -205,7 +205,9 @@ function EntryRow({ entry, undecided, current, focusBusy, onFocus }: {
             <BlockIcon done={entry.doneToday} concept={concept || undecided} current={current} />
             <div className="flex min-w-[200px] flex-[1_1_260px] flex-col gap-[3px]">
                 <span className="flex flex-wrap items-center gap-2">
-                    <span className="text-[15px] font-semibold text-text">{blockTitle(facts, t)}</span>
+                    <span className="text-[15px] font-semibold text-text">
+                        <RootPrefix root={blockTitleRoot(facts)} className="text-[13px]" />{blockTitle(facts, t)}
+                    </span>
                     {!concept && !undecided && <ModeChip mode={entry.mode} />}
                     {current && (
                         <span className="inline-flex h-5 items-center rounded-full bg-accent px-2 text-[11px] font-semibold text-on-accent">

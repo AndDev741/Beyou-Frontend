@@ -1,9 +1,8 @@
 import type {
   BlockMode, BlockRequest, BlockTarget, GoalSource, StudyBlock, StudyPageRef, StudyTopicRef, Weekday,
 } from '@beyou/types/notebook/studyCycle';
-import type { NotebookTree } from '@beyou/types/notebook/notebook';
 import type { Theme } from '@beyou/theme';
-import { WEEKDAYS, isConceptBlock, todayInZone, type BlockFigure } from '@beyou/state';
+import { WEEKDAYS, isConceptBlock, subjectLabel, todayInZone, type BlockFigure } from '@beyou/state';
 
 /**
  * The phone's wording and arithmetic for the study cycle that `studyCycleView` does not cover.
@@ -34,13 +33,14 @@ export type SublineFacts = {
 };
 
 /**
- * The line under a block's title: for a concept, its subject and where the concept came from;
+ * The line under a block's title: for a concept, its subject ("Root › Subject" when it sits
+ * inside a topic) and where the concept came from;
  * for a time block, the page or the note it carries. Cards due close the line on "Today".
  */
 export function blockSubline(facts: SublineFacts, t: Translate): string {
   const parts: string[] = [];
   if (isConceptBlock(facts)) {
-    parts.push(facts.topic.title);
+    parts.push(subjectLabel(facts.topic));
     parts.push(t(facts.goalSource === 'PAGE' ? 'StudyCycleMobileSourcePage' : 'StudyCycleMobileSourceNext'));
     if (facts.requireQuiz) parts.push(t('StudyCycleMobileQuizRequired'));
     if (facts.note) parts.push(facts.note);
@@ -85,29 +85,6 @@ export function moveBlock(blocks: StudyBlock[], index: number, direction: -1 | 1
   const next = [...blocks];
   [next[index], next[to]] = [next[to], next[index]];
   return next;
-}
-
-/** A page in a topic's picker, indented by how deep it sits under the topic. */
-export type PageOption = { id: string; title: string; depth: number };
-
-/**
- * The topic and every page under it, depth first in the order the tree keeps. Pages that only
- * point at another topic's page are left out: a block's page must belong to its own topic.
- */
-export function topicPages(topic: { id: string; title: string }, tree: NotebookTree | undefined): PageOption[] {
-  const options: PageOption[] = [{ id: topic.id, title: topic.title, depth: 0 }];
-  if (!tree) return options;
-  const own = tree.items.filter((item) => !item.linked);
-  const children = (parentId: string) =>
-    own.filter((item) => item.parentId === parentId).sort((a, b) => a.position - b.position);
-  const walk = (parentId: string, depth: number) => {
-    for (const item of children(parentId)) {
-      options.push({ id: item.id, title: item.title, depth });
-      walk(item.id, depth + 1);
-    }
-  };
-  walk(topic.id, 1);
-  return options;
 }
 
 const REFERENCE_MONDAY = Date.UTC(2024, 0, 1, 12); // 1 Jan 2024 was a Monday.

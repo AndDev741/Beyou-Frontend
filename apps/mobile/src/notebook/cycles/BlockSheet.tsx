@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Minus, Plus } from 'lucide-react-native';
-import { blockTitle, factsOfBlock, formatStudyMinutes } from '@beyou/state';
+import { blockTitle, factsOfBlock, formatStudyMinutes, subjectLabel } from '@beyou/state';
 import type { BlockMode, BlockPatch, GoalSource, StudyBlock } from '@beyou/types/notebook/studyCycle';
 import BottomSheet from '../../ui/BottomSheet';
 import Button from '../../ui/Button';
@@ -12,7 +12,7 @@ import SegmentedControl from '../../ui/SegmentedControl';
 import SelectField from '../../ui/SelectField';
 import FieldLabel from '../../ui/form/FieldLabel';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
-import { useTopicPages } from './useCycleData';
+import { useSubjectPages } from './useCycleData';
 
 const MIN_PLANNED = 5;
 const MAX_PLANNED = 600;
@@ -28,7 +28,7 @@ interface BlockSheetProps {
 /**
  * One block's own settings, on the cycle screen: what it aims at (time, or a concept to
  * understand), where the concept comes from (the roadmap's next page, or a page chosen here among
- * the topic's pages), its minutes, whether the page's quiz has to be passed too, and a note.
+ * the subject's own pages), its minutes, whether the page's quiz has to be passed too, and a note.
  *
  * Saving sends every field as the sheet shows it (a PATCH the server reads as the block's new
  * settings), so a block switched to time drops its concept settings in the same request.
@@ -44,7 +44,7 @@ export default function BlockSheet({ block, onClose, onSave }: BlockSheetProps) 
   const [requireQuiz, setRequireQuiz] = useState(false);
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
-  const pages = useTopicPages(block ? block.topic : null);
+  const pages = useSubjectPages(block ? block.topic : null);
 
   useEffect(() => {
     if (!block) return;
@@ -92,7 +92,7 @@ export default function BlockSheet({ block, onClose, onSave }: BlockSheetProps) 
         <View className="gap-3.5 pb-1">
           <View className="gap-0.5">
             <Text className="text-[12px] font-semibold text-text-3">
-              {t('StudyCycleMobileBlockNumber', { position: block.position, topic: block.topic.title })}
+              {t('StudyCycleMobileBlockNumber', { position: block.position, topic: subjectLabel(block.topic) })}
             </Text>
             <Text accessibilityRole="header" className="text-[17px] font-semibold text-text">
               {blockTitle(factsOfBlock(block), t)}

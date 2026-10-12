@@ -2,9 +2,12 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import type { StudyCycleSummary } from "@beyou/types/notebook/studyCycle";
 import { renderWithProviders } from "../../../test/test-utils";
-import { block, cycle, entry, lap, makeStore, today, todayCycle } from "../../../components/notebook/cycles/__tests__/fixtures";
+import {
+    block, cycle, entry, lap, makeStore, notebookHome, today, todayCycle, topic,
+} from "../../../components/notebook/cycles/__tests__/fixtures";
 
 vi.mock("@beyou/api/notebook", () => ({
+    getNotebookHome: vi.fn(),
     getStudyCycles: vi.fn(),
     getStudyCycle: vi.fn(),
     getStudyToday: vi.fn(),
@@ -14,7 +17,9 @@ vi.mock("@beyou/api/notebook", () => ({
     updateStudyBlock: vi.fn(),
 }));
 
-import { archiveStudyCycle, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree, replaceStudyBlocks } from "@beyou/api/notebook";
+import {
+    archiveStudyCycle, getNotebookHome, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree, replaceStudyBlocks,
+} from "@beyou/api/notebook";
 import StudyCycles from "../StudyCycles";
 
 const summary = (id: string, name: string): StudyCycleSummary => ({ id, name, position: 0, lap: lap(), today: { minutes: 180, startTime: "19:00" } });
@@ -28,6 +33,7 @@ beforeEach(() => {
         success: today({ cycles: [todayCycle({ entries: [entry({ blockId: "b2", position: 2, topic: { id: "port", title: "port", icon: null }, minutesToday: 40 }), entry({ blockId: "b3", position: 3 })] })] }),
     });
     vi.mocked(getTopicTree).mockResolvedValue({ success: { topic: { id: "port", title: "Português", icon: null }, items: [], sourcesCount: 0, cardsDue: 0 } });
+    vi.mocked(getNotebookHome).mockResolvedValue({ success: notebookHome([{ id: "port", title: "Português" }]) });
 });
 
 describe("StudyCycles", () => {
@@ -66,6 +72,22 @@ describe("StudyCycles", () => {
 
         await waitFor(() => expect(screen.getAllByTestId("cycle-block")).toHaveLength(1));
         expect(getStudyCycle).toHaveBeenCalledWith("fac", expect.any(Function));
+    });
+
+    test("puts a nested subject's root, small, in front of its name", async () => {
+        const nested = cycle({
+            blocks: [
+                block("b1", "impl", 1, { topic: topic("impl", "Implementação 2.0", "Software Engineer") }),
+                block("b2", "port", 2, { topic: topic("port", "Português") }),
+            ],
+        });
+        vi.mocked(getStudyCycle).mockResolvedValue({ success: nested });
+        renderWithProviders(<StudyCycles />, { route: "/notebook/cycles?cycle=trt", storeOverride: makeStore() });
+
+        const blocks = await screen.findAllByTestId("cycle-block");
+        expect(within(blocks[0]).getByTestId("subject-root")).toHaveTextContent("Software Engineer ›");
+        expect(blocks[0]).toHaveTextContent("Implementação 2.0");
+        expect(within(blocks[1]).queryByTestId("subject-root")).not.toBeInTheDocument();
     });
 
     test("opens a block's dialog from its row", async () => {

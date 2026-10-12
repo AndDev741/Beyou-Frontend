@@ -366,6 +366,7 @@ export {
     factsOfBlock,
     isConceptBlock,
     blockTitle,
+    blockTitleRoot,
     blockFigure,
     isClosed,
     nextBlockOfTopic,
@@ -390,6 +391,14 @@ export {
     entryConceptUndecided,
 } from './notebook/studyCycleView';
 export type { BlockFacts, BlockFigure, CreditStep, DetailPart } from './notebook/studyCycleView';
+export {
+    subjectForest,
+    subjectOptions,
+    subjectSubtree,
+    forestOfTrees,
+    subjectLabel,
+} from './notebook/studyCycleSubjects';
+export type { SubjectDisabledReason, SubjectNode, SubjectOption } from './notebook/studyCycleSubjects';
 export { blockPlainText, mergeDocuments, resolveMerge, sameBlock, sameDocument } from './notebook/mergeDocuments';
 export { DocumentSync, parseDocument } from './notebook/documentSync';
 export { documentPatch, hasBlockWithoutId, initialBlocks, isEmptyDocument } from './notebook/editorDocument';

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { getNotebookHome, getStudyCycle, getStudyCycles, logStudySession } from "@beyou/api/notebook";
+import { getStudyCycle, getStudyCycles, logStudySession } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import {
-    addDaysIso, enterNotebookHome, enterStudyCycle, enterStudyCycles, formatStudyMinutes, previewCredit,
+    addDaysIso, enterStudyCycle, enterStudyCycles, formatStudyMinutes, previewCredit, subjectLabel,
 } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import type { StudyCycle } from "@beyou/types/notebook/studyCycle";
@@ -12,8 +12,9 @@ import Modal from "../../modals/Modal";
 import ErrorNotice from "../../ErrorNotice";
 import useTodayInZone from "../../../hooks/useTodayInZone";
 import { notify } from "../../../lib/notify";
-import { useTopicPages } from "./useTopicPages";
+import { RootPrefix } from "./BlockParts";
 import { useRefreshStudyCycles } from "./useStudyToday";
+import { indent, subjectPagesOf, useNotebookTrees } from "./useSubjectPages";
 
 /** The minutes people log most, one tap each. */
 const MINUTE_CHIPS = [25, 45, 60, 90];
@@ -48,6 +49,8 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
     const list = useSelector((state: RootState) => state.studyCycles.list);
     const byId = useSelector((state: RootState) => state.studyCycles.byId);
     const home = useSelector((state: RootState) => state.notebook.home);
+    // The notebook's roots for "other topics", and every root's tree to find a subject's pages in.
+    const { trees } = useNotebookTrees();
 
     const [topicId, setTopicId] = useState<string>(defaultTopicId ?? "");
     const [pageId, setPageId] = useState("");
@@ -56,7 +59,6 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
     const [note, setNote] = useState("");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<ApiErrorPayload | null>(null);
-    const { pages } = useTopicPages(topicId || null);
 
     // Every active cycle in full, for the grouped topic list and the preview. The list is read
     // once on open; cycles already loaded elsewhere are not read again.
@@ -71,11 +73,6 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
             if (cancelled) return;
             loaded.forEach((cycle) => cycle.success && dispatch(enterStudyCycle(cycle.success)));
         })();
-        if (!home) {
-            void getNotebookHome(t).then((response) => {
-                if (!cancelled && response.success) dispatch(enterNotebookHome(response.success));
-            });
-        }
         return () => {
             cancelled = true;
         };
@@ -90,6 +87,10 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
     );
     const inCycles = useMemo(() => new Set(cycles.flatMap((cycle) => cycle.topics.map((topic) => topic.topicId))), [cycles]);
     const otherTopics = (home?.topics ?? []).filter((topic) => !inCycles.has(topic.id));
+    const subjectTitle = cycles.flatMap((group) => group.topics).find((topic) => topic.topicId === topicId)?.topic.title
+        ?? otherTopics.find((topic) => topic.id === topicId)?.title ?? "";
+    // The subject's own pages: a session's page must sit inside the subject it is logged on.
+    const pages = useMemo(() => subjectPagesOf(trees, topicId || null, subjectTitle), [trees, topicId, subjectTitle]);
 
     // Starts on the given topic, else the first cycle's first topic once the cycles arrive.
     useEffect(() => {
@@ -162,7 +163,7 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
                         {cycles.map((group) => (
                             <optgroup key={group.id} label={group.name}>
                                 {group.topics.map((topic) => (
-                                    <option key={topic.topicId} value={topic.topicId}>{topic.topic.title}</option>
+                                    <option key={topic.topicId} value={topic.topicId}>{subjectLabel(topic.topic)}</option>
                                 ))}
                             </optgroup>
                         ))}
@@ -180,7 +181,7 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
                         className="h-11 rounded-control border border-border bg-surface px-3 text-sm font-normal text-text outline-none focus:border-accent disabled:opacity-60">
                         <option value="">{t("StudySessionNoPage")}</option>
                         {pages.filter((page) => page.depth > 0).map((page) => (
-                            <option key={page.id} value={page.id}>{`${"  ".repeat(page.depth - 1)}${page.title}`}</option>
+                            <option key={page.id} value={page.id}>{`${indent(page.depth - 1)}${page.title}`}</option>
                         ))}
                     </select>
                 </label>
@@ -225,7 +226,9 @@ function LogSessionForm({ onClose, defaultTopicId }: { onClose: () => void; defa
                                 {t("StudySessionPreviewBlock", { position: first.block.position, cycle: cycle?.name ?? "" })}
                             </span>
                             <div className="flex items-baseline justify-between gap-3 text-sm">
-                                <span className="font-semibold text-text">{first.block.topic.title}</span>
+                                <span className="font-semibold text-text">
+                                    <RootPrefix root={first.block.topic.rootTitle} className="text-[13px]" />{first.block.topic.title}
+                                </span>
                                 <span className="font-mono text-[13px] text-text-2">
                                     {t("StudySessionPreviewMinutes", { before: first.before, after: first.after, planned: first.block.plannedMinutes })}
                                 </span>

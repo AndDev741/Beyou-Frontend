@@ -4,10 +4,50 @@ import { WEEKDAYS } from "@beyou/state";
 import type {
     BlockTarget, LapSummary, StudyBlock, StudyCycle, StudyToday, StudyTodayCycle, TodayEntry,
 } from "@beyou/types/notebook/studyCycle";
+import type { NotebookHome, NotebookTree, TopicSummary, TreeItem } from "@beyou/types/notebook/notebook";
 
 /** The sample data of the design canvas, trimmed: invented, like the canvas's. */
 
-export const topic = (id: string, title = id) => ({ id, title, icon: null });
+export const topic = (id: string, title = id, rootTitle: string | null = null) => ({ id, title, icon: null, rootTitle });
+
+/** A page of a notebook tree; `linked` marks a node whose home is another topic. */
+export const treeItem = (id: string, parentId: string, position: number, over: Partial<TreeItem> = {}): TreeItem => ({
+    id, parentId, title: id, icon: null, status: "TO_STUDY", onBoard: true, linked: false,
+    progress: { done: 0, total: 1 }, position, ...over,
+});
+
+export const tree = (id: string, title: string, items: TreeItem[] = []): NotebookTree => ({
+    topic: { id, title, icon: null }, items, sourcesCount: 0, cardsDue: 0,
+});
+
+const topicSummary = (id: string, title: string): TopicSummary => ({
+    id, title, icon: null, description: null, progress: { done: 0, total: 4 }, cardsDue: 0, sourcesCount: 0, next: null,
+    goal: null, habit: null, preview: [], previewEdges: [], updatedAt: "2026-10-01T00:00:00Z",
+});
+
+/** The notebook home with these roots, in this order. */
+export const notebookHome = (roots: { id: string; title: string }[]): NotebookHome => ({
+    topics: roots.map((root) => topicSummary(root.id, root.title)),
+    continueStudying: null,
+    review: { due: 0, byTopic: [], streak: 0 },
+});
+
+/** A `getTopicTree` stand-in that answers from these trees by id. */
+export const treesById = (...trees: NotebookTree[]) => async (id: string) => {
+    const found = trees.find((candidate) => candidate.topic.id === id);
+    return found ? { success: found } : { error: { errorKey: "NOTEBOOK_PAGE_NOT_FOUND" } };
+};
+
+/**
+ * The notebook the subjects follow-up was reported on, trimmed: Software Engineer holds areas,
+ * Fundamentos holds pages of its own.
+ */
+export const softwareEngineer = tree("se", "Software Engineer", [
+    treeItem("fund", "se", 0, { title: "Fundamentos da Computação" }),
+    treeItem("redes", "fund", 0, { title: "Redes" }),
+    treeItem("impl", "se", 1, { title: "Implementação 2.0" }),
+    treeItem("testes", "impl", 0, { title: "Testes" }),
+]);
 
 export const target = (over: Partial<BlockTarget> = {}): BlockTarget => ({
     id: "p-controle", title: "Controle de constitucionalidade", icon: null, status: "STUDYING",

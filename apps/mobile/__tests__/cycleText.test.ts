@@ -1,12 +1,12 @@
 /**
  * The phone's own study cycle helpers (candidates for @beyou/state): the line under a block, the
- * page a block studies on, a move in the list, a topic's page picker and the calendar arithmetic
- * the history and the week lean on.
+ * page a block studies on, a move in the list and the calendar arithmetic the history and the
+ * week lean on. A subject's page picker is the shared `subjectSubtree` now, tested in @beyou/state.
  */
 import {
-  blockSubline, isoDayOf, mondayOf, moveBlock, studyPageOf, topicPages, weekdayLabel, weekdayOfIso,
+  blockSubline, isoDayOf, mondayOf, moveBlock, studyPageOf, weekdayLabel, weekdayOfIso,
 } from '../src/notebook/cycles/cycleText';
-import { topicTree, trtBlocks, TOPICS } from './fixtures/studyCycle';
+import { NESTED, trtBlocks, TOPICS } from './fixtures/studyCycle';
 
 const t = (key: string, values?: Record<string, unknown>) => (values ? `${key}(${JSON.stringify(values)})` : key);
 
@@ -38,14 +38,11 @@ describe('study cycle helpers', () => {
     expect(moveBlock(blocks, 4, 1)).toBeNull();
   });
 
-  it("offers the topic and its own pages, depth first, never a page linked in from elsewhere", () => {
-    const tree = topicTree('adm');
-    expect(topicPages(TOPICS.adm, tree as never).map((page) => [page.id, page.depth])).toEqual([
-      ['adm', 0],
-      ['adm-a', 1],
-      ['adm-a1', 2],
-    ]);
-    expect(topicPages(TOPICS.adm, undefined)).toEqual([{ id: 'adm', title: 'Dir. Administrativo', depth: 0 }]);
+  it('names a nested subject with its root under a concept', () => {
+    const [, , concept] = trtBlocks();
+    expect(blockSubline({ ...concept, topic: NESTED.impl, target: concept.progress.target }, t)).toBe(
+      'Software Engineer › Implementação 2.0 · StudyCycleMobileSourceNext',
+    );
   });
 
   it('knows the weekday and the Monday of a day, and the day of an instant in a zone', () => {
