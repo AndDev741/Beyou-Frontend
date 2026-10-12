@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { FileText, Layers, Send, Trash2 } from 'lucide-react-native';
+import { FileText, Layers, Lightbulb, Send, Trash2 } from 'lucide-react-native';
 import { appendToPage, askStudyQuestion, clearStudyChat, generateCards } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import type { ChatMessage, Citation } from '@beyou/types/notebook/notebook';
@@ -195,9 +195,21 @@ export default function StudyChat({
   );
 }
 
-/** Where each numbered point came from: the note or the source, and the page in a PDF. */
+/**
+ * Where each numbered point came from: the note or the source, and the page in a PDF. An answer
+ * with none came from the tutor's own knowledge, and says so.
+ */
 function Citations({ citations }: { citations: Citation[] }) {
-  if (citations.length === 0) return null;
+  const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
+  if (citations.length === 0) {
+    return (
+      <View className="flex-row items-center gap-1.5 self-start rounded-full bg-surface-2 px-2.5 py-1" testID="study-answer-general">
+        <Lightbulb size={12} color={theme.text2} />
+        <Text className="text-[11.5px] font-semibold text-text-2">{t('NotebookStudyGeneralKnowledge')}</Text>
+      </View>
+    );
+  }
   return (
     <View className="gap-1 px-1" testID="study-citations">
       {citations.map((citation) => (
