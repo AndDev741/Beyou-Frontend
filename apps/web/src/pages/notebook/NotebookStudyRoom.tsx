@@ -41,6 +41,11 @@ const VIEW_LABELS: Record<StudyView, string> = {
  * studio's outputs); remounting would bring back the room as it was loaded. The notes are the
  * exception: they mount when shown and read the page fresh.
  *
+ * On desktop the room is exactly one screen tall and only its columns scroll, each on its own:
+ * the header, the sources and the studio stay where they are while a long conversation scrolls,
+ * so changing a source or leaving never means scrolling back to the top. Below `lg` the columns
+ * stack and the room scrolls as one page, with the header pinned.
+ *
  * It covers the app shell like the focus screen does (`fixed inset-0`), because a study session
  * is one thing at a time and the sidebar is a way out of it. Escape leaves for the page, unless a
  * dialog is open: the shared `Modal` closes on Escape too, and one keypress must not do both.
@@ -113,8 +118,8 @@ export default function NotebookStudyRoom() {
             aria-label={t("NotebookStudyRoom")}
             data-testid="study-room"
         >
-            <div className={`flex min-h-full flex-col ${view === "split" ? "lg:h-full" : ""}`}>
-                <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2">
+            <div className="flex min-h-full flex-col lg:h-full">
+                <header className="sticky top-0 z-20 flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2">
                     <div className="flex min-w-0 items-center gap-2.5">
                         <Link
                             to={pagePath}
@@ -180,7 +185,7 @@ export default function NotebookStudyRoom() {
 
                 {room && pageId && setup && (
                     <div
-                        className={`flex flex-1 flex-wrap items-stretch gap-4 p-4 lg:flex-nowrap ${view === "room" ? "lg:gap-0" : view === "split" ? "lg:min-h-0" : ""}`}
+                        className={`flex flex-1 flex-wrap items-stretch gap-4 p-4 lg:min-h-0 lg:flex-nowrap ${view === "room" ? "lg:gap-0" : ""}`}
                         style={{
                             "--study-left": `${layout.leftCollapsed ? RAIL_WIDTH : layout.left}px`,
                             "--study-right": `${layout.rightCollapsed ? RAIL_WIDTH : layout.right}px`,
@@ -191,11 +196,13 @@ export default function NotebookStudyRoom() {
                             <div data-testid="study-col-notes"
                                 className={view === "split"
                                     ? "flex min-w-0 flex-[999_1_460px] flex-col lg:min-h-0 lg:flex-[1.25_1_0%] lg:overflow-y-auto"
-                                    : "mx-auto flex w-full min-w-0 max-w-[920px] flex-1 flex-col"}>
-                                <StudyNotes pageId={pageId} />
+                                    : "flex w-full min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-y-auto"}>
+                                <div className={view === "notes" ? "mx-auto flex w-full max-w-[920px] flex-col" : "flex flex-col"}>
+                                    <StudyNotes pageId={pageId} />
+                                </div>
                             </div>
                         )}
-                        <div className={`flex min-w-0 flex-[1_1_280px] flex-col lg:w-[var(--study-left)] lg:flex-none ${view === "room" ? "" : "hidden"}`}
+                        <div className={`flex min-w-0 flex-[1_1_280px] flex-col lg:min-h-0 lg:w-[var(--study-left)] lg:flex-none lg:overflow-y-auto ${view === "room" ? "" : "hidden"}`}
                             data-testid="study-col-left">
                             <div className={`flex min-w-0 flex-col ${layout.leftCollapsed ? "lg:hidden" : ""}`}>
                                 <SourcesPanel pageId={pageId} initialSources={sources} onChange={setSources} discovery={room.discovery}
@@ -213,7 +220,7 @@ export default function NotebookStudyRoom() {
                         <div data-testid="study-col-chat"
                             className={view === "notes" ? "hidden"
                                 : view === "split" ? "flex min-w-0 flex-[999_1_460px] flex-col lg:min-h-0 lg:flex-[1_1_0%] lg:overflow-y-auto"
-                                : "flex min-w-0 flex-[999_1_460px] flex-col lg:flex-1"}>
+                                : "flex min-w-0 flex-[999_1_460px] flex-col lg:min-h-0 lg:flex-1 lg:overflow-y-auto"}>
                             {editingSetup || (!setup.configuredAt && room.messages.length === 0) ? (
                                 <StudySetup
                                     pageId={pageId}
@@ -245,7 +252,7 @@ export default function NotebookStudyRoom() {
                             <ResizeHandle side="right" width={layout.right} label={t("NotebookStudyResizeStudio")}
                                 onResize={(from, delta) => resize("right", from, delta)} onReset={() => reset("right")} onToggle={() => toggle("right")} />
                         )}
-                        <div className={`flex min-w-0 flex-[1_1_300px] flex-col lg:w-[var(--study-right)] lg:flex-none ${view === "room" ? "" : "hidden"}`}
+                        <div className={`flex min-w-0 flex-[1_1_300px] flex-col lg:min-h-0 lg:w-[var(--study-right)] lg:flex-none lg:overflow-y-auto ${view === "room" ? "" : "hidden"}`}
                             data-testid="study-col-right">
                             <div className={`flex min-w-0 flex-col ${layout.rightCollapsed ? "lg:hidden" : ""}`}>
                                 <StudioPanel
