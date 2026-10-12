@@ -67,12 +67,14 @@ repository.
   asks what you are after before you start, and it can search the web for sources for you. On
   a desktop your notes can sit beside the chat while you ask. The phone has the whole notebook
   too: the editor, the roadmap as a path, cards, the study room and AI roadmap drafts.
-- **Study cycles** line notebook topics up in a queue of blocks, the *ciclo de estudos* people use
-  for exams in Brazil. A block asks for some time on a topic or for one concept understood, and
-  when it closes the next one comes up. The notebook opens on today's slice of the queue, with
-  clock times if the day has a start time. A pomodoro on any page of the topic counts toward its
-  block; study away from the timer can be logged by hand. How the week splits between topics is
-  the server's arithmetic, so the editor's preview is the cycle that gets saved.
+- **Study cycles** line notebook subjects up in a queue of blocks, the *ciclo de estudos* people
+  use for exams in Brazil. A subject is a whole topic or any page inside one, so a cycle can rotate
+  between the areas of a single topic; two subjects never overlap. A block asks for some time on a
+  subject or for one concept understood, and when it closes the next one comes up. The notebook
+  opens on today's slice of the queue, with clock times if the day has a start time. A pomodoro on
+  any page under the subject counts toward its block; study away from the timer can be logged by
+  hand. How the week splits between subjects is the server's arithmetic, so the editor's preview
+  is the cycle that gets saved.
 - **Sign in your way** — e-mail and password, Google, or any configured OpenID Connect provider
   (web only for now). A federated identity is matched by its issuer and subject, never by e-mail,
   so a new provider reaches an existing account only through a link made from inside it.
@@ -109,7 +111,7 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), the rule that "Focus 25" never replaces a running pomodoro, and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), which pages a cycle may take as subjects and why the rest are closed (`studyCycleSubjects`), the rule that "Focus 25" never replaces a running pomodoro, and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/icons` | The icon registry both pickers use, with bilingual search and recents. Each app supplies only the renderer. |
