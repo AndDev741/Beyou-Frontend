@@ -10,7 +10,7 @@
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 export type BlockMode = 'TIME' | 'GOAL';
-/** NEXT follows the topic's roadmap by itself; PAGE is a page the person chose. */
+/** NEXT follows the subject's roadmap by itself; PAGE is a page the person chose in its subtree. */
 export type GoalSource = 'NEXT' | 'PAGE';
 /**
  * Where a block stands in the current lap. TURN_USED is a GOAL block whose estimate ran out
@@ -18,7 +18,14 @@ export type GoalSource = 'NEXT' | 'PAGE';
  */
 export type LapBlockState = 'OPEN' | 'DONE' | 'UNDERSTOOD' | 'TURN_USED';
 
-export type StudyTopicRef = { id: string; title: string; icon: string | null };
+/**
+ * A cycle's subject. The wire still says "topic", but a subject can be any notebook page: a root
+ * topic or a page anywhere under one (a cycle rotates between the areas inside a topic).
+ *
+ * `rootTitle` is the root topic's title, null when the subject IS a root. Optional because a
+ * server older than subjects leaves it out; read it as null then.
+ */
+export type StudyTopicRef = { id: string; title: string; icon: string | null; rootTitle?: string | null };
 export type StudyPageRef = { id: string; title: string; icon: string | null };
 
 export type CycleDay = { weekday: Weekday; minutes: number; startTime: string | null };

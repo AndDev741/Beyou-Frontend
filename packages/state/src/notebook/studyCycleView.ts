@@ -3,6 +3,7 @@ import type {
     StudyPageRef, StudyTodayCycle, StudyTopicRef, TodayEntry, Weekday,
 } from '@beyou/types/notebook/studyCycle';
 import { addDaysIso, weekdayIndexIso } from '../date/isoDay';
+import { subjectLabel } from './studyCycleSubjects';
 
 /**
  * How a study block reads on screen, shared by the web and the phone so a block says the same
@@ -62,10 +63,19 @@ export const factsOfBlock = (block: StudyBlock): BlockFacts => ({
 export const isConceptBlock = (facts: Pick<BlockFacts, 'mode' | 'target'>): boolean =>
     facts.mode === 'GOAL' && facts.target !== null;
 
-/** "Entender Crase" for a concept, the topic's name otherwise. */
+/** "Entender Crase" for a concept, the subject's name otherwise. */
 export function blockTitle(facts: Pick<BlockFacts, 'mode' | 'target' | 'topic'>, t: Translate): string {
     return isConceptBlock(facts) ? t('StudyCycleUnderstand', { title: facts.target!.title }) : facts.topic.title;
 }
+
+/**
+ * The root topic to print small and muted in front of a block's title: only when the title is the
+ * subject itself (not a concept) and the subject is a page inside a topic. A concept's subject,
+ * root included, goes on the line below instead (see {@link blockDetail}). Null otherwise, and
+ * for a server that does not send `rootTitle`.
+ */
+export const blockTitleRoot = (facts: Pick<BlockFacts, 'mode' | 'target' | 'topic'>): string | null =>
+    isConceptBlock(facts) ? null : facts.topic.rootTitle ?? null;
 
 export type BlockFigure = {
     /** The main line on the right of a block. */
@@ -236,7 +246,8 @@ export function blockPage(block: { target: BlockTarget | null; page: StudyPageRe
 export type DetailPart = { key: string; values?: Record<string, unknown> } | { text: string };
 
 /**
- * The small line under a block's title: which topic and why this page for a concept, the page or
+ * The small line under a block's title: which subject ("Root › Subject" when it sits inside a
+ * topic) and why this page for a concept, the page or
  * the note for a time block, and how many flashcards are waiting. Parts are joined with " · ".
  */
 export function blockDetail(block: {
@@ -256,7 +267,7 @@ export function blockDetail(block: {
     if (block.undecided && block.mode === 'GOAL' && block.target === null) {
         parts.push({ key: 'StudyCycleDetailDecidedLater' });
     } else if (isConceptBlock(block)) {
-        parts.push({ text: block.topic.title });
+        parts.push({ text: subjectLabel(block.topic) });
         if (block.goalSource === 'PAGE') parts.push({ key: 'StudyCycleDetailChosenPage' });
         else parts.push({ key: block.targetPreview ? 'StudyCycleDetailNextIfNothingChanges' : 'StudyCycleDetailNextOnRoadmap' });
         if (block.requireQuiz) parts.push({ key: 'StudyCycleDetailQuizRequired' });

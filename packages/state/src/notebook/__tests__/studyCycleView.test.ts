@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BlockTarget, StudyBlock, StudyCycle, StudyHistory, TodayEntry } from '@beyou/types/notebook/studyCycle';
 import {
-    blockDetail, blockFigure, blockPage, blockTitle, conceptComesBackAt, conceptUndecided, creditTarget, currentEntry, detailText,
+    blockDetail, blockFigure, blockPage, blockTitle, blockTitleRoot, conceptComesBackAt, conceptUndecided, creditTarget, currentEntry, detailText,
     entryConceptUndecided,
     factsOfBlock, factsOfEntry, formatStudyMinutes, historyTotals, mondayOf, moveBlock, nextBlockOfTopic, orderedDays, previewCredit,
     topicWeight, weekdayOf, weekFrom, weekMinutes,
@@ -131,6 +131,20 @@ describe('study cycle view', () => {
         expect(detailText(blockDetail({ ...base, mode: 'TIME', page: { id: 'pg', title: 'Integrais', icon: null } }), t)).toBe('Integrais');
         // The topic itself as the page adds nothing the title does not already say.
         expect(blockDetail({ ...base, mode: 'TIME', page: { id: 'const', title: 'Dir. Constitucional', icon: null } })).toEqual([]);
+    });
+
+    it('names a nested subject with its root: in front of the title for time, on the line below for a concept', () => {
+        const t = (key: string) => key;
+        const nested = { id: 'impl', title: 'Implementação 2.0', icon: null, rootTitle: 'Software Engineer' };
+        expect(blockTitleRoot(facts({ topic: nested }))).toBe('Software Engineer');
+        expect(blockTitleRoot(facts({ topic: nested, mode: 'GOAL', target: target() }))).toBeNull();
+        // A root subject, and a server older than subjects that sends no rootTitle at all.
+        expect(blockTitleRoot(facts({ topic: { ...nested, rootTitle: null } }))).toBeNull();
+        expect(blockTitleRoot(facts())).toBeNull();
+
+        const base = { topic: nested, goalSource: 'NEXT' as const, target: target(), targetPreview: false, page: null, note: null, requireQuiz: false };
+        expect(detailText(blockDetail({ ...base, mode: 'GOAL' }), t))
+            .toBe('Software Engineer › Implementação 2.0 · StudyCycleDetailNextOnRoadmap');
     });
 
     it('finds the block the day is on and where its concept comes back', () => {
