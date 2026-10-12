@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { getNotebookHome, getStudyCycle, getStudyCycles, getTopicTree } from '@beyou/api/notebook';
-import { enterNotebookHome, enterNotebookTree, enterStudyCycle, enterStudyCycles } from '@beyou/state';
+import {
+  enterNotebookHome, enterNotebookTree, enterStudyCycle, enterStudyCycles, forestOfTrees, subjectSubtree,
+} from '@beyou/state';
 import type { StudyCycle } from '@beyou/types/notebook/studyCycle';
 import type { AppDispatch, RootState } from '../../store';
-import { topicPages, type PageOption } from './cycleText';
 
 /**
  * Every active cycle, in full, in the list's order. The session sheet needs them to say which
@@ -64,25 +65,53 @@ export function useNotebookTopics(active = true) {
 }
 
 /**
- * A topic and the pages under it, for a block's or a session's page picker. The tree comes from
- * the notebook slice when the topic's page screen already read it, from the server otherwise.
+ * The notebook's root topics and the tree of each, for the study cycle's pickers. A subject can be
+ * any page, so finding one, its root or its pages means reading every root's tree; a notebook has
+ * a handful of roots, so that is a handful of small reads.
+ *
+ * Each tree is read once per mount even when the slice already holds one: a tree a page screen
+ * read an hour ago would miss the pages added since. The held ones show meanwhile. `roots` is
+ * null until the home arrives.
  */
-export function useTopicPages(topic: { id: string; title: string } | null): PageOption[] {
+export function useNotebookTrees(active = true) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const tree = useSelector((s: RootState) => (topic ? s.notebook.trees[topic.id] : undefined));
-  const topicId = topic?.id ?? null;
+  const roots = useNotebookTopics(active);
+  const trees = useSelector((s: RootState) => s.notebook.trees);
+  const requested = useRef(new Set<string>());
 
   useEffect(() => {
-    if (!topicId || tree) return;
-    let cancelled = false;
-    void getTopicTree(topicId, t).then((response) => {
-      if (!cancelled && response.success) dispatch(enterNotebookTree(response.success));
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [dispatch, topicId, tree, t]);
+    if (!active || !roots) return;
+    for (const root of roots) {
+      if (requested.current.has(root.id)) continue;
+      requested.current.add(root.id);
+      void getTopicTree(root.id, t).then((response) => {
+        if (response.success) dispatch(enterNotebookTree(response.success));
+      });
+    }
+  }, [active, dispatch, roots, t]);
 
-  return useMemo(() => (topic ? topicPages(topic, tree) : []), [topic, tree]);
+  return { roots, trees };
+}
+
+/** A page in a subject's picker, indented by how deep it sits under the subject. */
+export type PageOption = { id: string; title: string; depth: number };
+
+/**
+ * A subject and the pages under it, depth first, for a block's or a session's page picker. The
+ * server takes only a page inside the subject, so the rest of its topic is not offered, and
+ * neither are nodes linked in from another topic (their home is elsewhere). Until the subject
+ * turns up in a tree, or when it never does, the subject alone.
+ */
+export function useSubjectPages(subject: { id: string; title: string } | null): PageOption[] {
+  const { trees } = useNotebookTrees(subject !== null);
+  const subjectId = subject?.id ?? null;
+  const subjectTitle = subject?.title ?? '';
+
+  return useMemo(() => {
+    if (!subjectId) return [];
+    const found = subjectSubtree(forestOfTrees(trees), subjectId);
+    if (found.length === 0) return [{ id: subjectId, title: subjectTitle, depth: 0 }];
+    return found.map(({ id, title, depth }) => ({ id, title, depth }));
+  }, [trees, subjectId, subjectTitle]);
 }

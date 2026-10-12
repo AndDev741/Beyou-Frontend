@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useStore } from 'react-redux';
 import { logStudySession } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { addDaysIso, blockTitle, creditTarget, factsOfBlock, formatStudyMinutes, refreshStudyCycles } from '@beyou/state';
+import {
+  addDaysIso, blockTitle, blockTitleRoot, creditTarget, factsOfBlock, formatStudyMinutes, refreshStudyCycles, subjectLabel,
+} from '@beyou/state';
 import type { StudyBlock, StudyCycle } from '@beyou/types/notebook/studyCycle';
 import BottomSheet from '../../ui/BottomSheet';
 import Button from '../../ui/Button';
@@ -17,7 +19,8 @@ import ProgressBar from '../ProgressBar';
 import { notify } from '../../notify';
 import type { AppDispatch, RootState } from '../../store';
 import { SESSION_DAYS_BACK, SESSION_MINUTES } from './cycleText';
-import { useCyclesInFull, useNotebookTopics, useTopicPages } from './useCycleData';
+import { useCyclesInFull, useNotebookTopics, useSubjectPages } from './useCycleData';
+import RootPrefix from './RootPrefix';
 
 const NO_PAGE = '';
 
@@ -30,8 +33,11 @@ interface LogSessionSheetProps {
   onLogged?: () => void;
 }
 
-/** A topic the session can go to, and the cycle that holds it (null outside every cycle). */
-type TopicChoice = { id: string; title: string; cycle: StudyCycle | null };
+/**
+ * A subject the session can go to, and the cycle that holds it (null outside every cycle).
+ * `label` names a page inside a topic with its root: "Software Engineer › Implementação 2.0".
+ */
+type TopicChoice = { id: string; title: string; label: string; cycle: StudyCycle | null };
 
 /**
  * "Log a session": study done outside the timer (a book, a class, exercises on paper). Topic, an
@@ -70,17 +76,18 @@ export default function LogSessionSheet({ visible, onClose, topicId, onLogged }:
 
   const choices = useMemo<TopicChoice[]>(() => {
     const inCycles = cycles.flatMap((cycle) =>
-      cycle.topics.map((topic) => ({ id: topic.topicId, title: topic.topic.title, cycle })),
+      cycle.topics.map((topic) => ({ id: topic.topicId, title: topic.topic.title, label: subjectLabel(topic.topic), cycle })),
     );
     const taken = new Set(inCycles.map((choice) => choice.id));
     const others = (notebookTopics ?? [])
       .filter((topic) => !taken.has(topic.id))
-      .map((topic) => ({ id: topic.id, title: topic.title, cycle: null }));
+      .map((topic) => ({ id: topic.id, title: topic.title, label: topic.title, cycle: null }));
     return [...inCycles, ...others];
   }, [cycles, notebookTopics]);
 
   const topic = choices.find((choice) => choice.id === chosenTopic) ?? choices[0] ?? null;
-  const pages = useTopicPages(topic);
+  // The subject's own pages, read only while the sheet is open.
+  const pages = useSubjectPages(visible ? topic : null);
   const minutes = Number.parseInt(minutesText, 10);
   const validMinutes = Number.isInteger(minutes) && minutes >= 1 && minutes <= 600;
   const target = topic?.cycle ? creditTarget(topic.cycle, topic.id) : null;
@@ -141,7 +148,7 @@ export default function LogSessionSheet({ visible, onClose, topicId, onLogged }:
                 value={topic.id}
                 options={choices.map((choice) => ({
                   value: choice.id,
-                  label: choice.cycle ? `${choice.title} · ${choice.cycle.name}` : choice.title,
+                  label: choice.cycle ? `${choice.label} · ${choice.cycle.name}` : choice.label,
                 }))}
                 onChange={(value) => {
                   setChosenTopic(value);
@@ -260,6 +267,7 @@ function CreditPreview({ cycle, block, minutes }: { cycle: StudyCycle | null; bl
       </Text>
       <View className="flex-row items-baseline justify-between gap-2">
         <Text className="min-w-0 flex-1 text-[14px] font-semibold text-text" numberOfLines={1}>
+          <RootPrefix root={blockTitleRoot(factsOfBlock(block))} className="text-[12px]" />
           {blockTitle(factsOfBlock(block), t)}
         </Text>
         <Text className="font-mono-semibold text-[12px] text-text" testID="log-session-preview-minutes">

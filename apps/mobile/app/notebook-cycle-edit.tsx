@@ -7,7 +7,10 @@ import { useDispatch, useStore } from 'react-redux';
 import { Check, Minus, Plus, Target, X } from 'lucide-react-native';
 import { createStudyCycle, getStudyCycle, planStudyCycle, updateStudyCycle } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { WEEKDAYS, enterStudyCycle, formatStudyMinutes, orderedDays, refreshStudyCycles, weekMinutes } from '@beyou/state';
+import {
+  WEEKDAYS, enterStudyCycle, formatStudyMinutes, orderedDays, refreshStudyCycles, subjectLabel, subjectOptions, weekMinutes,
+  type SubjectOption,
+} from '@beyou/state';
 import type { BlockMode, CycleDay, CycleTopic, PlanResponse, PlanTopic } from '@beyou/types/notebook/studyCycle';
 import BottomSheet from '../src/ui/BottomSheet';
 import Button from '../src/ui/Button';
@@ -18,7 +21,8 @@ import SegmentedControl from '../src/ui/SegmentedControl';
 import TimeField from '../src/ui/routines/TimeField';
 import { useKeyboardLift } from '../src/ui/keyboard';
 import { MAX_BLOCK_CHOICES, PLAN_DEBOUNCE_MS, weekdayLabel } from '../src/notebook/cycles/cycleText';
-import { useCyclesInFull, useNotebookTopics } from '../src/notebook/cycles/useCycleData';
+import { useCyclesInFull, useNotebookTrees } from '../src/notebook/cycles/useCycleData';
+import RootPrefix from '../src/notebook/cycles/RootPrefix';
 import { notify } from '../src/notify';
 import { useBeyouTheme } from '../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../src/store';
@@ -27,7 +31,8 @@ const MAX_TOPICS = 30;
 const DAY_STEP = 30;
 const DAY_MAX = 720;
 
-type DraftTopic = CycleTopic & { title: string };
+/** A subject of the cycle being built. `rootTitle` is null for a root topic. */
+type DraftTopic = CycleTopic & { title: string; rootTitle: string | null };
 
 /** A new cycle's week: an hour on weekdays, the weekend free. The person changes it here. */
 const DEFAULT_DAYS: CycleDay[] = WEEKDAYS.map((weekday) => ({
@@ -38,11 +43,11 @@ const DEFAULT_DAYS: CycleDay[] = WEEKDAYS.map((weekday) => ({
 
 /**
  * Building or editing a study cycle, with the calculator: the week (minutes per day, an optional
- * start time), the default goal of new blocks, the longest block, and the notebook topics with
- * how much each matters and how well it is known. The server's planner (`POST /cycles/plan`, the
- * same arithmetic it saves with) turns that into each topic's minutes and the order of the
- * blocks, shown live: asked again 300 ms after the last change, an older answer that arrives late
- * is dropped.
+ * start time), the default goal of new blocks, the longest block, and the subjects (a notebook
+ * topic or any page inside one) with how much each matters and how well it is known. The
+ * server's planner (`POST /cycles/plan`, the same arithmetic it saves with) turns that into each
+ * subject's minutes and the order of the blocks, shown live: asked again 300 ms after the last
+ * change, an older answer that arrives late is dropped.
  *
  * Saving a change to an existing cycle re-plans it on the server, which keeps each block's
  * progress by topic.
@@ -56,7 +61,7 @@ export default function NotebookCycleEditScreen() {
   const insets = useContext(SafeAreaInsetsContext) ?? { top: 0, bottom: 0 };
   const { lift, onLayout } = useKeyboardLift();
   const { id: editId } = useLocalSearchParams<{ id?: string }>();
-  const notebookTopics = useNotebookTopics();
+  const { roots: notebookTopics, trees } = useNotebookTrees();
   const { cycles, load: loadCycles } = useCyclesInFull();
 
   const [hydrated, setHydrated] = useState(!editId);
@@ -96,6 +101,7 @@ export default function NotebookCycleEditScreen() {
           mastery: topic.mastery,
           minutesOverride: topic.minutesOverride,
           title: topic.topic.title,
+          rootTitle: topic.topic.rootTitle ?? null,
         })),
       );
       setHydrated(true);
@@ -133,15 +139,24 @@ export default function NotebookCycleEditScreen() {
     return () => clearTimeout(timer);
   }, [planKey, hydrated]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** Topics another active cycle holds: a topic belongs to one active cycle at most. */
+  /**
+   * Subjects another active cycle holds. A page belongs to one active cycle at most, and so does
+   * everything above and below it, which the picker works out from these.
+   */
   const takenBy = useMemo(() => {
-    const map = new Map<string, string>();
+    const map: Record<string, string> = {};
     for (const cycle of cycles) {
       if (cycle.id === editId) continue;
-      for (const topic of cycle.topics) map.set(topic.topicId, cycle.name);
+      for (const topic of cycle.topics) map[topic.topicId] = cycle.name;
     }
     return map;
   }, [cycles, editId]);
+
+  // Every root and the pages under it, depth first, each with the reason it cannot join.
+  const options = useMemo(
+    () => (notebookTopics ? subjectOptions({ roots: notebookTopics, trees, picked: topics.map((draft) => draft.topicId), taken: takenBy }) : null),
+    [notebookTopics, trees, topics, takenBy],
+  );
 
   const planOf = (topicId: string): PlanTopic | undefined => plan?.topics.find((topic) => topic.topicId === topicId);
   const titleOf = (topicId: string) => topics.find((topic) => topic.topicId === topicId)?.title ?? '';
@@ -151,14 +166,25 @@ export default function NotebookCycleEditScreen() {
     setDays((current) => current.map((day, i) => (i === index ? { ...day, ...patch } : day)));
   const setTopic = (topicId: string, patch: Partial<DraftTopic>) =>
     setTopics((current) => current.map((topic) => (topic.topicId === topicId ? { ...topic, ...patch } : topic)));
-  const toggleTopic = (topic: { id: string; title: string }) =>
+  /** A tap on a picker row: takes a picked subject out, adds an open one, leaves a closed one. */
+  const toggleTopic = (option: SubjectOption) =>
     setTopics((current) =>
-      current.some((draft) => draft.topicId === topic.id)
-        ? current.filter((draft) => draft.topicId !== topic.id)
-        : current.length >= MAX_TOPICS
+      current.some((draft) => draft.topicId === option.id)
+        ? current.filter((draft) => draft.topicId !== option.id)
+        : current.length >= MAX_TOPICS || option.disabledReason !== null
           ? current
-          : [...current, { topicId: topic.id, title: topic.title, importance: 3, mastery: 3, minutesOverride: null }],
+          : [...current, { topicId: option.id, title: option.title, rootTitle: option.rootTitle, importance: 3, mastery: 3, minutesOverride: null }],
     );
+
+  /** Why a picker row is closed, in a line under it; null when it is open or already picked. */
+  const closedReason = (option: SubjectOption): string | null => {
+    const reason = option.disabledReason;
+    if (reason === null || reason === 'picked') return null;
+    if (reason === 'overlapsPicked') return t('StudyCycleMobileSubjectOverlap');
+    return takenBy[option.id]
+      ? t('StudyCycleMobileTopicTaken', { name: reason.takenBy })
+      : t('StudyCycleMobileSubjectNearTaken', { name: reason.takenBy });
+  };
 
   const close = () => (router.canGoBack() ? router.back() : router.replace('/notebook-cycles'));
 
@@ -371,28 +397,36 @@ export default function NotebookCycleEditScreen() {
         <Text accessibilityRole="header" className="mb-1 text-[16px] font-semibold text-text">
           {t('StudyCycleMobileAddTopic')}
         </Text>
+        <Text className="mb-1 text-[12px] leading-4 text-text-3">{t('StudyCycleSubjectHint')}</Text>
         <ScrollView style={{ flexGrow: 0, flexShrink: 1 }} testID="cycle-edit-topic-picker">
-          {notebookTopics === null ? (
+          {options === null ? (
             <ActivityIndicator color={theme.accent} />
-          ) : notebookTopics.length === 0 ? (
+          ) : options.length === 0 ? (
             <Text className="py-3 text-[13px] text-text-2">{t('StudyCycleMobileNoTopics')}</Text>
           ) : (
-            notebookTopics.map((topic) => {
-              const chosen = topics.some((draft) => draft.topicId === topic.id);
-              const taken = takenBy.get(topic.id);
+            options.map((option) => {
+              const chosen = option.disabledReason === 'picked';
+              const reason = closedReason(option);
               return (
                 <Pressable
-                  key={topic.id}
-                  onPress={() => toggleTopic(topic)}
-                  disabled={!!taken}
+                  key={option.id}
+                  onPress={() => toggleTopic(option)}
+                  disabled={reason !== null}
                   accessibilityRole="checkbox"
-                  accessibilityState={{ checked: chosen, disabled: !!taken }}
-                  className={`flex-row items-center gap-3 py-3 ${taken ? 'opacity-50' : ''}`}
-                  testID={`cycle-edit-pick-${topic.id}`}
+                  accessibilityLabel={subjectLabel(option)}
+                  accessibilityHint={reason ?? undefined}
+                  accessibilityState={{ checked: chosen, disabled: reason !== null }}
+                  className={`flex-row items-center gap-3 py-3 ${reason ? 'opacity-50' : ''}`}
+                  style={{ paddingLeft: option.depth * 18 }}
+                  testID={`cycle-edit-pick-${option.id}`}
                 >
                   <View className="min-w-0 flex-1">
-                    <Text className={`text-[14.5px] ${chosen ? 'font-semibold text-accent' : 'text-text'}`}>{topic.title}</Text>
-                    {taken ? <Text className="text-[12px] text-text-2">{t('StudyCycleMobileTopicTaken', { name: taken })}</Text> : null}
+                    <Text
+                      className={`text-[14.5px] ${chosen ? 'font-semibold text-accent' : option.depth === 0 ? 'font-semibold text-text' : 'text-text'}`}
+                    >
+                      {option.title}
+                    </Text>
+                    {reason ? <Text className="text-[12px] text-text-2">{reason}</Text> : null}
                   </View>
                   {chosen ? <Check size={17} color={theme.accent} /> : null}
                 </Pressable>
@@ -421,10 +455,11 @@ function TopicCard({
   return (
     <Card className="gap-2.5" testID="cycle-edit-topic">
       <View className="flex-row items-center gap-2">
-        <Text className="min-w-0 flex-1 text-[15px] font-semibold text-text" numberOfLines={1}>
+        <Text className="min-w-0 flex-1 text-[15px] font-semibold text-text" numberOfLines={1} testID="cycle-edit-topic-title">
+          <RootPrefix root={topic.rootTitle} className="text-[12.5px]" />
           {topic.title}
         </Text>
-        <IconButton label={t('StudyCycleMobileRemoveTopic', { title: topic.title })} onPress={onRemove} testID="cycle-edit-topic-remove">
+        <IconButton label={t('StudyCycleMobileRemoveTopic', { title: subjectLabel(topic) })} onPress={onRemove} testID="cycle-edit-topic-remove">
           <X size={16} color={theme.text3} />
         </IconButton>
       </View>
@@ -456,7 +491,7 @@ function TopicCard({
         <MinutesField
           value={topic.minutesOverride}
           suggested={plan?.suggestedMinutes ?? null}
-          label={t('StudyCycleMobileTopicMinutes', { title: topic.title })}
+          label={t('StudyCycleMobileTopicMinutes', { title: subjectLabel(topic) })}
           onChange={(minutesOverride) => onChange({ minutesOverride })}
         />
       </View>

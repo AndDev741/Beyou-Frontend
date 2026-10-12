@@ -7,12 +7,13 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import { ChevronLeft, ChevronRight, Target, Trash2, X } from 'lucide-react-native';
 import { deleteStudySession, getStudyCycles, getStudyHistory } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { addDaysIso, enterStudyCycles, formatStudyMinutes, refreshStudyCycles } from '@beyou/state';
+import { addDaysIso, enterStudyCycles, formatStudyMinutes, refreshStudyCycles, subjectLabel } from '@beyou/state';
 import type { HistoryEntry, StudyHistory, StudyHistoryDay } from '@beyou/types/notebook/studyCycle';
 import Card from '../src/ui/Card';
 import Chip from '../src/ui/Chip';
 import IconButton from '../src/ui/IconButton';
 import HeaderIconButton from '../src/notebook/cycles/HeaderIconButton';
+import RootPrefix from '../src/notebook/cycles/RootPrefix';
 import useTodayInZone from '../src/ui/useTodayInZone';
 import { formatClock, formatIsoDay, mondayOf, topicColor, weekdayOfIso, weekdayLabel } from '../src/notebook/cycles/cycleText';
 import { notify } from '../src/notify';
@@ -99,7 +100,7 @@ export default function NotebookCycleHistoryScreen() {
   const removeSession = (entry: ManualEntry) => {
     Alert.alert(
       t('StudyCycleMobileDeleteSessionTitle'),
-      t('StudyCycleMobileDeleteSessionBody', { minutes: formatStudyMinutes(entry.minutes), topic: entry.topic.title }),
+      t('StudyCycleMobileDeleteSessionBody', { minutes: formatStudyMinutes(entry.minutes), topic: subjectLabel(entry.topic) }),
       [
         { text: t('Cancel'), style: 'cancel' },
         { text: t('Delete'), style: 'destructive', onPress: () => void confirmRemove(entry) },
@@ -195,7 +196,10 @@ export default function NotebookCycleHistoryScreen() {
                 return (
                   <View key={topic.id} className="flex-row items-center gap-1.5">
                     <View className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: color, opacity }} />
-                    <Text className="text-[12px] text-text-2">{topic.title}</Text>
+                    <Text className="text-[12px] text-text-2">
+                      <RootPrefix root={topic.rootTitle} className="text-text-3" />
+                      {topic.title}
+                    </Text>
                   </View>
                 );
               })}
@@ -336,6 +340,7 @@ function EntryLine({
       <View className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color, opacity }} />
       <View className="min-w-0 flex-1">
         <Text className="text-[13.5px] font-semibold text-text" numberOfLines={1}>
+          <RootPrefix root={entry.topic.rootTitle} className="text-[12px]" />
           {entry.topic.title}
         </Text>
         {detail ? (
@@ -349,7 +354,7 @@ function EntryLine({
       </Chip>
       <Text className="font-mono-semibold text-[12px] text-text">{`${entry.minutes} min`}</Text>
       {manual ? (
-        <IconButton label={t('StudyCycleMobileDeleteSession', { topic: entry.topic.title })} tone="danger" onPress={() => onDelete(entry)} testID="history-entry-delete">
+        <IconButton label={t('StudyCycleMobileDeleteSession', { topic: subjectLabel(entry.topic) })} tone="danger" onPress={() => onDelete(entry)} testID="history-entry-delete">
           <Trash2 size={15} color={theme.text2} />
         </IconButton>
       ) : null}

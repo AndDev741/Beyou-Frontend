@@ -23,7 +23,9 @@ import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import { notify } from '../src/notify';
 import NotebookCyclesScreen from '../app/notebook-cycles';
-import { faculdade, fakeServer, summaryOf, today, topicTree, trt, TOPICS, type Call } from './fixtures/studyCycle';
+import {
+  faculdade, fakeServer, NESTED, nestedHome, seTree, summaryOf, today, topicTree, trt, TOPICS, type Call,
+} from './fixtures/studyCycle';
 
 let calls: Call[] = [];
 let archived = false;
@@ -35,12 +37,14 @@ beforeEach(() => {
   archived = false;
   setLogger({ error: () => {} });
   calls = fakeServer({
+    'GET /notebook/home': nestedHome,
     'GET /notebook/cycles': () => (archived ? [summaryOf(faculdade())] : [summaryOf(trt()), summaryOf(faculdade())]),
     'GET /notebook/cycles/trt': trt(),
     'GET /notebook/cycles/fac': faculdade(),
     'GET /notebook/cycles/today': today(),
     'GET /notebook/topics/adm/tree': topicTree('adm'),
     'GET /notebook/topics/port/tree': topicTree('port'),
+    'GET /notebook/topics/se/tree': seTree,
     'PATCH /notebook/cycles/trt/blocks/b4': (call: Call) =>
       withBlocks(trt(), trt().blocks.map((b) => (b.id === 'b4' ? { ...b, ...call.body, page: b.page } : b))),
     'PATCH /notebook/cycles/trt/blocks/b5': (call: Call) =>
@@ -158,6 +162,32 @@ describe('NotebookCyclesScreen', () => {
     expect(patch?.body).toMatchObject({ mode: 'GOAL', goalSource: 'PAGE', pageId: 'adm-a1' });
   });
 
+  it('names a nested subject with its root and offers only the pages inside it', async () => {
+    const nested = withBlocks(trt(), trt().blocks.map((b) => (b.id === 'b5' ? { ...b, topic: NESTED.fund } : b)));
+    fakeServer({
+      'GET /notebook/home': nestedHome,
+      'GET /notebook/cycles': [summaryOf(nested)],
+      'GET /notebook/cycles/trt': nested,
+      'GET /notebook/cycles/today': today(),
+      'GET /notebook/topics/se/tree': seTree,
+    });
+    await renderScreen();
+
+    const row = screen.getAllByTestId('block-row')[4];
+    expect(within(row).getByTestId('subject-root')).toHaveTextContent('Software Engineer ›');
+    expect(row).toHaveTextContent(/Fundamentos da Computação/);
+
+    await press(row);
+    await press(screen.getByTestId('block-mode-GOAL'));
+    await press(screen.getByTestId('block-source-PAGE'));
+    await press(screen.getByTestId('block-page'));
+    await waitFor(() => expect(screen.getByTestId('block-page-option-redes')).toBeTruthy());
+    expect(screen.getByTestId('block-page-option-fund')).toBeTruthy();
+    // Its sibling and the root it sits in are another subject's business.
+    expect(screen.queryByTestId('block-page-option-impl')).toBeNull();
+    expect(screen.queryByTestId('block-page-option-se')).toBeNull();
+  });
+
   it('a refused PATCH keeps the sheet open and says why', async () => {
     fakeServer({
       'GET /notebook/cycles': [summaryOf(trt())],
@@ -236,5 +266,32 @@ describe('NotebookCyclesScreen', () => {
     await waitFor(() =>
       expect(screen.getByTestId('log-session-topic')).toHaveProp('accessibilityValue', { text: `${TOPICS.const.title} · Concurso TRT` }),
     );
+  });
+
+  it('logs a session on a nested subject, named with its root, among its own pages', async () => {
+    // Every block of the lap studies Fundamentos, a page inside Software Engineer.
+    const nested: StudyCycle = {
+      ...trt(),
+      topics: [{ topicId: 'fund', importance: 3, mastery: 3, minutesOverride: null, topic: NESTED.fund }],
+      blocks: trt().blocks.map((b) => ({ ...b, topic: NESTED.fund })),
+    };
+    fakeServer({
+      'GET /notebook/home': nestedHome,
+      'GET /notebook/cycles': [summaryOf(nested)],
+      'GET /notebook/cycles/trt': nested,
+      'GET /notebook/cycles/today': today({ cycles: [] }),
+      'GET /notebook/topics/se/tree': seTree,
+    });
+    await renderScreen();
+
+    await press(screen.getByTestId('cycles-log'));
+    await waitFor(() =>
+      expect(screen.getByTestId('log-session-topic')).toHaveProp('accessibilityValue', {
+        text: 'Software Engineer › Fundamentos da Computação · Concurso TRT',
+      }),
+    );
+    await press(screen.getByTestId('log-session-page'));
+    await waitFor(() => expect(screen.getByTestId('log-session-page-option-redes')).toBeTruthy());
+    expect(screen.queryByTestId('log-session-page-option-impl')).toBeNull();
   });
 });

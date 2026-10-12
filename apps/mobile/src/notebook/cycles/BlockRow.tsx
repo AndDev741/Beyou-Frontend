@@ -1,13 +1,14 @@
 import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronDown, ChevronUp, RotateCw } from 'lucide-react-native';
-import { blockFigure, blockTitle, factsOfBlock, isClosed } from '@beyou/state';
+import { blockFigure, blockTitle, blockTitleRoot, factsOfBlock, isClosed } from '@beyou/state';
 import type { StudyBlock } from '@beyou/types/notebook/studyCycle';
 import Chip from '../../ui/Chip';
 import IconButton from '../../ui/IconButton';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import FigureBar, { FIGURE_TEXT } from './FigureBar';
 import { blockSubline, figureText } from './cycleText';
+import RootPrefix from './RootPrefix';
 
 /** Where the block stands against today's slice: the one to study now, later today, or neither. */
 export type TodayBadge = 'next' | 'today' | null;
@@ -62,7 +63,10 @@ export default function BlockRow({
   const body = (
     <View className="min-w-0 flex-1 gap-1.5">
       <View className="flex-row flex-wrap items-center gap-1.5">
-        <Text className="shrink text-[14.5px] font-semibold text-text">{blockTitle(factsOfBlock(block), t)}</Text>
+        <Text className="shrink text-[14.5px] font-semibold text-text">
+          <RootPrefix root={blockTitleRoot(factsOfBlock(block))} className="text-[12.5px]" />
+          {blockTitle(factsOfBlock(block), t)}
+        </Text>
         <Chip size="sm" variant={block.mode === 'GOAL' ? 'accent' : 'neutral'}>
           {t(block.mode === 'GOAL' ? 'StudyCycleMobileModeGoal' : 'StudyCycleMobileModeTime')}
         </Chip>

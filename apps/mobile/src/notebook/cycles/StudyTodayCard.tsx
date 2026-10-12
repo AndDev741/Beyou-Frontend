@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Check, Plus, Repeat, RotateCw, Timer } from 'lucide-react-native';
-import { blockFigure, blockTitle, formatStudyMinutes, isConceptBlock } from '@beyou/state';
+import { blockFigure, blockTitle, blockTitleRoot, formatStudyMinutes, isConceptBlock } from '@beyou/state';
 import type { StudyToday, StudyTodayCycle, TodayEntry } from '@beyou/types/notebook/studyCycle';
 import Button from '../../ui/Button';
 import Card from '../../ui/Card';
@@ -11,6 +11,7 @@ import { useBeyouTheme } from '../../theme/ThemeProvider';
 import FigureBar, { FIGURE_TEXT } from './FigureBar';
 import { blockSubline, figureText, formatIsoDay, studyPageOf } from './cycleText';
 import { useStudyFocus } from './useStudyFocus';
+import RootPrefix from './RootPrefix';
 
 interface StudyTodayCardProps {
   today: StudyToday | null;
@@ -178,6 +179,7 @@ function DoneRow({ entry }: { entry: TodayEntry }) {
       </View>
       <View className="min-w-0 flex-1 gap-px">
         <Text className="text-[14px] font-semibold text-text" numberOfLines={1}>
+          <RootPrefix root={blockTitleRoot(entry)} className="text-[12px]" />
           {blockTitle(entry, t)}
         </Text>
         {sub ? (
@@ -202,6 +204,7 @@ function EntryRow({ entry, timed }: { entry: TodayEntry; timed: boolean }) {
       {timed ? <Text className="w-11 font-mono text-[12px] text-text-2">{entry.start ?? ''}</Text> : null}
       <View className="min-w-0 flex-1 gap-px">
         <Text className="text-[14px] font-semibold text-text" numberOfLines={2}>
+          <RootPrefix root={blockTitleRoot(entry)} className="text-[12px]" />
           {blockTitle(entry, t)}
         </Text>
         <Text className="text-[12px] text-text-2" numberOfLines={2}>
@@ -226,7 +229,10 @@ function CurrentEntry({ entry, timed, onOpenPage }: { entry: TodayEntry; timed: 
       <View className="flex-row items-start gap-2.5">
         {timed ? <Text className="w-11 pt-0.5 font-mono-semibold text-[12px] text-accent">{entry.start ?? ''}</Text> : null}
         <View className="min-w-0 flex-1 gap-0.5">
-          <Text className="text-[15px] font-semibold text-text">{blockTitle(entry, t)}</Text>
+          <Text className="text-[15px] font-semibold text-text">
+            <RootPrefix root={blockTitleRoot(entry)} className="text-[12.5px]" />
+            {blockTitle(entry, t)}
+          </Text>
           <Text className="text-[12px] leading-4 text-text-2">{entrySub(entry, t)}</Text>
         </View>
       </View>

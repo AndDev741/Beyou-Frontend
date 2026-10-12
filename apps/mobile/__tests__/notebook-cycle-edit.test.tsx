@@ -24,7 +24,9 @@ import { makeStore } from '../src/store';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import { notify } from '../src/notify';
 import NotebookCycleEditScreen from '../app/notebook-cycle-edit';
-import { faculdade, fakeServer, notebookHome, summaryOf, today, trt, type Call } from './fixtures/studyCycle';
+import {
+  faculdade, fakeServer, nestedHome, notebookHome, seTree, summaryOf, today, trt, type Call,
+} from './fixtures/studyCycle';
 
 let calls: Call[] = [];
 
@@ -179,6 +181,41 @@ describe('NotebookCycleEditScreen', () => {
     await waitFor(() => expect(screen.getByTestId('cycle-edit-pick-calc')).toHaveTextContent(/In Faculdade/));
     expect(screen.getByTestId('cycle-edit-pick-calc')).toBeDisabled();
     expect(screen.getByTestId('cycle-edit-pick-const')).toHaveTextContent(/In Concurso TRT/);
+  });
+
+  it('offers the pages inside a topic and closes whatever overlaps a subject', async () => {
+    // Faculdade holds Testes, a page inside Implementação 2.0.
+    const holder = faculdade({
+      topics: [{ topicId: 'testes', importance: 3, mastery: 3, minutesOverride: null, topic: { id: 'testes', title: 'Testes', icon: null, rootTitle: 'Software Engineer' } }],
+    });
+    calls = fakeServer({
+      'GET /notebook/home': nestedHome,
+      'GET /notebook/topics/se/tree': seTree,
+      'GET /notebook/cycles': [summaryOf(holder)],
+      'GET /notebook/cycles/fac': holder,
+      'GET /notebook/cycles/today': today(),
+      'POST /notebook/cycles/plan': (call: Call) => planFor(call.body),
+      'POST /notebook/cycles': (call: Call) => ({ ...trt(), id: 'new', name: call.body.name }),
+    });
+    await renderEditor();
+    await type('cycle-edit-name', 'Carreira');
+
+    await press('cycle-edit-add-topic');
+    await waitFor(() => expect(screen.getByTestId('cycle-edit-pick-redes')).toBeTruthy());
+    expect(screen.getByTestId('cycle-edit-pick-testes')).toHaveTextContent(/In Faculdade/);
+    expect(screen.getByTestId('cycle-edit-pick-impl')).toHaveTextContent(/Overlaps a subject in Faculdade/);
+    expect(screen.getByTestId('cycle-edit-pick-impl')).toBeDisabled();
+    expect(screen.getByTestId('cycle-edit-pick-se')).toBeDisabled();
+
+    await press('cycle-edit-pick-fund');
+    expect(screen.getByTestId('cycle-edit-pick-redes')).toHaveTextContent(/Overlaps a subject you picked/);
+    expect(screen.getByTestId('cycle-edit-pick-redes')).toBeDisabled();
+    await press('cycle-edit-pick-done');
+
+    expect(screen.getByTestId('cycle-edit-topic-title')).toHaveTextContent('Software Engineer › Fundamentos da Computação');
+    await press('cycle-edit-save');
+    const post = calls.find((call) => call.method === 'POST' && call.url === '/notebook/cycles');
+    expect(post?.body.topics.map((topic: { topicId: string }) => topic.topicId)).toEqual(['fund']);
   });
 
   it('creates the cycle with POST and opens it on the cycle screen', async () => {

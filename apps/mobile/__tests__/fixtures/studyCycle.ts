@@ -170,6 +170,39 @@ export const topicTree = (topicId: keyof typeof TOPICS) => ({
   cardsDue: 0,
 });
 
+/**
+ * A root whose areas are subjects of their own, the notebook the subjects follow-up was reported
+ * on: Software Engineer holds Fundamentos (with Redes under it) and Implementação 2.0 (with Testes).
+ */
+export const SE = { id: 'se', title: 'Software Engineer', icon: null };
+export const NESTED = {
+  fund: { id: 'fund', title: 'Fundamentos da Computação', icon: null, rootTitle: 'Software Engineer' },
+  impl: { id: 'impl', title: 'Implementação 2.0', icon: null, rootTitle: 'Software Engineer' },
+};
+const page = (id: string, parentId: string, title: string, position: number) => ({
+  id, parentId, title, icon: null, status: 'TO_STUDY', onBoard: true, linked: false, progress: { done: 0, total: 1 }, position,
+});
+export const seTree = {
+  topic: SE,
+  items: [
+    page('fund', 'se', 'Fundamentos da Computação', 0),
+    page('redes', 'fund', 'Redes', 0),
+    page('impl', 'se', 'Implementação 2.0', 1),
+    page('testes', 'impl', 'Testes', 0),
+  ],
+  sourcesCount: 0,
+  cardsDue: 0,
+};
+
+/** The notebook home with Software Engineer after the canvas's topics. */
+export const nestedHome = {
+  ...notebookHome,
+  topics: [
+    ...notebookHome.topics,
+    { ...notebookHome.topics[0], id: SE.id, title: SE.title, habit: null },
+  ],
+};
+
 export type Call = { method: string; url: string; body?: any; params?: any };
 
 type Handler = (call: Call) => unknown;

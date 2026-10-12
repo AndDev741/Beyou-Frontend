@@ -333,7 +333,13 @@ Contract: `docs/superpowers/plans/2026-10-11-study-cycle.md` in the workspace ro
 calls, the `studyCycles` slice, `refreshStudyCycles` and the block wording (`blockTitle`,
 `blockFigure`, `creditTarget`, `formatStudyMinutes`…) are shared in `@beyou/*`; the phone only adds
 screens and a few local helpers in `src/notebook/cycles/cycleText.ts` (the line under a block, the
-page a block studies on, a topic's page picker, calendar arithmetic).
+page a block studies on, calendar arithmetic).
+
+A subject is any notebook page, a root topic or a page under one (contract section 10). The picker
+options, why one is closed, a subject's own pages and "Root › Subject" come from
+`@beyou/state` `studyCycleSubjects`, shared with the web; `useNotebookTrees` / `useSubjectPages`
+in `useCycleData.ts` read every root's tree to find a subject in. A nested subject's root shows as a
+small muted prefix inside the title's `<Text>` (`RootPrefix`).
 
 - **Notebook home**: `StudyTodayCard` on top (today's slice per cycle, clock times, "Focus 25" and
   "Open" on each cycle's first open block, the no-cycle invitation, the resting line) and the
