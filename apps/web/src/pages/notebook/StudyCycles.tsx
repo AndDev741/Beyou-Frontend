@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { Archive, ChevronDown, ChevronLeft, ChevronUp, History, Pencil, Plus, Repeat } from "lucide-react";
-import { archiveStudyCycle, getStudyCycle, getStudyCycles, replaceStudyBlocks } from "@beyou/api/notebook";
+import { Archive, ChevronDown, ChevronLeft, ChevronUp, History, Pencil, Plus, Repeat, Trash2 } from "lucide-react";
+import { archiveStudyCycle, deleteStudyCycle, getStudyCycle, getStudyCycles, replaceStudyBlocks } from "@beyou/api/notebook";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import {
     blockDetail, blockFigure, blockTitle, blockTitleRoot, conceptUndecided, currentEntry, detailText, enterStudyCycle, enterStudyCycles, factsOfBlock,
@@ -41,7 +41,8 @@ export default function StudyCycles() {
     const [error, setError] = useState<ApiErrorPayload | null>(null);
     const [editing, setEditing] = useState<StudyBlock | null>(null);
     const [logging, setLogging] = useState(false);
-    const [archiving, setArchiving] = useState(false);
+    // Archive keeps the cycle's history; delete takes the cycle and everything under it.
+    const [ending, setEnding] = useState<"archive" | "delete" | null>(null);
     const [moving, setMoving] = useState(false);
 
     useEffect(() => {
@@ -84,10 +85,10 @@ export default function StudyCycles() {
         else setError(response.error ?? {});
     };
 
-    const archive = async () => {
-        if (!cycle) return;
-        const response = await archiveStudyCycle(cycle.id, t);
-        setArchiving(false);
+    const end = async () => {
+        if (!cycle || !ending) return;
+        const response = ending === "archive" ? await archiveStudyCycle(cycle.id, t) : await deleteStudyCycle(cycle.id, t);
+        setEnding(null);
         if (response.error) {
             setError(response.error);
             return;
@@ -165,7 +166,7 @@ export default function StudyCycles() {
                     ) : (
                         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
                             <main className="flex min-w-0 flex-col gap-4">
-                                <LapCard cycle={cycle} onArchive={() => setArchiving(true)} />
+                                <LapCard cycle={cycle} onArchive={() => setEnding("archive")} onDelete={() => setEnding("delete")} />
                                 <section aria-label={t("StudyCycleBlocks")} className="flex flex-col gap-2" data-testid="cycle-blocks">
                                     {cycle.blocks.map((block, index) => (
                                         <BlockRow key={block.id} cycle={cycle} block={block} today={todayCycle}
@@ -186,19 +187,19 @@ export default function StudyCycles() {
             {cycle && <BlockDialog cycle={cycle} block={editing} onClose={() => setEditing(null)} onSaved={saved} />}
             <LogSessionDialog isOpen={logging} onClose={() => setLogging(false)}
                 defaultTopicId={todayCycle ? currentEntry(todayCycle)?.topic.id ?? null : cycle?.topics[0]?.topicId ?? null} />
-            <Modal isOpen={archiving} onClose={() => setArchiving(false)} labelledBy="archive-cycle-title">
+            <Modal isOpen={ending !== null} onClose={() => setEnding(null)} labelledBy="end-cycle-title">
                 <div className="flex w-full flex-col gap-3">
-                    <h2 id="archive-cycle-title" className="text-lg font-semibold text-text">
-                        {t("StudyCycleArchiveTitle", { name: cycle?.name ?? "" })}
+                    <h2 id="end-cycle-title" className="text-lg font-semibold text-text">
+                        {t(ending === "delete" ? "StudyCycleDeleteTitle" : "StudyCycleArchiveTitle", { name: cycle?.name ?? "" })}
                     </h2>
-                    <p className="text-sm text-text-2">{t("StudyCycleArchiveText")}</p>
+                    <p className="text-sm text-text-2">{t(ending === "delete" ? "StudyCycleDeleteText" : "StudyCycleArchiveText")}</p>
                     <div className="flex justify-end gap-2">
-                        <button type="button" onClick={() => setArchiving(false)} className="rounded-control px-4 py-2 text-sm font-semibold text-text-2 hover:bg-surface-2">
+                        <button type="button" onClick={() => setEnding(null)} className="rounded-control px-4 py-2 text-sm font-semibold text-text-2 hover:bg-surface-2">
                             {t("Cancel")}
                         </button>
-                        <button type="button" onClick={() => void archive()} data-testid="cycle-archive-confirm"
+                        <button type="button" onClick={() => void end()} data-testid={ending === "delete" ? "cycle-delete-confirm" : "cycle-archive-confirm"}
                             className="rounded-control bg-danger px-4 py-2 text-sm font-semibold text-on-accent">
-                            {t("StudyCycleArchive")}
+                            {t(ending === "delete" ? "StudyCycleDelete" : "StudyCycleArchive")}
                         </button>
                     </div>
                 </div>
@@ -216,7 +217,7 @@ function useDateFormat() {
 }
 
 /** The lap so far: how many blocks closed, what was understood, how much time went in. */
-function LapCard({ cycle, onArchive }: { cycle: StudyCycle; onArchive: () => void }) {
+function LapCard({ cycle, onArchive, onDelete }: { cycle: StudyCycle; onArchive: () => void; onDelete: () => void }) {
     const { t } = useTranslation();
     const format = useDateFormat();
     const { lap } = cycle;
@@ -239,6 +240,10 @@ function LapCard({ cycle, onArchive }: { cycle: StudyCycle; onArchive: () => voi
                     <button type="button" onClick={onArchive} data-testid="cycle-archive"
                         className="inline-flex h-9 items-center gap-1.5 rounded-control px-3 text-[13px] font-semibold text-text-2 hover:bg-surface-2 hover:text-danger">
                         <Archive size={14} aria-hidden="true" />{t("StudyCycleArchive")}
+                    </button>
+                    <button type="button" onClick={onDelete} data-testid="cycle-delete"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-control px-3 text-[13px] font-semibold text-text-2 hover:bg-surface-2 hover:text-danger">
+                        <Trash2 size={14} aria-hidden="true" />{t("StudyCycleDelete")}
                     </button>
                 </div>
             </div>

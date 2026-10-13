@@ -29,6 +29,10 @@ export const READ_TOOLS: ReadonlySet<string> = new Set([
   'listStudyTopics',
   'getStudyPlanForToday',
   'getStudyBoard',
+  'getStudyToday',
+  'listStudyCycles',
+  'getStudyCycle',
+  'listStudySessions',
 ]);
 
 /**

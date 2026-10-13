@@ -1,7 +1,7 @@
 /**
  * The cycle screen on a phone: the lap and its blocks as the shared wording reads them, a block's
  * own settings sent as a PATCH from its sheet, the order changed one step at a time (a PUT of the
- * whole list), and archiving behind the native confirm.
+ * whole list), and archiving or deleting behind the native confirm.
  * Boundary mocked = @beyou/api HttpClient + expo-router + notify + Alert.
  */
 jest.mock('../src/notify', () => ({ notify: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
@@ -55,6 +55,10 @@ beforeEach(() => {
         call.body.map((request: { id: string }, index: number) => ({ ...trt().blocks.find((b) => b.id === request.id)!, position: index + 1 })),
       ),
     'POST /notebook/cycles/trt/archive': () => {
+      archived = true;
+      return undefined;
+    },
+    'DELETE /notebook/cycles/trt': () => {
       archived = true;
       return undefined;
     },
@@ -239,6 +243,29 @@ describe('NotebookCyclesScreen', () => {
     await waitFor(() => expect(calls.some((call) => call.method === 'POST' && call.url === '/notebook/cycles/trt/archive')).toBe(true));
     await waitFor(() => expect(store.getState().studyCycles.byId.trt).toBeUndefined());
     expect(notify.success).toHaveBeenCalledWith('Concurso TRT archived');
+    await waitFor(() => expect(screen.getAllByTestId('block-row')).toHaveLength(1));
+    alert.mockRestore();
+  });
+
+  it('deletes only after its own native confirm, and never archives on the way', async () => {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const store = await renderScreen();
+
+    await press(screen.getByTestId('cycles-delete'));
+    expect(calls.some((call) => call.method === 'DELETE')).toBe(false);
+    expect(alert.mock.calls[0][0]).toBe('Delete Concurso TRT?');
+    expect(alert.mock.calls[0][1]).toContain('archive it instead');
+
+    const buttons = alert.mock.calls[0][2]!;
+    expect(buttons.find((button) => button.style === 'destructive')!.text).toBe('Delete cycle');
+    await act(async () => {
+      buttons.find((button) => button.style === 'destructive')!.onPress!();
+    });
+
+    await waitFor(() => expect(calls.some((call) => call.method === 'DELETE' && call.url === '/notebook/cycles/trt')).toBe(true));
+    expect(calls.some((call) => call.url === '/notebook/cycles/trt/archive')).toBe(false);
+    await waitFor(() => expect(store.getState().studyCycles.byId.trt).toBeUndefined());
+    expect(notify.success).toHaveBeenCalledWith('Concurso TRT deleted');
     await waitFor(() => expect(screen.getAllByTestId('block-row')).toHaveLength(1));
     alert.mockRestore();
   });
