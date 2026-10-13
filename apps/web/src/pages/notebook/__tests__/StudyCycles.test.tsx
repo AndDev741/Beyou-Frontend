@@ -14,11 +14,12 @@ vi.mock("@beyou/api/notebook", () => ({
     getTopicTree: vi.fn(),
     replaceStudyBlocks: vi.fn(),
     archiveStudyCycle: vi.fn(),
+    deleteStudyCycle: vi.fn(),
     updateStudyBlock: vi.fn(),
 }));
 
 import {
-    archiveStudyCycle, getNotebookHome, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree, replaceStudyBlocks,
+    archiveStudyCycle, deleteStudyCycle, getNotebookHome, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree, replaceStudyBlocks,
 } from "@beyou/api/notebook";
 import StudyCycles from "../StudyCycles";
 
@@ -115,6 +116,27 @@ describe("StudyCycles", () => {
         await waitFor(() => expect(store.getState().studyCycles.list.map((c) => c.id)).toEqual(["fac"]));
         expect(store.getState().studyCycles.byId.trt).toBeUndefined();
         // The screen moves on to the cycle that is left.
+        await waitFor(() => expect(screen.getAllByTestId("cycle-block")).toHaveLength(1));
+    });
+
+    test("deletes after its own warning, and never archives on the way", async () => {
+        vi.mocked(deleteStudyCycle).mockResolvedValue({ success: undefined });
+        const store = makeStore();
+        renderWithProviders(<StudyCycles />, { route: "/notebook/cycles?cycle=trt", storeOverride: store });
+
+        await screen.findAllByTestId("cycle-block");
+        fireEvent.click(screen.getByTestId("cycle-delete"));
+        expect(deleteStudyCycle).not.toHaveBeenCalled();
+        // The web suite renders raw keys: the delete warning, never the archive one.
+        expect(screen.getByRole("dialog")).toHaveTextContent("StudyCycleDeleteTitleStudyCycleDeleteText");
+        expect(screen.getByRole("dialog")).not.toHaveTextContent("StudyCycleArchive");
+        vi.mocked(getStudyCycles).mockResolvedValue({ success: [summary("fac", "Faculdade")] });
+        fireEvent.click(screen.getByTestId("cycle-delete-confirm"));
+
+        await waitFor(() => expect(deleteStudyCycle).toHaveBeenCalledWith("trt", expect.any(Function)));
+        expect(archiveStudyCycle).not.toHaveBeenCalled();
+        await waitFor(() => expect(store.getState().studyCycles.list.map((c) => c.id)).toEqual(["fac"]));
+        expect(store.getState().studyCycles.byId.trt).toBeUndefined();
         await waitFor(() => expect(screen.getAllByTestId("cycle-block")).toHaveLength(1));
     });
 

@@ -34,6 +34,17 @@ describe('the shared agent tool registry', () => {
         expect(toolDestination(tool)?.route).toBe(route);
     });
 
+    // The cycle reads used to fall through to /Study/ and render as write cards linking to the
+    // notebook, as if reading today's plan had changed something there.
+    it.each(['getStudyToday', 'listStudyCycles', 'getStudyCycle', 'listStudySessions'])('shows the cycle read %s as a chip', (tool) => {
+        expect(isReadTool(tool)).toBe(true);
+    });
+
+    it.each(['editStudyCycle', 'deleteStudyCycle', 'deleteStudySession'])('sends the cycle write %s to the notebook', (tool) => {
+        expect(isReadTool(tool)).toBe(false);
+        expect(toolDestination(tool)?.route).toBe('/notebook');
+    });
+
     it('has nowhere to send the memory tools', () => {
         expect(toolDestination('updateGlobalContext')).toBeNull();
         expect(toolDestination(undefined)).toBeNull();

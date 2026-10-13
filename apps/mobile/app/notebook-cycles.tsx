@@ -4,9 +4,9 @@ import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { Archive, History, Pencil, Plus, Repeat, X } from 'lucide-react-native';
+import { Archive, History, Pencil, Plus, Repeat, Trash2, X } from 'lucide-react-native';
 import {
-  archiveStudyCycle, getStudyCycle, getStudyCycles, replaceStudyBlocks, updateStudyBlock,
+  archiveStudyCycle, deleteStudyCycle, getStudyCycle, getStudyCycles, replaceStudyBlocks, updateStudyBlock,
 } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { enterStudyCycle, enterStudyCycles, nextBlockOfTopic, removeStudyCycle } from '@beyou/state';
@@ -121,19 +121,25 @@ export default function NotebookCyclesScreen() {
     void loadToday();
   };
 
-  const archive = (target: StudyCycle) => {
-    Alert.alert(t('StudyCycleMobileArchiveTitle', { name: target.name }), t('StudyCycleMobileArchiveBody'), [
-      { text: t('Cancel'), style: 'cancel' },
-      {
-        text: t('StudyCycleMobileArchive'),
-        style: 'destructive',
-        onPress: () => void confirmArchive(target),
-      },
-    ]);
+  // Archive keeps the cycle's history; delete takes the cycle and everything under it.
+  const end = (target: StudyCycle, kind: 'archive' | 'delete') => {
+    const archive = kind === 'archive';
+    Alert.alert(
+      t(archive ? 'StudyCycleMobileArchiveTitle' : 'StudyCycleDeleteTitle', { name: target.name }),
+      t(archive ? 'StudyCycleMobileArchiveBody' : 'StudyCycleDeleteText'),
+      [
+        { text: t('Cancel'), style: 'cancel' },
+        {
+          text: t(archive ? 'StudyCycleMobileArchive' : 'StudyCycleMobileDelete'),
+          style: 'destructive',
+          onPress: () => void confirmEnd(target, kind),
+        },
+      ],
+    );
   };
 
-  const confirmArchive = async (target: StudyCycle) => {
-    const response = await archiveStudyCycle(target.id, t);
+  const confirmEnd = async (target: StudyCycle, kind: 'archive' | 'delete') => {
+    const response = kind === 'archive' ? await archiveStudyCycle(target.id, t) : await deleteStudyCycle(target.id, t);
     if (response.error) {
       notify.error(getFriendlyErrorMessage(t, response.error));
       return;
@@ -141,7 +147,7 @@ export default function NotebookCyclesScreen() {
     dispatch(removeStudyCycle(target.id));
     setSelectedId(null);
     setReordering(false);
-    notify.success(t('StudyCycleMobileArchived', { name: target.name }));
+    notify.success(t(kind === 'archive' ? 'StudyCycleMobileArchived' : 'StudyCycleMobileDeleted', { name: target.name }));
     void loadList();
     void loadToday();
   };
@@ -289,8 +295,16 @@ export default function NotebookCyclesScreen() {
             mode="danger"
             size="block"
             icon={<Archive size={16} color={theme.danger} />}
-            onPress={() => archive(cycle)}
+            onPress={() => end(cycle, 'archive')}
             testID="cycles-archive"
+          />
+          <Button
+            text={t('StudyCycleMobileDelete')}
+            mode="danger"
+            size="block"
+            icon={<Trash2 size={16} color={theme.danger} />}
+            onPress={() => end(cycle, 'delete')}
+            testID="cycles-delete"
           />
         </>
       )}
