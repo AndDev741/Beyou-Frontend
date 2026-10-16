@@ -23,7 +23,8 @@ export function BlockFigureView({ figure, className = "" }: { figure: BlockFigur
         <div className={`flex flex-col gap-1.5 ${className}`} data-testid="block-figure">
             <span className={`text-[13px] font-semibold ${tone.label}`}>{t(figure.label.key, figure.label.values)}</span>
             <div className={`h-[5px] overflow-hidden rounded-full ${tone.track}`} aria-hidden="true">
-                <div className={`h-full rounded-full ${tone.bar}`} style={{ width: `${Math.round(figure.share * 100)}%` }} />
+                <div className={`h-full rounded-full ${tone.bar}`} style={{ width: `${Math.round(figure.share * 100)}%` }}
+                    data-testid="block-figure-bar" />
             </div>
             {figure.caption && <span className="text-xs text-text-2">{t(figure.caption.key, figure.caption.values)}</span>}
         </div>

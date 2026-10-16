@@ -91,6 +91,11 @@ export type BlockFigure = {
  * The figure on the right of a block: progress in minutes for a time block, progress in
  * understanding for a concept, with the time it took second.
  *
+ * The bar of an open block is always its minutes against what was planned, a concept's included.
+ * A concept's bar used to follow its page's status, so a pomodoro on the page left it where it
+ * was (empty for a page not started, half for one being studied) while the minutes went in, and
+ * the block read as if the time had not counted. Understanding stays in the label.
+ *
  * @param minutesToday this block's share of today's budget, for the "Today" card; omit elsewhere
  * @param nextPosition for a block whose turn ran out, where its concept comes back
  * @param undecided a roadmap block whose concept is picked when it comes up (see
@@ -138,20 +143,20 @@ export function blockFigure(
             : { key: 'StudyCycleCaptionEstimate', values: { planned: formatStudyMinutes(planned) } };
         if (target.status === 'DONE') {
             // Open with its page done: the block asks for the quiz too.
-            return { label: { key: 'StudyCycleFigureQuizPending' }, caption, share: 1, tone: activeTone };
+            return { label: { key: 'StudyCycleFigureQuizPending' }, caption, share: timeShare, tone: activeTone };
         }
         if (target.progress.total > 1) {
             return {
                 label: { key: 'StudyCycleFigureSubpages', values: { done: target.progress.done, total: target.progress.total } },
                 caption,
-                share: target.progress.done / target.progress.total,
+                share: timeShare,
                 tone: activeTone,
             };
         }
         return {
             label: { key: facts.requireQuiz ? 'StudyCycleFigurePageQuizPending' : 'StudyCycleFigurePagePending' },
             caption,
-            share: target.status === 'STUDYING' ? 0.5 : 0,
+            share: timeShare,
             tone: activeTone,
         };
     }
