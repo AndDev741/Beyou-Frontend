@@ -66,7 +66,6 @@ describe('study cycle view', () => {
         const open = blockFigure(facts({ mode: 'GOAL', target: target(), minutes: 30 }), { current: true });
         expect(open.label).toEqual({ key: 'StudyCycleFigureSubpages', values: { done: 2, total: 5 } });
         expect(open.caption).toEqual({ key: 'StudyCycleCaptionInvested', values: { minutes: '30 min', planned: '1h10' } });
-        expect(open.share).toBeCloseTo(0.4);
         expect(open.tone).toBe('active');
 
         const understood = blockFigure(facts({ mode: 'GOAL', target: target({ status: 'DONE' }), minutes: 55, state: 'UNDERSTOOD' }));
@@ -78,6 +77,29 @@ describe('study cycle view', () => {
 
         const leaf = blockFigure(facts({ mode: 'GOAL', target: target({ progress: { done: 0, total: 1 }, status: 'TO_STUDY' }), requireQuiz: true }));
         expect(leaf.label.key).toBe('StudyCycleFigurePageQuizPending');
+    });
+
+    // A pomodoro on a concept's page credits the block, and the bar is where people look to see
+    // that it counted. It used to follow the page's status instead: empty for a page not started
+    // and half for one being studied, however many minutes the block held.
+    it("fills a concept's bar with its minutes, whatever its page's status", () => {
+        const notStarted = target({ progress: { done: 0, total: 1 }, status: 'TO_STUDY' });
+        expect(blockFigure(facts({ mode: 'GOAL', target: notStarted, plannedMinutes: 85, minutes: 0 })).share).toBe(0);
+        const afterPomodoro = blockFigure(facts({ mode: 'GOAL', target: notStarted, plannedMinutes: 85, minutes: 25 }));
+        expect(afterPomodoro.label.key).toBe('StudyCycleFigurePagePending');
+        expect(afterPomodoro.share).toBeCloseTo(25 / 85);
+
+        const studying = target({ progress: { done: 0, total: 1 }, status: 'STUDYING' });
+        expect(blockFigure(facts({ mode: 'GOAL', target: studying, minutes: 50 })).share).toBeCloseTo(50 / 70);
+        expect(blockFigure(facts({ mode: 'GOAL', target: studying, minutes: 65 })).share).toBeCloseTo(65 / 70);
+
+        const subpages = blockFigure(facts({ mode: 'GOAL', target: target(), minutes: 14 }));
+        expect(subpages.label).toEqual({ key: 'StudyCycleFigureSubpages', values: { done: 2, total: 5 } });
+        expect(subpages.share).toBeCloseTo(14 / 70);
+
+        const quizLeft = blockFigure(facts({ mode: 'GOAL', target: target({ status: 'DONE' }), requireQuiz: true, quizPassed: false, minutes: 21 }));
+        expect(quizLeft.label.key).toBe('StudyCycleFigureQuizPending');
+        expect(quizLeft.share).toBeCloseTo(21 / 70);
     });
 
     it('says where a concept comes back when its turn ran out', () => {
