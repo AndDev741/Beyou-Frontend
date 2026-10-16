@@ -1,0 +1,17 @@
+# Response headers for the Cloudflare deployment (wrangler.jsonc). The same
+# headers as nginx.conf, which still serves the image the e2e job runs: keep the
+# two in step.
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://accounts.google.com https://www.googleapis.com; font-src 'self' https: data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+
+# Vite puts a content hash in every file name under /assets, so a new deploy
+# means new names and these can be cached for a year. Files at the root and in
+# /fonts keep fixed names and get Cloudflare's default, which revalidates.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
