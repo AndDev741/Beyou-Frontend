@@ -44,8 +44,8 @@ export default defineConfig({
             release: { name: sentryRelease },
             sourcemaps: {
               // Third guard on "maps must not be served" (see `sourcemap:
-              // 'hidden'` and the nginx rule): once uploaded, the artifact does
-              // not exist in the image at all.
+              // 'hidden'`, public/.assetsignore and the nginx rule): once
+              // uploaded, the artifact does not exist in the build at all.
               filesToDeleteAfterUpload: ['./dist/**/*.map'],
             },
             // The plugin phones sentry.io with its own usage telemetry by
@@ -131,9 +131,10 @@ export default defineConfig({
     // to the collector and resolve minified production frames — R18) but the
     // bundles carry NO `//# sourceMappingURL=` comment, so nothing points a
     // browser or a crawler at them. Serving them would publish this app's
-    // entire source. Two further guards back this up: the upload step deletes
-    // the maps from `dist/` once they are in the collector, and `nginx.conf`
-    // refuses any `.map` request outright.
+    // entire source. Further guards back this up: the upload step deletes the
+    // maps from `dist/` once they are in the collector, `public/.assetsignore`
+    // keeps any that remain out of the Cloudflare upload, and `nginx.conf`
+    // refuses any `.map` request in the image the e2e job runs.
     sourcemap: 'hidden',
     rollupOptions: {
       output: {

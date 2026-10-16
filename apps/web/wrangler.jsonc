@@ -1,0 +1,24 @@
+// Production hosting for the web app: a Cloudflare Worker that serves the Vite
+// build as static assets, with no Worker code of its own. Static asset requests
+// are free and unlimited on the Workers Free plan, and nothing here runs a
+// script, so no request counts against the daily Workers quota.
+//
+// Deployed by the `deploy` job in .github/workflows/ci.yml after build, tests
+// and e2e pass on main. The app calls the API at VITE_API_URL
+// (api.beyouweb.com) directly, so this host serves files only. The nginx image
+// built from Dockerfile is still what the e2e job runs.
+{
+  "name": "beyou-web",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Every path that is not a file gets index.html, so react-router can
+    // resolve deep links like /habits on a cold load.
+    "not_found_handling": "single-page-application"
+  },
+  // A CI deploy creates this custom domain, replacing the DNS record that used
+  // to send app.beyouweb.com to the Cloudflare Tunnel.
+  "routes": [{ "pattern": "app.beyouweb.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}

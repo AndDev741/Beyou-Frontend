@@ -13,7 +13,7 @@ concurrency:
 
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 jobs:
   build-test-audit:
@@ -159,8 +159,8 @@ jobs:
         working-directory: dev-env
         run: docker compose -f docker-compose.e2e.yml logs backend
 
-  publish:
-    name: Publish image
+  deploy:
+    name: Deploy web to Cloudflare
     runs-on: ubuntu-latest
     needs: [build-test-audit, e2e]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -169,52 +169,55 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Short SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v4
+      # Wrangler 4 needs Node 22; the build is happy on it too.
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          node-version: '22'
+          cache: npm
 
-      - name: Build and push web
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: apps/web/Dockerfile
-          target: nginx
-          push: true
-          build-args: |
-            VITE_API_URL=${{ vars.PROD_API_URL }}
-            VITE_APP_URL=${{ vars.APP_URL }}
-            VITE_GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}
-            # Vite inlines VITE_* at BUILD time, so this cannot be supplied by the
-            # server's .env at deploy time — the image is already built. Omitting
-            # it ships a web bundle with telemetry permanently off: initTelemetry
-            # treats a missing DSN as "stay dormant" and never calls Sentry.init(),
-            # so no web error reaches the collector and the web alert rule can
-            # never fire, silently. A `vars` and not a `secret`: an ingest DSN is
-            # not one, and build args are readable in `docker history` anyway.
-            VITE_SENTRY_DSN=${{ vars.PROD_SENTRY_DSN }}
-            # Same contract for product analytics: build-time inline, missing key
-            # ships a bundle with PostHog permanently off (initAnalytics stays
-            # dormant), and a phc_ project key is a public ingest identifier.
-            # PROD_POSTHOG_HOST stays unset for a US-cloud project (the code
-            # defaults to the US ingest) — set it only for an EU project.
-            VITE_POSTHOG_KEY=${{ vars.PROD_POSTHOG_KEY }}
-            VITE_POSTHOG_HOST=${{ vars.PROD_POSTHOG_HOST }}
-            # Federated sign-in. Same build-time contract as everything above:
-            # leaving these unset ships a bundle with the extra sign-in buttons
-            # permanently absent, because OidcButtons returns null without both.
-            # That is the intended off state, and it is independent of the
-            # server's own OIDC_* — BOTH sides must be set before a button both
-            # appears and works. `vars` and not `secrets`: an issuer URL is
-            # public, and a public OAuth client id is public by definition
-            # (build args are readable in `docker history` regardless).
-            VITE_OIDC_ISSUER=${{ vars.OIDC_ISSUER }}
-            VITE_OIDC_CLIENT_ID=${{ vars.OIDC_CLIENT_ID }}
-          tags: |
-            ghcr.io/anddev741/beyou-web:latest
-            ghcr.io/anddev741/beyou-web:sha-${{ env.SHORT_SHA }}
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web
+        run: npm --workspace @beyou/web run build
+        env:
+          VITE_API_URL: ${{ vars.PROD_API_URL }}
+          VITE_APP_URL: ${{ vars.APP_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          # Vite inlines VITE_* at BUILD time, so nothing can supply these once
+          # the bundle is built. Omitting the DSN ships a web bundle with
+          # telemetry permanently off: initTelemetry treats a missing DSN as
+          # "stay dormant" and never calls Sentry.init(), so no web error reaches
+          # the collector and the web alert rule can never fire, silently. A
+          # `vars` and not a `secret`: an ingest DSN is not one, and it ends up
+          # in the public bundle anyway.
+          VITE_SENTRY_DSN: ${{ vars.PROD_SENTRY_DSN }}
+          # Same contract for product analytics: missing key ships a bundle with
+          # PostHog permanently off (initAnalytics stays dormant), and a phc_
+          # project key is a public ingest identifier. PROD_POSTHOG_HOST stays
+          # unset for a US-cloud project (the code defaults to the US ingest);
+          # set it only for an EU project.
+          VITE_POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY }}
+          VITE_POSTHOG_HOST: ${{ vars.PROD_POSTHOG_HOST }}
+          # Federated sign-in. Leaving these unset ships a bundle with the extra
+          # sign-in buttons permanently absent, because OidcButtons returns null
+          # without both. That is the intended off state, and it is independent
+          # of the server's own OIDC_*: BOTH sides must be set before a button
+          # both appears and works. `vars`: an issuer URL and a public OAuth
+          # client id are public by definition.
+          VITE_OIDC_ISSUER: ${{ vars.OIDC_ISSUER }}
+          VITE_OIDC_CLIENT_ID: ${{ vars.OIDC_CLIENT_ID }}
+
+      # Uploads dist/ as the static assets of the `beyou-web` Worker
+      # (apps/web/wrangler.jsonc) and attaches app.beyouweb.com to it. The
+      # token needs Workers Admin on the account (the first deploy creates the
+      # Worker) and Workers Routes Write on the beyouweb.com zone. Wrangler is
+      # pinned here rather than added to the lockfile, so every other job keeps
+      # its install time.
+      - name: Deploy
+        working-directory: apps/web
+        run: npx --yes wrangler@4.151.0 deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

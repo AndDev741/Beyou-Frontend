@@ -59,3 +59,6 @@ apps/mobile/.metro-health-check*
 # screenshots de revisão local
 shot-*.png
 check-*.png
+
+# wrangler dev state (apps/web)
+.wrangler/

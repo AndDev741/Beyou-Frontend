@@ -1,0 +1,6 @@
+# Read by wrangler: matching files in dist/ are never uploaded to Cloudflare.
+#
+# Source maps are built as "hidden" (vite.config.ts) so they can be uploaded to
+# the error collector, and nothing references them. Uploading them would still
+# publish the whole application source to anyone who guesses a file name.
+*.map
