@@ -89,11 +89,13 @@ const escapeXml = (value: string): string =>
 export function sceneToSvg(
     scene: DiagramScene,
     colors: DiagramColors,
-    options: { title?: string; background?: boolean; fontFamily?: string } = {},
+    options: { title?: string; label?: string; background?: boolean; fontFamily?: string } = {},
 ): string {
     const font = options.fontFamily ?? "Geist, 'Geist Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif";
     const parts: string[] = [];
-    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${scene.width} ${scene.height}" width="${scene.width}" height="${scene.height}" role="img"${options.title ? ` aria-label="${escapeXml(options.title)}"` : ''} font-family="${escapeXml(font)}">`);
+    // What a screen reader says: the outline when the caller has one (diagramText), else the title.
+    const label = options.label ?? options.title;
+    parts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${scene.width} ${scene.height}" width="${scene.width}" height="${scene.height}" role="img"${label ? ` aria-label="${escapeXml(label)}"` : ''} font-family="${escapeXml(font)}">`);
     if (options.title) parts.push(`<title>${escapeXml(options.title)}</title>`);
     if (options.background) parts.push(`<rect width="${scene.width}" height="${scene.height}" fill="${colors.ground}"/>`);
     for (const shape of scene.shapes) {

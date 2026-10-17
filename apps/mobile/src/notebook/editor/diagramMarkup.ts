@@ -1,5 +1,5 @@
 import type { Tokens } from '@beyou/theme';
-import { diagramColors, layoutDiagram, parseDiagramProp, sceneToSvg } from '@beyou/state/notebook/diagram';
+import { diagramColors, diagramText, layoutDiagram, parseDiagramProp, sceneToSvg } from '@beyou/state/notebook/diagram';
 
 /**
  * A diagram block's drawing for the editor's web view: its title and a standalone SVG, or null when
@@ -16,6 +16,6 @@ export function diagramMarkup(prop: unknown, tokens: Tokens, width: number): { t
   const scene = layoutDiagram(spec, { maxWidth: width });
   return {
     title: spec.title,
-    svg: sceneToSvg(scene, diagramColors(tokens), { title: spec.title || undefined }),
+    svg: sceneToSvg(scene, diagramColors(tokens), { title: spec.title || undefined, label: diagramText(spec) }),
   };
 }

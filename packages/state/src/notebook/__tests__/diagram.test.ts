@@ -168,6 +168,13 @@ describe('sceneToSvg', () => {
         expect(svg).toContain('aria-label="a &quot;quoted&quot; &lt;title&gt;"');
     });
 
+    it('reads the outline to a screen reader when given one, the title otherwise', () => {
+        const scene = layoutDiagram(spec('FLOW', 2, chain(2)));
+        const colors = diagramColors(defaultLight);
+        expect(sceneToSvg(scene, colors, { title: 'T', label: 'Etapa 1 → Etapa 2' })).toContain('aria-label="Etapa 1 → Etapa 2"');
+        expect(sceneToSvg(scene, colors, { title: 'T' })).toContain('aria-label="T"');
+    });
+
     it('paints with concrete colors from either theme', () => {
         const scene = layoutDiagram(spec('FLOW', 3, chain(3)));
         const light = sceneToSvg(scene, diagramColors(defaultLight));
