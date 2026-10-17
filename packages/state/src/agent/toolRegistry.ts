@@ -33,7 +33,21 @@ export const READ_TOOLS: ReadonlySet<string> = new Set([
   'listStudyCycles',
   'getStudyCycle',
   'listStudySessions',
+  // Shows a diagram in the chat and saves nothing. The segment carries the diagram, and both
+  // apps draw it as a card (see DIAGRAM_TOOLS) before this set is ever asked.
+  'showDiagram',
 ]);
+
+/**
+ * Tools whose segment carries a `diagram` the chat draws: `showDiagram` inline, with a way to save
+ * it, and `addStudyDiagram` as a card for the page it went to. Apps check this before the
+ * read/write split, so neither becomes a plain chip or a plain card.
+ */
+export const DIAGRAM_TOOLS: ReadonlySet<string> = new Set(['showDiagram', 'addStudyDiagram']);
+
+export function isDiagramTool(tool: string | undefined): boolean {
+  return !!tool && DIAGRAM_TOOLS.has(tool);
+}
 
 /**
  * Names that mention TWO entities (`addTaskToRoutineSection`) would match the wrong pattern
