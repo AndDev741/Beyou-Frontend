@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 import { FileText, Layers, Lightbulb, Send, Trash2 } from 'lucide-react-native';
-import { appendToPage, askStudyQuestion, clearStudyChat, generateCards } from '@beyou/api/notebook';
+import { appendDiagramToPage, appendToPage, askStudyQuestion, clearStudyChat, generateCards } from '@beyou/api/notebook';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
+import { enterNotebookPage } from '@beyou/state';
 import type { ChatMessage, Citation } from '@beyou/types/notebook/notebook';
 import AgentMarkdown from '../../ui/agent/AgentMarkdown';
 import DeleteModal from '../../ui/DeleteModal';
+import DiagramCard from '../diagram/DiagramCard';
 import { notify } from '../../notify';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
+import type { AppDispatch } from '../../store';
 
 /**
  * Markdown from the study AI as the phone's markdown view reads it: that view has no headings, so
@@ -21,7 +25,8 @@ export function studyMarkdown(markdown: string): string {
 /**
  * The study room's conversation on the phone: questions about this page, answered from its notes
  * and the sources it reads, each point numbered back to where it came from, listed under the
- * answer. An answer can be saved to the end of the page, or turned into cards.
+ * answer. An answer can be saved to the end of the page, or turned into cards. An answer the tutor
+ * drew a diagram for carries it as a card under the text, with its own "Save to page".
  */
 export default function StudyChat({
   pageId,
@@ -34,6 +39,7 @@ export default function StudyChat({
 }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
+  const dispatch = useDispatch<AppDispatch>();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState('');
   const [pending, setPending] = useState<string | null>(null);
@@ -64,6 +70,23 @@ export default function StudyChat({
     setBusy(null);
     if (response.success) notify.success(t('NotebookStudySavedToPage'));
     else notify.error(getFriendlyErrorMessage(t, response.error));
+  };
+
+  /**
+   * The answer's diagram, appended to the page as a diagram block. The server answers with the
+   * page, which goes into the store so the page screen behind shows the block at once.
+   */
+  const saveDiagram = async (message: ChatMessage) => {
+    if (!message.diagram) return;
+    setBusy(`diagram-${message.id}`);
+    const response = await appendDiagramToPage(pageId, message.diagram, t);
+    setBusy(null);
+    if (response.success) {
+      dispatch(enterNotebookPage(response.success));
+      notify.success(t('DiagramSaved', { title: response.success.title }));
+    } else {
+      notify.error(getFriendlyErrorMessage(t, response.error));
+    }
   };
 
   const makeCards = async (message: ChatMessage) => {
@@ -120,8 +143,8 @@ export default function StudyChat({
               <Text className="text-[14px] leading-5 text-on-accent">{message.content}</Text>
             </View>
           ) : (
-            <View key={message.id} className="max-w-[94%] gap-2 self-start" testID="study-answer">
-              <View className="gap-2.5 rounded-2xl rounded-bl-md border border-border bg-surface px-3.5 py-3">
+            <View key={message.id} className="gap-2" testID="study-answer">
+              <View className="max-w-[94%] gap-2.5 self-start rounded-2xl rounded-bl-md border border-border bg-surface px-3.5 py-3">
                 <AgentMarkdown text={studyMarkdown(message.content)} />
                 <View className="flex-row flex-wrap gap-1.5">
                   <ActionChip
@@ -141,6 +164,15 @@ export default function StudyChat({
                   />
                 </View>
               </View>
+              {message.diagram ? (
+                <DiagramCard
+                  spec={message.diagram}
+                  source={message.citations.length > 0 ? 'notes' : 'ai'}
+                  onSave={() => void saveDiagram(message)}
+                  saving={busy === `diagram-${message.id}`}
+                  testID="study-diagram"
+                />
+              ) : null}
               <Citations citations={message.citations} />
             </View>
           ),

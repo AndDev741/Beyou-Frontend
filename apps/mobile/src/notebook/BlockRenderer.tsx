@@ -3,20 +3,25 @@ import { Linking, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Check } from 'lucide-react-native';
 import { BOARD_BLOCK_TYPE } from '@beyou/types/notebook/notebook';
+import { DIAGRAM_BLOCK_TYPE } from '@beyou/types/notebook/diagram';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 import Chip from '../ui/Chip';
+import DiagramBlockCard from './diagram/DiagramBlockCard';
 
 /**
  * A page's BlockNote document, drawn with native views.
  *
  * Mobile v1 reads notes and does not edit them, so this is a renderer and nothing else: no
  * editor, no WebView. It knows the blocks the web editor writes (paragraphs, headings, the three
- * list kinds, quotes, code, tables) and the two blocks the notebook adds. The roadmap board is
- * left out here because the screen's Path tab is where a board is read on a phone, and the
- * flashcards block becomes a chip with the page's card count.
+ * list kinds, quotes, code, tables) and the three blocks the notebook adds. The roadmap board is
+ * left out here because the screen's Path tab is where a board is read on a phone, the
+ * flashcards block becomes a chip with the page's card count, and a diagram is drawn natively
+ * from its spec, with full screen a tap away.
  *
  * A block type this file does not know still shows whatever text it carries, so a block added to
- * the editor later degrades to plain text rather than vanishing.
+ * the editor later degrades to plain text rather than vanishing. A block with no text at all
+ * (`content: "none"`, like the diagram) has nothing to degrade to, so each of those needs its own
+ * case here.
  */
 
 export type InlineStyles = {
@@ -141,6 +146,8 @@ function BlockView({ block, number, cardsTotal }: { block: Block; number: number
   switch (block.type) {
     case BOARD_BLOCK_TYPE:
       return null;
+    case DIAGRAM_BLOCK_TYPE:
+      return <DiagramBlockCard spec={block.props?.spec} />;
     case 'flashcards':
       return (
         <View className="flex-row" testID="notebook-block-flashcards">

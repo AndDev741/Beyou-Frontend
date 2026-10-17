@@ -116,3 +116,42 @@ body {
   color: var(--nb-text-2);
   font-size: 12.5px;
 }
+
+/* A diagram block, drawn read-only: the card the native reader shows, without the tap. */
+.nb-diagram {
+  width: 100%;
+  margin: 2px 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  border: 1px solid var(--nb-border);
+  border-radius: 14px;
+  background: var(--nb-surface);
+}
+.nb-diagram-title {
+  color: var(--nb-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+.nb-diagram-art {
+  display: flex;
+  justify-content: center;
+  padding: 6px 4px;
+  border-radius: 10px;
+  background: var(--nb-bg);
+}
+/* Scaled down to the column, never up: the layout measured its text at this size. */
+.nb-diagram-art svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.nb-diagram-invalid {
+  padding: 16px;
+  border-style: dashed;
+  color: var(--nb-text-2);
+  font-size: 13px;
+  text-align: center;
+}

@@ -41,6 +41,23 @@ const source = (id: string, enabled = true) => ({
 let configured = true;
 /** Whether the next chat answer cites the notes; false is an answer from the tutor's own knowledge. */
 let cited = true;
+/** Whether the next chat answer comes with a diagram the tutor drew. */
+let drawn = false;
+const diagram = {
+  v: 1,
+  kind: 'SEQUENCE',
+  title: 'TCP handshake',
+  nodes: [
+    { id: 'c', label: 'Client', detail: null, tone: 'ACCENT' },
+    { id: 's', label: 'Server', detail: null, tone: 'NEUTRAL' },
+  ],
+  links: [
+    { from: 'c', to: 's', label: 'SYN', dashed: false },
+    { from: 's', to: 'c', label: 'SYN-ACK', dashed: true },
+    { from: 'c', to: 's', label: 'ACK', dashed: false },
+  ],
+};
+let store = makeStore();
 let sources = [source('a')];
 let calls: { method: string; url: string; body?: any }[] = [];
 
@@ -65,6 +82,7 @@ const room = () => ({
 beforeEach(() => {
   configured = true;
   cited = true;
+  drawn = false;
   sources = [source('a')];
   calls = [];
   jest.clearAllMocks();
@@ -74,8 +92,12 @@ beforeEach(() => {
     post: async (url: string, body: any) => {
       calls.push({ method: 'POST', url, body });
       if (url.endsWith('/chat')) {
-        const answer = message('a', 'ASSISTANT', 'A heap keeps the **smallest** key on top.');
+        const plain = message('a', 'ASSISTANT', 'A heap keeps the **smallest** key on top.');
+        const answer = drawn ? { ...plain, diagram } : plain;
         return { data: { question: message('q', 'USER', body.message), answer: cited ? answer : { ...answer, citations: [] } }, headers: {} };
+      }
+      if (url.endsWith('/append') && body.diagram) {
+        return { data: { id: 'ds', title: 'Data Structures', content: '[{"type":"diagram"}]', contentRevision: 4 }, headers: {} };
       }
       if (url.endsWith('/outputs')) {
         return {
@@ -114,7 +136,7 @@ beforeEach(() => {
 async function renderRoom() {
   await act(async () => {
     render(
-      <Provider store={makeStore()}>
+      <Provider store={(store = makeStore())}>
         <BeyouThemeProvider>
           <NotebookStudyScreen />
         </BeyouThemeProvider>
@@ -166,6 +188,55 @@ describe('NotebookStudyScreen', () => {
     await press('study-make-cards');
     expect(calls[2]).toEqual({ method: 'POST', url: '/notebook/ai/pages/ds/cards', body: { text: 'A heap keeps the **smallest** key on top.', count: 3 } });
     expect(notify.success).toHaveBeenCalledWith('3 cards added to this page');
+  });
+
+  /**
+   * The tutor drew a diagram with its answer: a card under the text, from the notes when the
+   * answer cites them, saved to the page as a diagram block (the page lands in the store, so the
+   * screen behind shows it), and full screen a tap away.
+   */
+  it('shows the diagram an answer drew and saves it to the page', async () => {
+    drawn = true;
+    await renderRoom();
+
+    await type('study-input', 'Draw the TCP handshake');
+    await press('study-send');
+
+    expect(screen.getByTestId('study-diagram')).toBeTruthy();
+    expect(screen.getByText('TCP handshake')).toBeTruthy();
+    expect(screen.getByText('Sequence · 2 items')).toBeTruthy();
+    expect(screen.getByTestId('study-diagram-from-notes')).toBeTruthy();
+    expect(screen.getByTestId('study-diagram-art')).toBeTruthy();
+
+    await press('study-diagram-save');
+    expect(calls[1]).toEqual({ method: 'POST', url: '/notebook/pages/ds/append', body: { diagram } });
+    expect(notify.success).toHaveBeenCalledWith('Saved to Data Structures');
+    expect(store.getState().notebook.pages.ds?.contentRevision).toBe(4);
+
+    await press('study-diagram-fullscreen');
+    expect(screen.getByTestId('diagram-fullscreen')).toBeTruthy();
+  });
+
+  it('says a diagram drawn without the notes came from the AI', async () => {
+    drawn = true;
+    cited = false;
+    await renderRoom();
+
+    await type('study-input', 'Draw the TCP handshake');
+    await press('study-send');
+
+    expect(screen.getByTestId('study-diagram-from-ai')).toBeTruthy();
+    expect(screen.queryByTestId('study-diagram-from-notes')).toBeNull();
+  });
+
+  it('draws no card under an answer without a diagram', async () => {
+    await renderRoom();
+
+    await type('study-input', 'What does a heap keep on top?');
+    await press('study-send');
+
+    expect(screen.getByTestId('study-answer')).toBeTruthy();
+    expect(screen.queryByTestId('study-diagram')).toBeNull();
   });
 
   /** Nothing cited: the tutor answered from what it knows, and the answer says so. */
