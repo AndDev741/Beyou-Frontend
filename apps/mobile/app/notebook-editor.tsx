@@ -165,6 +165,8 @@ export default function NotebookEditorScreen() {
       cardsHint: page && page.cardsDue > 0
         ? t('NotebookMobileCardsDue', { count: page.cardsDue })
         : t('NotebookMobileEditorCardsHint'),
+      diagram: t('DiagramUntitled'),
+      diagramInvalid: t('DiagramInvalid'),
     }),
     [t, page],
   );
@@ -228,6 +230,7 @@ export default function NotebookEditorScreen() {
           language={i18n.language ?? 'en'}
           strings={strings}
           palette={palette}
+          tokens={theme}
           save={async (content, baseRevision): Promise<SaveAnswer> => {
             const response = await savePageContent(page.id, content, baseRevision, t);
             if (response.success) return { saved: true, revision: response.success.contentRevision };

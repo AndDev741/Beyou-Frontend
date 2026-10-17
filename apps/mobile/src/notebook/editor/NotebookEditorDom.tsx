@@ -9,13 +9,15 @@ import '@blocknote/core/style.css';
 import '@blocknote/react/style.css';
 import '@blocknote/mantine/style.css';
 import './notebookEditor.css';
-import { createContext, useContext, useEffect, useMemo, useRef, type CSSProperties, type Ref } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type Ref } from 'react';
 import { BlockNoteSchema, createCodeBlockSpec, defaultBlockSpecs } from '@blocknote/core';
 import { en as bnEn, pt as bnPt } from '@blocknote/core/locales';
 import { createReactBlockSpec, useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView, type Theme as EditorTheme } from '@blocknote/mantine';
 import { useDOMImperativeHandle, type DOMProps } from 'expo/dom';
 import { BOARD_BLOCK_TYPE } from '@beyou/types/notebook/notebook';
+import { DIAGRAM_BLOCK_TYPE } from '@beyou/types/notebook/diagram';
+import type { Tokens } from '@beyou/theme';
 import { CODE_LANGUAGES, hasUnknownLanguage, normalizeCodeLanguage } from '@beyou/state/notebook/codeLanguages';
 import { documentPatch, hasBlockWithoutId, initialBlocks } from '@beyou/state/notebook/editorDocument';
 import { DocumentSync, type SaveAnswer, type ServerPage, type SyncStatus } from '@beyou/state/notebook/documentSync';
@@ -28,6 +30,7 @@ import type {
   EditorStrings,
   NotebookEditorHandle,
 } from './editorBridge';
+import { diagramMarkup } from './diagramMarkup';
 
 /** Debounce for the autosave, the web editor's: long enough to batch a sentence, short enough to lose nothing. */
 const SAVE_DELAY_MS = 900;
@@ -40,6 +43,8 @@ type Props = {
   language: string;
   strings: EditorStrings;
   palette: EditorPalette;
+  /** The theme's tokens, which a diagram's colors are worked out from. */
+  tokens: Tokens;
   save: (content: string, baseRevision: number) => Promise<SaveAnswer>;
   fetchPage: () => Promise<ServerPage | null>;
   onStatus: (status: SyncStatus) => Promise<void>;
@@ -54,7 +59,7 @@ type Props = {
   dom?: DOMProps;
 };
 
-type Embeds = { strings: EditorStrings; cardsTotal: number; openBoard: () => void; openCards: () => void };
+type Embeds = { strings: EditorStrings; tokens: Tokens; cardsTotal: number; openBoard: () => void; openCards: () => void };
 const EmbedContext = createContext<Embeds | null>(null);
 
 /**
@@ -105,8 +110,53 @@ const CardsSpec = createReactBlockSpec(
   { render: function CardsEmbed() { return <Embed kind="cards" />; } },
 );
 
+/** The editor's text column: the view less the 20px BlockNote padding each side and the card's own. */
+function useColumnWidth() {
+  const measure = () => Math.max(240, window.innerWidth - 66);
+  const [width, setWidth] = useState(measure);
+  useEffect(() => {
+    const onResize = () => setWidth(measure());
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  return width;
+}
+
+/**
+ * A diagram block on the phone, drawn and nothing more: no editing tools in v1. What matters is
+ * that the block is in the schema, so a page holding one opens, saves and keeps it untouched.
+ */
+function DiagramFigure({ spec }: { spec: string }) {
+  const embeds = useContext(EmbedContext);
+  const width = useColumnWidth();
+  const tokens = embeds?.tokens;
+  const drawing = useMemo(() => (tokens ? diagramMarkup(spec, tokens, width) : null), [spec, tokens, width]);
+  if (!embeds) return null;
+  if (!drawing) {
+    return (
+      <div contentEditable={false} className="nb-diagram nb-diagram-invalid" data-testid="editor-diagram-invalid">
+        {embeds.strings.diagramInvalid}
+      </div>
+    );
+  }
+  return (
+    <figure contentEditable={false} className="nb-diagram" data-testid="editor-diagram">
+      <figcaption className="nb-diagram-title">{drawing.title || embeds.strings.diagram}</figcaption>
+      {/* sceneToSvg escapes every text and the spec went through the sanitizer: see diagramMarkup. */}
+      <div className="nb-diagram-art" dangerouslySetInnerHTML={{ __html: drawing.svg }} />
+    </figure>
+  );
+}
+
+// The web editor's diagram block, prop for prop: the spec travels as a JSON string.
+const DiagramSpecBlock = createReactBlockSpec(
+  { type: DIAGRAM_BLOCK_TYPE, propSchema: { spec: { default: '' } }, content: 'none' },
+  { render: function DiagramEmbed({ block }) { return <DiagramFigure spec={block.props.spec} />; } },
+);
+
 // The web editor's schema, block for block, so a page written on either opens on the other:
-// audio, video and file left out, a language picker on code blocks, the board and the cards.
+// audio, video and file left out, a language picker on code blocks, the board, the cards and the
+// diagram. A block missing here would make BlockNote drop it, or refuse the whole document.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { audio, video, file, ...kept } = defaultBlockSpecs;
 const schema = BlockNoteSchema.create({
@@ -115,6 +165,7 @@ const schema = BlockNoteSchema.create({
     codeBlock: createCodeBlockSpec({ supportedLanguages: CODE_LANGUAGES, defaultLanguage: 'text' }),
     [BOARD_BLOCK_TYPE]: BoardSpec(),
     flashcards: CardsSpec(),
+    [DIAGRAM_BLOCK_TYPE]: DiagramSpecBlock(),
   },
 });
 type Editor = typeof schema.BlockNoteEditor;
@@ -129,7 +180,7 @@ type PartialBlocks = Parameters<Editor['insertBlocks']>[0];
  * keyboard and sends its taps here as commands. Typing "/" still opens the block menu.
  */
 export default function NotebookEditorDom(props: Props) {
-  const { content, revision, cardsTotal, language, strings, palette, ref } = props;
+  const { content, revision, cardsTotal, language, strings, palette, tokens, ref } = props;
   // The callbacks are proxies to the native side and change identity on every render there.
   const callbacks = useRef(props);
   callbacks.current = props;
@@ -237,11 +288,12 @@ export default function NotebookEditorDom(props: Props) {
   const embeds = useMemo<Embeds>(
     () => ({
       strings,
+      tokens,
       cardsTotal,
       openBoard: () => void callbacks.current.openBoard(),
       openCards: () => void callbacks.current.openCards(),
     }),
-    [strings, cardsTotal],
+    [strings, tokens, cardsTotal],
   );
 
   return (
@@ -269,7 +321,7 @@ export default function NotebookEditorDom(props: Props) {
 
 /**
  * The cursor at the end of the page. A page that ends in a block with no text of its own to
- * continue (the board, the cards, a divider, code) gets a paragraph after it, as Notion does.
+ * continue (the board, the cards, a diagram, a divider, code) gets a paragraph after it, as Notion does.
  */
 function focusEnd(editor: Editor) {
   const blocks = editor.document;
