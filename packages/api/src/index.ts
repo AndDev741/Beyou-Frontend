@@ -62,6 +62,9 @@ export { default as updateFeedbackStatus } from './feedback/updateFeedbackStatus
 // Calendar: dated tasks, reminders and the per-day overview
 export * from './calendar/calendarApi';
 
+// Ideas board: quick notes, their layout and converting one into a task
+export * from './quickNote/quickNoteApi';
+
 // Goals
 export { default as archiveGoal } from './goals/archiveGoal';
 export { default as createGoal } from './goals/createGoal';

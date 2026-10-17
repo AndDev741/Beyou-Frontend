@@ -21,6 +21,10 @@ jest.mock('@beyou/api/routine/getTodayRoutine', () => ({ __esModule: true, defau
 jest.mock('@beyou/api/user/getProfile', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('@beyou/api/focus/focusApi', () => ({ listFocusMicroTasks: jest.fn() }));
 jest.mock('@beyou/api/mood/moodApi', () => ({ getMoodEntries: jest.fn() }));
+jest.mock('@beyou/api/quickNote/quickNoteApi', () => ({
+  getQuickNotes: jest.fn(),
+  getArchivedQuickNotes: jest.fn(),
+}));
 jest.mock('@beyou/api/notebook', () => ({
   getNotebookHome: jest.fn(),
   getPage: jest.fn(),
@@ -44,6 +48,7 @@ import getRoutines from '@beyou/api/routine/getRoutines';
 import getTodayRoutine from '@beyou/api/routine/getTodayRoutine';
 import getProfile from '@beyou/api/user/getProfile';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
+import { getArchivedQuickNotes, getQuickNotes } from '@beyou/api/quickNote/quickNoteApi';
 import { getBoard, getNotebookHome, getPage, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree } from '@beyou/api/notebook';
 import '../src/i18n';
 import { makeStore } from '../src/store';
@@ -61,6 +66,7 @@ const BACKEND_DOMAINS = [
   'notebook',
   'mood',
   'studyCycles',
+  'quickNotes',
 ];
 
 const mockedMood = getMoodEntries as jest.Mock;
@@ -79,7 +85,7 @@ async function runRefresh(domains: string[]) {
 const FETCHERS = [
   getHabits, getCategories, getTasks, getGoals, getRoutines, getTodayRoutine, getProfile,
   listFocusMicroTasks, getNotebookHome, getPage, getBoard, getTopicTree,
-  getStudyToday, getStudyCycles, getStudyCycle,
+  getStudyToday, getStudyCycles, getStudyCycle, getQuickNotes, getArchivedQuickNotes,
 ] as unknown as jest.Mock[];
 
 beforeEach(() => {
@@ -121,6 +127,21 @@ test('a cycle or a session the assistant wrote reaches the study cycles slice', 
   const store = await runRefresh(['studyCycles']);
 
   expect(store.getState().studyCycles.today).toEqual(today);
+  expect(mockLogger.error).not.toHaveBeenCalled();
+});
+
+test('a note the assistant stuck on the board reaches the quick notes slice', async () => {
+  const note = {
+    id: 'q1', text: 'Book the dentist', color: 'YELLOW', x: 0, y: 0, z: 1, archivedAt: null,
+    convertedTaskId: null, createdAt: '2026-10-17T10:00:00Z', updatedAt: '2026-10-17T10:00:00Z',
+  };
+  (getQuickNotes as jest.Mock).mockResolvedValue({ success: [note] });
+
+  const store = await runRefresh(['quickNotes']);
+
+  expect(store.getState().quickNotes.active).toEqual([note]);
+  // The archived list was never opened, so it is not fetched either.
+  expect(getArchivedQuickNotes).not.toHaveBeenCalled();
   expect(mockLogger.error).not.toHaveBeenCalled();
 });
 

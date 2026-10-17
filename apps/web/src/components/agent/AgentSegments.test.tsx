@@ -83,6 +83,9 @@ describe("destinationFor", () => {
         expect(destinationFor("createTask")?.route).toBe("/tasks");
         expect(destinationFor("completeGoal")?.route).toBe("/goals");
         expect(destinationFor("createRoutine")?.route).toBe("/routines");
+        expect(destinationFor("createQuickNote")?.route).toBe("/ideas");
+        expect(destinationFor("createQuickNote")?.labelKey).toBe("Ideas");
+        expect(destinationFor("createQuickNote")?.Icon).toBeDefined();
     });
 
     it("sends two-entity tools to the routine, not to the first regex that matches", () => {

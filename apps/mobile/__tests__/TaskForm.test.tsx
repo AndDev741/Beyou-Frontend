@@ -84,6 +84,69 @@ describe('TaskForm create', () => {
   });
 });
 
+/**
+ * "Make it a task" on the Ideas board reuses this form: seeded from the note, and the create goes
+ * through the note's own endpoint instead of POST /task.
+ */
+describe('TaskForm create override', () => {
+  it('seeds from initialValues and sends the values to submitCreate instead of POST /task', async () => {
+    const submitCreate = jest.fn(async () => ({}));
+    const onClose = jest.fn();
+    await wrap(
+      <TaskForm
+        visible
+        mode="create"
+        categories={categories}
+        initialValues={{ name: 'Call the bank', description: 'Card fee' }}
+        title="Task from a note"
+        createdMessage="Task created. The note moved to Archived."
+        submitCreate={submitCreate}
+        onClose={onClose}
+        onSaved={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText('Task from a note')).toBeTruthy();
+    expect(screen.getByTestId('task-name').props.value).toBe('Call the bank');
+    expect(screen.getByTestId('task-description').props.value).toBe('Card fee');
+
+    await act(async () => { fireEvent.press(screen.getByTestId('task-icon')); });
+    await act(async () => { fireEvent.changeText(screen.getByTestId('icon-picker-search'), 'house'); });
+    await act(async () => { fireEvent.press(screen.getAllByLabelText(/^Icon: /)[0]); });
+    await act(async () => { fireEvent.press(screen.getByTestId('task-form-submit')); });
+
+    await waitFor(() => expect(submitCreate).toHaveBeenCalledTimes(1));
+    expect(submitCreate).toHaveBeenCalledWith(expect.objectContaining({ name: 'Call the bank', description: 'Card fee' }));
+    expect(post).not.toHaveBeenCalled();
+    expect(notify.success).toHaveBeenCalledWith('Task created. The note moved to Archived.');
+    expect(onClose).toHaveBeenCalled();
+  }, 20000);
+
+  it('keeps the form open and says why when the override fails', async () => {
+    const submitCreate = jest.fn(async () => ({ error: { errorKey: 'QUICK_NOTE_ALREADY_CONVERTED' } }));
+    const onClose = jest.fn();
+    await wrap(
+      <TaskForm
+        visible
+        mode="create"
+        categories={categories}
+        initialValues={{ name: 'Call the bank' }}
+        submitCreate={submitCreate}
+        onClose={onClose}
+        onSaved={jest.fn()}
+      />,
+    );
+
+    await act(async () => { fireEvent.press(screen.getByTestId('task-icon')); });
+    await act(async () => { fireEvent.changeText(screen.getByTestId('icon-picker-search'), 'house'); });
+    await act(async () => { fireEvent.press(screen.getAllByLabelText(/^Icon: /)[0]); });
+    await act(async () => { fireEvent.press(screen.getByTestId('task-form-submit')); });
+
+    await waitFor(() => expect(notify.error).toHaveBeenCalledWith('This note already became a task.'));
+    expect(onClose).not.toHaveBeenCalled();
+  }, 20000);
+});
+
 describe('TaskForm edit', () => {
   it('seeds from the task and PUTs the update', async () => {
     const onSaved = jest.fn();

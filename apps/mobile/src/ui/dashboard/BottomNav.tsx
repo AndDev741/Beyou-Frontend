@@ -16,6 +16,7 @@ import {
   Repeat,
   Settings,
   Sparkles,
+  StickyNote,
   Trophy,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
@@ -50,6 +51,7 @@ const SHEET: NavItemConfig[] = [
   { key: 'Calendar', route: '/calendar', Icon: CalendarCheck },
   { key: 'Categories', route: '/categories', Icon: Folder },
   { key: 'Notebook', route: '/notebook', Icon: NotebookPen },
+  { key: 'Ideas', route: '/ideas', Icon: StickyNote },
   { key: 'Mood', route: '/mood', Icon: BookHeart },
   { key: 'Config', route: '/configuration', Icon: Settings, targetId: 'nav-config' },
   { key: 'FeedbackShortcutLabel', route: '/feedback', Icon: MessageSquare, targetId: 'nav-feedback' },

@@ -35,9 +35,19 @@ describe("Bottom nav", () => {
         renderAt("/dashboard");
         fireEvent.click(screen.getByText("More"));
         const sheet = screen.getByRole("dialog", { name: "More" });
-        for (const label of ["Tasks", "Goals", "Calendar", "Categories", "Mood", "Config", "FeedbackShortcutLabel"]) {
+        for (const label of ["Tasks", "Goals", "Calendar", "Categories", "Ideas", "Mood", "Config", "FeedbackShortcutLabel"]) {
             expect(within(sheet).getByRole("link", { name: label })).toBeInTheDocument();
         }
+    });
+
+    it("puts Ideas right after Notebook in the sheet, as in the sidebar", () => {
+        renderAt("/dashboard");
+        fireEvent.click(screen.getByText("More"));
+        const labels = within(screen.getByRole("dialog", { name: "More" }))
+            .getAllByRole("link")
+            .map((link) => link.textContent);
+        expect(labels[labels.indexOf("Notebook") + 1]).toBe("Ideas");
+        expect(within(screen.getByRole("dialog", { name: "More" })).getByRole("link", { name: "Ideas" })).toHaveAttribute("href", "/ideas");
     });
 
     /**

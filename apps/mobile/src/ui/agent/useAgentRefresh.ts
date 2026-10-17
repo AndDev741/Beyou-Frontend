@@ -18,7 +18,15 @@ import { enterTodayRoutine } from '@beyou/state/routine/todayRoutineSlice';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
 import { getMoodEntries } from '@beyou/api/mood/moodApi';
 import { microTasksLoaded } from '@beyou/state/focus/focusSlice';
-import { addDays, enterMoodEntries, refreshNotebook, refreshStudyCycles, selectedFocusGroupId, todayInZone } from '@beyou/state';
+import {
+  addDays,
+  enterMoodEntries,
+  refreshNotebook,
+  refreshQuickNotes,
+  refreshStudyCycles,
+  selectedFocusGroupId,
+  todayInZone,
+} from '@beyou/state';
 import type { RootState } from '@beyou/state/rootReducer';
 import { hydratePerfil } from '@beyou/state/user/perfilSlice';
 import type { AppDispatch } from '../../store';
@@ -87,6 +95,13 @@ export function useAgentRefresh() {
           // cycle open in full, so the notebook card, the widget and the cycle screen agree.
           const state = store.getState() as RootState;
           await refreshStudyCycles(dispatch, state.studyCycles, t);
+        },
+        quickNotes: async () => {
+          // A note the assistant stuck on the board. The chat floats over the Ideas screen, so
+          // the board under it would not re-read when the chat closes. The archived list comes
+          // along only when it was already opened.
+          const state = store.getState() as RootState;
+          await refreshQuickNotes(dispatch, state.quickNotes, t);
         },
         focus: async () => {
           // Micro-tasks are stored per routine entry and there is no "fetch them all". What the

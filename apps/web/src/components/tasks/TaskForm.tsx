@@ -33,17 +33,33 @@ import { taskFormSchema } from "@beyou/validation/forms/taskSchemas";
 
 export type TaskFormMode = "create" | "edit";
 
+/** What a save answers: the task services' shape, which a custom `onCreate` returns too. */
+export type TaskSaveResult = { success?: unknown; error?: ApiErrorPayload; validation?: string };
+
 type TaskFormProps = {
     mode: TaskFormMode;
-    setTasks: React.Dispatch<React.SetStateAction<task[]>>;
+    /** Pages that render the list from local state get the refetched list here. */
+    setTasks?: React.Dispatch<React.SetStateAction<task[]>>;
     /** The form lives in a modal: closing belongs to whoever opened it. */
     onClose?: () => void;
+    /** Create mode: what the fields open with, e.g. the text of a note becoming a task. */
+    initialValues?: Partial<TaskFormValues>;
+    /**
+     * Create mode: saves the values in place of `createTask`. A note becoming a task goes through
+     * its own endpoint (the task and the note's archive in one transaction); the list refresh,
+     * the toast and closing stay with the form.
+     */
+    onCreate?: (values: TaskFormValues) => Promise<TaskSaveResult>;
+    /** Create mode: the toast after a save, in place of "created successfully". */
+    createdMessage?: string;
+    /** The heading, in place of "Create Task" / "Edit Task". */
+    title?: string;
 };
 
 /** The title's id — the modal points aria-labelledby at it. */
 export const TASK_FORM_TITLE_ID = "task-form-title";
 
-type TaskFormValues = {
+export type TaskFormValues = {
     name: string;
     description: string;
     iconId: string;
@@ -63,7 +79,7 @@ const defaultValues: TaskFormValues = {
     oneTimeTask: false
 };
 
-function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
+function TaskForm({ mode, setTasks, onClose, initialValues, onCreate, createdMessage, title }: TaskFormProps) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const refreshTasks = useSyncedTasks();
@@ -109,6 +125,10 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
         ]
     );
 
+    // Read once, like every default react-hook-form takes: a prefill that changes later does not
+    // overwrite what the person already typed.
+    const [createDefaults] = useState<TaskFormValues>(() => ({ ...defaultValues, ...initialValues }));
+
     const {
         control,
         register,
@@ -120,7 +140,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
     } = useForm<TaskFormValues>({
         resolver: zodResolver(taskFormSchema(t)),
         mode: "onBlur",
-        defaultValues: mode === "edit" ? editDefaults : defaultValues
+        defaultValues: mode === "edit" ? editDefaults : createDefaults
     });
 
     useEffect(() => {
@@ -146,7 +166,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
         clearErrors("root");
         setApiError(null);
 
-        const response =
+        const response: TaskSaveResult =
             mode === "edit"
                 ? await editTask(
                       taskId,
@@ -159,6 +179,8 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
                       values.oneTimeTask,
                       t
                   )
+                : onCreate
+                ? await onCreate(values)
                 : await createTask(
                       values.name,
                       values.description,
@@ -175,15 +197,15 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
             // used to live only in this page's list, and the focus screen kept the old name.
             const newTasks = await refreshTasks();
             if (newTasks) {
-                setTasks(newTasks);
+                setTasks?.(newTasks);
             }
             if (mode === "edit") {
                 handleCancel();
                 toast.success(t("edited successfully"));
             } else {
-                reset(defaultValues);
+                reset(createDefaults);
                 setSearch("");
-                toast.success(t("created successfully"));
+                toast.success(createdMessage ?? t("created successfully"));
                 onClose?.();
             }
             return;
@@ -209,7 +231,7 @@ function TaskForm({ mode, setTasks, onClose }: TaskFormProps) {
             {/* Modal header: title + close. */}
             <div className="flex items-center gap-3">
                 <h2 id={TASK_FORM_TITLE_ID} className="text-base font-semibold tracking-[-0.01em] text-text">
-                    {t(mode === "edit" ? "Edit Task" : "Create Task")}
+                    {title ?? t(mode === "edit" ? "Edit Task" : "Create Task")}
                 </h2>
                 {onClose && (
                     <IconButton label={t("Close")} onClick={onClose} className="ml-auto">

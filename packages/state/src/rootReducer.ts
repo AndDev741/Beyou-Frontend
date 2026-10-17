@@ -20,6 +20,7 @@ import focus from "./focus/focusSlice";
 import mood from "./mood/moodSlice";
 import notebook from "./notebook/notebookSlice";
 import studyCycles from "./notebook/studyCycleSlice";
+import quickNotes from "./quickNote/quickNotesSlice";
 
 
 const rootReducer = combineReducers({
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
     mood: mood,
     notebook: notebook,
     studyCycles: studyCycles,
+    quickNotes: quickNotes,
 
 });
 

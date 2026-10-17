@@ -1,0 +1,61 @@
+/*
+ * The Ideas board, in Beyou's colours. The board chrome reads theme variables like the notebook
+ * board does; the notes paint themselves from `noteColors` (StickyNoteNode).
+ */
+.beyou-ideas .react-flow {
+    --xy-background-color: transparent;
+    --xy-background-pattern-dots-color-default: rgb(var(--text-3-rgb) / 0.3);
+    --xy-controls-button-background-color-default: rgb(var(--surface-rgb));
+    --xy-controls-button-background-color-hover-default: rgb(var(--surface-2-rgb));
+    --xy-controls-button-color-default: rgb(var(--text-2-rgb));
+    --xy-controls-button-border-color-default: rgb(var(--border-rgb));
+    --xy-node-boxshadow-selected-default: none;
+    --xy-selection-background-color-default: rgb(var(--accent-rgb) / 0.08);
+    --xy-selection-border-default: 1px dashed rgb(var(--accent-rgb));
+}
+
+.beyou-ideas .react-flow__controls {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgb(var(--border-rgb));
+    box-shadow: none;
+}
+
+/* The note draws its own paper. */
+.beyou-ideas .react-flow__node-stickyNote {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+.beyou-ideas .react-flow__node-stickyNote:focus-visible {
+    outline: 2px solid rgb(var(--accent-rgb));
+    outline-offset: 4px;
+}
+
+/*
+ * The toolbar shows on hover, on keyboard focus (the note or a button in it) and on selection,
+ * which is how a phone reaches it: the first tap selects, the second presses. Hidden, it takes no
+ * taps, so a tap near the bottom of an unselected note cannot recolour it by accident.
+ */
+.beyou-ideas .quick-note-toolbar {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 120ms ease-out;
+}
+
+.beyou-ideas .react-flow__node-stickyNote:hover .quick-note-toolbar,
+.beyou-ideas .react-flow__node-stickyNote:focus-visible .quick-note-toolbar,
+.beyou-ideas .react-flow__node-stickyNote:focus-within .quick-note-toolbar,
+.beyou-ideas .react-flow__node-stickyNote.selected .quick-note-toolbar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .beyou-ideas .quick-note-toolbar {
+        transition: none;
+    }
+}

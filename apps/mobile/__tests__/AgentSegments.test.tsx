@@ -181,6 +181,7 @@ describe('destinationFor', () => {
     ['createUserSchedule', '/routines'],
     ['checkRoutineItem', '/routines'],
     ['updateUserConfiguration', '/configuration'],
+    ['createQuickNote', '/ideas'],
   ])('sends %s to %s', (tool, route) => {
     expect(destinationFor(tool)?.route).toBe(route);
   });

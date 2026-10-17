@@ -188,6 +188,20 @@ export {
   monthGrid,
 } from './mood/moodStats';
 
+// Ideas board: quick notes, where they sit, and what "make it a task" fills the form with
+export {
+  quickNotesLoaded,
+  archivedQuickNotesLoaded,
+  quickNoteUpserted,
+  quickNoteRemoved,
+  quickNotesMoved,
+} from './quickNote/quickNotesSlice';
+export type { QuickNotesState } from './quickNote/quickNotesSlice';
+export { byStackOrder, dropPosition, nextZ, quickNoteTaskPrefill } from './quickNote/quickNoteHelpers';
+export { refreshQuickNotes } from './quickNote/refreshQuickNotes';
+export { noteColors } from './quickNote/noteColors';
+export type { NotePaint } from './quickNote/noteColors';
+
 // calendar: day grids, week ranges and keeping a fetched overview in step with local writes
 export {
   monthOfIso,

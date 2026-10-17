@@ -5203,6 +5203,302 @@
           }
         }
       }
+    },
+    "/quick-notes": {
+      "get": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "listActive",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "createQuickNote",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickNoteCreateRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quick-notes/archived": {
+      "get": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "listArchived",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quick-notes/layout": {
+      "put": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "saveLayout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickNoteLayoutRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quick-notes/tidy": {
+      "post": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "tidy",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quick-notes/{id}": {
+      "put": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "edit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickNoteEditRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "deleteQuickNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/quick-notes/{id}/archive": {
+      "post": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "archive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quick-notes/{id}/restore": {
+      "post": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "restore",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickNoteResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quick-notes/{id}/task": {
+      "post": {
+        "tags": [
+          "quick-note-controller"
+        ],
+        "operationId": "convertToTask",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickNoteTaskConversionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10712,6 +11008,178 @@
           },
           "fromNotes": {
             "type": "boolean"
+          }
+        }
+      },
+      "QuickNoteCreateRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "YELLOW",
+              "PINK",
+              "BLUE",
+              "GREEN",
+              "PURPLE",
+              "ORANGE"
+            ]
+          },
+          "x": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100000,
+            "minimum": -100000
+          },
+          "y": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100000,
+            "minimum": -100000
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "QuickNoteEditRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "YELLOW",
+              "PINK",
+              "BLUE",
+              "GREEN",
+              "PURPLE",
+              "ORANGE"
+            ]
+          }
+        },
+        "required": [
+          "color",
+          "text"
+        ]
+      },
+      "QuickNoteLayoutRequestDTO": {
+        "type": "object",
+        "properties": {
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuickNotePositionDTO"
+            },
+            "maxItems": 200,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "positions"
+        ]
+      },
+      "QuickNotePositionDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "x": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100000,
+            "minimum": -100000
+          },
+          "y": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100000,
+            "minimum": -100000
+          },
+          "z": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "QuickNoteResponseDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "YELLOW",
+              "PINK",
+              "BLUE",
+              "GREEN",
+              "PURPLE",
+              "ORANGE"
+            ]
+          },
+          "x": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "y": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "z": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "archivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "convertedTaskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "QuickNoteTaskConversionDTO": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "$ref": "#/components/schemas/QuickNoteResponseDTO"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       }
