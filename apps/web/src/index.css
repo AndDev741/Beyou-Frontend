@@ -221,11 +221,14 @@
 }
 
 /* The cards deck and the roadmap board are things to use, not text to select: a click inside one
-   is a button press, so BlockNote's blue "this block is selected" wash stays off them. */
+   is a button press, so BlockNote's blue "this block is selected" wash stays off them. A diagram
+   shows its own selection, a ring around the card (DiagramBlock), so the wash stays off it too. */
 .beyou-editor .ProseMirror-selectednode > .bn-block-content[data-content-type="flashcards"] > *::after,
 .beyou-editor .bn-block-content.ProseMirror-selectednode[data-content-type="flashcards"] > *::after,
 .beyou-editor .ProseMirror-selectednode > .bn-block-content[data-content-type="roadmapBoard"] > *::after,
-.beyou-editor .bn-block-content.ProseMirror-selectednode[data-content-type="roadmapBoard"] > *::after {
+.beyou-editor .bn-block-content.ProseMirror-selectednode[data-content-type="roadmapBoard"] > *::after,
+.beyou-editor .ProseMirror-selectednode > .bn-block-content[data-content-type="diagram"] > *::after,
+.beyou-editor .bn-block-content.ProseMirror-selectednode[data-content-type="diagram"] > *::after {
   content: none;
 }
 

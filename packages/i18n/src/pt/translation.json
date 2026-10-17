@@ -2519,5 +2519,11 @@
   "DiagramToolShown": "Diagrama",
   "DiagramOpenPage": "Abrir página",
   "DiagramSlashTitle": "Diagrama",
-  "DiagramSlashHint": "Desenhar com IA"
+  "DiagramSlashHint": "Desenhar com IA",
+  "DiagramKindTooMany": "Até {{max}} caixas",
+  "DiagramReviewHint": "Você revê antes de salvar.",
+  "DiagramAutoLayoutHint": "O desenho se arruma sozinho a cada mudança.",
+  "DiagramBoxFallback": "Caixa {{n}}",
+  "DiagramLinksUnused": "Este tipo não desenha ligações, então elas ficam escondidas. Se voltar ao tipo anterior, elas continuam lá.",
+  "DiagramDownloadFailed": "Não deu para gerar a imagem. O download em SVG continua funcionando."
 }

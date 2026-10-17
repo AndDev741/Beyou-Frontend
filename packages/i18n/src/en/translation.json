@@ -2519,5 +2519,11 @@
   "DiagramToolShown": "Diagram",
   "DiagramOpenPage": "Open page",
   "DiagramSlashTitle": "Diagram",
-  "DiagramSlashHint": "Draw it with AI"
+  "DiagramSlashHint": "Draw it with AI",
+  "DiagramKindTooMany": "Up to {{max}} boxes",
+  "DiagramReviewHint": "You review it before saving.",
+  "DiagramAutoLayoutHint": "The drawing tidies itself up after every change.",
+  "DiagramBoxFallback": "Box {{n}}",
+  "DiagramLinksUnused": "This type doesn't draw links, so they're hidden. Switch back and they're still there.",
+  "DiagramDownloadFailed": "Couldn't make the image. The SVG download still works."
 }
