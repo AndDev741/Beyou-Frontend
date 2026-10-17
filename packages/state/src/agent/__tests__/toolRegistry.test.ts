@@ -30,8 +30,14 @@ describe('the shared agent tool registry', () => {
         ['logUserMood', '/mood'],
         ['addStudyNode', '/notebook'],
         ['updateUserConfiguration', '/configuration'],
+        ['createQuickNote', '/ideas'],
     ])('sends %s to %s', (tool, route) => {
         expect(toolDestination(tool)?.route).toBe(route);
+    });
+
+    it('shows reading the ideas board as a chip', () => {
+        expect(isReadTool('getQuickNotes')).toBe(true);
+        expect(toolDestination('getQuickNotes')).toBeNull();
     });
 
     // The cycle reads used to fall through to /Study/ and render as write cards linking to the

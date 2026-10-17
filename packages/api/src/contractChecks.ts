@@ -23,6 +23,14 @@ import type { DiagramLink, DiagramNode, DiagramResult, DiagramSpec } from "@beyo
 import type { FocusCycle, FocusDay, FocusMicroTask } from "@beyou/types/focus/focus";
 import type { MoodEntry } from "@beyou/types/mood/mood";
 import type {
+    QuickNote,
+    QuickNoteCreateInput,
+    QuickNoteEditInput,
+    QuickNotePosition,
+    QuickNoteTaskConversion,
+} from "@beyou/types/quickNote/quickNote";
+import type { QuickNoteTaskInput } from "./quickNote/quickNoteApi";
+import type {
     Board,
     BoardChange,
     BoardEdge,
@@ -104,6 +112,13 @@ export type ContractChecks = [
     Matches<FieldsMissingFromWire<CalendarRoutineDay, Schemas["CalendarRoutineDTO"]>>,
     Matches<FieldsMissingFromWire<CalendarGoalDue, Schemas["CalendarGoalDTO"]>>,
     Matches<FieldsMissingFromWire<CalendarMood, Schemas["CalendarMoodDTO"]>>,
+    // Ideas board
+    Matches<FieldsMissingFromWire<QuickNote, Schemas["QuickNoteResponseDTO"]>>,
+    Matches<FieldsMissingFromWire<QuickNoteCreateInput, Schemas["QuickNoteCreateRequestDTO"]>>,
+    Matches<FieldsMissingFromWire<QuickNoteEditInput, Schemas["QuickNoteEditRequestDTO"]>>,
+    Matches<FieldsMissingFromWire<QuickNotePosition, Schemas["QuickNotePositionDTO"]>>,
+    Matches<FieldsMissingFromWire<QuickNoteTaskConversion, Schemas["QuickNoteTaskConversionDTO"]>>,
+    Matches<FieldsMissingFromWire<QuickNoteTaskInput, Schemas["CreateTaskRequestDTO"]>>,
     // Mood
     Matches<FieldsMissingFromWire<MoodEntry, Schemas["MoodEntryResponseDTO"]>>,
     // Focus

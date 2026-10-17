@@ -33,6 +33,7 @@ export const READ_TOOLS: ReadonlySet<string> = new Set([
   'listStudyCycles',
   'getStudyCycle',
   'listStudySessions',
+  'getQuickNotes',
   // Shows a diagram in the chat and saves nothing. The segment carries the diagram, and both
   // apps draw it as a card (see DIAGRAM_TOOLS) before this set is ever asked.
   'showDiagram',
@@ -85,7 +86,8 @@ export type ToolDestinationKey =
   | 'mood'
   | 'notebook'
   | 'configuration'
-  | 'focus';
+  | 'focus'
+  | 'ideas';
 
 /** Where a write tool points: route and link label. */
 export type ToolDestination = { key: ToolDestinationKey; route: string; labelKey: string };
@@ -100,6 +102,7 @@ const SCREENS: Record<ToolDestinationKey, ToolDestination> = {
   notebook: { key: 'notebook', route: '/notebook', labelKey: 'Notebook' },
   configuration: { key: 'configuration', route: '/configuration', labelKey: 'Config' },
   focus: { key: 'focus', route: '/focus', labelKey: 'FocusTitle' },
+  ideas: { key: 'ideas', route: '/ideas', labelKey: 'Ideas' },
 };
 
 /** First match wins, so the order is part of the rule. */
@@ -112,6 +115,7 @@ const BY_NAME: { match: RegExp; key: ToolDestinationKey }[] = [
   { match: /Mood/, key: 'mood' },
   { match: /Study/, key: 'notebook' },
   { match: /Configuration/, key: 'configuration' },
+  { match: /QuickNote/, key: 'ideas' },
 ];
 
 /** The screen a write tool's card links to, or null for a read or a tool with no screen. */

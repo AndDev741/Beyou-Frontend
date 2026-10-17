@@ -9,6 +9,9 @@ export * from './onboarding/suggestions';
 // Calendar types
 export * from './calendar/calendar';
 
+// Ideas board (quick notes) types
+export * from './quickNote/quickNote';
+
 // Daily Briefing types
 export * from './briefing/briefing';
 
