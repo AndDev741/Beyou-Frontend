@@ -30,6 +30,7 @@ const Configuration = lazy(() => import("./pages/configuration/Configuration"));
 const Focus = lazy(() => import("./pages/focus/Focus"));
 const Mood = lazy(() => import("./pages/mood/mood"));
 const Calendar = lazy(() => import("./pages/calendar/Calendar"));
+const Ideas = lazy(() => import("./pages/ideas/Ideas"));
 const NotebookHome = lazy(() => import("./pages/notebook/NotebookHome"));
 const NotebookReview = lazy(() => import("./pages/notebook/NotebookReview"));
 const NotebookPageView = lazy(() => import("./pages/notebook/NotebookPageView"));
@@ -100,6 +101,7 @@ function AppContent() {
             {/* These two cover the shell, like /focus: a board to pan, a room to study in. */}
             <Route path="/notebook/:pageId/board" element={<NotebookBoardFocus />} />
             <Route path="/notebook/:pageId/study" element={<NotebookStudyRoom />} />
+            <Route path="/ideas" element={<Ideas />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route element={<AdminRoute />}>

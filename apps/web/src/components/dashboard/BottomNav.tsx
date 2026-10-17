@@ -15,6 +15,7 @@ import {
     Trophy,
     Settings,
     MessageSquare,
+    StickyNote,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { openAgentPanel } from "../agent/agentPanelBus";
@@ -41,6 +42,7 @@ const SHEET: NavItem[] = [
     { key: "Calendar", to: "/calendar", Icon: CalendarClock },
     { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
     { key: "Notebook", to: "/notebook", Icon: NotebookPen },
+    { key: "Ideas", to: "/ideas", Icon: StickyNote },
     // Last of the domain destinations, matching the desktop sidebar's order: the diary is about
     // the day that happened, not the day being planned.
     { key: "Mood", to: "/mood", Icon: BookHeart },

@@ -16,6 +16,7 @@ vi.mock("@beyou/api/routine/getTodayRoutine", () => ({ default: vi.fn() }));
 // Keep the logger quiet + assertable for the unknown-domain path.
 vi.mock("@beyou/api", () => ({ getLogger: () => ({ error: vi.fn() }) }));
 vi.mock("@beyou/api/focus/focusApi", () => ({ listFocusMicroTasks: vi.fn() }));
+vi.mock("@beyou/api/quickNote/quickNoteApi", () => ({ getQuickNotes: vi.fn(), getArchivedQuickNotes: vi.fn() }));
 vi.mock("@beyou/api/notebook", () => ({
   getNotebookHome: vi.fn(),
   getPage: vi.fn(),
@@ -31,6 +32,7 @@ import getRoutines from "@beyou/api/routine/getRoutines";
 import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
 import { getNotebookHome, getPage, getStudyCycle, getStudyCycles, getStudyToday } from "@beyou/api/notebook";
+import { getArchivedQuickNotes, getQuickNotes } from "@beyou/api/quickNote/quickNoteApi";
 
 const dispatch = vi.fn();
 const typesOf = () => dispatch.mock.calls.map((c) => c[0]?.type);
@@ -99,6 +101,30 @@ describe("useAgentRefresh", () => {
       ]))
     );
     expect(getStudyCycle).toHaveBeenCalledWith("c1", expect.any(Function));
+  });
+
+  test("quickNotes re-reads the board, and the archived list when it was open", async () => {
+    storeState = { quickNotes: { active: [], archived: [], loaded: true } };
+    (getQuickNotes as unknown as Mock).mockResolvedValue({ success: [{ id: "n1", z: 1, createdAt: "2026-10-17T10:00:00Z" }] });
+    (getArchivedQuickNotes as unknown as Mock).mockResolvedValue({ success: [] });
+
+    run(["quickNotes"]);
+
+    await waitFor(() =>
+      expect(typesOf()).toEqual(expect.arrayContaining([
+        "quickNotes/quickNotesLoaded", "quickNotes/archivedQuickNotesLoaded",
+      ]))
+    );
+  });
+
+  test("quickNotes leaves the archived list alone when nobody opened it", async () => {
+    storeState = { quickNotes: { active: [], archived: null, loaded: true } };
+    (getQuickNotes as unknown as Mock).mockResolvedValue({ success: [] });
+
+    run(["quickNotes"]);
+
+    await waitFor(() => expect(typesOf()).toContain("quickNotes/quickNotesLoaded"));
+    expect(getArchivedQuickNotes).not.toHaveBeenCalled();
   });
 
   test("maps a domain to its slice refetch", async () => {

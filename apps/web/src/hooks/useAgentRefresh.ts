@@ -18,7 +18,15 @@ import { enterTodayRoutine } from "@beyou/state/routine/todayRoutineSlice";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
 import { getMoodEntries } from "@beyou/api/mood/moodApi";
 import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
-import { selectedFocusGroupId, addDays, enterMoodEntries, refreshNotebook, refreshStudyCycles, todayInZone } from "@beyou/state";
+import {
+    selectedFocusGroupId,
+    addDays,
+    enterMoodEntries,
+    refreshNotebook,
+    refreshQuickNotes,
+    refreshStudyCycles,
+    todayInZone,
+} from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import { hydratePerfil } from "../services/user/hydratePerfil";
 
@@ -91,6 +99,12 @@ export function useAgentRefresh() {
                     // any cycle open in full may have a block that took the minutes.
                     const state = store.getState() as RootState;
                     await refreshStudyCycles(dispatch, state.studyCycles, t);
+                },
+                quickNotes: async () => {
+                    // A note the chat wrote shows on a board open beside it, and the archived
+                    // list re-reads too when it was already open.
+                    const state = store.getState() as RootState;
+                    await refreshQuickNotes(dispatch, state.quickNotes, t);
                 },
                 focus: async () => {
                     // Micro-tasks are stored per routine entry and there is no "fetch them all".

@@ -15,6 +15,7 @@ import {
     BookHeart,
     NotebookPen,
     PanelLeft,
+    StickyNote,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
@@ -39,6 +40,8 @@ const MAIN: Item[] = [
     { key: "Calendar", to: "/calendar", Icon: CalendarClock },
     // After goals: a topic is often studied FOR a goal, and the topic page links back to it.
     { key: "Notebook", to: "/notebook", Icon: NotebookPen },
+    // Beside the notebook: both hold what you think, the board the raw version of it.
+    { key: "Ideas", to: "/ideas", Icon: StickyNote },
     // Last in the list: the diary is about the day that happened, not the day being planned.
     { key: "Mood", to: "/mood", Icon: BookHeart },
 ];

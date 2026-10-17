@@ -109,3 +109,65 @@ test("shows API validation error when backend returns INVALID_REQUEST", async ()
         expect(screen.getByText("INVALID_REQUEST")).toBeInTheDocument();
     });
 });
+
+/**
+ * A note becoming a task opens this form filled in, and saves through the conversion endpoint
+ * instead of `createTask`. Everything after the save stays the form's: the list refetch that
+ * reaches the store, the toast, closing.
+ */
+test("opens with initial values and saves through onCreate instead of createTask", async () => {
+    const tasks = [{ id: "t-9", name: "Renew passport", iconId: "icon" }];
+    mockGetTasks.mockResolvedValue({ success: tasks });
+    const onCreate = vi.fn().mockResolvedValue({ success: { taskId: "t-9" } });
+    const onClose = vi.fn();
+    const store = configureStore({ reducer: rootReducer });
+
+    renderWithProviders(
+        <TaskForm
+            mode="create"
+            title="From a note"
+            initialValues={{ name: "Renew passport", description: "Book the slot first" }}
+            onCreate={onCreate}
+            createdMessage="Turned into a task"
+            onClose={onClose}
+        />,
+        { storeOverride: store }
+    );
+
+    expect(screen.getByRole("heading", { name: "From a note" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("TaskNamePlaceholder")).toHaveValue("Renew passport");
+    expect(screen.getByPlaceholderText("TaskDescriptionPlaceholder")).toHaveValue("Book the slot first");
+
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Save task" }));
+
+    await waitFor(() => expect(onCreate).toHaveBeenCalledTimes(1));
+    expect(onCreate.mock.calls[0][0]).toMatchObject({
+        name: "Renew passport",
+        description: "Book the slot first",
+        iconId: expect.any(String),
+        categoriesId: [],
+        oneTimeTask: false,
+    });
+    expect(mockCreateTask).not.toHaveBeenCalled();
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+    expect(store.getState().tasks.tasks).toEqual(tasks);
+});
+
+test("a refused onCreate keeps the form open with the reason", async () => {
+    const onCreate = vi.fn().mockResolvedValue({ error: { errorKey: "QUICK_NOTE_ALREADY_CONVERTED" } });
+    const onClose = vi.fn();
+
+    renderWithProviders(
+        <TaskForm mode="create" initialValues={{ name: "Renew passport" }} onCreate={onCreate} onClose={onClose} />
+    );
+
+    const iconTiles = await screen.findAllByRole("button", { name: /^Icon:/i });
+    fireEvent.click(iconTiles[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Save task" }));
+
+    expect(await screen.findByText("QUICK_NOTE_ALREADY_CONVERTED")).toBeInTheDocument();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(mockGetTasks).not.toHaveBeenCalled();
+});

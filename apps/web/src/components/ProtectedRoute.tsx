@@ -8,6 +8,7 @@ import Sidebar from "./shell/Sidebar";
 import RunningTimerHub from "./focus/RunningTimerHub";
 import PomodoroOwner from "./focus/PomodoroOwner";
 import CalendarReminderHub from "./calendar/CalendarReminderHub";
+import QuickCaptureHub from "./ideas/QuickCaptureHub";
 import { DesktopSpacerProvider } from "./shell/desktopSpacer";
 
 type Props = {
@@ -90,6 +91,8 @@ function ProtectedRoute({ authState }: Props) {
             {/* Calendar reminders as browser notifications, on every authenticated page. Renders
                 nothing, and does nothing until the browser and the account both allow it. */}
             <CalendarReminderHub />
+            {/* Alt+N opens a "New idea" dialog from any page. Renders nothing until then. */}
+            <QuickCaptureHub />
         </div>
     );
 }
