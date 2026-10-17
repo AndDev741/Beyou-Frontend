@@ -83,6 +83,75 @@ describe('AgentSegments tool rendering', () => {
   });
 });
 
+/**
+ * The two diagram tools carry the diagram on their segment. `showDiagram` draws it inline (the
+ * agent draws from what it knows, so the chip says so); `addStudyDiagram` says which page it went
+ * to, with a small preview and the way to that page.
+ */
+describe('AgentSegments diagram tools', () => {
+  const diagram: agentSegment['diagram'] = {
+    v: 1,
+    kind: 'CYCLE',
+    title: 'Water cycle',
+    nodes: [
+      { id: 'a', label: 'Evaporation', detail: null, tone: 'ACCENT' },
+      { id: 'b', label: 'Condensation', detail: null, tone: 'NEUTRAL' },
+      { id: 'c', label: 'Rain', detail: null, tone: 'NEUTRAL' },
+    ],
+    links: [],
+  };
+
+  it('draws a shown diagram as a card from the AI, with full screen', async () => {
+    await renderSegments([{ type: 'tool', tool: 'showDiagram', status: 'finished', diagram }]);
+
+    expect(screen.getByTestId('agent-diagram')).toBeTruthy();
+    expect(screen.getByText('Water cycle')).toBeTruthy();
+    expect(screen.getByText('Cycle · 3 items')).toBeTruthy();
+    expect(screen.getByTestId('agent-diagram-from-ai')).toBeTruthy();
+    expect(screen.getByTestId('agent-diagram-art')).toBeTruthy();
+    // Nothing to save on the phone's assistant: the card has no save button.
+    expect(screen.queryByTestId('agent-diagram-save')).toBeNull();
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('agent-diagram-fullscreen'));
+    });
+    expect(screen.getByTestId('diagram-fullscreen')).toBeTruthy();
+  });
+
+  it('shows a diagram added to a page with a preview and a way to that page', async () => {
+    await renderSegments([
+      {
+        type: 'tool',
+        tool: 'addStudyDiagram',
+        status: 'finished',
+        domains: ['notebook'],
+        diagram,
+        pageId: 'p1',
+        pageTitle: 'Earth science',
+      },
+    ]);
+
+    expect(screen.getByText('Diagram added · Earth science')).toBeTruthy();
+    expect(screen.getByTestId('agent-diagram-added-preview')).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(screen.getByText('Open page'));
+    });
+    expect(onInternalLink).toHaveBeenCalledWith('/notebook/p1');
+  });
+
+  it('keeps a diagram tool still running, or failed, as a chip', async () => {
+    await renderSegments([
+      { type: 'tool', tool: 'showDiagram', status: 'started' },
+      { type: 'tool', tool: 'addStudyDiagram', status: 'finished', error: 'boom' },
+    ]);
+
+    expect(screen.getByText('Diagram drawn')).toBeTruthy();
+    expect(screen.getByText(/Diagram added/)).toBeTruthy();
+    expect(screen.queryByTestId('agent-diagram')).toBeNull();
+    expect(screen.queryByTestId('agent-diagram-added')).toBeNull();
+  });
+});
+
 describe('destinationFor', () => {
   it('sends micro-task writes to the focus screen, not to the tasks page', () => {
     // Every one of these has "Task" in its name and none of them is about a task.

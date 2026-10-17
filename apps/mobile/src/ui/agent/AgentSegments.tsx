@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   BookHeart,
@@ -16,10 +16,19 @@ import {
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import type { agentSegment } from '@beyou/types/agent/chatType';
-import { isReadTool, toolDestination, type ToolDestination, type ToolDestinationKey } from '@beyou/state/agent/toolRegistry';
+import type { DiagramSpec } from '@beyou/types/notebook/diagram';
+import {
+  isDiagramTool,
+  isReadTool,
+  toolDestination,
+  type ToolDestination,
+  type ToolDestinationKey,
+} from '@beyou/state/agent/toolRegistry';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import IconTile from '../IconTile';
 import AgentMarkdown from './AgentMarkdown';
+import DiagramCard from '../../notebook/diagram/DiagramCard';
+import DiagramNative from '../../notebook/diagram/DiagramNative';
 
 type OnInternalLink = (href: string) => void;
 
@@ -125,6 +134,73 @@ function ToolActionCard({
   );
 }
 
+/**
+ * How wide a card inside an assistant bubble can be. The bubble is sized by its content, so a
+ * diagram measuring it would shrink with every layout pass; this works the width out from the
+ * thread instead: AgentChatModal's `px-3` around the thread, the bubble's 92% cap and its `px-3.5`.
+ */
+function useBubbleCardWidth() {
+  const { width } = useWindowDimensions();
+  return Math.max(220, Math.floor((width - 24) * 0.92 - 28));
+}
+
+/**
+ * `showDiagram`: the diagram the assistant drew, as a card. It comes from the model's own
+ * knowledge (the agent does not read notes to draw), so the chip says so.
+ */
+function ShownDiagram({ diagram }: { diagram: DiagramSpec }) {
+  const width = useBubbleCardWidth();
+  return <DiagramCard spec={diagram} source="ai" width={width} testID="agent-diagram" />;
+}
+
+/** `addStudyDiagram`: the diagram went into a page; a small preview and the way there. */
+function AddedDiagram({
+  segment,
+  diagram,
+  onInternalLink,
+}: {
+  segment: agentSegment;
+  diagram: DiagramSpec;
+  onInternalLink?: OnInternalLink;
+}) {
+  const { t } = useTranslation();
+  const { theme } = useBeyouTheme();
+  const width = useBubbleCardWidth();
+  const pageId = segment.pageId;
+
+  return (
+    <View
+      className="gap-2.5 self-start rounded-card border border-border bg-surface p-3"
+      style={{ width }}
+      testID="agent-diagram-added"
+    >
+      <View className="flex-row items-center gap-2.5">
+        <IconTile size={32}>
+          <NotebookPen size={16} color={theme.accent} />
+        </IconTile>
+        <Text className="min-w-0 flex-1 text-[13px] font-semibold text-text">
+          {t('DiagramToolAdded', { title: segment.pageTitle ?? '' })}
+        </Text>
+      </View>
+      {/* Card padding (p-3) and the inset's own (px-1), on both sides. */}
+      <View className="rounded-control bg-bg px-1 py-1">
+        <DiagramNative spec={diagram} width={width - 32} maxHeight={150} testID="agent-diagram-added-preview" />
+      </View>
+      {pageId && onInternalLink ? (
+        <Pressable
+          onPress={() => onInternalLink(`/notebook/${pageId}`)}
+          accessibilityRole="link"
+          className="h-11 flex-row items-center justify-center gap-1 rounded-xl border border-border bg-surface active:bg-surface-2"
+          testID="agent-diagram-open-page"
+        >
+          <Text className="text-[14px] font-semibold text-accent">{t('DiagramOpenPage')}</Text>
+          <ChevronRight size={15} color={theme.accent} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 function ToolSegment({
   segment,
   onInternalLink,
@@ -132,6 +208,16 @@ function ToolSegment({
   segment: agentSegment;
   onInternalLink?: OnInternalLink;
 }) {
+  // A diagram tool that finished with its diagram is drawn; in flight or failed, it falls through
+  // to the chip like any other tool.
+  if (isDiagramTool(segment.tool) && segment.diagram && segment.status !== 'started' && !segment.error) {
+    return segment.tool === 'addStudyDiagram' ? (
+      <AddedDiagram segment={segment} diagram={segment.diagram} onInternalLink={onInternalLink} />
+    ) : (
+      <ShownDiagram diagram={segment.diagram} />
+    );
+  }
+
   const destination = destinationFor(segment.tool);
   const isWrite =
     !!segment.tool &&
@@ -154,7 +240,8 @@ function ToolSegment({
 /**
  * Renders an assistant turn as its ordered segments — text as markdown, tools
  * as chips (reads, in-flight, failures) or action cards (writes), interleaved
- * as they happened. Live streaming and persisted.
+ * as they happened, and the two diagram tools as diagram cards. Live streaming
+ * and persisted.
  */
 export default function AgentSegments({
   segments,
