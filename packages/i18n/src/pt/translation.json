@@ -1140,6 +1140,8 @@
     "addStudyNode": "Nó adicionado ao roteiro",
     "getStudyPlanForToday": "Plano de estudo consultado",
     "getStudyBoard": "Roteiro consultado",
+    "showDiagram": "Diagrama desenhado",
+    "addStudyDiagram": "Diagrama adicionado",
     "editStudyNode": "Nó atualizado",
     "setStudyNodeStatus": "Status de estudo alterado",
     "connectStudyNodes": "Nós ligados",

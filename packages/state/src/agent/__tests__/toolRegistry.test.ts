@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FOCUS_TOOLS, KNOWN_TOOLS, READ_TOOLS, ROUTINE_ITEM_TOOLS, isReadTool, toolDestination } from '../toolRegistry';
+import { FOCUS_TOOLS, KNOWN_TOOLS, READ_TOOLS, ROUTINE_ITEM_TOOLS, isDiagramTool, isReadTool, toolDestination } from '../toolRegistry';
 
 describe('the shared agent tool registry', () => {
     it('lists each known tool once, in one group only', () => {
@@ -38,6 +38,15 @@ describe('the shared agent tool registry', () => {
     // notebook, as if reading today's plan had changed something there.
     it.each(['getStudyToday', 'listStudyCycles', 'getStudyCycle', 'listStudySessions'])('shows the cycle read %s as a chip', (tool) => {
         expect(isReadTool(tool)).toBe(true);
+    });
+
+    it('treats the diagram tools as diagrams: show saves nothing, add points at the notebook', () => {
+        expect(isDiagramTool('showDiagram')).toBe(true);
+        expect(isDiagramTool('addStudyDiagram')).toBe(true);
+        expect(isDiagramTool('addStudyNotes')).toBe(false);
+        expect(isReadTool('showDiagram')).toBe(true);
+        expect(toolDestination('showDiagram')).toBeNull();
+        expect(toolDestination('addStudyDiagram')?.route).toBe('/notebook');
     });
 
     it.each(['editStudyCycle', 'deleteStudyCycle', 'deleteStudySession'])('sends the cycle write %s to the notebook', (tool) => {

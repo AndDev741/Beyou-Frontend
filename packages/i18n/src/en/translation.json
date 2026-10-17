@@ -1140,6 +1140,8 @@
     "addStudyNode": "Node added to the roadmap",
     "getStudyPlanForToday": "Study plan checked",
     "getStudyBoard": "Roadmap read",
+    "showDiagram": "Diagram drawn",
+    "addStudyDiagram": "Diagram added",
     "editStudyNode": "Node updated",
     "setStudyNodeStatus": "Study status changed",
     "connectStudyNodes": "Nodes linked",
