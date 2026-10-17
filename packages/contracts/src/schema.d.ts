@@ -2084,6 +2084,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/notebook/ai/pages/{pageId}/diagram": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["diagram"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3243,7 +3259,8 @@ export interface components {
             citations?: components["schemas"]["CitationDTO"][];
         };
         AppendRequestDTO: {
-            markdown: string;
+            markdown?: string;
+            diagram?: components["schemas"]["DiagramSpec"];
         };
         BoardChangeResponseDTO: {
             node?: components["schemas"]["BoardNodeDTO"];
@@ -3313,6 +3330,7 @@ export interface components {
             citations?: components["schemas"]["CitationDTO"][];
             /** Format: date-time */
             createdAt?: string;
+            diagram?: components["schemas"]["DiagramSpec"];
         };
         ChatRequestDTO: {
             message: string;
@@ -3999,6 +4017,39 @@ export interface components {
             name?: string;
             iconId?: string;
             complete?: boolean;
+        };
+        DiagramNode: {
+            id?: string;
+            label?: string;
+            detail?: string;
+            /** @enum {string} */
+            tone?: "NEUTRAL" | "ACCENT" | "SUCCESS" | "WARNING" | "DANGER";
+        };
+        DiagramLink: {
+            from?: string;
+            to?: string;
+            label?: string;
+            dashed?: boolean;
+        };
+        DiagramSpec: {
+            /** Format: int32 */
+            v?: number;
+            /** @enum {string} */
+            kind?: "FLOW" | "MAP" | "CYCLE" | "SEQUENCE" | "LAYERS" | "TIMELINE";
+            title?: string;
+            nodes?: components["schemas"]["DiagramNode"][];
+            links?: components["schemas"]["DiagramLink"][];
+        };
+        DiagramRequestDTO: {
+            prompt: string;
+            /** @enum {string} */
+            kind?: "FLOW" | "MAP" | "CYCLE" | "SEQUENCE" | "LAYERS" | "TIMELINE";
+            grounded?: boolean;
+            base?: components["schemas"]["DiagramSpec"];
+        };
+        DiagramResultDTO: {
+            diagram?: components["schemas"]["DiagramSpec"];
+            fromNotes?: boolean;
         };
     };
     responses: never;
@@ -7789,6 +7840,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CalendarTaskResponseDTO"][];
+                };
+            };
+        };
+    };
+    diagram: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pageId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiagramRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DiagramResultDTO"];
                 };
             };
         };

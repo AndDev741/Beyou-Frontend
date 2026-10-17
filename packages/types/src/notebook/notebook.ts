@@ -1,3 +1,5 @@
+import type { DiagramSpec } from './diagram';
+
 /**
  * The study notebook, as the server sends it.
  *
@@ -259,6 +261,8 @@ export type ChatMessage = {
     content: string;
     citations: Citation[];
     createdAt: string;
+    /** A diagram the tutor drew with this answer. Absent on older servers and on questions. */
+    diagram?: DiagramSpec | null;
 };
 
 export type ChatTurn = { question: ChatMessage; answer: ChatMessage };

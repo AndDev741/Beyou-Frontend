@@ -1,3 +1,5 @@
+import type { DiagramSpec } from '../notebook/diagram';
+
 export interface agentChat {
     id: string;
     title: string;
@@ -18,6 +20,11 @@ export interface agentSegment {
     domains?: string[];
     /** UI-only, live streaming: 'started' before a tool resolves. */
     status?: 'started' | 'finished';
+    /** type === 'tool', showDiagram / addStudyDiagram: the diagram it drew, already cleaned. */
+    diagram?: DiagramSpec;
+    /** type === 'tool', addStudyDiagram: the page the diagram went to. */
+    pageId?: string;
+    pageTitle?: string;
 }
 
 export interface agentMessage {

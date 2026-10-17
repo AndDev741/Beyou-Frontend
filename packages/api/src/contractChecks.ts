@@ -19,6 +19,7 @@ import type {
     CalendarTask,
     CalendarTaskInput,
 } from "@beyou/types/calendar/calendar";
+import type { DiagramLink, DiagramNode, DiagramResult, DiagramSpec } from "@beyou/types/notebook/diagram";
 import type { FocusCycle, FocusDay, FocusMicroTask } from "@beyou/types/focus/focus";
 import type { MoodEntry } from "@beyou/types/mood/mood";
 import type {
@@ -152,6 +153,11 @@ export type ContractChecks = [
     Matches<FieldsMissingFromWire<StudyScopeOption, Schemas["StudyScopeOptionDTO"]>>,
     Matches<FieldsMissingFromWire<DiscoveredSource, Schemas["DiscoveredSourceDTO"]>>,
     Matches<FieldsMissingFromWire<DiscoveryResult, Schemas["DiscoveryResultDTO"]>>,
+    // Notebook: diagrams
+    Matches<FieldsMissingFromWire<DiagramSpec, Schemas["DiagramSpec"]>>,
+    Matches<FieldsMissingFromWire<DiagramNode, Schemas["DiagramNode"]>>,
+    Matches<FieldsMissingFromWire<DiagramLink, Schemas["DiagramLink"]>>,
+    Matches<FieldsMissingFromWire<DiagramResult, Schemas["DiagramResultDTO"]>>,
     // Notebook: AI roadmap drafts
     Matches<FieldsMissingFromWire<DraftNode, Schemas["DraftNodeDTO"]>>,
     Matches<FieldsMissingFromWire<RoadmapDraft, Schemas["RoadmapDraftDTO"]>>,

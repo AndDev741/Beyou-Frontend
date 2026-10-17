@@ -422,3 +422,20 @@ export {
 export type { DraftForm, DraftRow } from './notebook/roadmapDraft';
 export type { DocumentSyncDeps, SaveAnswer, ServerPage, SyncEditor, SyncStatus } from './notebook/documentSync';
 export type { ConflictChoice, DocBlock, MergeConflict, MergeResult } from './notebook/mergeDocuments';
+export {
+    DEFAULT_DIAGRAM_WIDTH,
+    diagramColors,
+    diagramText,
+    layoutDiagram,
+    newDiagramBlock,
+    parseDiagramProp,
+    sanitizeDiagram,
+    sceneToSvg,
+    serializeDiagram,
+    shapePaint,
+    textColor,
+} from './notebook/diagram';
+export type {
+    DiagramColors, DiagramScene, PathRole, RectRole, SceneDot, SceneHead, ScenePath, ScenePill, SceneRect, SceneShape,
+    SceneText, TextRole, ToneColors,
+} from './notebook/diagram';

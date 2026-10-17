@@ -4,6 +4,7 @@ import type {
     RoadmapDraftRecord, RoadmapDraftRequest, RoadmapDraftSummary, StudyOutput, StudyOutputKind, StudyRoom,
     StudyScope, StudySetup, SuggestedNode,
 } from '@beyou/types/notebook/notebook';
+import type { DiagramRequest, DiagramResult } from '@beyou/types/notebook/diagram';
 import { call, http, Result } from './result';
 
 /**
@@ -34,6 +35,14 @@ const AI_TIMEOUT = 100_000;
 
 export const askStudyQuestion = (pageId: string, message: string, t: TFunction): Promise<Result<ChatTurn>> =>
     call(() => http().post<ChatTurn>(`/notebook/ai/pages/${pageId}/chat`, { message }, { timeout: AI_TIMEOUT }), t);
+
+/**
+ * A diagram drawn by the AI for the page: from a prompt, of a kind or of the AI's choosing
+ * (`kind: null`), on the page's notes when `grounded`. With `base` it adjusts that diagram,
+ * keeping what the prompt does not touch. Nothing is saved; inserting it is the caller's move.
+ */
+export const generateDiagram = (pageId: string, request: DiagramRequest, t: TFunction): Promise<Result<DiagramResult>> =>
+    call(() => http().post<DiagramResult>(`/notebook/ai/pages/${pageId}/diagram`, request, { timeout: AI_TIMEOUT }), t);
 
 export const generateStudyOutput = (pageId: string, kind: StudyOutputKind, t: TFunction): Promise<Result<StudyOutput>> =>
     call(() => http().post<StudyOutput>(`/notebook/ai/pages/${pageId}/outputs`, { kind }, { timeout: AI_TIMEOUT }), t);
