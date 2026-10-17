@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -21,8 +21,18 @@ import ErrorNotice from "../../ErrorNotice";
  * explanation appended) puts the new page in the store, and the effect below merges that
  * revision into the open editor. BlockNote reads its content once, so a change that skipped this
  * path would be saved over by the next autosave.
+ *
+ * A diagram saved from the chat takes the shorter way: `liveRef` hands this editor to the room,
+ * and the block goes straight into the document, to be saved by the same autosave.
  */
-export default function StudyNotes({ pageId }: { pageId: string }) {
+export default function StudyNotes({ pageId, liveRef }: {
+    pageId: string;
+    /**
+     * Filled with the open editor while these notes are on screen, so the chat beside them can
+     * put a diagram straight into the document instead of appending it on the server.
+     */
+    liveRef?: MutableRefObject<NotebookEditorHandle | null>;
+}) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const page = useSelector((state: RootState) => state.notebook.pages[pageId]);
@@ -30,6 +40,10 @@ export default function StudyNotes({ pageId }: { pageId: string }) {
     const [explaining, setExplaining] = useState<string | null>(null);
     const editorRef = useRef<NotebookEditorHandle>(null);
     const { status: save, conflict, onReady, onSave, serverChanged, resolve } = useDocumentSync(pageId, editorRef);
+    const setEditor = useCallback((handle: NotebookEditorHandle | null) => {
+        (editorRef as MutableRefObject<NotebookEditorHandle | null>).current = handle;
+        if (liveRef) liveRef.current = handle;
+    }, [liveRef]);
 
     const load = useCallback(async () => {
         const response = await getPage(pageId, t);
@@ -73,7 +87,7 @@ export default function StudyNotes({ pageId }: { pageId: string }) {
                 {page ? (
                     <NotebookEditor
                         key={page.id}
-                        ref={editorRef}
+                        ref={setEditor}
                         onReady={(document, hadBlocksWithoutIds) => onReady(document, page.contentRevision, hadBlocksWithoutIds)}
                         pageId={page.id}
                         pageTitle={page.title}

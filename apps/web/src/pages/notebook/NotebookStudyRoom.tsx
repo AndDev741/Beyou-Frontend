@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Columns2, MessagesSquare, NotebookPen, Sparkles } from "lucide-react";
 import type { NotebookPage, NotebookSource, StudyRoom, StudySetup as Setup } from "@beyou/types/notebook/notebook";
+import type { DiagramSpec } from "@beyou/types/notebook/diagram";
 import { enterNotebookPage } from "@beyou/state";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { getStudyRoom } from "@beyou/api/notebook";
@@ -15,6 +16,7 @@ import StudioPanel from "../../components/notebook/study/StudioPanel";
 import StudySetup, { StudySetupBar } from "../../components/notebook/study/StudySetup";
 import { PanelRail, ResizeHandle } from "../../components/notebook/study/StudyColumns";
 import StudyNotes from "../../components/notebook/study/StudyNotes";
+import type { NotebookEditorHandle } from "../../components/notebook/editor/NotebookEditor";
 import { RAIL_WIDTH, STUDY_VIEWS, useStudyLayout, useStudyView, type StudyView } from "../../components/notebook/study/studyLayout";
 
 const VIEW_ICONS: Record<StudyView, typeof Columns2> = { room: MessagesSquare, split: Columns2, notes: NotebookPen };
@@ -102,6 +104,16 @@ export default function NotebookStudyRoom() {
 
     // The page after "Save to page", into the store: open notes merge it in from there.
     const onSavedToPage = useCallback((saved: NotebookPage) => dispatch(enterNotebookPage(saved)), [dispatch]);
+
+    // The notes editor while it is on screen (split or notes view). A diagram saved from the
+    // chat goes into it directly; with no editor open the chat appends it on the server.
+    const liveNotes = useRef<NotebookEditorHandle | null>(null);
+    const insertIntoNotes = useCallback((spec: DiagramSpec) => {
+        const editor = liveNotes.current;
+        if (!editor) return false;
+        editor.appendDiagram(spec);
+        return true;
+    }, []);
 
     const onSourceAdded = useCallback((source: NotebookSource) => setSources((current) => [...current, source]), []);
 
@@ -198,7 +210,7 @@ export default function NotebookStudyRoom() {
                                     ? "flex min-w-0 flex-[999_1_460px] flex-col lg:min-h-0 lg:flex-[1.25_1_0%] lg:overflow-y-auto"
                                     : "flex w-full min-w-0 flex-1 flex-col lg:min-h-0 lg:overflow-y-auto"}>
                                 <div className={view === "notes" ? "mx-auto flex w-full max-w-[920px] flex-col" : "flex flex-col"}>
-                                    <StudyNotes pageId={pageId} />
+                                    <StudyNotes pageId={pageId} liveRef={liveNotes} />
                                 </div>
                             </div>
                         )}
@@ -244,6 +256,8 @@ export default function NotebookStudyRoom() {
                                         initialOverview={room.overview}
                                         onCardsMade={onCardsMade}
                                         onSavedToPage={onSavedToPage}
+                                        pageTitle={room.page.title}
+                                        insertIntoNotes={insertIntoNotes}
                                     />
                                 </>
                             )}

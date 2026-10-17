@@ -6,6 +6,8 @@ import { renderWithProviders } from "../../../../test/test-utils";
 vi.mock("@beyou/api/notebook", () => ({
     askStudyQuestion: vi.fn(),
     appendToPage: vi.fn(),
+    appendDiagramToPage: vi.fn(),
+    generateDiagram: vi.fn(),
     clearStudyChat: vi.fn(),
     generateCards: vi.fn(),
     generateStudyOutput: vi.fn(),
@@ -13,7 +15,8 @@ vi.mock("@beyou/api/notebook", () => ({
     getPassage: vi.fn(),
 }));
 
-import { appendToPage, askStudyQuestion } from "@beyou/api/notebook";
+import { appendDiagramToPage, appendToPage, askStudyQuestion } from "@beyou/api/notebook";
+import type { DiagramSpec } from "@beyou/types/notebook/diagram";
 import ChatPanel from "../ChatPanel";
 
 const turn: ChatTurn = {
@@ -149,5 +152,85 @@ describe("ChatPanel", () => {
         expect(answers).toHaveLength(2);
         expect(answers[0].querySelector('[data-testid="study-answer-general"]')).toBeNull();
         expect(answers[1].querySelector('[data-testid="study-answer-general"]')).not.toBeNull();
+    });
+
+    describe("a diagram with the answer", () => {
+        const diagram: DiagramSpec = {
+            v: 1,
+            kind: "FLOW",
+            title: "Successor",
+            nodes: [
+                { id: "a", label: "Node", detail: null, tone: "ACCENT" },
+                { id: "b", label: "Successor", detail: "no left child", tone: "SUCCESS" },
+            ],
+            links: [{ from: "a", to: "b", label: null, dashed: false }],
+        };
+        const drawn = { ...turn.answer, diagram };
+
+        test("shows the card under the answer, marked as coming from the notes when the answer cites them", () => {
+            const uncited = { ...drawn, id: "a2", citations: [] };
+            renderWithProviders(
+                <ChatPanel pageId="p1" initialMessages={[turn.question, drawn, uncited]} initialOverview={null} />
+            );
+
+            const [first, second] = screen.getAllByTestId("study-answer");
+            const card = first.querySelector('[data-testid="study-diagram-card"]') as HTMLElement;
+            expect(card).toHaveTextContent("Successor");
+            expect(card.querySelector('svg[role="img"]')).not.toBeNull();
+            expect(first.querySelector('[data-testid="study-diagram-source"]')).toHaveTextContent("DiagramFromNotes");
+            expect(second.querySelector('[data-testid="study-diagram-source"]')).toHaveTextContent("DiagramFromAi");
+        });
+
+        test("an answer without a diagram has no card", () => {
+            renderWithProviders(<ChatPanel pageId="p1" initialMessages={[turn.question, turn.answer]} initialOverview={null} />);
+
+            expect(screen.queryByTestId("study-diagram-card")).toBeNull();
+        });
+
+        test("with no notes open, Save appends it on the server and hands the page to the room", async () => {
+            const saved = { id: "p1", title: "Trees", contentRevision: 9 } as never;
+            vi.mocked(appendDiagramToPage).mockResolvedValue({ success: saved });
+            const onSavedToPage = vi.fn();
+            renderWithProviders(
+                <ChatPanel pageId="p1" initialMessages={[turn.question, drawn]} initialOverview={null}
+                    onSavedToPage={onSavedToPage} insertIntoNotes={() => false} />
+            );
+
+            fireEvent.click(screen.getByTestId("study-diagram-save"));
+
+            await waitFor(() => expect(appendDiagramToPage).toHaveBeenCalledWith("p1", diagram, expect.any(Function)));
+            await waitFor(() => expect(onSavedToPage).toHaveBeenCalledWith(saved));
+            await waitFor(() => expect(screen.getByTestId("study-diagram-save")).not.toBeDisabled());
+        });
+
+        /** Notes open beside the chat: the live editor takes the block, or its next autosave would erase a server append. */
+        test("with the notes open, Save puts it into the live editor and appends nothing", () => {
+            const insertIntoNotes = vi.fn((_spec: DiagramSpec) => true);
+            renderWithProviders(
+                <ChatPanel pageId="p1" initialMessages={[turn.question, drawn]} initialOverview={null} insertIntoNotes={insertIntoNotes} />
+            );
+
+            fireEvent.click(screen.getByTestId("study-diagram-save"));
+
+            expect(insertIntoNotes).toHaveBeenCalledWith(diagram);
+            expect(appendDiagramToPage).not.toHaveBeenCalled();
+        });
+
+        test("Adjust edits the card's diagram, and Save saves the adjusted one", async () => {
+            const insertIntoNotes = vi.fn((_spec: DiagramSpec) => true);
+            renderWithProviders(
+                <ChatPanel pageId="p1" initialMessages={[turn.question, drawn]} initialOverview={null} insertIntoNotes={insertIntoNotes} />
+            );
+
+            fireEvent.click(screen.getByTestId("study-diagram-adjust"));
+            fireEvent.change(await screen.findByTestId("diagram-box-label-0"), { target: { value: "Parent" } });
+            fireEvent.click(screen.getByTestId("diagram-save"));
+            await waitFor(() => expect(screen.queryByTestId("diagram-editor")).toBeNull());
+            fireEvent.click(screen.getByTestId("study-diagram-save"));
+
+            const savedSpec = insertIntoNotes.mock.calls[0][0] as DiagramSpec;
+            expect(savedSpec.nodes[0].label).toBe("Parent");
+            expect(screen.getByTestId("study-diagram-card")).toHaveTextContent("Parent");
+        });
     });
 });
