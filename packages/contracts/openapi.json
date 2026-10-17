@@ -5162,6 +5162,47 @@
           }
         }
       }
+    },
+    "/notebook/ai/pages/{pageId}/diagram": {
+      "post": {
+        "tags": [
+          "notebook-ai-controller"
+        ],
+        "operationId": "diagram",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagramRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiagramResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8369,11 +8410,11 @@
             "type": "string",
             "maxLength": 20000,
             "minLength": 0
+          },
+          "diagram": {
+            "$ref": "#/components/schemas/DiagramSpec"
           }
-        },
-        "required": [
-          "markdown"
-        ]
+        }
       },
       "BoardChangeResponseDTO": {
         "type": "object",
@@ -8552,6 +8593,9 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "diagram": {
+            "$ref": "#/components/schemas/DiagramSpec"
           }
         }
       },
@@ -10550,6 +10594,123 @@
             "type": "string"
           },
           "complete": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DiagramNode": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "NEUTRAL",
+              "ACCENT",
+              "SUCCESS",
+              "WARNING",
+              "DANGER"
+            ]
+          }
+        }
+      },
+      "DiagramLink": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "dashed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DiagramSpec": {
+        "type": "object",
+        "properties": {
+          "v": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "FLOW",
+              "MAP",
+              "CYCLE",
+              "SEQUENCE",
+              "LAYERS",
+              "TIMELINE"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiagramNode"
+            }
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiagramLink"
+            }
+          }
+        }
+      },
+      "DiagramRequestDTO": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "FLOW",
+              "MAP",
+              "CYCLE",
+              "SEQUENCE",
+              "LAYERS",
+              "TIMELINE"
+            ]
+          },
+          "grounded": {
+            "type": "boolean"
+          },
+          "base": {
+            "$ref": "#/components/schemas/DiagramSpec"
+          }
+        },
+        "required": [
+          "prompt"
+        ]
+      },
+      "DiagramResultDTO": {
+        "type": "object",
+        "properties": {
+          "diagram": {
+            "$ref": "#/components/schemas/DiagramSpec"
+          },
+          "fromNotes": {
             "type": "boolean"
           }
         }

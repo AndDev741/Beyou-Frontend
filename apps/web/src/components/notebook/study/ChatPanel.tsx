@@ -1,12 +1,15 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { Copy, FileText, Layers, Lightbulb, Send, Sparkles, Trash2 } from "lucide-react";
+import { Copy, FilePlus, FileText, Layers, Lightbulb, Maximize2, Send, Sparkles, Trash2 } from "lucide-react";
 import type { ChatMessage, Citation, NotebookPage, Overview } from "@beyou/types/notebook/notebook";
+import type { DiagramSpec } from "@beyou/types/notebook/diagram";
+import { sanitizeDiagram } from "@beyou/state";
 import type { ApiErrorPayload } from "@beyou/api/apiError";
 import { getFriendlyErrorMessage } from "@beyou/api/apiError";
 import {
+    appendDiagramToPage,
     appendToPage,
     askStudyQuestion,
     clearStudyChat,
@@ -20,6 +23,9 @@ import AiPrivacyNotice from "../../agent/AiPrivacyNotice";
 import ErrorNotice from "../../ErrorNotice";
 import Modal from "../../modals/Modal";
 import { AiWaitingLine } from "../aiWaiting";
+import DiagramCard from "../diagram/DiagramCard";
+import DiagramEditorDialog from "../diagram/DiagramEditorDialog";
+import DiagramFullscreen from "../diagram/DiagramFullscreen";
 
 type Props = {
     pageId: string;
@@ -32,6 +38,15 @@ type Props = {
      * beside the chat merge the new blocks in instead of saving over them.
      */
     onSavedToPage?: (page: NotebookPage) => void;
+    /** For the "Saved to <page>" note when a diagram goes into the notes open beside the chat. */
+    pageTitle?: string;
+    /**
+     * Puts a diagram into the page's notes when they are open beside the chat, and says whether
+     * it could. The live editor has to take it: an append through the server would be written
+     * over by that editor's next autosave. When the notes are not open this answers false and
+     * the diagram is appended on the server instead.
+     */
+    insertIntoNotes?: (spec: DiagramSpec) => boolean;
 };
 
 /** The question box grows with what is typed, up to this height, then scrolls. */
@@ -44,7 +59,9 @@ const INPUT_MAX_HEIGHT = 200;
  * A [n] chip opens the passage right under the answer that cited it, so the reader never loses
  * their place in the conversation to check a source.
  */
-export default function ChatPanel({ pageId, initialMessages, initialOverview, onCardsMade, onSavedToPage }: Props) {
+export default function ChatPanel({
+    pageId, initialMessages, initialOverview, onCardsMade, onSavedToPage, pageTitle = "", insertIntoNotes,
+}: Props) {
     const { t } = useTranslation();
     const inputId = useId();
     const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -57,6 +74,9 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
     const [open, setOpen] = useState<{ messageId: string; citation: Citation } | null>(null);
     const [confirmClear, setConfirmClear] = useState(false);
     const [busyAction, setBusyAction] = useState<string | null>(null);
+    /** A diagram adjusted here replaces the answer's in this conversation only; it is what "Save" saves. */
+    const [adjusted, setAdjusted] = useState<Record<string, DiagramSpec>>({});
+    const [diagramDialog, setDiagramDialog] = useState<{ messageId: string; mode: "adjust" | "fullscreen" } | null>(null);
     const endRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -124,6 +144,33 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
             onSavedToPage?.(response.success);
         } else {
             toast.error(getFriendlyErrorMessage(t, response.error));
+        }
+    };
+
+    // The tutor's diagrams, cleaned once per conversation change rather than on every render.
+    const diagrams = useMemo(() => {
+        const map = new Map<string, DiagramSpec>();
+        for (const message of messages) {
+            const clean = message.diagram ? sanitizeDiagram(message.diagram) : null;
+            if (clean) map.set(message.id, clean);
+        }
+        return map;
+    }, [messages]);
+    const diagramOf = (messageId: string): DiagramSpec | null => adjusted[messageId] ?? diagrams.get(messageId) ?? null;
+
+    const saveDiagram = async (message: ChatMessage, spec: DiagramSpec) => {
+        if (insertIntoNotes?.(spec)) {
+            toast.success(t("DiagramSaved", { title: pageTitle }));
+            return;
+        }
+        setBusyAction(`diagram-${message.id}`);
+        const response = await appendDiagramToPage(pageId, spec, t);
+        setBusyAction(null);
+        if (response.success) {
+            toast.success(t("DiagramSaved", { title: response.success.title ?? pageTitle }));
+            onSavedToPage?.(response.success);
+        } else {
+            toast.error(response.error?.errorKey ? getFriendlyErrorMessage(t, response.error) : t("DiagramSaveFailed"));
         }
     };
 
@@ -235,6 +282,37 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                                     citations={message.citations}
                                     onCitation={(citation) => setOpen({ messageId: message.id, citation })}
                                 />
+                                {diagramOf(message.id) && (
+                                    <DiagramCard
+                                        spec={diagramOf(message.id)}
+                                        testId="study-diagram-card"
+                                        // Cited answers drew on the notes and sources; the rest on what the AI knows.
+                                        source={message.citations.length > 0 ? "notes" : "ai"}
+                                        sourceTestId="study-diagram-source"
+                                        actions={
+                                            <>
+                                                <button type="button" onClick={() => void saveDiagram(message, diagramOf(message.id)!)}
+                                                    disabled={busyAction !== null} data-testid="study-diagram-save"
+                                                    className="inline-flex h-10 items-center gap-2 rounded-control bg-accent px-3.5 text-sm font-semibold text-on-accent hover:bg-accent-strong disabled:opacity-60">
+                                                    <FilePlus size={16} aria-hidden="true" />
+                                                    {busyAction === `diagram-${message.id}` ? t("NotebookStudyWorking") : t("DiagramSaveToPage")}
+                                                </button>
+                                                <button type="button" onClick={() => setDiagramDialog({ messageId: message.id, mode: "adjust" })}
+                                                    data-testid="study-diagram-adjust"
+                                                    className="inline-flex h-10 items-center gap-2 rounded-control border border-border bg-surface px-3.5 text-sm font-semibold text-text hover:bg-surface-2">
+                                                    <Sparkles size={16} aria-hidden="true" />{t("DiagramAdjust")}
+                                                </button>
+                                                <span className="flex-1" />
+                                                <button type="button" onClick={() => setDiagramDialog({ messageId: message.id, mode: "fullscreen" })}
+                                                    aria-label={t("DiagramFullscreen")} title={t("DiagramFullscreen")}
+                                                    data-testid="study-diagram-fullscreen"
+                                                    className="flex h-10 w-10 items-center justify-center rounded-control border border-border bg-surface text-text hover:bg-surface-2">
+                                                    <Maximize2 size={16} aria-hidden="true" />
+                                                </button>
+                                            </>
+                                        }
+                                    />
+                                )}
                                 {open?.messageId === message.id && (
                                     <CitationPanel citation={open.citation} onClose={() => setOpen(null)} />
                                 )}
@@ -345,6 +423,22 @@ export default function ChatPanel({ pageId, initialMessages, initialOverview, on
                     </button>
                 )}
             </div>
+
+            {diagramDialog?.mode === "adjust" && diagramOf(diagramDialog.messageId) && (
+                <DiagramEditorDialog
+                    isOpen
+                    onClose={() => setDiagramDialog(null)}
+                    spec={diagramOf(diagramDialog.messageId)!}
+                    pageId={pageId}
+                    focusInstruction
+                    onSave={(next) => setAdjusted((current) => ({ ...current, [diagramDialog.messageId]: next }))}
+                />
+            )}
+            <DiagramFullscreen
+                spec={diagramDialog ? diagramOf(diagramDialog.messageId) : null}
+                isOpen={diagramDialog?.mode === "fullscreen"}
+                onClose={() => setDiagramDialog(null)}
+            />
 
             <Modal isOpen={confirmClear} onClose={() => setConfirmClear(false)} labelledBy="study-clear-title">
                 <h2 id="study-clear-title" className="text-lg font-semibold text-text">

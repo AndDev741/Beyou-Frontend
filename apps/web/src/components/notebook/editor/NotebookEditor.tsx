@@ -10,8 +10,9 @@ import {
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { Layers, Sparkles, Workflow } from "lucide-react";
+import { Layers, Network, Sparkles, Workflow } from "lucide-react";
 import { BOARD_BLOCK_TYPE } from "@beyou/types/notebook/notebook";
+import type { DiagramSpec } from "@beyou/types/notebook/diagram";
 import {
     documentPatch,
     hasBlockWithoutId,
@@ -23,6 +24,8 @@ import {
 } from "@beyou/state";
 import { notebookSchema, type NotebookBlock, type NotebookEditor as Editor } from "./schema";
 import { NotebookPageContext } from "./NotebookPageContext";
+import DiagramGeneratorDialog from "../diagram/DiagramGeneratorDialog";
+import { insertDiagramAt } from "../diagram/insertDiagram";
 import type { Theme as EditorTheme } from "@blocknote/mantine";
 
 type Props = {
@@ -50,6 +53,12 @@ export type NotebookEditorHandle = {
      * server already holds, so the swap does not come straight back as a save.
      */
     replaceDocument: (blocks: DocBlock[], options: { save: boolean }) => void;
+    /**
+     * Adds a diagram at the end of the document, as "Save to page" in the study chat does when
+     * these notes are open beside it. It goes in through the editor, so autosave writes it; an
+     * append through the server would be saved over by the next autosave of this copy.
+     */
+    appendDiagram: (spec: DiagramSpec) => void;
 };
 
 /** Debounce for the autosave. Long enough to batch a typed sentence, short enough to lose nothing. */
@@ -58,8 +67,9 @@ const SAVE_DELAY_MS = 900;
 /**
  * The page's document, edited with BlockNote, saved as JSON while the person types.
  *
- * The slash menu has the editor's own blocks plus three of the notebook's: a roadmap board (one
- * per page, so it leaves the menu once the page shows one), flashcards, and "Explain the block
+ * The slash menu has the editor's own blocks plus four of the notebook's: a roadmap board (one
+ * per page, so it leaves the menu once the page shows one), flashcards, a diagram drawn by the
+ * AI (the generator dialog, which inserts where the slash was typed), and "Explain the block
  * above", which asks the study AI about the text the cursor follows.
  */
 const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function NotebookEditor(
@@ -121,6 +131,7 @@ const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function Notebook
                 silent.current = false;
             }
         },
+        appendDiagram: (spec) => insertDiagramAt(editor, null, spec),
     }), [editor]);
 
     useEffect(() => {
@@ -154,9 +165,17 @@ const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function Notebook
         editor.focus();
     };
 
+    /**
+     * "/diagram" remembers the block the slash was typed in; the diagram goes there when it is
+     * inserted, however long the person spent in the dialog (insertDiagramAt).
+     */
+    const [diagramAt, setDiagramAt] = useState<string | null>(null);
+    const openDiagram = () => setDiagramAt(editor.getTextCursorPosition().block.id ?? null);
+    const insertDiagram = (spec: DiagramSpec) => insertDiagramAt(editor, diagramAt, spec);
+
     const getItems = async (query: string) =>
         filterSuggestionItems(
-            [...getDefaultReactSlashMenuItems(editor), ...notebookItems(editor, t, hasBoard, onExplain)],
+            [...getDefaultReactSlashMenuItems(editor), ...notebookItems(editor, t, hasBoard, onExplain, openDiagram)],
             query
         );
 
@@ -184,6 +203,13 @@ const NotebookEditor = forwardRef<NotebookEditorHandle, Props>(function Notebook
                     <SuggestionMenuController triggerCharacter="/" getItems={getItems} />
                 </BlockNoteView>
             </div>
+            <DiagramGeneratorDialog
+                isOpen={diagramAt !== null}
+                onClose={() => setDiagramAt(null)}
+                pageId={pageId}
+                pageTitle={pageTitle}
+                onInsert={insertDiagram}
+            />
         </NotebookPageContext.Provider>
     );
 });
@@ -214,7 +240,8 @@ function notebookItems(
     editor: Editor,
     t: (key: string) => string,
     hasBoard: boolean,
-    onExplain: (text: string) => void
+    onExplain: (text: string) => void,
+    onDiagram: () => void
 ): DefaultReactSuggestionItem[] {
     const items: DefaultReactSuggestionItem[] = [];
     if (!hasBoard) {
@@ -234,6 +261,14 @@ function notebookItems(
         group: t("NotebookSlashGroupStudy"),
         icon: <Layers size={18} />,
         onItemClick: () => insertOrUpdateBlockForSlashMenu(editor, { type: "flashcards" }),
+    });
+    items.push({
+        title: t("DiagramSlashTitle"),
+        subtext: t("DiagramSlashHint"),
+        aliases: ["diagram", "diagrama", "flowchart", "fluxograma", "draw", "desenhar", "ia", "ai"],
+        group: t("NotebookSlashGroupAi"),
+        icon: <Network size={18} />,
+        onItemClick: onDiagram,
     });
     items.push({
         title: t("NotebookSlashExplain"),

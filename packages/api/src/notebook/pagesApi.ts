@@ -2,6 +2,7 @@ import { TFunction } from 'i18next';
 import type {
     NotebookHome, NotebookPage, NotebookTree, PageSearchHit, StatusChange, StatusChoice,
 } from '@beyou/types/notebook/notebook';
+import type { DiagramSpec } from '@beyou/types/notebook/diagram';
 import { call, http, Result } from './result';
 
 /** Topics and pages. */
@@ -62,6 +63,14 @@ export const setPageStatus = (pageId: string, status: StatusChoice, t: TFunction
 /** "Save to page": markdown appended to the document as blocks. */
 export const appendToPage = (pageId: string, markdown: string, t: TFunction): Promise<Result<NotebookPage>> =>
     call(() => http().post<NotebookPage>(`/notebook/pages/${pageId}/append`, { markdown }), t);
+
+/**
+ * "Save to page" for a diagram: the server cleans it and appends it as a diagram block, through
+ * the same compare-and-set as every other append. For a page open in the editor, insert the
+ * block into the live editor instead, or its next autosave writes this away.
+ */
+export const appendDiagramToPage = (pageId: string, diagram: DiagramSpec, t: TFunction): Promise<Result<NotebookPage>> =>
+    call(() => http().post<NotebookPage>(`/notebook/pages/${pageId}/append`, { diagram }), t);
 
 /** Deletes the page and everything under it. */
 export const deletePage = (pageId: string, t: TFunction): Promise<Result<void>> =>

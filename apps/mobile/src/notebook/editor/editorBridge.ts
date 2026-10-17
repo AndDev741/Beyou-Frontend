@@ -86,6 +86,10 @@ export type EditorStrings = {
   boardHint: string;
   cards: string;
   cardsHint: string;
+  /** A diagram block's caption when it has no title. */
+  diagram: string;
+  /** In place of a diagram block whose spec does not draw. */
+  diagramInvalid: string;
 };
 
 /**

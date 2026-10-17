@@ -64,8 +64,10 @@ repository.
 - **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
   page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
   answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
-  asks what you are after before you start, and it can search the web for sources for you. On
-  a desktop your notes can sit beside the chat while you ask. The phone has the whole notebook
+  asks what you are after before you start, and it can search the web for sources for you. It
+  draws, too: a flow, a map, a cycle, a sequence, layers or a timeline, kept on the page as a
+  block you can adjust with the AI or by hand. On a desktop your notes can sit beside the chat
+  while you ask. The phone has the whole notebook
   too: the editor, the roadmap as a path, cards, the study room and AI roadmap drafts.
 - **Study cycles** line notebook subjects up in a queue of blocks, the *ciclo de estudos* people
   use for exams in Brazil. A subject is a whole topic or any page inside one, so a cycle can rotate
@@ -129,6 +131,7 @@ beyou-app/
 | HTTP | axios adapter | `fetch` adapter |
 | Notebook editor | BlockNote 0.55 on Mantine 8 (Mantine 9 needs React 19) | Read-only native block renderer, no WebView |
 | Notebook board | React Flow (`@xyflow/react`), with "Tidy up" laying nodes on a three-to-a-row grid | The board read as a path, level by level |
+| Notebook diagrams | SVG drawn from the shared `layoutDiagram` scene (`@beyou/state`) | The same scene through `react-native-svg` |
 | Tests | Vitest + Testing Library | Jest (`jest-expo`) + Testing Library |
 
 ## Prerequisites

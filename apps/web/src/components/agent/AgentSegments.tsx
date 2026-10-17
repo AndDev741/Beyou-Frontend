@@ -16,8 +16,11 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { agentSegment } from "@beyou/types/agent/chatType";
-import { isReadTool, toolDestination, type ToolDestination, type ToolDestinationKey } from "@beyou/state/agent/toolRegistry";
+import {
+    isDiagramTool, isReadTool, toolDestination, type ToolDestination, type ToolDestinationKey,
+} from "@beyou/state/agent/toolRegistry";
 import AgentMarkdown from "./AgentMarkdown";
+import { AgentDiagramAdded, AgentDiagramShown } from "./AgentDiagram";
 
 type OnInternalLink = (href: string) => void;
 
@@ -126,6 +129,13 @@ function ToolSegment({
     segment: agentSegment;
     onInternalLink?: OnInternalLink;
 }) {
+    // A finished diagram tool carries the diagram it drew: drawn here, before the chip-or-card
+    // split. In flight, failed, or from a server that sent no diagram, it stays a chip.
+    if (isDiagramTool(segment.tool) && segment.diagram && !segment.error && segment.status !== "started") {
+        return segment.tool === "addStudyDiagram"
+            ? <AgentDiagramAdded segment={segment} onInternalLink={onInternalLink} />
+            : <AgentDiagramShown segment={segment} />;
+    }
     const destination = destinationFor(segment.tool);
     const isWrite =
         !!segment.tool &&
