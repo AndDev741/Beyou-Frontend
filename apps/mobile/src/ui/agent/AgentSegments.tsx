@@ -10,6 +10,7 @@ import {
   NotebookPen,
   Repeat,
   Settings,
+  StickyNote,
   Target,
   Trophy,
   X,
@@ -49,6 +50,7 @@ const ICONS: Record<ToolDestinationKey, LucideIcon> = {
   notebook: NotebookPen,
   configuration: Settings,
   focus: Target,
+  ideas: StickyNote,
 };
 
 export function destinationFor(tool: string | undefined): Destination | null {

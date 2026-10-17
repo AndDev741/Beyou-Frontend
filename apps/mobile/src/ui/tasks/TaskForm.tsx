@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { taskFormSchema } from '@beyou/validation';
 import createTask from '@beyou/api/tasks/createTask';
 import editTask from '@beyou/api/tasks/editTask';
-import { getFriendlyErrorMessage } from '@beyou/api/apiError';
+import { getFriendlyErrorMessage, type ApiErrorPayload } from '@beyou/api/apiError';
 import type { task } from '@beyou/types/tasks/taskType';
 import type category from '@beyou/types/category/categoryType';
 import Input from '../Input';
@@ -19,7 +19,7 @@ import { IMPORTANCE_KEYS, DIFFICULTY_KEYS } from '../habits/levelLabels';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { notify } from '../../notify';
 
-type TaskFormValues = {
+export type TaskFormValues = {
   name: string;
   description: string;
   iconId: string;
@@ -28,6 +28,9 @@ type TaskFormValues = {
   categoriesId: string[];
   oneTimeTask: boolean;
 };
+
+/** What a create answers: the shape `createTask` resolves to. */
+export type TaskCreateResult = { error?: ApiErrorPayload; validation?: string };
 
 interface TaskFormProps {
   visible: boolean;
@@ -40,13 +43,36 @@ interface TaskFormProps {
   onSaved: () => void;
   /** Called after a successful CREATE with the new task's name (for quick-create callers). */
   onCreated?: (name: string) => void;
+  /** Seeds a CREATE form, e.g. a quick note turned into a task. Edit mode seeds from `task`. */
+  initialValues?: { name?: string; description?: string };
+  /**
+   * Sends the create somewhere else: a quick note converts through its own endpoint, which
+   * makes the task and archives the note together. Errors and success toasts work as usual.
+   */
+  submitCreate?: (values: TaskFormValues) => Promise<TaskCreateResult>;
+  /** Heading in place of "Create task". */
+  title?: string;
+  /** Toast after a successful create, in place of the generic one. */
+  createdMessage?: string;
 }
 
 /** [{value:1,label:t(keys[0])}, …] — keys are 1-based scale labels. */
 const labelOptions = (keys: readonly string[], t: (k: string) => string) =>
   keys.map((k, i) => ({ value: i + 1, label: t(k) }));
 
-export default function TaskForm({ visible, mode, task, categories, onClose, onSaved, onCreated }: TaskFormProps) {
+export default function TaskForm({
+  visible,
+  mode,
+  task,
+  categories,
+  onClose,
+  onSaved,
+  onCreated,
+  initialValues,
+  submitCreate,
+  title,
+  createdMessage,
+}: TaskFormProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const isEdit = mode === 'edit';
@@ -61,24 +87,29 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
     defaultValues: { name: '', description: '', iconId: '', importance: 0, difficulty: 0, categoriesId: [], oneTimeTask: false },
   });
 
-  // Re-seed whenever the modal opens (or the target task changes).
+  // Re-seed whenever the modal opens (or the target task changes). The seeds go in as strings,
+  // so a caller passing a fresh `initialValues` object each render does not wipe the typing.
+  const seedName = initialValues?.name ?? '';
+  const seedDescription = initialValues?.description ?? '';
   useEffect(() => {
     if (!visible) return;
     reset({
-      name: task?.name ?? '',
-      description: task?.description ?? '',
+      name: task?.name ?? seedName,
+      description: task?.description ?? seedDescription,
       iconId: task?.iconId ?? '',
       importance: task?.importance ?? 0,
       difficulty: task?.difficulty ?? 0,
       categoriesId: task?.categories ? Object.keys(task.categories) : [],
       oneTimeTask: task?.oneTimeTask ?? false,
     });
-  }, [visible, task, reset]);
+  }, [visible, task, reset, seedName, seedDescription]);
 
   const onSubmit = async (v: TaskFormValues) => {
     const res = isEdit
       ? await editTask(task!.id, v.name, v.description, v.iconId, v.importance, v.difficulty, v.categoriesId, v.oneTimeTask, t)
-      : await createTask(v.name, v.description, v.iconId, v.categoriesId, t, v.importance, v.difficulty, v.oneTimeTask);
+      : submitCreate
+        ? await submitCreate(v)
+        : await createTask(v.name, v.description, v.iconId, v.categoriesId, t, v.importance, v.difficulty, v.oneTimeTask);
 
     if (res.error) {
       notify.error(getFriendlyErrorMessage(t, res.error));
@@ -88,7 +119,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
       notify.error(res.validation);
       return;
     }
-    notify.success(t(isEdit ? 'edited successfully' : 'created successfully'));
+    notify.success(isEdit ? t('edited successfully') : (createdMessage ?? t('created successfully')));
     if (!isEdit) onCreated?.(v.name);
     onSaved();
     onClose();
@@ -97,7 +128,7 @@ export default function TaskForm({ visible, mode, task, categories, onClose, onS
   return (
     <FormModal
       visible={visible}
-      title={t(isEdit ? 'EditTask' : 'CreateTask')}
+      title={title ?? t(isEdit ? 'EditTask' : 'CreateTask')}
       submitLabel={t('Save task')}
       submitting={isSubmitting}
       onClose={onClose}

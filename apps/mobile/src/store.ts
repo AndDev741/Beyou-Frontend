@@ -14,6 +14,7 @@ import focus from '@beyou/state/focus/focusSlice';
 import mood from '@beyou/state/mood/moodSlice';
 import notebook from '@beyou/state/notebook/notebookSlice';
 import studyCycles from '@beyou/state/notebook/studyCycleSlice';
+import quickNotes from '@beyou/state/quickNote/quickNotesSlice';
 import viewFilters from '@beyou/state/viewFilters/viewFiltersSlice';
 import tutorial from './tutorial/tutorialSlice';
 
@@ -39,6 +40,7 @@ const combinedReducer = combineReducers({
   mood,
   notebook,
   studyCycles,
+  quickNotes,
   viewFilters,
   tutorial,
 });

@@ -52,7 +52,7 @@ import { onAgentPanelOpen } from '../src/ui/agent/agentPanelBus';
 /** The four labelled destinations in the bar, in bar order. */
 const BAR_KEYS = ['navdashboard', 'routines', 'habits', 'more'] as const;
 /** What moved into the sheet — same i18n keys as before the redesign. */
-const SHEET_KEYS = ['tasks', 'goals', 'calendar', 'categories', 'config', 'feedbackshortcutlabel'] as const;
+const SHEET_KEYS = ['tasks', 'goals', 'calendar', 'categories', 'ideas', 'config', 'feedbackshortcutlabel'] as const;
 
 const renderNav = async (pathname = '/', { isTutorialCompleted = true } = {}) => {
   mockPathname = pathname;
@@ -199,6 +199,22 @@ describe('BottomNav "More" sheet', () => {
     expect(mockPush).toHaveBeenCalledWith('/calendar');
   });
 
+  it('puts Ideas right after Notebook and takes it to the board', async () => {
+    await renderNav();
+    await openSheet();
+
+    const sheet = screen.getByTestId('nav-more-sheet');
+    const labels = within(sheet)
+      .getAllByRole('button')
+      .map((tile) => tile.props.accessibilityLabel);
+    expect(labels.indexOf('Ideas')).toBe(labels.indexOf('Notebook') + 1);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-ideas'));
+    });
+    expect(mockPush).toHaveBeenCalledWith('/ideas');
+  });
+
   /**
    * The dashboard tutorial's second step spotlights `nav-categories`, and the
    * overlay can only frame a target it can measure — i.e. one that is mounted.
@@ -236,6 +252,7 @@ describe('BottomNav active item', () => {
     ['/goals', ['more']],
     ['/configuration', ['more']],
     ['/feedback', ['more']],
+    ['/ideas', ['more']],
   ])('on %s selects %s', async (pathname, expected) => {
     await renderNav(pathname);
     expect(selectedKeys()).toEqual(expected);

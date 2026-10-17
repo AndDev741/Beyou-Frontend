@@ -23,8 +23,9 @@
 Beyou helps people build better days. You define **categories** of life, attach **habits**, **goals**,
 **tasks**, and daily **routines**, then check them off — earning XP, leveling up, and keeping streaks
 alive. A **diary** records how each day actually felt, alongside what got done, a **calendar**
-holds the one-off things that belong to a date and reminds you of them, and a **study notebook**
-holds what you are learning, laid out as a roadmap of pages. The app is bilingual
+holds the one-off things that belong to a date and reminds you of them, an **Ideas** board keeps
+stray thoughts as post-it notes until you know what they are, and a **study notebook** holds what
+you are learning, laid out as a roadmap of pages. The app is bilingual
 (English / Portuguese), themeable, and ships an AI assistant that can act on your account.
 
 Use it at [app.beyouweb.com](https://app.beyouweb.com) or install the Android app from
@@ -61,6 +62,12 @@ repository.
   open, and the server mails a reminder nobody reacted to within the hour. Completing a task pays
   XP. An opt-in dashboard widget lists today's tasks. The phone has the calendar and the widget,
   with reminders by mail only for now.
+- **An Ideas board** for whatever crosses your mind. Type it and press Enter, or press Alt+N on any
+  page of the web app, and it sticks to a free board as a post-it note. Drag notes wherever they make
+  sense, colour them, tidy them into a grid by colour, archive the ones you're done with. When an
+  idea turns out to be something to do, "Make it a task" opens the task form already filled in and
+  the note moves to the archive. The assistant can jot notes down for you and read them back. No
+  XP, on purpose. The phone has the same free board: hold a note to drag it, pinch to zoom.
 - **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
   page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
   answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
@@ -113,7 +120,7 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), which pages a cycle may take as subjects and why the rest are closed (`studyCycleSubjects`), the rule that "Focus 25" never replaces a running pomodoro, and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, Ideas notes, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), which pages a cycle may take as subjects and why the rest are closed (`studyCycleSubjects`), the rule that "Focus 25" never replaces a running pomodoro, the Ideas board's drop and "make it a task" rules and its note colours (`quickNote`), and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/icons` | The icon registry both pickers use, with bilingual search and recents. Each app supplies only the renderer. |
@@ -132,6 +139,7 @@ beyou-app/
 | Notebook editor | BlockNote 0.55 on Mantine 8 (Mantine 9 needs React 19) | Read-only native block renderer, no WebView |
 | Notebook board | React Flow (`@xyflow/react`), with "Tidy up" laying nodes on a three-to-a-row grid | The board read as a path, level by level |
 | Notebook diagrams | SVG drawn from the shared `layoutDiagram` scene (`@beyou/state`) | The same scene through `react-native-svg` |
+| Ideas board | React Flow with sticky-note nodes; Alt+N captures from any page | A free board on `PanResponder` (no gesture library): hold a note to drag it, pinch to zoom |
 | Tests | Vitest + Testing Library | Jest (`jest-expo`) + Testing Library |
 
 ## Prerequisites
