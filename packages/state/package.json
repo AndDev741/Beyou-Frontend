@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.11.2",
+    "@reduxjs/toolkit": "^2.13.0",
     "@beyou/api": "*",
     "@beyou/types": "*",
     "@beyou/theme": "*"
