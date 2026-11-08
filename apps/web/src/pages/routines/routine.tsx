@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CreateRoutine from "../../components/routines/CreateRoutine";
 import getHabits from "@beyou/api/habits/getHabits";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,6 +35,7 @@ import { editModeEnter } from "@beyou/state/routine/editRoutineSlice";
 import Modal from "../../components/modals/Modal";
 import Button from "../../components/Button";
 import { FiPlus, FiX } from "react-icons/fi";
+import useTodayInZone from "../../hooks/useTodayInZone";
 const Routine = () => {
     useAuthGuard();
     const { t } = useTranslation();
@@ -42,7 +43,19 @@ const Routine = () => {
 
     const [onCreateRoutine, setOnCreateRoutine] = useState(false);
     const [routineType, setRoutineType] = useState("");
-    const [selectedDateLocal, setSelectedDateLocal] = useState(() => new Date().toISOString().split("T")[0]);
+    // The user's day, from the profile's timezone. The UTC day (toISOString) turned into
+    // tomorrow at 21:00 in Brazil, and with it which routine items count as today's.
+    const today = useTodayInZone();
+    const [selectedDateLocal, setSelectedDateLocal] = useState(() => today);
+    // A selection that was "today" follows today when it moves: at midnight, and on a cold
+    // load where the profile (not persisted) brings its timezone after the first render.
+    const previousToday = useRef(today);
+    useEffect(() => {
+        const before = previousToday.current;
+        if (before === today) return;
+        previousToday.current = today;
+        setSelectedDateLocal((selected) => (selected === before ? today : selected));
+    }, [today]);
     const editMode = useSelector((state: RootState) => state.editRoutine.editMode);
     const routineBeingEdited = useSelector((state: RootState) => state.editRoutine.routine);
     const routines = useSelector((state: RootState) => state.routines.routines) as routineType[] || [];
@@ -52,7 +65,6 @@ const Routine = () => {
     const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
-    const today = new Date().toISOString().split("T")[0];
     const isSnapshotMode = selectedDateLocal < today;
 
     const hasRoutines = routines.length > 0;
@@ -84,9 +96,7 @@ const Routine = () => {
     const handleDateChange = useCallback(async (newDate: string) => {
         setSelectedDateLocal(newDate);
 
-        const currentToday = new Date().toISOString().split("T")[0];
-
-        if (newDate >= currentToday) {
+        if (newDate >= today) {
             dispatch(clearSnapshot());
             return;
         }
@@ -104,7 +114,7 @@ const Routine = () => {
         } finally {
             dispatch(setSnapshotLoading(false));
         }
-    }, [t, dispatch]);
+    }, [t, dispatch, today]);
 
     useEffect(() => {
 

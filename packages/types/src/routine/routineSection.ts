@@ -1,3 +1,5 @@
+import type { WeekDay } from "../schedule/weekDay";
+
 export type RoutineSection = {
     id: string,
     name: string;
@@ -10,6 +12,8 @@ export type RoutineSection = {
         taskId: string;
         startTime: string;
         endTime?: string;
+        /** See `days` on habitGroup. */
+        days?: WeekDay[];
     }>;
     habitGroup?: Array<{
         id?: string,
@@ -17,6 +21,12 @@ export type RoutineSection = {
         habitId: string;
         startTime: string;
         endTime?: string;
+        /**
+         * The weekdays this item runs on, inside the days the routine itself runs.
+         * Empty, or absent on anything stored before the field existed, means "every day the
+         * routine runs". Read it through `isItemActiveOn` from @beyou/state.
+         */
+        days?: WeekDay[];
     }>;
     order: number;
     favorite?: boolean;

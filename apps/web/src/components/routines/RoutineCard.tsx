@@ -7,10 +7,12 @@ import { resolveIcon } from "@beyou/icons";
 import BeyouIcon from "../../ui/BeyouIcon";
 import Card from "../../ui/Card";
 import Ring from "../../ui/Ring";
-import { formatTimeRange, getSectionStats, getRoutineStats, getListStats, getListItems, isListRoutine } from "@beyou/state";
+import { formatTimeRange, getSectionStats, getRoutineStats, getListStats, getListItems, isListRoutine, isItemActiveOn } from "@beyou/state";
 import { itemGroupToCheck } from "@beyou/types/routine/itemGroupToCheck";
 import { itemGroupToSkip } from "@beyou/types/routine/itemGroupToSkip";
 import { parseLocalDate } from "@beyou/state";
+import useTodayInZone from "../../hooks/useTodayInZone";
+import { ItemDaysChip } from "./ItemDaysField";
 
 
 type ItemLookup = Record<string, { name?: string; iconId?: string }>;
@@ -42,8 +44,13 @@ export const RoutineCard = ({
     const [expanded, setExpanded] = useState(false);
 
     const isList = isListRoutine(routine);
+    // The day's tally counts only the items that run on it: an item limited to Saturday is not
+    // "left to do" on a Friday, and nothing on the card could tick it off.
     const stats = useMemo(
-        () => (isList ? getListStats(routine, selectedDate) : getRoutineStats(routine, selectedDate)),
+        () =>
+            isList
+                ? getListStats(routine, selectedDate, selectedDate)
+                : getRoutineStats(routine, selectedDate, selectedDate),
         [isList, routine, selectedDate],
     );
     // The order the user dragged the items into. Empty for a daily routine, which sorts by
@@ -81,7 +88,9 @@ export const RoutineCard = ({
         ? new Date(`${selectedDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" }).toLowerCase()
         : "";
     const runsOnSelectedDay = scheduledDays.size === 0 || scheduledDays.has(selectedWeekday);
-    const isToday = selectedDate === new Date().toISOString().split("T")[0];
+    // The user's day, not the UTC one: from 21:00 in Brazil the UTC date is already tomorrow.
+    const today = useTodayInZone();
+    const isToday = selectedDate === today;
 
     const levelWindow = Math.max((routine.nextLevelXp ?? 0) - (routine.actualLevelXp ?? 0), 1);
     const levelProgress = Math.min(
@@ -225,7 +234,7 @@ export const RoutineCard = ({
                                 style={{ width: `${completion}%` }}
                             />
                         </div>
-                        {stats.completedItems}/{stats.totalItems || totalItems}
+                        {stats.completedItems}/{stats.totalItems}
                     </div>
                 </div>
 
@@ -251,7 +260,7 @@ export const RoutineCard = ({
                     </div>
                     <span className="mt-1.5 block text-right font-mono text-[11px] font-medium text-text-3">
                         {runsOnSelectedDay
-                            ? `${isToday ? t("Today").toLowerCase() : formatDate(selectedDate)} ${stats.completedItems}/${stats.totalItems || totalItems}`
+                            ? `${isToday ? t("Today").toLowerCase() : formatDate(selectedDate)} ${stats.completedItems}/${stats.totalItems}`
                             : `LV ${routine.level ?? 0} · ${routine.xp ?? 0}/${routine.nextLevelXp ?? 0}`}
                     </span>
                 </div>
@@ -302,7 +311,7 @@ type SectionRowProps = {
 const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId, onCheckItem, onSkipItem, variant = "section", listOrder = [] }: SectionRowProps) => {
     const { t } = useTranslation();
     const isList = variant === "list";
-    const sectionStats = useMemo(() => getSectionStats(section, selectedDate), [section, selectedDate]);
+    const sectionStats = useMemo(() => getSectionStats(section, selectedDate, selectedDate), [section, selectedDate]);
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
 
     const items = useMemo(() => {
@@ -326,6 +335,8 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     completed,
                     skipped,
                     xp,
+                    days: task.days,
+                    active: isItemActiveOn(task.days, selectedDate),
                     type: "task" as const,
                 };
             }) || [];
@@ -350,6 +361,8 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     completed,
                     skipped,
                     xp,
+                    days: habit.days,
+                    active: isItemActiveOn(habit.days, selectedDate),
                     type: "habit" as const,
                 };
             }) || [];
@@ -393,6 +406,17 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                 <div className="mt-1.5">
                     {items.map((item, idx) => {
                         const hasItemIcon = item.iconId ? resolveIcon(item.iconId).kind !== "fallback" : false;
+                        if (!item.active) {
+                            return (
+                                <OffDayItem
+                                    key={`${item.type}-${item.id}-${idx}`}
+                                    label={item.label}
+                                    icon={hasItemIcon ? <BeyouIcon id={item.iconId} /> : <FiCheckCircle />}
+                                    days={item.days}
+                                    timeRange={!isList ? formatTimeRange(item.startTime, item.endTime) : ""}
+                                />
+                            );
+                        }
                         const handleToggle = () => {
                             if (!routineId) return;
                             const payload: itemGroupToCheck = {
@@ -512,6 +536,49 @@ const SectionRow = ({ section, selectedDate, taskLookup, habitLookup, routineId,
                     })}
                 </div>
             )}
+        </div>
+    );
+};
+
+type OffDayItemProps = {
+    label: string;
+    icon: React.ReactNode;
+    days?: readonly string[];
+    timeRange: string;
+};
+
+/**
+ * An item whose own days leave out the open day: still listed, so the routine reads whole,
+ * but dimmed, with its days, and with nothing to press. The server refuses a check or a skip
+ * on such a day (ROUTINE_ITEM_NOT_ACTIVE_ON_DAY), so a ring here would only lead to an error.
+ * The empty dashed circle keeps the column where the ring would be.
+ */
+const OffDayItem = ({ label, icon, days, timeRange }: OffDayItemProps) => {
+    const { t } = useTranslation();
+    return (
+        <div
+            data-testid="off-day-item"
+            title={t("ItemNotToday")}
+            className="flex items-center gap-2.5 rounded-control px-1.5 py-1.5 opacity-60"
+        >
+            <span aria-hidden="true" className="-my-2 -ml-2 flex min-h-[44px] min-w-[44px] items-center justify-center">
+                <span className="h-[22px] w-[22px] rounded-full border-2 border-dashed border-border" />
+            </span>
+            <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-surface-2 text-text-3">
+                {icon}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col-reverse gap-1 lg:flex-row lg:items-center lg:gap-3">
+                <span className="line-clamp-2 text-[13.5px] font-medium text-text-3 lg:line-clamp-1">{label}</span>
+                <div className="flex shrink-0 items-center gap-1.5 lg:ml-auto lg:gap-2">
+                    <ItemDaysChip days={days} />
+                    {timeRange ? (
+                        <span className="rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11.5px] font-medium text-text-3">
+                            {timeRange}
+                        </span>
+                    ) : null}
+                    <span className="sr-only">{t("ItemNotToday")}</span>
+                </div>
+            </div>
         </div>
     );
 };

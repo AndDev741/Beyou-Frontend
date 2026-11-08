@@ -1,5 +1,8 @@
 import { Routine } from "@beyou/types/routine/routine";
 
+/** `{ days }` when the item has the field (an empty array included), nothing when it does not. */
+const withDays = (days: readonly string[] | null | undefined) => (Array.isArray(days) ? { days: [...days] } : {});
+
 type BuildOptions = {
     includeSectionIds: boolean;
     includeGroupIds: boolean;
@@ -14,6 +17,11 @@ type BuildOptions = {
  *
  * Order is position in the array. There is no index field to send, and adding one would only
  * give the client a second way to say the same thing.
+ *
+ * `days` (an item's own weekdays) goes out only when the item carries the field. On an update
+ * the server reads a missing `days` as "keep what is stored" and `[]` as "clear it", so a group
+ * that never had the field must not turn into an empty array on the way out: that would wipe
+ * days another client set.
  */
 export const buildRoutinePayload = (routine: Routine, options: BuildOptions) => {
     // Compared inline rather than through isListRoutine: that helper lives in
@@ -30,6 +38,7 @@ export const buildRoutinePayload = (routine: Routine, options: BuildOptions) => 
                 ...(options.includeGroupIds ? { id: item.id } : {}),
                 habitId: item.type === "HABIT" ? item.habitId : null,
                 taskId: item.type === "TASK" ? item.taskId : null,
+                ...withDays(item.days),
             })),
         };
     }
@@ -48,13 +57,15 @@ export const buildRoutinePayload = (routine: Routine, options: BuildOptions) => 
                 ...(options.includeGroupIds ? { id: taskGroup.id } : {}),
                 taskId: taskGroup.taskId,
                 startTime: taskGroup.startTime,
-                endTime: taskGroup.endTime
+                endTime: taskGroup.endTime,
+                ...withDays(taskGroup.days),
             })),
             habitGroup: section.habitGroup?.map((habitGroup) => ({
                 ...(options.includeGroupIds ? { id: habitGroup.id } : {}),
                 habitId: habitGroup.habitId,
                 startTime: habitGroup.startTime,
-                endTime: habitGroup.endTime
+                endTime: habitGroup.endTime,
+                ...withDays(habitGroup.days),
             })),
             favorite: section.favorite
         }))

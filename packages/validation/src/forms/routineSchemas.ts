@@ -4,6 +4,8 @@ import { requiredStringWithMinMax } from "../common";
 import { getItemTimeErrorKeys, getSectionErrorKeys } from "../routineValidation";
 import type { RoutineSection } from "@beyou/types/routine/routineSection";
 
+const WEEK_DAY_VALUES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
+
 export const routineSectionSchema = (t: TFunction) =>
     z.object({
         id: z.string().optional(),
@@ -32,7 +34,13 @@ export const routineListItemSchema = (t: TFunction) =>
             id: z.string().optional(),
             type: z.enum(["HABIT", "TASK"]),
             habitId: z.string().optional().nullable(),
-            taskId: z.string().optional().nullable()
+            taskId: z.string().optional().nullable(),
+            /**
+             * The entry's own weekdays. Listed so the parse keeps it: z.object drops unknown
+             * keys, and the edit form submits the PARSED items, so a missing line here silently
+             * sent every list item without its days.
+             */
+            days: z.array(z.enum(WEEK_DAY_VALUES)).optional()
         })
         .refine((item) => (item.type === "HABIT" ? Boolean(item.habitId) : Boolean(item.taskId)), {
             message: t("RoutineItemAmbiguous")

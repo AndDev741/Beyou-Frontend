@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import { Routine } from "@beyou/types/routine/routine";
 import { RootState } from "@beyou/state/rootReducer";
 import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { addDaysIso } from "@beyou/state";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 type RoutineSummaryProps = {
     routines: Routine[];
@@ -23,13 +25,10 @@ type RoutineSummaryProps = {
  * civil week (Mon→Sun) would put future days in the row on a Monday, and a future
  * day has no routine to look at.
  */
-function getLastSevenDays(): string[] {
-    const now = new Date();
-    return Array.from({ length: 7 }, (_, index) => {
-        const day = new Date(now);
-        day.setDate(now.getDate() - (6 - index));
-        return day.toISOString().split("T")[0];
-    });
+function getLastSevenDays(today: string): string[] {
+    // Counted back from the user's today. Stepping a Date and reading toISOString() gave UTC
+    // days, so from 21:00 in Brazil the row ended on tomorrow.
+    return Array.from({ length: 7 }, (_, index) => addDaysIso(today, -(6 - index)));
 }
 
 // ─── DayChip ──────────────────────────────────────────────────────────────────
@@ -280,7 +279,7 @@ function DatePickerBar({
     const triggerRef = useRef<HTMLButtonElement>(null);
     const popoverRef = useRef<HTMLDivElement>(null);
     const rowRef = useRef<HTMLDivElement>(null);
-    const week = useMemo(() => getLastSevenDays(), []);
+    const week = useMemo(() => getLastSevenDays(today), [today]);
     // How many days actually fit on screen. Without this the strip either
     // scrolled days out of sight or broke into two lines on a phone.
     const [visibleDays, setVisibleDays] = useState(7);
@@ -417,7 +416,7 @@ export const RoutineSummary = ({ routines, selectedDate, onDateChange, action }:
         snapshotDates: [],
     };
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = useTodayInZone();
     const isSnapshotMode = selectedDate < today && snapshotState.selectedDate === selectedDate;
 
     const allActiveDays = useMemo(() => {

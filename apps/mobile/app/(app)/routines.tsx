@@ -28,8 +28,8 @@ import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import { openAgentPanel } from '../../src/ui/agent/agentPanelBus';
+import useTodayInZone from '../../src/ui/useTodayInZone';
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
 
 export default function RoutinesScreen() {
   const { t } = useTranslation();
@@ -54,7 +54,9 @@ export default function RoutinesScreen() {
   // rects come from measureInWindow, and the bottom bar is outside this screen.
   useSpotlightSlot(rt);
 
-  const today = todayIso();
+  // The user's day: the UTC one (toISOString) is already tomorrow from 21:00 in Brazil, and
+  // the cards dim the items that do not run on this day.
+  const today = useTodayInZone();
   const isPast = !!selectedDate && selectedDate < today;
   const sorted = useMemo(() => sortRoutines(routines, sortBy), [routines, sortBy]);
 

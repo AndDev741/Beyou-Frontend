@@ -112,3 +112,59 @@ test("checking an item is driven by a real checkbox named after it", () => {
 
     expect(screen.getByRole("checkbox", { name: "Test task" })).toBeInTheDocument();
 });
+
+// 2024-01-01 is a Monday, 2024-01-06 a Saturday.
+const weekendRoutine = (): Routine => {
+    const routine = buildRoutine();
+    routine.routineSections[0].habitGroup = [
+        { id: "habit-group-1", habitId: "habit-1", startTime: "09:00", endTime: "09:30", habitGroupChecks: [], days: ["Saturday"] },
+    ];
+    return routine;
+};
+
+const renderOn = (routine: Routine, selectedDate: string) =>
+    renderWithProviders(
+        <RoutineCard
+            routine={routine}
+            selectedDate={selectedDate}
+            taskLookup={{ "task-1": { name: "Test task" } }}
+            habitLookup={{ "habit-1": { name: "Clean the tank" } }}
+            onEdit={vi.fn()}
+            onSchedule={vi.fn()}
+            onCheckItem={vi.fn()}
+            onSkipItem={vi.fn()}
+            onRequestDelete={vi.fn()}
+        />
+    );
+
+test("an item whose days leave out the open day is dimmed, shows its days and has nothing to press", () => {
+    renderOn(weekendRoutine(), "2024-01-01");
+    fireEvent.click(screen.getByRole("button", { name: /expand/i }));
+
+    const offDay = screen.getByTestId("off-day-item");
+    expect(offDay).toHaveClass("opacity-60");
+    expect(offDay).toHaveTextContent("Clean the tank");
+    expect(offDay).toHaveTextContent("Sat");
+    expect(screen.queryByRole("checkbox", { name: "Clean the tank" })).not.toBeInTheDocument();
+    // Only the task that runs on Monday keeps its ring and its skip.
+    expect(screen.getByRole("checkbox", { name: "Test task" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Skip" })).toHaveLength(1);
+});
+
+test("the off-day item stays out of the day's tally", () => {
+    renderOn(weekendRoutine(), "2024-01-01");
+    fireEvent.click(screen.getByRole("button", { name: /expand/i }));
+
+    // One item runs on Monday, not two.
+    expect(screen.getByText("0/1")).toBeInTheDocument();
+    expect(screen.getByText(/07:00 - 10:00 · 0\//).textContent).toContain("0/1");
+});
+
+test("on one of its days the item is an ordinary, checkable row", () => {
+    renderOn(weekendRoutine(), "2024-01-06");
+    fireEvent.click(screen.getByRole("button", { name: /expand/i }));
+
+    expect(screen.queryByTestId("off-day-item")).not.toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Clean the tank" })).toBeInTheDocument();
+    expect(screen.getByText("0/2")).toBeInTheDocument();
+});

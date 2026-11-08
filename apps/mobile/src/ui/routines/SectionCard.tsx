@@ -18,6 +18,7 @@ import GhostAdd from '../GhostAdd';
 import IconButton from '../IconButton';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import { mergeSectionItems, formatItemRange, type MergedSectionItem } from './sectionItems';
+import { ItemDaysChip } from './ItemDaysField';
 
 const fmt = (s?: string) => (s ? s.slice(0, 5) : '');
 
@@ -186,6 +187,7 @@ export default function SectionCard({
                 <Text className="min-w-0 flex-1 text-[12.5px] font-medium text-text" numberOfLines={1}>
                   {item.name}
                 </Text>
+                <ItemDaysChip days={item.days} testID={`section-item-days-${item.key}`} />
                 {range ? <TimeChip>{range}</TimeChip> : null}
                 <IconButton
                   label={`${t('Delete')} ${item.name}`}

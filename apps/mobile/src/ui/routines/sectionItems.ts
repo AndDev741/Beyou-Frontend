@@ -1,6 +1,7 @@
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
+import type { WeekDay } from '@beyou/types/schedule/weekDay';
 
 export interface MergedSectionItem {
   key: string;
@@ -10,6 +11,8 @@ export interface MergedSectionItem {
   iconId: string;
   startTime: string;
   endTime: string;
+  /** The item's own weekdays; absent or empty follows the routine. */
+  days?: WeekDay[];
 }
 
 // Empty times sort last (a high sentinel beats any "HH:mm").
@@ -33,6 +36,7 @@ export function mergeSectionItems(
       iconId: hMap.get(g.habitId)?.iconId ?? '',
       startTime: g.startTime ?? '',
       endTime: g.endTime ?? '',
+      days: g.days,
     })),
     ...(section.taskGroup ?? []).map((g) => ({
       key: `task-${g.taskId}`,
@@ -42,6 +46,7 @@ export function mergeSectionItems(
       iconId: tMap.get(g.taskId)?.iconId ?? '',
       startTime: g.startTime ?? '',
       endTime: g.endTime ?? '',
+      days: g.days,
     })),
   ];
   return items.sort(

@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { FiSearch, FiX, FiPlus } from "react-icons/fi";
 import { RootState } from "@beyou/state/rootReducer";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
+import type { WeekDay } from "@beyou/types/schedule/weekDay";
 import { getSectionErrorKeys } from "@beyou/validation/routineValidation";
 import { suggestSlots } from "@beyou/state";
 import BeyouIcon from "../../../../ui/BeyouIcon";
@@ -40,24 +41,31 @@ type TrayItem = {
     groupId?: string;
     startTime: string;
     endTime: string;
+    /**
+     * The item's own weekdays, carried through untouched. The tray rebuilds every group on
+     * confirm, so a field it does not copy is a field the confirm erases.
+     */
+    days?: WeekDay[];
 };
 
 const toGroups = (tray: TrayItem[]) => ({
     habitGroup: tray
         .filter((item) => item.kind === "habit")
-        .map(({ groupId, refId, startTime, endTime }) => ({
+        .map(({ groupId, refId, startTime, endTime, days }) => ({
             ...(groupId ? { id: groupId } : {}),
             habitId: refId,
             startTime,
             endTime,
+            ...(days ? { days } : {}),
         })),
     taskGroup: tray
         .filter((item) => item.kind === "task")
-        .map(({ groupId, refId, startTime, endTime }) => ({
+        .map(({ groupId, refId, startTime, endTime, days }) => ({
             ...(groupId ? { id: groupId } : {}),
             taskId: refId,
             startTime,
             endTime,
+            ...(days ? { days } : {}),
         })),
 });
 
@@ -85,6 +93,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
             groupId: group.id,
             startTime: group.startTime ?? "",
             endTime: group.endTime ?? "",
+            days: group.days,
         })),
         ...(section.taskGroup ?? []).map((group) => ({
             kind: "task" as Kind,
@@ -92,6 +101,7 @@ const TaskAndHabitSelector = ({ setRoutineSection, index, section, setOpenTaskSe
             groupId: group.id,
             startTime: group.startTime ?? "",
             endTime: group.endTime ?? "",
+            days: group.days,
         })),
     ]);
     const [showQuickHabit, setShowQuickHabit] = useState(false);

@@ -139,7 +139,12 @@ export default function EditListRoutine() {
             </div>
 
             <div className="mt-4">
-                <ListItemsEditor items={items} setItems={setItems} onAddItem={() => setPickerOpen(true)} />
+                <ListItemsEditor
+                    items={items}
+                    setItems={setItems}
+                    onAddItem={() => setPickerOpen(true)}
+                    scheduleDays={routine.schedule?.days}
+                />
                 {errors.items?.message && <p className="mt-1.5 text-xs text-danger">{errors.items.message}</p>}
             </div>
 

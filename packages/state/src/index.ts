@@ -336,6 +336,20 @@ export {
     formatTimeRange,
     getTimeOfDay,
 } from './routine/routineMetrics';
+export {
+    WEEK_DAYS,
+    WEEK_DAYS_SUNDAY_FIRST,
+    SHORT_DAY_KEY,
+    toWeekDay,
+    weekDayOfIso,
+    todayWeekDay,
+    normalizeItemDays,
+    followsRoutine,
+    isItemActiveOn,
+    toggleItemDay,
+    formatItemDays,
+    itemDaysMissSchedule,
+} from './routine/itemDays';
 export { suggestSlots } from './routine/suggestSlots';
 export type { RoutineStats, SectionStats } from './routine/routineMetrics';
 export { seriesFor as xpSeriesFor } from './xp/xpSeries';

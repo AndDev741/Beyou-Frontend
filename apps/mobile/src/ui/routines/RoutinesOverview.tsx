@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { getSnapshotsForDay, getSnapshotDatesForMonth } from '@beyou/api/routine/snapshot';
-import { enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
+import { addDaysIso, enterSnapshots, enterSnapshotDates, setSelectedDate } from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { Snapshot } from '@beyou/types/routine/snapshot';
 import { CalendarDays, History } from 'lucide-react-native';
@@ -13,6 +13,7 @@ import EmptyState from '../EmptyState';
 import type { RootState, AppDispatch } from '../../store';
 import SnapshotCard from './SnapshotCard';
 import { useSnapshotCheckin } from './useSnapshotCheckin';
+import useTodayInZone from '../useTodayInZone';
 
 interface SnapshotPair {
   snapshot: Snapshot;
@@ -26,7 +27,6 @@ function SnapshotWithCheckin({ snapshot, routineId }: { snapshot: Snapshot; rout
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const monthOf = (d: Date) => d.toISOString().slice(0, 7);
-const daysBack = (n: number): Date => { const d = new Date(); d.setDate(d.getDate() - n); return d; };
 // getDay() 0=Sun..6=Sat → existing Mon..Sun i18n keys (en/pt); reused for the chip weekday label.
 const WEEKDAY_KEYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 // Parse at noon so the local weekday + day-number match the ISO date (no tz day-shift).
@@ -53,9 +53,10 @@ export default function RoutinesOverview({
   const [showPicker, setShowPicker] = useState(false);
   const [snapshotPairs, setSnapshotPairs] = useState<SnapshotPair[]>([]);
 
-  const today = iso(new Date());
+  // The user's day, as the routines screen reads it; the UTC one ran a day ahead at night.
+  const today = useTodayInZone();
   // The last seven days ending TODAY, as on the web — today is the last box.
-  const week = useMemo(() => Array.from({ length: 7 }, (_, i) => iso(daysBack(6 - i))), []);
+  const week = useMemo(() => Array.from({ length: 7 }, (_, i) => addDaysIso(today, -(6 - i))), [today]);
   // How many actually fit: without this the row broke into two lines at 360px.
   const [rowWidth, setRowWidth] = useState(0);
   const visibleDays = rowWidth > 0 ? Math.max(3, Math.min(7, Math.floor((rowWidth - CALENDAR_SLOT) / DAY_BOX))) : 5;

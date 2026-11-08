@@ -2342,6 +2342,8 @@ export interface components {
             startTime?: string;
             endTime?: string;
             habitGroupCheck?: components["schemas"]["HabitGroupCheck"][];
+            /** @description The weekdays this item runs on, inside the days the routine runs. Null or absent keeps what the item already has; an empty array clears it, so the item follows the routine again. All seven days are stored as empty. */
+            days?: ("Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday")[];
         };
         RoutineSectionRequestDTO: {
             /** Format: uuid */
@@ -2373,6 +2375,8 @@ export interface components {
             startTime?: string;
             endTime?: string;
             taskGroupCheck?: components["schemas"]["TaskGroupCheck"][];
+            /** @description The weekdays this item runs on, inside the days the routine runs. Null or absent keeps what the item already has; an empty array clears it, so the item follows the routine again. All seven days are stored as empty. */
+            days?: ("Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday")[];
         };
         DiaryRoutineResponseDTO: {
             /** Format: uuid */
@@ -2401,6 +2405,8 @@ export interface components {
             startTime?: string;
             endTime?: string;
             habitGroupChecks?: components["schemas"]["HabitGroupCheck"][];
+            /** @description The weekdays this item runs on, inside the days the routine runs. Empty means it follows the routine. */
+            days?: ("Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday")[];
         };
         RoutineSectionResponseDTO: {
             /** Format: uuid */
@@ -2426,6 +2432,8 @@ export interface components {
             startTime?: string;
             endTime?: string;
             taskGroupChecks?: components["schemas"]["TaskGroupCheck"][];
+            /** @description The weekdays this item runs on, inside the days the routine runs. Empty means it follows the routine. */
+            days?: ("Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday")[];
         };
         EditHabitDTO: {
             /** Format: uuid */
@@ -3166,6 +3174,8 @@ export interface components {
             habitId?: string;
             /** Format: uuid */
             taskId?: string;
+            /** @description The weekdays this item runs on, inside the days the routine runs. Null or absent keeps what the item already has; an empty array clears it, so the item follows the routine again. All seven days are stored as empty. */
+            days?: ("Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday")[];
         };
         RoutineItemResponseDTO: {
             /** Format: uuid */
@@ -3179,6 +3189,8 @@ export interface components {
             /** Format: int32 */
             orderIndex?: number;
             checks?: components["schemas"]["BaseCheck"][];
+            /** @description The weekdays this item runs on, inside the days the routine runs. Empty means it follows the routine. */
+            days?: ("Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday")[];
         };
         FocusCycleResponseDTO: {
             /** Format: uuid */
