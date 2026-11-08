@@ -23,6 +23,7 @@ import DeleteModal from "../DeleteModal";
 import EmptyState from "../EmptyState";
 import { CalendarDays } from "lucide-react";
 import { openAgentPanel } from "../agent/agentPanelBus";
+import useTodayInZone from "../../hooks/useTodayInZone";
 
 type RenderRoutinesProps = {
     selectedDate: string;
@@ -49,7 +50,7 @@ export default function RenderRoutines({
     const snapshots = snapshotState.snapshots || {};
     const snapshotList = Object.values(snapshots);
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = useTodayInZone();
     const isSnapshotMode = selectedDate < today && snapshotState.selectedDate === selectedDate;
 
     const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null);
