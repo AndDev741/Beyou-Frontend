@@ -245,6 +245,10 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
               onMove={moveListItem}
               onRemove={(index) => setListItems((prev) => prev.filter((_, i) => i !== index))}
               onAdd={() => setListSheetOpen(true)}
+              onSetDays={(index, days) =>
+                setListItems((prev) => prev.map((item, i) => (i === index ? { ...item, days } : item)))
+              }
+              scheduleDays={working.schedule?.days}
             />
           ) : (
           <View>
@@ -317,6 +321,7 @@ export default function RoutineBuilder({ visible, mode, routine, habits, tasks, 
             tasks={tasks}
             onSave={(s) => setSections(working.routineSections.map((sec, idx) => (idx === itemSheet ? s : sec)))}
             onClose={() => setItemSheet(null)}
+            scheduleDays={working.schedule?.days}
           />
         ) : null}
       </View>

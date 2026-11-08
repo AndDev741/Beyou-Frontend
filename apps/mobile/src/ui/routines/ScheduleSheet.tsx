@@ -14,6 +14,7 @@ import { notify } from '../../notify';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
 import FieldLabel from '../form/FieldLabel';
+import WeekdayPicker from './WeekdayPicker';
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const WEEKEND = ['Saturday', 'Sunday'];
@@ -187,33 +188,7 @@ export default function ScheduleSheet({ visible, routine, onClose, onSaved }: Sc
       <FieldLabel required className="mt-3.5">
         {t('Days')}
       </FieldLabel>
-      <View className="flex-row" style={{ gap: 6 }}>
-        {WEEK_ORDER.map((day) => {
-          const blocked = isBlocked(day);
-          const active = days.includes(day);
-          return (
-            <Pressable
-              key={day}
-              onPress={() => toggle(day)}
-              accessibilityRole="button"
-              accessibilityLabel={t(day)}
-              accessibilityState={{ selected: active, disabled: blocked }}
-              testID={`day-${day}`}
-              className={`h-8 flex-1 items-center justify-center rounded-[10px] ${
-                active ? 'bg-accent' : blocked ? 'bg-danger/10' : 'bg-surface-2'
-              }`}
-            >
-              <Text
-                className={`font-mono-semibold text-[11.5px] ${
-                  active ? 'text-on-accent' : blocked ? 'text-danger' : 'text-text-3'
-                }`}
-              >
-                {t(day).charAt(0).toUpperCase()}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      <WeekdayPicker value={days} onToggle={toggle} isBlocked={isBlocked} />
 
       {daysError ? (
         <Text className="mt-1.5 text-xs text-danger" testID="schedule-days-error">

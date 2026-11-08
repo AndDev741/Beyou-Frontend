@@ -2,11 +2,13 @@ import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react-native';
 import type { RoutineListItem } from '@beyou/types/routine/routine';
+import type { WeekDay } from '@beyou/types/schedule/weekDay';
 import type { habit } from '@beyou/types/habit/habitType';
 import type { task } from '@beyou/types/tasks/taskType';
 import BeyouIcon from '../BeyouIcon';
 import IconButton from '../IconButton';
 import GhostAdd from '../GhostAdd';
+import ItemDaysField from './ItemDaysField';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 
 interface ListItemsEditorProps {
@@ -16,6 +18,10 @@ interface ListItemsEditorProps {
   onMove: (index: number, dir: -1 | 1) => void;
   onRemove: (index: number) => void;
   onAdd: () => void;
+  /** Sets one row's own weekdays. Without it the rows show no days control. */
+  onSetDays?: (index: number, days: WeekDay[]) => void;
+  /** The routine's schedule, for the "never runs on these days" warning. None while creating. */
+  scheduleDays?: readonly string[];
 }
 
 /**
@@ -32,6 +38,8 @@ export default function ListItemsEditor({
   onMove,
   onRemove,
   onAdd,
+  onSetDays,
+  scheduleDays,
 }: ListItemsEditorProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
@@ -58,41 +66,53 @@ export default function ListItemsEditor({
             return (
               <View
                 key={item.id || `${item.type}-${refId}-${index}`}
-                className="flex-row items-center gap-2 rounded-control border border-border bg-surface px-3 py-2.5"
-                testID={`list-row-${refId}`}
+                className="rounded-control border border-border bg-surface px-3 py-2.5"
               >
-                <BeyouIcon id={iconId} size={18} />
-                <Text className="min-w-0 flex-1 text-[13.5px] text-text" numberOfLines={1}>
-                  {name}
-                </Text>
-                {items.length > 1 ? (
-                  <>
-                    <IconButton
-                      label={t('MoveUp')}
-                      onPress={() => onMove(index, -1)}
-                      disabled={index === 0}
-                      testID={`list-up-${refId}`}
-                    >
-                      <ChevronUp size={16} color={theme.text3} />
-                    </IconButton>
-                    <IconButton
-                      label={t('MoveDown')}
-                      onPress={() => onMove(index, 1)}
-                      disabled={index === items.length - 1}
-                      testID={`list-down-${refId}`}
-                    >
-                      <ChevronDown size={16} color={theme.text3} />
-                    </IconButton>
-                  </>
+                <View className="flex-row items-center gap-2" testID={`list-row-${refId}`}>
+                  <BeyouIcon id={iconId} size={18} />
+                  <Text className="min-w-0 flex-1 text-[13.5px] text-text" numberOfLines={1}>
+                    {name}
+                  </Text>
+                  {items.length > 1 ? (
+                    <>
+                      <IconButton
+                        label={t('MoveUp')}
+                        onPress={() => onMove(index, -1)}
+                        disabled={index === 0}
+                        testID={`list-up-${refId}`}
+                      >
+                        <ChevronUp size={16} color={theme.text3} />
+                      </IconButton>
+                      <IconButton
+                        label={t('MoveDown')}
+                        onPress={() => onMove(index, 1)}
+                        disabled={index === items.length - 1}
+                        testID={`list-down-${refId}`}
+                      >
+                        <ChevronDown size={16} color={theme.text3} />
+                      </IconButton>
+                    </>
+                  ) : null}
+                  <IconButton
+                    label={`${t('Remove')} ${name}`}
+                    tone="danger"
+                    onPress={() => onRemove(index)}
+                    testID={`list-remove-${refId}`}
+                  >
+                    <Trash2 size={16} color={theme.error} />
+                  </IconButton>
+                </View>
+                {onSetDays ? (
+                  <View className="mt-1">
+                    <ItemDaysField
+                      name={name}
+                      days={item.days}
+                      scheduleDays={scheduleDays}
+                      onChange={(days) => onSetDays(index, days)}
+                      testID={`list-days-${refId}`}
+                    />
+                  </View>
                 ) : null}
-                <IconButton
-                  label={`${t('Remove')} ${name}`}
-                  tone="danger"
-                  onPress={() => onRemove(index)}
-                  testID={`list-remove-${refId}`}
-                >
-                  <Trash2 size={16} color={theme.error} />
-                </IconButton>
               </View>
             );
           })}

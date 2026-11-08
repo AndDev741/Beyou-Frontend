@@ -4,7 +4,15 @@ import { View, Text, Pressable } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react-native';
-import { calculateLevelProgress, getRoutineStats, getListStats, getListItems, isListRoutine } from '@beyou/state';
+import {
+  calculateLevelProgress,
+  countItemsInRoutine,
+  getRoutineStats,
+  getListStats,
+  getListItems,
+  isItemActiveOn,
+  isListRoutine,
+} from '@beyou/state';
 import type { Routine } from '@beyou/types/routine/routine';
 import type { RoutineSection } from '@beyou/types/routine/routineSection';
 import BeyouIcon from '../BeyouIcon';
@@ -12,6 +20,9 @@ import Card from '../Card';
 import IconButton from '../IconButton';
 import { formatTimeRange } from '@beyou/state';
 import RoutineItem, { type MergedItem } from '../dashboard/RoutineItem';
+import IconTile from '../IconTile';
+import Chip from '../Chip';
+import { ItemDaysChip } from './ItemDaysField';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { RootState } from '../../store';
 
@@ -22,22 +33,26 @@ import type { RootState } from '../../store';
  * sort from start time (which a list does not have) to that arrangement. An id the order
  * does not know sinks to the bottom rather than jumping to the top.
  */
-function mergeItems(section: RoutineSection, listOrder?: string[]): MergedItem[] {
-  const habits: MergedItem[] = (section.habitGroup ?? []).map((g) => ({
+type CardItem = MergedItem & { days?: readonly string[] };
+
+function mergeItems(section: RoutineSection, listOrder?: string[]): CardItem[] {
+  const habits: CardItem[] = (section.habitGroup ?? []).map((g) => ({
     type: 'habit',
     id: g.habitId,
     groupId: g.id ?? '',
     startTime: g.startTime,
     endTime: g.endTime,
     check: g.habitGroupChecks,
+    days: g.days,
   }));
-  const tasks: MergedItem[] = (section.taskGroup ?? []).map((g) => ({
+  const tasks: CardItem[] = (section.taskGroup ?? []).map((g) => ({
     type: 'task',
     id: g.taskId,
     groupId: g.id ?? '',
     startTime: g.startTime,
     endTime: g.endTime,
     check: g.taskGroupChecks,
+    days: g.days,
   }));
   const merged = [...habits, ...tasks];
   if (listOrder) {
@@ -88,11 +103,14 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
   const [expanded, setExpanded] = useState(false);
 
   const isList = isListRoutine(routine);
-  const stats = isList ? getListStats(routine, today) : getRoutineStats(routine, today);
+  // Today's tally counts only the items that run today: one limited to Saturday is not "left
+  // to do" on a Friday, and nothing on the card could tick it off.
+  const stats = isList ? getListStats(routine, today, today) : getRoutineStats(routine, today, today);
   const listOrder = isList ? getListItems(routine).map((item) => item.id) : undefined;
   const sections = routine.routineSections?.length ?? 0;
-  const totalItems = stats.totalItems;
-  const completion = totalItems > 0 ? Math.round((stats.completedItems / totalItems) * 100) : 0;
+  // The header counts the whole routine; the bar below counts today's share of it.
+  const totalItems = countItemsInRoutine(routine);
+  const completion = stats.totalItems > 0 ? Math.round((stats.completedItems / stats.totalItems) * 100) : 0;
   const levelPct = calculateLevelProgress(routine.xp ?? 0, routine.actualLevelXp ?? 0, routine.nextLevelXp ?? 0);
 
   const scheduledDays = new Set((routine.schedule?.days ?? []).map((day) => day.toLowerCase()));
@@ -175,7 +193,7 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
         </View>
         <Text className="mt-1.5 text-right font-mono text-[11px] text-text-3">
           {runsToday
-            ? `${t('Today').toLowerCase()} ${stats.completedItems}/${totalItems}`
+            ? `${t('Today').toLowerCase()} ${stats.completedItems}/${stats.totalItems}`
             : `LV ${routine.level ?? 0} · ${routine.xp ?? 0}/${routine.nextLevelXp ?? 0}`}
         </Text>
       </View>
@@ -231,6 +249,18 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
                     ? habits?.find((h) => h.id === item.id)
                     : tasks?.find((tk) => tk.id === item.id);
                 if (!resolved) return null;
+                if (!isItemActiveOn(item.days, today)) {
+                  return (
+                    <OffDayItem
+                      key={`${item.type}-${item.groupId}`}
+                      groupId={item.groupId}
+                      name={resolved.name}
+                      iconId={resolved.iconId}
+                      days={item.days}
+                      timeRange={isList ? '' : formatTimeRange(item.startTime, item.endTime)}
+                    />
+                  );
+                }
                 return (
                   <RoutineItem
                     key={`${item.type}-${item.groupId}`}
@@ -253,5 +283,56 @@ export default function RoutineCard({ routine, today, onSchedule, onEdit, onDele
         </View>
       ) : null}
     </Card>
+  );
+}
+
+/**
+ * An item whose own days leave today out: still listed, so the routine reads whole, but
+ * dimmed, with its days and nothing to press. The server refuses a check or a skip on such a
+ * day (ROUTINE_ITEM_NOT_ACTIVE_ON_DAY). The dashed circle keeps the ring's column.
+ */
+function OffDayItem({
+  groupId,
+  name,
+  iconId,
+  days,
+  timeRange,
+}: {
+  groupId: string;
+  name: string;
+  iconId?: string;
+  days?: readonly string[];
+  timeRange: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View
+      className="mt-1 flex-row items-center gap-2.5 py-1 opacity-60"
+      testID={`routine-item-off-${groupId}`}
+      accessible
+      accessibilityLabel={`${name}, ${t('ItemNotToday')}`}
+    >
+      <View className="h-[26px] w-[26px] items-center justify-center">
+        <View className="h-[22px] w-[22px] rounded-full border-2 border-dashed border-border" />
+      </View>
+      {iconId ? (
+        <IconTile size={30}>
+          <BeyouIcon id={iconId} size={16} showFallback />
+        </IconTile>
+      ) : null}
+      <View className="min-w-0 flex-1 gap-1" style={{ flexDirection: 'column-reverse' }}>
+        <Text className="text-[13.5px] font-medium text-text-3" numberOfLines={2}>
+          {name}
+        </Text>
+        <View className="flex-row items-center gap-1.5">
+          <ItemDaysChip days={days} testID={`routine-item-days-${groupId}`} />
+          {timeRange ? (
+            <Chip size="sm" variant="time">
+              {timeRange}
+            </Chip>
+          ) : null}
+        </View>
+      </View>
+    </View>
   );
 }

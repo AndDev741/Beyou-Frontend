@@ -23,6 +23,8 @@ import BottomSheet from '../BottomSheet';
 import HabitForm from '../habits/HabitForm';
 import TaskForm from '../tasks/TaskForm';
 import TimeField from './TimeField';
+import ItemDaysField from './ItemDaysField';
+import type { WeekDay } from '@beyou/types/schedule/weekDay';
 import { mergeSectionItems } from './sectionItems';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import type { AppDispatch } from '../../store';
@@ -37,11 +39,13 @@ interface ItemPickerSheetProps {
   tasks: task[];
   onSave: (section: RoutineSection) => void;
   onClose: () => void;
+  /** The routine's schedule, for the "never runs on these days" warning. None while creating. */
+  scheduleDays?: readonly string[];
 }
 
 const byName = <T extends { name: string }>(a: T, b: T) => a.name.localeCompare(b.name);
 
-export default function ItemPickerSheet({ visible, section, habits, tasks, onSave, onClose }: ItemPickerSheetProps) {
+export default function ItemPickerSheet({ visible, section, habits, tasks, onSave, onClose, scheduleDays }: ItemPickerSheetProps) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
   const dispatch = useDispatch<AppDispatch>();
@@ -118,6 +122,10 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
     setHabitGroup((g) => g.map((x) => (x.habitId === id ? { ...x, [field]: v } : x)));
   const setTaskField = (id: string, field: 'startTime' | 'endTime', v: string) =>
     setTaskGroup((g) => g.map((x) => (x.taskId === id ? { ...x, [field]: v } : x)));
+  const setDays = (type: 'habit' | 'task', id: string, days: WeekDay[]) =>
+    type === 'habit'
+      ? setHabitGroup((g) => g.map((x) => (x.habitId === id ? { ...x, days } : x)))
+      : setTaskGroup((g) => g.map((x) => (x.taskId === id ? { ...x, days } : x)));
 
   // Open quick-create: lazy-load categories for the nested form, then show it.
   const openQuickCreate = async (type: 'habit' | 'task') => {
@@ -202,6 +210,15 @@ export default function ItemPickerSheet({ visible, section, habits, tasks, onSav
                   <View className="mt-2 flex-row gap-3">
                     <TimeField label={t('Start')} value={item.startTime} onChange={(v) => setField(item.refId, 'startTime', v)} testID={`tray-${item.type}-${item.refId}-start`} />
                     <TimeField label={t('End')} value={item.endTime} onChange={(v) => setField(item.refId, 'endTime', v)} testID={`tray-${item.type}-${item.refId}-end`} />
+                  </View>
+                  <View className="mt-1.5">
+                    <ItemDaysField
+                      name={item.name}
+                      days={item.days}
+                      scheduleDays={scheduleDays}
+                      onChange={(days) => setDays(item.type, item.refId, days)}
+                      testID={`tray-${item.type}-${item.refId}-days`}
+                    />
                   </View>
                 </View>
               );
