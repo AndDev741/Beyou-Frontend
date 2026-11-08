@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { scheduleSchema } from "@beyou/validation/forms/scheduleSchemas";
 import FormLabel from "../../ui/FormLabel";
+import WeekdayPicker from "../../ui/WeekdayPicker";
 
 interface ScheduleModalProps {
     routine: Routine;
@@ -176,31 +177,18 @@ export default function ScheduleModal({ routine, onClose }: ScheduleModalProps) 
                     already taken by another routine is marked on the square itself
                     rather than in a separate notice. */}
                 <FormLabel as="span" required className="mt-3.5">{t("Days")}</FormLabel>
-                <div className="flex gap-1.5">
-                    {WEEK_ORDER.map((day) => {
-                        const isBlocked = blockedSet.has(day) && !overrides.has(day);
-                        const active = selectedDays.includes(day);
-                        return (
-                            <button
-                                key={day}
-                                type="button"
-                                aria-pressed={active}
-                                aria-label={t(day)}
-                                title={isBlocked ? `${t("Already scheduled for")}: ${(blockedByDay[day] || []).join(", ")}` : t(day)}
-                                onClick={() => toggleDay(day)}
-                                className={`h-8 flex-1 rounded-[10px] font-mono text-[11.5px] font-semibold transition-colors duration-200 ${
-                                    active
-                                        ? "bg-accent text-on-accent"
-                                        : isBlocked
-                                          ? "cursor-not-allowed bg-danger/10 text-danger"
-                                          : "bg-surface-2 text-text-3 hover:text-text-2"
-                                }`}
-                            >
-                                {t(day).charAt(0).toUpperCase()}
-                            </button>
-                        );
-                    })}
-                </div>
+                <WeekdayPicker
+                    value={selectedDays}
+                    onToggle={toggleDay}
+                    dayState={(day) =>
+                        blockedSet.has(day) && !overrides.has(day)
+                            ? {
+                                  blocked: true,
+                                  title: `${t("Already scheduled for")}: ${(blockedByDay[day] || []).join(", ")}`,
+                              }
+                            : {}
+                    }
+                />
 
                 {blockedDays.length > 0 && (
                     <div className="mt-3 rounded-control border border-danger/30 bg-danger/5 p-2.5">

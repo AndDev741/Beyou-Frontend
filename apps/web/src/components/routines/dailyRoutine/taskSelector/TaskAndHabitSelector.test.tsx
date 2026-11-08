@@ -163,3 +163,19 @@ test("a section with no end time gives each item a 15 minute slot", () => {
         { startTime: "08:15", endTime: "08:30" }
     ]);
 });
+
+// The tray rebuilds every group on confirm. A field it did not copy was a field the confirm
+// erased, and the item's days are the newest such field.
+test("confirming keeps the days an item already had", () => {
+    const section = buildSection();
+    section.habitGroup = [{ id: "g1", habitId: "h1", startTime: "08:00", endTime: "08:15", days: ["Saturday"] }];
+    const read = setup(section);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /stretch/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Add 2" }));
+
+    const habits = read()[0].habitGroup ?? [];
+    expect(habits.find((g) => g.habitId === "h1")?.days).toEqual(["Saturday"]);
+    // A newly picked item has no days at all, not an empty array that would clear something.
+    expect("days" in (habits.find((g) => g.habitId === "h2") ?? {})).toBe(false);
+});

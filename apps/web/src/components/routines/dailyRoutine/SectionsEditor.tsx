@@ -16,6 +16,8 @@ type SectionsEditorProps = {
     addTutorialId?: string;
     /** Tutorial anchor on the first section in the list. */
     firstItemTutorialId?: string;
+    /** The routine's schedule when it has one, so an item's days can be checked against it. */
+    scheduleDays?: readonly string[];
 };
 
 /**
@@ -33,6 +35,7 @@ export default function SectionsEditor({
     onAddSection,
     addTutorialId,
     firstItemTutorialId,
+    scheduleDays,
 }: SectionsEditorProps) {
     const { t } = useTranslation();
 
@@ -86,6 +89,7 @@ export default function SectionsEditor({
                                                 count={sections.length}
                                                 onMove={(dir) => moveSection(index, dir)}
                                                 dragHandleProps={dragProvided.dragHandleProps ?? undefined}
+                                                scheduleDays={scheduleDays}
                                             />
                                         </div>
                                     )}

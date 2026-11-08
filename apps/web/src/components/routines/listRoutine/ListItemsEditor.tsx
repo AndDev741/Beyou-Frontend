@@ -1,19 +1,23 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { DragDropContext, Draggable, type DropResult } from "react-beautiful-dnd";
-import { FiTrash2 } from "react-icons/fi";
+import { FiCalendar, FiTrash2 } from "react-icons/fi";
 import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
 import { RootState } from "@beyou/state/rootReducer";
 import type { RoutineListItem } from "@beyou/types/routine/routine";
 import Droppable from "../../utils/StrictModeDroppable";
 import GhostAdd from "../../../ui/GhostAdd";
 import BeyouIcon from "../../../ui/BeyouIcon";
+import ItemDaysField, { ItemDaysChip } from "../ItemDaysField";
+import { itemDaysMissSchedule } from "@beyou/state";
 
 type ListItemsEditorProps = {
     items: RoutineListItem[];
     setItems: Dispatch<SetStateAction<RoutineListItem[]>>;
     onAddItem: () => void;
+    /** The routine's schedule when it has one, so a row's days can be checked against it. */
+    scheduleDays?: readonly string[];
 };
 
 /**
@@ -25,8 +29,10 @@ type ListItemsEditorProps = {
  * Two affordances for one move, split by width: the grip drags on desktop, the arrows step on
  * touch. SectionsEditor makes the same split for a daily routine's sections.
  */
-export default function ListItemsEditor({ items, setItems, onAddItem }: ListItemsEditorProps) {
+export default function ListItemsEditor({ items, setItems, onAddItem, scheduleDays }: ListItemsEditorProps) {
     const { t } = useTranslation();
+    // The row whose days are open, by its key. One at a time keeps the list short.
+    const [daysOpen, setDaysOpen] = useState<string | null>(null);
     const habits = useSelector((state: RootState) => state.habits.habits) || [];
     const tasks = useSelector((state: RootState) => state.tasks.tasks) || [];
 
@@ -49,6 +55,10 @@ export default function ListItemsEditor({ items, setItems, onAddItem }: ListItem
     };
 
     const remove = (index: number) => setItems((prev) => prev.filter((_, i) => i !== index));
+
+    /** Days apply at once: the routine's own Save is what writes them. */
+    const setDays = (index: number, days: RoutineListItem["days"]) =>
+        setItems((prev) => prev.map((entry, i) => (i === index ? { ...entry, days } : entry)));
 
     /** The arrows' half of the same move, for touch, where the grip is out of reach. */
     const move = (index: number, dir: -1 | 1) => {
@@ -88,53 +98,80 @@ export default function ListItemsEditor({ items, setItems, onAddItem }: ListItem
                                             <div
                                                 ref={dragProvided.innerRef}
                                                 {...dragProvided.draggableProps}
-                                                className="flex items-center gap-2.5 rounded-control border border-border bg-surface px-3 py-2.5"
+                                                className="rounded-control border border-border bg-surface px-3 py-2.5"
                                             >
-                                                {/* Desktop's affordance. rbd wants a long press on
-                                                    touch and this is a 16px target, so below md the
-                                                    arrows further along the row do the reordering,
-                                                    the way the native editor already does it. */}
-                                                <span
-                                                    {...(dragProvided.dragHandleProps ?? {})}
-                                                    aria-label={t("ReorderItem", { name })}
-                                                    className="hidden cursor-grab text-text-3 md:block"
-                                                >
-                                                    <GripVertical size={16} aria-hidden="true" />
-                                                </span>
-                                                <BeyouIcon id={iconId} size={18} />
-                                                <span className="min-w-0 flex-1 truncate text-[13.5px] text-text">
-                                                    {name}
-                                                </span>
-                                                {items.length > 1 && (
-                                                    <span className="flex shrink-0 items-center gap-1 md:hidden">
-                                                        <button
-                                                            type="button"
-                                                            aria-label={t("MoveUp")}
-                                                            disabled={index === 0}
-                                                            onClick={() => move(index, -1)}
-                                                            className="rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
-                                                        >
-                                                            <ChevronUp size={16} aria-hidden="true" />
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            aria-label={t("MoveDown")}
-                                                            disabled={index === items.length - 1}
-                                                            onClick={() => move(index, 1)}
-                                                            className="rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
-                                                        >
-                                                            <ChevronDown size={16} aria-hidden="true" />
-                                                        </button>
+                                                <div className="flex items-center gap-2.5">
+                                                    {/* Desktop's affordance. rbd wants a long press on
+                                                        touch and this is a 16px target, so below md the
+                                                        arrows further along the row do the reordering,
+                                                        the way the native editor already does it. */}
+                                                    <span
+                                                        {...(dragProvided.dragHandleProps ?? {})}
+                                                        aria-label={t("ReorderItem", { name })}
+                                                        className="hidden cursor-grab text-text-3 md:block"
+                                                    >
+                                                        <GripVertical size={16} aria-hidden="true" />
                                                     </span>
+                                                    <BeyouIcon id={iconId} size={18} />
+                                                    <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                                                        <span className="min-w-0 truncate text-[13.5px] text-text">{name}</span>
+                                                        <ItemDaysChip days={item.days} />
+                                                    </span>
+                                                    {items.length > 1 && (
+                                                        <span className="flex shrink-0 items-center gap-1 md:hidden">
+                                                            <button
+                                                                type="button"
+                                                                aria-label={t("MoveUp")}
+                                                                disabled={index === 0}
+                                                                onClick={() => move(index, -1)}
+                                                                className="rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                                                            >
+                                                                <ChevronUp size={16} aria-hidden="true" />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                aria-label={t("MoveDown")}
+                                                                disabled={index === items.length - 1}
+                                                                onClick={() => move(index, 1)}
+                                                                className="rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2 disabled:opacity-40 disabled:hover:bg-transparent"
+                                                            >
+                                                                <ChevronDown size={16} aria-hidden="true" />
+                                                            </button>
+                                                        </span>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setDaysOpen((open) => (open === key ? null : key))}
+                                                        aria-label={t("ItemDaysFor", { name })}
+                                                        aria-expanded={daysOpen === key}
+                                                        title={t("ItemDaysFor", { name })}
+                                                        className={`shrink-0 rounded-lg p-1 transition-colors duration-200 hover:bg-surface-2 ${
+                                                            daysOpen === key ? "text-accent" : "text-text-3 hover:text-text-2"
+                                                        }`}
+                                                    >
+                                                        <FiCalendar aria-hidden="true" />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => remove(index)}
+                                                        aria-label={t("Remove") + " " + name}
+                                                        className="shrink-0 text-text-3 hover:text-danger"
+                                                    >
+                                                        <FiTrash2 />
+                                                    </button>
+                                                </div>
+                                                {daysOpen === key ? (
+                                                    <ItemDaysField
+                                                        className="mt-2.5 border-t border-border pt-2.5"
+                                                        days={item.days}
+                                                        scheduleDays={scheduleDays}
+                                                        onChange={(days) => setDays(index, days)}
+                                                    />
+                                                ) : (
+                                                    itemDaysMissSchedule(item.days, scheduleDays) && (
+                                                        <p className="mt-1 text-[11px] text-danger">{t("ItemDaysMissSchedule")}</p>
+                                                    )
                                                 )}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => remove(index)}
-                                                    aria-label={t("Remove") + " " + name}
-                                                    className="shrink-0 text-text-3 hover:text-danger"
-                                                >
-                                                    <FiTrash2 />
-                                                </button>
                                             </div>
                                         )}
                                     </Draggable>

@@ -165,6 +165,7 @@ const EditDailyRoutine = () => {
                 <SectionsEditor
                     sections={routineSection}
                     setRoutineSection={setRoutineSection}
+                    scheduleDays={routineToEdit?.schedule?.days}
                     onEditSection={handleEditSection}
                     onDeleteSection={handleDeleteSection}
                     onAddSection={() => {

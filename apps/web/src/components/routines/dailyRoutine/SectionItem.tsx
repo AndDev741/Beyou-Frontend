@@ -2,7 +2,7 @@ import BeyouIcon from "../../../ui/BeyouIcon";
 import { resolveIcon } from "@beyou/icons";
 import { RoutineSection } from "@beyou/types/routine/routineSection";
 import type { DraggableProvidedDragHandleProps } from "react-beautiful-dnd";
-import { FiEdit2, FiTrash2, FiX, FiClock, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiX, FiClock, FiChevronDown, FiChevronUp, FiCalendar } from "react-icons/fi";
 import { GripVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -11,7 +11,9 @@ import GhostAdd from "../../../ui/GhostAdd";
 import { useSelector } from "react-redux";
 import { RootState } from "@beyou/state/rootReducer";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import { formatTime, formatTimeRange } from "@beyou/state";
+import { formatTime, formatTimeRange, itemDaysMissSchedule } from "@beyou/state";
+import type { WeekDay } from "@beyou/types/schedule/weekDay";
+import ItemDaysField, { ItemDaysChip } from "../ItemDaysField";
 import { getItemTimeErrorKeys, isOvernightRange, ITEM_TIME_TOLERANCE_MINUTES } from "@beyou/validation/routineValidation";
 
 interface SectionItemProps {
@@ -26,6 +28,8 @@ interface SectionItemProps {
     onMove: (dir: -1 | 1) => void;
     /** react-beautiful-dnd drag handle, applied to the grip. */
     dragHandleProps?: DraggableProvidedDragHandleProps;
+    /** The routine's schedule, for the "never runs on these days" warning. None while creating. */
+    scheduleDays?: readonly string[];
 }
 
 /** Section header time chip (mono, inset). */
@@ -35,7 +39,7 @@ const TimeChip = ({ children }: { children: React.ReactNode }) => (
     </span>
 );
 
-const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, count, onMove, dragHandleProps }: SectionItemProps) => {
+const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, count, onMove, dragHandleProps, scheduleDays }: SectionItemProps) => {
     const { t } = useTranslation();
     const hasIcon = resolveIcon(section.iconId).kind !== "fallback";
     const [openTaskSelector, setOpenTaskSelector] = useState(false);
@@ -71,6 +75,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
             id: item.taskId,
             startTime: item?.startTime,
             endTime: item?.endTime,
+            days: item?.days,
             originalIndex: idx,
         }));
 
@@ -79,6 +84,7 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
             id: item.habitId,
             startTime: item?.startTime,
             endTime: item?.endTime,
+            days: item?.days,
             originalIndex: idx,
         }));
 
@@ -94,26 +100,31 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
         index: number;
         startTime: string;
         endTime?: string;
+        /** Undefined while the item has never had days: saving then leaves the field off, so the server keeps what it stored. */
+        days?: WeekDay[];
     } | null>(null);
 
-    // Starts editing an item
+    // Starts editing an item: its times and its days, in one place.
     const handleStartEditItem = (
         itemType: 'task' | 'habit',
         itemIndex: number,
         currentStartTime: string,
-        currentEndTime?: string
+        currentEndTime?: string,
+        currentDays?: WeekDay[]
     ) => {
         setEditingItem({
             type: itemType,
             index: itemIndex,
             startTime: currentStartTime,
-            endTime: currentEndTime
+            endTime: currentEndTime,
+            days: currentDays
         });
     };
 
     // Saves the edit of an item
     const handleSaveEditItem = (newStartTime: string, newEndTime?: string) => {
         if (!setRoutineSection || !editingItem) return;
+        const days = editingItem.days;
 
         setRoutineSection(prev =>
             prev.map((sectionItem, sectionIdx) => {
@@ -121,12 +132,12 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
 
                 if (editingItem.type === 'task') {
                     const newTaskGroup = sectionItem.taskGroup?.map((task, i) =>
-                        i === editingItem.index ? { ...task, startTime: newStartTime, endTime: newEndTime } : task
+                        i === editingItem.index ? { ...task, startTime: newStartTime, endTime: newEndTime, ...(days ? { days } : {}) } : task
                     ) || [];
                     return { ...sectionItem, taskGroup: newTaskGroup };
                 } else {
                     const newHabitGroup = sectionItem.habitGroup?.map((habit, i) =>
-                        i === editingItem.index ? { ...habit, startTime: newStartTime, endTime: newEndTime } : habit
+                        i === editingItem.index ? { ...habit, startTime: newStartTime, endTime: newEndTime, ...(days ? { days } : {}) } : habit
                     ) || [];
                     return { ...sectionItem, habitGroup: newHabitGroup };
                 }
@@ -236,6 +247,14 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
                                 )}
                                 className={`rounded-lg border bg-surface px-2 py-1 font-mono text-[11.5px] text-text ${disableSave ? "border-danger" : "border-border"}`}
                             />
+                            {/* Full width, so Save and Cancel drop below it: the days
+                                are part of what Save keeps. */}
+                            <ItemDaysField
+                                className="w-full"
+                                days={editingItem.days}
+                                scheduleDays={scheduleDays}
+                                onChange={(days) => setEditingItem((prev) => (prev ? { ...prev, days } : null))}
+                            />
                             <button
                                 type="button"
                                 onClick={() => handleSaveEditItem(editingItem.startTime, editingItem.endTime)}
@@ -258,12 +277,18 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
                     ) : (
                         <>
                             <div className="min-w-0 flex-1">
-                                <span className="block truncate text-[12.5px] font-medium text-text">
-                                    {itemObj.name}
+                                <span className="flex min-w-0 items-center gap-1.5">
+                                    <span className="min-w-0 truncate text-[12.5px] font-medium text-text">
+                                        {itemObj.name}
+                                    </span>
+                                    <ItemDaysChip days={item.days} />
                                 </span>
+                                {itemDaysMissSchedule(item.days, scheduleDays) && (
+                                    <span className="mt-0.5 block text-[11px] text-danger">{t("ItemDaysMissSchedule")}</span>
+                                )}
                                 <button
                                     type="button"
-                                    onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime)}
+                                    onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime, item.days)}
                                     className="mt-0.5 font-mono text-[11px] font-medium text-text-3 transition-colors duration-200 hover:text-text-2 md:hidden"
                                     title={t("Edit")}
                                 >
@@ -272,11 +297,22 @@ const SectionItem = ({ section, onEdit, onDelete, setRoutineSection, index, coun
                             </div>
                             <button
                                 type="button"
-                                onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime)}
+                                onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime, item.days)}
                                 className="hidden shrink-0 rounded-full bg-surface-2 px-2 py-0.5 font-mono text-[11px] font-medium text-text-3 transition-colors duration-200 hover:text-text-2 md:block"
                                 title={t("Edit")}
                             >
                                 {formatTimeRange(item.startTime, item.endTime)}
+                            </button>
+                            {/* The days open the same editor as the time: one place to
+                                tune an item, with Save and Cancel. */}
+                            <button
+                                type="button"
+                                onClick={() => handleStartEditItem(item.type, originalIndex, item.startTime, item.endTime, item.days)}
+                                aria-label={t("ItemDaysFor", { name: itemObj.name })}
+                                title={t("ItemDaysFor", { name: itemObj.name })}
+                                className="shrink-0 rounded-lg p-1 text-text-3 transition-colors duration-200 hover:bg-surface-2 hover:text-text-2"
+                            >
+                                <FiCalendar aria-hidden="true" />
                             </button>
                             <button
                                 type="button"
