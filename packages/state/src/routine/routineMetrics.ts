@@ -6,6 +6,7 @@
  */
 import type { Routine, RoutineListItem } from '@beyou/types/routine/routine';
 import type { RoutineSection, check } from '@beyou/types/routine/routineSection';
+import { isItemActiveOn } from './itemDays';
 
 export type RoutineStats = { totalItems: number; completedItems: number; xpEarned: number };
 
@@ -36,23 +37,30 @@ export const getTimeOfDay = (startTime?: string): 'morning' | 'afternoon' | 'eve
 const completedChecks = (checks: check[] | undefined, date: string): check[] =>
   (checks ?? []).filter((c) => (date ? c?.checkDate === date && Boolean(c?.checked) : Boolean(c?.checked)));
 
-export function getSectionStats(section: RoutineSection, date: string): SectionStats {
+/**
+ * `activeOn` (a `yyyy-MM-dd`) leaves out the items whose own days skip that date. Only the
+ * screens that hold the WHOLE routine pass it, the routines page above all. The dashboard reads
+ * `GET /routine/today`, which the server has already filtered, and leaves it out.
+ */
+export function getSectionStats(section: RoutineSection, date: string, activeOn?: string): SectionStats {
   let totalItems = 0, completedItems = 0, xpEarned = 0;
-  const tally = (checks: check[] | undefined) => {
+  const tally = (checks: check[] | undefined, days: readonly string[] | undefined) => {
+    if (activeOn && !isItemActiveOn(days, activeOn)) return;
     totalItems += 1;
     const done = completedChecks(checks, date);
     if (done.length > 0) completedItems += 1;
     done.forEach((c) => { if (typeof c?.xpGenerated === 'number') xpEarned += c.xpGenerated; });
   };
-  section.taskGroup?.forEach((g) => tally(g.taskGroupChecks));
-  section.habitGroup?.forEach((g) => tally(g.habitGroupChecks));
+  section.taskGroup?.forEach((g) => tally(g.taskGroupChecks, g.days));
+  section.habitGroup?.forEach((g) => tally(g.habitGroupChecks, g.days));
   return { totalItems, completedItems, xpEarned };
 }
 
-export function getRoutineStats(routine: Routine, date: string): RoutineStats {
+/** `activeOn` as in `getSectionStats`. */
+export function getRoutineStats(routine: Routine, date: string, activeOn?: string): RoutineStats {
   return (routine.routineSections ?? []).reduce<RoutineStats>(
     (acc, s) => {
-      const st = getSectionStats(s, date);
+      const st = getSectionStats(s, date, activeOn);
       return { totalItems: acc.totalItems + st.totalItems, completedItems: acc.completedItems + st.completedItems, xpEarned: acc.xpEarned + st.xpEarned };
     },
     { totalItems: 0, completedItems: 0, xpEarned: 0 },
@@ -98,6 +106,7 @@ export function getListItems(routine: Routine): RoutineListItem[] {
     habitId: g.habitId,
     orderIndex: i,
     checks: g.habitGroupChecks,
+    days: g.days,
   }));
   const tasks: RoutineListItem[] = (section.taskGroup ?? []).map((g, i) => ({
     id: g.id ?? '',
@@ -105,14 +114,16 @@ export function getListItems(routine: Routine): RoutineListItem[] {
     taskId: g.taskId,
     orderIndex: habits.length + i,
     checks: g.taskGroupChecks,
+    days: g.days,
   }));
   return [...habits, ...tasks];
 }
 
-/** How many of a list's items are done on a given date. */
-export function getListStats(routine: Routine, date: string): RoutineStats {
+/** How many of a list's items are done on a given date. `activeOn` as in `getSectionStats`. */
+export function getListStats(routine: Routine, date: string, activeOn?: string): RoutineStats {
   return getListItems(routine).reduce<RoutineStats>(
     (acc, item) => {
+      if (activeOn && !isItemActiveOn(item.days, activeOn)) return acc;
       const done = (item.checks ?? []).filter((c) => c?.checkDate === date && Boolean(c?.checked));
       return {
         totalItems: acc.totalItems + 1,

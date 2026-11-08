@@ -5847,6 +5847,23 @@
             "items": {
               "$ref": "#/components/schemas/HabitGroupCheck"
             }
+          },
+          "days": {
+            "type": "array",
+            "description": "The weekdays this item runs on, inside the days the routine runs. Null or absent keeps what the item already has; an empty array clears it, so the item follows the routine again. All seven days are stored as empty.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
           }
         }
       },
@@ -5938,6 +5955,23 @@
             "items": {
               "$ref": "#/components/schemas/TaskGroupCheck"
             }
+          },
+          "days": {
+            "type": "array",
+            "description": "The weekdays this item runs on, inside the days the routine runs. Null or absent keeps what the item already has; an empty array clears it, so the item follows the routine again. All seven days are stored as empty.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
           }
         }
       },
@@ -6016,6 +6050,23 @@
             "items": {
               "$ref": "#/components/schemas/HabitGroupCheck"
             }
+          },
+          "days": {
+            "type": "array",
+            "description": "The weekdays this item runs on, inside the days the routine runs. Empty means it follows the routine.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
           }
         }
       },
@@ -6102,6 +6153,23 @@
             "items": {
               "$ref": "#/components/schemas/TaskGroupCheck"
             }
+          },
+          "days": {
+            "type": "array",
+            "description": "The weekdays this item runs on, inside the days the routine runs. Empty means it follows the routine.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
           }
         }
       },
@@ -8088,6 +8156,23 @@
           "taskId": {
             "type": "string",
             "format": "uuid"
+          },
+          "days": {
+            "type": "array",
+            "description": "The weekdays this item runs on, inside the days the routine runs. Null or absent keeps what the item already has; an empty array clears it, so the item follows the routine again. All seven days are stored as empty.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
           }
         }
       },
@@ -8122,6 +8207,23 @@
             "items": {
               "$ref": "#/components/schemas/BaseCheck"
             }
+          },
+          "days": {
+            "type": "array",
+            "description": "The weekdays this item runs on, inside the days the routine runs. Empty means it follows the routine.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+              ]
+            },
+            "uniqueItems": true
           }
         }
       },

@@ -1,4 +1,5 @@
 import { schedule } from "../schedule/schedule";
+import type { WeekDay } from "../schedule/weekDay";
 import { RoutineSection, check } from "./routineSection";
 
 /**
@@ -27,6 +28,8 @@ export type RoutineListItem = {
     taskId?: string | null;
     orderIndex: number;
     checks?: check[];
+    /** Same rule as a section item's `days`: empty or absent follows the routine. */
+    days?: WeekDay[];
 };
 
 export type Routine = {
