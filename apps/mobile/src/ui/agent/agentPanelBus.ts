@@ -24,3 +24,35 @@ export const onAgentPanelOpen = (handler: OpenHandler): (() => void) => {
     handlers.delete(handler);
   };
 };
+
+/**
+ * A screen can hand the assistant a message to start from: Second Brain does it after an
+ * answer, so the assistant can act on what the person just said. The text lands in the input
+ * and waits there. Nothing is sent until the person sends it.
+ *
+ * Same three calls as the web bus. The draft is parked in the module so whoever holds the
+ * conversation can also collect one that was handed over before it subscribed.
+ */
+const draftHandlers = new Set<OpenHandler>();
+let pendingDraft: string | null = null;
+
+/** Draft first, then open: the chat must know about the draft before it loads its history. */
+export const openAgentPanelWithDraft = (text: string): void => {
+  pendingDraft = text;
+  [...draftHandlers].forEach((handler) => handler());
+  openAgentPanel();
+};
+
+/** Hands the parked draft over once. A second call gets nothing. */
+export const takeAgentDraft = (): string | null => {
+  const draft = pendingDraft;
+  pendingDraft = null;
+  return draft;
+};
+
+export const onAgentDraft = (handler: OpenHandler): (() => void) => {
+  draftHandlers.add(handler);
+  return () => {
+    draftHandlers.delete(handler);
+  };
+};

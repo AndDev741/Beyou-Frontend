@@ -503,10 +503,38 @@ describe('goalPaceMessage', () => {
     const fmt = (value: number) => `#${value}`;
 
     it('asks a behind goal for its daily amount', () => {
-        expect(goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay: 0.8 }, fmt)).toEqual({
+        expect(goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay: 2.5 }, fmt)).toEqual({
             key: 'BriefingGoalPaceBehind',
-            params: { perDay: '#0.8', unit: 'times' },
+            params: { perDay: '#2.5', unit: 'times' },
             tone: 'flame',
+        });
+    });
+
+    /**
+     * Twelve books in a year is 0.03 a day, which one decimal turns into "0 books a day still
+     * gets you there". Under one a day the amount moves to the week, then to the month.
+     */
+    it('words a slow goal in the period where the amount is at least one', () => {
+        const behind = (requiredPerDay: number) =>
+            goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay }, (value) => value.toFixed(1));
+
+        expect(behind(1)).toEqual({ key: 'BriefingGoalPaceBehind', params: { perDay: '1.0', unit: 'times' }, tone: 'flame' });
+        expect(behind(0.8)).toEqual({ key: 'BriefingGoalPaceBehindWeek', params: { amount: '5.6', unit: 'times' }, tone: 'flame' });
+        expect(behind(0.04)).toEqual({ key: 'BriefingGoalPaceBehindMonth', params: { amount: '1.2', unit: 'times' }, tone: 'flame' });
+    });
+
+    it('drops the amount when even a month asks for less than one', () => {
+        expect(goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay: 0.003 }, fmt))
+            .toEqual({ key: 'BriefingGoalPaceBehindPlain', tone: 'flame' });
+        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', requiredPerDay: 0.003 }, fmt))
+            .toEqual({ key: 'BriefingGoalPaceOnTrackPlain', tone: 'muted' });
+    });
+
+    it('words a slow goal that is on pace the same way', () => {
+        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', requiredPerDay: 0.5 }, fmt)).toEqual({
+            key: 'BriefingGoalPaceOnTrackWeek',
+            params: { amount: '#3.5', unit: 'times' },
+            tone: 'muted',
         });
     });
 

@@ -16,6 +16,7 @@ import {
     Settings,
     MessageSquare,
     StickyNote,
+    Brain,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { openAgentPanel } from "../agent/agentPanelBus";
@@ -36,6 +37,8 @@ const RIGHT: NavItem[] = [
 // What left the bar is still one tap away, inside the sheet — with the same label
 // as before, which is how the e2e suite finds these destinations.
 const SHEET: NavItem[] = [
+    // First in the sheet, as it is second in the desktop sidebar: the page about the whole.
+    { key: "SecondBrain", to: "/second-brain", Icon: Brain },
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },
     { key: "Goals", to: "/goals", Icon: Trophy, tutorial: "shortcut-goals" },
     // Same place as in the desktop sidebar, right after goals.

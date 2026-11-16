@@ -365,7 +365,9 @@ test('shows the goals ahead with their pace', async () => {
 
   expect(screen.getByText("Where you're heading")).toBeTruthy();
   expect(screen.getByText('Read 12 books')).toBeTruthy();
-  expect(screen.getByText('Behind pace. 0.5 books a day still gets you there.')).toBeTruthy();
+  // Half a book a day is worded per week: under one a day the shared rule moves the amount
+  // to the period where it reads as a number a person can act on.
+  expect(screen.getByText('Behind pace. 3.5 books a week still gets you there.')).toBeTruthy();
   expect(screen.getByTestId('briefing-goal-expected')).toBeTruthy();
 });
 

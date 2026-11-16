@@ -12,8 +12,8 @@ __NAV__
       <ul>
         <li>O Beyou é grátis. Não carrega anúncio nem rastreador, e nada sobre você é vendido.</li>
         <li>Sua conta precisa de um nome, um e-mail e uma senha. Nada além disso é obrigatório.</li>
-        <li>Todo o resto guardado sobre você é o que você mesmo colocou no app: hábitos, tarefas, rotinas, metas, categorias, o histórico do que você marcou, seu diário, seu caderno de estudos e suas sessões de foco.</li>
-        <li>Alguns recursos enviam texto a um provedor de IA externo: o assistente, a configuração guiada, as ferramentas de estudo do caderno e o texto curto do resumo do dia. A seção 3 lista o que cada um envia. O que você escreve no diário nunca é enviado.</li>
+        <li>Todo o resto guardado sobre você é o que você mesmo colocou no app: hábitos, tarefas, rotinas, metas, categorias, o histórico do que você marcou, seu diário, seu caderno de estudos, suas sessões de foco e o que você conta à página Segundo Cérebro.</li>
+        <li>Alguns recursos enviam texto a um provedor de IA externo: o assistente, a configuração guiada, as ferramentas de estudo do caderno, o texto curto do resumo do dia e a página Segundo Cérebro. A seção 3 lista o que cada um envia. O que você escreve no diário nunca é enviado.</li>
         <li>Você apaga sua conta de dentro do app, e ela é excluída na hora. Não existe prazo de espera nem como desfazer.</li>
       </ul>
     </div>
@@ -148,9 +148,10 @@ __NAV__
 
     <h2 id="ai">3. Os recursos de IA</h2>
     <p>
-      O Beyou não roda um modelo de IA próprio. Quatro recursos pedem texto a um
+      O Beyou não roda um modelo de IA próprio. Cinco recursos pedem texto a um
       provedor de IA externo: o assistente, a configuração guiada, as ferramentas
-      de estudo do caderno e o resumo do dia. Cada pedido passa pelo servidor do
+      de estudo do caderno, o resumo do dia e a página Segundo Cérebro. Cada
+      pedido passa pelo servidor do
       Beyou, que envia ao provedor o que aquele recurso precisa e nada além. Eles
       estão descritos um por um abaixo, porque não enviam as mesmas coisas.
     </p>
@@ -168,6 +169,7 @@ __NAV__
       <li>A mensagem que você escreveu, exatamente como você escreveu.</li>
       <li>As mensagens anteriores daquela conversa, para o assistente acompanhar o fio.</li>
       <li>As anotações que o assistente fez sobre você, descritas abaixo.</li>
+      <li>As linhas do seu perfil no Segundo Cérebro, se você escreveu alguma. Elas estão descritas em Segundo Cérebro, mais abaixo.</li>
       <li>Seu nome de exibição, seu idioma, seu fuso horário e suas configurações do app.</li>
       <li>A tela do app em que você estava e a data de hoje.</li>
       <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
@@ -239,12 +241,57 @@ __NAV__
       <li>Seu idioma e a data.</li>
     </ul>
     <p>
-      Ele não envia nome de exibição nem e-mail. Diferente dos outros três, este
+      Ele não envia nome de exibição nem e-mail. Diferente dos outros quatro, este
       não é algo que você abre: ele roda para toda conta na primeira visita do
       dia, e ainda não existe uma chave para desligá-lo no app. Se você preferir
       que ele não rode na sua conta, escreva para
       <a href="mailto:__CONTACT__">__CONTACT__</a>. Os parágrafos ficam guardados
       por 30 dias e depois são apagados.
+    </p>
+
+    <h3>Segundo Cérebro</h3>
+    <p>
+      O Segundo Cérebro é uma página que diz se você está no rumo ou à deriva em
+      relação ao que disse querer, e faz perguntas para te entender melhor. Ele
+      guarda quatro coisas: um perfil curto que você escreve ou responde, de no
+      máximo 20 linhas; as perguntas que ele fez, com as suas respostas; a última
+      visão geral que escreveu; e a sua escolha do que ele pode ler.
+    </p>
+    <p>
+      A visão geral e parte das perguntas são escritas pelos mesmos provedores.
+      Nada vai para eles até você pedir a sua primeira visão geral, com um botão
+      nessa página. A partir daí ela é reescrita na sua primeira visita de cada
+      dia, e de novo sempre que você pedir. Para escrevê-la, o Beyou envia o que
+      há nas fontes que você deixou ligadas, e nada de uma fonte desligada:
+    </p>
+    <ul>
+      <li>Rotinas e check-ins: quanto do que as suas rotinas pediram você marcou nesta semana e na anterior, os nomes dos itens que escaparam ou se mantiveram firmes, e a parte feita em cada uma das suas categorias.</li>
+      <li>Metas: o nome, o progresso, o ritmo e o prazo de cada meta em andamento.</li>
+      <li>Humor: as médias desta semana e da anterior, como números de 1 a 5.</li>
+      <li>Calendário: os títulos e as datas das suas tarefas abertas nas próximas três semanas, e das atrasadas.</li>
+      <li>Caderno: os títulos dos seus tópicos de estudo e quanto você avançou em cada um. As páginas em si não são lidas.</li>
+      <li>Quadro de ideias: o texto das suas notas mais recentes.</li>
+    </ul>
+    <p>
+      Rotinas, metas e humor começam ligados. Calendário, caderno e quadro de
+      ideias começam desligados, e você muda qualquer um deles na página. As
+      chaves valem só para essa página. Seja qual for a posição delas, o Beyou
+      também envia as linhas do seu perfil, as suas respostas recentes, o seu
+      idioma e a data. Ele não envia nome de exibição nem e-mail, e o diário não
+      tem chave: o que você escreve nele nunca é lido.
+    </p>
+    <p>
+      Depois que você tem uma visão geral, responder a uma pergunta envia a
+      pergunta, a sua resposta e as linhas do seu perfil ao provedor, para que
+      ele separe o que vale guardar como linha do perfil. Antes disso, a sua
+      resposta é guardada como você escreveu. Uma resposta sobre o seu dia pode
+      ser passada ao assistente, que então a trata como qualquer outra mensagem
+      sua.
+    </p>
+    <p>
+      Nada disso acontece se você não abrir a página. Você pode editar ou apagar
+      qualquer linha do perfil ali, e toda conversa com o assistente lê as linhas
+      que ficarem.
     </p>
 
     <h2 id="why">4. Por que é guardado, e com qual base legal</h2>
@@ -258,6 +305,7 @@ __NAV__
           <tr><td>Enviar e-mails da conta: confirmação, redefinição de senha, código de exclusão</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Responder você pelo assistente de IA, um recurso opcional que você escolhe abrir</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Responder você nas ferramentas de estudo do caderno, e escrever o texto do resumo do dia</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
+          <tr><td>Escrever a visão geral e as perguntas do Segundo Cérebro, numa página que você escolhe abrir e iniciar</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Manter a conta segura: hash de senha, controle de sessão, limite de requisições, prevenção de abuso</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
           <tr><td>Encontrar e corrigir falhas por meio de relatórios de erro</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
           <tr><td>Tratar o feedback que você escolheu enviar</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
@@ -282,7 +330,7 @@ __NAV__
           <tr><th>Quem</th><th>O que chega até eles</th><th>Por quê</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI e Google Gemini</td><td>Suas mensagens ao assistente e o que ele lê para responder, mais seu nome de exibição; aquilo com que as ferramentas de estudo do caderno trabalham, ou seja, suas notas e trechos das suas fontes; e os fatos por trás do resumo do dia, que são nomes de itens e metas, taxas de conclusão, sequências e níveis de humor como números. A Mistral AI também recebe o texto das fontes que você adiciona ao caderno e suas perguntas na sala de estudo, para indexá-los para busca</td><td>Quando você usa o assistente, a configuração guiada ou as ferramentas de estudo do caderno, e uma vez por dia para o resumo do dia. Veja a seção 3</td></tr>
+          <tr><td>Mistral AI e Google Gemini</td><td>Suas mensagens ao assistente e o que ele lê para responder, mais seu nome de exibição; aquilo com que as ferramentas de estudo do caderno trabalham, ou seja, suas notas e trechos das suas fontes; e os fatos por trás do resumo do dia, que são nomes de itens e metas, taxas de conclusão, sequências e níveis de humor como números; e aquilo com que a página Segundo Cérebro trabalha, ou seja, o que há nas fontes que você deixou ligadas, as linhas do seu perfil e as suas respostas. A Mistral AI também recebe o texto das fontes que você adiciona ao caderno e suas perguntas na sala de estudo, para indexá-los para busca</td><td>Quando você usa o assistente, a configuração guiada, as ferramentas de estudo do caderno ou a página Segundo Cérebro, e uma vez por dia para o resumo do dia. Veja a seção 3</td></tr>
           <tr><td>Tavily</td><td>Os títulos de um tópico e de uma página do caderno e a descrição que você digitou</td><td>Somente quando você pede ao caderno para encontrar fontes. Veja a seção 3</td></tr>
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
           <tr><td>Qualquer provedor de login adicional ativado no Beyou</td><td>O fato de você ter entrado, se usar esse provedor. Ele também vê seu endereço IP enquanto você está na página de login dele</td><td>Login, apenas para contas que o conectaram</td></tr>
@@ -392,6 +440,7 @@ __NAV__
       <li>Seu histórico de checks: por todo o tempo em que a conta existir, de propósito. Uma sequência e um gráfico do último ano são o ponto do app, e os dois precisam do histórico atrás deles.</li>
       <li>Conversas com o assistente e as anotações que ele escreveu sobre você: até você apagar, ou apagar a conta. Elas não expiram por conta própria.</li>
       <li>Seu diário, seu caderno de estudos e suas sessões de foco: até você apagar, ou apagar a conta.</li>
+      <li>Seu perfil do Segundo Cérebro: até você apagar as linhas, ou apagar a conta. As perguntas que ele fez, as suas respostas e a última visão geral: até você apagar a conta. Cada nova visão geral substitui a anterior.</li>
       <li>Os textos do resumo do dia: 30 dias, depois uma rotina noturna apaga.</li>
       <li>Feedback que você enviou: até você apagar a conta.</li>
       <li>Relatórios de erro: ficam no coletor pelo tempo em que forem úteis para depuração, e não identificam você.</li>

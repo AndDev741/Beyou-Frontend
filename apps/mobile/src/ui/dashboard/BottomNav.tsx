@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { useRouter, usePathname } from 'expo-router';
 import {
   BookHeart,
+  Brain,
   CalendarCheck,
   CalendarDays,
   Ellipsis,
@@ -46,6 +47,8 @@ const RIGHT: NavItemConfig[] = [
 // destinations. There is no Profile route on mobile: the profile lives in
 // Configuration.
 const SHEET: NavItemConfig[] = [
+  // First in the sheet, as on the web: the page about the whole.
+  { key: 'SecondBrain', route: '/second-brain', Icon: Brain },
   { key: 'Tasks', route: '/tasks', Icon: ListChecks, targetId: 'nav-tasks' },
   { key: 'Goals', route: '/goals', Icon: Trophy, targetId: 'nav-goals' },
   { key: 'Calendar', route: '/calendar', Icon: CalendarCheck },

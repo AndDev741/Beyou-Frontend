@@ -11,6 +11,7 @@ export * from './calendar/calendar';
 
 // Ideas board (quick notes) types
 export * from './quickNote/quickNote';
+export * from './secondBrain/secondBrain';
 
 // Daily Briefing types
 export * from './briefing/briefing';

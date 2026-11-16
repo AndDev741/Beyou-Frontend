@@ -2228,6 +2228,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/second-brain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/sources/{source}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setSource"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/facts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createFact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/facts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["editFact"];
+        post?: never;
+        delete: operations["deleteFact"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/questions/refill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["refill"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/questions/{id}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["answer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/questions/{id}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["skip"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/insight/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["refreshInsight"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4243,6 +4371,98 @@ export interface components {
             note?: components["schemas"]["QuickNoteResponseDTO"];
             /** Format: uuid */
             taskId?: string;
+        };
+        SecondBrainOverviewDTO: {
+            insight?: components["schemas"]["SecondBrainInsightDTO"];
+            goalsAhead?: components["schemas"]["BriefingGoalAheadDTO"][];
+            routine?: components["schemas"]["SecondBrainRoutineDTO"];
+            areas?: components["schemas"]["SecondBrainAreaDTO"][];
+            questions?: components["schemas"]["SecondBrainQuestionDTO"][];
+            facts?: components["schemas"]["SecondBrainFactDTO"][];
+            sources?: components["schemas"]["SecondBrainSourceDTO"][];
+            aiAvailable?: boolean;
+        };
+        SecondBrainInsightDTO: {
+            text?: string;
+            /** @enum {string} */
+            verdict?: "ON_COURSE" | "DRIFTING" | "TOO_EARLY";
+            /** Format: date-time */
+            generatedAt?: string;
+            stale?: boolean;
+        };
+        SecondBrainQuestionDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            kind?: "PROFILE_OBJECTIVES" | "PROFILE_LIKES" | "PROFILE_ABOUT" | "CHECK_IN" | "FOLLOW_UP";
+            text?: string;
+            /** @enum {string} */
+            status?: "OPEN" | "ANSWERED" | "SKIPPED";
+            answer?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            answeredAt?: string;
+        };
+        SecondBrainFactDTO: {
+            /** Format: uuid */
+            id?: string;
+            /** @enum {string} */
+            kind?: "OBJECTIVE" | "LIKE" | "ABOUT";
+            text?: string;
+            /** @enum {string} */
+            origin?: "USER" | "ANSWER";
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        SecondBrainFactRequestDTO: {
+            /** @enum {string} */
+            kind: "OBJECTIVE" | "LIKE" | "ABOUT";
+            text: string;
+        };
+        SecondBrainSourceDTO: {
+            /** @enum {string} */
+            source?: "ROUTINES" | "GOALS" | "MOOD" | "CALENDAR" | "NOTEBOOK" | "IDEAS";
+            enabled?: boolean;
+        };
+        SecondBrainSourceToggleRequestDTO: {
+            enabled: boolean;
+        };
+        SecondBrainRoutineDTO: {
+            /** Format: int32 */
+            thisWeekPercent?: number;
+            /** Format: int32 */
+            previousWeekPercent?: number;
+            slipping?: components["schemas"]["SecondBrainRoutineItemDTO"][];
+            steady?: components["schemas"]["SecondBrainRoutineItemDTO"][];
+        };
+        SecondBrainRoutineItemDTO: {
+            name?: string;
+            /** Format: int32 */
+            asked?: number;
+            /** Format: int32 */
+            checked?: number;
+        };
+        SecondBrainAreaDTO: {
+            /** Format: uuid */
+            categoryId?: string;
+            name?: string;
+            iconId?: string;
+            /** Format: int32 */
+            asked?: number;
+            /** Format: int32 */
+            checked?: number;
+            /** Format: int32 */
+            percent?: number;
+        };
+        SecondBrainAnswerRequestDTO: {
+            answer: string;
+        };
+        SecondBrainAnswerResultDTO: {
+            question?: components["schemas"]["SecondBrainQuestionDTO"];
+            learned?: components["schemas"]["SecondBrainFactDTO"][];
         };
     };
     responses: never;
@@ -8283,6 +8503,210 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["QuickNoteTaskConversionDTO"];
+                };
+            };
+        };
+    };
+    overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainOverviewDTO"];
+                };
+            };
+        };
+    };
+    setSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainSourceToggleRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainSourceDTO"][];
+                };
+            };
+        };
+    };
+    createFact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainFactRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainFactDTO"];
+                };
+            };
+        };
+    };
+    editFact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainFactRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainFactDTO"];
+                };
+            };
+        };
+    };
+    deleteFact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    refill: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainQuestionDTO"][];
+                };
+            };
+        };
+    };
+    answer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainAnswerRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainAnswerResultDTO"];
+                };
+            };
+        };
+    };
+    skip: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainQuestionDTO"];
+                };
+            };
+        };
+    };
+    refreshInsight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainInsightDTO"];
                 };
             };
         };

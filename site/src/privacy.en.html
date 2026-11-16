@@ -12,8 +12,8 @@ __NAV__
       <ul>
         <li>Beyou is free. It carries no ads and no trackers, and nothing about you is sold.</li>
         <li>Your account needs a name, an email address and a password. Nothing else is required.</li>
-        <li>Everything else stored about you is what you put into the app: habits, tasks, routines, goals, categories, the history of what you checked off, your diary, your study notebook and your focus sessions.</li>
-        <li>A few features send text to an external AI provider: the assistant, the guided setup, the notebook's study tools and the short summary in the daily briefing. Section 3 lists what each one sends. What you write in your diary is never sent.</li>
+        <li>Everything else stored about you is what you put into the app: habits, tasks, routines, goals, categories, the history of what you checked off, your diary, your study notebook, your focus sessions and what you tell the Second Brain page.</li>
+        <li>A few features send text to an external AI provider: the assistant, the guided setup, the notebook's study tools, the short summary in the daily briefing and the Second Brain page. Section 3 lists what each one sends. What you write in your diary is never sent.</li>
         <li>You can delete your account from inside the app, and it is erased immediately. There is no waiting period and no way to undo it.</li>
       </ul>
     </div>
@@ -145,9 +145,10 @@ __NAV__
 
     <h2 id="ai">3. The AI features</h2>
     <p>
-      Beyou does not run its own AI model. Four features ask an external AI
+      Beyou does not run its own AI model. Five features ask an external AI
       provider for words: the assistant, the guided setup, the notebook's study
-      tools and the daily briefing. Each request goes through Beyou's server,
+      tools, the daily briefing and the Second Brain page. Each request goes
+      through Beyou's server,
       which sends the provider what that feature needs and nothing else. They are
       described one by one below, because they do not send the same things.
     </p>
@@ -165,6 +166,7 @@ __NAV__
       <li>The message you wrote, exactly as you wrote it.</li>
       <li>The earlier messages in that conversation, so the assistant follows the thread.</li>
       <li>Notes the assistant has written about you, described below.</li>
+      <li>The lines of your Second Brain profile, if you have written any. They are described under Second Brain, further down.</li>
       <li>Your display name, your language, your time zone and your app settings.</li>
       <li>The screen of the app you were on, and today's date.</li>
       <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, your focus sessions and their steps, and your study notebook, so the names, descriptions and notes in them reach the provider as part of answering. It can read your mood as a number and whether you wrote a note that day, never the note itself.</li>
@@ -234,12 +236,56 @@ __NAV__
       <li>Your language and the date.</li>
     </ul>
     <p>
-      It sends no display name and no email address. Unlike the other three, this
+      It sends no display name and no email address. Unlike the other four, this
       one is not something you open: it runs for every account on the first visit
       of the day, and there is no switch for it in the app yet. If you would rather
       it did not run for your account, write to
       <a href="mailto:__CONTACT__">__CONTACT__</a>. The paragraphs are kept for 30
       days and then deleted.
+    </p>
+
+    <h3>Second Brain</h3>
+    <p>
+      Second Brain is a page that says whether you are on course or drifting
+      from what you said you want, and asks you questions to understand you
+      better. It keeps four things: a short profile you write or answer into, of
+      at most 20 lines; the questions it asked, with your answers; the last
+      overview it wrote; and your choice of what it may read.
+    </p>
+    <p>
+      The overview and some of the questions are written by the same providers.
+      Nothing goes to them until you ask for your first overview, with a button
+      on that page. From then on the overview is rewritten on your first visit
+      of a day, and again whenever you ask. To write it, Beyou sends what the
+      sources you left switched on hold, and nothing from a source that is off:
+    </p>
+    <ul>
+      <li>Routines and check-ins: how much of what your routines asked you checked this week and the week before, the names of the items that slipped or held steady, and the share done in each of your categories.</li>
+      <li>Goals: the name, progress, pace and deadline of each goal you have running.</li>
+      <li>Mood: this week's and last week's averages, as numbers from 1 to 5.</li>
+      <li>Calendar: the titles and dates of your open tasks for the next three weeks, and of the overdue ones.</li>
+      <li>Notebook: the titles of your study topics and how far along each one is. The pages themselves are not read.</li>
+      <li>Ideas board: the text of your most recent notes.</li>
+    </ul>
+    <p>
+      Routines, goals and mood start switched on. Calendar, notebook and the
+      ideas board start switched off, and you change any of them on the page.
+      The switches apply to this page only. Whatever they say, Beyou also sends
+      your profile lines, your recent answers, your language and the date. It
+      sends no display name and no email address, and the diary has no switch:
+      what you write there is never read.
+    </p>
+    <p>
+      Once you have an overview, answering a question sends the question, your
+      answer and your profile lines to the provider, so it can pick out what is
+      worth keeping as a profile line. Before that, your answer is kept as you
+      wrote it. An answer about your day can be handed to the assistant, which
+      then treats it like any other message you send.
+    </p>
+    <p>
+      None of this happens unless you open the page. You can edit or delete any
+      profile line there, and every assistant conversation reads the lines that
+      remain.
     </p>
 
     <h2 id="why">4. Why it is stored, and on what legal basis</h2>
@@ -253,6 +299,7 @@ __NAV__
           <tr><td>Sending account emails: confirmation, password reset, deletion code</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Answering you through the AI assistant, an optional feature you choose to open</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Answering you in the notebook's study tools, and writing the daily briefing's summary</td><td>Performance of a contract, article 6(1)(b)</td></tr>
+          <tr><td>Writing the Second Brain overview and its questions, on a page you choose to open and start</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Keeping the account safe: password hashing, session handling, rate limits, abuse prevention</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Finding and fixing crashes through error reports</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Handling the feedback you chose to send</td><td>Legitimate interests, article 6(1)(f)</td></tr>
@@ -277,7 +324,7 @@ __NAV__
           <tr><th>Who</th><th>What reaches them</th><th>Why</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup or the notebook's study tools, and once a day for the daily briefing. See section 3</td></tr>
+          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines and your answers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
           <tr><td>Tavily</td><td>The titles of a notebook topic and page and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
           <tr><td>Any additional sign-in provider switched on for Beyou</td><td>The fact that you signed in, if you use it. It also sees your IP address while you are on its own sign-in page</td><td>Sign-in, only for accounts that connected it</td></tr>
@@ -386,6 +433,7 @@ __NAV__
       <li>Your check-in history: for as long as the account exists, on purpose. A streak and a chart of last year are the point of the app, and both need the history behind them.</li>
       <li>Assistant conversations and the notes it wrote about you: until you delete them or delete your account. They do not expire on their own.</li>
       <li>Your diary, your study notebook and your focus sessions: until you delete them or delete your account.</li>
+      <li>Your Second Brain profile: until you delete its lines or delete your account. The questions it asked, your answers and its last overview: until you delete your account. Each new overview replaces the one before.</li>
       <li>The daily briefing's summaries: 30 days, after which a nightly job deletes them.</li>
       <li>Feedback you sent: until you delete your account.</li>
       <li>Error reports: kept on the collector for as long as they are useful for debugging, and they do not identify you.</li>
