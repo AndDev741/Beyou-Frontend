@@ -31,6 +31,7 @@ import useTodayInZone from '../../src/ui/useTodayInZone';
 import { notify } from '../../src/notify';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 /** How many entries one page of the list holds. "Show more" adds another page. */
 const RECENT_PAGE = 14;
@@ -43,6 +44,7 @@ const RECENT_PAGE = 14;
  * deleting the morning's writing.
  */
 export default function MoodScreen() {
+    const topPadding = useScreenTopPadding();
     const { t, i18n } = useTranslation();
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
@@ -228,7 +230,7 @@ export default function MoodScreen() {
     };
 
     return (
-        <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+        <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
             <View className="flex-row items-center gap-2 px-4 pb-3">
                 <Pressable
                     onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}

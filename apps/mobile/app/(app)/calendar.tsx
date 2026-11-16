@@ -31,6 +31,7 @@ import useCalendarOverview from '../../src/calendar/useCalendarOverview';
 import useCalendarTaskToggle from '../../src/calendar/useCalendarTaskToggle';
 import { loadCalendarView, saveCalendarView } from '../../src/calendar/calendarViewStore';
 import { noonOf } from '../../src/calendar/calendarDay';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 type SheetState = { visible: boolean; task: CalendarTask | null; date?: string };
 
@@ -47,6 +48,7 @@ const first = (value: string | string[] | undefined) => (Array.isArray(value) ? 
  * moving the selection is how the page moves, and the overview request follows the range.
  */
 export default function CalendarScreen() {
+  const topPadding = useScreenTopPadding();
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { theme } = useBeyouTheme();
@@ -137,7 +139,7 @@ export default function CalendarScreen() {
   }, [view, cursor, selected, i18n.language]);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }} testID="calendar-screen">
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }} testID="calendar-screen">
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
           <Pressable

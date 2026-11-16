@@ -25,6 +25,7 @@ import {
 import { CAPTURE_FILE_NAME, CAPTURE_MIME_TYPE } from '../../src/ui/feedback/captureScreen';
 import type { FeedbackImage } from '../../src/ui/feedback/feedbackAttachments';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 /** The icon shows only on the chosen option — it backs the choice without noise. */
 const CATEGORY_ICONS = {
@@ -52,6 +53,7 @@ const first = (value?: string | string[]): string | undefined =>
  * hatch.
  */
 export default function FeedbackScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const { theme } = useBeyouTheme();
@@ -111,7 +113,7 @@ export default function FeedbackScreen() {
   };
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
       <View className="flex-row items-center gap-2 px-4 pb-2">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}

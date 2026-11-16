@@ -24,6 +24,7 @@ import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
 import { TASK_SORT_OPTIONS } from '../../src/ui/sortOptions';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; task: task | null };
 const CLOSED: FormState = { visible: false, mode: 'create', task: null };
@@ -35,6 +36,7 @@ const ALL_CATEGORIES = 'all';
  * shared @beyou/api + @beyou/state task/category layer (no gamification).
  */
 export default function TasksScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -124,7 +126,7 @@ export default function TasksScreen() {
   }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="min-w-0 flex-row items-center gap-2">
           <Pressable
