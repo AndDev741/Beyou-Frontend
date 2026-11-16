@@ -71,15 +71,7 @@ export default function GoogleSignInButton() {
   };
 
   return (
-    <View className="mt-5 w-full">
-      {/* A divider before the alternative: Google is the second option, not a visual
-          pair for "Sign in". It ships with the button because it does on the web too. */}
-      <View className="mb-4 flex-row items-center gap-3">
-        <View className="h-px flex-1 bg-border" />
-        <Text className="text-xs text-text-3">{t('Or')}</Text>
-        <View className="h-px flex-1 bg-border" />
-      </View>
-
+    <View className="w-full">
       <Pressable
         onPress={onPress}
         disabled={busy}

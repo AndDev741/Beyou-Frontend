@@ -358,3 +358,31 @@ small muted prefix inside the title's `<Text>` (`RootPrefix`).
   once that id is in `@beyou/state` `WIDGET_IDS`.
 - **Tests** share sample data and a recording fake server in `__tests__/fixtures/studyCycle.ts`;
   jest skips that folder (`testPathIgnorePatterns`).
+
+## iOS (App Store build)
+
+Bundle id `com.beyou.mobile`, same as Android. `app.json` carries the iOS block; `app.config.ts`
+only adds what app.json cannot say and leaves the Android config untouched (`__tests__/appConfig.test.ts`).
+
+- **Sign in with Apple** is required by App Store guideline 4.8 because Google sign-in is offered.
+  `src/ui/auth/SocialSignIn.tsx` renders Apple's native button (`expo-apple-authentication`) above
+  Google, at the same size. The button's title is localised by iOS ("Continuar com a Apple"), which
+  is why `app.json` declares `locales` (en/pt `.lproj`): without them iOS would label it in English.
+  The flow sends Apple's identity token, the RAW nonce (Apple gets its SHA-256, via `expo-crypto`),
+  the authorization code and the first-time name to `POST /auth/apple/mobile`.
+- **Google on iOS** needs `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` at prebuild time (URL scheme) and at
+  bundle time (`iosClientId`). Without it `isGoogleSignInAvailable()` is false on iOS and the button
+  is not rendered. Jest runs as iOS with no such env, so screen tests see Apple only when they mock
+  `isAvailableAsync` to true (the global mock never settles, to keep screens inert).
+- `expo-build-properties` adds `GoogleUtilities` and `RecaptchaInterop` with modular headers: the
+  Google Sign-In pod's `AppCheckCore` is Swift and `pod install` refuses it otherwise.
+- `app.config.ts` strips the `aps-environment` entitlement expo-notifications adds: the app only
+  schedules local notifications, and the entitlement would force the Push capability on the App ID.
+- `expo-image-picker` is configured with photo-library access only (camera and microphone strings
+  removed), and `expo-secure-store` with no Face ID string: the app uses neither.
+- `supportsTablet` is false: the layouts are phone-width, and an iPad build would need its own
+  screenshots and review on iPad. iPads run the iPhone layout in compatibility mode.
+- **Xcode 27 / iOS 27 SDK**: `expo-modules-jsi` needs 56.0.14+ (older ones fail to compile), pods
+  with an iOS deployment target below 15 fail, and UIKit traps at launch for an app without the
+  UIScene lifecycle, which SDK 56's AppDelegate does not adopt. Build with Xcode 26 until Expo
+  ships scene support; a local Xcode 27 simulator build needs those three worked around by hand.

@@ -112,6 +112,28 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
   statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED', IN_PROGRESS: 'IN_PROGRESS', PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE', DEVELOPER_ERROR: 'DEVELOPER_ERROR' },
 }));
 
+// expo-apple-authentication wraps a native module absent in jest. The login and register
+// screens ask isAvailableAsync() on mount; it never settles here, so those screens render
+// without the Apple button and without a state update landing outside act(). The dedicated
+// AppleSignInButton test overrides it.
+jest.mock('expo-apple-authentication', () => {
+  const { Pressable } = require('react-native');
+  return {
+    isAvailableAsync: jest.fn(() => new Promise(() => {})),
+    signInAsync: jest.fn(),
+    AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+    AppleAuthenticationButtonType: { SIGN_IN: 0, CONTINUE: 1, SIGN_UP: 2 },
+    AppleAuthenticationButtonStyle: { WHITE: 0, WHITE_OUTLINE: 1, BLACK: 2 },
+    AppleAuthenticationButton: (props) => require('react').createElement(Pressable, props),
+  };
+});
+
+jest.mock('expo-crypto', () => ({
+  randomUUID: jest.fn(() => '00000000-0000-4000-8000-000000000000'),
+  digestStringAsync: jest.fn(async (_alg, data) => `sha256(${data})`),
+  CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+}));
+
 // @react-native-community/datetimepicker wraps a native module that is absent in
 // jest. The mock lives at __mocks__/@react-native-community/datetimepicker.js
 // (auto-discovered by Jest's manual mock resolution) so NativeWind's babel plugin

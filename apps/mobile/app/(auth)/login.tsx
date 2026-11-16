@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 
 import Input from '../../src/ui/Input';
 import Button from '../../src/ui/Button';
-import GoogleSignInButton from '../../src/ui/GoogleSignInButton';
+import SocialSignIn from '../../src/ui/auth/SocialSignIn';
 import AuthShell from '../../src/ui/auth/AuthShell';
 import FormNotice from '../../src/ui/auth/FormNotice';
 import useResendVerification from '../../src/auth/useResendVerification';
@@ -190,7 +190,7 @@ export default function LoginRoute() {
         />
       </View>
 
-      <GoogleSignInButton />
+      <SocialSignIn />
     </AuthShell>
   );
 }

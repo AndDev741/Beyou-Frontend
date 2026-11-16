@@ -18,6 +18,8 @@
   "Enter": "Enter",
   "ComingSoon": "Coming soon",
   "ContinueWithGoogle": "Continue with Google",
+  "AppleSignInFailed": "Could not sign in with Apple. Please try again.",
+  "AppleAccountAlreadyLinked": "This Beyou account is already linked to a different Apple ID. Sign in with that Apple ID, or with your email and password.",
   "SomethingWentWrong": "Something went wrong",
   "TryAgain": "Try again",
   "EyeToSeePassword": "Eye icon to see the password",

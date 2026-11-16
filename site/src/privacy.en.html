@@ -50,6 +50,16 @@ __NAV__
       calendar or your Drive.
     </p>
     <p>
+      If you sign in with Apple on the iPhone app, Apple hands Beyou an identifier
+      for your Apple account that only Beyou receives, and an email address: your
+      own, or a private relay address Apple creates if you choose to hide yours.
+      Mail sent to a relay address reaches you through Apple. The first time only,
+      Apple also passes on the name you choose to share. When the server is set up
+      for it, Beyou also keeps a token Apple issues for the sign-in, solely so it
+      can tell Apple to remove Beyou from your Apple ID when you delete your
+      account. Beyou never receives your Apple ID password.
+    </p>
+    <p>
       Beyou can also be configured to accept a second sign-in provider. When one is
       switched on, the same three things reach Beyou from it (your email address,
       your name and a picture address) and nothing else. Connecting such a provider
@@ -327,6 +337,7 @@ __NAV__
           <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines and your answers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
           <tr><td>Tavily</td><td>The titles of a notebook topic and page and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
+          <tr><td>Apple</td><td>The fact that you signed in, if you use Sign in with Apple, and the request to revoke that sign-in when you delete your account. Mail to a private relay address passes through Apple's relay</td><td>Sign-in on the iPhone app, and delivering email to a hidden address</td></tr>
           <tr><td>Any additional sign-in provider switched on for Beyou</td><td>The fact that you signed in, if you use it. It also sees your IP address while you are on its own sign-in page</td><td>Sign-in, only for accounts that connected it</td></tr>
           <tr><td>The email provider configured for Beyou</td><td>Your email address and the contents of every email Beyou sends you: the account emails, including feedback confirmations that quote your message, and the routine emails described in section 4</td><td>Delivering email</td></tr>
           <tr><td>A self-hosted error collector</td><td>Error reports, configured to exclude your identity, IP, cookies and request bodies</td><td>Fixing crashes</td></tr>

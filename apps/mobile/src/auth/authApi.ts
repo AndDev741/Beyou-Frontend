@@ -52,6 +52,34 @@ export async function googleMobileLoginRequest(idToken: string): Promise<LoginRe
   return { accessToken: r.headers['x-access-token'], refreshToken: r.data.refreshToken, profile: r.data.success };
 }
 
+export interface AppleSignInPayload {
+  identityToken: string;
+  /** The RAW nonce. Apple was given its SHA-256, which is what the token carries. */
+  nonce: string;
+  /** Lets the backend keep a refresh token to revoke when the account is deleted. */
+  authorizationCode?: string | null;
+  /** Apple hands the name over on the first authorization only, and never in the token. */
+  givenName?: string | null;
+  familyName?: string | null;
+}
+
+// Sign in with Apple (iOS): the backend verifies Apple's identity token and the nonce,
+// then issues JWT + refresh on the same mobile contract as loginRequest.
+export async function appleMobileLoginRequest(p: AppleSignInPayload): Promise<LoginResult> {
+  const r = await nativeHttpClient.post<{ success: Profile; refreshToken: string }>(
+    '/auth/apple/mobile', {
+      identityToken: p.identityToken,
+      nonce: p.nonce,
+      authorizationCode: p.authorizationCode ?? undefined,
+      givenName: p.givenName ?? undefined,
+      familyName: p.familyName ?? undefined,
+      timezone: detectTimezone() ?? undefined,
+      language: shownLanguage(i18next) ?? undefined,
+    });
+  requireTokens(r.headers['x-access-token'], r.data?.refreshToken);
+  return { accessToken: r.headers['x-access-token'], refreshToken: r.data.refreshToken, profile: r.data.success };
+}
+
 export async function refreshRequest(refreshToken: string): Promise<RefreshResult> {
   const r = await nativeHttpClient.post<{ refreshToken: string }>('/auth/refresh', undefined, {
     headers: { 'X-Refresh-Token': refreshToken },

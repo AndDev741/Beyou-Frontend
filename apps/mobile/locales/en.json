@@ -1,0 +1,5 @@
+{
+  "ios": {
+    "NSPhotoLibraryUsageDescription": "Beyou opens your photo library only when you choose a profile photo or attach a screenshot to a feedback report."
+  }
+}

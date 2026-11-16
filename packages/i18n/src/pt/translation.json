@@ -18,6 +18,8 @@
   "Enter": "Entrar",
   "ComingSoon": "Em breve",
   "ContinueWithGoogle": "Continuar com Google",
+  "AppleSignInFailed": "Não foi possível entrar com a Apple. Tente novamente.",
+  "AppleAccountAlreadyLinked": "Esta conta Beyou já está vinculada a outro ID Apple. Entre com esse ID Apple, ou com seu email e senha.",
   "SomethingWentWrong": "Algo deu errado",
   "TryAgain": "Tentar novamente",
   "EyeToSeePassword": "ícone de olho para ver a senha",
