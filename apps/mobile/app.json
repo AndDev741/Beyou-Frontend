@@ -10,6 +10,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false,
+      "icon": "./assets/Beyou.icon",
       "bundleIdentifier": "com.beyou.mobile",
       "buildNumber": "1",
       "usesAppleSignIn": true,
