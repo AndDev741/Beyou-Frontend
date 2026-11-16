@@ -31,6 +31,18 @@ import type {
 } from "@beyou/types/quickNote/quickNote";
 import type { QuickNoteTaskInput } from "./quickNote/quickNoteApi";
 import type {
+    SecondBrainAnswerResult,
+    SecondBrainArea,
+    SecondBrainFact,
+    SecondBrainFactInput,
+    SecondBrainInsight,
+    SecondBrainItemPattern,
+    SecondBrainOverview,
+    SecondBrainQuestion,
+    SecondBrainRoutine,
+    SecondBrainSourceState,
+} from "@beyou/types/secondBrain/secondBrain";
+import type {
     Board,
     BoardChange,
     BoardEdge,
@@ -119,6 +131,17 @@ export type ContractChecks = [
     Matches<FieldsMissingFromWire<QuickNotePosition, Schemas["QuickNotePositionDTO"]>>,
     Matches<FieldsMissingFromWire<QuickNoteTaskConversion, Schemas["QuickNoteTaskConversionDTO"]>>,
     Matches<FieldsMissingFromWire<QuickNoteTaskInput, Schemas["CreateTaskRequestDTO"]>>,
+    // Second Brain
+    Matches<FieldsMissingFromWire<SecondBrainOverview, Schemas["SecondBrainOverviewDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainInsight, Schemas["SecondBrainInsightDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainQuestion, Schemas["SecondBrainQuestionDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainFact, Schemas["SecondBrainFactDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainFactInput, Schemas["SecondBrainFactRequestDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainSourceState, Schemas["SecondBrainSourceDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainRoutine, Schemas["SecondBrainRoutineDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainItemPattern, Schemas["SecondBrainRoutineItemDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainArea, Schemas["SecondBrainAreaDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainAnswerResult, Schemas["SecondBrainAnswerResultDTO"]>>,
     // Mood
     Matches<FieldsMissingFromWire<MoodEntry, Schemas["MoodEntryResponseDTO"]>>,
     // Focus

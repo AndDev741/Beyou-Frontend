@@ -64,6 +64,7 @@ export * from './calendar/calendarApi';
 
 // Ideas board: quick notes, their layout and converting one into a task
 export * from './quickNote/quickNoteApi';
+export * from './secondBrain/secondBrainApi';
 
 // Goals
 export { default as archiveGoal } from './goals/archiveGoal';

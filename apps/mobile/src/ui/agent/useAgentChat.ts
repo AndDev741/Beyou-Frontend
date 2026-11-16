@@ -13,6 +13,7 @@ import {
 import { streamAgentMessage } from '@beyou/api/agent/agentStream';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
 import { notify } from '../../notify';
+import { onAgentDraft, takeAgentDraft } from './agentPanelBus';
 import { useAgentRefresh } from './useAgentRefresh';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@beyou/state/rootReducer';
@@ -65,6 +66,9 @@ export function useAgentChat() {
   // Updated explicitly at every transition (state updates are async, so a
   // render-time mirror alone misses the create-chat-then-send path).
   const activeChatIdRef = useRef<string | null>(null);
+  // Set when a screen handed over a draft (see the effect under startNewChat). The first
+  // load then leaves the fresh conversation alone instead of resuming the last one over it.
+  const draftClaimedRef = useRef(false);
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
 
@@ -145,7 +149,7 @@ export function useAgentChat() {
       return;
     }
     setChats(response.success);
-    if (response.success.length > 0) openChat(response.success[0].id);
+    if (response.success.length > 0 && !draftClaimedRef.current) openChat(response.success[0].id);
   }, [t, openChat]);
 
   const startNewChat = useCallback(() => {
@@ -155,6 +159,23 @@ export function useAgentChat() {
     setMessages([]);
     clearStreaming();
   }, [clearStreaming]);
+
+  // A draft handed over by a screen (see agentPanelBus) opens a fresh conversation with the
+  // text in the input. A fresh one on purpose: the draft is about something new, and dropping
+  // it into whatever chat was last open would mix two subjects. Nothing is sent from here.
+  // The input is not focused either, unlike the web: on a phone that raises the keyboard
+  // over a draft the person has yet to read.
+  useEffect(() => {
+    const applyDraft = () => {
+      const draft = takeAgentDraft();
+      if (!draft) return;
+      draftClaimedRef.current = true;
+      startNewChat();
+      setInput(draft);
+    };
+    applyDraft();
+    return onAgentDraft(applyDraft);
+  }, [startNewChat]);
 
   const removeChat = useCallback(
     async (chatId: string) => {

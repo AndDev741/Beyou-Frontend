@@ -68,6 +68,13 @@ repository.
   idea turns out to be something to do, "Make it a task" opens the task form already filled in and
   the note moves to the archive. The assistant can jot notes down for you and read them back. No
   XP, on purpose. The phone has the same free board: hold a note to drag it, pinch to zoom.
+- **Second Brain**, a page that tells you whether you are on course or drifting from what you said
+  you want. An overview written once a day opens with that verdict, next to what comes next for your
+  goals, how your routines held this week and which categories are strong or weak. It asks you one
+  question at a time, and what you answer becomes a short profile every assistant conversation
+  reads. An answer about your day can be handed to the assistant as a draft, so it checks or skips
+  your routine items once you send it. Six switches say what the page may read, and the first
+  overview is written only when you ask for it.
 - **A study notebook** — a topic is a roadmap board whose nodes open pages of notes, and every
   page can hold a board of its own. Flashcards come back on a spaced schedule, and a study room
   answers from your notes and sources (PDFs, links, pasted text) with citations you can open. It
@@ -120,7 +127,7 @@ beyou-app/
 | `@beyou/types` | Plain TypeScript types for every domain entity and DTO. |
 | `@beyou/theme` | The theme model as colour tokens: a light and a dark base × five accent packs (beyou, amethyst, sunset, forest, cyber). |
 | `@beyou/i18n` | `en` / `pt` translation bundles used by both clients. |
-| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, Ideas notes, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), which pages a cycle may take as subjects and why the rest are closed (`studyCycleSubjects`), the rule that "Focus 25" never replaces a running pomodoro, the Ideas board's drop and "make it a task" rules and its note colours (`quickNote`), and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
+| `@beyou/state` | Redux Toolkit slices (categories, habits, goals, routines, tasks, focus, mood, notebook, study cycles, Ideas notes, profile, celebrations…) and the shared root reducer. Also the pure logic both clients share: gamification, sorting, date helpers, mood statistics, the calendar's month and week grids and how a fetched overview takes a local write, the Daily Briefing's open/resolve rules, prose poll and goal pace wording, the Second Brain page's rules (which categories are named strongest and weakest, when to ask for more questions, what an answer can be handed to the assistant), the notebook's status fan-out and roadmap-as-path levels, its re-read after the assistant changes a board, and the page document's block-by-block merge and save loop (`DocumentSync`) with what both notebook editors do to a document outside BlockNote (`codeLanguages`, `editorDocument`), the flashcard review queue, how a study cycle block reads on screen and where a logged session would land (`studyCycleView`), which pages a cycle may take as subjects and why the rest are closed (`studyCycleSubjects`), the rule that "Focus 25" never replaces a running pomodoro, the Ideas board's drop and "make it a task" rules and its note colours (`quickNote`), and the assistant's tool registry (which tool is a quiet read, and which screen a write links to). |
 | `@beyou/api` | The `HttpClient` interface and all API repositories. Adapters are supplied by each app at startup. |
 | `@beyou/validation` | Zod schemas (auth, habit, goal, task, category, routine, schedule, profile) reused by both web and mobile forms. |
 | `@beyou/icons` | The icon registry both pickers use, with bilingual search and recents. Each app supplies only the renderer. |
@@ -140,6 +147,7 @@ beyou-app/
 | Notebook board | React Flow (`@xyflow/react`), with "Tidy up" laying nodes on a three-to-a-row grid | The board read as a path, level by level |
 | Notebook diagrams | SVG drawn from the shared `layoutDiagram` scene (`@beyou/state`) | The same scene through `react-native-svg` |
 | Ideas board | React Flow with sticky-note nodes; Alt+N captures from any page | A free board on `PanResponder` (no gesture library): hold a note to drag it, pinch to zoom |
+| Second Brain | Two columns: reading on the left, the questions, profile and switches on the right | One column, with the questions second |
 | Tests | Vitest + Testing Library | Jest (`jest-expo`) + Testing Library |
 
 ## Prerequisites

@@ -52,7 +52,7 @@ import { onAgentPanelOpen } from '../src/ui/agent/agentPanelBus';
 /** The four labelled destinations in the bar, in bar order. */
 const BAR_KEYS = ['navdashboard', 'routines', 'habits', 'more'] as const;
 /** What moved into the sheet — same i18n keys as before the redesign. */
-const SHEET_KEYS = ['tasks', 'goals', 'calendar', 'categories', 'ideas', 'config', 'feedbackshortcutlabel'] as const;
+const SHEET_KEYS = ['secondbrain', 'tasks', 'goals', 'calendar', 'categories', 'ideas', 'config', 'feedbackshortcutlabel'] as const;
 
 const renderNav = async (pathname = '/', { isTutorialCompleted = true } = {}) => {
   mockPathname = pathname;
@@ -199,6 +199,23 @@ describe('BottomNav "More" sheet', () => {
     expect(mockPush).toHaveBeenCalledWith('/calendar');
   });
 
+  it('puts Second Brain first in the sheet and takes it to its screen', async () => {
+    await renderNav();
+    await openSheet();
+
+    const sheet = screen.getByTestId('nav-more-sheet');
+    const labels = within(sheet)
+      .getAllByRole('button')
+      .map((tile) => tile.props.accessibilityLabel);
+    expect(labels[0]).toBe('Second Brain');
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('nav-secondbrain'));
+    });
+    expect(mockPush).toHaveBeenCalledWith('/second-brain');
+    expect(screen.queryByTestId('nav-more-sheet')).toBeNull();
+  });
+
   it('puts Ideas right after Notebook and takes it to the board', async () => {
     await renderNav();
     await openSheet();
@@ -253,6 +270,7 @@ describe('BottomNav active item', () => {
     ['/configuration', ['more']],
     ['/feedback', ['more']],
     ['/ideas', ['more']],
+    ['/second-brain', ['more']],
   ])('on %s selects %s', async (pathname, expected) => {
     await renderNav(pathname);
     expect(selectedKeys()).toEqual(expected);

@@ -16,6 +16,7 @@ import {
     NotebookPen,
     PanelLeft,
     StickyNote,
+    Brain,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
@@ -31,6 +32,8 @@ type Item = { key: string; to: string; Icon: LucideIcon; tutorial?: string };
  */
 const MAIN: Item[] = [
     { key: "NavDashboard", to: "/dashboard", Icon: House },
+    // Right under Today: Today is the day, this is the life the day belongs to.
+    { key: "SecondBrain", to: "/second-brain", Icon: Brain },
     { key: "Categories", to: "/categories", Icon: Folder, tutorial: "shortcut-categories" },
     { key: "Habits", to: "/habits", Icon: Repeat, tutorial: "shortcut-habits" },
     { key: "Tasks", to: "/tasks", Icon: ListChecks, tutorial: "shortcut-tasks" },

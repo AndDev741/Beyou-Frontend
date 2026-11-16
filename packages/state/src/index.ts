@@ -467,3 +467,17 @@ export type {
     DiagramColors, DiagramScene, PathRole, RectRole, SceneDot, SceneHead, ScenePath, ScenePill, SceneRect, SceneShape,
     SceneText, TextRole, ToneColors,
 } from './notebook/diagram';
+
+// Second Brain: the page's judgements, shared by web and mobile
+export {
+  SECOND_BRAIN_VERDICT,
+  SECOND_BRAIN_QUESTION_LABEL,
+  SECOND_BRAIN_FACT_TITLE,
+  SECOND_BRAIN_SOURCE_TEXT,
+  SECOND_BRAIN_REFILL_EVERY_MS,
+  canActOnAnswer,
+  secondBrainAreaEnds,
+  secondBrainRefillIsDue,
+  secondBrainSourceEnabled,
+} from './secondBrain/secondBrainRules';
+export type { SecondBrainVerdictTone } from './secondBrain/secondBrainRules';

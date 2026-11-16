@@ -5499,6 +5499,277 @@
           }
         }
       }
+    },
+    "/second-brain": {
+      "get": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "overview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainOverviewDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/sources/{source}": {
+      "put": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "setSource",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainSourceToggleRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SecondBrainSourceDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/facts": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "createFact",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainFactRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainFactDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/facts/{id}": {
+      "put": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "editFact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainFactRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainFactDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "deleteFact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/second-brain/questions/refill": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "refill",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SecondBrainQuestionDTO"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/questions/{id}/answer": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "answer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainAnswerRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainAnswerResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/questions/{id}/skip": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "skip",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainQuestionDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/insight/refresh": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "refreshInsight",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainInsightDTO"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11282,6 +11553,296 @@
           "taskId": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "SecondBrainOverviewDTO": {
+        "type": "object",
+        "properties": {
+          "insight": {
+            "$ref": "#/components/schemas/SecondBrainInsightDTO"
+          },
+          "goalsAhead": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BriefingGoalAheadDTO"
+            }
+          },
+          "routine": {
+            "$ref": "#/components/schemas/SecondBrainRoutineDTO"
+          },
+          "areas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainAreaDTO"
+            }
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainQuestionDTO"
+            }
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainFactDTO"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainSourceDTO"
+            }
+          },
+          "aiAvailable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SecondBrainInsightDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "ON_COURSE",
+              "DRIFTING",
+              "TOO_EARLY"
+            ]
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "stale": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SecondBrainQuestionDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PROFILE_OBJECTIVES",
+              "PROFILE_LIKES",
+              "PROFILE_ABOUT",
+              "CHECK_IN",
+              "FOLLOW_UP"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "ANSWERED",
+              "SKIPPED"
+            ]
+          },
+          "answer": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "answeredAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SecondBrainFactDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "OBJECTIVE",
+              "LIKE",
+              "ABOUT"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ANSWER"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SecondBrainFactRequestDTO": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "OBJECTIVE",
+              "LIKE",
+              "ABOUT"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "kind",
+          "text"
+        ]
+      },
+      "SecondBrainSourceDTO": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "ROUTINES",
+              "GOALS",
+              "MOOD",
+              "CALENDAR",
+              "NOTEBOOK",
+              "IDEAS"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SecondBrainSourceToggleRequestDTO": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "SecondBrainRoutineDTO": {
+        "type": "object",
+        "properties": {
+          "thisWeekPercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "previousWeekPercent": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slipping": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainRoutineItemDTO"
+            }
+          },
+          "steady": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainRoutineItemDTO"
+            }
+          }
+        }
+      },
+      "SecondBrainRoutineItemDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "asked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "checked": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SecondBrainAreaDTO": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "asked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "checked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percent": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SecondBrainAnswerRequestDTO": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "answer"
+        ]
+      },
+      "SecondBrainAnswerResultDTO": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "$ref": "#/components/schemas/SecondBrainQuestionDTO"
+          },
+          "learned": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainFactDTO"
+            }
           }
         }
       }

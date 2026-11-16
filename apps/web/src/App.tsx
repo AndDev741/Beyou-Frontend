@@ -31,6 +31,7 @@ const Focus = lazy(() => import("./pages/focus/Focus"));
 const Mood = lazy(() => import("./pages/mood/mood"));
 const Calendar = lazy(() => import("./pages/calendar/Calendar"));
 const Ideas = lazy(() => import("./pages/ideas/Ideas"));
+const SecondBrain = lazy(() => import("./pages/secondBrain/SecondBrain"));
 const NotebookHome = lazy(() => import("./pages/notebook/NotebookHome"));
 const NotebookReview = lazy(() => import("./pages/notebook/NotebookReview"));
 const NotebookPageView = lazy(() => import("./pages/notebook/NotebookPageView"));
@@ -102,6 +103,7 @@ function AppContent() {
             <Route path="/notebook/:pageId/board" element={<NotebookBoardFocus />} />
             <Route path="/notebook/:pageId/study" element={<NotebookStudyRoom />} />
             <Route path="/ideas" element={<Ideas />} />
+            <Route path="/second-brain" element={<SecondBrain />} />
             <Route path="/configuration" element={<Configuration />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route element={<AdminRoute />}>

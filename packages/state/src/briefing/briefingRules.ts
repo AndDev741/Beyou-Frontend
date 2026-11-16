@@ -345,24 +345,42 @@ export function goalPaceMessage(
         case 'OVERDUE':
             return { key: 'BriefingGoalPaceOverdue', tone: 'danger' };
         case 'BEHIND':
-            return perDay != null
-                ? {
-                      key: 'BriefingGoalPaceBehind',
-                      params: { perDay: formatNumber(perDay), unit: goal.unit },
-                      tone: 'flame',
-                  }
-                : null;
+            return perDay != null ? paceSentence('BriefingGoalPaceBehind', perDay, goal.unit, 'flame', formatNumber) : null;
         case 'ON_TRACK':
             return perDay != null
-                ? {
-                      key: 'BriefingGoalPaceOnTrack',
-                      params: { perDay: formatNumber(perDay), unit: goal.unit },
-                      tone: 'muted',
-                  }
+                ? paceSentence('BriefingGoalPaceOnTrack', perDay, goal.unit, 'muted', formatNumber)
                 : { key: 'BriefingGoalPaceOnTrackPlain', tone: 'muted' };
         default:
             return null;
     }
+}
+
+/** A month, for wording a slow goal. Thirty is close enough for "about one a month". */
+const PACE_MONTH_DAYS = 30;
+
+/**
+ * The pace sentence in the period where the amount reads as a number a person can act on.
+ *
+ * A goal that asks for less than one unit a day used to say "0 books a day still gets you
+ * there": twelve books in a year is 0.03 a day, and one decimal rounds that to nothing. So
+ * under one a day the amount is given per week, under one a week per month, and when even a
+ * month asks for less than one the sentence carries no amount at all.
+ *
+ * The day sentence keeps its `perDay` parameter, so the translations already shipped still fit.
+ */
+function paceSentence(
+    key: 'BriefingGoalPaceBehind' | 'BriefingGoalPaceOnTrack',
+    perDay: number,
+    unit: string,
+    tone: GoalPaceTone,
+    formatNumber: (value: number) => string,
+): GoalPaceMessage {
+    if (perDay >= 1) return { key, params: { perDay: formatNumber(perDay), unit }, tone };
+    const perWeek = perDay * 7;
+    if (perWeek >= 1) return { key: `${key}Week`, params: { amount: formatNumber(perWeek), unit }, tone };
+    const perMonth = perDay * PACE_MONTH_DAYS;
+    if (perMonth >= 1) return { key: `${key}Month`, params: { amount: formatNumber(perMonth), unit }, tone };
+    return { key: `${key}Plain`, tone };
 }
 
 /**

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { onAgentDraft, takeAgentDraft } from "./agentPanelBus";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { useTranslation } from "react-i18next";
@@ -198,6 +199,10 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         }
     }, [t, clearStreaming]);
 
+    // Set when a page handed over a draft (see the effect further down). The first load
+    // below then leaves the fresh conversation alone instead of resuming the last one over it.
+    const draftClaimedRef = useRef(false);
+
     // First mount (= first FAB click): load the list and resume the most
     // recent conversation — the backend already orders by activity.
     useEffect(() => {
@@ -208,7 +213,7 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
                 return;
             }
             setChats(response.success);
-            if (response.success.length > 0) openChat(response.success[0].id);
+            if (response.success.length > 0 && !draftClaimedRef.current) openChat(response.success[0].id);
         };
         loadChats();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -252,6 +257,34 @@ function AgentPanel({ open, onClose }: AgentPanelProps) {
         setHistoryOpen(false);
         inputRef.current?.focus();
     };
+
+    // A draft handed over by a page (see agentPanelBus) opens a fresh conversation with the
+    // text in the input. A fresh one on purpose: the draft is about something new, and
+    // dropping it into whatever chat was last open would mix two subjects. The ref keeps the
+    // subscription stable while still calling the current startNewChat.
+    const startNewChatRef = useRef(startNewChat);
+    startNewChatRef.current = startNewChat;
+    useEffect(() => {
+        const applyDraft = () => {
+            const draft = takeAgentDraft();
+            if (!draft) return;
+            draftClaimedRef.current = true;
+            startNewChatRef.current();
+            setInput(draft);
+            // The box grows on typing, and a draft is not typed: size it once the text is in,
+            // so a three-line draft is not shown through a one-line slot.
+            requestAnimationFrame(() => {
+                const el = inputRef.current;
+                if (!el) return;
+                el.style.height = "auto";
+                el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+                el.style.overflowY = el.scrollHeight > 128 ? "auto" : "hidden";
+                el.focus();
+            });
+        };
+        applyDraft();
+        return onAgentDraft(applyDraft);
+    }, []);
 
     const removeChat = async (chatId: string) => {
         const response = await deleteAgentChat(chatId, t);
