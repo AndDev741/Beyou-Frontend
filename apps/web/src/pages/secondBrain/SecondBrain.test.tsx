@@ -82,8 +82,8 @@ const overview = (patch: Partial<SecondBrainOverview> = {}): SecondBrainOverview
     routine: {
         thisWeekPercent: 72,
         previousWeekPercent: 64,
-        slipping: [{ name: "Read", asked: 5, checked: 1 }],
-        steady: [{ name: "Gym", asked: 3, checked: 3 }],
+        slipping: [{ name: "Read", asked: 5, checked: 1, skipped: 3 }],
+        steady: [{ name: "Gym", asked: 3, checked: 3, skipped: 0 }],
     },
     areas: [
         { categoryId: "c1", name: "Health", iconId: null, asked: 12, checked: 10, percent: 83 },
@@ -147,6 +147,9 @@ describe("SecondBrain", () => {
         expect(screen.getByText("72%")).toBeInTheDocument();
         expect(within(screen.getByTestId("second-brain-slipping")).getByText("Read")).toBeInTheDocument();
         expect(within(screen.getByTestId("second-brain-steady")).getByText("Gym")).toBeInTheDocument();
+        // A habit skipped again and again says so; one done every time shows no skip count.
+        expect(within(screen.getByTestId("second-brain-slipping")).getByTestId("second-brain-item-skipped")).toBeInTheDocument();
+        expect(within(screen.getByTestId("second-brain-steady")).queryByTestId("second-brain-item-skipped")).not.toBeInTheDocument();
         expect(screen.getByText("What do you want out of this year?")).toBeInTheDocument();
         expect(screen.getByText("Cooking on Sundays")).toBeInTheDocument();
         expect(screen.getAllByRole("switch")).toHaveLength(6);

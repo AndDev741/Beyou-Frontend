@@ -4444,6 +4444,8 @@ export interface components {
             asked?: number;
             /** Format: int32 */
             checked?: number;
+            /** Format: int32 */
+            skipped?: number;
         };
         SecondBrainAreaDTO: {
             /** Format: uuid */

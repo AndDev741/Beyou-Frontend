@@ -45,9 +45,18 @@ function PatternList({
               <Text className="min-w-0 flex-1 text-sm text-text" numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text className="shrink-0 font-mono text-xs text-text-2">
-                {t('SecondBrainItemDays', { checked: item.checked, asked: item.asked })}
-              </Text>
+              <View className="shrink-0 items-end">
+                <Text className="font-mono text-xs text-text-2">
+                  {t('SecondBrainItemTimes', { checked: item.checked, asked: item.asked })}
+                </Text>
+                {/* Skipped again and again reads differently from forgotten, so the count of
+                    skips is shown next to the item. */}
+                {item.skipped > 0 && (
+                  <Text className="font-mono text-[11px] text-flame" testID="second-brain-item-skipped">
+                    {t('SecondBrainItemSkipped', { count: item.skipped })}
+                  </Text>
+                )}
+              </View>
             </View>
           ))}
         </View>
@@ -60,8 +69,9 @@ function PatternList({
  * Whether the routines are being kept: the last seven days against the seven before, then
  * the items that slipped and the ones that held.
  *
- * The ring is the same piece as the check-in ring and the logo. Skipped items are left out
- * of both sides on the server, because a skip is an answer and not a miss.
+ * The ring is the same piece as the check-in ring and the logo. The percentage leaves skipped
+ * items out, since one skip is a choice. The two lists count them, because the same item
+ * skipped again and again is a habit being dropped.
  */
 export default function RoutineBlock({ routine }: RoutineBlockProps) {
   const { t } = useTranslation();

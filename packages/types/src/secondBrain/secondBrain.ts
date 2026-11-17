@@ -87,11 +87,20 @@ export type SecondBrainInsight = {
     stale: boolean;
 };
 
-/** One routine item's week: the days it came up and the days it was checked. */
+/**
+ * One routine item's week, counted per time it came up: an item in two routines, or twice in
+ * one, counts twice on the same day.
+ */
 export type SecondBrainItemPattern = {
     name: string;
+    /** Times it came up, skipped ones included. */
     asked: number;
     checked: number;
+    /**
+     * Times it was skipped. On a slipping item it tells a habit dropped on purpose from one
+     * forgotten; a steady item always has zero.
+     */
+    skipped: number;
 };
 
 export type SecondBrainRoutine = {

@@ -11789,6 +11789,10 @@
           "checked": {
             "type": "integer",
             "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
