@@ -136,8 +136,8 @@ const overview = (patch: Partial<SecondBrainOverview> = {}): SecondBrainOverview
   routine: {
     thisWeekPercent: 72,
     previousWeekPercent: 64,
-    slipping: [{ name: 'Read', asked: 5, checked: 1 }],
-    steady: [{ name: 'Gym', asked: 3, checked: 3 }],
+    slipping: [{ name: 'Read', asked: 5, checked: 1, skipped: 3 }],
+    steady: [{ name: 'Gym', asked: 3, checked: 3, skipped: 0 }],
   },
   areas: [
     { categoryId: 'c1', name: 'Health', iconId: null, asked: 12, checked: 10, percent: 83 },
@@ -244,6 +244,10 @@ describe('SecondBrainScreen', () => {
     expect(screen.getByText('8 points above the week before')).toBeTruthy();
     expect(within(screen.getByTestId('second-brain-slipping')).getByText('Read')).toBeTruthy();
     expect(within(screen.getByTestId('second-brain-steady')).getByText('Gym')).toBeTruthy();
+    // A habit skipped again and again says so, in the person's language; one done every time shows no skip count.
+    expect(within(screen.getByTestId('second-brain-slipping')).getByText('1 of 5 times')).toBeTruthy();
+    expect(within(screen.getByTestId('second-brain-slipping')).getByText('3 skipped')).toBeTruthy();
+    expect(within(screen.getByTestId('second-brain-steady')).queryByTestId('second-brain-item-skipped')).toBeNull();
     expect(screen.getByText('What do you want out of this year?')).toBeTruthy();
     expect(screen.getByText('Cooking on Sundays')).toBeTruthy();
     for (const source of SECOND_BRAIN_SOURCES) expect(switchOf(source)).toBeTruthy();
@@ -681,7 +685,7 @@ describe('SecondBrainScreen', () => {
         within(screen.getByTestId('second-brain-routine-delta')).getByText('14 points below the week before'),
       ).toBeTruthy();
       expect(screen.getByText('Nothing slipped this week.')).toBeTruthy();
-      expect(screen.getByText('No item was checked on every day it came up.')).toBeTruthy();
+      expect(screen.getByText('No item was done every time it came up.')).toBeTruthy();
     });
 
     it('opens the goals screen from the block', async () => {
