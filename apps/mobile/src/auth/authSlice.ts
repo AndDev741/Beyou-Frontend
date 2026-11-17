@@ -3,7 +3,10 @@ import { ApiError, parseApiError, getLogger, isRateLimited, RATE_LIMIT_ERROR_KEY
 import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
 import * as secureStore from './secureStore';
-import { loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest } from './authApi';
+import {
+  loginRequest, registerRequest, refreshRequest, logoutRequest, googleMobileLoginRequest, appleMobileLoginRequest,
+  type AppleSignInPayload,
+} from './authApi';
 import { saveTutorialPhase } from '../lib/tutorialStore';
 import { clearWizardProgress } from '../lib/aiOnboardingStore';
 import { clearGoogleSession } from './googleSession';
@@ -70,6 +73,33 @@ export const googleLogin = createAsyncThunk(
       }
       if (isRateLimited(e)) return rejectWithValue(RATE_LIMIT_ERROR_KEY);
       return rejectWithValue('GOOGLE_LOGIN_FAILED');
+    }
+  },
+);
+
+/** The rejection when this Apple ID is not the one already linked to the account. */
+export const APPLE_ACCOUNT_ALREADY_LINKED = 'APPLE_ACCOUNT_ALREADY_LINKED';
+
+export const appleLogin = createAsyncThunk(
+  'auth/appleLogin',
+  async (payload: AppleSignInPayload, { rejectWithValue }) => {
+    try {
+      const { accessToken, refreshToken, profile } = await appleMobileLoginRequest(payload);
+      setAccessToken(accessToken);
+      await secureStore.setRefreshToken(refreshToken);
+      return profile;
+    } catch (e) {
+      getLogger().error('auth apple login failed', e);
+      // Same gate as Google: an Apple address that matches a password account which
+      // never verified it is refused with the body /auth/login uses.
+      if (e instanceof ApiError && parseApiError(e).message === 'EMAIL_NOT_VERIFIED') {
+        return rejectWithValue('EMAIL_NOT_VERIFIED');
+      }
+      if (e instanceof ApiError && parseApiError(e).errorKey === 'FEDERATED_IDENTITY_ISSUER_ALREADY_LINKED') {
+        return rejectWithValue(APPLE_ACCOUNT_ALREADY_LINKED);
+      }
+      if (isRateLimited(e)) return rejectWithValue(RATE_LIMIT_ERROR_KEY);
+      return rejectWithValue('APPLE_LOGIN_FAILED');
     }
   },
 );
@@ -161,6 +191,20 @@ const authSlice = createSlice({
       s.error = null;
     });
     b.addCase(googleLogin.rejected, (s, a) => {
+      s.status = 'unauthenticated';
+      s.error = a.payload as string;
+      s.needsVerification = a.payload === 'EMAIL_NOT_VERIFIED';
+    });
+    b.addCase(appleLogin.pending, (s) => {
+      s.error = null;
+      s.needsVerification = false;
+    });
+    b.addCase(appleLogin.fulfilled, (s, a) => {
+      s.status = 'authenticated';
+      s.profile = a.payload as Profile;
+      s.error = null;
+    });
+    b.addCase(appleLogin.rejected, (s, a) => {
       s.status = 'unauthenticated';
       s.error = a.payload as string;
       s.needsVerification = a.payload === 'EMAIL_NOT_VERIFIED';

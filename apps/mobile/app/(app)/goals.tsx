@@ -27,6 +27,7 @@ import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
 import SegmentedControl from '../../src/ui/SegmentedControl';
 import { GOAL_SORT_OPTIONS } from '../../src/ui/sortOptions';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; goal: goal | null; parentId?: string | null };
 const CLOSED: FormState = { visible: false, mode: 'create', goal: null };
@@ -43,6 +44,7 @@ type StatusFilter = 'all' | 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'ARCHI
  * @beyou/state goal layer.
  */
 export default function GoalsScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const { expand } = useLocalSearchParams<{ expand?: string }>();
@@ -202,7 +204,7 @@ export default function GoalsScreen() {
   }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="min-w-0 flex-row items-center gap-2">
           <Pressable

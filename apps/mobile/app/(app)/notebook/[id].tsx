@@ -28,6 +28,7 @@ import { useStatusChange } from '../../../src/notebook/useStatusChange';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
+import { useScreenTopPadding } from '../../../src/ui/useScreenTopPadding';
 
 type Tab = 'path' | 'notes' | 'cards';
 const TABS: Tab[] = ['path', 'notes', 'cards'];
@@ -41,6 +42,7 @@ const TABS: Tab[] = ['path', 'notes', 'cards'];
  * this same screen, pushed, so back walks up the tree.
  */
 export default function NotebookPageScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -139,7 +141,7 @@ export default function NotebookPageScreen() {
   const percent = Math.round(progressShare(page.progress) * 100);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }} testID="notebook-page">
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }} testID="notebook-page">
       <View className="flex-row items-center gap-1 px-2 pb-2">
         <Pressable
           onPress={goBack}

@@ -26,6 +26,7 @@ import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
 import useXpHistory from '../../src/ui/useXpHistory';
 import { CATEGORY_SORT_OPTIONS } from '../../src/ui/sortOptions';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; category: category | null };
 const CLOSED: FormState = { visible: false, mode: 'create', category: null };
@@ -36,6 +37,7 @@ const CLOSED: FormState = { visible: false, mode: 'create', category: null };
  * on the shared @beyou/api + @beyou/state category layer (categories carry xp/level).
  */
 export default function CategoriesScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -114,7 +116,7 @@ export default function CategoriesScreen() {
   }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="min-w-0 flex-row items-center gap-2">
           <Pressable

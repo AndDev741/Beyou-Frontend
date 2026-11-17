@@ -25,6 +25,7 @@ import { AiWaitingLine } from '../../../src/notebook/AiWaiting';
 import { notify } from '../../../src/notify';
 import { useBeyouTheme } from '../../../src/theme/ThemeProvider';
 import type { AppDispatch, RootState } from '../../../src/store';
+import { useScreenTopPadding } from '../../../src/ui/useScreenTopPadding';
 
 /**
  * The study notebook's home on a phone: today's study blocks, the page to pick up, the cards
@@ -34,6 +35,7 @@ import type { AppDispatch, RootState } from '../../../src/store';
  * turns into "Ready to review" on its own while the home is on screen.
  */
 export default function NotebookHomeScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -101,7 +103,7 @@ export default function NotebookHomeScreen() {
   );
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }} testID="notebook-home">
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }} testID="notebook-home">
       <View className="flex-row items-center gap-2 px-4 pb-3">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}

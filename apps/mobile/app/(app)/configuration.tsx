@@ -25,6 +25,7 @@ import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
 import { logout } from '../../src/auth/authSlice';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import type { AppDispatch } from '../../src/store';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 /**
  * Configuration / settings screen. Profile lands first (P5-A1); Appearance
@@ -32,6 +33,7 @@ import type { AppDispatch } from '../../src/store';
  * close the screen.
  */
 export default function ConfigurationScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -66,7 +68,7 @@ export default function ConfigurationScreen() {
       <ScrollView
         ref={scrollRef}
         className="flex-1 bg-bg"
-        contentContainerStyle={{ padding: 16, paddingTop: 48, paddingBottom: 40, gap: 12 }}
+        contentContainerStyle={{ padding: 16, paddingTop: topPadding, paddingBottom: 40, gap: 12 }}
         testID="config-screen"
       >
         <View className="mb-1 flex-row items-center gap-2">

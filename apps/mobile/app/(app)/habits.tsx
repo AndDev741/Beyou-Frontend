@@ -27,6 +27,7 @@ import EmptyState from '../../src/ui/EmptyState';
 import ListToolbar from '../../src/ui/ListToolbar';
 import SelectField from '../../src/ui/SelectField';
 import { HABIT_SORT_OPTIONS } from '../../src/ui/sortOptions';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 type FormState = { visible: boolean; mode: 'create' | 'edit'; habit: habit | null };
 const CLOSED: FormState = { visible: false, mode: 'create', habit: null };
@@ -38,6 +39,7 @@ const ALL_CATEGORIES = 'all';
  * @beyou/api + @beyou/state habit/category layer end-to-end.
  */
 export default function HabitsScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -134,7 +136,7 @@ export default function HabitsScreen() {
   }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
       <View className="flex-row items-center justify-between px-4 pb-3">
         <View className="min-w-0 flex-row items-center gap-2">
           <Pressable

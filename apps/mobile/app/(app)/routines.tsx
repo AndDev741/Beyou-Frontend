@@ -29,9 +29,11 @@ import DeleteModal from '../../src/ui/DeleteModal';
 import EmptyState from '../../src/ui/EmptyState';
 import { openAgentPanel } from '../../src/ui/agent/agentPanelBus';
 import useTodayInZone from '../../src/ui/useTodayInZone';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 
 export default function RoutinesScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useBeyouTheme();
@@ -96,7 +98,7 @@ export default function RoutinesScreen() {
   }, [deleteTarget, load, t]);
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }}>
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }}>
 
       {loading ? (
         <View className="flex-1 items-center justify-center"><ActivityIndicator color={theme.primary} /></View>

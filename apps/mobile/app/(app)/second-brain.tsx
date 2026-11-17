@@ -20,6 +20,7 @@ import Skeleton from '../../src/secondBrain/Skeleton';
 import SourcesBlock from '../../src/secondBrain/SourcesBlock';
 import { useSecondBrain } from '../../src/secondBrain/useSecondBrain';
 import type { RootState } from '../../src/store';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 /**
  * Second Brain: what Beyou understands about a person's life, what it still wants to ask,
@@ -30,6 +31,7 @@ import type { RootState } from '../../src/store';
  * the profile and the sources.
  */
 export default function SecondBrainScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const { theme } = useBeyouTheme();
@@ -46,7 +48,7 @@ export default function SecondBrainScreen() {
     overview ? secondBrainSourceEnabled(overview.sources, source) : false;
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }} testID="second-brain-screen">
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }} testID="second-brain-screen">
       <View className="flex-row items-center gap-2 px-4 pb-3">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}

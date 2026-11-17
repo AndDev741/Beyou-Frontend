@@ -24,6 +24,7 @@ import QuickNoteBoard, { type QuickNoteBoardHandle } from '../../src/ideas/Quick
 import QuickNoteSheet from '../../src/ideas/QuickNoteSheet';
 import { useQuickNotes } from '../../src/ideas/useQuickNotes';
 import type { AppDispatch, RootState } from '../../src/store';
+import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
 
 type Converting = { note: QuickNote; text: string };
 
@@ -35,6 +36,7 @@ type Converting = { note: QuickNote; text: string };
  * Opening a note gives the sheet to edit it, turn it into a task or archive it.
  */
 export default function IdeasScreen() {
+  const topPadding = useScreenTopPadding();
   const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -115,7 +117,7 @@ export default function IdeasScreen() {
   const empty = loaded && active.length === 0;
 
   return (
-    <View className="flex-1 bg-bg" style={{ paddingTop: 48 }} testID="ideas-screen">
+    <View className="flex-1 bg-bg" style={{ paddingTop: topPadding }} testID="ideas-screen">
       <View className="flex-row items-center gap-2 px-4 pb-3">
         <Pressable
           onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
