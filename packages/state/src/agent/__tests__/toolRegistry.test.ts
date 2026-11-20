@@ -31,8 +31,17 @@ describe('the shared agent tool registry', () => {
         ['addStudyNode', '/notebook'],
         ['updateUserConfiguration', '/configuration'],
         ['createQuickNote', '/ideas'],
+        ['createCalendarTask', '/calendar'],
+        ['editCalendarTask', '/calendar'],
+        ['completeCalendarTask', '/calendar'],
+        ['deleteCalendarTask', '/calendar'],
     ])('sends %s to %s', (tool, route) => {
         expect(toolDestination(tool)?.route).toBe(route);
+    });
+
+    it('shows reading the calendar as a chip', () => {
+        expect(isReadTool('getCalendar')).toBe(true);
+        expect(toolDestination('getCalendar')).toBeNull();
     });
 
     it('shows reading the ideas board as a chip', () => {

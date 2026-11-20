@@ -222,6 +222,7 @@ export {
   removeTaskFromOverview,
 } from './calendar/calendarDates';
 export type { CalendarView, MonthCursor } from './calendar/calendarDates';
+export { announceCalendarChange, onCalendarChange } from './calendar/calendarChanges';
 
 // dashboard widgets (ids shared by web + mobile)
 export { WIDGET_IDS, BIG_WIDGETS } from './dashboard/widgets';

@@ -17,6 +17,7 @@ vi.mock("@beyou/api/routine/getTodayRoutine", () => ({ default: vi.fn() }));
 vi.mock("@beyou/api", () => ({ getLogger: () => ({ error: vi.fn() }) }));
 vi.mock("@beyou/api/focus/focusApi", () => ({ listFocusMicroTasks: vi.fn() }));
 vi.mock("@beyou/api/quickNote/quickNoteApi", () => ({ getQuickNotes: vi.fn(), getArchivedQuickNotes: vi.fn() }));
+vi.mock("../components/calendar/reminderPreferenceBus", () => ({ requestReminderResync: vi.fn() }));
 vi.mock("@beyou/api/notebook", () => ({
   getNotebookHome: vi.fn(),
   getPage: vi.fn(),
@@ -33,6 +34,8 @@ import getTodayRoutine from "@beyou/api/routine/getTodayRoutine";
 import { listFocusMicroTasks } from "@beyou/api/focus/focusApi";
 import { getNotebookHome, getPage, getStudyCycle, getStudyCycles, getStudyToday } from "@beyou/api/notebook";
 import { getArchivedQuickNotes, getQuickNotes } from "@beyou/api/quickNote/quickNoteApi";
+import { onCalendarChange } from "@beyou/state";
+import { requestReminderResync } from "../components/calendar/reminderPreferenceBus";
 
 const dispatch = vi.fn();
 const typesOf = () => dispatch.mock.calls.map((c) => c[0]?.type);
@@ -75,6 +78,18 @@ beforeEach(() => {
 });
 
 describe("useAgentRefresh", () => {
+  test("calendar tells the open calendar to read its range again, and the reminders to resync", async () => {
+    const calendarOnScreen = vi.fn();
+    const stop = onCalendarChange(calendarOnScreen);
+
+    run(["calendar"]);
+
+    await waitFor(() => expect(calendarOnScreen).toHaveBeenCalledTimes(1));
+    // Without the resync, a task the chat set for ten minutes from now waits for the next poll.
+    expect(requestReminderResync).toHaveBeenCalledTimes(1);
+    stop();
+  });
+
   test("notebook re-reads the page on screen, so an open page shows the assistant's change", async () => {
     const id = "3f1a6f1e-0000-4000-8000-000000000001";
     storeState = { notebook: { home: null, pages: { [id]: { id } }, trees: {}, boards: {} } };

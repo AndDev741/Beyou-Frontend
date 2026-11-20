@@ -50,6 +50,7 @@ import getProfile from '@beyou/api/user/getProfile';
 import { listFocusMicroTasks } from '@beyou/api/focus/focusApi';
 import { getArchivedQuickNotes, getQuickNotes } from '@beyou/api/quickNote/quickNoteApi';
 import { getBoard, getNotebookHome, getPage, getStudyCycle, getStudyCycles, getStudyToday, getTopicTree } from '@beyou/api/notebook';
+import { onCalendarChange } from '@beyou/state';
 import '../src/i18n';
 import { makeStore } from '../src/store';
 import { useAgentRefresh } from '../src/ui/agent/useAgentRefresh';
@@ -67,6 +68,7 @@ const BACKEND_DOMAINS = [
   'mood',
   'studyCycles',
   'quickNotes',
+  'calendar',
 ];
 
 const mockedMood = getMoodEntries as jest.Mock;
@@ -143,6 +145,17 @@ test('a note the assistant stuck on the board reaches the quick notes slice', as
   // The archived list was never opened, so it is not fetched either.
   expect(getArchivedQuickNotes).not.toHaveBeenCalled();
   expect(mockLogger.error).not.toHaveBeenCalled();
+});
+
+test('a calendar task the assistant wrote makes the calendar on screen read its range again', async () => {
+  const calendarOnScreen = jest.fn();
+  const stop = onCalendarChange(calendarOnScreen);
+
+  await runRefresh(['calendar']);
+
+  expect(calendarOnScreen).toHaveBeenCalledTimes(1);
+  expect(mockLogger.error).not.toHaveBeenCalled();
+  stop();
 });
 
 test.each(BACKEND_DOMAINS)('knows the "%s" domain', async (domain) => {

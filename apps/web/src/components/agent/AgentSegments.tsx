@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {
     BookHeart,
+    CalendarClock,
     CalendarDays,
     Check,
     ChevronRight,
@@ -43,6 +44,7 @@ const ICONS: Record<ToolDestinationKey, LucideIcon> = {
     configuration: Settings,
     focus: Target,
     ideas: StickyNote,
+    calendar: CalendarClock,
 };
 
 export function destinationFor(tool: string | undefined): Destination | null {

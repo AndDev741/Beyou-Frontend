@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getCalendarOverview } from '@beyou/api/calendar/calendarApi';
 import { getFriendlyErrorMessage } from '@beyou/api/apiError';
-import { removeTaskFromOverview, upsertTaskInOverview } from '@beyou/state';
+import { onCalendarChange, removeTaskFromOverview, upsertTaskInOverview } from '@beyou/state';
 import type { CalendarOverview, CalendarTask } from '@beyou/types/calendar/calendar';
 
 export interface UseCalendarOverviewResult {
@@ -56,6 +56,13 @@ export default function useCalendarOverview(
   useEffect(() => {
     if (!enabled) return;
     void reload();
+  }, [enabled, reload]);
+
+  // The assistant can put a task on the calendar while this screen sits under the chat, which
+  // floats over it, so no focus event follows. Its turn announces the change instead.
+  useEffect(() => {
+    if (!enabled) return undefined;
+    return onCalendarChange(() => void reload());
   }, [enabled, reload]);
 
   // A request still in flight when the screen goes must not land on it afterwards.
