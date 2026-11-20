@@ -21,6 +21,7 @@ import { microTasksLoaded } from "@beyou/state/focus/focusSlice";
 import {
     selectedFocusGroupId,
     addDays,
+    announceCalendarChange,
     enterMoodEntries,
     refreshNotebook,
     refreshQuickNotes,
@@ -29,6 +30,7 @@ import {
 } from "@beyou/state";
 import type { RootState } from "@beyou/state/rootReducer";
 import { hydratePerfil } from "../services/user/hydratePerfil";
+import { requestReminderResync } from "../components/calendar/reminderPreferenceBus";
 
 /**
  * Refetches exactly the Redux slices an agent turn changed. The write tools
@@ -105,6 +107,14 @@ export function useAgentRefresh() {
                     // list re-reads too when it was already open.
                     const state = store.getState() as RootState;
                     await refreshQuickNotes(dispatch, state.quickNotes, t);
+                },
+                calendar: async () => {
+                    // No slice to refetch: the Calendar page and the today widget each hold the
+                    // range they asked for, so they are told to read it again. The reminder hub
+                    // is told too, or a task the chat set for "in ten minutes" would wait for the
+                    // next ten-minute poll and remind late.
+                    announceCalendarChange();
+                    requestReminderResync();
                 },
                 focus: async () => {
                     // Micro-tasks are stored per routine entry and there is no "fetch them all".

@@ -34,6 +34,7 @@ export const READ_TOOLS: ReadonlySet<string> = new Set([
   'getStudyCycle',
   'listStudySessions',
   'getQuickNotes',
+  'getCalendar',
   // Shows a diagram in the chat and saves nothing. The segment carries the diagram, and both
   // apps draw it as a card (see DIAGRAM_TOOLS) before this set is ever asked.
   'showDiagram',
@@ -87,7 +88,8 @@ export type ToolDestinationKey =
   | 'notebook'
   | 'configuration'
   | 'focus'
-  | 'ideas';
+  | 'ideas'
+  | 'calendar';
 
 /** Where a write tool points: route and link label. */
 export type ToolDestination = { key: ToolDestinationKey; route: string; labelKey: string };
@@ -103,12 +105,16 @@ const SCREENS: Record<ToolDestinationKey, ToolDestination> = {
   configuration: { key: 'configuration', route: '/configuration', labelKey: 'Config' },
   focus: { key: 'focus', route: '/focus', labelKey: 'FocusTitle' },
   ideas: { key: 'ideas', route: '/ideas', labelKey: 'Ideas' },
+  calendar: { key: 'calendar', route: '/calendar', labelKey: 'Calendar' },
 };
 
 /** First match wins, so the order is part of the rule. */
 const BY_NAME: { match: RegExp; key: ToolDestinationKey }[] = [
   { match: /Habit/, key: 'habits' },
   { match: /Category/, key: 'categories' },
+  // Before /Task/: createCalendarTask is a task on the calendar, and the tasks page has never
+  // heard of it.
+  { match: /Calendar/, key: 'calendar' },
   { match: /Task/, key: 'tasks' },
   { match: /Goal/, key: 'goals' },
   { match: /Routine|Schedule/, key: 'routines' },

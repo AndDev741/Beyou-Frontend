@@ -1171,7 +1171,12 @@
     "listStudySessions": "Sessões lançadas consultadas",
     "deleteStudySession": "Sessão de estudo excluída",
     "createQuickNote": "Nota adicionada às Ideias",
-    "getQuickNotes": "Ideias consultadas"
+    "getQuickNotes": "Ideias consultadas",
+    "getCalendar": "Calendário consultado",
+    "createCalendarTask": "Adicionado ao calendário",
+    "editCalendarTask": "Tarefa do calendário atualizada",
+    "completeCalendarTask": "Tarefa do calendário marcada ou desmarcada",
+    "deleteCalendarTask": "Tarefa do calendário excluída"
   },
   "ThemeMode": "Modo",
   "ThemeModeSystem": "Sistema",

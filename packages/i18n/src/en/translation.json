@@ -1171,7 +1171,12 @@
     "listStudySessions": "Logged sessions checked",
     "deleteStudySession": "Study session deleted",
     "createQuickNote": "Note added to Ideas",
-    "getQuickNotes": "Ideas checked"
+    "getQuickNotes": "Ideas checked",
+    "getCalendar": "Calendar checked",
+    "createCalendarTask": "Added to the calendar",
+    "editCalendarTask": "Calendar task updated",
+    "completeCalendarTask": "Calendar task ticked or unticked",
+    "deleteCalendarTask": "Calendar task deleted"
   },
   "ThemeMode": "Mode",
   "ThemeModeSystem": "System",

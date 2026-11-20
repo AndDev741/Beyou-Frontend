@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { CalendarClock } from "lucide-react";
 import { getCalendarOverview } from "@beyou/api/calendar/calendarApi";
-import { addDaysIso, dayFromOverview, removeTaskFromOverview, upsertTaskInOverview } from "@beyou/state";
+import { addDaysIso, dayFromOverview, onCalendarChange, removeTaskFromOverview, upsertTaskInOverview } from "@beyou/state";
 import type { CalendarOverview, CalendarTask } from "@beyou/types/calendar/calendar";
 import BaseDiv from "./baseDiv";
 import Ring from "../../ui/Ring";
@@ -27,6 +27,8 @@ export default function CalendarToday() {
     /** The day the overview on screen was asked for. */
     const [fetchedOn, setFetchedOn] = useState<string | null>(null);
     const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+    /** Bumped when the assistant changed the calendar, to read the same days again. */
+    const [reload, setReload] = useState(0);
     const { toggle, pending } = useCalendarTaskToggle();
     const tRef = useRef(t);
     tRef.current = t;
@@ -52,7 +54,9 @@ export default function CalendarToday() {
         return () => {
             active = false;
         };
-    }, [clientToday]);
+    }, [clientToday, reload]);
+
+    useEffect(() => onCalendarChange(() => setReload((n) => n + 1)), []);
 
     const today = overview && fetchedOn === clientToday ? overview.today : clientToday;
     const tasks = useMemo(() => dayFromOverview(overview, today).tasks, [overview, today]);

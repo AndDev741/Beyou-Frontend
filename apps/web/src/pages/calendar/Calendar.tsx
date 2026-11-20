@@ -12,6 +12,7 @@ import {
     isInMonth,
     isIsoDay,
     monthOfIso,
+    onCalendarChange,
     rangeForView,
     removeTaskFromOverview,
     shiftMonth,
@@ -115,6 +116,10 @@ export default function Calendar() {
             active = false;
         };
     }, [range.from, range.to, reload, clientToday]);
+
+    // The assistant can put a task on the calendar, or move one, while this page is open under
+    // the chat. Its turn announces it, and the range on screen is read again.
+    useEffect(() => onCalendarChange(() => setReload((n) => n + 1)), []);
 
     const selectDay = useCallback(
         (day: string) => {

@@ -20,6 +20,7 @@ import { getMoodEntries } from '@beyou/api/mood/moodApi';
 import { microTasksLoaded } from '@beyou/state/focus/focusSlice';
 import {
   addDays,
+  announceCalendarChange,
   enterMoodEntries,
   refreshNotebook,
   refreshQuickNotes,
@@ -102,6 +103,12 @@ export function useAgentRefresh() {
           // along only when it was already opened.
           const state = store.getState() as RootState;
           await refreshQuickNotes(dispatch, state.quickNotes, t);
+        },
+        calendar: async () => {
+          // No slice to refetch: the calendar screen and the today widget each hold the range
+          // they asked for, so they are told to read it again. The chat floats over the screen,
+          // so nothing else would make the calendar under it re-read.
+          announceCalendarChange();
         },
         focus: async () => {
           // Micro-tasks are stored per routine entry and there is no "fetch them all". What the

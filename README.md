@@ -96,6 +96,7 @@ repository.
   so a new provider reaches an existing account only through a link made from inside it.
 - **AI assistant** — a streaming chat whose tools call the same API the buttons do, so it passes the
   same ownership checks and validation. It can read your mood levels. It cannot read your journal.
+  It can put a task on your calendar, and the calendar on screen picks it up without a reload.
 - **Theming & i18n as data** — two bases × five accent packs as design tokens, plus `en`/`pt`
   resources, shared across both apps.
 - **Type-safe backend contract** — backend types are generated from the OpenAPI spec and guarded
