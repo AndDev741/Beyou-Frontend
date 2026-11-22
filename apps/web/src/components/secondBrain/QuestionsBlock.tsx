@@ -33,10 +33,10 @@ type QuestionsBlockProps = {
  * One at a time on purpose: a list of five reads as a form to fill in, and a form gets
  * postponed. A single question with a box under it gets answered.
  *
- * After an answer the block shows what was kept, and for a question about the day or about
- * something in progress it offers to hand the answer to the assistant, which is the part of
- * Beyou that can check items, move habits and delete tasks. The hand-off only fills the
- * assistant's input. Nothing changes until the person sends it.
+ * After an answer the block shows what was kept (profile lines, notes on things), and for a
+ * question about the day or about something in progress it offers to hand the answer to the
+ * assistant, which is the part of Beyou that can check items, move habits and delete tasks.
+ * The hand-off only fills the assistant's input. Nothing changes until the person sends it.
  */
 export default function QuestionsBlock({ questions, refilling, onAnswer, onSkip, onRefill }: QuestionsBlockProps) {
     const { t } = useTranslation();
@@ -58,6 +58,8 @@ export default function QuestionsBlock({ questions, refilling, onAnswer, onSkip,
     }, [index, questions.length]);
 
     const current = questions[Math.min(index, questions.length - 1)];
+    // A server older than the notes sends no such list.
+    const notes = result?.notes ?? [];
     const draft = current ? (drafts[current.id] ?? "") : "";
     const trimmed = draft.trim();
 
@@ -116,9 +118,9 @@ export default function QuestionsBlock({ questions, refilling, onAnswer, onSkip,
                             <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/10 text-success">
                                 <Check size={13} aria-hidden="true" />
                             </span>
-                            <div className="min-w-0">
-                                {result.learned.length > 0 ? (
-                                    <>
+                            <div className="flex min-w-0 flex-col gap-3">
+                                {result.learned.length > 0 && (
+                                    <div>
                                         <p className="text-sm font-semibold text-text">{t("SecondBrainLearnedTitle")}</p>
                                         <ul className="mt-1.5 flex flex-col gap-1.5">
                                             {result.learned.map((fact) => (
@@ -127,8 +129,23 @@ export default function QuestionsBlock({ questions, refilling, onAnswer, onSkip,
                                                 </li>
                                             ))}
                                         </ul>
-                                    </>
-                                ) : (
+                                    </div>
+                                )}
+                                {notes.length > 0 && (
+                                    <div data-testid="second-brain-answer-notes">
+                                        <p className="text-sm font-semibold text-text">{t("SecondBrainLearnedNotesTitle")}</p>
+                                        <ul className="mt-1.5 flex flex-col gap-1.5">
+                                            {notes.map((note) => (
+                                                <li key={note.id} className="text-sm leading-snug text-text-2">
+                                                    <span className="font-medium text-text">{note.subjectName}</span>
+                                                    {": "}
+                                                    {note.text}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                {result.learned.length === 0 && notes.length === 0 && (
                                     <p className="text-sm leading-snug text-text">{t("SecondBrainLearnedNothing")}</p>
                                 )}
                             </div>

@@ -1,7 +1,15 @@
 import type {
+    SecondBrainAnswerResult,
     SecondBrainArea,
     SecondBrainFactKind,
+    SecondBrainFactOrigin,
+    SecondBrainFormerType,
+    SecondBrainMemoryGroup,
+    SecondBrainMemorySubject,
+    SecondBrainNote,
+    SecondBrainNoteOrigin,
     SecondBrainQuestionKind,
+    SecondBrainSubjectType,
     SecondBrainSource,
     SecondBrainSourceState,
     SecondBrainVerdict,
@@ -34,6 +42,7 @@ export const SECOND_BRAIN_QUESTION_LABEL: Record<SecondBrainQuestionKind, string
     PROFILE_ABOUT: 'SecondBrainQuestionKindProfile',
     CHECK_IN: 'SecondBrainQuestionKindToday',
     FOLLOW_UP: 'SecondBrainQuestionKindFollowUp',
+    NEW_THING: 'SecondBrainQuestionKindNewThing',
 };
 
 /** The heading over each group of profile lines. */
@@ -59,7 +68,8 @@ export const SECOND_BRAIN_SOURCE_TEXT: Record<SecondBrainSource, { name: string;
 /**
  * Whether an answer can be handed to the assistant. A profile answer is the fact itself. A
  * check-in or a follow-up may call for something done in the app, and the assistant is the
- * part of Beyou that can do it.
+ * part of Beyou that can do it. A question about something just created is answered with why
+ * it started, which is a note and not a request, so it is not offered either.
  */
 export function canActOnAnswer(kind: SecondBrainQuestionKind): boolean {
     return kind === 'CHECK_IN' || kind === 'FOLLOW_UP';
@@ -102,4 +112,151 @@ export function secondBrainRefillIsDue(openCount: number, lastRefillAt: number |
     if (openCount === 0) return true;
     if (openCount >= SECOND_BRAIN_OPEN_QUESTIONS_MAX) return false;
     return lastRefillAt == null || now - lastRefillAt > SECOND_BRAIN_REFILL_EVERY_MS;
+}
+
+/**
+ * The small line under a profile line saying where it came from, or null for one the person
+ * typed, which needs no explanation. A null for an origin this app does not know yet, too: a
+ * newer server adding one should not put a raw key on the page.
+ */
+const FACT_ORIGIN_LABEL: Record<SecondBrainFactOrigin, string | null> = {
+    USER: null,
+    ANSWER: 'SecondBrainFactFromAnswer',
+    ASSISTANT: 'SecondBrainFromAssistant',
+    OLD_NOTE: 'SecondBrainFactFromOldNote',
+};
+
+export function secondBrainFactOriginLabel(origin: SecondBrainFactOrigin): string | null {
+    return FACT_ORIGIN_LABEL[origin] ?? null;
+}
+
+/**
+ * Where a note about a thing came from. Every note says so, the ones the person typed too:
+ * in a timeline that mixes the three, a blank would read as "unknown".
+ */
+const NOTE_ORIGIN_LABEL: Record<SecondBrainNoteOrigin, string> = {
+    USER: 'SecondBrainNoteFromYou',
+    ANSWER: 'SecondBrainFactFromAnswer',
+    ASSISTANT: 'SecondBrainFromAssistant',
+};
+
+export function secondBrainNoteOriginLabel(origin: SecondBrainNoteOrigin): string | null {
+    return NOTE_ORIGIN_LABEL[origin] ?? null;
+}
+
+/** What kind of thing a live subject is, shown beside its name. */
+const SUBJECT_TYPE_LABEL: Record<Exclude<SecondBrainSubjectType, 'LOOSE'>, string> = {
+    HABIT: 'SecondBrainSubjectHabit',
+    GOAL: 'SecondBrainSubjectGoal',
+    ROUTINE: 'SecondBrainSubjectRoutine',
+    CATEGORY: 'SecondBrainSubjectCategory',
+};
+
+/** What a deleted thing was, said on the tag its notes carry. */
+const DELETED_LABEL: Record<SecondBrainFormerType, string> = {
+    HABIT: 'SecondBrainSubjectDeletedHabit',
+    GOAL: 'SecondBrainSubjectDeletedGoal',
+    ROUTINE: 'SecondBrainSubjectDeletedRoutine',
+};
+
+/**
+ * The label beside a subject's name: what kind of thing it is, or, for a thing that was
+ * deleted, a tag saying so ("deleted habit"). Null when there is nothing to say.
+ *
+ * A deleted habit's notes move to its category and show there as their own subject, so the
+ * type alone ("category") would claim the notes are about the category. The tag wins.
+ * A LOOSE subject's thing is gone with no category to move to. When it does not say what it
+ * was (a deleted category's notes), the tag only says it was deleted.
+ */
+export function secondBrainSubjectLabel(
+    subject: Pick<SecondBrainMemorySubject, 'type' | 'formerType'>,
+): { key: string; deleted: boolean } | null {
+    if (subject.formerType) {
+        const key = DELETED_LABEL[subject.formerType];
+        return key ? { key, deleted: true } : { key: 'SecondBrainSubjectDeleted', deleted: true };
+    }
+    if (subject.type === 'LOOSE') return { key: 'SecondBrainSubjectDeleted', deleted: true };
+    const key = SUBJECT_TYPE_LABEL[subject.type];
+    return key ? { key, deleted: false } : null;
+}
+
+/** The heading over a group of notes: the category's name, or the label for the rest. */
+export const SECOND_BRAIN_MEMORY_OTHER_GROUP = 'SecondBrainMemoryOtherGroup';
+
+export function secondBrainGroupHeading(
+    group: Pick<SecondBrainMemoryGroup, 'categoryId' | 'categoryName'>,
+): { name: string } | { key: string } {
+    return group.categoryId != null && group.categoryName
+        ? { name: group.categoryName }
+        : { key: SECOND_BRAIN_MEMORY_OTHER_GROUP };
+}
+
+/**
+ * A stable key for a subject. Its id is not enough: a LOOSE subject has none, and a category's
+ * own notes and the notes a deleted habit left on it share the category's id.
+ */
+export function secondBrainSubjectKey(subject: SecondBrainMemorySubject): string {
+    return [subject.type, subject.id ?? '', subject.formerType ?? '', subject.name].join(':');
+}
+
+/** How many notes the memory block holds. */
+export function secondBrainNoteCount(memory: SecondBrainMemoryGroup[]): number {
+    return memory.reduce(
+        (total, group) => total + group.subjects.reduce((sum, subject) => sum + subject.notes.length, 0),
+        0,
+    );
+}
+
+/** The memory with one note replaced by what the server answered for it, in the same place. */
+export function secondBrainMemoryWithNote(
+    memory: SecondBrainMemoryGroup[],
+    note: SecondBrainNote,
+): SecondBrainMemoryGroup[] {
+    return memory.map((group) => ({
+        ...group,
+        subjects: group.subjects.map((subject) =>
+            subject.notes.some((item) => item.id === note.id)
+                ? { ...subject, notes: subject.notes.map((item) => (item.id === note.id ? note : item)) }
+                : subject,
+        ),
+    }));
+}
+
+/**
+ * The memory without one note. A subject left with no notes goes, and so does a group left
+ * with no subjects: the server sends neither, so the page would otherwise show something a
+ * reload would not.
+ */
+export function secondBrainMemoryWithoutNote(
+    memory: SecondBrainMemoryGroup[],
+    noteId: string,
+): SecondBrainMemoryGroup[] {
+    return memory
+        .map((group) => ({
+            ...group,
+            subjects: group.subjects
+                .map((subject) => ({ ...subject, notes: subject.notes.filter((note) => note.id !== noteId) }))
+                .filter((subject) => subject.notes.length > 0),
+        }))
+        .filter((group) => group.subjects.length > 0);
+}
+
+/**
+ * Whether an answer left notes on things, which means the page reads itself again: where a
+ * note lands in the memory block (which category, which subject) is the server's call. An
+ * answer from a server older than the notes has no `notes` at all, and that counts as none.
+ */
+export function secondBrainAnswerLeftNotes(result: Pick<SecondBrainAnswerResult, 'notes'>): boolean {
+    return Array.isArray(result.notes) && result.notes.length > 0;
+}
+
+/** A note's date as the page shows it, in the reader's language. Empty for a date it cannot read. */
+export function secondBrainNoteDate(iso: string, locale: string): string {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '';
+    try {
+        return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
+    } catch {
+        return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date);
+    }
 }

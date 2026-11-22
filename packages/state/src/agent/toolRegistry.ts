@@ -35,6 +35,9 @@ export const READ_TOOLS: ReadonlySet<string> = new Set([
   'listStudySessions',
   'getQuickNotes',
   'getCalendar',
+  // Reads the notes Beyou keeps about a habit, goal, routine or category, when the
+  // conversation comes to it. Nothing changes.
+  'readItemNotes',
   // Shows a diagram in the chat and saves nothing. The segment carries the diagram, and both
   // apps draw it as a card (see DIAGRAM_TOOLS) before this set is ever asked.
   'showDiagram',
@@ -53,9 +56,7 @@ export function isDiagramTool(tool: string | undefined): boolean {
 
 /**
  * Names that mention TWO entities (`addTaskToRoutineSection`) would match the wrong pattern
- * first; what you want to check in those cases is the routine. `updateGlobalContext` and
- * `updateChatContext` stay out on purpose: the agent's memory has no screen to "see", so they
- * become a chip.
+ * first; what you want to check in those cases is the routine.
  */
 export const ROUTINE_ITEM_TOOLS: ReadonlySet<string> = new Set([
   'addTaskToRoutineSection',
@@ -77,6 +78,17 @@ export const FOCUS_TOOLS: ReadonlySet<string> = new Set([
   'reorderMicroTasks',
 ]);
 
+/**
+ * What the assistant remembers lives on the Second Brain page, where the person reads, corrects
+ * and deletes it, so a save becomes a card that links there. `rememberAboutItem` names no
+ * entity, so no pattern below would catch it, and listing both keeps the pair together.
+ *
+ * `updateChatContext` (the note each conversation keeps about itself) and `updateGlobalContext`
+ * (the account-wide hidden note, removed from the backend; old transcripts still carry it) stay
+ * out on purpose: neither has a screen to check, so they render as a chip.
+ */
+export const SECOND_BRAIN_TOOLS: ReadonlySet<string> = new Set(['rememberAboutUser', 'rememberAboutItem']);
+
 /** The screens a write card can link to. Each app maps these to its own icon. */
 export type ToolDestinationKey =
   | 'habits'
@@ -89,7 +101,8 @@ export type ToolDestinationKey =
   | 'configuration'
   | 'focus'
   | 'ideas'
-  | 'calendar';
+  | 'calendar'
+  | 'secondBrain';
 
 /** Where a write tool points: route and link label. */
 export type ToolDestination = { key: ToolDestinationKey; route: string; labelKey: string };
@@ -106,6 +119,7 @@ const SCREENS: Record<ToolDestinationKey, ToolDestination> = {
   focus: { key: 'focus', route: '/focus', labelKey: 'FocusTitle' },
   ideas: { key: 'ideas', route: '/ideas', labelKey: 'Ideas' },
   calendar: { key: 'calendar', route: '/calendar', labelKey: 'Calendar' },
+  secondBrain: { key: 'secondBrain', route: '/second-brain', labelKey: 'SecondBrain' },
 };
 
 /** First match wins, so the order is part of the rule. */
@@ -131,6 +145,7 @@ export function toolDestination(tool: string | undefined): ToolDestination | nul
   // this keeps the function honest on its own, because `getItemMicroTasks` matches /Task/ and
   // would otherwise answer "/tasks" to anyone who asked it directly.
   if (READ_TOOLS.has(tool)) return null;
+  if (SECOND_BRAIN_TOOLS.has(tool)) return SCREENS.secondBrain;
   if (FOCUS_TOOLS.has(tool)) return SCREENS.focus;
   if (ROUTINE_ITEM_TOOLS.has(tool)) return SCREENS.routines;
   const found = BY_NAME.find(({ match }) => match.test(tool));
@@ -143,4 +158,9 @@ export function isReadTool(tool: string | undefined): boolean {
 }
 
 /** Every tool name the apps state an opinion about, for the label guard in the web i18n test. */
-export const KNOWN_TOOLS: readonly string[] = [...READ_TOOLS, ...ROUTINE_ITEM_TOOLS, ...FOCUS_TOOLS];
+export const KNOWN_TOOLS: readonly string[] = [
+  ...READ_TOOLS,
+  ...ROUTINE_ITEM_TOOLS,
+  ...FOCUS_TOOLS,
+  ...SECOND_BRAIN_TOOLS,
+];

@@ -24,18 +24,26 @@ export type SecondBrainFactKind = (typeof SECOND_BRAIN_FACT_KINDS)[number];
 
 /** The server's cap. Facts ride along with every chat, so their size is a cost. */
 export const SECOND_BRAIN_FACT_TEXT_MAX = 200;
+/** The server's cap on one note about a habit, goal, routine or category. */
+export const SECOND_BRAIN_NOTE_TEXT_MAX = 500;
 export const SECOND_BRAIN_FACT_LIMIT = 20;
 export const SECOND_BRAIN_ANSWER_MAX = 2000;
 /** The most questions the server keeps open at once. */
 export const SECOND_BRAIN_OPEN_QUESTIONS_MAX = 5;
+
+/**
+ * Where a profile line came from. USER typed it on the page; ANSWER came out of a reply to a
+ * question; ASSISTANT was written by the chat assistant; OLD_NOTE was kept from the hidden note
+ * the assistant used to keep, when the person reviewed it on the page.
+ */
+export type SecondBrainFactOrigin = 'USER' | 'ANSWER' | 'ASSISTANT' | 'OLD_NOTE';
 
 /** One thing every chat should know: an objective, something the person likes, or a fact about them. */
 export type SecondBrainFact = {
     id: string;
     kind: SecondBrainFactKind;
     text: string;
-    /** USER typed it on the page; ANSWER came out of a reply to a question. */
-    origin: 'USER' | 'ANSWER';
+    origin: SecondBrainFactOrigin;
     createdAt: string;
     updatedAt: string;
 };
@@ -50,7 +58,12 @@ export type SecondBrainQuestionKind =
     | 'PROFILE_LIKES'
     | 'PROFILE_ABOUT'
     | 'CHECK_IN'
-    | 'FOLLOW_UP';
+    | 'FOLLOW_UP'
+    /**
+     * Asked once about a habit, goal or routine created after the account's first visit. The
+     * text already carries the thing's name, in the language of the account at creation.
+     */
+    | 'NEW_THING';
 
 export type SecondBrainQuestion = {
     id: string;
@@ -67,6 +80,75 @@ export type SecondBrainAnswerResult = {
     question: SecondBrainQuestion;
     /** What the answer added to the profile. Empty when it held nothing lasting. */
     learned: SecondBrainFact[];
+    /**
+     * The notes the answer left on habits, goals, routines or categories. Empty when none.
+     * Where a note lands in the memory block is decided on the server, so a client that gets
+     * any here reads the page again instead of placing them itself.
+     */
+    notes: SecondBrainNote[];
+};
+
+/**
+ * Where a note about a thing came from: typed by the person, an answer on the page, or the
+ * assistant. Editing a note keeps its origin, as editing a profile line does.
+ */
+export type SecondBrainNoteOrigin = 'USER' | 'ANSWER' | 'ASSISTANT';
+
+/** One dated line about a habit, goal, routine or category. */
+export type SecondBrainNote = {
+    id: string;
+    /** 1 to 500 characters. */
+    text: string;
+    origin: SecondBrainNoteOrigin;
+    /** The thing's name when the note was written. Kept when the thing is deleted. */
+    subjectName: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+/**
+ * What a group of notes is about. LOOSE is a note whose thing is gone and that has no
+ * category left to move to.
+ */
+export type SecondBrainSubjectType = 'HABIT' | 'GOAL' | 'ROUTINE' | 'CATEGORY' | 'LOOSE';
+
+/** What a deleted thing used to be, carried on the notes it left behind. */
+export type SecondBrainFormerType = 'HABIT' | 'GOAL' | 'ROUTINE';
+
+/** One thing and its notes, oldest first, which is the timeline the page draws. */
+export type SecondBrainMemorySubject = {
+    type: SecondBrainSubjectType;
+    /** The thing's id; the category's own id for a CATEGORY subject; null for LOOSE. */
+    id: string | null;
+    /** The live name while the thing exists, the name kept on its notes once it does not. */
+    name: string;
+    iconId: string | null;
+    /**
+     * Set when the thing was deleted. A deleted habit's or goal's notes move to its first
+     * category and show there as a subject of their own, apart from the category's notes.
+     */
+    formerType: SecondBrainFormerType | null;
+    notes: SecondBrainNote[];
+};
+
+/**
+ * One category's notes. The group with a null category holds routines and loose notes, and
+ * comes last. The server sends no empty groups.
+ */
+export type SecondBrainMemoryGroup = {
+    categoryId: string | null;
+    categoryName: string | null;
+    categoryIconId: string | null;
+    subjects: SecondBrainMemorySubject[];
+};
+
+/**
+ * What came back from keeping or dropping one line of the old note: the lines still left, and
+ * the profile line it became when it was kept (null when it was dropped).
+ */
+export type SecondBrainOldNoteResult = {
+    lines: string[];
+    fact: SecondBrainFact | null;
 };
 
 /**
@@ -132,4 +214,13 @@ export type SecondBrainOverview = {
     facts: SecondBrainFact[];
     sources: SecondBrainSourceState[];
     aiAvailable: boolean;
+    /** The notes about things, grouped by category. Empty when there are none. */
+    memory: SecondBrainMemoryGroup[];
+    /**
+     * The note the assistant used to keep out of sight, split into sentences for the person to
+     * keep in the profile or drop. Empty once it is dealt with. Until then it still goes with
+     * every conversation. Each line is sent back exactly as it came, since the server finds it
+     * by its text.
+     */
+    oldNote: string[];
 };

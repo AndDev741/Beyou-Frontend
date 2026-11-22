@@ -46,6 +46,38 @@ test("the card link hands the route to the panel, which closes it", async () => 
     expect(onInternalLink).toHaveBeenCalledWith("/routines");
 });
 
+/** What the assistant saves about the person is read and corrected on the Second Brain page. */
+test("a note the assistant saved links to the Second Brain page", async () => {
+    const onInternalLink = vi.fn();
+    renderWithProviders(
+        <AgentSegments
+            segments={[tool({ tool: "rememberAboutItem" }), tool({ tool: "rememberAboutUser" })]}
+            onInternalLink={onInternalLink}
+        />
+    );
+
+    const links = screen.getAllByRole("button", { name: /SecondBrain/ });
+    expect(links).toHaveLength(2);
+    await userEvent.click(links[0]);
+
+    expect(onInternalLink).toHaveBeenCalledWith("/second-brain");
+});
+
+test("reading a thing's notes, and the old memory tools, stay chips", () => {
+    renderWithProviders(
+        <AgentSegments
+            segments={[
+                tool({ tool: "readItemNotes" }),
+                tool({ tool: "updateGlobalContext" }),
+                tool({ tool: "updateChatContext" }),
+            ]}
+            onInternalLink={vi.fn()}
+        />
+    );
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+});
+
 test("a failed write stays a chip — there is nothing to go and see", () => {
     renderWithProviders(
         <AgentSegments segments={[tool({ error: "boom" })]} onInternalLink={vi.fn()} />

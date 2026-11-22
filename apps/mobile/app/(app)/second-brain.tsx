@@ -12,6 +12,8 @@ import { useAutoRefresh } from '../../src/hooks/useAutoRefresh';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
 import AreasBlock from '../../src/secondBrain/AreasBlock';
 import GoalsBlock from '../../src/secondBrain/GoalsBlock';
+import MemoryBlock from '../../src/secondBrain/MemoryBlock';
+import OldNoteBlock from '../../src/secondBrain/OldNoteBlock';
 import OverviewBlock from '../../src/secondBrain/OverviewBlock';
 import ProfileBlock from '../../src/secondBrain/ProfileBlock';
 import QuestionsBlock from '../../src/secondBrain/QuestionsBlock';
@@ -28,7 +30,7 @@ import { useScreenTopPadding } from '../../src/ui/useScreenTopPadding';
  *
  * One column, in the order the web page takes below its two-column width: the overview,
  * then the questions (the one block that needs the person), then the blocks to read, then
- * the profile and the sources.
+ * the profile, the old note while there is one, what Beyou remembers, and the sources.
  */
 export default function SecondBrainScreen() {
   const topPadding = useScreenTopPadding();
@@ -117,6 +119,16 @@ export default function SecondBrainScreen() {
               onEdit={brain.editFact}
               onDelete={brain.deleteFact}
             />
+            {/* After the profile: a kept line lands in the block right above it. */}
+            {overview.oldNote.length > 0 ? (
+              <OldNoteBlock
+                lines={overview.oldNote}
+                onKeep={brain.keepOldLine}
+                onDiscard={brain.discardOldLine}
+                onClear={brain.clearOldNote}
+              />
+            ) : null}
+            <MemoryBlock memory={overview.memory} onEdit={brain.editNote} onDelete={brain.deleteNote} />
             <SourcesBlock
               sources={overview.sources}
               pending={brain.pendingSource}

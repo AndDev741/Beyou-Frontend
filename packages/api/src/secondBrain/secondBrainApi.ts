@@ -7,6 +7,8 @@ import type {
     SecondBrainFact,
     SecondBrainFactInput,
     SecondBrainInsight,
+    SecondBrainNote,
+    SecondBrainOldNoteResult,
     SecondBrainOverview,
     SecondBrainQuestion,
     SecondBrainSource,
@@ -134,6 +136,67 @@ export async function refreshSecondBrainInsight(t: TFunction): Promise<Result<Se
     try {
         const response = await getHttpClient().post<SecondBrainInsight>('/second-brain/insight/refresh');
         return { success: response.data };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
+/** Rewrites one note about a thing. The note keeps its origin and its place in the timeline. */
+export async function editSecondBrainNote(id: string, text: string, t: TFunction): Promise<Result<SecondBrainNote>> {
+    try {
+        const response = await getHttpClient().put<SecondBrainNote>(`/second-brain/notes/${id}`, { text });
+        return { success: response.data };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
+export async function deleteSecondBrainNote(id: string, t: TFunction): Promise<Result<true>> {
+    try {
+        await getHttpClient().delete(`/second-brain/notes/${id}`);
+        return { success: true };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
+/**
+ * Moves one line of the old hidden note into the profile, as an "about you" line. `text` is a
+ * line exactly as the overview sent it: the server finds the line by its text. A full profile
+ * answers 409 `SECOND_BRAIN_FACT_LIMIT_REACHED` and nothing changes.
+ */
+export async function keepSecondBrainOldNoteLine(
+    text: string,
+    t: TFunction,
+): Promise<Result<SecondBrainOldNoteResult>> {
+    try {
+        const response = await getHttpClient().post<SecondBrainOldNoteResult>('/second-brain/old-note/keep', { text });
+        return { success: response.data };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
+/** Drops one line of the old hidden note. Answers the lines still left. */
+export async function discardSecondBrainOldNoteLine(
+    text: string,
+    t: TFunction,
+): Promise<Result<SecondBrainOldNoteResult>> {
+    try {
+        const response = await getHttpClient().post<SecondBrainOldNoteResult>('/second-brain/old-note/discard', {
+            text,
+        });
+        return { success: response.data };
+    } catch (e) {
+        return fail(e, t);
+    }
+}
+
+/** Deletes whatever is left of the old hidden note, every line at once. */
+export async function deleteSecondBrainOldNote(t: TFunction): Promise<Result<true>> {
+    try {
+        await getHttpClient().delete('/second-brain/old-note');
+        return { success: true };
     } catch (e) {
         return fail(e, t);
     }

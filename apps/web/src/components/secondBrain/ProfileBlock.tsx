@@ -1,7 +1,7 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import { SECOND_BRAIN_FACT_TITLE } from "@beyou/state";
+import { SECOND_BRAIN_FACT_TITLE, secondBrainFactOriginLabel } from "@beyou/state";
 import {
     SECOND_BRAIN_FACT_KINDS,
     SECOND_BRAIN_FACT_LIMIT,
@@ -10,9 +10,9 @@ import {
     type SecondBrainFactInput,
     type SecondBrainFactKind,
 } from "@beyou/types/secondBrain/secondBrain";
-import Button from "../Button";
 import IconButton from "../../ui/IconButton";
 import Block from "./Block";
+import LineForm from "./LineForm";
 
 type ProfileBlockProps = {
     facts: SecondBrainFact[];
@@ -25,70 +25,18 @@ type ProfileBlockProps = {
 /** Which line is being written: a new one under a heading, or an existing one. */
 type Editing = { mode: "new"; kind: SecondBrainFactKind } | { mode: "edit"; fact: SecondBrainFact };
 
-function LineForm({
-    initial,
-    label,
-    onSave,
-    onCancel,
-}: {
-    initial: string;
-    label: string;
-    onSave: (text: string) => Promise<boolean>;
-    onCancel: () => void;
-}) {
+/**
+ * Where a line came from, under it: an answer, the assistant, the old note. A line the person
+ * typed says nothing, since that is what a profile line is by default.
+ */
+function FactOrigin({ origin }: { origin: SecondBrainFact["origin"] }) {
     const { t } = useTranslation();
-    const fieldId = useId();
-    const [text, setText] = useState(initial);
-    const [saving, setSaving] = useState(false);
-    const trimmed = text.trim();
-
-    const save = async () => {
-        if (!trimmed || saving) return;
-        setSaving(true);
-        const ok = await onSave(trimmed);
-        // On success the parent unmounts this form, so there is nothing left to reset.
-        if (!ok) setSaving(false);
-    };
-
+    const key = secondBrainFactOriginLabel(origin);
+    if (!key) return null;
     return (
-        <form
-            className="flex flex-col gap-2"
-            onSubmit={(event) => {
-                event.preventDefault();
-                void save();
-            }}
-            data-testid="second-brain-fact-form"
-        >
-            <label htmlFor={fieldId} className="text-[12.5px] font-semibold text-text-2">
-                {label}
-            </label>
-            <textarea
-                id={fieldId}
-                rows={2}
-                autoFocus
-                value={text}
-                maxLength={SECOND_BRAIN_FACT_TEXT_MAX}
-                onChange={(event) => setText(event.target.value)}
-                onKeyDown={(event) => {
-                    if (event.key === "Escape") onCancel();
-                    if (event.key === "Enter" && !event.shiftKey) {
-                        event.preventDefault();
-                        void save();
-                    }
-                }}
-                className="w-full resize-none rounded-control border border-border bg-bg px-3 py-2 text-sm leading-relaxed text-text transition-colors duration-200 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25"
-                data-testid="second-brain-fact-input"
-            />
-            <div className="flex items-center justify-between gap-3">
-                <div className="flex gap-2">
-                    <Button text={t("Save")} mode="primary" size="small" type="submit" disabled={!trimmed || saving} />
-                    <Button text={t("Cancel")} mode="ghost" size="small" type="button" onClick={onCancel} />
-                </div>
-                <span className="font-mono text-[11px] text-text-3">
-                    {text.length}/{SECOND_BRAIN_FACT_TEXT_MAX}
-                </span>
-            </div>
-        </form>
+        <p className="mt-0.5 text-[11.5px] text-text-3" data-testid="second-brain-fact-origin">
+            {t(key)}
+        </p>
     );
 }
 
@@ -142,6 +90,9 @@ export default function ProfileBlock({ facts, onCreate, onEdit, onDelete }: Prof
                                                 <LineForm
                                                     initial={fact.text}
                                                     label={t("SecondBrainFactEditLabel")}
+                                                    maxLength={SECOND_BRAIN_FACT_TEXT_MAX}
+                                                    formTestId="second-brain-fact-form"
+                                                    inputTestId="second-brain-fact-input"
                                                     onCancel={() => setEditing(null)}
                                                     onSave={async (text) => {
                                                         const ok = await onEdit(fact.id, { kind: fact.kind, text });
@@ -158,11 +109,7 @@ export default function ProfileBlock({ facts, onCreate, onEdit, onDelete }: Prof
                                             >
                                                 <div className="min-w-0 flex-1">
                                                     <p className="break-words text-sm leading-snug text-text">{fact.text}</p>
-                                                    {fact.origin === "ANSWER" && (
-                                                        <p className="mt-0.5 text-[11.5px] text-text-3">
-                                                            {t("SecondBrainFactFromAnswer")}
-                                                        </p>
-                                                    )}
+                                                    <FactOrigin origin={fact.origin} />
                                                 </div>
                                                 {/* Always there on touch screens, where nothing hovers. */}
                                                 <div className="flex shrink-0 gap-0.5 transition-opacity duration-200 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
@@ -194,6 +141,9 @@ export default function ProfileBlock({ facts, onCreate, onEdit, onDelete }: Prof
                                     <LineForm
                                         initial=""
                                         label={t("SecondBrainFactNewLabel")}
+                                        maxLength={SECOND_BRAIN_FACT_TEXT_MAX}
+                                        formTestId="second-brain-fact-form"
+                                        inputTestId="second-brain-fact-input"
                                         onCancel={() => setEditing(null)}
                                         onSave={async (text) => {
                                             const ok = await onCreate({ kind, text });

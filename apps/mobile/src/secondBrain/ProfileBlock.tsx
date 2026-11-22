@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Pencil, Trash2 } from 'lucide-react-native';
-import { SECOND_BRAIN_FACT_TITLE } from '@beyou/state';
+import { SECOND_BRAIN_FACT_TITLE, secondBrainFactOriginLabel } from '@beyou/state';
 import {
   SECOND_BRAIN_FACT_KINDS,
   SECOND_BRAIN_FACT_LIMIT,
@@ -11,12 +11,11 @@ import {
   type SecondBrainFactInput,
   type SecondBrainFactKind,
 } from '@beyou/types/secondBrain/secondBrain';
-import Button from '../ui/Button';
 import GhostAdd from '../ui/GhostAdd';
 import IconButton from '../ui/IconButton';
-import Input from '../ui/Input';
 import { useBeyouTheme } from '../theme/ThemeProvider';
 import Block from './Block';
+import LineForm from './LineForm';
 
 type ProfileBlockProps = {
   facts: SecondBrainFact[];
@@ -29,67 +28,18 @@ type ProfileBlockProps = {
 /** Which line is being written: a new one under a heading, or an existing one. */
 type Editing = { mode: 'new'; kind: SecondBrainFactKind } | { mode: 'edit'; fact: SecondBrainFact };
 
-function LineForm({
-  initial,
-  label,
-  onSave,
-  onCancel,
-}: {
-  initial: string;
-  label: string;
-  onSave: (text: string) => Promise<boolean>;
-  onCancel: () => void;
-}) {
+/**
+ * Where a line came from, under it: an answer, the assistant, the old note. A line the
+ * person typed says nothing, since that is what a profile line is by default.
+ */
+function FactOrigin({ origin }: { origin: SecondBrainFact['origin'] }) {
   const { t } = useTranslation();
-  const [text, setText] = useState(initial);
-  const [saving, setSaving] = useState(false);
-  const trimmed = text.trim();
-
-  const save = async () => {
-    if (!trimmed || saving) return;
-    setSaving(true);
-    const ok = await onSave(trimmed);
-    // On success the parent unmounts this form, so there is nothing left to reset.
-    if (!ok) setSaving(false);
-  };
-
+  const key = secondBrainFactOriginLabel(origin);
+  if (!key) return null;
   return (
-    <View testID="second-brain-fact-form">
-      <Input
-        compact
-        multiline
-        autoFocus
-        label={label}
-        value={text}
-        onChangeText={setText}
-        maxLength={SECOND_BRAIN_FACT_TEXT_MAX}
-        accessibilityLabel={label}
-        testID="second-brain-fact-input"
-      />
-      <Text className="mt-1 self-end font-mono text-[11px] text-text-3">
-        {text.length}/{SECOND_BRAIN_FACT_TEXT_MAX}
-      </Text>
-      <View className="mt-1 flex-row flex-wrap gap-2">
-        <Button
-          text={t('Save')}
-          mode="primary"
-          size="auto"
-          disabled={!trimmed}
-          submitting={saving}
-          onPress={() => void save()}
-          // Keeps its width while the spinner stands in for the label.
-          className="min-w-[104px]"
-          testID="second-brain-fact-save"
-        />
-        <Button
-          text={t('Cancel')}
-          mode="ghost"
-          size="auto"
-          onPress={onCancel}
-          testID="second-brain-fact-cancel"
-        />
-      </View>
-    </View>
+    <Text className="mt-0.5 text-[11.5px] text-text-3" testID="second-brain-fact-origin">
+      {t(key)}
+    </Text>
   );
 }
 
@@ -146,6 +96,11 @@ export default function ProfileBlock({ facts, onCreate, onEdit, onDelete }: Prof
                         <LineForm
                           initial={fact.text}
                           label={t('SecondBrainFactEditLabel')}
+                          maxLength={SECOND_BRAIN_FACT_TEXT_MAX}
+                          formTestID="second-brain-fact-form"
+                          inputTestID="second-brain-fact-input"
+                          saveTestID="second-brain-fact-save"
+                          cancelTestID="second-brain-fact-cancel"
                           onCancel={() => setEditing(null)}
                           onSave={async (text) => {
                             const ok = await onEdit(fact.id, { kind: fact.kind, text });
@@ -158,9 +113,7 @@ export default function ProfileBlock({ facts, onCreate, onEdit, onDelete }: Prof
                       <View key={fact.id} className="flex-row items-start gap-1 py-1.5" testID="second-brain-fact">
                         <View className="min-w-0 flex-1 pt-1">
                           <Text className="text-sm leading-5 text-text">{fact.text}</Text>
-                          {fact.origin === 'ANSWER' ? (
-                            <Text className="mt-0.5 text-[11.5px] text-text-3">{t('SecondBrainFactFromAnswer')}</Text>
-                          ) : null}
+                          <FactOrigin origin={fact.origin} />
                         </View>
                         <IconButton
                           label={t('Edit')}
@@ -189,6 +142,11 @@ export default function ProfileBlock({ facts, onCreate, onEdit, onDelete }: Prof
                   <LineForm
                     initial=""
                     label={t('SecondBrainFactNewLabel')}
+                    maxLength={SECOND_BRAIN_FACT_TEXT_MAX}
+                    formTestID="second-brain-fact-form"
+                    inputTestID="second-brain-fact-input"
+                    saveTestID="second-brain-fact-save"
+                    cancelTestID="second-brain-fact-cancel"
                     onCancel={() => setEditing(null)}
                     onSave={async (text) => {
                       const ok = await onCreate({ kind, text });

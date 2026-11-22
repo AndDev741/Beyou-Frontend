@@ -39,18 +39,29 @@ jest.mock('@beyou/api', () => ({
   answerSecondBrainQuestion: jest.fn(),
   skipSecondBrainQuestion: jest.fn(),
   refreshSecondBrainInsight: jest.fn(),
+  editSecondBrainNote: jest.fn(),
+  deleteSecondBrainNote: jest.fn(),
+  keepSecondBrainOldNoteLine: jest.fn(),
+  discardSecondBrainOldNoteLine: jest.fn(),
+  deleteSecondBrainOldNote: jest.fn(),
 }));
 jest.mock('../src/ui/agent/agentPanelBus', () => ({ openAgentPanelWithDraft: jest.fn() }));
 
 import { StrictMode } from 'react';
+import { Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react-native';
 import {
   answerSecondBrainQuestion,
   createSecondBrainFact,
   deleteSecondBrainFact,
+  deleteSecondBrainNote,
+  deleteSecondBrainOldNote,
+  discardSecondBrainOldNoteLine,
   editSecondBrainFact,
+  editSecondBrainNote,
   getSecondBrain,
+  keepSecondBrainOldNoteLine,
   refillSecondBrainQuestions,
   refreshSecondBrainInsight,
   setSecondBrainSource,
@@ -62,6 +73,8 @@ import {
   SECOND_BRAIN_SOURCES,
   type SecondBrainFact,
   type SecondBrainInsight,
+  type SecondBrainMemoryGroup,
+  type SecondBrainNote,
   type SecondBrainOverview,
   type SecondBrainQuestion,
   type SecondBrainSource,
@@ -86,6 +99,11 @@ const mocked = {
   write: refreshSecondBrainInsight as jest.Mock,
   handOver: openAgentPanelWithDraft as jest.Mock,
   toastError: notify.error as jest.Mock,
+  editNote: editSecondBrainNote as jest.Mock,
+  deleteNote: deleteSecondBrainNote as jest.Mock,
+  keepLine: keepSecondBrainOldNoteLine as jest.Mock,
+  discardLine: discardSecondBrainOldNoteLine as jest.Mock,
+  clearOldNote: deleteSecondBrainOldNote as jest.Mock,
 };
 
 const question = (id: string, kind: SecondBrainQuestion['kind'], text: string): SecondBrainQuestion => ({
@@ -154,8 +172,78 @@ const overview = (patch: Partial<SecondBrainOverview> = {}): SecondBrainOverview
     { source: 'IDEAS', enabled: false },
   ],
   aiAvailable: true,
+  memory: [],
+  oldNote: [],
   ...patch,
 });
+
+const note = (
+  id: string,
+  text: string,
+  origin: SecondBrainNote['origin'] = 'ANSWER',
+  subjectName = 'Gym',
+): SecondBrainNote => ({
+  id,
+  text,
+  origin,
+  subjectName,
+  createdAt: '2026-11-21T10:00:00Z',
+  updatedAt: '2026-11-21T10:00:00Z',
+});
+
+/**
+ * A category with its own note, a habit, and the notes of a habit deleted since, which moved
+ * to the category and show as their own subject; then the group of routines and the rest.
+ * The same fixture as the web page's test.
+ */
+const memory = (): SecondBrainMemoryGroup[] => [
+  {
+    categoryId: 'c1',
+    categoryName: 'Health',
+    categoryIconId: null,
+    subjects: [
+      {
+        type: 'CATEGORY',
+        id: 'c1',
+        name: 'Health',
+        iconId: null,
+        formerType: null,
+        notes: [note('n1', "Health is the year's priority", 'ASSISTANT', 'Health')],
+      },
+      {
+        type: 'HABIT',
+        id: 'h1',
+        name: 'Gym',
+        iconId: null,
+        formerType: null,
+        notes: [note('n2', 'Wants more energy for work'), note('n3', 'Rain is what stops it')],
+      },
+      {
+        type: 'CATEGORY',
+        id: 'c1',
+        name: 'Swimming',
+        iconId: null,
+        formerType: 'HABIT',
+        notes: [note('n4', 'Stopped when the pool closed', 'ANSWER', 'Swimming')],
+      },
+    ],
+  },
+  {
+    categoryId: null,
+    categoryName: null,
+    categoryIconId: null,
+    subjects: [
+      {
+        type: 'ROUTINE',
+        id: 'r1',
+        name: 'Morning',
+        iconId: null,
+        formerType: null,
+        notes: [note('n5', 'Built around the school run', 'USER', 'Morning')],
+      },
+    ],
+  },
+];
 
 const withSource = (source: SecondBrainSource, enabled: boolean) =>
   overview().sources.map((item) => (item.source === source ? { ...item, enabled } : item));
@@ -257,11 +345,11 @@ describe('SecondBrainScreen', () => {
   });
 
   it('puts the questions second, as the web page does on a narrow screen', async () => {
-    mockLoad(overview());
+    mockLoad(overview({ oldNote: ['Has two kids.'] }));
     await renderScreen();
 
     const order = screen
-      .getAllByTestId(/^second-brain-(overview|questions|goals|routine|areas|profile|sources)$/)
+      .getAllByTestId(/^second-brain-(overview|questions|goals|routine|areas|profile|old-note|memory|sources)$/)
       .map((block) => block.props.testID);
     expect(order).toEqual([
       'second-brain-overview',
@@ -270,6 +358,8 @@ describe('SecondBrainScreen', () => {
       'second-brain-routine',
       'second-brain-areas',
       'second-brain-profile',
+      'second-brain-old-note',
+      'second-brain-memory',
       'second-brain-sources',
     ]);
   });
@@ -483,6 +573,7 @@ describe('SecondBrainScreen', () => {
         success: {
           question: { ...overview().questions[0], status: 'ANSWERED', answer: 'Pass the visa interview' },
           learned: [learned],
+          notes: [],
         },
       });
       await renderScreen();
@@ -517,7 +608,7 @@ describe('SecondBrainScreen', () => {
       // An ampersand and an apostrophe: escaped, they would reach the assistant as entities.
       const said = "Skipped the gym & didn't read";
       mocked.answer.mockResolvedValue({
-        success: { question: { ...checkIn, status: 'ANSWERED', answer: said }, learned: [] },
+        success: { question: { ...checkIn, status: 'ANSWERED', answer: said }, learned: [], notes: [] },
       });
       await renderScreen();
 
@@ -538,7 +629,7 @@ describe('SecondBrainScreen', () => {
       const checkIn = question('q9', 'CHECK_IN', 'How is your day going?');
       mockLoad(overview({ questions: [checkIn] }));
       mocked.answer.mockResolvedValue({
-        success: { question: { ...checkIn, status: 'ANSWERED', answer: 'Fine' }, learned: [] },
+        success: { question: { ...checkIn, status: 'ANSWERED', answer: 'Fine' }, learned: [], notes: [] },
       });
       await renderScreen({ tutorialDone: false });
 
@@ -831,6 +922,212 @@ describe('SecondBrainScreen', () => {
       expect(screen.getByText('You kept most of the week.')).toBeTruthy();
       expect(screen.queryByTestId('second-brain-error')).toBeNull();
     });
+  });
+});
+
+describe('new things and where lines come from', () => {
+  /**
+   * A habit created after the first visit gets its own question. The answer is why it
+   * started, which becomes a note on the habit; where it lands is the server's call, so the
+   * screen reads itself again.
+   */
+  it('asks about something new like any question, and reads the page again for the note it left', async () => {
+    const newThing = question(
+      'q7',
+      'NEW_THING',
+      'You started the habit "Gym". What led you to it, and what usually gets in the way?',
+    );
+    mockLoad(overview({ questions: [newThing] }));
+    mocked.answer.mockResolvedValue({
+      success: {
+        question: { ...newThing, status: 'ANSWERED', answer: 'More energy. Rain stops me.' },
+        learned: [],
+        notes: [note('n9', 'More energy. Rain stops me.')],
+      },
+    });
+    await renderScreen();
+
+    expect(within(screen.getByTestId('second-brain-question')).getByText('Something new')).toBeTruthy();
+
+    // What the server answers once the note is filed under the habit.
+    mockLoad(overview({ questions: [], memory: memory() }));
+    const readsBefore = mocked.get.mock.calls.length;
+    await type('second-brain-answer-input', 'More energy. Rain stops me.');
+    await press('second-brain-answer-send');
+
+    const notes = screen.getByTestId('second-brain-answer-notes');
+    expect(within(notes).getByText('Added to what Beyou remembers')).toBeTruthy();
+    expect(screen.queryByText('Noted. Nothing new for your profile in that one.')).toBeNull();
+    // Why a thing started is a note, not a request, so there is nothing to hand over.
+    expect(screen.queryByTestId('second-brain-act')).toBeNull();
+    await waitFor(() => expect(mocked.get.mock.calls.length).toBe(readsBefore + 1));
+    expect(screen.getAllByTestId('second-brain-memory-group')).toHaveLength(2);
+  });
+
+  it('says which profile lines the assistant wrote, and says nothing of the ones typed', async () => {
+    mockLoad(overview({ facts: [fact('f1', 'LIKE', 'Cooking on Sundays'), fact('f2', 'ABOUT', 'Has a daughter', 'ASSISTANT')] }));
+    await renderScreen();
+
+    expect(within(screen.getByTestId('second-brain-facts-ABOUT')).getByText('From the assistant')).toBeTruthy();
+    expect(within(screen.getByTestId('second-brain-facts-LIKE')).queryByTestId('second-brain-fact-origin')).toBeNull();
+  });
+});
+
+describe('what Beyou remembers', () => {
+  it('groups the notes by category, each thing with its timeline and each note with where it came from', async () => {
+    mockLoad(overview({ memory: memory() }));
+    await renderScreen();
+
+    const groups = screen.getAllByTestId('second-brain-memory-group');
+    expect(groups).toHaveLength(2);
+    expect(within(groups[0]).getAllByText('Health').length).toBeGreaterThan(0);
+    expect(within(groups[1]).getByText('Routines and other notes')).toBeTruthy();
+
+    const subjects = within(groups[0]).getAllByTestId('second-brain-memory-subject');
+    expect(subjects).toHaveLength(3);
+    expect(within(subjects[0]).getByText('Category')).toBeTruthy();
+    expect(within(subjects[0]).getByText(/From the assistant/)).toBeTruthy();
+    // Oldest first, as the server sends them.
+    const gym = within(subjects[1]).getAllByTestId('second-brain-note');
+    expect(within(gym[0]).getByText('Wants more energy for work')).toBeTruthy();
+    expect(within(gym[1]).getByText('Rain is what stops it')).toBeTruthy();
+    expect(within(gym[0]).getByText(/From an answer/)).toBeTruthy();
+    // The habit is gone, and its name alone would not say so.
+    expect(within(subjects[2]).getByTestId('second-brain-memory-deleted')).toHaveTextContent('Deleted habit');
+    expect(within(subjects[1]).queryByTestId('second-brain-memory-deleted')).toBeNull();
+    expect(within(groups[1]).getByText(/Written by you/)).toBeTruthy();
+  });
+
+  it('says where notes come from while there are none', async () => {
+    mockLoad(overview());
+    await renderScreen();
+
+    expect(screen.getByTestId('second-brain-memory-empty')).toHaveTextContent(
+      'Nothing yet. Notes show up here as you answer questions and talk to the assistant.',
+    );
+  });
+
+  /** An edit keeps where the note came from. The screen shows what the server says. */
+  it('edits a note in place and shows the origin the server kept', async () => {
+    mockLoad(overview({ memory: memory() }));
+    mocked.editNote.mockResolvedValue({ success: note('n3', 'Rain and cold stop it', 'ASSISTANT') });
+    await renderScreen();
+
+    await press('second-brain-note-edit-n3');
+    expect(screen.getByTestId('second-brain-note-input').props.value).toBe('Rain is what stops it');
+    await type('second-brain-note-input', ' Rain and cold stop it ');
+    await press('second-brain-note-save');
+
+    expect(mocked.editNote).toHaveBeenCalledWith('n3', 'Rain and cold stop it', expect.anything());
+    expect(screen.queryByTestId('second-brain-note-form')).toBeNull();
+    const edited = screen.getAllByTestId('second-brain-note').find((row) => within(row).queryByText('Rain and cold stop it'));
+    expect(edited).toBeTruthy();
+    expect(within(edited!).getByText(/From the assistant/)).toBeTruthy();
+  });
+
+  it('deletes a note at once, and a thing left with no notes goes with it', async () => {
+    mockLoad(overview({ memory: memory() }));
+    mocked.deleteNote.mockResolvedValue({ success: true });
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await renderScreen();
+
+    await press('second-brain-note-delete-n4');
+
+    expect(mocked.deleteNote).toHaveBeenCalledWith('n4', expect.anything());
+    expect(screen.queryByText('Swimming')).toBeNull();
+    expect(screen.getAllByTestId('second-brain-memory-subject')).toHaveLength(3);
+    // Like a profile line: nothing asked in between.
+    expect(alert).not.toHaveBeenCalled();
+    alert.mockRestore();
+  });
+
+  it('reads the page again when the note was already gone', async () => {
+    mockLoad(overview({ memory: memory() }));
+    mocked.deleteNote.mockResolvedValue({ error: { errorKey: 'SECOND_BRAIN_NOTE_NOT_FOUND' } });
+    await renderScreen();
+    const readsBefore = mocked.get.mock.calls.length;
+
+    await press('second-brain-note-delete-n2');
+
+    expect(mocked.toastError).toHaveBeenCalledWith("We couldn't find that note. It may have been deleted.");
+    await waitFor(() => expect(mocked.get.mock.calls.length).toBe(readsBefore + 1));
+  });
+});
+
+describe("the assistant's old note", () => {
+  it('is not shown once nothing is left of it', async () => {
+    mockLoad(overview());
+    await renderScreen();
+
+    expect(screen.getByTestId('second-brain-memory')).toBeTruthy();
+    expect(screen.queryByTestId('second-brain-old-note')).toBeNull();
+  });
+
+  it('keeps a line in the profile, sending it back exactly as it came', async () => {
+    mockLoad(overview({ oldNote: ['Has two kids.', 'Likes tea.'] }));
+    mocked.keepLine.mockResolvedValue({
+      success: { lines: ['Likes tea.'], fact: fact('f9', 'ABOUT', 'Has two kids.', 'OLD_NOTE') },
+    });
+    await renderScreen();
+
+    await act(async () => {
+      await fireEvent.press(within(screen.getAllByTestId('second-brain-old-note-line')[0]).getByTestId('second-brain-old-note-keep'));
+    });
+
+    expect(mocked.keepLine).toHaveBeenCalledWith('Has two kids.', expect.anything());
+    expect(screen.getAllByTestId('second-brain-old-note-line')).toHaveLength(1);
+    const about = screen.getByTestId('second-brain-facts-ABOUT');
+    expect(within(about).getByText('Has two kids.')).toBeTruthy();
+    expect(within(about).getByText("Kept from the assistant's old note")).toBeTruthy();
+  });
+
+  it('says the profile is full, in the block, and leaves the line where it was', async () => {
+    mockLoad(overview({ oldNote: ['Has two kids.'] }));
+    mocked.keepLine.mockResolvedValue({ error: { errorKey: 'SECOND_BRAIN_FACT_LIMIT_REACHED' } });
+    await renderScreen();
+
+    await press('second-brain-old-note-keep');
+
+    expect(screen.getByTestId('second-brain-old-note-full')).toHaveTextContent(
+      'Your profile is full at 20 lines. Remove one to add another.',
+    );
+    expect(screen.getByTestId('second-brain-old-note-line')).toHaveTextContent(/Has two kids\./);
+    expect(mocked.toastError).not.toHaveBeenCalled();
+  });
+
+  it('drops a line, and the block goes once none is left', async () => {
+    mockLoad(overview({ oldNote: ['Has two kids.'] }));
+    mocked.discardLine.mockResolvedValue({ success: { lines: [], fact: null } });
+    await renderScreen();
+
+    await press('second-brain-old-note-discard');
+
+    expect(mocked.discardLine).toHaveBeenCalledWith('Has two kids.', expect.anything());
+    expect(screen.queryByTestId('second-brain-old-note')).toBeNull();
+  });
+
+  it('asks before deleting the whole note', async () => {
+    mockLoad(overview({ oldNote: ['Has two kids.', 'Likes tea.'] }));
+    mocked.clearOldNote.mockResolvedValue({ success: true });
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await renderScreen();
+
+    await press('second-brain-old-note-clear');
+
+    expect(alert).toHaveBeenCalledTimes(1);
+    const [title, body, buttons] = alert.mock.calls[0];
+    expect(title).toBe('Delete the whole old note?');
+    expect(body).toMatch(/move it to your profile first/);
+    expect(mocked.clearOldNote).not.toHaveBeenCalled();
+
+    const confirm = buttons?.find((button) => button.style === 'destructive');
+    await act(async () => {
+      confirm?.onPress?.();
+    });
+
+    expect(mocked.clearOldNote).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('second-brain-old-note')).toBeNull();
+    alert.mockRestore();
   });
 });
 

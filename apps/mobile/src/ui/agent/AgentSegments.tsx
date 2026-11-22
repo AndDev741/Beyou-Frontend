@@ -2,6 +2,7 @@ import { ActivityIndicator, Pressable, Text, View, useWindowDimensions } from 'r
 import { useTranslation } from 'react-i18next';
 import {
   BookHeart,
+  Brain,
   CalendarCheck,
   CalendarDays,
   Check,
@@ -53,6 +54,8 @@ const ICONS: Record<ToolDestinationKey, LucideIcon> = {
   focus: Target,
   ideas: StickyNote,
   calendar: CalendarCheck,
+  // The icon the bottom bar uses for the screen.
+  secondBrain: Brain,
 };
 
 export function destinationFor(tool: string | undefined): Destination | null {

@@ -37,6 +37,10 @@ import type {
     SecondBrainFactInput,
     SecondBrainInsight,
     SecondBrainItemPattern,
+    SecondBrainMemoryGroup,
+    SecondBrainMemorySubject,
+    SecondBrainNote,
+    SecondBrainOldNoteResult,
     SecondBrainOverview,
     SecondBrainQuestion,
     SecondBrainRoutine,
@@ -142,6 +146,10 @@ export type ContractChecks = [
     Matches<FieldsMissingFromWire<SecondBrainItemPattern, Schemas["SecondBrainRoutineItemDTO"]>>,
     Matches<FieldsMissingFromWire<SecondBrainArea, Schemas["SecondBrainAreaDTO"]>>,
     Matches<FieldsMissingFromWire<SecondBrainAnswerResult, Schemas["SecondBrainAnswerResultDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainMemoryGroup, Schemas["SecondBrainMemoryGroupDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainMemorySubject, Schemas["SecondBrainMemorySubjectDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainNote, Schemas["SecondBrainNoteDTO"]>>,
+    Matches<FieldsMissingFromWire<SecondBrainOldNoteResult, Schemas["SecondBrainOldNoteResultDTO"]>>,
     // Mood
     Matches<FieldsMissingFromWire<MoodEntry, Schemas["MoodEntryResponseDTO"]>>,
     // Focus

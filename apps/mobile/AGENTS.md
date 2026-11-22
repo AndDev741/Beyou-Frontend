@@ -359,6 +359,28 @@ small muted prefix inside the title's `<Text>` (`RootPrefix`).
 - **Tests** share sample data and a recording fake server in `__tests__/fixtures/studyCycle.ts`;
   jest skips that folder (`testPathIgnorePatterns`).
 
+## Second Brain
+
+The screen is `app/(app)/second-brain.tsx`, the phone twin of the web's `/second-brain`. Its
+blocks live in `src/secondBrain/` (Overview, Questions, Goals, Routine, Areas, Profile,
+OldNote, Memory, Sources), each wrapped in the local `Block`. One column, in the order the web
+page takes below its two-column width.
+
+- **One read for the page.** `useSecondBrain` (screen-local state, not a slice) loads
+  everything with `GET /second-brain` and applies each write's answer in place. A write that
+  moves other blocks (a source switch, an answer that left notes on things) reads the page
+  again quietly, and a read overtaken by a write reads again rather than putting old data
+  back. Coming back to the screen counts as a visit (`useAutoRefresh`); the timer does not.
+- **The rules are shared.** Labels, origins, the deleted-thing tag, the group heading, which
+  answers go to the assistant, when to refill, and the memory updates after an edit or a
+  delete are in `@beyou/state` `secondBrain/secondBrainRules.ts`, tested once with vitest.
+  Do not compute any of them in the screen: the web reads the same functions.
+- **Memory.** Notes about habits, goals, routines and categories arrive grouped on the server
+  (`overview.memory`); the screen never regroups them. A note is edited in place and deleted
+  at once, like a profile line. The old hidden note (`overview.oldNote`) shows only while it
+  has lines; "delete all" asks first with `Alert.alert`, as clearing every conversation does.
+  Each line goes back to the server exactly as it came, since the server finds it by its text.
+
 ## iOS (App Store build)
 
 Bundle id `com.beyou.mobile`, same as Android. `app.json` carries the iOS block; `app.config.ts`

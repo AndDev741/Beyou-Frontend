@@ -56,6 +56,16 @@ describe('AgentSegments tool rendering', () => {
     expect(onInternalLink).toHaveBeenCalledWith('/habits');
   });
 
+  it('shows a saved note as a card that opens the Second Brain screen', async () => {
+    await renderSegments([{ type: 'tool', tool: 'rememberAboutItem', status: 'finished' }]);
+
+    expect(screen.getByText('Note saved')).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText('Second Brain'));
+    });
+    expect(onInternalLink).toHaveBeenCalledWith('/second-brain');
+  });
+
   it('keeps a failed write as a chip — there is nothing to go and see', async () => {
     await renderSegments([
       { type: 'tool', tool: 'createUserHabit', status: 'finished', error: 'boom' },
@@ -193,9 +203,17 @@ describe('destinationFor', () => {
     expect(destinationFor('addHabitToRoutineSection')?.route).toBe('/routines');
   });
 
-  it('has no destination for the agent memory tools', () => {
-    // There is no screen for the agent's remembered context, so those stay chips.
+  it('has no destination for the conversation notes', () => {
+    // The note each conversation keeps, and the old hidden note old transcripts still carry,
+    // have no screen to check, so those stay chips.
     expect(destinationFor('updateGlobalContext')).toBeNull();
     expect(destinationFor('updateChatContext')).toBeNull();
+  });
+
+  it('sends what the assistant remembers to the Second Brain screen', () => {
+    expect(destinationFor('rememberAboutUser')?.route).toBe('/second-brain');
+    expect(destinationFor('rememberAboutItem')?.route).toBe('/second-brain');
+    expect(destinationFor('rememberAboutItem')?.Icon).toBeDefined();
+    expect(destinationFor('readItemNotes')).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import {
     BookHeart,
+    Brain,
     CalendarClock,
     CalendarDays,
     Check,
@@ -45,6 +46,8 @@ const ICONS: Record<ToolDestinationKey, LucideIcon> = {
     focus: Target,
     ideas: StickyNote,
     calendar: CalendarClock,
+    // The icon the sidebar and the bottom bar use for the page.
+    secondBrain: Brain,
 };
 
 export function destinationFor(tool: string | undefined): Destination | null {
