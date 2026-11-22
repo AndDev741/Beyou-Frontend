@@ -175,8 +175,9 @@ __NAV__
     <ul>
       <li>The message you wrote, exactly as you wrote it.</li>
       <li>The earlier messages in that conversation, so the assistant follows the thread.</li>
-      <li>Notes the assistant has written about you, described below.</li>
-      <li>The lines of your Second Brain profile, if you have written any. They are described under Second Brain, further down.</li>
+      <li>The lines of your Second Brain profile, if there are any. They are described under Second Brain, further down.</li>
+      <li>The names of your habits, goals, routines and categories that have notes, so the assistant knows there is something to look up. The notes themselves go only when a conversation comes to one of those things.</li>
+      <li>The short note each conversation keeps about itself, and what is left of the note the assistant used to keep about you. Both are described below.</li>
       <li>Your display name, your language, your time zone and your app settings.</li>
       <li>The screen of the app you were on, and today's date.</li>
       <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, your focus sessions and their steps, and your study notebook, so the names, descriptions and notes in them reach the provider as part of answering. It can read your mood as a number and whether you wrote a note that day, never the note itself.</li>
@@ -189,16 +190,26 @@ __NAV__
       written by Beyou.
     </p>
     <p>
-      The assistant also keeps notes about you between conversations, so it does
-      not ask the same thing twice. It decides what is worth remembering and
-      writes it in its own words. One note covers the whole account, and each
-      conversation gets one of its own. Both go out with every message.
+      When you tell the assistant something lasting about your life, or about one
+      of your habits, goals, routines or categories, it writes it down where you
+      can read it: as a line of your Second Brain profile, or as a dated note on
+      that thing. It says so in the conversation, with a link to the Second Brain
+      page, and you can correct or delete what it wrote there. Each conversation
+      also keeps a short note about itself, which goes out with every message in
+      that conversation and nowhere else.
+    </p>
+    <p>
+      Until November 2026 the assistant kept one more note, about you, that you
+      could not see. If any of it is left, the Second Brain page shows it, one
+      sentence per line, for you to keep in your profile or delete. Until you do,
+      it still goes out with every message, as it did before.
     </p>
     <p>
       The assistant is optional. If you never open it, none of the above happens.
-      You can delete a single conversation, and you can reset the assistant
-      entirely, which deletes every conversation and erases the notes it kept
-      about you. Both are in the app.
+      You can delete a single conversation, and you can clear all of them at
+      once. Clearing them deletes every conversation and leaves your profile
+      lines and notes where they are; those you delete on the Second Brain page.
+      Both are in the app.
     </p>
 
     <h3>The guided setup</h3>
@@ -258,9 +269,19 @@ __NAV__
     <p>
       Second Brain is a page that says whether you are on course or drifting
       from what you said you want, and asks you questions to understand you
-      better. It keeps four things: a short profile you write or answer into, of
-      at most 20 lines; the questions it asked, with your answers; the last
-      overview it wrote; and your choice of what it may read.
+      better. It keeps a short profile you write or answer into, of at most 20
+      lines, and dated notes about your habits, goals, routines and categories,
+      at most 30 for each. It also keeps the questions it asked, with your
+      answers, the last overview it wrote, and your choice of what it may read.
+    </p>
+    <p>
+      The notes come from your answers on the page and from the assistant. Once
+      you have opened the page, each habit, goal or routine you create gets a
+      question there about what led you to it, and your answer becomes a note on
+      it. Each note shows its date and where it came from. Deleting a habit or a
+      goal moves its notes to its category, with its name kept on them; a
+      routine's notes, and notes left with no category, stay in a group of their
+      own.
     </p>
     <p>
       The overview and some of the questions are written by the same providers.
@@ -281,21 +302,24 @@ __NAV__
       Routines, goals and mood start switched on. Calendar, notebook and the
       ideas board start switched off, and you change any of them on the page.
       The switches apply to this page only. Whatever they say, Beyou also sends
-      your profile lines, your recent answers, your language and the date. It
+      your profile lines, the latest notes about your things (the ones that
+      slipped or held steady and the goals ahead come first), your recent
+      answers, your language and the date. It
       sends no display name and no email address, and the diary has no switch:
       what you write there is never read.
     </p>
     <p>
       Once you have an overview, answering a question sends the question, your
-      answer and your profile lines to the provider, so it can pick out what is
-      worth keeping as a profile line. Before that, your answer is kept as you
-      wrote it. An answer about your day can be handed to the assistant, which
-      then treats it like any other message you send.
+      answer, your profile lines and the names of your habits, goals and routines
+      to the provider, so it can pick out what is worth keeping as a profile line
+      or as a note on one of them. Before that, your answer is kept as you wrote
+      it. An answer about your day can be handed to the assistant, which then
+      treats it like any other message you send.
     </p>
     <p>
       None of this happens unless you open the page. You can edit or delete any
-      profile line there, and every assistant conversation reads the lines that
-      remain.
+      profile line or note there, one at a time, and every assistant conversation
+      reads the profile lines that remain.
     </p>
 
     <h2 id="why">4. Why it is stored, and on what legal basis</h2>
@@ -334,7 +358,7 @@ __NAV__
           <tr><th>Who</th><th>What reaches them</th><th>Why</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines and your answers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
+          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines, your notes and your answers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
           <tr><td>Tavily</td><td>The titles of a notebook topic and page and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
           <tr><td>Apple</td><td>The fact that you signed in, if you use Sign in with Apple, and the request to revoke that sign-in when you delete your account. Mail to a private relay address passes through Apple's relay</td><td>Sign-in on the iPhone app, and delivering email to a hidden address</td></tr>
@@ -442,9 +466,9 @@ __NAV__
     <ul>
       <li>Your account and everything in it: until you delete your account.</li>
       <li>Your check-in history: for as long as the account exists, on purpose. A streak and a chart of last year are the point of the app, and both need the history behind them.</li>
-      <li>Assistant conversations and the notes it wrote about you: until you delete them or delete your account. They do not expire on their own.</li>
+      <li>Assistant conversations, and what is left of the note the assistant used to keep about you: until you delete them or delete your account. They do not expire on their own.</li>
       <li>Your diary, your study notebook and your focus sessions: until you delete them or delete your account.</li>
-      <li>Your Second Brain profile: until you delete its lines or delete your account. The questions it asked, your answers and its last overview: until you delete your account. Each new overview replaces the one before.</li>
+      <li>Your Second Brain profile and notes: until you delete them on the page, line by line and note by note, or delete your account. Clearing your assistant conversations leaves them in place. A thing keeps its 30 most recent notes, and a new one past that removes the oldest. The questions it asked, your answers and its last overview: until you delete your account. Each new overview replaces the one before.</li>
       <li>The daily briefing's summaries: 30 days, after which a nightly job deletes them.</li>
       <li>Feedback you sent: until you delete your account.</li>
       <li>Error reports: kept on the collector for as long as they are useful for debugging, and they do not identify you.</li>
@@ -473,8 +497,9 @@ __NAV__
       history, your routine snapshots, your diary with every note in it, your
       whole study notebook with its sources, flashcards and study conversations,
       your focus sessions and their steps, your daily briefings, any sign-in
-      provider you connected, every assistant conversation, the notes the
-      assistant kept about you, your feedback and its attachments, and every
+      provider you connected, every assistant conversation, your Second Brain
+      profile, notes, questions and answers, what is left of the note the
+      assistant used to keep about you, your feedback and its attachments, and every
       active session and pending token. There is no grace period, and nothing is
       archived or recoverable.
     </p>
@@ -501,7 +526,7 @@ __NAV__
       <li>Access to what is stored about you.</li>
       <li>Correction of anything wrong. Most of it you can edit yourself in the app.</li>
       <li>Deletion, as described in section 9.</li>
-      <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, the sign-in providers you connected, categories, habits, tasks, goals and how they nest, routines and their type, check-in history, focus sessions and the steps you wrote for them, your diary, your study notebook (pages, roadmap, flashcards and how each review went, the sources you added, study conversations, quizzes and summaries, roadmap drafts), the daily briefings still kept, feedback, and your assistant conversations along with the notes the assistant wrote about you. What it leaves out: the daily snapshots of your routines, the text read out of your notebook sources (the sources themselves are listed), anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
+      <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, the sign-in providers you connected, categories, habits, tasks, goals and how they nest, routines and their type, check-in history, focus sessions and the steps you wrote for them, your diary, your study notebook (pages, roadmap, flashcards and how each review went, the sources you added, study conversations, quizzes and summaries, roadmap drafts), the daily briefings still kept, feedback, your Second Brain page (profile lines, notes, questions with your answers, the last overview and your source switches), and your assistant conversations along with what is left of the note the assistant used to keep about you. What it leaves out: the daily snapshots of your routines, the text read out of your notebook sources (the sources themselves are listed), anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
       <li>Restriction of processing, and objection to processing based on legitimate interests. For the routine emails that means the switch in the app's settings, or the unsubscribe link at the bottom of any one of them. No sign-in needed, and it takes effect immediately.</li>
       <li>Withdrawal of any consent you gave, without affecting what happened before.</li>
     </ul>
