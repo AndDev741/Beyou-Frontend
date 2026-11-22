@@ -137,6 +137,16 @@ export default function SecondBrain() {
                             <motion.div className="order-5 lg:order-none" {...rise(4)}>
                                 <AreasBlock areas={overview.areas} enabled={enabled("ROUTINES")} />
                             </motion.div>
+                            {/* The memory is read more than it is written, and it grows with every thing the
+                                person tracks, so it sits in the reading column. On a phone `order` still
+                                puts it after the profile and the old note. */}
+                            <motion.div className="order-8 lg:order-none" {...rise(7)}>
+                                <MemoryBlock
+                                    memory={overview.memory}
+                                    onEdit={brain.editNote}
+                                    onDelete={brain.deleteNote}
+                                />
+                            </motion.div>
                         </div>
 
                         <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-5">
@@ -168,13 +178,6 @@ export default function SecondBrain() {
                                     />
                                 </motion.div>
                             )}
-                            <motion.div className="order-8 lg:order-none" {...rise(7)}>
-                                <MemoryBlock
-                                    memory={overview.memory}
-                                    onEdit={brain.editNote}
-                                    onDelete={brain.deleteNote}
-                                />
-                            </motion.div>
                             <motion.div className="order-9 lg:order-none" {...rise(8)}>
                                 <SourcesBlock
                                     sources={overview.sources}
