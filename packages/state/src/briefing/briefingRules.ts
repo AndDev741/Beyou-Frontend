@@ -329,31 +329,36 @@ export type GoalPaceMessage = {
  *
  * Shared because it is a judgement two apps would word differently within a month. The
  * verdict itself comes from the server; this only picks the sentence. Null when there is
- * nothing honest to say: a goal from a server older than the pace fields, or one "behind"
- * on a zero target, which has no daily amount to ask for.
+ * nothing honest to say: a goal from a server older than the pace fields, one "behind" on a
+ * zero target, which has no amount to ask for, or a one-time goal, which is done or not and
+ * has no pace in between (the days left beside its bar already say what there is to say).
  *
- * @param formatNumber the app's locale formatter for the per-day amount
+ * @param formatNumber the app's locale formatter for the amounts
  */
 export function goalPaceMessage(
     goal: BriefingGoal,
     formatNumber: (value: number) => string,
 ): GoalPaceMessage | null {
-    const perDay = goal.requiredPerDay;
+    const hasRate = goal.requiredPerDay != null;
     switch (goal.pace) {
         case 'REACHED':
             return { key: 'BriefingGoalPaceReached', tone: 'success' };
         case 'OVERDUE':
             return { key: 'BriefingGoalPaceOverdue', tone: 'danger' };
         case 'BEHIND':
-            return perDay != null ? paceSentence('BriefingGoalPaceBehind', perDay, goal.unit, 'flame', formatNumber) : null;
+            return hasRate ? paceSentence('BriefingGoalPaceBehind', goal, 'flame', formatNumber) : null;
         case 'ON_TRACK':
-            return perDay != null
-                ? paceSentence('BriefingGoalPaceOnTrack', perDay, goal.unit, 'muted', formatNumber)
+            return hasRate
+                ? paceSentence('BriefingGoalPaceOnTrack', goal, 'muted', formatNumber)
                 : { key: 'BriefingGoalPaceOnTrackPlain', tone: 'muted' };
+        case 'ONE_TIME':
         default:
             return null;
     }
 }
+
+/** A week, for wording a slow goal. */
+const PACE_WEEK_DAYS = 7;
 
 /** A month, for wording a slow goal. Thirty is close enough for "about one a month". */
 const PACE_MONTH_DAYS = 30;
@@ -361,26 +366,37 @@ const PACE_MONTH_DAYS = 30;
 /**
  * The pace sentence in the period where the amount reads as a number a person can act on.
  *
- * A goal that asks for less than one unit a day used to say "0 books a day still gets you
- * there": twelve books in a year is 0.03 a day, and one decimal rounds that to nothing. So
- * under one a day the amount is given per week, under one a week per month, and when even a
- * month asks for less than one the sentence carries no amount at all.
+ * From one unit a day up, the amount is per day. Under that it is per week, then per month,
+ * but only when the time left holds at least two of those periods: "3 interviews a month"
+ * for one interview due in fifteen days, or "3.5 documents a week" for five documents in
+ * nine days, are rates nobody can live through. Every other case says what is left and how
+ * many days there are for it, "5 more in 9 days", which is always true and needs no rounding.
  *
- * The day sentence keeps its `perDay` parameter, so the translations already shipped still fit.
+ * The amounts come from the remainder and the days left, not from the server's
+ * `requiredPerDay`: that one is rounded to one decimal, and the week and month figures used
+ * to multiply the rounding (1 in 15 days is 0.067 a day, rounded to 0.1, times 30 is 3).
+ * Today counts as one of the days, as it does on the server.
  */
 function paceSentence(
     key: 'BriefingGoalPaceBehind' | 'BriefingGoalPaceOnTrack',
-    perDay: number,
-    unit: string,
+    goal: BriefingGoal,
     tone: GoalPaceTone,
     formatNumber: (value: number) => string,
 ): GoalPaceMessage {
-    if (perDay >= 1) return { key, params: { perDay: formatNumber(perDay), unit }, tone };
-    const perWeek = perDay * 7;
-    if (perWeek >= 1) return { key: `${key}Week`, params: { amount: formatNumber(perWeek), unit }, tone };
+    const { unit, remainingValue, daysRemaining } = goal;
+    const perDay = remainingValue / (Math.max(0, daysRemaining) + 1);
+    if (perDay >= 1 || daysRemaining <= 0) {
+        return { key, params: { perDay: formatNumber(perDay), unit }, tone };
+    }
+    const perWeek = perDay * PACE_WEEK_DAYS;
+    if (perWeek >= 1 && daysRemaining >= 2 * PACE_WEEK_DAYS) {
+        return { key: `${key}Week`, params: { amount: formatNumber(perWeek), unit }, tone };
+    }
     const perMonth = perDay * PACE_MONTH_DAYS;
-    if (perMonth >= 1) return { key: `${key}Month`, params: { amount: formatNumber(perMonth), unit }, tone };
-    return { key: `${key}Plain`, tone };
+    if (perMonth >= 1 && daysRemaining >= 2 * PACE_MONTH_DAYS) {
+        return { key: `${key}Month`, params: { amount: formatNumber(perMonth), unit }, tone };
+    }
+    return { key: `${key}Left`, params: { amount: formatNumber(remainingValue), count: daysRemaining }, tone };
 }
 
 /**
