@@ -503,39 +503,75 @@ describe('goalPaceMessage', () => {
     const fmt = (value: number) => `#${value}`;
 
     it('asks a behind goal for its daily amount', () => {
-        expect(goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay: 2.5 }, fmt)).toEqual({
+        expect(goalPaceMessage({ ...goal('g'), pace: 'BEHIND', remainingValue: 25, daysRemaining: 9 }, fmt)).toEqual({
             key: 'BriefingGoalPaceBehind',
             params: { perDay: '#2.5', unit: 'times' },
             tone: 'flame',
         });
     });
 
+    const behind = (remainingValue: number, daysRemaining: number) =>
+        goalPaceMessage({ ...goal('g'), pace: 'BEHIND', remainingValue, daysRemaining }, (value) => value.toFixed(1));
+
     /**
      * Twelve books in a year is 0.03 a day, which one decimal turns into "0 books a day still
      * gets you there". Under one a day the amount moves to the week, then to the month.
      */
     it('words a slow goal in the period where the amount is at least one', () => {
-        const behind = (requiredPerDay: number) =>
-            goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay }, (value) => value.toFixed(1));
-
-        expect(behind(1)).toEqual({ key: 'BriefingGoalPaceBehind', params: { perDay: '1.0', unit: 'times' }, tone: 'flame' });
-        expect(behind(0.8)).toEqual({ key: 'BriefingGoalPaceBehindWeek', params: { amount: '5.6', unit: 'times' }, tone: 'flame' });
-        expect(behind(0.04)).toEqual({ key: 'BriefingGoalPaceBehindMonth', params: { amount: '1.2', unit: 'times' }, tone: 'flame' });
+        expect(behind(10, 9)).toEqual({ key: 'BriefingGoalPaceBehind', params: { perDay: '1.0', unit: 'times' }, tone: 'flame' });
+        expect(behind(20, 29)).toEqual({ key: 'BriefingGoalPaceBehindWeek', params: { amount: '4.7', unit: 'times' }, tone: 'flame' });
+        expect(behind(8, 79)).toEqual({ key: 'BriefingGoalPaceBehindMonth', params: { amount: '3.0', unit: 'times' }, tone: 'flame' });
     });
 
-    it('drops the amount when even a month asks for less than one', () => {
-        expect(goalPaceMessage({ ...goal('g'), pace: 'BEHIND', requiredPerDay: 0.003 }, fmt))
-            .toEqual({ key: 'BriefingGoalPaceBehindPlain', tone: 'flame' });
-        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', requiredPerDay: 0.003 }, fmt))
-            .toEqual({ key: 'BriefingGoalPaceOnTrackPlain', tone: 'muted' });
+    /**
+     * The three goals on the Second Brain page that read as nonsense on 2026-11-22: "3.5
+     * documents a week" for five documents in nine days, and a bare "Behind pace." for one
+     * book in 39 days. A rate needs two of its periods to fit in the time left; anything
+     * else says what is left and in how many days.
+     */
+    it('says what is left and in how many days when no period fits twice', () => {
+        expect(behind(5, 9)).toEqual({ key: 'BriefingGoalPaceBehindLeft', params: { amount: '5.0', count: 9 }, tone: 'flame' });
+        expect(behind(1, 39)).toEqual({ key: 'BriefingGoalPaceBehindLeft', params: { amount: '1.0', count: 39 }, tone: 'flame' });
+        expect(behind(1, 1)).toEqual({ key: 'BriefingGoalPaceBehindLeft', params: { amount: '1.0', count: 1 }, tone: 'flame' });
+    });
+
+    /**
+     * The server rounds requiredPerDay to one decimal: one in fifteen days came as 0.1 and read
+     * "3 a month". Four in ninety days comes as 0.0, which is still a rate to word.
+     */
+    it('works the amounts out from the remainder, not the rounded daily rate', () => {
+        const slow = { ...goal('g'), pace: 'BEHIND' as const, remainingValue: 4, daysRemaining: 89, requiredPerDay: 0 };
+        expect(goalPaceMessage(slow, (value) => value.toFixed(1))).toEqual({
+            key: 'BriefingGoalPaceBehindMonth',
+            params: { amount: '1.3', unit: 'times' },
+            tone: 'flame',
+        });
+    });
+
+    it('asks for the whole remainder on the last day', () => {
+        expect(behind(0.5, 0)).toEqual({ key: 'BriefingGoalPaceBehind', params: { perDay: '0.5', unit: 'times' }, tone: 'flame' });
     });
 
     it('words a slow goal that is on pace the same way', () => {
-        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', requiredPerDay: 0.5 }, fmt)).toEqual({
+        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', remainingValue: 7, daysRemaining: 13 }, fmt)).toEqual({
+            key: 'BriefingGoalPaceOnTrackLeft',
+            params: { amount: '#7', count: 13 },
+            tone: 'muted',
+        });
+        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', remainingValue: 10, daysRemaining: 19 }, fmt)).toEqual({
             key: 'BriefingGoalPaceOnTrackWeek',
             params: { amount: '#3.5', unit: 'times' },
             tone: 'muted',
         });
+        expect(goalPaceMessage({ ...goal('g'), pace: 'ON_TRACK', requiredPerDay: null }, fmt))
+            .toEqual({ key: 'BriefingGoalPaceOnTrackPlain', tone: 'muted' });
+    });
+
+    /** "0 of 1 interview, 15 days left" has no pace to be behind on. The days left say it all. */
+    it('says nothing for a one-time goal', () => {
+        expect(goalPaceMessage({ ...goal('g'), pace: 'ONE_TIME', targetValue: 1, currentValue: 0, requiredPerDay: null }, fmt))
+            .toBeNull();
+        expect(showsExpectedPace({ ...goal('g'), pace: 'ONE_TIME' })).toBe(false);
     });
 
     /** The XP is paid on completion, so a met target is a reward still waiting. */

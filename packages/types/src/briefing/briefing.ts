@@ -88,8 +88,9 @@ export type BriefingGoal = {
     /** How far the current value is from the target, never negative. */
     remainingValue: number;
     /**
-     * What each day from today through the end date has to add, today included. Null once
-     * the goal is overdue or the target is met, since neither has a daily rate to ask for.
+     * What each day from today through the end date has to add, today included, rounded to
+     * one decimal. Null once the goal is overdue, met or one-time, since none of those has a
+     * daily rate to ask for.
      */
     requiredPerDay: number | null;
     /** Where a straight line from start to end says the goal should be by today, 0-100. */
@@ -101,8 +102,9 @@ export type BriefingGoal = {
 /**
  * Where a goal stands against its straight line. `REACHED` is a met target the user has
  * not marked done yet: the goal's XP is paid on completion, so that one is a reward waiting.
+ * `ONE_TIME` is an open goal of a single unit, which is done or not and has no line to trail.
  */
-export type BriefingGoalPace = 'ON_TRACK' | 'BEHIND' | 'OVERDUE' | 'REACHED';
+export type BriefingGoalPace = 'ON_TRACK' | 'BEHIND' | 'OVERDUE' | 'REACHED' | 'ONE_TIME';
 
 /**
  * Days older than yesterday that a retroactive check would still be accepted for.

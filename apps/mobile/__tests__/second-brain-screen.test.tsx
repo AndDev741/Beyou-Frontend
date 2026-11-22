@@ -237,7 +237,7 @@ describe('SecondBrainScreen', () => {
     expect(within(goal).getByText('18 days left')).toBeTruthy();
     expect(within(goal).getByText('3 of 10 sessions')).toBeTruthy();
     // The fixture goal needs 0.4 a day, so the sentence is the weekly one.
-    expect(within(goal).getByText('Behind pace. 2.8 sessions a week still gets you there.')).toBeTruthy();
+    expect(within(goal).getByText('Behind pace. 2.6 sessions a week still gets you there.')).toBeTruthy();
     // The tick is drawn for the eye only (the sentence above says it), so it is hidden from readers.
     expect(within(goal).getByTestId('second-brain-goal-expected', HIDDEN).props.style.left).toBe('55%');
     expect(screen.getByText('72%')).toBeTruthy();

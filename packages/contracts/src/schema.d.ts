@@ -3471,7 +3471,7 @@ export interface components {
             /** Format: int32 */
             expectedPercent?: number;
             /** @enum {string} */
-            pace?: "ON_TRACK" | "BEHIND" | "OVERDUE" | "REACHED";
+            pace?: "ON_TRACK" | "BEHIND" | "OVERDUE" | "REACHED" | "ONE_TIME";
         };
         BriefingRecoveryWindowDTO: {
             /** Format: date */
