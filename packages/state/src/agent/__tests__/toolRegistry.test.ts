@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { FOCUS_TOOLS, KNOWN_TOOLS, READ_TOOLS, ROUTINE_ITEM_TOOLS, isDiagramTool, isReadTool, toolDestination } from '../toolRegistry';
+import {
+    FOCUS_TOOLS,
+    KNOWN_TOOLS,
+    READ_TOOLS,
+    ROUTINE_ITEM_TOOLS,
+    SECOND_BRAIN_TOOLS,
+    isDiagramTool,
+    isReadTool,
+    toolDestination,
+} from '../toolRegistry';
 
 describe('the shared agent tool registry', () => {
     it('lists each known tool once, in one group only', () => {
@@ -69,8 +78,28 @@ describe('the shared agent tool registry', () => {
         expect(toolDestination(tool)?.route).toBe('/notebook');
     });
 
-    it('has nowhere to send the memory tools', () => {
+    /** What the assistant saves about the person or their things is read and fixed on that page. */
+    it('sends what the assistant remembers to the Second Brain page', () => {
+        for (const tool of SECOND_BRAIN_TOOLS) {
+            expect(isReadTool(tool)).toBe(false);
+            expect(toolDestination(tool)).toEqual({ key: 'secondBrain', route: '/second-brain', labelKey: 'SecondBrain' });
+        }
+        expect([...SECOND_BRAIN_TOOLS].sort()).toEqual(['rememberAboutItem', 'rememberAboutUser']);
+    });
+
+    it('shows reading the notes about a thing as a chip', () => {
+        expect(isReadTool('readItemNotes')).toBe(true);
+        expect(toolDestination('readItemNotes')).toBeNull();
+    });
+
+    /**
+     * The old hidden note and the note each conversation keeps about itself have no screen.
+     * Old transcripts still carry the first, and they keep rendering as the chip they always were.
+     */
+    it('has nowhere to send the conversation notes', () => {
         expect(toolDestination('updateGlobalContext')).toBeNull();
+        expect(toolDestination('updateChatContext')).toBeNull();
+        expect(isReadTool('updateGlobalContext')).toBe(false);
         expect(toolDestination(undefined)).toBeNull();
     });
 });
