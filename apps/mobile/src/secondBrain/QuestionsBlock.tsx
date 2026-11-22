@@ -39,10 +39,10 @@ type QuestionsBlockProps = {
  * One at a time on purpose: a list of five reads as a form to fill in, and a form gets
  * postponed. A single question with a box under it gets answered.
  *
- * After an answer the block shows what was kept, and for a question about the day or about
- * something in progress it offers to hand the answer to the assistant, which is the part of
- * Beyou that can check items, move habits and delete tasks. The hand-off only fills the
- * assistant's input. Nothing changes until the person sends it.
+ * After an answer the block shows what was kept (profile lines, notes on things), and for a
+ * question about the day or about something in progress it offers to hand the answer to the
+ * assistant, which is the part of Beyou that can check items, move habits and delete tasks.
+ * The hand-off only fills the assistant's input. Nothing changes until the person sends it.
  */
 export default function QuestionsBlock({
   questions,
@@ -129,6 +129,8 @@ export default function QuestionsBlock({
     ) : undefined;
 
   const offersHandOver = result ? canHandOver && canActOnAnswer(result.question.kind) : false;
+  // A server older than the notes sends no such list.
+  const notes = result?.notes ?? [];
 
   return (
     <Block title={t('SecondBrainQuestionsTitle')} action={pager} emphasis testID="second-brain-questions">
@@ -139,9 +141,9 @@ export default function QuestionsBlock({
             <View className="mt-0.5 h-5 w-5 items-center justify-center rounded-full bg-success/10">
               <Check size={13} color={theme.success} />
             </View>
-            <View className="min-w-0 flex-1">
+            <View className="min-w-0 flex-1 gap-3">
               {result.learned.length > 0 ? (
-                <>
+                <View>
                   <Text className="text-sm font-semibold text-text">{t('SecondBrainLearnedTitle')}</Text>
                   <View className="mt-1.5 gap-1.5">
                     {result.learned.map((fact) => (
@@ -150,10 +152,24 @@ export default function QuestionsBlock({
                       </Text>
                     ))}
                   </View>
-                </>
-              ) : (
+                </View>
+              ) : null}
+              {notes.length > 0 ? (
+                <View testID="second-brain-answer-notes">
+                  <Text className="text-sm font-semibold text-text">{t('SecondBrainLearnedNotesTitle')}</Text>
+                  <View className="mt-1.5 gap-1.5">
+                    {notes.map((note) => (
+                      <Text key={note.id} className="text-sm leading-5 text-text-2">
+                        <Text className="font-medium text-text">{note.subjectName}</Text>
+                        {`: ${note.text}`}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              ) : null}
+              {result.learned.length === 0 && notes.length === 0 ? (
                 <Text className="text-sm leading-5 text-text">{t('SecondBrainLearnedNothing')}</Text>
-              )}
+              ) : null}
             </View>
           </View>
           <View className="mt-4 gap-2">

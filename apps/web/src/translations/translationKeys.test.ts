@@ -2,6 +2,13 @@ import fs from "fs";
 import path from "path";
 import { resources } from '@beyou/i18n';
 import { KNOWN_TOOLS } from "@beyou/state/agent/toolRegistry";
+import {
+    SECOND_BRAIN_MEMORY_OTHER_GROUP,
+    SECOND_BRAIN_QUESTION_LABEL,
+    secondBrainFactOriginLabel,
+    secondBrainNoteOriginLabel,
+    secondBrainSubjectLabel,
+} from "@beyou/state";
 
 const en = resources.en.translation;
 const pt = resources.pt.translation;
@@ -97,4 +104,26 @@ test("every agent tool the app knows about has a label in both languages", () =>
 
     expect(missingEn).toEqual([]);
     expect(missingPt).toEqual([]);
+});
+
+/**
+ * The Second Brain labels are picked by the shared rules in @beyou/state, through a variable,
+ * so the literal-key sweep above never sees them. Each one is asked for here, for every value
+ * its enum can take, so a label added to the rules without its text fails in both languages.
+ */
+test("every label the shared Second Brain rules pick exists in both languages", () => {
+    const factOrigins = ["USER", "ANSWER", "ASSISTANT", "OLD_NOTE"] as const;
+    const noteOrigins = ["USER", "ANSWER", "ASSISTANT"] as const;
+    const types = ["HABIT", "GOAL", "ROUTINE", "CATEGORY", "LOOSE"] as const;
+    const formerTypes = [null, "HABIT", "GOAL", "ROUTINE"] as const;
+    const keys = [
+        ...Object.values(SECOND_BRAIN_QUESTION_LABEL),
+        ...factOrigins.map(secondBrainFactOriginLabel),
+        ...noteOrigins.map(secondBrainNoteOriginLabel),
+        ...types.flatMap((type) => formerTypes.map((formerType) => secondBrainSubjectLabel({ type, formerType })?.key)),
+        SECOND_BRAIN_MEMORY_OTHER_GROUP,
+    ].filter((key): key is string => !!key);
+
+    expect(keys.filter((key) => !(key in en)).sort()).toEqual([]);
+    expect(keys.filter((key) => !(key in pt)).sort()).toEqual([]);
 });

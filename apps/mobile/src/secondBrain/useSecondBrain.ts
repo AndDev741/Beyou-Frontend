@@ -4,15 +4,25 @@ import {
   answerSecondBrainQuestion,
   createSecondBrainFact,
   deleteSecondBrainFact,
+  deleteSecondBrainNote,
+  deleteSecondBrainOldNote,
+  discardSecondBrainOldNoteLine,
   editSecondBrainFact,
+  editSecondBrainNote,
   getSecondBrain,
+  keepSecondBrainOldNoteLine,
   refillSecondBrainQuestions,
   refreshSecondBrainInsight,
   setSecondBrainSource,
   skipSecondBrainQuestion,
 } from '@beyou/api';
 import { getFriendlyErrorMessage, type ApiErrorPayload } from '@beyou/api/apiError';
-import { secondBrainRefillIsDue } from '@beyou/state';
+import {
+  secondBrainAnswerLeftNotes,
+  secondBrainMemoryWithNote,
+  secondBrainMemoryWithoutNote,
+  secondBrainRefillIsDue,
+} from '@beyou/state';
 import type { RefreshReason } from '@beyou/state/sync/autoRefresh';
 import type {
   SecondBrainAnswerResult,
@@ -21,8 +31,23 @@ import type {
   SecondBrainSource,
 } from '@beyou/types/secondBrain/secondBrain';
 import { notify } from '../notify';
+import type { OldNoteKeepOutcome } from './OldNoteBlock';
 
 export type SecondBrainStatus = 'loading' | 'ready' | 'error';
+
+/**
+ * Error keys that mean the screen is out of date: the note or the line is already gone,
+ * deleted on another device or by the assistant. The page is read again so it shows what
+ * is there.
+ */
+const STALE_KEYS = new Set(['SECOND_BRAIN_NOTE_NOT_FOUND', 'SECOND_BRAIN_OLD_NOTE_LINE_NOT_FOUND']);
+
+/** A server older than the memory sends neither field; the screen treats that as none. */
+const withMemory = (page: SecondBrainOverview): SecondBrainOverview => ({
+  ...page,
+  memory: page.memory ?? [],
+  oldNote: page.oldNote ?? [],
+});
 
 /**
  * When this app last asked the server for more questions. The web keeps it in
@@ -143,7 +168,7 @@ export function useSecondBrain() {
         }
         return;
       }
-      const next = response.success;
+      const next = withMemory(response.success);
       setOverview(next);
       setLoadError(null);
       setStatus('ready');
@@ -206,9 +231,12 @@ export function useSecondBrain() {
         questions: page.questions.filter((question) => question.id !== id),
         facts: [...page.facts, ...result.learned],
       }));
+      // Which category and which thing a note lands under is the server's call, so the
+      // page is read again rather than guessing where to put it.
+      if (secondBrainAnswerLeftNotes(result)) void read('quiet');
       return result;
     },
-    [apply, fail, t],
+    [apply, fail, read, t],
   );
 
   const skip = useCallback(
@@ -265,6 +293,83 @@ export function useSecondBrain() {
     [apply, fail, t],
   );
 
+  /** Says why a write failed, and reads the page again when it failed because the page was stale. */
+  const failWrite = useCallback(
+    (error: ApiErrorPayload) => {
+      fail(error);
+      if (error.errorKey && STALE_KEYS.has(error.errorKey)) void read('quiet');
+    },
+    [fail, read],
+  );
+
+  const editNote = useCallback(
+    async (id: string, text: string): Promise<boolean> => {
+      const response = await editSecondBrainNote(id, text, t);
+      if (response.error || !response.success) {
+        if (response.error) failWrite(response.error);
+        return false;
+      }
+      // The server's note, origin included: an edit keeps where the note came from.
+      const note = response.success;
+      apply((page) => ({ ...page, memory: secondBrainMemoryWithNote(page.memory, note) }));
+      return true;
+    },
+    [apply, failWrite, t],
+  );
+
+  const deleteNote = useCallback(
+    async (id: string): Promise<boolean> => {
+      const response = await deleteSecondBrainNote(id, t);
+      if (response.error) {
+        failWrite(response.error);
+        return false;
+      }
+      apply((page) => ({ ...page, memory: secondBrainMemoryWithoutNote(page.memory, id) }));
+      return true;
+    },
+    [apply, failWrite, t],
+  );
+
+  const keepOldLine = useCallback(
+    async (line: string): Promise<OldNoteKeepOutcome> => {
+      const response = await keepSecondBrainOldNoteLine(line, t);
+      if (response.error || !response.success) {
+        // A full profile is said in the block, under the button, instead of a toast.
+        if (response.error?.errorKey === 'SECOND_BRAIN_FACT_LIMIT_REACHED') return 'full';
+        if (response.error) failWrite(response.error);
+        return 'error';
+      }
+      const { lines, fact } = response.success;
+      apply((page) => ({ ...page, oldNote: lines, facts: fact ? [...page.facts, fact] : page.facts }));
+      return 'ok';
+    },
+    [apply, failWrite, t],
+  );
+
+  const discardOldLine = useCallback(
+    async (line: string): Promise<boolean> => {
+      const response = await discardSecondBrainOldNoteLine(line, t);
+      if (response.error || !response.success) {
+        if (response.error) failWrite(response.error);
+        return false;
+      }
+      const { lines } = response.success;
+      apply((page) => ({ ...page, oldNote: lines }));
+      return true;
+    },
+    [apply, failWrite, t],
+  );
+
+  const clearOldNote = useCallback(async (): Promise<boolean> => {
+    const response = await deleteSecondBrainOldNote(t);
+    if (response.error) {
+      fail(response.error);
+      return false;
+    }
+    apply((page) => ({ ...page, oldNote: [] }));
+    return true;
+  }, [apply, fail, t]);
+
   const toggleSource = useCallback(
     async (source: SecondBrainSource, enabled: boolean) => {
       setPendingSource(source);
@@ -298,6 +403,11 @@ export function useSecondBrain() {
     createFact,
     editFact,
     deleteFact,
+    editNote,
+    deleteNote,
+    keepOldLine,
+    discardOldLine,
+    clearOldNote,
     pendingSource,
     toggleSource,
   };

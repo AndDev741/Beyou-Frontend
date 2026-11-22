@@ -6,22 +6,46 @@ import {
     answerSecondBrainQuestion,
     createSecondBrainFact,
     deleteSecondBrainFact,
+    deleteSecondBrainNote,
+    deleteSecondBrainOldNote,
+    discardSecondBrainOldNoteLine,
     editSecondBrainFact,
+    editSecondBrainNote,
     getSecondBrain,
+    keepSecondBrainOldNoteLine,
     refillSecondBrainQuestions,
     refreshSecondBrainInsight,
     setSecondBrainSource,
     skipSecondBrainQuestion,
 } from "@beyou/api/secondBrain/secondBrainApi";
-import { secondBrainRefillIsDue } from "@beyou/state";
+import {
+    secondBrainAnswerLeftNotes,
+    secondBrainMemoryWithNote,
+    secondBrainMemoryWithoutNote,
+    secondBrainRefillIsDue,
+} from "@beyou/state";
 import {
     type SecondBrainAnswerResult,
     type SecondBrainFactInput,
     type SecondBrainOverview,
     type SecondBrainSource,
 } from "@beyou/types/secondBrain/secondBrain";
+import type { OldNoteKeepOutcome } from "./OldNoteBlock";
 
 export type SecondBrainStatus = "loading" | "ready" | "error";
+
+/**
+ * Error keys that mean the page is out of date: the note or the line is already gone, deleted
+ * on another device or by the assistant. The page is read again so it shows what is there.
+ */
+const STALE_KEYS = new Set(["SECOND_BRAIN_NOTE_NOT_FOUND", "SECOND_BRAIN_OLD_NOTE_LINE_NOT_FOUND"]);
+
+/** A server older than the memory sends neither field; the page treats that as none. */
+const withMemory = (page: SecondBrainOverview): SecondBrainOverview => ({
+    ...page,
+    memory: page.memory ?? [],
+    oldNote: page.oldNote ?? [],
+});
 
 /**
  * When the page last asked the server for more questions. Kept for the browser session so
@@ -115,7 +139,7 @@ export function useSecondBrain() {
                 setStatus("error");
                 return;
             }
-            const next = response.success;
+            const next = withMemory(response.success);
             setOverview(next);
             setLoadError(null);
             setStatus("ready");
@@ -161,9 +185,12 @@ export function useSecondBrain() {
                       }
                     : prev,
             );
+            // Which category and which thing a note lands under is the server's call, so the
+            // page is read again rather than guessing where to put it.
+            if (secondBrainAnswerLeftNotes(result)) void load(true);
             return result;
         },
-        [fail, t],
+        [fail, load, t],
     );
 
     const skip = useCallback(
@@ -224,6 +251,85 @@ export function useSecondBrain() {
         [fail, t],
     );
 
+    /** Toasts a failed write, and reads the page again when it failed because the page was stale. */
+    const failWrite = useCallback(
+        (error: ApiErrorPayload) => {
+            fail(error);
+            if (error.errorKey && STALE_KEYS.has(error.errorKey)) void load(true);
+        },
+        [fail, load],
+    );
+
+    const editNote = useCallback(
+        async (id: string, text: string): Promise<boolean> => {
+            const response = await editSecondBrainNote(id, text, t);
+            if (response.error || !response.success) {
+                if (response.error) failWrite(response.error);
+                return false;
+            }
+            // The server's note, origin included: an edit keeps where the note came from.
+            const note = response.success;
+            setOverview((prev) => (prev ? { ...prev, memory: secondBrainMemoryWithNote(prev.memory, note) } : prev));
+            return true;
+        },
+        [failWrite, t],
+    );
+
+    const deleteNote = useCallback(
+        async (id: string): Promise<boolean> => {
+            const response = await deleteSecondBrainNote(id, t);
+            if (response.error) {
+                failWrite(response.error);
+                return false;
+            }
+            setOverview((prev) => (prev ? { ...prev, memory: secondBrainMemoryWithoutNote(prev.memory, id) } : prev));
+            return true;
+        },
+        [failWrite, t],
+    );
+
+    const keepOldLine = useCallback(
+        async (line: string): Promise<OldNoteKeepOutcome> => {
+            const response = await keepSecondBrainOldNoteLine(line, t);
+            if (response.error || !response.success) {
+                // A full profile is said in the block, next to the button, instead of a toast.
+                if (response.error?.errorKey === "SECOND_BRAIN_FACT_LIMIT_REACHED") return "full";
+                if (response.error) failWrite(response.error);
+                return "error";
+            }
+            const { lines, fact } = response.success;
+            setOverview((prev) =>
+                prev ? { ...prev, oldNote: lines, facts: fact ? [...prev.facts, fact] : prev.facts } : prev,
+            );
+            return "ok";
+        },
+        [failWrite, t],
+    );
+
+    const discardOldLine = useCallback(
+        async (line: string): Promise<boolean> => {
+            const response = await discardSecondBrainOldNoteLine(line, t);
+            if (response.error || !response.success) {
+                if (response.error) failWrite(response.error);
+                return false;
+            }
+            const { lines } = response.success;
+            setOverview((prev) => (prev ? { ...prev, oldNote: lines } : prev));
+            return true;
+        },
+        [failWrite, t],
+    );
+
+    const clearOldNote = useCallback(async (): Promise<boolean> => {
+        const response = await deleteSecondBrainOldNote(t);
+        if (response.error) {
+            fail(response.error);
+            return false;
+        }
+        setOverview((prev) => (prev ? { ...prev, oldNote: [] } : prev));
+        return true;
+    }, [fail, t]);
+
     const toggleSource = useCallback(
         async (source: SecondBrainSource, enabled: boolean) => {
             setPendingSource(source);
@@ -256,6 +362,11 @@ export function useSecondBrain() {
         createFact,
         editFact,
         deleteFact,
+        editNote,
+        deleteNote,
+        keepOldLine,
+        discardOldLine,
+        clearOldNote,
         pendingSource,
         toggleSource,
     };

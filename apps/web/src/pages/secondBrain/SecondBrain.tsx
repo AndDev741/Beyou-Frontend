@@ -12,6 +12,8 @@ import RoutineBlock from "../../components/secondBrain/RoutineBlock";
 import AreasBlock from "../../components/secondBrain/AreasBlock";
 import QuestionsBlock from "../../components/secondBrain/QuestionsBlock";
 import ProfileBlock from "../../components/secondBrain/ProfileBlock";
+import OldNoteBlock from "../../components/secondBrain/OldNoteBlock";
+import MemoryBlock from "../../components/secondBrain/MemoryBlock";
 import SourcesBlock from "../../components/secondBrain/SourcesBlock";
 import { useSecondBrain } from "../../components/secondBrain/useSecondBrain";
 
@@ -64,7 +66,8 @@ function Skeleton({ label }: { label: string }) {
  * what it is allowed to read.
  *
  * Two columns on a wide screen. The left one is for reading (the overview, goals, routines,
- * areas). The right one is for answering and deciding (questions, the profile, the sources).
+ * areas). The right one is for answering and deciding: the questions, the profile, the old
+ * note while there is one, what Beyou remembers about each thing, and the sources.
  * On a phone they interleave so the questions come second instead of fifth: that block is the
  * one that needs the person.
  */
@@ -154,7 +157,25 @@ export default function SecondBrain() {
                                     onDelete={brain.deleteFact}
                                 />
                             </motion.div>
-                            <motion.div className="order-7 lg:order-none" {...rise(6)}>
+                            {/* After the profile: a kept line lands in the block right above it. */}
+                            {overview.oldNote.length > 0 && (
+                                <motion.div className="order-7 lg:order-none" {...rise(6)}>
+                                    <OldNoteBlock
+                                        lines={overview.oldNote}
+                                        onKeep={brain.keepOldLine}
+                                        onDiscard={brain.discardOldLine}
+                                        onClear={brain.clearOldNote}
+                                    />
+                                </motion.div>
+                            )}
+                            <motion.div className="order-8 lg:order-none" {...rise(7)}>
+                                <MemoryBlock
+                                    memory={overview.memory}
+                                    onEdit={brain.editNote}
+                                    onDelete={brain.deleteNote}
+                                />
+                            </motion.div>
+                            <motion.div className="order-9 lg:order-none" {...rise(8)}>
                                 <SourcesBlock
                                     sources={overview.sources}
                                     pending={brain.pendingSource}
