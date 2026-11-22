@@ -4548,7 +4548,7 @@ export interface components {
             name?: string;
             iconId?: string;
             /** @enum {string} */
-            formerType?: "HABIT" | "GOAL" | "ROUTINE";
+            formerType?: "HABIT" | "GOAL" | "ROUTINE" | "CATEGORY" | "LOOSE";
             notes?: components["schemas"]["SecondBrainNoteDTO"][];
         };
         SecondBrainNoteDTO: {
@@ -4566,12 +4566,12 @@ export interface components {
         SecondBrainNoteRequestDTO: {
             text: string;
         };
-        SecondBrainOldNoteLineRequestDTO: {
-            text: string;
-        };
         SecondBrainOldNoteResultDTO: {
             lines?: string[];
             fact?: components["schemas"]["SecondBrainFactDTO"];
+        };
+        SecondBrainOldNoteRequestDTO: {
+            text: string;
         };
     };
     responses: never;
@@ -8857,8 +8857,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8875,7 +8875,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SecondBrainOldNoteLineRequestDTO"];
+                "application/json": components["schemas"]["SecondBrainOldNoteRequestDTO"];
             };
         };
         responses: {
@@ -8899,7 +8899,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SecondBrainOldNoteLineRequestDTO"];
+                "application/json": components["schemas"]["SecondBrainOldNoteRequestDTO"];
             };
         };
         responses: {
@@ -8923,8 +8923,8 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

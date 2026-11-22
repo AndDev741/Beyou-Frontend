@@ -5828,8 +5828,8 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -5844,7 +5844,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SecondBrainOldNoteLineRequestDTO"
+                "$ref": "#/components/schemas/SecondBrainOldNoteRequestDTO"
               }
             }
           },
@@ -5874,7 +5874,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SecondBrainOldNoteLineRequestDTO"
+                "$ref": "#/components/schemas/SecondBrainOldNoteRequestDTO"
               }
             }
           },
@@ -5901,8 +5901,8 @@
         ],
         "operationId": "deleteOldNote",
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -12057,7 +12057,9 @@
             "enum": [
               "HABIT",
               "GOAL",
-              "ROUTINE"
+              "ROUTINE",
+              "CATEGORY",
+              "LOOSE"
             ]
           },
           "notes": {
@@ -12112,17 +12114,6 @@
           "text"
         ]
       },
-      "SecondBrainOldNoteLineRequestDTO": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "text"
-        ]
-      },
       "SecondBrainOldNoteResultDTO": {
         "type": "object",
         "properties": {
@@ -12136,6 +12127,19 @@
             "$ref": "#/components/schemas/SecondBrainFactDTO"
           }
         }
+      },
+      "SecondBrainOldNoteRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "text"
+        ]
       }
     }
   }
