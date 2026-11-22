@@ -5770,6 +5770,142 @@
           }
         }
       }
+    },
+    "/second-brain/notes/{id}": {
+      "put": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "editNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainNoteRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainNoteDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "deleteNote",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/second-brain/old-note/keep": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "keepOldNoteLine",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainOldNoteLineRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainOldNoteResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/old-note/discard": {
+      "post": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "discardOldNoteLine",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecondBrainOldNoteLineRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecondBrainOldNoteResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/second-brain/old-note": {
+      "delete": {
+        "tags": [
+          "second-brain-controller"
+        ],
+        "operationId": "deleteOldNote",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -11598,6 +11734,18 @@
           },
           "aiAvailable": {
             "type": "boolean"
+          },
+          "memory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainMemoryGroupDTO"
+            }
+          },
+          "oldNote": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -11638,7 +11786,8 @@
               "PROFILE_LIKES",
               "PROFILE_ABOUT",
               "CHECK_IN",
-              "FOLLOW_UP"
+              "FOLLOW_UP",
+              "NEW_THING"
             ]
           },
           "text": {
@@ -11687,7 +11836,9 @@
             "type": "string",
             "enum": [
               "USER",
-              "ANSWER"
+              "ANSWER",
+              "ASSISTANT",
+              "OLD_NOTE"
             ]
           },
           "createdAt": {
@@ -11848,6 +11999,141 @@
             "items": {
               "$ref": "#/components/schemas/SecondBrainFactDTO"
             }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainNoteDTO"
+            }
+          }
+        }
+      },
+      "SecondBrainMemoryGroupDTO": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "categoryIconId": {
+            "type": "string"
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainMemorySubjectDTO"
+            }
+          }
+        }
+      },
+      "SecondBrainMemorySubjectDTO": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "HABIT",
+              "GOAL",
+              "ROUTINE",
+              "CATEGORY",
+              "LOOSE"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "iconId": {
+            "type": "string"
+          },
+          "formerType": {
+            "type": "string",
+            "enum": [
+              "HABIT",
+              "GOAL",
+              "ROUTINE"
+            ]
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SecondBrainNoteDTO"
+            }
+          }
+        }
+      },
+      "SecondBrainNoteDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "ANSWER",
+              "ASSISTANT"
+            ]
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SecondBrainNoteRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "SecondBrainOldNoteLineRequestDTO": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "SecondBrainOldNoteResultDTO": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fact": {
+            "$ref": "#/components/schemas/SecondBrainFactDTO"
           }
         }
       }

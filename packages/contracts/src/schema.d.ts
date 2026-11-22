@@ -2356,6 +2356,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/second-brain/notes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["editNote"];
+        post?: never;
+        delete: operations["deleteNote"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/old-note/keep": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["keepOldNoteLine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/old-note/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["discardOldNoteLine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/second-brain/old-note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteOldNote"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4381,6 +4445,8 @@ export interface components {
             facts?: components["schemas"]["SecondBrainFactDTO"][];
             sources?: components["schemas"]["SecondBrainSourceDTO"][];
             aiAvailable?: boolean;
+            memory?: components["schemas"]["SecondBrainMemoryGroupDTO"][];
+            oldNote?: string[];
         };
         SecondBrainInsightDTO: {
             text?: string;
@@ -4394,7 +4460,7 @@ export interface components {
             /** Format: uuid */
             id?: string;
             /** @enum {string} */
-            kind?: "PROFILE_OBJECTIVES" | "PROFILE_LIKES" | "PROFILE_ABOUT" | "CHECK_IN" | "FOLLOW_UP";
+            kind?: "PROFILE_OBJECTIVES" | "PROFILE_LIKES" | "PROFILE_ABOUT" | "CHECK_IN" | "FOLLOW_UP" | "NEW_THING";
             text?: string;
             /** @enum {string} */
             status?: "OPEN" | "ANSWERED" | "SKIPPED";
@@ -4411,7 +4477,7 @@ export interface components {
             kind?: "OBJECTIVE" | "LIKE" | "ABOUT";
             text?: string;
             /** @enum {string} */
-            origin?: "USER" | "ANSWER";
+            origin?: "USER" | "ANSWER" | "ASSISTANT" | "OLD_NOTE";
             /** Format: date-time */
             createdAt?: string;
             /** Format: date-time */
@@ -4465,6 +4531,47 @@ export interface components {
         SecondBrainAnswerResultDTO: {
             question?: components["schemas"]["SecondBrainQuestionDTO"];
             learned?: components["schemas"]["SecondBrainFactDTO"][];
+            notes?: components["schemas"]["SecondBrainNoteDTO"][];
+        };
+        SecondBrainMemoryGroupDTO: {
+            /** Format: uuid */
+            categoryId?: string;
+            categoryName?: string;
+            categoryIconId?: string;
+            subjects?: components["schemas"]["SecondBrainMemorySubjectDTO"][];
+        };
+        SecondBrainMemorySubjectDTO: {
+            /** @enum {string} */
+            type?: "HABIT" | "GOAL" | "ROUTINE" | "CATEGORY" | "LOOSE";
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            iconId?: string;
+            /** @enum {string} */
+            formerType?: "HABIT" | "GOAL" | "ROUTINE";
+            notes?: components["schemas"]["SecondBrainNoteDTO"][];
+        };
+        SecondBrainNoteDTO: {
+            /** Format: uuid */
+            id?: string;
+            text?: string;
+            /** @enum {string} */
+            origin?: "USER" | "ANSWER" | "ASSISTANT";
+            subjectName?: string;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+        };
+        SecondBrainNoteRequestDTO: {
+            text: string;
+        };
+        SecondBrainOldNoteLineRequestDTO: {
+            text: string;
+        };
+        SecondBrainOldNoteResultDTO: {
+            lines?: string[];
+            fact?: components["schemas"]["SecondBrainFactDTO"];
         };
     };
     responses: never;
@@ -8710,6 +8817,118 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["SecondBrainInsightDTO"];
                 };
+            };
+        };
+    };
+    editNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainNoteRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainNoteDTO"];
+                };
+            };
+        };
+    };
+    deleteNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    keepOldNoteLine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainOldNoteLineRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainOldNoteResultDTO"];
+                };
+            };
+        };
+    };
+    discardOldNoteLine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SecondBrainOldNoteLineRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SecondBrainOldNoteResultDTO"];
+                };
+            };
+        };
+    };
+    deleteOldNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
