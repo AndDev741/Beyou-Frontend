@@ -11,7 +11,7 @@ name: iOS TestFlight release
 # Xcode: the iOS 27 SDK (Xcode 27) breaks Expo SDK 56 (expo-modules-jsi and
 # pods with an iOS deployment target below 15 fail to compile, and UIKit traps
 # at launch because SDK 56's AppDelegate does not adopt the UIScene
-# lifecycle). Both jobs therefore pin the newest Xcode 26 on the runner. An app
+# lifecycle). Both jobs therefore pin the newest Xcode 26 on the runner image. An app
 # built with the iOS 26 SDK is accepted by App Store Connect and runs on iOS 27
 # devices and simulators. Move to Xcode 27 with the Expo SDK that ships scene
 # support (see apps/mobile/AGENTS.md, "iOS (App Store build)").
@@ -77,6 +77,11 @@ on:
         description: "CFBundleVersion (empty = automatic: run number + IOS_BUILD_NUMBER_OFFSET)"
         required: false
         default: ""
+      runner:
+        description: "macOS runner image (any with Xcode 26; try another when GitHub has no capacity for one)"
+        type: choice
+        options: [macos-26, macos-15, macos-15-intel]
+        default: macos-26
 
 concurrency:
   group: ios-testflight
@@ -111,7 +116,7 @@ jobs:
   ipa:
     name: App Store .ipa
     needs: resolve
-    runs-on: macos-26
+    runs-on: ${{ inputs.runner || 'macos-26' }}
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
@@ -414,7 +419,7 @@ jobs:
   simulator:
     name: Simulator .app
     needs: resolve
-    runs-on: macos-26
+    runs-on: ${{ inputs.runner || 'macos-26' }}
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
