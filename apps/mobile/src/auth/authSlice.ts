@@ -12,6 +12,7 @@ import { saveTutorialPhase } from '../lib/tutorialStore';
 import { clearWizardProgress } from '../lib/aiOnboardingStore';
 import { clearGoogleSession } from './googleSession';
 import type { AuthStatus, Profile } from './types';
+import { resolveAiConsent } from '../aiConsent/resolveAiConsent';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
 // A real i18n t is wired in Task 7 at the App level; this slice stays transport-only.
@@ -37,7 +38,7 @@ export const login = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await loginRequest(creds.email, creds.password);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
-      return profile;
+      return resolveAiConsent(profile);
     } catch (e) {
       const parsed = parseApiError(e);
       if (e instanceof ApiError && parsed.message === 'EMAIL_NOT_VERIFIED') {
@@ -62,7 +63,7 @@ export const googleLogin = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await googleMobileLoginRequest(idToken);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
-      return profile;
+      return resolveAiConsent(profile);
     } catch (e) {
       getLogger().error('auth google login failed', e);
       // Google stopped being a way around the verification gate: the backend refuses
@@ -88,7 +89,7 @@ export const appleLogin = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await appleMobileLoginRequest(payload);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
-      return profile;
+      return resolveAiConsent(profile);
     } catch (e) {
       getLogger().error('auth apple login failed', e);
       // Same gate as Google: an Apple address that matches a password account which
@@ -132,7 +133,7 @@ export const bootstrap = createAsyncThunk<Profile, void>(
       const res = await getProfile();
       if (res.error || !res.data) return rejectWithValue('PROFILE_FAILED');
       // TODO: reconcile @beyou/types UserType with @beyou/contracts UserResponseDTO (tracked: thread contract types into @beyou/api)
-      return res.data as unknown as Profile;
+      return resolveAiConsent(res.data as unknown as Profile);
     } catch (e) {
       getLogger().error('auth bootstrap failed', e);
       await secureStore.clearRefreshToken();

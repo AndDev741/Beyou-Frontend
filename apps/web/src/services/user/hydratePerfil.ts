@@ -22,7 +22,8 @@ import {
     tutorialCompletedEnter,
     timezoneEnter,
     timezoneSourceEnter,
-    xpDecayStrategyEnter
+    xpDecayStrategyEnter,
+    aiConsentEnter
 } from "@beyou/state/user/perfilSlice";
 import i18next from "i18next";
 import { reconcileLanguage } from "@beyou/state/user/reconcileLanguage";
@@ -62,6 +63,8 @@ export function hydratePerfil(dispatch: Dispatch<UnknownAction>, data: UserType)
     dispatch(timezoneEnter(data.timezone));
     dispatch(timezoneSourceEnter(data.timezoneSource));
     dispatch(xpDecayStrategyEnter(data.xpDecayStrategy));
+    // Absent from a backend that predates it: null, and then nothing is asked.
+    dispatch(aiConsentEnter(data.aiConsent ?? null));
 
     // Analytics identity rides the same funnel as the timezone reconcile below and
     // for the same reason: every path that loads the user (UI login, Google login,

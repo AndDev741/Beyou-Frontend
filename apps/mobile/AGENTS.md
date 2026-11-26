@@ -413,21 +413,27 @@ only adds what app.json cannot say and leaves the Android config untouched (`__t
 
 Apple wants the app to say which third-party AI receives a person's data, and to get explicit
 permission before it does. The answer lives on the account (`aiConsent` on `GET /user`:
-`UNASKED` / `GRANTED` / `DECLINED`, written by `PUT /user/ai-consent`), not on the device,
-because the daily briefing reaches the provider from the server.
+`UNASKED` / `GRANTED` / `DECLINED`, written only by `PUT /user/ai-consent`), because the server
+does the AI work. **Only `GRANTED` lets anything reach the provider**: the server refuses every
+`@SendsToAiProvider` route otherwise (`AI_CONSENT_DECLINED`, translated), serves the daily
+briefing without prose, reports Second Brain `aiAvailable: false`, and re-reads the answer before
+background work (briefing prose, roadmap drafts, source embeddings).
 
 - **Asked once, before anything AI runs.** `nextAuthRoute` sends a signed-in account whose
   answer is `UNASKED` to `app/ai-consent.tsx` (outside `(app)`: no bar, no assistant), and the
   `(app)` layout renders an empty view meanwhile, so the dashboard, which asks for the briefing
-  as it mounts, never mounts first. An older backend omits the field and nothing is asked.
-- **The screen names the recipients** (Mistral AI, Google Gemini, Tavily for source search) and
-  what goes to them, with Allow / Don't allow. The answer is in the session via
-  `aiConsentAnswered` (auth slice), read through `src/aiConsent/useAiConsent.ts`.
+  as it mounts, never mounts first.
+- **Older backend.** `resolveAiConsent` (run by every sign-in thunk and `bootstrap`) treats a
+  profile without the field as `UNASKED`, keeps the answer on the device
+  (`aiConsentOnDevice`), hands it to the server once the server stores it, and the dashboard
+  skips the briefing after a device-only "no".
+- **Client guard.** `nativeHttpClient` refuses the AI routes (`src/aiConsent/aiRoutes.ts`, the
+  same list as the server) while the answer is not a yes, so nothing leaves before the answer
+  even if a screen forgets to check.
 - **After a no**: `AgentWidget` sends every way into the assistant to the consent screen, the
-  tutorial fork offers the tour only, and the server refuses every AI route with
-  `AI_CONSENT_DECLINED` (translated) and serves the briefing without its prose. Any AI button
-  not hidden on the phone still gets that translated error instead of reaching the provider.
+  tutorial fork offers the tour only (a saved `'ai'` phase moves on to the tour), Second Brain
+  skips its automatic refill.
 - **Changing it**: Configuration > Preferences > AI features (`AiConsentSection`). Off is one tap;
   on goes through the consent screen, so a yes is never given without the disclosure.
-- The web does not ask yet: `UNASKED` accounts keep the AI features there, and a phone "no"
-  turns them off on the web too (the server refuses the routes).
+- **The web** asks the same question in `AiConsentGate` (a dialog in `ProtectedRoute` that cannot
+  be dismissed while `UNASKED`) and has the same switch in Configuration > Preferences.

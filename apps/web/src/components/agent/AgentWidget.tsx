@@ -5,6 +5,7 @@ import { useReducedMotion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import type { RootState } from "@beyou/state/rootReducer";
 import { onAgentPanelOpen } from "./agentPanelBus";
+import { openAiConsent } from "../aiConsent/aiConsentBus";
 
 // Lazy: react-markdown and the whole chat surface stay out of the boot
 // bundle until the first FAB click.
@@ -23,8 +24,17 @@ function AgentWidget() {
     );
     const [open, setOpen] = useState(false);
     const [hasOpened, setHasOpened] = useState(false);
+    // Without a yes to the AI provider the server refuses the assistant, so every way in
+    // (the bubble, the bottom bar, Second Brain's hand-off) opens the consent dialog instead.
+    // null is a backend that does not know the answer: nothing changes there.
+    const aiConsent = useSelector((state: RootState) => state.perfil.aiConsent);
+    const aiAllowed = aiConsent === null || aiConsent === "GRANTED";
 
     const openPanel = () => {
+        if (!aiAllowed) {
+            openAiConsent();
+            return;
+        }
         setHasOpened(true);
         setOpen(true);
     };
@@ -38,7 +48,7 @@ function AgentWidget() {
     useEffect(() => {
         if (!isTutorialCompleted) return;
         return onAgentPanelOpen(openPanel);
-    }, [isTutorialCompleted]);
+    }, [isTutorialCompleted, aiAllowed]);
 
     // Hidden until onboarding finishes: the tutorial (manual or AI) should own
     // the user's attention, and the AI wizard already covers assisted setup.

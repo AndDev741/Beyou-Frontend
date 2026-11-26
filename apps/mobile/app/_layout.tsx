@@ -14,7 +14,7 @@ import '../src/i18n';
 import { fetch as expoFetch } from 'expo/fetch';
 import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
 import { store, type RootState, type AppDispatch } from '../src/store';
-import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
+import { nativeHttpClient, setAiRequestsBlocked, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
 import { registerFeedbackNativeUploader } from '../src/lib/feedbackUploader';
 import { refreshRequest } from '../src/auth/authApi';
 import * as secureStore from '../src/auth/secureStore';
@@ -105,6 +105,8 @@ function Gate() {
   }, [dispatch]);
 
   useEffect(() => {
+    // Nothing goes to the AI provider until the person says yes (see nativeHttpClient).
+    setAiRequestsBlocked(aiConsent === 'UNASKED' || aiConsent === 'DECLINED');
     const target = nextAuthRoute(status, segments, aiConsent);
     if (target) router.replace(target);
   }, [status, segments, router, aiConsent]);

@@ -31,9 +31,9 @@ import { makeStore } from '../src/store';
 import { login } from '../src/auth/authSlice';
 import AiConsentSection from '../src/ui/config/AiConsentSection';
 
-const wrap = async (aiConsent?: string) => {
+const wrap = async (aiConsent?: string, aiConsentOnDevice = false) => {
   const store = makeStore();
-  store.dispatch({ type: login.fulfilled.type, payload: { name: 'Ana', aiConsent } });
+  store.dispatch({ type: login.fulfilled.type, payload: { name: 'Ana', aiConsent, aiConsentOnDevice } });
   await render(
     <Provider store={store}>
       <BeyouThemeProvider>
@@ -88,5 +88,16 @@ describe('AiConsentSection', () => {
   it('renders nothing for a backend that does not know the field', async () => {
     await wrap(undefined);
     expect(screen.queryByTestId('ai-consent-section')).toBeNull();
+  });
+
+  it('keeps the change on the device when the backend cannot store it yet', async () => {
+    const store = await wrap('GRANTED', true);
+
+    await act(async () => {
+      fireEvent.press(screen.getByTestId('ai-consent-turn-off'));
+    });
+
+    expect(mockSetAiConsent).not.toHaveBeenCalled();
+    expect(store.getState().auth.profile?.aiConsent).toBe('DECLINED');
   });
 });

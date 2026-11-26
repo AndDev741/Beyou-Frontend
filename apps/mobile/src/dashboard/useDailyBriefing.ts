@@ -20,6 +20,12 @@ interface Options {
   onResolved?: () => void;
   /** Called when the user closes it, so a caller can drop a `forceOpen` request. */
   onClosed?: () => void;
+  /**
+   * False skips the request altogether. The server writes the briefing's prose with the AI
+   * provider when it is asked for it, so a person who said no on a backend that cannot keep
+   * that answer must not ask (see `useAiDeclinedOnDeviceOnly`).
+   */
+  enabled?: boolean;
 }
 
 /**
@@ -41,6 +47,7 @@ export function useDailyBriefing({
   forceOpen = false,
   onResolved,
   onClosed,
+  enabled = true,
 }: Options) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
@@ -52,6 +59,10 @@ export function useDailyBriefing({
   const resolvedSinceOpen = useRef(false);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     getDailyBriefing(t)
       .then((result) => {
@@ -68,7 +79,7 @@ export function useDailyBriefing({
     return () => {
       cancelled = true;
     };
-  }, [t]);
+  }, [t, enabled]);
 
   const visible =
     !loading &&

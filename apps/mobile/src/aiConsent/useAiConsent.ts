@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import setAiConsent from '@beyou/api/user/setAiConsent';
 import type { AiConsent } from '@beyou/types/user/UserType';
 import { aiConsentAnswered } from '../auth/authSlice';
+import { saveDeviceAiConsent } from './aiConsentStore';
 import type { AppDispatch, RootState } from '../store';
 
 /**
@@ -14,12 +15,22 @@ export function useAiConsent(): AiConsent | null | undefined {
 }
 
 /**
- * Whether the AI features may run. Only a "no" turns them off: inside the app the answer is
- * never UNASKED (the root Gate asks first), and an older backend that does not know the
- * field leaves everything as it was.
+ * Whether the AI features may run: only after a yes. No answer in the session at all (no
+ * profile yet) changes nothing, since nothing can reach the provider without a session.
  */
 export function useAiAllowed(): boolean {
-  return useAiConsent() !== 'DECLINED';
+  const consent = useAiConsent();
+  return consent == null || consent === 'GRANTED';
+}
+
+/**
+ * True when the server cannot keep a "no" itself (it predates the field), so the app must not
+ * even ask for things the server would hand to the provider, such as the daily briefing.
+ */
+export function useAiDeclinedOnDeviceOnly(): boolean {
+  return useSelector(
+    (s: RootState) => Boolean(s.auth.profile?.aiConsentOnDevice) && s.auth.profile?.aiConsent === 'DECLINED',
+  );
 }
 
 /**
@@ -28,18 +39,30 @@ export function useAiAllowed(): boolean {
  */
 export function useAnswerAiConsent() {
   const dispatch = useDispatch<AppDispatch>();
+  const profile = useSelector((s: RootState) => s.auth.profile);
+  const userId = profile?.id;
+  const onDevice = Boolean(profile?.aiConsentOnDevice);
   const [saving, setSaving] = useState(false);
 
   const answer = useCallback(
     async (granted: boolean): Promise<boolean> => {
+      const consent: AiConsent = granted ? 'GRANTED' : 'DECLINED';
       setSaving(true);
-      const res = await setAiConsent(granted);
+      // A backend that cannot store it yet: the device keeps it and hands it over later
+      // (resolveAiConsent). Otherwise the server's word comes first.
+      if (!onDevice) {
+        const res = await setAiConsent(granted);
+        if (res.error || !res.data) {
+          setSaving(false);
+          return false;
+        }
+      }
+      await saveDeviceAiConsent(userId, consent);
       setSaving(false);
-      if (res.error || !res.data) return false;
-      dispatch(aiConsentAnswered(res.data.aiConsent ?? (granted ? 'GRANTED' : 'DECLINED')));
+      dispatch(aiConsentAnswered(consent));
       return true;
     },
-    [dispatch],
+    [dispatch, onDevice, userId],
   );
 
   return { answer, saving };

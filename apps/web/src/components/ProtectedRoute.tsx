@@ -3,6 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import axios from "../services/axiosConfig";
 import type { AuthBootState } from "../hooks/useSilentRefresh";
 import AgentWidget from "./agent/AgentWidget";
+import AiConsentGate from "./aiConsent/AiConsentGate";
 import BottomNav from "./dashboard/BottomNav";
 import Sidebar from "./shell/Sidebar";
 import RunningTimerHub from "./focus/RunningTimerHub";
@@ -83,6 +84,7 @@ function ProtectedRoute({ authState }: Props) {
             </div>
             <BottomNav />
             <AgentWidget />
+            <AiConsentGate />
             {/* Rides every authenticated route, and hides itself on /focus. Renders nothing at
                 all unless a cycle is actually running or paused. */}
             <RunningTimerHub />

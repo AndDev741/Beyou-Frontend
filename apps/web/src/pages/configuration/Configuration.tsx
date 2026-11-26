@@ -15,6 +15,7 @@ import ConfigSection from "../../components/configuration/ConfigSection";
 import AccountConfiguration from "../../components/configuration/AccountConfiguration";
 import DangerZone from "../../components/configuration/DangerZone";
 import PrivacyPolicyLink from "../../components/configuration/PrivacyPolicyLink";
+import AiConsentConfiguration from "../../components/configuration/AiConsentConfiguration";
 import useAuthGuard from "../../components/useAuthGuard";
 import SpotlightTutorial from "../../components/tutorial/SpotlightTutorial";
 import { useConfigTutorial } from "../../components/tutorial/hooks/useConfigTutorial";
@@ -123,6 +124,7 @@ export default function Configuration() {
                             <TutorialConfiguration />
                             <NotificationConfiguration />
                             <ReminderConfiguration />
+                            <AiConsentConfiguration />
                             <PrivacyPolicyLink />
                         </div>
                     </ConfigSection>

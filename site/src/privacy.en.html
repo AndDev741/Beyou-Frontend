@@ -167,13 +167,15 @@ __NAV__
       tokens or the words you wrote in your diary.
     </p>
     <p>
-      The iPhone and Android apps ask for your permission before any of these
-      features runs for the first time, and say there who receives what. If you
-      say no, nothing is sent: the assistant, the guided setup, the notebook's
-      study tools and sources, and the Second Brain questions stay off, and the
-      daily briefing shows its numbers without the two written paragraphs. Beyou's
-      server keeps to that answer for your account on every device. You can change
-      it at any time in the app, in Configuration &gt; Preferences &gt; AI features.
+      Beyou asks for your permission before any of these features sends anything,
+      on the web and in the iPhone and Android apps, and says there who receives
+      what. Until you allow it, and after you say no, nothing is sent: the
+      assistant, the guided setup, the notebook's study tools and sources, and the
+      Second Brain overview and questions stay off, and the daily briefing shows its
+      numbers without the two written paragraphs. Beyou's server keeps to your
+      answer for your account on every device, including work that was already
+      waiting when you said no. You can change it at any time in Configuration &gt;
+      Preferences &gt; AI features.
     </p>
 
     <h3>The assistant</h3>
@@ -193,9 +195,9 @@ __NAV__
     </ul>
     <p>
       The provider is either Mistral AI or Google Gemini. Beyou's server sends
-      every request to one gateway, which hands it to one of the two and moves to
-      the other when the first is unavailable, so a given message is handled by one
-      of them rather than both. They process your message to produce a reply, and
+      every request through OmniRoute, routing software that hands it to one of the
+      two and moves to the other when the first is unavailable, so a given message
+      is handled by one of them rather than both. They process your message to produce a reply, and
       their own terms govern what they do with it. Those terms are not written by
       Beyou.
     </p>
@@ -268,11 +270,11 @@ __NAV__
     </ul>
     <p>
       It sends no display name and no email address. Unlike the other four, this
-      one is not something you open: it runs for every account on the first visit
-      of the day, and there is no switch for it in the app yet. If you would rather
-      it did not run for your account, write to
-      <a href="mailto:__CONTACT__">__CONTACT__</a>. The paragraphs are kept for 30
-      days and then deleted.
+      one is not something you open: it runs on the first visit of the day, and
+      only for an account that allowed the AI features. Turning them off in
+      Configuration &gt; Preferences &gt; AI features stops it, and the briefing
+      then shows its numbers alone. The paragraphs are kept for 30 days and then
+      deleted.
     </p>
 
     <h3>Second Brain</h3>
