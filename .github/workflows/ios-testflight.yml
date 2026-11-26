@@ -16,11 +16,12 @@ name: iOS TestFlight release
 # devices and simulators. Move to Xcode 27 with the Expo SDK that ships scene
 # support (see apps/mobile/AGENTS.md, "iOS (App Store build)").
 #
-# Build number: CFBundleVersion = github.run_number unless the `build_number`
-# input is given. The run number of this workflow file only grows, so every
+# Build number: CFBundleVersion = github.run_number + the repo Variable
+# IOS_BUILD_NUMBER_OFFSET (default 0) unless the `build_number` input is given. The run number of this workflow file only grows, so every
 # upload is higher than the last one (gaps are fine). It is counted per
-# workflow FILE: renaming this file restarts it at 1, so pass build_number
-# above the last uploaded build once if that ever happens. The marketing
+# workflow FILE: renaming this file restarts it at 1; if that happens, or the
+# app already has builds from elsewhere, set IOS_BUILD_NUMBER_OFFSET so the
+# automatic number starts above the last uploaded build. The marketing
 # version (CFBundleShortVersionString) stays whatever app.json says.
 #
 # One-time setup (repo Settings -> Secrets and variables -> Actions):
@@ -32,10 +33,11 @@ name: iOS TestFlight release
 #     screen shows Sign in with Apple and email only, no Google button).
 #   Apple (Secrets):
 #     APPLE_TEAM_ID          the 10-character Apple Developer team id
-#     ASC_KEY_ID             App Store Connect API key id (Users and Access ->
-#                            Integrations -> App Store Connect API; role App
-#                            Manager or Admin, it creates the provisioning
-#                            profile and uploads the build)
+#     ASC_KEY_ID             id of a TEAM App Store Connect API key (Users and
+#                            Access -> Integrations -> App Store Connect API ->
+#                            Team Keys) with the Admin role: it creates the
+#                            provisioning profile and uploads the build.
+#                            Individual keys cannot manage profiles.
 #     ASC_ISSUER_ID          issuer id shown on the same page
 #     ASC_KEY_P8             full contents of the AuthKey_<id>.p8 file
 #     IOS_DIST_P12_BASE64    base64 of a .p12 holding the "Apple Distribution"
@@ -43,9 +45,21 @@ name: iOS TestFlight release
 #                            (openssl pkcs12 -export -legacy ... | base64)
 #     IOS_DIST_P12_PASSWORD  the password of that .p12
 #
+# EXPO_PUBLIC_* values are inlined into the JS bundle, so they are readable by
+# anyone with the .ipa or the simulator artifact: never put a real secret in
+# one, wherever it is stored.
+#
+# Prerequisites in the Apple team: the explicit App ID (bundle id from app.json)
+# with Sign in with Apple enabled, and the app created in App Store Connect.
+#
+# Only people with write access can dispatch this, and the signing job runs the
+# build scripts of whatever `ref` they choose with the signing material
+# installed: treat dispatching as trusted, like a release.
+#
 # Signing is manual and deterministic: the certificate goes into a throwaway
-# keychain, the App Store provisioning profile "Beyou App Store CI" is fetched
-# (or created when missing, expired or lacking an entitlement) through the App
+# keychain, an App Store provisioning profile named "CI App Store <bundle id>
+# <date>" is reused
+# (or created when missing, near expiry or lacking an entitlement) through the App
 # Store Connect API, and both are removed at the end of the job.
 
 on:
@@ -60,7 +74,7 @@ on:
         type: boolean
         default: true
       build_number:
-        description: "CFBundleVersion (empty = automatic: the run number of this workflow)"
+        description: "CFBundleVersion (empty = automatic: run number + IOS_BUILD_NUMBER_OFFSET)"
         required: false
         default: ""
 
@@ -77,17 +91,32 @@ env:
   # from a runner, so the Sentry build phase must not try to upload dSYMs or
   # source maps. Crashes still arrive, with unsymbolicated frames.
   SENTRY_DISABLE_AUTO_UPLOAD: "true"
-  BUILD_REF: ${{ inputs.ref || github.ref }}
 
 jobs:
+  # Resolves the ref to one commit so both builds (and a re-run) use the same one.
+  resolve:
+    name: Resolve commit
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - id: sha
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Building $(git rev-parse HEAD) (${{ inputs.ref || github.ref_name }})"
+
   ipa:
     name: App Store .ipa
+    needs: resolve
     runs-on: macos-26
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ env.BUILD_REF }}
+          ref: ${{ needs.resolve.outputs.sha }}
 
       - name: Select Xcode 26
         run: |
@@ -111,9 +140,10 @@ jobs:
         id: bn
         env:
           BN_INPUT: ${{ inputs.build_number }}
+          OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
         run: |
           BN="$BN_INPUT"
-          if [ -z "$BN" ]; then BN=${{ github.run_number }}; fi
+          if [ -z "$BN" ]; then BN=$(( ${{ github.run_number }} + ${OFFSET:-0} )); fi
           case "$BN" in ''|*[!0-9]*) echo "::error::build_number must be a positive integer"; exit 1;; esac
           VER=$(python3 - "$BN" <<'EOF'
           import json, sys
@@ -126,7 +156,7 @@ jobs:
           )
           echo "number=$BN" >> "$GITHUB_OUTPUT"
           echo "version=$VER" >> "$GITHUB_OUTPUT"
-          echo "### iOS $VER ($BN), $(git rev-parse --short HEAD) from \`$BUILD_REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "### iOS $VER ($BN), $(git rev-parse --short HEAD) from \`${{ inputs.ref || github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Write apps/mobile/.env
         env:
@@ -197,7 +227,8 @@ jobs:
           const fs = require("node:fs");
           const path = require("node:path");
           const { ASC_KEY_ID, ASC_ISSUER_ID, RUNNER_TEMP, CERT_SERIAL, BUNDLE_ID, ENT_KEYS, HOME, GITHUB_OUTPUT } = process.env;
-          const NAME = "Beyou App Store CI";
+          // Profile names must be unique in a team, so each new one gets a date.
+          const PREFIX = `CI App Store ${BUNDLE_ID}`;
           const key = fs.readFileSync(path.join(RUNNER_TEMP, "private_keys", `AuthKey_${ASC_KEY_ID}.p8`), "utf8");
           const b64u = (s) => Buffer.from(s).toString("base64url");
           function jwt() {
@@ -227,21 +258,25 @@ jobs:
               .find((c) => (c.attributes.serialNumber || "").toUpperCase().replace(/^0+/, "") === serial);
             if (!cert) throw new Error("the Apple Distribution certificate in IOS_DIST_P12_BASE64 is not in this team");
             const wanted = (ENT_KEYS || "").split(/\s+/).filter(Boolean);
-            const found = (await api("GET", `/v1/profiles?filter[name]=${q(NAME)}&include=bundleId,certificates&limit=50`)).data;
+            const found = (await api("GET", `/v1/bundleIds/${bundle.id}/profiles?limit=200`)).data
+              .filter((x) => (x.attributes.name || "").startsWith(PREFIX) && x.attributes.profileType === "IOS_APP_STORE");
+            const certsOf = async (x) => (await api("GET", `/v1/profiles/${x.id}/certificates?limit=50`)).data.map((c) => c.id);
             const soon = Date.now() + 7 * 86400e3;
-            let p = found.find((x) => {
+            let p = null;
+            for (const x of found) {
               const content = Buffer.from(x.attributes.profileContent || "", "base64").toString("latin1");
-              return x.attributes.profileState === "ACTIVE" &&
-                x.attributes.profileType === "IOS_APP_STORE" &&
-                new Date(x.attributes.expirationDate).getTime() > soon &&
-                x.relationships?.bundleId?.data?.id === bundle.id &&
-                x.relationships?.certificates?.data?.some((d) => d.id === cert.id) &&
-                wanted.every((k) => content.includes(`<key>${k}</key>`));
-            });
+              if (x.attributes.profileState === "ACTIVE" &&
+                  new Date(x.attributes.expirationDate).getTime() > soon &&
+                  wanted.every((k) => content.includes(`<key>${k}</key>`)) &&
+                  (await certsOf(x)).includes(cert.id)) { p = x; break; }
+            }
             if (p) {
               console.log(`Reusing profile ${p.attributes.uuid}`);
             } else {
-              for (const old of found) await api("DELETE", `/v1/profiles/${old.id}`);
+              // Create the new one first, then retire the old CI ones of this
+              // bundle id (never profiles made by hand or for other apps).
+              const stale = found;
+              const NAME = `${PREFIX} ${new Date().toISOString().slice(0, 16).replace("T", " ")}`;
               p = (await api("POST", "/v1/profiles", { data: {
                 type: "profiles",
                 attributes: { name: NAME, profileType: "IOS_APP_STORE" },
@@ -251,13 +286,15 @@ jobs:
                 },
               } })).data;
               console.log(`Created profile ${p.attributes.uuid}`);
+              for (const old of stale) await api("DELETE", `/v1/profiles/${old.id}`).catch((e) => console.log(`::warning::${e.message}`));
             }
+            // Before the files are written, so the cleanup step can find them.
+            fs.appendFileSync(GITHUB_OUTPUT, `name=${p.attributes.name}\nuuid=${p.attributes.uuid}\n`);
             const content = Buffer.from(p.attributes.profileContent, "base64");
             for (const dir of [`${HOME}/Library/MobileDevice/Provisioning Profiles`, `${HOME}/Library/Developer/Xcode/UserData/Provisioning Profiles`]) {
               fs.mkdirSync(dir, { recursive: true });
               fs.writeFileSync(`${dir}/${p.attributes.uuid}.mobileprovision`, content);
             }
-            fs.appendFileSync(GITHUB_OUTPUT, `name=${NAME}\nuuid=${p.attributes.uuid}\n`);
           })().catch((e) => { console.error(`::error::${e.message}`); process.exit(1); });
           EOF
 
@@ -376,12 +413,13 @@ jobs:
 
   simulator:
     name: Simulator .app
+    needs: resolve
     runs-on: macos-26
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ env.BUILD_REF }}
+          ref: ${{ needs.resolve.outputs.sha }}
 
       - name: Select Xcode 26
         run: |
@@ -403,9 +441,10 @@ jobs:
         id: bn
         env:
           BN_INPUT: ${{ inputs.build_number }}
+          OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
         run: |
           BN="$BN_INPUT"
-          if [ -z "$BN" ]; then BN=${{ github.run_number }}; fi
+          if [ -z "$BN" ]; then BN=$(( ${{ github.run_number }} + ${OFFSET:-0} )); fi
           VER=$(python3 - "$BN" <<'EOF'
           import json, sys
           p = "apps/mobile/app.json"
