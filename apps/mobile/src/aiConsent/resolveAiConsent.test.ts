@@ -9,7 +9,7 @@ jest.mock('expo-secure-store', () => ({
 const mockSetAiConsent = jest.fn();
 jest.mock('@beyou/api/user/setAiConsent', () => ({
   __esModule: true,
-  default: (granted: boolean) => mockSetAiConsent(granted),
+  default: (...args: unknown[]) => mockSetAiConsent(...args),
 }));
 
 import { resolveAiConsent } from './resolveAiConsent';
@@ -47,7 +47,27 @@ describe('resolveAiConsent', () => {
 
     const out = await resolveAiConsent(profile('UNASKED'));
 
-    expect(mockSetAiConsent).toHaveBeenCalledWith(false);
+    expect(mockSetAiConsent).toHaveBeenCalledWith(false, { onlyIfUnasked: true });
+    expect(out.aiConsent).toBe('DECLINED');
+  });
+
+  it('hands it over only to an account nobody answered for, and takes the answer that holds', async () => {
+    mockStore.set('beyou.aiConsent.u1', 'GRANTED');
+    mockSetAiConsent.mockResolvedValue({ data: { aiConsent: 'DECLINED' } });
+
+    const out = await resolveAiConsent(profile('UNASKED'));
+
+    expect(mockSetAiConsent).toHaveBeenCalledWith(true, { onlyIfUnasked: true });
+    expect(out.aiConsent).toBe('DECLINED');
+    expect(mockStore.get('beyou.aiConsent.u1')).toBe('DECLINED');
+  });
+
+  it('keeps a no from this device when the hand-over fails', async () => {
+    mockStore.set('beyou.aiConsent.u1', 'DECLINED');
+    mockSetAiConsent.mockResolvedValue({ error: { errorKey: 'UnexpectedError' } });
+
+    const out = await resolveAiConsent(profile('UNASKED'));
+
     expect(out.aiConsent).toBe('DECLINED');
   });
 

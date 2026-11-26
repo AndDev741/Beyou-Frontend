@@ -18,8 +18,16 @@ export async function resolveAiConsent(profile: Profile): Promise<Profile> {
     return { ...profile, aiConsent: onDevice ?? 'UNASKED', aiConsentOnDevice: true };
   }
   if (profile.aiConsent === 'UNASKED' && onDevice) {
-    const res = await setAiConsent(onDevice === 'GRANTED');
-    return { ...profile, aiConsent: res.data?.aiConsent ?? 'UNASKED' };
+    // Lands only if nobody answered on another device meanwhile; the reply says what holds.
+    const res = await setAiConsent(onDevice === 'GRANTED', { onlyIfUnasked: true });
+    const holds = res.data?.aiConsent;
+    if (holds && holds !== 'UNASKED') {
+      if (holds !== onDevice) await saveDeviceAiConsent(profile.id, holds);
+      return { ...profile, aiConsent: holds };
+    }
+    // Not handed over (offline, say). A "no" kept on this device still holds here, and the
+    // next start tries again; a "yes" is asked again rather than assumed.
+    return { ...profile, aiConsent: onDevice === 'DECLINED' ? 'DECLINED' : 'UNASKED' };
   }
   if (profile.aiConsent !== 'UNASKED' && profile.aiConsent !== onDevice) {
     await saveDeviceAiConsent(profile.id, profile.aiConsent);

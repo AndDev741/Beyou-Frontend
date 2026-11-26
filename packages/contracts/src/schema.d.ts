@@ -2442,6 +2442,7 @@ export interface components {
     schemas: {
         AiConsentRequestDTO: {
             granted: boolean;
+            onlyIfUnasked?: boolean;
         };
         UserEditDTO: {
             name?: string;

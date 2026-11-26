@@ -49,7 +49,7 @@ export default function AiConsentScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-background"
+      className="flex-1 bg-bg"
       contentContainerStyle={{ paddingTop, paddingBottom: 40, paddingHorizontal: 20, gap: 18 }}
       testID="ai-consent-screen"
     >

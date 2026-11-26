@@ -5945,6 +5945,9 @@
         "properties": {
           "granted": {
             "type": "boolean"
+          },
+          "onlyIfUnasked": {
+            "type": "boolean"
           }
         },
         "required": [

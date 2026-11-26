@@ -13,7 +13,7 @@ __NAV__
         <li>Beyou is free. It carries no ads and no trackers, and nothing about you is sold.</li>
         <li>Your account needs a name, an email address and a password. Nothing else is required.</li>
         <li>Everything else stored about you is what you put into the app: habits, tasks, routines, goals, categories, the history of what you checked off, your diary, your study notebook, your focus sessions and what you tell the Second Brain page.</li>
-        <li>A few features send text to an external AI provider: the assistant, the guided setup, the notebook's study tools, the short summary in the daily briefing and the Second Brain page. Section 3 lists what each one sends. What you write in your diary is never sent.</li>
+        <li>A few features send text to an external AI provider: the assistant, the guided setup, the notebook's study tools, the short summary in the daily briefing and the Second Brain page. Section 3 lists what each one sends. Nothing is sent unless you allow it, and what you write in your diary is never sent.</li>
         <li>You can delete your account from inside the app, and it is erased immediately. There is no waiting period and no way to undo it.</li>
       </ul>
     </div>
@@ -42,6 +42,7 @@ __NAV__
       <li>Whether you want the occasional email about your own routine, and a token that lets the unsubscribe link in those emails work without you signing in. Both are described in section 4.</li>
       <li>A profile picture, if you upload one, and an optional profile quote and its author.</li>
       <li>Your XP, your level, your streaks and the list of days you completed.</li>
+      <li>Your answer to whether the AI features may send your data to the AI provider, and when you gave it.</li>
     </ul>
     <p>
       If you sign in with Google, Google hands Beyou your email address, your name
@@ -114,7 +115,7 @@ __NAV__
       For each focus session, when it started and ended, what kind of session it
       was, the routine item or notebook page it was for, and the small steps you
       wrote down for it. For each day you open the app, the short summary the
-      daily briefing wrote for you, kept for 30 days.
+      daily briefing wrote for you, if you allowed the AI features, kept for 30 days.
     </p>
 
     <h3>Feedback and bug reports</h3>
@@ -195,9 +196,9 @@ __NAV__
     </ul>
     <p>
       The provider is either Mistral AI or Google Gemini. Beyou's server sends
-      every request through OmniRoute, routing software that hands it to one of the
-      two and moves to the other when the first is unavailable, so a given message
-      is handled by one of them rather than both. They process your message to produce a reply, and
+      every request through OmniRoute, routing software that decides which of the
+      two answers and may try the other one when the first fails, so a message can
+      reach both. They process your message to produce a reply, and
       their own terms govern what they do with it. Those terms are not written by
       Beyou.
     </p>
@@ -246,10 +247,12 @@ __NAV__
       Two more services take part. When you add a source, its text is sent to
       Mistral AI in chunks to be turned into the lists of numbers that let the
       study room search by meaning, and each question you ask in the study room is
-      sent there for the same reason. Mistral returns the numbers and Beyou keeps
-      them next to the text. And when you ask the notebook to find sources, the
-      titles of the topic and the page and the description you typed are sent to a
-      web search service, Tavily, or to Google Gemini when Tavily is not set up.
+      sent there for the same reason, as are the page's title and the start of its
+      notes when a page tool looks for passages. Mistral returns the numbers and
+      Beyou keeps them next to the text. And when you ask the notebook to find
+      sources, the titles of the topic and the page, the study goal you set and the
+      description you typed are sent to a web search service, Tavily, or to Google
+      Gemini with Google Search when Tavily is not set up.
       The pages it finds are opened by Beyou's server before you see them.
     </p>
 
@@ -343,9 +346,9 @@ __NAV__
         <tbody>
           <tr><td>Running your account and showing you your own habits, routines, goals and history</td><td>Performance of a contract, article 6(1)(b)</td></tr>
           <tr><td>Sending account emails: confirmation, password reset, deletion code</td><td>Performance of a contract, article 6(1)(b)</td></tr>
-          <tr><td>Answering you through the AI assistant, an optional feature you choose to open</td><td>Performance of a contract, article 6(1)(b)</td></tr>
-          <tr><td>Answering you in the notebook's study tools, and writing the daily briefing's summary</td><td>Performance of a contract, article 6(1)(b)</td></tr>
-          <tr><td>Writing the Second Brain overview and its questions, on a page you choose to open and start</td><td>Performance of a contract, article 6(1)(b)</td></tr>
+          <tr><td>Answering you through the AI assistant, an optional feature you choose to open</td><td>Consent, article 6(1)(a)</td></tr>
+          <tr><td>Answering you in the notebook's study tools, and writing the daily briefing's summary</td><td>Consent, article 6(1)(a)</td></tr>
+          <tr><td>Writing the Second Brain overview and its questions, on a page you choose to open and start</td><td>Consent, article 6(1)(a)</td></tr>
           <tr><td>Keeping the account safe: password hashing, session handling, rate limits, abuse prevention</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Finding and fixing crashes through error reports</td><td>Legitimate interests, article 6(1)(f)</td></tr>
           <tr><td>Handling the feedback you chose to send</td><td>Legitimate interests, article 6(1)(f)</td></tr>
@@ -370,8 +373,8 @@ __NAV__
           <tr><th>Who</th><th>What reaches them</th><th>Why</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI and Google Gemini</td><td>Your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines, your notes and your answers. Mistral AI also receives the text of the notebook sources you add and your study-room questions, to index them for search</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
-          <tr><td>Tavily</td><td>The titles of a notebook topic and page and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
+          <tr><td>Mistral AI and Google Gemini</td><td>Only after you allow the AI features: your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines, your notes and your answers. Mistral AI also receives the text of the notebook sources you add your study-room questions and, for some page tools, the page title with the start of its notes, to search them by meaning</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
+          <tr><td>Tavily, or Google Gemini with Google Search</td><td>Only after you allow the AI features: the titles of a notebook topic and page, the study goal and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
           <tr><td>Apple</td><td>The fact that you signed in, if you use Sign in with Apple, and the request to revoke that sign-in when you delete your account. Mail to a private relay address passes through Apple's relay</td><td>Sign-in on the iPhone app, and delivering email to a hidden address</td></tr>
           <tr><td>Any additional sign-in provider switched on for Beyou</td><td>The fact that you signed in, if you use it. It also sees your IP address while you are on its own sign-in page</td><td>Sign-in, only for accounts that connected it</td></tr>
@@ -540,7 +543,7 @@ __NAV__
       <li>Deletion, as described in section 9.</li>
       <li>A copy of your data to take elsewhere. The web app and the Android app both have a data export in the configuration screen, in the same place as the delete control. It returns one file holding your profile, the sign-in providers you connected, categories, habits, tasks, goals and how they nest, routines and their type, check-in history, focus sessions and the steps you wrote for them, your diary, your study notebook (pages, roadmap, flashcards and how each review went, the sources you added, study conversations, quizzes and summaries, roadmap drafts), the daily briefings still kept, feedback, your Second Brain page (profile lines, notes, questions with your answers, the last overview and your source switches), and your assistant conversations along with what is left of the note the assistant used to keep about you. What it leaves out: the daily snapshots of your routines, the text read out of your notebook sources (the sources themselves are listed), anything credential-shaped such as your password hash and your open sessions, and the image files you uploaded. Conversations from before the current message store come out as plain text from the assistant's memory window rather than in full. Ask by email for anything the file does not cover.</li>
       <li>Restriction of processing, and objection to processing based on legitimate interests. For the routine emails that means the switch in the app's settings, or the unsubscribe link at the bottom of any one of them. No sign-in needed, and it takes effect immediately.</li>
-      <li>Withdrawal of any consent you gave, without affecting what happened before.</li>
+      <li>Withdrawal of any consent you gave, without affecting what happened before. For the AI features that is Configuration &gt; Preferences &gt; AI features, on the web and in the apps, and it takes effect at once.</li>
     </ul>
     <p>
       Requests go to <a href="mailto:__CONTACT__">__CONTACT__</a>. None of these

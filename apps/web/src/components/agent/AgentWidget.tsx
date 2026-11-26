@@ -24,11 +24,10 @@ function AgentWidget() {
     );
     const [open, setOpen] = useState(false);
     const [hasOpened, setHasOpened] = useState(false);
-    // Without a yes to the AI provider the server refuses the assistant, so every way in
-    // (the bubble, the bottom bar, Second Brain's hand-off) opens the consent dialog instead.
-    // null is a backend that does not know the answer: nothing changes there.
+    // Only after a yes to the AI provider. Every way in (the bubble, the bottom bar, Second
+    // Brain's hand-off) opens the consent dialog otherwise, an unknown answer included.
     const aiConsent = useSelector((state: RootState) => state.perfil.aiConsent);
-    const aiAllowed = aiConsent === null || aiConsent === "GRANTED";
+    const aiAllowed = aiConsent === "GRANTED";
 
     const openPanel = () => {
         if (!aiAllowed) {

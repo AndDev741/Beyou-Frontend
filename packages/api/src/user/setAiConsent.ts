@@ -15,9 +15,16 @@ type SetAiConsentResponse = {
  * person answers the question. The answer comes back as the whole profile, so the caller
  * can put the new `aiConsent` straight into its state.
  */
-export default async function setAiConsent(granted: boolean): Promise<SetAiConsentResponse> {
+export default async function setAiConsent(
+    granted: boolean,
+    options: { onlyIfUnasked?: boolean } = {},
+): Promise<SetAiConsentResponse> {
     try {
-        const response = await getHttpClient().put<UserType>('/user/ai-consent', { granted });
+        // onlyIfUnasked: a phone handing over an answer it kept while the server could not
+        // store one. It lands only on an account nobody answered for yet; the reply carries
+        // whatever the account holds, which may be a newer answer from another device.
+        const body = options.onlyIfUnasked ? { granted, onlyIfUnasked: true } : { granted };
+        const response = await getHttpClient().put<UserType>('/user/ai-consent', body);
         return { data: response.data };
     } catch (e) {
         getLogger().error(e);

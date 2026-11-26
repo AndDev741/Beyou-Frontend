@@ -52,7 +52,9 @@ export function useAnswerAiConsent() {
       // (resolveAiConsent). Otherwise the server's word comes first.
       if (!onDevice) {
         const res = await setAiConsent(granted);
-        if (res.error || !res.data) {
+        // A "yes" needs the server. A "no" does not: it holds on this device at once (the
+        // HTTP client refuses the AI routes), and the next start hands it over.
+        if ((res.error || !res.data) && granted) {
           setSaving(false);
           return false;
         }

@@ -21,6 +21,12 @@ type Options = {
     onResolved?: () => void;
     /** Called when the user closes it, so a caller can drop a `forceOpen` request. */
     onClosed?: () => void;
+    /**
+     * False skips the request. The dashboard passes false while the account's answer about
+     * the AI provider is unknown (a backend that predates it): only a server that knows the
+     * answer leaves the prose out without a yes.
+     */
+    enabled?: boolean;
 };
 
 /**
@@ -44,7 +50,7 @@ type Options = {
  * toast per failed call. Nothing behind the modal needs to be current until it closes; the
  * XP that moved is already applied through `applyRefreshUi`.
  */
-export function useDailyBriefing({ tutorialActive, forceOpen = false, onResolved, onClosed }: Options) {
+export function useDailyBriefing({ tutorialActive, forceOpen = false, onResolved, onClosed, enabled = true }: Options) {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const store = useStore<RootState>();
@@ -55,6 +61,10 @@ export function useDailyBriefing({ tutorialActive, forceOpen = false, onResolved
     const resolvedSinceOpen = useRef(false);
 
     useEffect(() => {
+        if (!enabled) {
+            setLoading(false);
+            return;
+        }
         let cancelled = false;
         getDailyBriefing(t)
             .then((result) => {
@@ -70,7 +80,7 @@ export function useDailyBriefing({ tutorialActive, forceOpen = false, onResolved
         return () => {
             cancelled = true;
         };
-    }, [t]);
+    }, [t, enabled]);
 
     const open = !loading && shouldOpenBriefing({
         briefing,

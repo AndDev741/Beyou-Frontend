@@ -62,7 +62,7 @@ describe('AI consent screen', () => {
     expect(who).toHaveTextContent(/Google Gemini/);
     expect(who).toHaveTextContent(/Tavily/);
     expect(screen.getByText(/What you write to the assistant/)).toBeTruthy();
-    expect(screen.getByText(/Never sent: your email, your password/)).toBeTruthy();
+    expect(screen.getByText(/Never sent: your email address, your password/)).toBeTruthy();
     expect(screen.getByTestId('ai-consent-allow')).toBeTruthy();
     expect(screen.getByTestId('ai-consent-decline')).toBeTruthy();
     expect(mockSetAiConsent).not.toHaveBeenCalled();

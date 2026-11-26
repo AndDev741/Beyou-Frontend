@@ -73,7 +73,7 @@ describe('AiConsentSection', () => {
     expect(mockSetAiConsent).not.toHaveBeenCalled();
   });
 
-  it('says so when the server does not take the change', async () => {
+  it('a no holds on the phone even when the server does not take it yet', async () => {
     mockSetAiConsent.mockResolvedValue({ error: { errorKey: 'UnexpectedError' } });
     const store = await wrap('GRANTED');
 
@@ -81,8 +81,9 @@ describe('AiConsentSection', () => {
       fireEvent.press(screen.getByTestId('ai-consent-turn-off'));
     });
 
-    expect(store.getState().auth.profile?.aiConsent).toBe('GRANTED');
-    expect(mockNotifyError).toHaveBeenCalled();
+    // Handed over on the next start (resolveAiConsent); meanwhile the AI routes stay shut.
+    expect(store.getState().auth.profile?.aiConsent).toBe('DECLINED');
+    expect(mockNotifyError).not.toHaveBeenCalled();
   });
 
   it('renders nothing for a backend that does not know the field', async () => {
