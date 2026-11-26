@@ -19,6 +19,7 @@ import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
 import { setPhase } from '../../src/tutorial/tutorialSlice';
 import { completeTutorial } from '../../src/tutorial/completeTutorial';
+import { useAiAllowed } from '../../src/aiConsent/useAiConsent';
 import type { RootState, AppDispatch } from '../../src/store';
 
 /**
@@ -35,6 +36,7 @@ export default function AppHome() {
   const { t, i18n } = useTranslation();
   const phase = useSelector((s: RootState) => s.tutorial.phase);
   const dash = useDashboardTutorial();
+  const aiAllowed = useAiAllowed();
   // The spotlight is rendered by the (app) layout so it spans the window (the
   // last dashboard step targets the bottom bar, which is outside this screen).
   // Suppressed while the spinner is up: the targets are not mounted yet, and the
@@ -119,7 +121,7 @@ export default function AppHome() {
         <OnboardingTutorial
           onComplete={() => dispatch(setPhase('dashboard'))}
           onSkip={() => completeTutorial({ dispatch, t })}
-          onChooseAi={() => dispatch(setPhase('ai'))}
+          onChooseAi={aiAllowed ? () => dispatch(setPhase('ai')) : undefined}
         />
       ) : null}
       {phase === 'ai' ? (

@@ -3,12 +3,14 @@ import { Pressable } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { useRouter } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
 import type { RootState } from '../../store';
 import { useBeyouTheme } from '../../theme/ThemeProvider';
 import AgentChatModal from './AgentChatModal';
 import { onAgentPanelOpen } from './agentPanelBus';
 import { useAgentChat } from './useAgentChat';
+import { useAiAllowed } from '../../aiConsent/useAiConsent';
 
 interface AgentWidgetProps {
   /**
@@ -36,8 +38,17 @@ export default function AgentWidget({ showFab = true }: AgentWidgetProps) {
   );
   const [open, setOpen] = useState(false);
   const chat = useAgentChat();
+  const router = useRouter();
+  const aiAllowed = useAiAllowed();
 
+  // After a "no" to the AI provider every way into the assistant (the bar's centre button,
+  // Second Brain's hand-off, the bubble) lands on the consent screen instead: the person sees
+  // what saying yes would send, and nothing loads or streams until they do.
   const openPanel = () => {
+    if (!aiAllowed) {
+      router.push('/ai-consent');
+      return;
+    }
     chat.ensureLoaded();
     setOpen(true);
   };
@@ -52,7 +63,7 @@ export default function AgentWidget({ showFab = true }: AgentWidgetProps) {
   useEffect(() => {
     if (!isTutorialCompleted) return;
     return onAgentPanelOpen(openPanel);
-  }, [isTutorialCompleted]);
+  }, [isTutorialCompleted, aiAllowed]);
 
   // Hidden until onboarding finishes: the tutorial (manual or AI) should own
   // the user's attention, and the AI wizard already covers assisted setup.

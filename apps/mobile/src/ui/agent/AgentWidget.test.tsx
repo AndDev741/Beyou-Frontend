@@ -6,6 +6,7 @@ import AgentWidget from './AgentWidget';
 import { openAgentPanel } from './agentPanelBus';
 import { BeyouThemeProvider } from '../../theme/ThemeProvider';
 import { makeStore } from '../../store';
+import { login } from '../../auth/authSlice';
 import '../../i18n';
 
 // These cases mount the full-screen agent modal (theme provider + i18n + the
@@ -43,9 +44,11 @@ const textTurn = (text: string) => [{ type: 'text', text }];
 const wrap = async ({
   isTutorialCompleted = true,
   showFab = true,
-}: { isTutorialCompleted?: boolean; showFab?: boolean } = {}) => {
+  aiConsent,
+}: { isTutorialCompleted?: boolean; showFab?: boolean; aiConsent?: string } = {}) => {
   const store = makeStore();
   store.dispatch(tutorialCompletedEnter(isTutorialCompleted));
+  if (aiConsent) store.dispatch({ type: login.fulfilled.type, payload: { aiConsent } });
   return render(
     <Provider store={store}>
       <BeyouThemeProvider>
@@ -64,6 +67,21 @@ describe('AgentWidget', () => {
   it('renders the FAB and no chat surface before opening', async () => {
     const { getByTestId, queryByTestId } = await wrap();
     expect(getByTestId('agent-fab')).toBeTruthy();
+    expect(queryByTestId('agent-input')).toBeNull();
+  });
+
+  it('after a no to the AI provider, every way in leads to the consent screen and nothing loads', async () => {
+    const { getByTestId, queryByTestId } = await wrap({ aiConsent: 'DECLINED' });
+    await act(async () => {
+      openAgentPanel();
+    });
+    expect(mockRouterPush).toHaveBeenCalledWith('/ai-consent');
+
+    await act(async () => {
+      fireEvent.press(getByTestId('agent-fab'));
+    });
+    expect(mockRouterPush).toHaveBeenCalledTimes(2);
+    expect(api.getAgentChats).not.toHaveBeenCalled();
     expect(queryByTestId('agent-input')).toBeNull();
   });
 

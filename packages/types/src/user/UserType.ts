@@ -1,3 +1,9 @@
+/**
+ * The person's answer to "may Beyou send what you write to its AI provider?". `UNASKED`
+ * until they answer; only `DECLINED` switches the AI features off (on the server too).
+ */
+export type AiConsent = "UNASKED" | "GRANTED" | "DECLINED";
+
 export type UserType = {
     /**
      * The account's opaque UUID — the only identity product analytics may use
@@ -48,5 +54,11 @@ export type UserType = {
      * a backend built before it simply omits it, and the property is then left unset
      * rather than guessed.
      */
-    createdAt?: string
+    createdAt?: string,
+    /**
+     * The person's answer about the AI provider. The phone asks before any AI feature runs
+     * while it is `UNASKED`. Optional for the same reason as `id`: an older backend omits it,
+     * and then the phone neither asks nor hides anything.
+     */
+    aiConsent?: AiConsent
 }

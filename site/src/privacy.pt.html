@@ -170,6 +170,16 @@ __NAV__
       Nenhum deles envia seu e-mail, o hash da sua senha, os tokens da sua sessão
       ou as palavras que você escreveu no diário.
     </p>
+    <p>
+      Os apps de iPhone e Android pedem a sua permissão antes de qualquer um destes
+      recursos funcionar pela primeira vez, e dizem ali quem recebe o quê. Se você
+      disser não, nada é enviado: o assistente, a configuração guiada, as
+      ferramentas de estudo e as fontes do caderno e as perguntas do Segundo Cérebro
+      ficam desligados, e o resumo do dia mostra os números sem os dois parágrafos
+      escritos. O servidor do Beyou respeita essa resposta para a sua conta em todos
+      os dispositivos. Você pode mudá-la quando quiser no app, em Configuração &gt;
+      Preferências &gt; Recursos de IA.
+    </p>
 
     <h3>O assistente</h3>
     <p>
@@ -187,11 +197,12 @@ __NAV__
       <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
     </ul>
     <p>
-      O provedor é a Mistral AI ou o Google Gemini. O Beyou tenta a Mistral
-      primeiro e recorre ao Gemini quando ela está indisponível, ou seja, cada
-      mensagem é atendida por um dos dois e não pelos dois. Eles processam sua
-      mensagem para produzir a resposta, e os termos deles governam o que fazem com
-      ela. Esses termos não são escritos pelo Beyou.
+      O provedor é a Mistral AI ou o Google Gemini. O servidor do Beyou envia
+      cada pedido a um gateway, que o entrega a um dos dois e passa para o outro
+      quando o primeiro está indisponível, ou seja, cada mensagem é atendida por um
+      dos dois e não pelos dois. Eles processam sua mensagem para produzir a
+      resposta, e os termos deles governam o que fazem com ela. Esses termos não são
+      escritos pelo Beyou.
     </p>
     <p>
       Quando você conta ao assistente algo duradouro sobre a sua vida, ou sobre um

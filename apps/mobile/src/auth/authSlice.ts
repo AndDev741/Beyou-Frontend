@@ -1,4 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import type { AiConsent } from '@beyou/types/user/UserType';
 import { ApiError, parseApiError, getLogger, isRateLimited, RATE_LIMIT_ERROR_KEY } from '@beyou/api';
 import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
@@ -165,7 +166,16 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    /**
+     * The person answered the AI question (the consent screen or Configuration). Kept on the
+     * profile the session started with, which is what the root Gate reads to decide whether
+     * the question still has to be asked.
+     */
+    aiConsentAnswered(s, a: PayloadAction<AiConsent>) {
+      if (s.profile) s.profile.aiConsent = a.payload;
+    },
+  },
   extraReducers: (b) => {
     b.addCase(login.pending, (s) => {
       s.error = null;
@@ -229,5 +239,7 @@ const authSlice = createSlice({
     });
   },
 });
+
+export const { aiConsentAnswered } = authSlice.actions;
 
 export default authSlice.reducer;

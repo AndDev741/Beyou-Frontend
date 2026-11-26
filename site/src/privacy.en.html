@@ -166,6 +166,15 @@ __NAV__
       None of them sends your email address, your password hash, your session
       tokens or the words you wrote in your diary.
     </p>
+    <p>
+      The iPhone and Android apps ask for your permission before any of these
+      features runs for the first time, and say there who receives what. If you
+      say no, nothing is sent: the assistant, the guided setup, the notebook's
+      study tools and sources, and the Second Brain questions stay off, and the
+      daily briefing shows its numbers without the two written paragraphs. Beyou's
+      server keeps to that answer for your account on every device. You can change
+      it at any time in the app, in Configuration &gt; Preferences &gt; AI features.
+    </p>
 
     <h3>The assistant</h3>
     <p>
@@ -183,11 +192,12 @@ __NAV__
       <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, your focus sessions and their steps, and your study notebook, so the names, descriptions and notes in them reach the provider as part of answering. It can read your mood as a number and whether you wrote a note that day, never the note itself.</li>
     </ul>
     <p>
-      The provider is either Mistral AI or Google Gemini. Beyou tries Mistral
-      first and falls back to Gemini when it is unavailable, so a given message is
-      handled by one of them rather than both. They process your message to produce
-      a reply, and their own terms govern what they do with it. Those terms are not
-      written by Beyou.
+      The provider is either Mistral AI or Google Gemini. Beyou's server sends
+      every request to one gateway, which hands it to one of the two and moves to
+      the other when the first is unavailable, so a given message is handled by one
+      of them rather than both. They process your message to produce a reply, and
+      their own terms govern what they do with it. Those terms are not written by
+      Beyou.
     </p>
     <p>
       When you tell the assistant something lasting about your life, or about one

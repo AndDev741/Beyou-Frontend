@@ -93,6 +93,7 @@ setRefreshHandler(async () => {
 function Gate() {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((s: RootState) => s.auth.status);
+  const aiConsent = useSelector((s: RootState) => s.auth.profile?.aiConsent);
   const segments = useSegments();
   const router = useRouter();
 
@@ -104,9 +105,9 @@ function Gate() {
   }, [dispatch]);
 
   useEffect(() => {
-    const target = nextAuthRoute(status, segments);
+    const target = nextAuthRoute(status, segments, aiConsent);
     if (target) router.replace(target);
-  }, [status, segments, router]);
+  }, [status, segments, router, aiConsent]);
 
   // The spinner sits on the theme provider's background (it used to show Android's window colour
   // for the whole refresh round-trip after the splash). The stack needs the colour of its own:

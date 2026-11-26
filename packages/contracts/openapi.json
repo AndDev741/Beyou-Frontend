@@ -59,6 +59,36 @@
         }
       }
     },
+    "/user/ai-consent": {
+      "put": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "setAiConsent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiConsentRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/task": {
       "get": {
         "tags": [
@@ -5910,6 +5940,17 @@
   },
   "components": {
     "schemas": {
+      "AiConsentRequestDTO": {
+        "type": "object",
+        "properties": {
+          "granted": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "granted"
+        ]
+      },
       "UserEditDTO": {
         "type": "object",
         "properties": {
@@ -6073,6 +6114,14 @@
           },
           "createdAt": {
             "type": "string"
+          },
+          "aiConsent": {
+            "type": "string",
+            "enum": [
+              "UNASKED",
+              "GRANTED",
+              "DECLINED"
+            ]
           }
         }
       },

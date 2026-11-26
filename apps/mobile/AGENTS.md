@@ -408,3 +408,26 @@ only adds what app.json cannot say and leaves the Android config untouched (`__t
   with an iOS deployment target below 15 fail, and UIKit traps at launch for an app without the
   UIScene lifecycle, which SDK 56's AppDelegate does not adopt. Build with Xcode 26 until Expo
   ships scene support; a local Xcode 27 simulator build needs those three worked around by hand.
+
+## AI consent (App Store guideline 5.1.2(i))
+
+Apple wants the app to say which third-party AI receives a person's data, and to get explicit
+permission before it does. The answer lives on the account (`aiConsent` on `GET /user`:
+`UNASKED` / `GRANTED` / `DECLINED`, written by `PUT /user/ai-consent`), not on the device,
+because the daily briefing reaches the provider from the server.
+
+- **Asked once, before anything AI runs.** `nextAuthRoute` sends a signed-in account whose
+  answer is `UNASKED` to `app/ai-consent.tsx` (outside `(app)`: no bar, no assistant), and the
+  `(app)` layout renders an empty view meanwhile, so the dashboard, which asks for the briefing
+  as it mounts, never mounts first. An older backend omits the field and nothing is asked.
+- **The screen names the recipients** (Mistral AI, Google Gemini, Tavily for source search) and
+  what goes to them, with Allow / Don't allow. The answer is in the session via
+  `aiConsentAnswered` (auth slice), read through `src/aiConsent/useAiConsent.ts`.
+- **After a no**: `AgentWidget` sends every way into the assistant to the consent screen, the
+  tutorial fork offers the tour only, and the server refuses every AI route with
+  `AI_CONSENT_DECLINED` (translated) and serves the briefing without its prose. Any AI button
+  not hidden on the phone still gets that translated error instead of reaching the provider.
+- **Changing it**: Configuration > Preferences > AI features (`AiConsentSection`). Off is one tap;
+  on goes through the consent screen, so a yes is never given without the disclosure.
+- The web does not ask yet: `UNASKED` accounts keep the AI features there, and a phone "no"
+  turns them off on the web too (the server refuses the routes).

@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/user/ai-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setAiConsent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/task": {
         parameters: {
             query?: never;
@@ -2424,6 +2440,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AiConsentRequestDTO: {
+            granted: boolean;
+        };
         UserEditDTO: {
             name?: string;
             photo?: string;
@@ -2475,6 +2494,8 @@ export interface components {
             /** @enum {string} */
             xpDecayStrategy?: "GRADUAL" | "FLAT" | "TIME_WINDOW";
             createdAt?: string;
+            /** @enum {string} */
+            aiConsent?: "UNASKED" | "GRANTED" | "DECLINED";
         };
         EditTaskRequestDTO: {
             /** Format: uuid */
@@ -4612,6 +4633,30 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UserEditDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponseDTO"];
+                };
+            };
+        };
+    };
+    setAiConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiConsentRequestDTO"];
             };
         };
         responses: {
