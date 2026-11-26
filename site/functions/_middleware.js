@@ -30,6 +30,7 @@ const YEAR = 31536000;
 const PAGES = [
   { en: "/", pt: "/pt/" },
   { en: "/privacy/", pt: "/pt/privacidade/" },
+  { en: "/support/", pt: "/pt/suporte/" },
 ];
 
 export async function onRequest(context) {
