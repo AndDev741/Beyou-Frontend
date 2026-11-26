@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,6 +19,7 @@ import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useDashboardTutorial } from '../../src/tutorial/hooks/useDashboardTutorial';
 import { setPhase } from '../../src/tutorial/tutorialSlice';
 import { completeTutorial } from '../../src/tutorial/completeTutorial';
+import { useAiAllowed, useAiDeclinedOnDeviceOnly } from '../../src/aiConsent/useAiConsent';
 import type { RootState, AppDispatch } from '../../src/store';
 
 /**
@@ -35,6 +36,13 @@ export default function AppHome() {
   const { t, i18n } = useTranslation();
   const phase = useSelector((s: RootState) => s.tutorial.phase);
   const dash = useDashboardTutorial();
+  const aiAllowed = useAiAllowed();
+  const briefingOff = useAiDeclinedOnDeviceOnly();
+  // A tutorial left on the AI wizard (saved before a "no", or restored on this device) moves on
+  // to the tour: the wizard only works by asking the AI provider.
+  useEffect(() => {
+    if (phase === 'ai' && !aiAllowed) dispatch(setPhase('dashboard'));
+  }, [phase, aiAllowed, dispatch]);
   // The spotlight is rendered by the (app) layout so it spans the window (the
   // last dashboard step targets the bottom bar, which is outside this screen).
   // Suppressed while the spinner is up: the targets are not mounted yet, and the
@@ -67,6 +75,7 @@ export default function AppHome() {
     forceOpen: briefingRequested,
     onResolved: reload,
     onClosed: dropBriefingRequest,
+    enabled: !briefingOff,
   });
 
   // Refetch when returning to the dashboard (e.g. after editing a routine). The
@@ -119,10 +128,10 @@ export default function AppHome() {
         <OnboardingTutorial
           onComplete={() => dispatch(setPhase('dashboard'))}
           onSkip={() => completeTutorial({ dispatch, t })}
-          onChooseAi={() => dispatch(setPhase('ai'))}
+          onChooseAi={aiAllowed ? () => dispatch(setPhase('ai')) : undefined}
         />
       ) : null}
-      {phase === 'ai' ? (
+      {phase === 'ai' && aiAllowed ? (
         <AiOnboardingWizard
           visible
           onFinish={() => completeTutorial({ dispatch, t })}

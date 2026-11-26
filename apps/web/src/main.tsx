@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './redux/store';
 import './translations/i18n';
-import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
+import { createReportingLogger, setAgentStreamConfig, setAiConsentReader, setHttpClient, setLogger } from '@beyou/api';
 import { axiosHttpClient } from './lib/axiosHttpClient';
 import instance, { getRefreshedAccessToken } from './services/axiosConfig';
 import { logger } from './utils/logger';
@@ -37,6 +37,8 @@ setLogger(createReportingLogger(logger, reportHandledFailure));
 // SSE streaming rides raw fetch (axios/XHR buffers whole responses), so it
 // borrows the axios instance's base URL, always-fresh auth header, and the
 // same shared refresh (so a stream 401 doesn't race a second refresh).
+// Every AI route (HTTP and the agent's stream) needs a stored yes; an unknown answer is a no.
+setAiConsentReader(() => store.getState().perfil.aiConsent === 'GRANTED');
 setAgentStreamConfig({
   baseUrl: instance.defaults.baseURL ?? '',
   getHeaders: (): Record<string, string> => {

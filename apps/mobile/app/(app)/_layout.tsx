@@ -5,6 +5,7 @@ import AgentWidget from '../../src/ui/agent/AgentWidget';
 import BottomNav from '../../src/ui/dashboard/BottomNav';
 import RunningTimerHub from '../../src/focus/RunningTimerHub';
 import { useBeyouTheme } from '../../src/theme/ThemeProvider';
+import { useAiConsent } from '../../src/aiConsent/useAiConsent';
 
 // Anchor the (app) group on the dashboard so deep-linking / reloading onto a
 // section screen (e.g. /goals) still has the dashboard beneath it — back returns
@@ -15,6 +16,13 @@ export default function AppLayout() {
   // Same reason as the root stack: react-navigation's default card colour is a light grey, and it
   // shows behind a screen sliding in on a dark theme.
   const { theme } = useBeyouTheme();
+  // Never asked about the AI provider: the root Gate is on its way to `/ai-consent`. Until it
+  // gets there nothing in this group mounts, because the dashboard asks for the daily briefing
+  // as it mounts and the briefing's prose is written by the provider.
+  const aiConsent = useAiConsent();
+  if (aiConsent === 'UNASKED') {
+    return <View style={{ flex: 1, backgroundColor: theme.bg }} testID="app-awaiting-ai-consent" />;
+  }
   return (
     <View style={{ flex: 1 }}>
       {/* The tutorial spotlight is hosted here, not inside the screens: its

@@ -1,5 +1,6 @@
 import { ApiError } from '@beyou/api';
 import { nativeHttpClient, setAccessToken, __setBaseUrl, setOnUnauthenticated, setRefreshHandler } from './nativeHttpClient';
+import { setAiConsentReader } from '@beyou/api';
 
 describe('nativeHttpClient (base)', () => {
   beforeEach(() => {
@@ -98,5 +99,37 @@ describe('nativeHttpClient (timeout + transport errors)', () => {
   it('wraps a transport failure (unreachable host) as ApiError(0)', async () => {
     global.fetch = jest.fn().mockRejectedValueOnce(new TypeError('Network request failed')) as unknown as typeof fetch;
     await expect(nativeHttpClient.get('/x')).rejects.toBeInstanceOf(ApiError);
+  });
+});
+
+describe('nativeHttpClient (AI consent)', () => {
+  beforeEach(() => {
+    setAccessToken('jwt-1');
+    __setBaseUrl('http://test.local/api/v1');
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true, status: 200, headers: new Headers(), json: async () => ({}),
+    });
+  });
+  afterEach(() => setAiConsentReader(() => true));
+
+  it('sends nothing to an AI route before a yes, and answers like the server would', async () => {
+    setAiConsentReader(() => false);
+    await expect(nativeHttpClient.post('/onboarding/suggestions', {})).rejects.toMatchObject({
+      status: 400,
+      data: { errorKey: 'AI_CONSENT_DECLINED' },
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('leaves every other route alone', async () => {
+    setAiConsentReader(() => false);
+    await nativeHttpClient.post('/habit', {});
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets AI routes through after a yes', async () => {
+    setAiConsentReader(() => true);
+    await nativeHttpClient.post('/onboarding/suggestions', {});
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });

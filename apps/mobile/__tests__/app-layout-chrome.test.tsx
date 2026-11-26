@@ -56,9 +56,10 @@ const AUTHENTICATED_ROUTES = [
   '/feedback',
 ];
 
-const renderLayout = async () => {
+const renderLayout = async (aiConsent?: string) => {
   const store = makeStore();
   store.dispatch(tutorialCompletedEnter(true));
+  if (aiConsent) store.dispatch({ type: 'auth/login/fulfilled', payload: { aiConsent } });
   return render(
     <Provider store={store}>
       <BeyouThemeProvider>
@@ -122,5 +123,21 @@ describe('(app) layout chrome', () => {
     const bar = flattenStyle(screen.getByTestId('bottom-nav').props.style);
     expect(bar.position).toBeUndefined();
     expect(bar.flex).toBeUndefined();
+  });
+});
+
+describe('(app) layout before the AI question is answered', () => {
+  it('mounts no screen at all, so the dashboard cannot ask for the briefing first', async () => {
+    mockPathname = '/';
+    await renderLayout('UNASKED');
+    expect(screen.getByTestId('app-awaiting-ai-consent')).toBeTruthy();
+    expect(screen.queryByTestId('app-screen-area')).toBeNull();
+  });
+
+  it('mounts the screens once the answer is in', async () => {
+    mockPathname = '/';
+    await renderLayout('DECLINED');
+    expect(screen.queryByTestId('app-awaiting-ai-consent')).toBeNull();
+    expect(screen.getByTestId('app-screen-area')).toBeTruthy();
   });
 });

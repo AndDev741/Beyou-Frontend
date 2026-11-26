@@ -1,4 +1,5 @@
 import { agentSegment } from '@beyou/types/agent/chatType';
+import { assertAiRequestAllowed } from '../aiConsentGate';
 import { getLogger } from '../logger';
 import { ANALYTICS_EVENTS } from '../analyticsEvents';
 import { getAnalytics } from '../analytics';
@@ -173,13 +174,16 @@ export async function streamAgentMessage(
 
     // getHeaders() is re-read on each call, so a retry after refreshAuth()
     // picks up the renewed token automatically.
-    const openStream = () =>
-        doFetch(`${cfg.baseUrl}/ai/agent/chats/${chatId}/stream`, {
+    const openStream = () => {
+        // Before every attempt, the retry after a refresh included: a "no" given meanwhile holds.
+        assertAiRequestAllowed('POST', `/ai/agent/chats/${chatId}/stream`);
+        return doFetch(`${cfg.baseUrl}/ai/agent/chats/${chatId}/stream`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...cfg.getHeaders() },
             body: JSON.stringify({ userInput, currentPage, selectedItemGroupId }),
             signal,
         });
+    };
 
     try {
         let response = await openStream();
@@ -209,6 +213,13 @@ export async function streamAgentMessage(
         // every deliberate abort, which is what switching chats or logging out
         // does — escaped as an unhandled rejection instead of reaching onError.
         if (signal?.aborted || (e as { name?: string })?.name === 'AbortError') return;
+        // Refused before it left the device (assertAiRequestAllowed): the same key the server
+        // would answer with, not a network failure.
+        const refusedKey = (e as { data?: { errorKey?: unknown } })?.data?.errorKey;
+        if (refusedKey === 'AI_CONSENT_DECLINED') {
+            handlers.onError('AI_CONSENT_DECLINED');
+            return;
+        }
         getLogger().error(e);
         handlers.onError('NETWORK');
     }

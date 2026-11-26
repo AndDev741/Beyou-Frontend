@@ -84,4 +84,17 @@ describe('OnboardingTutorial', () => {
     });
     expect(onSkip).toHaveBeenCalled();
   });
+
+  it('offers only the tour when the person said no to the AI provider', async () => {
+    const onComplete = jest.fn();
+    await wrap(<OnboardingTutorial onComplete={onComplete} onSkip={jest.fn()} />);
+    for (let i = 0; i < 7; i++) {
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('onboarding-next'));
+      });
+    }
+    expect(screen.getByText('How do you want to start?')).toBeTruthy();
+    expect(screen.queryByTestId('tutorial-path-ai')).toBeNull();
+    expect(screen.getByTestId('tutorial-path-manual')).toBeTruthy();
+  });
 });

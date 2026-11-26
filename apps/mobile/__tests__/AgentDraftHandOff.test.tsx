@@ -28,6 +28,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import { tutorialCompletedEnter } from '@beyou/state/user/perfilSlice';
 import '../src/i18n';
 import { makeStore } from '../src/store';
+import { login } from '../src/auth/authSlice';
 import { BeyouThemeProvider } from '../src/theme/ThemeProvider';
 import AgentWidget from '../src/ui/agent/AgentWidget';
 import {
@@ -53,6 +54,8 @@ const lastChat = { id: 'c1', title: 'Plan my week', createdAt: '2026-11-10T10:00
 async function mountAssistant() {
   const store = makeStore();
   store.dispatch(tutorialCompletedEnter(true));
+  // The assistant only opens for someone who said yes to the AI provider.
+  store.dispatch({ type: login.fulfilled.type, payload: { aiConsent: 'GRANTED' } });
   await act(async () => {
     await render(
       <Provider store={store}>

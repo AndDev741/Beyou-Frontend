@@ -19,6 +19,7 @@ import WidgetsSection from '../../src/ui/config/WidgetsSection';
 import TutorialSection from '../../src/ui/config/TutorialSection';
 import BriefingSection from '../../src/ui/config/BriefingSection';
 import PrivacyPolicySection from '../../src/ui/config/PrivacyPolicySection';
+import AiConsentSection from '../../src/ui/config/AiConsentSection';
 import { useSpotlightSlot } from '../../src/tutorial/TutorialOverlaySlot';
 import { useConfigTutorial } from '../../src/tutorial/hooks/useConfigTutorial';
 import { useTutorialTarget } from '../../src/tutorial/useTutorialTarget';
@@ -126,6 +127,7 @@ export default function ConfigurationScreen() {
             <TutorialSection />
             <NotificationSection />
             <ReminderSection />
+            <AiConsentSection />
             <PrivacyPolicySection />
           </View>
         </ConfigSection>

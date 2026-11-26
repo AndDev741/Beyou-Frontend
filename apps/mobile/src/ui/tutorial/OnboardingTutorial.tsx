@@ -92,7 +92,8 @@ export default function OnboardingTutorial({
 }: {
   onComplete: () => void;
   onSkip: () => void;
-  onChooseAi: () => void;
+  /** Absent when the person said no to the AI provider: the fork then offers the tour only. */
+  onChooseAi?: () => void;
 }) {
   const { t } = useTranslation();
   const { theme } = useBeyouTheme();
@@ -125,37 +126,39 @@ export default function OnboardingTutorial({
             </Text>
 
             <View className="gap-4">
-              <Pressable
-                onPress={onChooseAi}
-                accessibilityRole="button"
-                accessibilityLabel={t('TutorialPathAiTitle')}
-                testID="tutorial-path-ai"
-                className="rounded-card border border-border bg-accent/10 p-5 active:opacity-80"
-              >
-                <View className="mb-3 flex-row items-center justify-between">
-                  <View className="h-12 w-12 items-center justify-center rounded-card bg-accent">
-                    <Sparkles size={24} color={theme.onAccent} />
+              {onChooseAi ? (
+                <Pressable
+                  onPress={onChooseAi}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('TutorialPathAiTitle')}
+                  testID="tutorial-path-ai"
+                  className="rounded-card border border-border bg-accent/10 p-5 active:opacity-80"
+                >
+                  <View className="mb-3 flex-row items-center justify-between">
+                    <View className="h-12 w-12 items-center justify-center rounded-card bg-accent">
+                      <Sparkles size={24} color={theme.onAccent} />
+                    </View>
+                    <View className="flex-row items-center gap-1 rounded-full bg-accent px-3 py-1">
+                      <Sparkles size={12} color={theme.onAccent} />
+                      <Text className="text-xs font-semibold" style={{ color: theme.onAccent }}>
+                        {t('TutorialPathAiBadge')}
+                      </Text>
+                    </View>
                   </View>
-                  <View className="flex-row items-center gap-1 rounded-full bg-accent px-3 py-1">
-                    <Sparkles size={12} color={theme.onAccent} />
-                    <Text className="text-xs font-semibold" style={{ color: theme.onAccent }}>
-                      {t('TutorialPathAiBadge')}
-                    </Text>
-                  </View>
-                </View>
-                <Text className="text-text mb-1 text-xl font-bold">
-                  {t('TutorialPathAiTitle')}
-                </Text>
-                <Text className="text-text-2 text-sm leading-relaxed">
-                  {t('TutorialPathAiDescription')}
-                </Text>
-                {/* On the card, not after the choice: this is where a person decides
-                    whether to hand their answers to an outside model, so the fact that
-                    it IS an outside model has to be readable before the tap. */}
-                <Text className="text-text-3 mt-3 text-[12px] leading-snug">
-                  {t('AiOnboardingPrivacyNotice')}
-                </Text>
-              </Pressable>
+                  <Text className="text-text mb-1 text-xl font-bold">
+                    {t('TutorialPathAiTitle')}
+                  </Text>
+                  <Text className="text-text-2 text-sm leading-relaxed">
+                    {t('TutorialPathAiDescription')}
+                  </Text>
+                  {/* On the card, not after the choice: this is where a person decides
+                      whether to hand their answers to an outside model, so the fact that
+                      it IS an outside model has to be readable before the tap. */}
+                  <Text className="text-text-3 mt-3 text-[12px] leading-snug">
+                    {t('AiOnboardingPrivacyNotice')}
+                  </Text>
+                </Pressable>
+              ) : null}
 
               <Pressable
                 onPress={onComplete}

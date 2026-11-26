@@ -24,4 +24,30 @@ describe('nextAuthRoute', () => {
   it('does NOT redirect an unauthenticated user already in the (auth) group (no loop)', () => {
     expect(nextAuthRoute('unauthenticated', ['(auth)'])).toBeNull();
   });
+
+  describe('the AI question', () => {
+    it('sends a signed-in person who was never asked to the consent screen first', () => {
+      expect(nextAuthRoute('authenticated', ['(auth)'], 'UNASKED')).toBe('/ai-consent');
+      expect(nextAuthRoute('authenticated', ['(app)'], 'UNASKED')).toBe('/ai-consent');
+    });
+
+    it('leaves them on the consent screen while they read it', () => {
+      expect(nextAuthRoute('authenticated', ['ai-consent'], 'UNASKED')).toBeNull();
+    });
+
+    it('lets an answered account reach the consent screen again to change its answer', () => {
+      expect(nextAuthRoute('authenticated', ['ai-consent'], 'DECLINED')).toBeNull();
+      expect(nextAuthRoute('authenticated', ['ai-consent'], 'GRANTED')).toBeNull();
+    });
+
+    it('asks nothing when the answer is in, or when the backend does not know the field', () => {
+      expect(nextAuthRoute('authenticated', ['(app)'], 'GRANTED')).toBeNull();
+      expect(nextAuthRoute('authenticated', ['(app)'], 'DECLINED')).toBeNull();
+      expect(nextAuthRoute('authenticated', ['(app)'], undefined)).toBeNull();
+    });
+
+    it('never asks a signed-out person', () => {
+      expect(nextAuthRoute('unauthenticated', ['ai-consent'], 'UNASKED')).toBe('/(auth)/login');
+    });
+  });
 });

@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Theme } from "@beyou/theme";
-import type { UserType } from "@beyou/types/user/UserType";
+import type { AiConsent, UserType } from "@beyou/types/user/UserType";
 
 type userInitialState = {
     username: string;
@@ -43,6 +43,11 @@ type userInitialState = {
      */
     timezoneSource: "DEFAULT" | "DETECTED" | "EXPLICIT",
     xpDecayStrategy: "GRADUAL" | "FLAT" | "TIME_WINDOW",
+    /**
+     * The answer about the AI provider. null until a profile that carries it arrives (an
+     * older backend never sends it, and then nothing is asked).
+     */
+    aiConsent: AiConsent | null,
 }
 
 const initialState: userInitialState = {
@@ -70,6 +75,7 @@ const initialState: userInitialState = {
     timezone: "UTC",
     timezoneSource: "DEFAULT",
     xpDecayStrategy: "GRADUAL",
+    aiConsent: null,
 }
 
 const perfilSlice = createSlice({
@@ -110,6 +116,7 @@ const perfilSlice = createSlice({
                 timezone: u.timezone ?? state.timezone,
                 timezoneSource: u.timezoneSource ?? state.timezoneSource,
                 xpDecayStrategy: u.xpDecayStrategy ?? state.xpDecayStrategy,
+                aiConsent: u.aiConsent ?? state.aiConsent,
             };
         },
         nameEnter(state, action){
@@ -210,6 +217,11 @@ const perfilSlice = createSlice({
             const xpDecayStrategy = valid.includes(action.payload) ? action.payload : "GRADUAL";
             return {...state, xpDecayStrategy};
         },
+        aiConsentEnter(state, action){
+            const valid = ["UNASKED", "GRANTED", "DECLINED"] as const;
+            const aiConsent = valid.includes(action.payload) ? action.payload : null;
+            return {...state, aiConsent};
+        },
     }
 });
 
@@ -238,7 +250,8 @@ export const {
     tutorialCompletedEnter,
     timezoneEnter,
     timezoneSourceEnter,
-    xpDecayStrategyEnter
+    xpDecayStrategyEnter,
+    aiConsentEnter
 } = perfilSlice.actions;
 
 export default perfilSlice.reducer;

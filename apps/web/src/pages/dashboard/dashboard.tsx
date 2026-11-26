@@ -174,6 +174,9 @@ function Dashboard() {
         );
     }, [setSearchParams]);
 
+    // The answer about the AI provider: the guided AI setup only after a yes, and the briefing
+    // only from a server that knows the answer (see useDailyBriefing).
+    const aiConsent = useSelector((state: RootState) => state.perfil.aiConsent);
     const {
         briefing,
         open: briefingOpen,
@@ -185,6 +188,7 @@ function Dashboard() {
         forceOpen: briefingRequested,
         onResolved: loadDashboardData,
         onClosed: dropBriefingRequest,
+        enabled: aiConsent !== null,
     });
 
     // Pick up what the phone did, and what the clock did. Held off while the wizard is
@@ -225,7 +229,7 @@ function Dashboard() {
                 <OnboardingTutorial
                     onComplete={startDashboardSpotlight}
                     onSkip={completeTutorial}
-                    onChooseAi={startAiOnboarding}
+                    onChooseAi={aiConsent === "GRANTED" ? startAiOnboarding : undefined}
                 />
             )}
             {showDashboardSpotlight && (
@@ -268,7 +272,7 @@ function Dashboard() {
                     onSkip={completeTutorial}
                 />
             )}
-            {showAiOnboarding && (
+            {showAiOnboarding && aiConsent === "GRANTED" && (
                 <AiOnboardingWizard
                     onFinish={completeTutorial}
                     onTakeTour={startDashboardSpotlight}

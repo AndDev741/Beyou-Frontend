@@ -140,7 +140,8 @@ const steps: OnboardingStep[] = [
 interface OnboardingTutorialProps {
   onComplete: () => void;
   onSkip: () => void;
-  onChooseAi: () => void;
+  /** Absent without a yes to the AI provider: the fork then offers the tour only. */
+  onChooseAi?: () => void;
 }
 
 export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: OnboardingTutorialProps) {
@@ -228,54 +229,56 @@ export default function OnboardingTutorial({ onComplete, onSkip, onChooseAi }: O
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                <motion.button
-                  type="button"
-                  onClick={onChooseAi}
-                  aria-label={t("TutorialPathAiTitle")}
-                  whileHover={prefersReducedMotion ? undefined : { y: -4 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="group relative flex-1 text-left rounded-card p-6 md:p-7 overflow-hidden border focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--background)), var(--background))",
-                    borderColor: "color-mix(in srgb, var(--primary) 40%, var(--background))"
-                  }}
-                >
-                  <div className="absolute -z-10 -top-10 -right-10 w-32 h-32 bg-accent opacity-30 rounded-full blur-3xl transition-opacity group-hover:opacity-90" />
+                {onChooseAi && (
+                  <motion.button
+                    type="button"
+                    onClick={onChooseAi}
+                    aria-label={t("TutorialPathAiTitle")}
+                    whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="group relative flex-1 text-left rounded-card p-6 md:p-7 overflow-hidden border focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, color-mix(in srgb, var(--primary) 18%, var(--background)), var(--background))",
+                      borderColor: "color-mix(in srgb, var(--primary) 40%, var(--background))"
+                    }}
+                  >
+                    <div className="absolute -z-10 -top-10 -right-10 w-32 h-32 bg-accent opacity-30 rounded-full blur-3xl transition-opacity group-hover:opacity-90" />
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className="w-12 h-12 flex items-center justify-center rounded-card shadow-lg"
-                      style={{ background: "linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--background)))" }}
-                    >
-                      <Sparkles className="w-6 h-6 text-on-accent" />
+                    <div className="flex items-center justify-between mb-4">
+                      <div
+                        className="w-12 h-12 flex items-center justify-center rounded-card shadow-lg"
+                        style={{ background: "linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 60%, var(--background)))" }}
+                      >
+                        <Sparkles className="w-6 h-6 text-on-accent" />
+                      </div>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-on-accent bg-accent rounded-full px-3 py-1">
+                        <Sparkles className="w-3 h-3" />
+                        {t("TutorialPathAiBadge")}
+                      </span>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-on-accent bg-accent rounded-full px-3 py-1">
-                      <Sparkles className="w-3 h-3" />
-                      {t("TutorialPathAiBadge")}
-                    </span>
-                  </div>
 
-                  <h3 className="text-xl font-semibold text-text mb-2">
-                    {t("TutorialPathAiTitle")}
-                  </h3>
-                  <p className="text-text-2 leading-relaxed">
-                    {t("TutorialPathAiDescription")}
-                  </p>
+                    <h3 className="text-xl font-semibold text-text mb-2">
+                      {t("TutorialPathAiTitle")}
+                    </h3>
+                    <p className="text-text-2 leading-relaxed">
+                      {t("TutorialPathAiDescription")}
+                    </p>
 
-                  {/* On the card, not after the choice: this is the fork where a person
-                      decides whether to hand their answers to an outside model, so the
-                      fact that it IS an outside model has to be readable before the
-                      click rather than explained once they are inside the wizard. */}
-                  <p className="mt-3 text-[12px] leading-snug text-text-3">
-                    {t("AiOnboardingPrivacyNotice")}
-                  </p>
+                    {/* On the card, not after the choice: this is the fork where a person
+                        decides whether to hand their answers to an outside model, so the
+                        fact that it IS an outside model has to be readable before the
+                        click rather than explained once they are inside the wizard. */}
+                    <p className="mt-3 text-[12px] leading-snug text-text-3">
+                      {t("AiOnboardingPrivacyNotice")}
+                    </p>
 
-                  <div className="mt-5 flex items-center gap-2 text-accent font-semibold">
-                    <span>{t("TutorialGetStarted")}</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </div>
-                </motion.button>
+                    <div className="mt-5 flex items-center gap-2 text-accent font-semibold">
+                      <span>{t("TutorialGetStarted")}</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </motion.button>
+                )}
 
                 <motion.button
                   type="button"

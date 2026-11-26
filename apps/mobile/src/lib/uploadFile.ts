@@ -1,5 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
-import type { ApiErrorPayload } from '@beyou/api';
+import { assertAiRequestAllowed, type ApiErrorPayload } from '@beyou/api';
 import { getApiBaseUrl, getAccessToken, refreshAccessToken } from './nativeHttpClient';
 
 export type UploadResult<T> = { success?: T; error?: ApiErrorPayload };
@@ -19,6 +19,12 @@ export type UploadResult<T> = { success?: T; error?: ApiErrorPayload };
 export async function uploadFile<T = unknown>(path: string, uri: string, mimeType: string, fileName?: string): Promise<UploadResult<T>> {
   let named: { uri: string; dir: string | null } = { uri, dir: null };
   try {
+    // A PDF for the notebook goes to the embedding model once read: only with a yes.
+    try {
+      assertAiRequestAllowed('POST', path);
+    } catch {
+      return { error: { errorKey: 'AI_CONSENT_DECLINED' } };
+    }
     named = await underName(uri, fileName);
     const doUpload = (token: string | null) =>
       FileSystem.uploadAsync(`${getApiBaseUrl()}${path}`, named.uri, {

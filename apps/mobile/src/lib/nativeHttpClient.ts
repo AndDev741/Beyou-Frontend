@@ -1,5 +1,5 @@
 import type { HttpClient, HttpResponse, RequestConfig } from '@beyou/api';
-import { ApiError } from '@beyou/api';
+import { ApiError, assertAiRequestAllowed } from '@beyou/api';
 import i18next from 'i18next';
 import { notify } from '../notify';
 
@@ -53,6 +53,8 @@ function buildHeaders(extra?: Record<string, string>): Record<string, string> {
 const DEFAULT_TIMEOUT_MS = 20000;
 
 async function request<T>(method: string, path: string, body?: unknown, config?: RequestConfig, isRetry = false): Promise<HttpResponse<T>> {
+  // Nothing goes to an AI route without the person's yes (see @beyou/api aiConsentGate).
+  assertAiRequestAllowed(method, path);
   const controller = new AbortController();
   const timeoutMs = config?.timeout ?? DEFAULT_TIMEOUT_MS;
   const timer = setTimeout(() => controller.abort(), timeoutMs);

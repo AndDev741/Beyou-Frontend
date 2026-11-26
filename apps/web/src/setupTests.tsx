@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 // Use manual mock to avoid parsing axios ESM bundle in Vitest
 vi.mock('axios', () => {
   const instance: any = vi.fn();
-  instance.interceptors = { response: { use: vi.fn() } };
+  instance.interceptors = { request: { use: vi.fn() }, response: { use: vi.fn() } };
   instance.defaults = { headers: { common: {} } };
   instance.get = vi.fn(() => Promise.resolve({ data: [] }));
   instance.post = vi.fn(() => Promise.resolve({ data: {} }));

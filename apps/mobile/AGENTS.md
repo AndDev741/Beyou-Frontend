@@ -408,3 +408,37 @@ only adds what app.json cannot say and leaves the Android config untouched (`__t
   with an iOS deployment target below 15 fail, and UIKit traps at launch for an app without the
   UIScene lifecycle, which SDK 56's AppDelegate does not adopt. Build with Xcode 26 until Expo
   ships scene support; a local Xcode 27 simulator build needs those three worked around by hand.
+
+## AI consent (App Store guideline 5.1.2(i))
+
+Apple wants the app to say which third-party AI receives a person's data, and to get explicit
+permission before it does. The answer lives on the account (`aiConsent` on `GET /user`:
+`UNASKED` / `GRANTED` / `DECLINED`, written only by `PUT /user/ai-consent`), because the server
+does the AI work. **Only `GRANTED` lets anything reach the provider**: the server refuses every
+`@SendsToAiProvider` route otherwise (`AI_CONSENT_DECLINED`, translated), serves the daily
+briefing without prose, reports Second Brain `aiAvailable: false`, and re-reads the answer before
+background work (briefing prose, roadmap drafts, source embeddings).
+
+- **Asked once, before anything AI runs.** `nextAuthRoute` sends a signed-in account whose
+  answer is `UNASKED` to `app/ai-consent.tsx` (outside `(app)`: no bar, no assistant), and the
+  `(app)` layout renders an empty view meanwhile, so the dashboard, which asks for the briefing
+  as it mounts, never mounts first.
+- **Older backend.** `resolveAiConsent` (run by every sign-in thunk and `bootstrap`) treats a
+  profile without the field as `UNASKED`, keeps the answer on the device
+  (`aiConsentOnDevice`), and hands it to the server once the server stores it, with
+  `onlyIfUnasked` so it never overwrites an answer given since on another device; the reply's
+  value is the one that holds. The dashboard skips the briefing after a device-only "no".
+- **A "no" never waits for the network**: if the server does not take it, it holds on the
+  phone at once and is handed over on the next start. A "yes" needs the server.
+- **Client guard.** `nativeHttpClient` refuses the AI routes (`src/aiConsent/aiRoutes.ts`, the
+  same list as the server) while the answer is not a yes, so nothing leaves before the answer
+  even if a screen forgets to check.
+- **After a no**: `AgentWidget` sends every way into the assistant to the consent screen, the
+  tutorial fork offers the tour only (a saved `'ai'` phase moves on to the tour), Second Brain
+  skips its automatic refill.
+- **Changing it**: Configuration > Preferences > AI features (`AiConsentSection`). Off is one tap;
+  on goes through the consent screen, so a yes is never given without the disclosure.
+- **The web** asks the same question in `AiConsentGate` (a dialog in `ProtectedRoute` that cannot
+  be dismissed while `UNASKED`) and has the same switch in Configuration > Preferences. There an
+  unknown answer (a backend without the field) counts as no: the assistant opens the dialog, the
+  guided AI setup is not offered, and the dashboard does not ask for the briefing.

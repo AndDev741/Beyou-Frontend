@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { assertAiRequestAllowed } from '@beyou/api';
 import { toast } from 'react-toastify';
 import i18next from 'i18next';
 import refreshTokenRequest from './authentication/request/refreshTokenRequest';
@@ -12,6 +13,13 @@ export const RATE_LIMIT_TOAST_ID = 'rate-limit-exceeded';
 const instance = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8099/api/v1',
     withCredentials: true
+});
+
+// Nothing goes to an AI route without the person's yes: the request is refused here, before it
+// leaves the browser, with the server's own error. See @beyou/api aiConsentGate.
+instance.interceptors.request.use((config) => {
+    assertAiRequestAllowed(config.method ?? 'get', config.url ?? '');
+    return config;
 });
 
 let refreshPromise: Promise<string> | null = null;

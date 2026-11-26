@@ -13,7 +13,7 @@ __NAV__
         <li>O Beyou é grátis. Não carrega anúncio nem rastreador, e nada sobre você é vendido.</li>
         <li>Sua conta precisa de um nome, um e-mail e uma senha. Nada além disso é obrigatório.</li>
         <li>Todo o resto guardado sobre você é o que você mesmo colocou no app: hábitos, tarefas, rotinas, metas, categorias, o histórico do que você marcou, seu diário, seu caderno de estudos, suas sessões de foco e o que você conta à página Segundo Cérebro.</li>
-        <li>Alguns recursos enviam texto a um provedor de IA externo: o assistente, a configuração guiada, as ferramentas de estudo do caderno, o texto curto do resumo do dia e a página Segundo Cérebro. A seção 3 lista o que cada um envia. O que você escreve no diário nunca é enviado.</li>
+        <li>Nada é enviado sem a sua permissão. Alguns recursos enviam texto a um provedor de IA externo: o assistente, a configuração guiada, as ferramentas de estudo do caderno, o texto curto do resumo do dia e a página Segundo Cérebro. A seção 3 lista o que cada um envia. O que você escreve no diário nunca é enviado.</li>
         <li>Você apaga sua conta de dentro do app, e ela é excluída na hora. Não existe prazo de espera nem como desfazer.</li>
       </ul>
     </div>
@@ -41,6 +41,7 @@ __NAV__
       <li>Seu fuso horário, seu idioma, seu tema e quais widgets você usa no painel. O fuso importa porque é ele que define quando seu dia vira.</li>
       <li>Uma foto de perfil, se você enviar uma, além de uma frase de perfil opcional e o autor dela.</li>
       <li>Seu XP, seu nível, suas sequências e a lista de dias que você completou.</li>
+      <li>A sua resposta sobre se os recursos de IA podem enviar os seus dados ao provedor de IA, e quando você a deu.</li>
     </ul>
     <p>
       Se você entrar com o Google, o Google entrega ao Beyou seu e-mail, seu nome e
@@ -115,7 +116,7 @@ __NAV__
       Para cada sessão de foco, quando começou e terminou, que tipo de sessão
       foi, o item da rotina ou a página do caderno a que ela se referia, e os
       pequenos passos que você anotou para ela. Para cada dia em que você abre o
-      app, o texto curto que o resumo do dia escreveu para você, guardado por 30
+      app, o texto curto que o resumo do dia escreveu para você, se você permitiu os recursos de IA, guardado por 30
       dias.
     </p>
 
@@ -170,6 +171,17 @@ __NAV__
       Nenhum deles envia seu e-mail, o hash da sua senha, os tokens da sua sessão
       ou as palavras que você escreveu no diário.
     </p>
+    <p>
+      O Beyou pede a sua permissão antes de qualquer um desses recursos enviar
+      algo, na web e nos apps de iPhone e Android, e diz ali quem recebe o quê.
+      Enquanto você não permitir, e depois de dizer não, nada é enviado: o
+      assistente, a configuração guiada, as ferramentas de estudo e as fontes do
+      caderno, a visão geral e as perguntas do Segundo Cérebro ficam desligados, e
+      o resumo do dia mostra os números sem os dois parágrafos escritos. O servidor
+      do Beyou respeita a sua resposta para a sua conta em todos os dispositivos,
+      inclusive o que já estava na fila quando você disse não. Você pode
+      mudá-la quando quiser em Configuração &gt; Preferências &gt; Recursos de IA.
+    </p>
 
     <h3>O assistente</h3>
     <p>
@@ -184,14 +196,15 @@ __NAV__
       <li>A anotação curta que cada conversa guarda sobre si mesma, e o que restar da anotação que o assistente mantinha sobre você. As duas estão descritas abaixo.</li>
       <li>Seu nome de exibição, seu idioma, seu fuso horário e suas configurações do app.</li>
       <li>A tela do app em que você estava e a data de hoje.</li>
-      <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
+      <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas tarefas do calendário com datas, horários, lembretes e notas, seu quadro de ideias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
     </ul>
     <p>
-      O provedor é a Mistral AI ou o Google Gemini. O Beyou tenta a Mistral
-      primeiro e recorre ao Gemini quando ela está indisponível, ou seja, cada
-      mensagem é atendida por um dos dois e não pelos dois. Eles processam sua
-      mensagem para produzir a resposta, e os termos deles governam o que fazem com
-      ela. Esses termos não são escritos pelo Beyou.
+      O provedor é a Mistral AI ou o Google Gemini. O servidor do Beyou envia
+      cada pedido pelo OmniRoute, um software de roteamento que decide qual dos dois
+      responde e pode tentar o outro quando o primeiro falha, ou seja, uma mensagem
+      pode chegar aos dois. Eles processam sua mensagem para produzir a
+      resposta, e os termos deles governam o que fazem com ela. Esses termos não são
+      escritos pelo Beyou.
     </p>
     <p>
       Quando você conta ao assistente algo duradouro sobre a sua vida, ou sobre um
@@ -238,11 +251,13 @@ __NAV__
       Mais dois serviços participam. Quando você adiciona uma fonte, o texto dela
       é enviado em pedaços à Mistral AI para virar as listas de números que deixam
       a sala de estudo buscar pelo sentido, e cada pergunta que você faz na sala de
-      estudo vai para lá pelo mesmo motivo. A Mistral devolve os números e o Beyou
-      guarda junto do texto. E quando você pede ao caderno para encontrar fontes,
-      os títulos do tópico e da página e a descrição que você digitou vão para um
-      serviço de busca na web, o Tavily, ou para o Google Gemini quando o Tavily
-      não está configurado. As páginas encontradas são abertas pelo servidor do
+      estudo vai para lá pelo mesmo motivo, assim como o título da página e o começo
+      das notas quando uma ferramenta da página procura trechos. A Mistral devolve
+      os números e o Beyou guarda junto do texto. E quando você pede ao caderno
+      para encontrar fontes, os títulos do tópico e da página, o objetivo de estudo
+      que você definiu e a descrição que você digitou vão para um serviço de busca
+      na web, o Tavily, ou para o Google Gemini com a Pesquisa Google quando o
+      Tavily não está configurado. As páginas encontradas são abertas pelo servidor do
       Beyou antes de você vê-las.
     </p>
 
@@ -257,17 +272,17 @@ __NAV__
       <li>Os nomes dos hábitos e tarefas que se mantiveram firmes ou escorregaram nesta semana, com quantos dias cada um apareceu.</li>
       <li>Quanto do que suas rotinas pediram você marcou nesta semana e na semana anterior.</li>
       <li>Sua sequência atual e o recorde, e quantas sessões de foco você fez ontem.</li>
+      <li>Se você tiver ciclos de estudo: os nomes, quando começam hoje, o que cada um pede para você estudar e por quantos minutos, e quanto você estudou ontem.</li>
       <li>Seus níveis de humor como números de 1 a 5: o de ontem, e as médias desta semana e da anterior.</li>
       <li>O nome, o progresso, a unidade e o prazo de cada meta em andamento.</li>
       <li>Seu idioma e a data.</li>
     </ul>
     <p>
       Ele não envia nome de exibição nem e-mail. Diferente dos outros quatro, este
-      não é algo que você abre: ele roda para toda conta na primeira visita do
-      dia, e ainda não existe uma chave para desligá-lo no app. Se você preferir
-      que ele não rode na sua conta, escreva para
-      <a href="mailto:__CONTACT__">__CONTACT__</a>. Os parágrafos ficam guardados
-      por 30 dias e depois são apagados.
+      não é algo que você abre: ele roda na primeira visita do dia, e só para uma
+      conta que permitiu os recursos de IA. Desligá-los em Configuração &gt;
+      Preferências &gt; Recursos de IA faz ele parar, e o resumo passa a mostrar só
+      os números. Os parágrafos ficam guardados por 30 dias e depois são apagados.
     </p>
 
     <h3>Segundo Cérebro</h3>
@@ -337,9 +352,9 @@ __NAV__
         <tbody>
           <tr><td>Manter sua conta funcionando e mostrar seus próprios hábitos, rotinas, metas e histórico</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
           <tr><td>Enviar e-mails da conta: confirmação, redefinição de senha, código de exclusão</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
-          <tr><td>Responder você pelo assistente de IA, um recurso opcional que você escolhe abrir</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
-          <tr><td>Responder você nas ferramentas de estudo do caderno, e escrever o texto do resumo do dia</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
-          <tr><td>Escrever a visão geral e as perguntas do Segundo Cérebro, numa página que você escolhe abrir e iniciar</td><td>Execução de contrato, artigo 6(1)(b)</td></tr>
+          <tr><td>Responder você pelo assistente de IA, um recurso opcional que você escolhe abrir</td><td>Consentimento, artigo 6(1)(a)</td></tr>
+          <tr><td>Responder você nas ferramentas de estudo do caderno, e escrever o texto do resumo do dia</td><td>Consentimento, artigo 6(1)(a)</td></tr>
+          <tr><td>Escrever a visão geral e as perguntas do Segundo Cérebro, numa página que você escolhe abrir e iniciar</td><td>Consentimento, artigo 6(1)(a)</td></tr>
           <tr><td>Manter a conta segura: hash de senha, controle de sessão, limite de requisições, prevenção de abuso</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
           <tr><td>Encontrar e corrigir falhas por meio de relatórios de erro</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
           <tr><td>Tratar o feedback que você escolheu enviar</td><td>Interesse legítimo, artigo 6(1)(f)</td></tr>
@@ -364,8 +379,8 @@ __NAV__
           <tr><th>Quem</th><th>O que chega até eles</th><th>Por quê</th></tr>
         </thead>
         <tbody>
-          <tr><td>Mistral AI e Google Gemini</td><td>Suas mensagens ao assistente e o que ele lê para responder, mais seu nome de exibição; aquilo com que as ferramentas de estudo do caderno trabalham, ou seja, suas notas e trechos das suas fontes; e os fatos por trás do resumo do dia, que são nomes de itens e metas, taxas de conclusão, sequências e níveis de humor como números; e aquilo com que a página Segundo Cérebro trabalha, ou seja, o que há nas fontes que você deixou ligadas, as linhas do seu perfil, as suas notas e as suas respostas. A Mistral AI também recebe o texto das fontes que você adiciona ao caderno e suas perguntas na sala de estudo, para indexá-los para busca</td><td>Quando você usa o assistente, a configuração guiada, as ferramentas de estudo do caderno ou a página Segundo Cérebro, e uma vez por dia para o resumo do dia. Veja a seção 3</td></tr>
-          <tr><td>Tavily</td><td>Os títulos de um tópico e de uma página do caderno e a descrição que você digitou</td><td>Somente quando você pede ao caderno para encontrar fontes. Veja a seção 3</td></tr>
+          <tr><td>Mistral AI e Google Gemini</td><td>Somente depois de você permitir os recursos de IA: suas mensagens ao assistente e o que ele lê para responder, mais seu nome de exibição; aquilo com que as ferramentas de estudo do caderno trabalham, ou seja, suas notas e trechos das suas fontes; e os fatos por trás do resumo do dia, que são nomes de itens e metas, taxas de conclusão, sequências e níveis de humor como números; e aquilo com que a página Segundo Cérebro trabalha, ou seja, o que há nas fontes que você deixou ligadas, as linhas do seu perfil, as suas notas e as suas respostas. A Mistral AI também recebe o texto das fontes que você adiciona ao caderno , suas perguntas na sala de estudo e, em algumas ferramentas da página, o título da página com o começo das notas, para pesquisar pelo significado</td><td>Quando você usa o assistente, a configuração guiada, as ferramentas de estudo do caderno ou a página Segundo Cérebro, e uma vez por dia para o resumo do dia. Veja a seção 3</td></tr>
+          <tr><td>Tavily, ou Google Gemini com a Pesquisa Google onde o Tavily não está configurado</td><td>Somente depois de você permitir os recursos de IA: uma busca feita da descrição que você digitou e dos títulos de um tópico e de uma página do caderno. O Google Gemini também recebe o objetivo de estudo que você definiu</td><td>Somente quando você pede ao caderno para encontrar fontes. Veja a seção 3</td></tr>
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
           <tr><td>Apple</td><td>O fato de você ter entrado, se usar Iniciar sessão com a Apple, e o pedido para revogar esse login quando você apaga sua conta. E-mails para um endereço privado passam pelo reencaminhamento da Apple</td><td>Login no app do iPhone e entrega de e-mail a um endereço oculto</td></tr>
           <tr><td>Qualquer provedor de login adicional ativado no Beyou</td><td>O fato de você ter entrado, se usar esse provedor. Ele também vê seu endereço IP enquanto você está na página de login dele</td><td>Login, apenas para contas que o conectaram</td></tr>
@@ -536,7 +551,7 @@ __NAV__
       <li>Exclusão, como descrito na seção 9.</li>
       <li>Uma cópia dos seus dados para levar embora. O app web e o app Android têm exportação na tela de configuração, no mesmo lugar do botão de apagar a conta. Ela devolve um arquivo com seu perfil, os provedores de login que você conectou, categorias, hábitos, tarefas, metas e como elas se aninham, rotinas e o tipo de cada uma, histórico de checks, sessões de foco e os passos que você anotou para elas, seu diário, seu caderno de estudos (páginas, roteiro, cartões e como foi cada revisão, as fontes que você adicionou, conversas de estudo, quizzes e resumos, rascunhos de roteiro), os resumos do dia ainda guardados, feedbacks, a sua página Segundo Cérebro (linhas do perfil, notas, perguntas com as suas respostas, a última visão geral e as chaves das fontes), e suas conversas com o assistente junto com o que restar da anotação que ele mantinha sobre você. O que fica de fora: as fotos diárias das suas rotinas, o texto lido das fontes do seu caderno (as fontes em si estão listadas), tudo que tem forma de credencial como o hash da sua senha e suas sessões abertas, e os arquivos de imagem que você enviou. Conversas anteriores ao armazenamento atual de mensagens saem como texto puro da janela de memória do assistente, e não completas. Peça por e-mail o que o arquivo não cobrir.</li>
       <li>Limitação do tratamento, e oposição ao tratamento baseado em interesse legítimo. Para os e-mails sobre a rotina, isso é a chave nas configurações do app, ou o link de cancelamento no rodapé de qualquer um deles. Sem precisar entrar na conta, e valendo na hora.</li>
-      <li>Retirada de qualquer consentimento que você tenha dado, sem afetar o que já aconteceu antes.</li>
+      <li>Retirada de qualquer consentimento que você tenha dado, sem afetar o que já aconteceu antes. Para os recursos de IA, isso é Configuração &gt; Preferências &gt; Recursos de IA, na web e nos apps, e vale na hora.</li>
     </ul>
     <p>
       Os pedidos vão para <a href="mailto:__CONTACT__">__CONTACT__</a>. Exercer

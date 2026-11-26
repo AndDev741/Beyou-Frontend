@@ -1,4 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import type { AiConsent } from '@beyou/types/user/UserType';
 import { ApiError, parseApiError, getLogger, isRateLimited, RATE_LIMIT_ERROR_KEY } from '@beyou/api';
 import getProfile from '@beyou/api/user/getProfile';
 import { setAccessToken } from '../lib/nativeHttpClient';
@@ -11,6 +12,7 @@ import { saveTutorialPhase } from '../lib/tutorialStore';
 import { clearWizardProgress } from '../lib/aiOnboardingStore';
 import { clearGoogleSession } from './googleSession';
 import type { AuthStatus, Profile } from './types';
+import { resolveAiConsent } from '../aiConsent/resolveAiConsent';
 
 // NOTE: getProfile() takes no t argument — it uses its own internal error message.
 // A real i18n t is wired in Task 7 at the App level; this slice stays transport-only.
@@ -36,7 +38,7 @@ export const login = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await loginRequest(creds.email, creds.password);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
-      return profile;
+      return resolveAiConsent(profile);
     } catch (e) {
       const parsed = parseApiError(e);
       if (e instanceof ApiError && parsed.message === 'EMAIL_NOT_VERIFIED') {
@@ -61,7 +63,7 @@ export const googleLogin = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await googleMobileLoginRequest(idToken);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
-      return profile;
+      return resolveAiConsent(profile);
     } catch (e) {
       getLogger().error('auth google login failed', e);
       // Google stopped being a way around the verification gate: the backend refuses
@@ -87,7 +89,7 @@ export const appleLogin = createAsyncThunk(
       const { accessToken, refreshToken, profile } = await appleMobileLoginRequest(payload);
       setAccessToken(accessToken);
       await secureStore.setRefreshToken(refreshToken);
-      return profile;
+      return resolveAiConsent(profile);
     } catch (e) {
       getLogger().error('auth apple login failed', e);
       // Same gate as Google: an Apple address that matches a password account which
@@ -131,7 +133,7 @@ export const bootstrap = createAsyncThunk<Profile, void>(
       const res = await getProfile();
       if (res.error || !res.data) return rejectWithValue('PROFILE_FAILED');
       // TODO: reconcile @beyou/types UserType with @beyou/contracts UserResponseDTO (tracked: thread contract types into @beyou/api)
-      return res.data as unknown as Profile;
+      return resolveAiConsent(res.data as unknown as Profile);
     } catch (e) {
       getLogger().error('auth bootstrap failed', e);
       await secureStore.clearRefreshToken();
@@ -165,7 +167,16 @@ export const logout = createAsyncThunk('auth/logout', async () => {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    /**
+     * The person answered the AI question (the consent screen or Configuration). Kept on the
+     * profile the session started with, which is what the root Gate reads to decide whether
+     * the question still has to be asked.
+     */
+    aiConsentAnswered(s, a: PayloadAction<AiConsent>) {
+      if (s.profile) s.profile.aiConsent = a.payload;
+    },
+  },
   extraReducers: (b) => {
     b.addCase(login.pending, (s) => {
       s.error = null;
@@ -229,5 +240,7 @@ const authSlice = createSlice({
     });
   },
 });
+
+export const { aiConsentAnswered } = authSlice.actions;
 
 export default authSlice.reducer;

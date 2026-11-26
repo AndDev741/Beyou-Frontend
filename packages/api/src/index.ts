@@ -29,6 +29,8 @@ export * from './auth/oidc/types';
 // AI agent chats
 export * from './agent/agentChats';
 export * from './agent/agentStream';
+// Consent to the AI provider, checked by every transport
+export * from './aiConsentGate';
 
 // Daily Briefing
 export * from './briefing/dailyBriefing';

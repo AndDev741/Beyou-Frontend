@@ -12,7 +12,7 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import '../src/i18n';
 import { fetch as expoFetch } from 'expo/fetch';
-import { createReportingLogger, setAgentStreamConfig, setHttpClient, setLogger } from '@beyou/api';
+import { createReportingLogger, setAgentStreamConfig, setAiConsentReader, setHttpClient, setLogger } from '@beyou/api';
 import { store, type RootState, type AppDispatch } from '../src/store';
 import { nativeHttpClient, setAccessToken, setRefreshHandler, setOnUnauthenticated, getApiBaseUrl, getAccessToken, refreshAccessToken } from '../src/lib/nativeHttpClient';
 import { registerFeedbackNativeUploader } from '../src/lib/feedbackUploader';
@@ -50,6 +50,9 @@ initTelemetry();
 const posthog = initAnalytics();
 
 setHttpClient(nativeHttpClient);
+// Every transport (HTTP, the agent's stream, file uploads) asks this before an AI route: only a
+// stored yes lets it through, so an unknown answer or no session at all is a no.
+setAiConsentReader(() => store.getState().auth.profile?.aiConsent === 'GRANTED');
 // The shared API client handles every failure itself, so a 500 or an unreachable
 // host never reaches ErrorBoundary or the SDK's global handler. This keeps the
 // console output intact and additionally forwards the failures that indicate a
@@ -93,6 +96,7 @@ setRefreshHandler(async () => {
 function Gate() {
   const dispatch = useDispatch<AppDispatch>();
   const status = useSelector((s: RootState) => s.auth.status);
+  const aiConsent = useSelector((s: RootState) => s.auth.profile?.aiConsent);
   const segments = useSegments();
   const router = useRouter();
 
@@ -104,9 +108,9 @@ function Gate() {
   }, [dispatch]);
 
   useEffect(() => {
-    const target = nextAuthRoute(status, segments);
+    const target = nextAuthRoute(status, segments, aiConsent);
     if (target) router.replace(target);
-  }, [status, segments, router]);
+  }, [status, segments, router, aiConsent]);
 
   // The spinner sits on the theme provider's background (it used to show Android's window colour
   // for the whole refresh round-trip after the splash). The stack needs the colour of its own:

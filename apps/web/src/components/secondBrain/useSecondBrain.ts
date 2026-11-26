@@ -144,7 +144,8 @@ export function useSecondBrain() {
             setLoadError(null);
             setStatus("ready");
 
-            if (!autoRefilled.current && secondBrainRefillIsDue(next.questions.length, lastRefillAt(), Date.now())) {
+            // aiAvailable is false without a yes to the AI provider: no refill behind the person's back.
+            if (!autoRefilled.current && next.aiAvailable && secondBrainRefillIsDue(next.questions.length, lastRefillAt(), Date.now())) {
                 autoRefilled.current = true;
                 void refill();
             }
