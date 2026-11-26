@@ -1,16 +1,10 @@
 import type { HttpClient, HttpResponse, RequestConfig } from '@beyou/api';
-import { ApiError } from '@beyou/api';
+import { ApiError, assertAiRequestAllowed } from '@beyou/api';
 import i18next from 'i18next';
 import { notify } from '../notify';
-import { sendsToAiProvider } from '../aiConsent/aiRoutes';
 
 let baseUrl = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8099/api/v1';
 let accessToken: string | null = null;
-// On while the signed-in person has not said yes to the AI provider (never asked, or said no).
-// Set by the root Gate. The server refuses the same routes after a "no"; this also holds
-// before the answer, and against a backend that does not know about the answer at all.
-let aiRequestsBlocked = false;
-export function setAiRequestsBlocked(blocked: boolean): void { aiRequestsBlocked = blocked; }
 
 // NOTE: accessToken is module-level singleton state. Test files that import this
 // module must reset it in beforeEach (e.g. setAccessToken(null)) to avoid state bleed.
@@ -59,10 +53,8 @@ function buildHeaders(extra?: Record<string, string>): Record<string, string> {
 const DEFAULT_TIMEOUT_MS = 20000;
 
 async function request<T>(method: string, path: string, body?: unknown, config?: RequestConfig, isRetry = false): Promise<HttpResponse<T>> {
-  if (aiRequestsBlocked && sendsToAiProvider(method, path)) {
-    // The same body the server answers with, so every screen shows its translated message.
-    throw new ApiError(400, { errorKey: 'AI_CONSENT_DECLINED', message: 'AI features are off for this account.' });
-  }
+  // Nothing goes to an AI route without the person's yes (see @beyou/api aiConsentGate).
+  assertAiRequestAllowed(method, path);
   const controller = new AbortController();
   const timeoutMs = config?.timeout ?? DEFAULT_TIMEOUT_MS;
   const timer = setTimeout(() => controller.abort(), timeoutMs);

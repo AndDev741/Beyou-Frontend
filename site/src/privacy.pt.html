@@ -196,7 +196,7 @@ __NAV__
       <li>A anotação curta que cada conversa guarda sobre si mesma, e o que restar da anotação que o assistente mantinha sobre você. As duas estão descritas abaixo.</li>
       <li>Seu nome de exibição, seu idioma, seu fuso horário e suas configurações do app.</li>
       <li>A tela do app em que você estava e a data de hoje.</li>
-      <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
+      <li>Tudo o que ele consultar para responder. O assistente pode ler e alterar seus hábitos, tarefas, metas, rotinas e categorias, suas tarefas do calendário com datas, horários, lembretes e notas, seu quadro de ideias, suas sessões de foco e os passos delas, e seu caderno de estudos, então os nomes, descrições e notas desses itens chegam ao provedor como parte da resposta. Ele pode ler seu humor como número e se você escreveu uma nota naquele dia, nunca a nota em si.</li>
     </ul>
     <p>
       O provedor é a Mistral AI ou o Google Gemini. O servidor do Beyou envia
@@ -272,6 +272,7 @@ __NAV__
       <li>Os nomes dos hábitos e tarefas que se mantiveram firmes ou escorregaram nesta semana, com quantos dias cada um apareceu.</li>
       <li>Quanto do que suas rotinas pediram você marcou nesta semana e na semana anterior.</li>
       <li>Sua sequência atual e o recorde, e quantas sessões de foco você fez ontem.</li>
+      <li>Se você tiver ciclos de estudo: os nomes, quando começam hoje, o que cada um pede para você estudar e por quantos minutos, e quanto você estudou ontem.</li>
       <li>Seus níveis de humor como números de 1 a 5: o de ontem, e as médias desta semana e da anterior.</li>
       <li>O nome, o progresso, a unidade e o prazo de cada meta em andamento.</li>
       <li>Seu idioma e a data.</li>
@@ -379,7 +380,7 @@ __NAV__
         </thead>
         <tbody>
           <tr><td>Mistral AI e Google Gemini</td><td>Somente depois de você permitir os recursos de IA: suas mensagens ao assistente e o que ele lê para responder, mais seu nome de exibição; aquilo com que as ferramentas de estudo do caderno trabalham, ou seja, suas notas e trechos das suas fontes; e os fatos por trás do resumo do dia, que são nomes de itens e metas, taxas de conclusão, sequências e níveis de humor como números; e aquilo com que a página Segundo Cérebro trabalha, ou seja, o que há nas fontes que você deixou ligadas, as linhas do seu perfil, as suas notas e as suas respostas. A Mistral AI também recebe o texto das fontes que você adiciona ao caderno , suas perguntas na sala de estudo e, em algumas ferramentas da página, o título da página com o começo das notas, para pesquisar pelo significado</td><td>Quando você usa o assistente, a configuração guiada, as ferramentas de estudo do caderno ou a página Segundo Cérebro, e uma vez por dia para o resumo do dia. Veja a seção 3</td></tr>
-          <tr><td>Tavily, ou Google Gemini com a Pesquisa Google</td><td>Somente depois de você permitir os recursos de IA: os títulos de um tópico e de uma página do caderno, o objetivo de estudo e a descrição que você digitou</td><td>Somente quando você pede ao caderno para encontrar fontes. Veja a seção 3</td></tr>
+          <tr><td>Tavily, ou Google Gemini com a Pesquisa Google onde o Tavily não está configurado</td><td>Somente depois de você permitir os recursos de IA: uma busca feita da descrição que você digitou e dos títulos de um tópico e de uma página do caderno. O Google Gemini também recebe o objetivo de estudo que você definiu</td><td>Somente quando você pede ao caderno para encontrar fontes. Veja a seção 3</td></tr>
           <tr><td>Google</td><td>O fato de você ter entrado, se usar login com Google. O Google também vê seu endereço IP quando seu navegador ou celular carrega sua foto de perfil do Google</td><td>Login e hospedagem da foto de perfil</td></tr>
           <tr><td>Apple</td><td>O fato de você ter entrado, se usar Iniciar sessão com a Apple, e o pedido para revogar esse login quando você apaga sua conta. E-mails para um endereço privado passam pelo reencaminhamento da Apple</td><td>Login no app do iPhone e entrega de e-mail a um endereço oculto</td></tr>
           <tr><td>Qualquer provedor de login adicional ativado no Beyou</td><td>O fato de você ter entrado, se usar esse provedor. Ele também vê seu endereço IP enquanto você está na página de login dele</td><td>Login, apenas para contas que o conectaram</td></tr>

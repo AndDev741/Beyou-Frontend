@@ -1,5 +1,6 @@
 import { ApiError } from '@beyou/api';
-import { nativeHttpClient, setAccessToken, __setBaseUrl, setOnUnauthenticated, setRefreshHandler, setAiRequestsBlocked } from './nativeHttpClient';
+import { nativeHttpClient, setAccessToken, __setBaseUrl, setOnUnauthenticated, setRefreshHandler } from './nativeHttpClient';
+import { setAiConsentReader } from '@beyou/api';
 
 describe('nativeHttpClient (base)', () => {
   beforeEach(() => {
@@ -109,10 +110,10 @@ describe('nativeHttpClient (AI consent)', () => {
       ok: true, status: 200, headers: new Headers(), json: async () => ({}),
     });
   });
-  afterEach(() => setAiRequestsBlocked(false));
+  afterEach(() => setAiConsentReader(() => true));
 
   it('sends nothing to an AI route before a yes, and answers like the server would', async () => {
-    setAiRequestsBlocked(true);
+    setAiConsentReader(() => false);
     await expect(nativeHttpClient.post('/onboarding/suggestions', {})).rejects.toMatchObject({
       status: 400,
       data: { errorKey: 'AI_CONSENT_DECLINED' },
@@ -121,13 +122,13 @@ describe('nativeHttpClient (AI consent)', () => {
   });
 
   it('leaves every other route alone', async () => {
-    setAiRequestsBlocked(true);
+    setAiConsentReader(() => false);
     await nativeHttpClient.post('/habit', {});
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('lets AI routes through after a yes', async () => {
-    setAiRequestsBlocked(false);
+    setAiConsentReader(() => true);
     await nativeHttpClient.post('/onboarding/suggestions', {});
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });

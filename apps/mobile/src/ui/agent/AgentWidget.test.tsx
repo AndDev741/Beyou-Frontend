@@ -44,7 +44,7 @@ const textTurn = (text: string) => [{ type: 'text', text }];
 const wrap = async ({
   isTutorialCompleted = true,
   showFab = true,
-  aiConsent,
+  aiConsent = 'GRANTED',
 }: { isTutorialCompleted?: boolean; showFab?: boolean; aiConsent?: string } = {}) => {
   const store = makeStore();
   store.dispatch(tutorialCompletedEnter(isTutorialCompleted));

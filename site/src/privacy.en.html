@@ -192,7 +192,7 @@ __NAV__
       <li>The short note each conversation keeps about itself, and what is left of the note the assistant used to keep about you. Both are described below.</li>
       <li>Your display name, your language, your time zone and your app settings.</li>
       <li>The screen of the app you were on, and today's date.</li>
-      <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, your focus sessions and their steps, and your study notebook, so the names, descriptions and notes in them reach the provider as part of answering. It can read your mood as a number and whether you wrote a note that day, never the note itself.</li>
+      <li>Whatever it looks up to answer you. The assistant can read and change your habits, tasks, goals, routines and categories, your calendar tasks with their dates, times, reminders and notes, your ideas board, your focus sessions and their steps, and your study notebook, so the names, descriptions and notes in them reach the provider as part of answering. It can read your mood as a number and whether you wrote a note that day, never the note itself.</li>
     </ul>
     <p>
       The provider is either Mistral AI or Google Gemini. Beyou's server sends
@@ -267,6 +267,7 @@ __NAV__
       <li>The names of the habits and tasks that held steady or slipped this week, with how many days each came up.</li>
       <li>How much of what your routines asked you checked this week, and the week before.</li>
       <li>Your current and best streak, and how many focus sessions you ran yesterday.</li>
+      <li>If you have study cycles: their names, when they start today, what each one has you study and for how many minutes, and how much you studied yesterday.</li>
       <li>Your mood levels as numbers from 1 to 5: yesterday's, and this week's and last week's averages.</li>
       <li>The name, progress, unit and deadline of each goal you have running.</li>
       <li>Your language and the date.</li>
@@ -374,7 +375,7 @@ __NAV__
         </thead>
         <tbody>
           <tr><td>Mistral AI and Google Gemini</td><td>Only after you allow the AI features: your assistant messages and what the assistant reads to answer, plus your display name; what the notebook's study tools work from, which is your notes and passages from your sources; and the facts behind the daily briefing, which are item and goal names, completion rates, streaks and mood levels as numbers; and what the Second Brain page works from, which is what the sources you left switched on hold, your profile lines, your notes and your answers. Mistral AI also receives the text of the notebook sources you add your study-room questions and, for some page tools, the page title with the start of its notes, to search them by meaning</td><td>When you use the assistant, the guided setup, the notebook's study tools or the Second Brain page, and once a day for the daily briefing. See section 3</td></tr>
-          <tr><td>Tavily, or Google Gemini with Google Search</td><td>Only after you allow the AI features: the titles of a notebook topic and page, the study goal and the description you typed</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
+          <tr><td>Tavily, or Google Gemini with Google Search where Tavily is not set up</td><td>Only after you allow the AI features: a search made of the description you typed and the titles of a notebook topic and page. Google Gemini also receives the study goal you set</td><td>Only when you ask the notebook to find sources. See section 3</td></tr>
           <tr><td>Google</td><td>The fact that you signed in, if you use Google sign-in. Google also sees your IP address when your browser or phone loads your Google profile picture</td><td>Sign-in and profile picture hosting</td></tr>
           <tr><td>Apple</td><td>The fact that you signed in, if you use Sign in with Apple, and the request to revoke that sign-in when you delete your account. Mail to a private relay address passes through Apple's relay</td><td>Sign-in on the iPhone app, and delivering email to a hidden address</td></tr>
           <tr><td>Any additional sign-in provider switched on for Beyou</td><td>The fact that you signed in, if you use it. It also sees your IP address while you are on its own sign-in page</td><td>Sign-in, only for accounts that connected it</td></tr>

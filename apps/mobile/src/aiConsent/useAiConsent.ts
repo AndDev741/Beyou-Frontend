@@ -14,13 +14,9 @@ export function useAiConsent(): AiConsent | null | undefined {
   return useSelector((s: RootState) => s.auth.profile?.aiConsent);
 }
 
-/**
- * Whether the AI features may run: only after a yes. No answer in the session at all (no
- * profile yet) changes nothing, since nothing can reach the provider without a session.
- */
+/** Whether the AI features may run: only after a stored yes. Unknown counts as no. */
 export function useAiAllowed(): boolean {
-  const consent = useAiConsent();
-  return consent == null || consent === 'GRANTED';
+  return useAiConsent() === 'GRANTED';
 }
 
 /**

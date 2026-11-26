@@ -21,6 +21,7 @@ const captured = vi.hoisted(() => ({
 vi.mock("axios", () => {
     const instance = Object.assign(vi.fn(), {
         interceptors: {
+            request: { use: () => undefined },
             response: {
                 use: (_onFulfilled: unknown, onRejected: (error: unknown) => Promise<unknown>) => {
                     captured.onRejected = onRejected;

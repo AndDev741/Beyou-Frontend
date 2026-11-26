@@ -61,7 +61,6 @@ global.fetch = jest.fn().mockResolvedValue({
 jest.mock('../src/lib/nativeHttpClient', () => ({
   nativeHttpClient: {},
   setAccessToken: jest.fn(),
-  setAiRequestsBlocked: jest.fn(),
   setRefreshHandler: jest.fn(),
   setOnUnauthenticated: jest.fn(),
   getApiBaseUrl: () => 'http://localhost:8099/api/v1',

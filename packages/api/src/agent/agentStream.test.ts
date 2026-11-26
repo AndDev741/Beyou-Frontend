@@ -7,6 +7,7 @@ import {
     streamAgentMessage,
 } from './agentStream';
 import { setLogger } from '../logger';
+import { setAiConsentReader } from '../aiConsentGate';
 
 function makeHandlers(): AgentStreamHandlers {
     return {
@@ -139,6 +140,38 @@ describe('streamAgentMessage 401 retry', () => {
     afterEach(() => {
         resetAgentStreamConfig();
         vi.unstubAllGlobals();
+        setAiConsentReader(() => true);
+    });
+
+    test('opens nothing without a yes to the AI provider, and says why', async () => {
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}) });
+        setAiConsentReader(() => false);
+        const fetchMock = vi.fn();
+        vi.stubGlobal('fetch', fetchMock);
+
+        const handlers = makeHandlers();
+        await streamAgentMessage('c1', 'hi', handlers);
+
+        expect(fetchMock).not.toHaveBeenCalled();
+        expect(handlers.onError).toHaveBeenCalledWith('AI_CONSENT_DECLINED');
+    });
+
+    test('a no given during the refresh stops the retry', async () => {
+        let allowed = true;
+        setAiConsentReader(() => allowed);
+        const refreshAuth = vi.fn().mockImplementation(async () => {
+            allowed = false;
+            return true;
+        });
+        setAgentStreamConfig({ baseUrl: 'http://x', getHeaders: () => ({}), refreshAuth });
+        const fetchMock = vi.fn().mockResolvedValueOnce(new Response(null, { status: 401 }));
+        vi.stubGlobal('fetch', fetchMock);
+
+        const handlers = makeHandlers();
+        await streamAgentMessage('c1', 'hi', handlers);
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(handlers.onError).toHaveBeenCalledWith('AI_CONSENT_DECLINED');
     });
 
     test('refreshes and retries once on 401, then streams', async () => {
