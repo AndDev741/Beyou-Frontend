@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Builds the marketing site into dist/.
 
-One language per URL: English at the root, Portuguese under /pt/. Two documents
-per language today, the landing page and the privacy policy.
+One language per URL: English at the root, Portuguese under /pt/. Three documents
+per language today: the landing page, the privacy policy and the support page.
 
 Two ways to write a page, because the two kinds of text want different handling:
 
@@ -121,6 +121,27 @@ PAGES = {
             "description": (
                 "O que o Beyou guarda, com quem compartilha, por quanto tempo mantém "
                 "e como apagar sua conta e seus dados."
+            ),
+        },
+    },
+    # The URL the App Store listing gives as its support URL.
+    "support": {
+        "source": "split",
+        "template": "support.%s.html",
+        "nav": "nav-doc.html",
+        "paths": {"en": "support/", "pt": "pt/suporte/"},
+        "en": {
+            "title": "Support - Beyou",
+            "description": (
+                "How to reach Beyou, and answers about signing in, resetting your "
+                "password, deleting your account and the AI assistant."
+            ),
+        },
+        "pt": {
+            "title": "Suporte - Beyou",
+            "description": (
+                "Como falar com o Beyou, e respostas sobre entrar, redefinir a senha, "
+                "apagar sua conta e o assistente de IA."
             ),
         },
     },
@@ -297,6 +318,7 @@ def build():
                 "__THEME_LABEL__": loc["theme_label"],
                 "__HOME__": home,
                 "__PRIVACY__": "/" + PAGES["privacy"]["paths"][code],
+                "__SUPPORT__": "/" + PAGES["support"]["paths"][code],
                 # The parameter is how a click is recorded; the middleware strips
                 # it and sends the visitor to the same page in the other
                 # language, with the preference stored.
@@ -310,6 +332,7 @@ def build():
                 "__CONTACT__": CONTACT,
                 "__POLICY_DATE__": POLICY_DATE_EN if code == "en" else POLICY_DATE_PT,
                 "__APP_URL__": APP,
+                "__PLAY_URL__": PLAY,
                 "__TITLE__": meta["title"],
                 "__DESCRIPTION__": meta["description"],
                 "__CANONICAL__": url_of(page, code),
@@ -527,6 +550,8 @@ def check():
     home = read(DIST, "index.html")
     if 'href="/privacy/"' not in home:
         problems.append("home/en: no link to the privacy policy")
+    if 'href="/support/"' not in home:
+        problems.append("home/en: no link to the support page")
 
     problems.extend(check_charset())
 

@@ -24,6 +24,8 @@ const paths = [
   ["/pt/privacidade/", "en", "/privacy/"],
   ["/privacy/", "en", "/privacy/"],
   ["/privacy", "pt", "/pt/privacidade/"],   // no trailing slash
+  ["/support/", "pt", "/pt/suporte/"],
+  ["/pt/suporte/", "en", "/support/"],
   ["/nothing-here/", "pt", "/pt/"],         // unknown path falls back home
 ];
 
