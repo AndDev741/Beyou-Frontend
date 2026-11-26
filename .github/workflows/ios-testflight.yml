@@ -1,0 +1,516 @@
+name: iOS TestFlight release
+
+# Builds the signed iOS App Store .ipa of the mobile app and uploads it to
+# TestFlight, plus an unsigned Release build for the iOS Simulator (JS bundled)
+# kept as an artifact, so the same commit can be run on a local simulator.
+#
+# Manual only (workflow_dispatch):
+#   gh workflow run ios-testflight.yml --ref <branch with this file> \
+#     -f ref=<branch/tag/sha to build> -f upload=true
+#
+# Xcode: the iOS 27 SDK (Xcode 27) breaks Expo SDK 56 (expo-modules-jsi and
+# pods with an iOS deployment target below 15 fail to compile, and UIKit traps
+# at launch because SDK 56's AppDelegate does not adopt the UIScene
+# lifecycle). Both jobs therefore pin the newest Xcode 26 on the runner image. An app
+# built with the iOS 26 SDK is accepted by App Store Connect and runs on iOS 27
+# devices and simulators. Move to Xcode 27 with the Expo SDK that ships scene
+# support (see apps/mobile/AGENTS.md, "iOS (App Store build)").
+#
+# Build number: CFBundleVersion = github.run_number + the repo Variable
+# IOS_BUILD_NUMBER_OFFSET (default 0) unless the `build_number` input is given. The run number of this workflow file only grows, so every
+# upload is higher than the last one (gaps are fine). It is counted per
+# workflow FILE: renaming this file restarts it at 1; if that happens, or the
+# app already has builds from elsewhere, set IOS_BUILD_NUMBER_OFFSET so the
+# automatic number starts above the last uploaded build. The marketing
+# version (CFBundleShortVersionString) stays whatever app.json says.
+#
+# One-time setup (repo Settings -> Secrets and variables -> Actions):
+#   App values, same names and contract as mobile-aab.yml (Variable OR Secret):
+#     EXPO_PUBLIC_API_URL, EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+#     EXPO_PUBLIC_SENTRY_DSN (optional), PROD_POSTHOG_KEY / PROD_POSTHOG_HOST
+#     (optional), EXPO_PUBLIC_FEEDBACK_EMAIL (optional),
+#     EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID (optional: without it the iOS login
+#     screen shows Sign in with Apple and email only, no Google button).
+#   Apple (Secrets):
+#     APPLE_TEAM_ID          the 10-character Apple Developer team id
+#     ASC_KEY_ID             id of a TEAM App Store Connect API key (Users and
+#                            Access -> Integrations -> App Store Connect API ->
+#                            Team Keys) with the Admin role: it creates the
+#                            provisioning profile and uploads the build.
+#                            Individual keys cannot manage profiles.
+#     ASC_ISSUER_ID          issuer id shown on the same page
+#     ASC_KEY_P8             full contents of the AuthKey_<id>.p8 file
+#     IOS_DIST_P12_BASE64    base64 of a .p12 holding the "Apple Distribution"
+#                            certificate AND its private key
+#                            (openssl pkcs12 -export -legacy ... | base64)
+#     IOS_DIST_P12_PASSWORD  the password of that .p12
+#
+# EXPO_PUBLIC_* values are inlined into the JS bundle, so they are readable by
+# anyone with the .ipa or the simulator artifact: never put a real secret in
+# one, wherever it is stored.
+#
+# Prerequisites in the Apple team: the explicit App ID (bundle id from app.json)
+# with Sign in with Apple enabled, and the app created in App Store Connect.
+#
+# Only people with write access can dispatch this, and the signing job runs the
+# build scripts of whatever `ref` they choose with the signing material
+# installed: treat dispatching as trusted, like a release.
+#
+# Signing is manual and deterministic: the certificate goes into a throwaway
+# keychain, an App Store provisioning profile named "CI App Store <bundle id>
+# <date>" is reused
+# (or created when missing, near expiry or lacking an entitlement) through the App
+# Store Connect API, and both are removed at the end of the job.
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch, tag or SHA) to build. Empty = the branch this run was dispatched on"
+        required: false
+        default: ""
+      upload:
+        description: "Upload the .ipa to TestFlight (false = build, sign and export only)"
+        type: boolean
+        default: true
+      build_number:
+        description: "CFBundleVersion (empty = automatic: run number + IOS_BUILD_NUMBER_OFFSET)"
+        required: false
+        default: ""
+      runner:
+        description: "macOS runner image (any with Xcode 26; try another when GitHub has no capacity for one)"
+        type: choice
+        options: [macos-26, macos-15, macos-15-intel]
+        default: macos-26
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  EXPO_NO_TELEMETRY: "1"
+  # Same reason as mobile-aab.yml: the GlitchTip collector is not reachable
+  # from a runner, so the Sentry build phase must not try to upload dSYMs or
+  # source maps. Crashes still arrive, with unsymbolicated frames.
+  SENTRY_DISABLE_AUTO_UPLOAD: "true"
+
+jobs:
+  # Resolves the ref to one commit so both builds (and a re-run) use the same one.
+  resolve:
+    name: Resolve commit
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - id: sha
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Building $(git rev-parse HEAD) (${{ inputs.ref || github.ref_name }})"
+
+  ipa:
+    name: App Store .ipa
+    needs: resolve
+    runs-on: ${{ inputs.runner || 'macos-26' }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+
+      - name: Select Xcode 26
+        run: |
+          set -e
+          ls -d /Applications/Xcode*.app
+          X=$(ls -d /Applications/Xcode_26*.app | grep -E 'Xcode_26(\.[0-9]+)*\.app$' | sort -V | tail -1)
+          [ -n "$X" ] || { echo "::error::No Xcode 26 on this runner"; exit 1; }
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      # npm ci only; never `npm dedupe` (see apps/mobile/AGENTS.md).
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set build number
+        id: bn
+        env:
+          BN_INPUT: ${{ inputs.build_number }}
+          OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
+        run: |
+          BN="$BN_INPUT"
+          if [ -z "$BN" ]; then BN=$(( ${{ github.run_number }} + ${OFFSET:-0} )); fi
+          case "$BN" in ''|*[!0-9]*) echo "::error::build_number must be a positive integer"; exit 1;; esac
+          VER=$(python3 - "$BN" <<'EOF'
+          import json, sys
+          p = "apps/mobile/app.json"
+          d = json.load(open(p, encoding="utf-8"))
+          d["expo"].setdefault("ios", {})["buildNumber"] = sys.argv[1]
+          open(p, "w", encoding="utf-8").write(json.dumps(d, indent=2, ensure_ascii=False) + "\n")
+          print(d["expo"]["version"])
+          EOF
+          )
+          echo "number=$BN" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "### iOS $VER ($BN), $(git rev-parse --short HEAD) from \`${{ inputs.ref || github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Write apps/mobile/.env
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+          EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN || secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY || secrets.PROD_POSTHOG_KEY }}
+          EXPO_PUBLIC_POSTHOG_HOST: ${{ vars.PROD_POSTHOG_HOST || secrets.PROD_POSTHOG_HOST }}
+          EXPO_PUBLIC_FEEDBACK_EMAIL: ${{ vars.EXPO_PUBLIC_FEEDBACK_EMAIL || secrets.EXPO_PUBLIC_FEEDBACK_EMAIL }}
+        run: |
+          [ -n "$EXPO_PUBLIC_API_URL" ] || { echo "::error::EXPO_PUBLIC_API_URL is not set"; exit 1; }
+          : > apps/mobile/.env
+          for k in EXPO_PUBLIC_API_URL EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID \
+                   EXPO_PUBLIC_SENTRY_DSN EXPO_PUBLIC_POSTHOG_KEY EXPO_PUBLIC_POSTHOG_HOST EXPO_PUBLIC_FEEDBACK_EMAIL; do
+            v="${!k}"
+            if [ -n "$v" ]; then echo "$k=$v" >> apps/mobile/.env; echo "$k: set"; else echo "$k: empty"; fi
+          done
+
+      - name: Prebuild iOS project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Install pods
+        working-directory: apps/mobile/ios
+        run: pod install
+
+      - name: Install signing certificate and API key
+        env:
+          P12_BASE64: ${{ secrets.IOS_DIST_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_DIST_P12_PASSWORD }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          KC="$RUNNER_TEMP/signing.keychain-db"
+          KC_PW=$(openssl rand -hex 24)
+          echo "::add-mask::$KC_PW"
+          printf %s "$P12_BASE64" | base64 -D > "$RUNNER_TEMP/dist.p12"
+          security create-keychain -p "$KC_PW" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KC_PW" "$KC"
+          security import "$RUNNER_TEMP/dist.p12" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KC_PW" "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/dist.p12"
+          security find-identity -v -p codesigning "$KC"
+          # Serial of the imported certificate, to find it in App Store Connect.
+          SERIAL=$(security find-certificate -a -c "Apple Distribution" -p "$KC" | openssl x509 -noout -serial | cut -d= -f2)
+          echo "CERT_SERIAL=$SERIAL" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/private_keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/private_keys/AuthKey_$ASC_KEY_ID.p8"
+
+      - name: Fetch App Store provisioning profile
+        id: profile
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          BUNDLE_ID=$(node -p 'require("./apps/mobile/app.json").expo.ios.bundleIdentifier')
+          ENT=$(ls apps/mobile/ios/*/*.entitlements | head -1)
+          ENT_KEYS=$(/usr/libexec/PlistBuddy -c Print "$ENT" | sed -n 's/^    \([^ ]*\) = .*/\1/p' | tr '\n' ' ')
+          echo "bundle=$BUNDLE_ID" >> "$GITHUB_OUTPUT"
+          echo "Entitlements to cover: ${ENT_KEYS:-none}"
+          BUNDLE_ID="$BUNDLE_ID" ENT_KEYS="$ENT_KEYS" node <<'EOF'
+          const crypto = require("node:crypto");
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const { ASC_KEY_ID, ASC_ISSUER_ID, RUNNER_TEMP, CERT_SERIAL, BUNDLE_ID, ENT_KEYS, HOME, GITHUB_OUTPUT } = process.env;
+          // Profile names must be unique in a team, so each new one gets a date.
+          const PREFIX = `CI App Store ${BUNDLE_ID}`;
+          const key = fs.readFileSync(path.join(RUNNER_TEMP, "private_keys", `AuthKey_${ASC_KEY_ID}.p8`), "utf8");
+          const b64u = (s) => Buffer.from(s).toString("base64url");
+          function jwt() {
+            const now = Math.floor(Date.now() / 1000);
+            const head = b64u(JSON.stringify({ alg: "ES256", kid: ASC_KEY_ID, typ: "JWT" }));
+            const body = b64u(JSON.stringify({ iss: ASC_ISSUER_ID, iat: now, exp: now + 900, aud: "appstoreconnect-v1" }));
+            const sig = crypto.sign("sha256", Buffer.from(`${head}.${body}`), { key, dsaEncoding: "ieee-p1363" });
+            return `${head}.${body}.${sig.toString("base64url")}`;
+          }
+          async function api(method, p, data) {
+            const res = await fetch(`https://api.appstoreconnect.apple.com${p}`, {
+              method,
+              headers: { Authorization: `Bearer ${jwt()}`, "Content-Type": "application/json" },
+              body: data ? JSON.stringify(data) : undefined,
+            });
+            const txt = await res.text();
+            if (!res.ok) throw new Error(`${method} ${p.split("?")[0]} -> ${res.status} ${txt.slice(0, 500)}`);
+            return txt ? JSON.parse(txt) : {};
+          }
+          (async () => {
+            const q = encodeURIComponent;
+            const bundle = (await api("GET", `/v1/bundleIds?filter[identifier]=${q(BUNDLE_ID)}&limit=10`)).data
+              .find((b) => b.attributes.identifier === BUNDLE_ID);
+            if (!bundle) throw new Error(`bundle id ${BUNDLE_ID} is not registered in this team`);
+            const serial = CERT_SERIAL.toUpperCase().replace(/^0+/, "");
+            const cert = (await api("GET", "/v1/certificates?limit=200")).data
+              .find((c) => (c.attributes.serialNumber || "").toUpperCase().replace(/^0+/, "") === serial);
+            if (!cert) throw new Error("the Apple Distribution certificate in IOS_DIST_P12_BASE64 is not in this team");
+            const wanted = (ENT_KEYS || "").split(/\s+/).filter(Boolean);
+            const found = (await api("GET", `/v1/bundleIds/${bundle.id}/profiles?limit=200`)).data
+              .filter((x) => (x.attributes.name || "").startsWith(PREFIX) && x.attributes.profileType === "IOS_APP_STORE");
+            const certsOf = async (x) => (await api("GET", `/v1/profiles/${x.id}/certificates?limit=50`)).data.map((c) => c.id);
+            const soon = Date.now() + 7 * 86400e3;
+            let p = null;
+            for (const x of found) {
+              const content = Buffer.from(x.attributes.profileContent || "", "base64").toString("latin1");
+              if (x.attributes.profileState === "ACTIVE" &&
+                  new Date(x.attributes.expirationDate).getTime() > soon &&
+                  wanted.every((k) => content.includes(`<key>${k}</key>`)) &&
+                  (await certsOf(x)).includes(cert.id)) { p = x; break; }
+            }
+            if (p) {
+              console.log(`Reusing profile ${p.attributes.uuid}`);
+            } else {
+              // Create the new one first, then retire the old CI ones of this
+              // bundle id (never profiles made by hand or for other apps).
+              const stale = found;
+              const NAME = `${PREFIX} ${new Date().toISOString().slice(0, 16).replace("T", " ")}`;
+              p = (await api("POST", "/v1/profiles", { data: {
+                type: "profiles",
+                attributes: { name: NAME, profileType: "IOS_APP_STORE" },
+                relationships: {
+                  bundleId: { data: { type: "bundleIds", id: bundle.id } },
+                  certificates: { data: [{ type: "certificates", id: cert.id }] },
+                },
+              } })).data;
+              console.log(`Created profile ${p.attributes.uuid}`);
+              for (const old of stale) await api("DELETE", `/v1/profiles/${old.id}`).catch((e) => console.log(`::warning::${e.message}`));
+            }
+            // Before the files are written, so the cleanup step can find them.
+            fs.appendFileSync(GITHUB_OUTPUT, `name=${p.attributes.name}\nuuid=${p.attributes.uuid}\n`);
+            const content = Buffer.from(p.attributes.profileContent, "base64");
+            for (const dir of [`${HOME}/Library/MobileDevice/Provisioning Profiles`, `${HOME}/Library/Developer/Xcode/UserData/Provisioning Profiles`]) {
+              fs.mkdirSync(dir, { recursive: true });
+              fs.writeFileSync(`${dir}/${p.attributes.uuid}.mobileprovision`, content);
+            }
+          })().catch((e) => { console.error(`::error::${e.message}`); process.exit(1); });
+          EOF
+
+      # Manual signing on the app target only. Passing the identity/profile on
+      # the xcodebuild command line would apply them to every Pods target too,
+      # and resource-bundle targets reject a provisioning profile.
+      - name: Configure signing on the app target
+        working-directory: apps/mobile/ios
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          PROFILE_NAME: ${{ steps.profile.outputs.name }}
+        run: |
+          PROJ=$(ls -d *.xcodeproj | grep -v Pods | head -1)
+          ruby -rxcodeproj -e '
+            proj = Xcodeproj::Project.open(ARGV[0])
+            app = proj.targets.find { |t| t.respond_to?(:product_type) && t.product_type == "com.apple.product-type.application" }
+            abort "no app target" unless app
+            app.build_configurations.each do |c|
+              s = c.build_settings
+              s["CODE_SIGN_STYLE"] = "Manual"
+              s["DEVELOPMENT_TEAM"] = ENV["TEAM_ID"]
+              s["CODE_SIGN_IDENTITY"] = "Apple Distribution"
+              s["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "Apple Distribution"
+              s["PROVISIONING_PROFILE_SPECIFIER"] = ENV["PROFILE_NAME"]
+            end
+            proj.save
+            puts "Signing set on target #{app.name}"
+          ' "$PROJ"
+
+      - name: Archive (Release)
+        working-directory: apps/mobile/ios
+        run: |
+          set -o pipefail
+          WS=$(ls -d *.xcworkspace | head -1)
+          SCHEME="${WS%.xcworkspace}"
+          echo "SCHEME=$SCHEME" >> "$GITHUB_ENV"
+          xcodebuild archive \
+            -workspace "$WS" -scheme "$SCHEME" -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/app.xcarchive" \
+            | tee "$RUNNER_TEMP/archive.log" | xcbeautify --quieter
+
+      - name: Check the archived Info.plist
+        env:
+          BN: ${{ steps.bn.outputs.number }}
+        run: |
+          set -e
+          PL=$(ls -d "$RUNNER_TEMP"/app.xcarchive/Products/Applications/*.app)/Info.plist
+          get() { /usr/libexec/PlistBuddy -c "Print :$1" "$PL" 2>/dev/null || echo "(missing)"; }
+          echo "CFBundleIdentifier=$(get CFBundleIdentifier) CFBundleShortVersionString=$(get CFBundleShortVersionString) CFBundleVersion=$(get CFBundleVersion) ITSAppUsesNonExemptEncryption=$(get ITSAppUsesNonExemptEncryption) DTXcode=$(get DTXcode) DTSDKName=$(get DTSDKName)"
+          [ "$(get CFBundleVersion)" = "$BN" ] || { echo "::error::CFBundleVersion is not $BN"; exit 1; }
+          [ "$(get ITSAppUsesNonExemptEncryption)" = "false" ] || { echo "::error::ITSAppUsesNonExemptEncryption is not NO"; exit 1; }
+          echo "Info.plist: CFBundleVersion $(get CFBundleVersion), ITSAppUsesNonExemptEncryption NO, SDK $(get DTSDKName)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Export signed .ipa
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          BUNDLE_ID: ${{ steps.profile.outputs.bundle }}
+          PROFILE_NAME: ${{ steps.profile.outputs.name }}
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key><dict><key>$BUNDLE_ID</key><string>$PROFILE_NAME</string></dict>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/app.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" | xcbeautify --quieter
+          IPA=$(ls "$RUNNER_TEMP"/export/*.ipa | head -1)
+          echo "IPA=$IPA" >> "$GITHUB_ENV"
+          ls -la "$RUNNER_TEMP/export"
+          # Prove the signature and the entitlements that went into the .ipa.
+          rm -rf "$RUNNER_TEMP/ipa-check" && mkdir "$RUNNER_TEMP/ipa-check" && unzip -q "$IPA" -d "$RUNNER_TEMP/ipa-check"
+          APP=$(ls -d "$RUNNER_TEMP"/ipa-check/Payload/*.app)
+          codesign --verify --strict "$APP" && codesign -dvv "$APP" 2>&1 | grep -E '^(Authority=Apple Distribution|TeamIdentifier)'
+          codesign -d --entitlements - --xml "$APP" 2>/dev/null | plutil -p - || true
+
+      - name: Upload .ipa artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: beyou-ios-${{ steps.bn.outputs.version }}-${{ steps.bn.outputs.number }}-ipa
+          path: ${{ env.IPA }}
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload to TestFlight
+        if: inputs.upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          API_PRIVATE_KEYS_DIR="$RUNNER_TEMP/private_keys" xcrun altool --upload-app -t ios -f "$IPA" \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID" --output-format normal
+          echo "Uploaded build ${{ steps.bn.outputs.number }} to App Store Connect. TestFlight lists it once processing finishes." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove signing material
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
+          rm -rf "$RUNNER_TEMP/private_keys" "$RUNNER_TEMP/dist.p12" "$RUNNER_TEMP/ipa-check" apps/mobile/.env
+          if [ -n "${{ steps.profile.outputs.uuid }}" ]; then
+            rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/${{ steps.profile.outputs.uuid }}.mobileprovision" \
+                  "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/${{ steps.profile.outputs.uuid }}.mobileprovision"
+          fi
+
+  simulator:
+    name: Simulator .app
+    needs: resolve
+    runs-on: ${{ inputs.runner || 'macos-26' }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+
+      - name: Select Xcode 26
+        run: |
+          set -e
+          X=$(ls -d /Applications/Xcode_26*.app | grep -E 'Xcode_26(\.[0-9]+)*\.app$' | sort -V | tail -1)
+          [ -n "$X" ] || { echo "::error::No Xcode 26 on this runner"; exit 1; }
+          sudo xcode-select -s "$X/Contents/Developer"
+          xcodebuild -version
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set build number
+        id: bn
+        env:
+          BN_INPUT: ${{ inputs.build_number }}
+          OFFSET: ${{ vars.IOS_BUILD_NUMBER_OFFSET }}
+        run: |
+          BN="$BN_INPUT"
+          if [ -z "$BN" ]; then BN=$(( ${{ github.run_number }} + ${OFFSET:-0} )); fi
+          VER=$(python3 - "$BN" <<'EOF'
+          import json, sys
+          p = "apps/mobile/app.json"
+          d = json.load(open(p, encoding="utf-8"))
+          d["expo"].setdefault("ios", {})["buildNumber"] = sys.argv[1]
+          open(p, "w", encoding="utf-8").write(json.dumps(d, indent=2, ensure_ascii=False) + "\n")
+          print(d["expo"]["version"])
+          EOF
+          )
+          echo "number=$BN" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Write apps/mobile/.env
+        env:
+          EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL || secrets.EXPO_PUBLIC_API_URL }}
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID }}
+          EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: ${{ vars.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || secrets.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN || secrets.EXPO_PUBLIC_SENTRY_DSN }}
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY || secrets.PROD_POSTHOG_KEY }}
+          EXPO_PUBLIC_POSTHOG_HOST: ${{ vars.PROD_POSTHOG_HOST || secrets.PROD_POSTHOG_HOST }}
+          EXPO_PUBLIC_FEEDBACK_EMAIL: ${{ vars.EXPO_PUBLIC_FEEDBACK_EMAIL || secrets.EXPO_PUBLIC_FEEDBACK_EMAIL }}
+        run: |
+          : > apps/mobile/.env
+          for k in EXPO_PUBLIC_API_URL EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID \
+                   EXPO_PUBLIC_SENTRY_DSN EXPO_PUBLIC_POSTHOG_KEY EXPO_PUBLIC_POSTHOG_HOST EXPO_PUBLIC_FEEDBACK_EMAIL; do
+            v="${!k}"
+            if [ -n "$v" ]; then echo "$k=$v" >> apps/mobile/.env; fi
+          done
+
+      - name: Prebuild iOS project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Install pods
+        working-directory: apps/mobile/ios
+        run: pod install
+
+      # Release configuration: the JS bundle is embedded, no Metro needed.
+      # arm64 only (Apple silicon Macs), unsigned (the simulator does not check).
+      - name: Build for the iOS Simulator (Release)
+        working-directory: apps/mobile/ios
+        run: |
+          set -o pipefail
+          WS=$(ls -d *.xcworkspace | head -1)
+          SCHEME="${WS%.xcworkspace}"
+          xcodebuild build \
+            -workspace "$WS" -scheme "$SCHEME" -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO \
+            | tee "$RUNNER_TEMP/sim.log" | xcbeautify --quieter
+          APP=$(ls -d "$RUNNER_TEMP"/dd/Build/Products/Release-iphonesimulator/*.app | head -1)
+          [ -f "$APP/main.jsbundle" ] || { echo "::error::main.jsbundle missing from $APP"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/sim"
+          ditto -c -k --keepParent "$APP" "$RUNNER_TEMP/sim/$(basename "$APP").zip"
+          rm -f ../.env
+
+      - name: Upload simulator artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: beyou-ios-${{ steps.bn.outputs.version }}-${{ steps.bn.outputs.number }}-simulator
+          path: ${{ runner.temp }}/sim/*.zip
+          retention-days: 14
+          if-no-files-found: error
